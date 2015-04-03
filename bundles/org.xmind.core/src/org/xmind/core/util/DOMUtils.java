@@ -219,17 +219,29 @@ public class DOMUtils {
     public static DocumentBuilder getDefaultDocumentBuilder()
             throws ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setAttribute(
-                "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
-                true);
-        factory.setFeature(
-                "http://apache.org/xml/features/disallow-doctype-decl", true); //$NON-NLS-1$
-        factory.setXIncludeAware(false);
+
+        try {
+            factory.setAttribute(
+                    "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
+                    true);
+            factory.setFeature(
+                    "http://apache.org/xml/features/disallow-doctype-decl", true); //$NON-NLS-1$+
+            factory.setXIncludeAware(false);
+        }
+        catch(Exception ignored) {
+        }
+
         factory.setExpandEntityReferences(false);
-        factory.setFeature(
-                "http://xml.org/sax/features/external-parameter-entities", false); //$NON-NLS-1$
-        factory.setFeature(
-                "http://xml.org/sax/features/external-general-entities", false); //$NON-NLS-1$
+
+        try {
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-parameter-entities", false); //$NON-NLS-1$
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-general-entities", false); //$NON-NLS-1$
+            }
+        catch(Exception ignored) {
+        }
+
         factory.setNamespaceAware(true);
         factory.setIgnoringElementContentWhitespace(true);
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
