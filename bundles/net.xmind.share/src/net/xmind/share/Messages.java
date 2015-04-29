@@ -35,8 +35,10 @@ public class Messages extends NLS {
     public static String UploaderDialog_Public_label;
     public static String UploaderDialog_PublicView_label;
     public static String UploaderDialog_Private_label;
-    public static String UploaderDialog_Privacy_prompt;
     public static String UploaderDialog_LanguageChannel_label;
+    public static String UploaderDialog_Privacy_text;
+    public static String UploaderDialog_Download_text;
+    public static String UploaderDialog_Privacy_link;
 
     public static String UploaderDialog_OKPressedError_Text;
 

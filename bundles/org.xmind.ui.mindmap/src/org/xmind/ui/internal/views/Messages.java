@@ -9,6 +9,14 @@ public class Messages extends NLS {
     public static String BlackBoxView_Info;
     public static String BlackBoxView_OpenVersion;
     public static String BlackBoxView_Versions;
+
+    public static String ThemesView_Dialog_title;
+    public static String ThemesView_Dialog_message;
+    public static String ThemesView_Dialog_Check;
+    public static String ThemesView_Dialog_PrefLink;
+    public static String ThemesView_OverrideButton;
+    public static String ThemesView_KeepButton;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

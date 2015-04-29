@@ -31,6 +31,11 @@ public class WizardMessages extends NLS {
     public static String ExportPage_FileDialog_title;
     public static String ExportPage_FileDialog_AllFiles;
     public static String ExportPage_UncompatibleFormat_warning;
+    public static String ExportPage_OpenFileConfirm_title;
+    public static String ExportPage_OpenFileConfirm_message;
+    public static String ExportPage_OpenFileConfirm_folder;
+    public static String ExportPage_OpenFileConfirm_open;
+    public static String ExportPage_OpenFileConfirm_close;
 
     public static String Export_Contents;
     public static String Export_Tags;

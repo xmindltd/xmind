@@ -74,8 +74,10 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(topic, replaceString(topic.getTitleText(),
-                    start, length, replacement));
+            return replaceText(
+                    topic,
+                    replaceString(topic.getTitleText(), start, length,
+                            replacement));
         }
 
         public void reveal() {
@@ -106,20 +108,22 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public String getName() {
-            return NLS.bind(MindMapMessages.WordContext_Label_pattern, topic
-                    .getTitleText());
+            return NLS.bind(MindMapMessages.WordContext_Label_pattern,
+                    topic.getTitleText());
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(topic, replaceString(MindMapUtils
-                    .getLabelText(topic.getLabels()), start, length,
-                    replacement), MindMapUI.REQ_MODIFY_LABEL);
+            return replaceText(
+                    topic,
+                    replaceString(MindMapUtils.getLabelText(topic.getLabels()),
+                            start, length, replacement),
+                    MindMapUI.REQ_MODIFY_LABEL);
         }
 
         public void reveal() {
             editor.getSite().getPage().activate(editor);
-            editor.getSite().getSelectionProvider().setSelection(
-                    new StructuredSelection(topic));
+            editor.getSite().getSelectionProvider()
+                    .setSelection(new StructuredSelection(topic));
         }
 
         public void revealWord(int start, int length) {
@@ -137,8 +141,11 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public String getContent() {
-            return ((IPlainNotesContent) topic.getNotes().getContent(
-                    INotes.PLAIN)).getTextContent();
+            IPlainNotesContent plainNotesContent = (IPlainNotesContent) topic
+                    .getNotes().getContent(INotes.PLAIN);
+            if (plainNotesContent == null)
+                return ""; //$NON-NLS-1$
+            return plainNotesContent.getTextContent();
         }
 
         public ImageDescriptor getIcon() {
@@ -146,14 +153,14 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public String getName() {
-            return NLS.bind(MindMapMessages.WordContext_Notes_pattern, topic
-                    .getTitleText());
+            return NLS.bind(MindMapMessages.WordContext_Notes_pattern,
+                    topic.getTitleText());
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
             revealWord(start, length);
-            IViewPart view = editor.getSite().getPage().findView(
-                    MindMapUI.VIEW_NOTES);
+            IViewPart view = editor.getSite().getPage()
+                    .findView(MindMapUI.VIEW_NOTES);
             if (view != null) {
                 ITextViewer viewer = (ITextViewer) view
                         .getAdapter(ITextViewer.class);
@@ -187,8 +194,8 @@ public class MindMapWordContextProvider implements IWordContextProvider {
 
         public void revealWord(int start, int length) {
             reveal();
-            IViewPart view = editor.getSite().getPage().findView(
-                    MindMapUI.VIEW_NOTES);
+            IViewPart view = editor.getSite().getPage()
+                    .findView(MindMapUI.VIEW_NOTES);
             if (view != null) {
                 ITextViewer viewer = (ITextViewer) view
                         .getAdapter(ITextViewer.class);
@@ -221,8 +228,10 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(boundary, replaceString(boundary.getTitleText(),
-                    start, length, replacement));
+            return replaceText(
+                    boundary,
+                    replaceString(boundary.getTitleText(), start, length,
+                            replacement));
         }
 
         public void reveal() {
@@ -256,8 +265,10 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(relationship, replaceString(relationship
-                    .getTitleText(), start, length, replacement));
+            return replaceText(
+                    relationship,
+                    replaceString(relationship.getTitleText(), start, length,
+                            replacement));
         }
 
         public void reveal() {
@@ -322,8 +333,8 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         if (makeActive) {
             editor.getSite().getPage().activate(editor);
         }
-        editor.getSite().getSelectionProvider().setSelection(
-                new StructuredSelection(element));
+        editor.getSite().getSelectionProvider()
+                .setSelection(new StructuredSelection(element));
     }
 
     private void revealInvalidWord(ISheetComponent element, int start,
@@ -335,10 +346,12 @@ public class MindMapWordContextProvider implements IWordContextProvider {
             EditDomain domain = page.getEditDomain();
             IPart part = viewer.findPart(element);
             if (part != null) {
-                Request request = new Request(reqType).setPrimaryTarget(part)
-                        .setDomain(domain).setViewer(viewer).setParameter(
-                                GEF.PARAM_FOCUS, Boolean.FALSE).setParameter(
-                                GEF.PARAM_TEXT_SELECTION,
+                Request request = new Request(reqType)
+                        .setPrimaryTarget(part)
+                        .setDomain(domain)
+                        .setViewer(viewer)
+                        .setParameter(GEF.PARAM_FOCUS, Boolean.FALSE)
+                        .setParameter(GEF.PARAM_TEXT_SELECTION,
                                 new TextSelection(start, length));
                 domain.handleRequest(request);
             }
@@ -359,8 +372,8 @@ public class MindMapWordContextProvider implements IWordContextProvider {
             IPart part = viewer.findPart(element);
             if (part != null) {
                 Request request = new Request(reqType).setPrimaryTarget(part)
-                        .setDomain(domain).setViewer(viewer).setParameter(
-                                GEF.PARAM_TEXT, newText);
+                        .setDomain(domain).setViewer(viewer)
+                        .setParameter(GEF.PARAM_TEXT, newText);
                 domain.handleRequest(request);
                 return true;
             }

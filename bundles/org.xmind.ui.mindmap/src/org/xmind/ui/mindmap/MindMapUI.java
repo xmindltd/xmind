@@ -128,6 +128,7 @@ public class MindMapUI {
     public static final String REQ_MODIFY_LABEL = "modify label"; //$NON-NLS-1$
     public static final String REQ_MODIFY_NUMBERING = "modify numbering"; //$NON-NLS-1$
     public static final String REQ_MODIFY_RANGE = "modify range"; //$NON-NLS-1$
+    public static final String REQ_REMOVE_ALLSTYLES = "remove all styles"; //$NON-NLS-1$
 
     /*
      * Tool Types:
@@ -371,6 +372,8 @@ public class MindMapUI {
      * Request parameter: a specified resource (marker/style/theme).
      */
     public static final String PARAM_RESOURCE = "resource"; //$NON-NLS-1$
+
+    public static final String PARAM_OVERRIDE = "override"; //$NON-NLS-1$
 
     /**
      * Request parameter: data for drag-and-drop request.

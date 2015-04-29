@@ -71,6 +71,7 @@ public class CommandMessages extends NLS {
     public static String Command_ModifyRelationshipTitle;
     public static String Command_ModifySheetTitle;
     public static String Command_ModifyStyle;
+    public static String Command_RemoveStyle;
     public static String Command_ModifySummaryRange;
     public static String Command_ModifyTitle;
     public static String Command_ModifyTitleWidth;

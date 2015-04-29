@@ -30,6 +30,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.internal.UIPlugin;
 import org.xmind.core.IAdaptable;
 import org.xmind.core.IBoundary;
 import org.xmind.core.INumbering;
@@ -49,6 +51,7 @@ import org.xmind.gef.graphicalpolicy.IStructure;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.branch.IFreeableBranchStructureExtension;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.editor.MindMapEditor;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ICacheManager;
 import org.xmind.ui.mindmap.IIconTipPart;
@@ -745,6 +748,54 @@ public class MindMapUtils {
         }
         topics.trimToSize();
         return topics;
+    }
+
+    public static List<ITopic> getAllTopics(ISheet sheet) {
+        List<ITopic> allTopics = new ArrayList<ITopic>();
+        allTopics.addAll(getSheet(sheet));
+
+        return allTopics;
+    }
+
+    private static List<ITopic> getSheet(ISheet sheet) {
+        List<ITopic> allTopics = new ArrayList<ITopic>();
+        ITopic root = sheet.getRootTopic();
+        if (root != null) {
+            allTopics.add(root);
+            allTopics = getAllTopics(root.getAllChildren(), allTopics);
+        }
+        return allTopics;
+    }
+
+    private static List<ITopic> getAllTopics(List<ITopic> topics,
+            List<ITopic> allTopics) {
+        if (topics.size() == 0)
+            return allTopics;
+
+        List<ITopic> subs = new ArrayList<ITopic>();
+        for (ITopic topic : topics) {
+            subs.addAll(topic.getAllChildren());
+        }
+
+        allTopics.addAll(topics);
+        return getAllTopics(subs, allTopics);
+    }
+
+    public static ISheet getSheet() {
+        IEditorPart activeEditor = UIPlugin.getDefault().getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+
+        if (activeEditor instanceof MindMapEditor) {
+            MindMapEditor editor = (MindMapEditor) activeEditor;
+            if (editor.getActivePageInstance() != null) {
+                ISheet sheet = (ISheet) editor.getActivePageInstance()
+                        .getAdapter(ISheet.class);
+
+                return sheet;
+            }
+        }
+
+        return null;
     }
 
 }

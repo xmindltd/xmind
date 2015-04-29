@@ -55,8 +55,8 @@ public class CoreEventRegistrationList {
         if (reg == null || this.regs == null)
             return;
 
-        regs.remove(reg);
-        if (reg.isOnce()) {
+        boolean isRemoved = regs.remove(reg);
+        if (reg.isOnce() && isRemoved) {
             numOnceRegs--;
         }
         if (regs.isEmpty()) {

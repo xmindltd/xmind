@@ -34,6 +34,9 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.events.MenuDetectEvent;
+import org.eclipse.swt.events.MenuDetectListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ToolBar;
@@ -166,6 +169,8 @@ public abstract class GraphicalEditor extends EditorPart implements
 
     private IGlobalActionHandlerService globalActionHandlerService = null;
 
+    private boolean showItemsContextMenu;
+
     /*
      * (non-Javadoc)
      * 
@@ -273,7 +278,9 @@ public abstract class GraphicalEditor extends EditorPart implements
                 pagePopupMenu.setRemoveAllWhenShown(true);
                 pagePopupMenu.addMenuListener(new IMenuListener() {
                     public void menuAboutToShow(IMenuManager manager) {
-                        contributeToPagePopupMenu(manager);
+                        if (showItemsContextMenu) {
+                            contributeToPagePopupMenu(manager);
+                        }
                     }
                 });
             } else {
@@ -282,6 +289,16 @@ public abstract class GraphicalEditor extends EditorPart implements
             registerPagePopupMenu(menuId, pagePopupMenu);
         }
         container.setMenu(pagePopupMenu.createContextMenu(container));
+
+        container.addMenuDetectListener(new MenuDetectListener() {
+
+            public void menuDetected(MenuDetectEvent e) {
+                CTabFolder folder = (CTabFolder) container;
+                Point p = folder.toControl(e.x, e.y);
+                showItemsContextMenu = !(folder.getClientArea().contains(p) || folder
+                        .getTopRight().getBounds().contains(p));
+            }
+        });
     }
 
     protected void registerPagePopupMenu(String menuId, MenuManager menu) {
@@ -570,6 +587,10 @@ public abstract class GraphicalEditor extends EditorPart implements
         IGraphicalEditorPage oldActivePage = getPage(activePageIndex);
         if (oldActivePage != null && oldActivePage.isActive()) {
             wasFocused = oldActivePage.isFocused();
+            EditDomain editDomain = oldActivePage.getEditDomain();
+            if (editDomain != null) {
+                editDomain.setActiveTool(GEF.TOOL_DEFAULT);
+            }
             oldActivePage.setActive(false);
         }
 

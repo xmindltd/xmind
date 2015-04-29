@@ -58,6 +58,12 @@ public class PrefMessages extends NLS {
     public static String MarkersPage_RenameMarker_text;
     public static String MarkersPage_DefaultGroupName;
 
+    public static String ThemePrefPage_title;
+    public static String ThemePrefPage_Group_text;
+    public static String ThemePrefPage_OverrideButton;
+    public static String ThemePrefPage_KeepButton;
+    public static String ThemePrefPage_AskButton;
+
     static {
         NLS.initializeMessages(BUNDLE_NAME, PrefMessages.class);
     }

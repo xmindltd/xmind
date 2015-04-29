@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.xmind.core.Core;
@@ -51,6 +52,7 @@ import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.MindMapUtils;
 
 public class ModifiablePolicy extends MindMapPolicyBase {
@@ -69,7 +71,8 @@ public class ModifiablePolicy extends MindMapPolicyBase {
                 || MindMapUI.REQ_MODIFY_RANGE.equals(requestType)
                 || MindMapUI.REQ_MODIFY_NUMBERING.equals(requestType)
                 || MindMapUI.REQ_RESET_POSITION.equals(requestType)
-                || MindMapUI.REQ_MODIFY_THEME.equals(requestType);
+                || MindMapUI.REQ_MODIFY_THEME.equals(requestType)
+                || MindMapUI.REQ_REMOVE_ALLSTYLES.equals(requestType);
     }
 
     public void handle(Request request) {
@@ -90,7 +93,65 @@ public class ModifiablePolicy extends MindMapPolicyBase {
             resetPosition(request);
         } else if (MindMapUI.REQ_MODIFY_THEME.equals(reqType)) {
             modifyTheme(request);
+        } else if (MindMapUI.REQ_REMOVE_ALLSTYLES.equals(reqType)) {
+            removeAllStyles(request);
         }
+    }
+
+    private void removeAllStyles(Request request) {
+        ModifyStyleCommandBuilder builder = new ModifyStyleCommandBuilder(
+                request);
+        String commandLabel = (String) request
+                .getParameter(MindMapUI.PARAM_COMMAND_LABEL);
+        if (commandLabel == null)
+            commandLabel = CommandMessages.Command_RemoveStyle;
+        builder.setLabel(commandLabel);
+
+        if (!builder.canStart())
+            return;
+
+        builder.start();
+        List<IStyled> sources = getAllSources();
+        for (IStyled source : sources)
+            builder.removeStyle(source);
+        builder.end();
+    }
+
+    private List<IStyled> getAllSources() {
+        List<IStyled> sources = new ArrayList<IStyled>();
+        ISheet sheet = MindMapUtils.getSheet();
+        if (sheet == null)
+            return sources;
+
+        if (sheet.getStyleId() != null)
+            sources.add(sheet);
+
+        List<ITopic> topics = MindMapUtils.getAllTopics(sheet);
+
+        for (ITopic topic : topics) {
+            if (topic.getStyleId() != null)
+                sources.add(topic);
+
+            Set<IBoundary> boundaries = topic.getBoundaries();
+            for (IBoundary boundary : boundaries) {
+                if (boundary.getStyleId() != null)
+                    sources.add(boundary);
+            }
+
+            Set<ISummary> summaries = topic.getSummaries();
+            for (ISummary summary : summaries) {
+                if (summary.getStyleId() != null)
+                    sources.add(summary);
+            }
+        }
+
+        Set<IRelationship> relationships = sheet.getRelationships();
+        for (IRelationship relationship : relationships) {
+            if (relationship.getStyleId() != null)
+                sources.add(relationship);
+        }
+
+        return sources;
     }
 
     private void modifyTheme(Request request) {
@@ -113,6 +174,14 @@ public class ModifiablePolicy extends MindMapPolicyBase {
             return;
 
         builder.start();
+
+        Object override = request.getParameter(MindMapUI.PARAM_OVERRIDE);
+        if (PrefConstants.THEME_OVERRIDE.equals(override)) {
+            List<IStyled> sources = getAllSources();
+            for (IStyled source : sources)
+                builder.removeStyle(source);
+        }
+
         builder.modify(sheet);
         builder.end();
     }

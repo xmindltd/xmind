@@ -129,7 +129,7 @@ public class LocalNetworkSharingService implements ISharingService,
         protected IStatus executeCommand(IProgressMonitor sendCommandMonitor,
                 ICommand command) {
             IStatus status = super.executeCommand(sendCommandMonitor, command);
-            if (status.getSeverity() == IStatus.ERROR) {
+            if (status == null || status.getSeverity() == IStatus.ERROR) {
                 LocalNetworkSharing.log(status);
                 status = Status.CANCEL_STATUS;
             }

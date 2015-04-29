@@ -48,7 +48,9 @@ import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.xmind.core.INamed;
+import org.xmind.core.ISheet;
 import org.xmind.core.ITitled;
+import org.xmind.core.IWorkbook;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.gef.ui.editor.GraphicalEditorActionBarContributor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -487,6 +489,8 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
 
     private DropDownInsertImageAction dropDownInsertImageAction;
 
+    private IWorkbenchAction removeAllStylesAction;
+
     private IHandlerService handlerService;
 
     private Map<IAction, IHandlerActivation> actionHandlerActivations;
@@ -639,6 +643,10 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
         addRetargetAction((RetargetAction) traverseAction);
         finishAction = MindMapActionFactory.FINISH.create(window);
         addRetargetAction((RetargetAction) finishAction);
+
+        removeAllStylesAction = MindMapActionFactory.REMOVE_ALL_STYLES
+                .create(window);
+        addRetargetAction((RetargetAction) removeAllStylesAction);
 
 //        IPreferenceStore prefStore = MindMapUIPlugin.getDefault()
 //                .getPreferenceStore();
@@ -1305,6 +1313,16 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
         super.contributeToPagePopupMenu(menu);
         menu.add(new Separator());
         menu.add(propertiesAction);
+
+        int sheetNum = getCurrentWorkbookSheetsNum();
+        deleteSheetAction.setEnabled(sheetNum > 1);
+        deleteOtherSheetAction.setEnabled(sheetNum > 1);
+    }
+
+    private int getCurrentWorkbookSheetsNum() {
+        IWorkbook workbook = ((ISheet) page.getAdapter(ISheet.class))
+                .getOwnedWorkbook();
+        return workbook.getSheets().size();
     }
 
     public void dispose() {

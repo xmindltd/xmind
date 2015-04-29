@@ -373,6 +373,7 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor implements
                 .getWorkbench(),
                 WorkbenchMessages.CheckOpenFilesJob_CheckFiles_name,
                 Arrays.asList(paths));
+        job.setRule(Log.get(Log.OPENING));
         job.schedule();
     }
 

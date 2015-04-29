@@ -32,6 +32,7 @@ import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.evernote.EvernotePlugin;
+import org.xmind.ui.internal.evernote.EvernoteMessages;
 import org.xmind.ui.mindmap.GhostShellProvider;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.MindMap;
@@ -380,9 +381,6 @@ public class EvernoteExporter {
         }
 
         private MindMapImageExporter createOverviewExporter() {
-            if (!hasOverview())
-                return null;
-
             if (overviewExportShellProvider == null)
                 overviewExportShellProvider = new GhostShellProvider(
                         getDisplay());
@@ -392,15 +390,6 @@ public class EvernoteExporter {
             imgExporter.setSource(new MindMap(topic.getOwnedSheet(), topic),
                     overviewExportShellProvider, properties, null);
             return imgExporter;
-        }
-
-        private boolean hasOverview() {
-            if (topic == null)
-                return false;
-
-            if (topic.isRoot())
-                return true;
-            return false;
         }
 
         private Display getDisplay() {
@@ -820,8 +809,11 @@ public class EvernoteExporter {
     }
 
     private String getNoteTitle() {
-        String format = rootTopic.getTitleText()
-                .replaceAll("\\r\\n|\\r|\\n", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
+        String str = rootTopic.getTitleText();
+        if (str == null || "".equals(str)) //$NON-NLS-1$
+            str = EvernoteMessages.EvernoteExporter_Note_untitled;
+
+        String format = str.replaceAll("\\r\\n|\\r|\\n", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
 
         char[] value = format.toCharArray();
         StringBuffer title = new StringBuffer();

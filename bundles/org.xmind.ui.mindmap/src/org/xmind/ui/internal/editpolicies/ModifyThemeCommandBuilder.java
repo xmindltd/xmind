@@ -13,26 +13,32 @@
  *******************************************************************************/
 package org.xmind.ui.internal.editpolicies;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
+import org.xmind.core.style.IStyled;
 import org.xmind.gef.IViewer;
-import org.xmind.gef.Request;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.ui.commands.CommandBuilder;
+import org.xmind.ui.commands.ModifyStyleCommand;
 import org.xmind.ui.commands.ModifyThemeCommand;
 import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.style.Styles;
 
 public class ModifyThemeCommandBuilder extends CommandBuilder {
+
+    private static final String NULL = "$NULL$"; //$NON-NLS-1$
 
     private IStyle sourceTheme;
 
     private Map<IWorkbook, IStyle> appliedThemes = null;
+
+    private List<IStyled> sources = new ArrayList<IStyled>();
 
     public ModifyThemeCommandBuilder(IViewer viewer,
             ICommandStack commandStack, IStyle theme) {
@@ -50,6 +56,28 @@ public class ModifyThemeCommandBuilder extends CommandBuilder {
         return sourceTheme;
     }
 
+    public void removeStyle(IStyled source) {
+        if (isSourceModified(source))
+            return;
+
+        modifyStyle(source, null);
+        sources.add(source);
+    }
+
+    public List<IStyled> getModifiedSources() {
+        return sources;
+    }
+
+    public boolean isSourceModified(IStyled source) {
+        return sources.contains(source);
+    }
+
+    private void modifyStyle(IStyled source, String newStyleId) {
+        if (NULL.equals(newStyleId))
+            newStyleId = null;
+        add(new ModifyStyleCommand(source, newStyleId), true);
+    }
+
     public void modify(ISheet sheet) {
         IStyle appliedTheme = getAppliedTheme(sheet);
         if (appliedTheme == null) {
@@ -57,36 +85,36 @@ public class ModifyThemeCommandBuilder extends CommandBuilder {
         } else {
             add(new ModifyThemeCommand(sheet, appliedTheme.getId()), true);
         }
-        ModifyStyleCommandBuilder modifyStyleBuilder = new ModifyStyleCommandBuilder(
-                getViewer(), this, createSheetStyleRequest(appliedTheme));
-        modifyStyleBuilder.modify(sheet);
+//        ModifyStyleCommandBuilder modifyStyleBuilder = new ModifyStyleCommandBuilder(
+//                getViewer(), this, createSheetStyleRequest(appliedTheme));
+//        modifyStyleBuilder.modify(sheet);
     }
 
-    private Request createSheetStyleRequest(IStyle appliedTheme) {
-        Request request = new Request(MindMapUI.REQ_MODIFY_STYLE)
-                .setViewer(getViewer());
-        request.setParameter(MindMapUI.PARAM_STYLE_PREFIX
-                + Styles.MultiLineColors, getMapStyleValue(appliedTheme,
-                Styles.MultiLineColors));
-        request.setParameter(MindMapUI.PARAM_STYLE_PREFIX + Styles.LineTapered,
-                getMapStyleValue(appliedTheme, Styles.LineTapered));
-        return request;
-    }
-
-    private String getMapStyleValue(IStyle theme, String key) {
-        if (theme == null)
-            return null;
-        IStyle mapStyle = theme.getDefaultStyle(Styles.FAMILY_MAP);
-        if (mapStyle == null)
-            return null;
-        return mapStyle.getProperty(key);
-    }
+//    private Request createSheetStyleRequest(IStyle appliedTheme) {
+//        Request request = new Request(MindMapUI.REQ_MODIFY_STYLE)
+//                .setViewer(getViewer());
+//        request.setParameter(MindMapUI.PARAM_STYLE_PREFIX
+//                + Styles.MultiLineColors,
+//                getMapStyleValue(appliedTheme, Styles.MultiLineColors));
+//        request.setParameter(MindMapUI.PARAM_STYLE_PREFIX + Styles.LineTapered,
+//                getMapStyleValue(appliedTheme, Styles.LineTapered));
+//        return request;
+//    }
+//
+//    private String getMapStyleValue(IStyle theme, String key) {
+//        if (theme == null)
+//            return null;
+//        IStyle mapStyle = theme.getDefaultStyle(Styles.FAMILY_MAP);
+//        if (mapStyle == null)
+//            return null;
+//        return mapStyle.getProperty(key);
+//    }
 
     private IStyle getAppliedTheme(ISheet sheet) {
         if (sourceTheme == null
                 || sourceTheme.isEmpty()
-                || MindMapUI.getResourceManager().getBlankTheme().equals(
-                        sourceTheme))
+                || MindMapUI.getResourceManager().getBlankTheme()
+                        .equals(sourceTheme))
             return null;
 
         IWorkbook workbook = sheet.getOwnedWorkbook();

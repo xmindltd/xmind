@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: net.xmind.signin;singleton:=true
-Bundle-Version: 3.5.1.qualifier
+Bundle-Version: 3.5.2.qualifier
 Bundle-Activator: net.xmind.signin.internal.Activator
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,

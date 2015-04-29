@@ -29,6 +29,7 @@ import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.internal.IWorkbenchConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.xmind.cathy.internal.CathyPlugin;
+import org.xmind.cathy.internal.Log;
 import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.ui.internal.actions.OpenHomeMapAction;
 import org.xmind.ui.internal.editor.MME;
@@ -38,6 +39,9 @@ import org.xmind.ui.mindmap.MindMapUI;
 //import org.eclipse.core.internal.resources.File;
 
 public class StartupJob extends Job {
+
+    private static final boolean DEBUG_CHECK_OPEN_FILE = CathyPlugin
+            .getDefault().isDebugging("/debug/checkopenfile"); //$NON-NLS-1$
 
     private final IWorkbench workbench;
 
@@ -69,7 +73,15 @@ public class StartupJob extends Job {
 
         if (monitor.isCanceled())
             return;
-        checkAndOpenFiles(monitor);
+
+        if (DEBUG_CHECK_OPEN_FILE) {
+            checkAndOpenFiles(monitor);
+        } else {
+            //delete file paths which need to open from command line
+            Log openFile = Log.get(Log.OPENING);
+            if (openFile.exists())
+                openFile.delete();
+        }
 
         if (monitor.isCanceled())
             return;
@@ -237,6 +249,7 @@ public class StartupJob extends Job {
 
     protected void checkAndOpenFiles(IProgressMonitor monitor) {
         Job subJob = new CheckOpenFilesJob(workbench);
+        subJob.setRule(Log.get(Log.OPENING));
         subJob.setUser(isUser());
         subJob.setSystem(isSystem());
         subJob.setProgressGroup(monitor, 1);

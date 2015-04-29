@@ -101,6 +101,8 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
             return;
 
         fireEvent(command, CS_PRE_EXECUTE);
+
+        beginTransaction();
         command.execute();
 
         if (inCompoundCommand) {
@@ -112,7 +114,9 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
             }
         }
 
+        endTransaction(command, CS_PRE_EXECUTE);
         postExecute(command);
+
     }
 
     private void postExecute(Command command) {
@@ -173,9 +177,14 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
 
         Command undoCmd = commandList.get(currentLocation--);
         if (undoCmd.canUndo()) {
+            beginTransaction();
+
             fireEvent(undoCmd, CS_PRE_UNDO);
             undoCmd.undo();
+            endTransaction(undoCmd, CS_PRE_UNDO);
+
             fireEvent(undoCmd, CS_POST_UNDO);
+
         }
         fireEvent(null, GEF.CS_UPDATED);
     }
@@ -203,7 +212,11 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
         Command redoCmd = commandList.get(++currentLocation);
         if (redoCmd.canExecute()) {
             fireEvent(redoCmd, CS_PRE_REDO);
+
+            beginTransaction();
             redoCmd.redo();
+            endTransaction(redoCmd, CS_PRE_REDO);
+
             fireEvent(redoCmd, CS_POST_REDO);
         }
         fireEvent(null, GEF.CS_UPDATED);

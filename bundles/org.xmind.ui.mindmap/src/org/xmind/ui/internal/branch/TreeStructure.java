@@ -172,7 +172,7 @@ public class TreeStructure extends AbstractBranchStructure {
         Point childRef = t.tp(getChildRef(branch, ref, key));
         Rectangle branchBounds = t.tr(branchFigure.getBounds());
         Rectangle topicBounds = t.tr(topicFigure.getBounds());
-        Rectangle childBounds = t.t(key.getFigure().getBounds());
+        Rectangle childBounds = t.tr(key.getFigure().getBounds());
         int dx = childRef.x - ref.x;
         int dy = childRef.y - topicBounds.bottom();
         if (dy > 0 && childBounds.x >= ref.x) {

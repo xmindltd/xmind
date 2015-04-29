@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IWorkbook;
@@ -110,6 +110,14 @@ public class ModifyStyleCommandBuilder extends CommandBuilder {
             return;
 
         modifyStyle(source, newStyleId);
+        sources.add(source);
+    }
+
+    public void removeStyle(IStyled source) {
+        if (isSourceModified(source))
+            return;
+
+        modifyStyle(source, null);
         sources.add(source);
     }
 

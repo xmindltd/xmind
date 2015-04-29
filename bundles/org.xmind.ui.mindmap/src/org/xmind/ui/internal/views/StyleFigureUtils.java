@@ -190,11 +190,14 @@ public class StyleFigureUtils {
             fill = false;
         }
 
-        if (fill) {
-            graphics.setBackgroundColor(graphics.getForegroundColor());
-            graphics.fillPath(shape);
+        Color fgColor = graphics.getForegroundColor();
+        if (fgColor != null) {
+            if (fill) {
+                graphics.setBackgroundColor(fgColor);
+                graphics.fillPath(shape);
+            }
+            graphics.drawPath(shape);
         }
-        graphics.drawPath(shape);
         shape.dispose();
     }
 
@@ -220,16 +223,17 @@ public class StyleFigureUtils {
 
         if (fillColorValue != null) {
             Color fillColor = ColorUtils.getColor(fillColorValue);
-            String opacityValue = getValue(Styles.Opacity, style, template);
-            double opacity = NumberUtils.safeParseDouble(opacityValue, 1);
-            int alpha = (int) (opacity * 0xff);
-            graphics.setAlpha(alpha);
-            graphics.setBackgroundColor(fillColor);
-            graphics.fillPath(shape);
+            if (fillColor != null) {
+                String opacityValue = getValue(Styles.Opacity, style, template);
+                double opacity = NumberUtils.safeParseDouble(opacityValue, 1);
+                int alpha = (int) (opacity * 0xff);
+                graphics.setAlpha(alpha);
+                graphics.setBackgroundColor(fillColor);
+                graphics.fillPath(shape);
+            }
         }
 
         Color lineColor = getLineColor(style, template, ColorConstants.gray);
-
         String lineWidthValue = getValue(Styles.LineWidth, style, template);
         lineWidthValue = StyleUtils.trimNumber(lineWidthValue);
         int lineWidth = NumberUtils.safeParseInt(lineWidthValue, 3);
@@ -457,11 +461,14 @@ public class StyleFigureUtils {
         g.setLineWidth(width);
         g.setLineStyle(SWT.LINE_SOLID);
         g.setAlpha(0xff);
-        if (tapered) {
-            g.setBackgroundColor(g.getForegroundColor());
-            g.fillPath(shape);
-        } else
-            g.drawPath(shape);
+        Color fgColor = g.getForegroundColor();
+        if (fgColor != null) {
+            if (tapered) {
+                g.setBackgroundColor(fgColor);
+                g.fillPath(shape);
+            } else
+                g.drawPath(shape);
+        }
 
         shape.dispose();
     }
@@ -568,17 +575,19 @@ public class StyleFigureUtils {
             if (lineColorValue != null)
                 lineColor = ColorUtils.getColor(lineColorValue);
 
-            String lineWidthValue = getValue(Styles.BorderLineWidth, style,
-                    template);
-            lineWidthValue = StyleUtils.trimNumber(lineWidthValue);
-            if (lineWidthValue == null)
-                lineWidthValue = getValue(Styles.LineWidth, style, template);
-            int lineWidth = NumberUtils.safeParseInt(lineWidthValue, 1);
-            if (lineWidth > 0) {
-                graphics.setLineWidth(lineWidth);
-                graphics.setLineStyle(SWT.LINE_SOLID);
-                graphics.setForegroundColor(lineColor);
-                graphics.drawPath(shape);
+            if (lineColor != null) {
+                String lineWidthValue = getValue(Styles.BorderLineWidth, style,
+                        template);
+                lineWidthValue = StyleUtils.trimNumber(lineWidthValue);
+                if (lineWidthValue == null)
+                    lineWidthValue = getValue(Styles.LineWidth, style, template);
+                int lineWidth = NumberUtils.safeParseInt(lineWidthValue, 1);
+                if (lineWidth > 0) {
+                    graphics.setLineWidth(lineWidth);
+                    graphics.setLineStyle(SWT.LINE_SOLID);
+                    graphics.setForegroundColor(lineColor);
+                    graphics.drawPath(shape);
+                }
             }
         }
         shape.dispose();
@@ -981,6 +990,9 @@ public class StyleFigureUtils {
             Rectangle parentRect, IStyle style, IStyle template) {
         String fontColor = getValue(Styles.TextColor, style, template);
         RGB fontColorRGB = ColorUtils.toRGB(fontColor);
+        if (fontColorRGB == null)
+            return;
+
         graphics.setForegroundColor(ColorUtils.getColor(fontColorRGB));
 
         String textAlign = getValue(Styles.TextAlign, style, template);

@@ -65,9 +65,7 @@ public class FilePathParser {
 
         if (path.startsWith(PROTOCOL_SEP))
             path = path.substring(2);
-        if (isWindows() && path.startsWith(PATH_SEP)) {
-            path = path.substring(1);
-        }
+
         if (isWindows()) {
             path = path.replaceAll(PATH_SEP, WIN_NETWORK_PATH_PREFIX);
         }
@@ -80,7 +78,6 @@ public class FilePathParser {
 
         if (isWindows()) {
             path = path.replaceAll(WIN_NETWORK_PATH_PREFIX, PATH_SEP);
-            return encode(FILE_PROTOCOL + path, true);
         }
         return encode(relative ? FILE_PROTOCOL + path : FILE_PROTOCOL
                 + PROTOCOL_SEP + path, true);
@@ -168,6 +165,11 @@ public class FilePathParser {
     public static String toAbsolutePath(String base, String relativePath) {
         File file = new File(base);
         while (!"".equals(relativePath)) { //$NON-NLS-1$
+            if (isWindows()) {
+                if (relativePath.startsWith(WIN_NETWORK_PATH_PREFIX))
+                    return relativePath.substring(SEP.length());
+            }
+
             if (relativePath.startsWith(PARENT_DIR_SEP)) {
                 if (file != null)
                     file = file.getParentFile();
@@ -452,10 +454,15 @@ public class FilePathParser {
     @SuppressWarnings("nls")
     public static void main(String[] args) {
         String absolutePath = "C:/bb/11/11/11/11/11";
-        String base = "C:/bb/˧/a/meta";
+        String base = "C:/bb";
         String relativePath = toRelativePath(base, absolutePath);
         System.out.println(relativePath);
         System.out.println(isPathRelative(relativePath));
-        System.out.println(toAbsolutePath(base, relativePath));
+//        String absolutePath2 = toAbsolutePath(base, relativePath);
+//        System.out.println(absolutePath2);
+//        System.out.println("\\\\pa".startsWith(WIN_NETWORK_PATH_PREFIX));
+//        String relativePath2 = toRelativePath("c:/xm/cca", "\\\\xmksd/xmak");
+//        System.out.println(relativePath2 + "=======");
+//        System.out.println(new File("\\\\").getParentFile());
     }
 }

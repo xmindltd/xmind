@@ -36,9 +36,11 @@ public class OpenFileCommandHandler implements ICommandHandler {
 
     private IStatus openFile(IWorkbench workbench, String filePath) {
         CathyPlugin.log("Opening file through 'xmind:' protocol: " + filePath); //$NON-NLS-1$
-        new OpenFilesJob(workbench,
+        OpenFilesJob openFilesJob = new OpenFilesJob(workbench,
                 WorkbenchMessages.CheckOpenFilesJob_CheckFiles_name,
-                Collections.singletonList(filePath)).schedule();
+                Collections.singletonList(filePath));
+        openFilesJob.setRule(Log.get(Log.OPENING));
+        openFilesJob.schedule();
         return Status.OK_STATUS;
     }
 

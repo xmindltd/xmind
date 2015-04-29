@@ -34,6 +34,10 @@ public class WorkbenchMessages extends NLS {
 
     public static String CathyWorkbenchWindowAdvisor_menu_resetAction_text;
 
+    public static String ChangeLanguage_button;
+
+    public static String ChangeLanguageTo_description;
+
     public static String CheckUpdates_label;
     public static String AutoBackup_label;
 
@@ -89,11 +93,47 @@ public class WorkbenchMessages extends NLS {
     public static String CheckUpdatesJob_NewUpdate_info_message;
     public static String CheckUpdatesJob_NewUpdate_moreDownloads_text;
 
+    public static String ConfirmToRestart_cancelButton;
+
+    public static String ConfirmToRestart_defaultButton;
+
+    public static String ConfirmToRestart_description;
+
+    public static String ConfirmToRestart_title;
+
     public static String StartupJob_jobName;
     public static String StartupJob_OpenBootstrapEditor_name;
     public static String StartupJob_OpenBlankMap;
     public static String StartupJob_OpenHomeMap;
     public static String StartupJob_OpenLastSession;
+
+    public static String SupportLanguageName_Arabic;
+
+    public static String SupportLanguageName_Danish;
+
+    public static String SupportLanguageName_English;
+
+    public static String SupportLanguageName_Estonian;
+
+    public static String SupportLanguageName_French;
+
+    public static String SupportLanguageName_German;
+
+    public static String SupportLanguageName_Italian;
+
+    public static String SupportLanguageName_Japanese;
+
+    public static String SupportLanguageName_Korean;
+
+    public static String SupportLanguageName_Portuguese_Brazilian;
+
+    public static String SupportLanguageName_Russian;
+
+    public static String SupportLanguageName_SimplifiedCN;
+
+    public static String SupportLanguageName_Slovenian;
+
+    public static String SupportLanguageName_TraditionalCN;
 
     public static String PromptSaveEditorOnClosing_message;
 
@@ -132,6 +172,14 @@ public class WorkbenchMessages extends NLS {
     public static String About_Copyright;
     public static String About_Homepage;
     public static String About_BetaExpiryMessage_withExpiryTime;
+
+    public static String LanguagePrefPage_ConfirmToRestart_laterButton;
+
+    public static String LanguagePrefPage_ConfirmToRestart2_defaultButton;
+
+    public static String LanguagePrefPage_ConfirmToRestart2_description;
+
+    public static String LanguagePrefPage_title;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, WorkbenchMessages.class);

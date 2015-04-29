@@ -14,8 +14,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.forms.widgets.FormText;
 import org.xmind.ui.resources.FontUtils;
 
 public class PrivacyUploaderPage extends UploaderPage {
@@ -101,13 +101,13 @@ public class PrivacyUploaderPage extends UploaderPage {
         layout.marginLeft = 20;
         composite.setLayout(layout);
 
-        FormText label = new FormText(composite, SWT.NO_FOCUS);
+        Label label = new Label(composite, SWT.NONE);
         label.setBackground(composite.getBackground());
         label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         if (!SmallFonts)
             label.setFont(FontUtils.getRelativeHeight(
                     JFaceResources.DEFAULT_FONT, -1));
-        label.setText(description, true, true);
+        label.setText(description);
     }
 
     private void createDownloadCheck(Composite parent) {

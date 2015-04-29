@@ -435,6 +435,16 @@ public class MindMapMessages extends NLS {
 
     public static String WorkbookRevisionsPage_AutoSaveRevisionsCheck_text;
 
+    public static String Topic_Count;
+
+    public static String DuplicateSheet_text;
+    public static String DuplicateSheet_toolTip;
+    public static String CopySheet_text;
+    public static String PasteSheet_text;
+
+    public static String RemoveAllStyles_text;
+    public static String RemoveAllStyles_tooltip;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, MindMapMessages.class);

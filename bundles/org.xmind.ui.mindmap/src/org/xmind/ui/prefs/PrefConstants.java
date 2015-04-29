@@ -87,4 +87,9 @@ public class PrefConstants {
 
     public static final String HIDE_PRO_FEATURES = "hideProFeatures"; //$NON-NLS-1$
 
+    public static final String THEME_APPLY = "Theme_Apply"; //$NON-NLS-1$
+
+    public static final String THEME_OVERRIDE = "THEME_OVERRIDE"; //$NON-NLS-1$
+
+    public static final String THEME_KEEP = "THEME_KEEP"; //$NON-NLS-1$
 }

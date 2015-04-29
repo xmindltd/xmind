@@ -87,20 +87,24 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                     .getCoolBarManager();
             if (coolBar != null) {
                 MenuManager menuManager = new MenuManager();
-                menuManager.add(new Action(WorkbenchMessages.CathyWorkbenchWindowAdvisor_menu_lockAction_text,
-                        IAction.AS_CHECK_BOX) {
-                    @Override
-                    public void run() {
-                        boolean isLocked = isChecked();
-                        coolBar.setLockLayout(isLocked);
-                    }
-                });
-                menuManager.add(new Action(WorkbenchMessages.CathyWorkbenchWindowAdvisor_menu_resetAction_text) {
-                    @Override
-                    public void run() {
-                        coolBar.resetItemOrder();
-                    }
-                });
+                menuManager
+                        .add(new Action(
+                                WorkbenchMessages.CathyWorkbenchWindowAdvisor_menu_lockAction_text,
+                                IAction.AS_CHECK_BOX) {
+                            @Override
+                            public void run() {
+                                boolean isLocked = isChecked();
+                                coolBar.setLockLayout(isLocked);
+                            }
+                        });
+                menuManager
+                        .add(new Action(
+                                WorkbenchMessages.CathyWorkbenchWindowAdvisor_menu_resetAction_text) {
+                            @Override
+                            public void run() {
+                                coolBar.resetItemOrder();
+                            }
+                        });
                 coolBar.setContextMenuManager(menuManager);
             }
 
@@ -111,9 +115,11 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 shell.addShellListener(new ShellAdapter() {
                     @Override
                     public void shellActivated(ShellEvent e) {
-                        new CheckOpenFilesJob(getWindowConfigurer()
-                                .getWorkbenchConfigurer().getWorkbench())
-                                .schedule();
+                        CheckOpenFilesJob checkOpenFilesJob = new CheckOpenFilesJob(
+                                getWindowConfigurer().getWorkbenchConfigurer()
+                                        .getWorkbench());
+                        checkOpenFilesJob.setRule(Log.get(Log.OPENING));
+                        checkOpenFilesJob.schedule();
                     }
                 });
             }

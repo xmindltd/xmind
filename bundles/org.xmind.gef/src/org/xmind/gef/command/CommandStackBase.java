@@ -29,6 +29,12 @@ public abstract class CommandStackBase extends Disposable implements
 
     private List<ICommandStackListener> commandStackListeners = null;
 
+    private List<ICommandStackListener> pendingCommandStackListeners = null;
+
+    private List<ICommandStackListener> toBeRemovedCommandStackListeners = null;
+
+    private boolean inTransaction = false;
+
     private int undoLimit;
 
     /**
@@ -49,18 +55,69 @@ public abstract class CommandStackBase extends Disposable implements
      * @see org.xmind.gef.command.ICommandStack#addCSListener(org.xmind.gef.command.ICommandStackListener)
      */
     public void addCSListener(ICommandStackListener listener) {
-        if (commandStackListeners == null)
-            commandStackListeners = new ArrayList<ICommandStackListener>();
-        commandStackListeners.add(listener);
+        if (inTransaction) {
+            if (pendingCommandStackListeners == null) {
+                pendingCommandStackListeners = new ArrayList<ICommandStackListener>();
+            }
+            pendingCommandStackListeners.add(listener);
+        } else {
+            if (commandStackListeners == null)
+                commandStackListeners = new ArrayList<ICommandStackListener>();
+            commandStackListeners.add(listener);
+        }
     }
 
     /**
      * @see org.xmind.gef.command.ICommandStack#removeCSListener(org.xmind.gef.command.ICommandStackListener)
      */
     public void removeCSListener(ICommandStackListener listener) {
-        if (commandStackListeners == null)
-            return;
-        commandStackListeners.remove(listener);
+        if (inTransaction) {
+            if (toBeRemovedCommandStackListeners == null)
+                toBeRemovedCommandStackListeners = new ArrayList<ICommandStackListener>();
+            toBeRemovedCommandStackListeners.add(listener);
+        } else {
+            if (commandStackListeners != null) {
+                commandStackListeners.remove(listener);
+            }
+        }
+    }
+
+    protected void beginTransaction() {
+        inTransaction = true;
+    }
+
+    protected void endTransaction(Command command, int preStatus) {
+        inTransaction = false;
+        if (pendingCommandStackListeners != null
+                && commandStackListeners != null) {
+            commandStackListeners.addAll(pendingCommandStackListeners);
+        }
+
+        if (toBeRemovedCommandStackListeners != null) {
+            for (ICommandStackListener toBeRemovedListener : toBeRemovedCommandStackListeners) {
+                if (commandStackListeners != null)
+                    commandStackListeners.remove(toBeRemovedListener);
+                if (pendingCommandStackListeners != null)
+                    pendingCommandStackListeners.remove(toBeRemovedListener);
+            }
+            toBeRemovedCommandStackListeners.clear();
+            toBeRemovedCommandStackListeners = null;
+        }
+
+        if (pendingCommandStackListeners != null) {
+            fireEvent(command, preStatus, pendingCommandStackListeners);
+            pendingCommandStackListeners.clear();
+            pendingCommandStackListeners = null;
+        }
+    }
+
+    private void fireEvent(Command command, int preStatus,
+            List<ICommandStackListener> pendingCommandStackListeners) {
+        for (Object listener : pendingCommandStackListeners.toArray()) {
+            ((ICommandStackListener) listener)
+                    .handleCommandStackEvent(new CommandStackEvent(this,
+                            command, preStatus));
+        }
     }
 
     protected void fireEvent(int status) {

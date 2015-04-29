@@ -77,7 +77,8 @@ public class MindMapExtractor {
             String newTopicId = cloneResult.getString(
                     ICloneData.WORKBOOK_COMPONENTS, sourceTopic.getId());
             ITopic newRootTopic = result.findTopic(newTopicId);
-            newSheet.replaceRootTopic(newRootTopic);
+            if (newRootTopic != null)
+                newSheet.replaceRootTopic(newRootTopic);
 
             Set<String> newRelIds = new HashSet<String>(sourceRels.size());
             for (IRelationship sr : sourceRels) {

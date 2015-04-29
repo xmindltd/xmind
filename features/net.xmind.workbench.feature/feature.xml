@@ -2,7 +2,7 @@
 <feature
       id="net.xmind.workbench.feature"
       label="XMind.net Workbench Contributions"
-      version="3.5.1.qualifier"
+      version="3.5.2.qualifier"
       provider-name="XMind Ltd.">
 
    <description>

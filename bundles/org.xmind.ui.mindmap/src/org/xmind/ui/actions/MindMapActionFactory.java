@@ -17,6 +17,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.LabelRetargetAction;
 import org.eclipse.ui.actions.RetargetAction;
+import org.eclipse.ui.internal.WorkbenchMessages;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.actions.NewWorkbookAction;
 import org.xmind.ui.internal.actions.OpenWorkbookAction;
@@ -738,4 +739,47 @@ public class MindMapActionFactory {
         }
     };
 
+    public static final ActionFactory DUPLICATE_SHEET = new ActionFactory(
+            "org.xmind.ui.duplicateSheet") { //$NON-NLS-1$
+        public IWorkbenchAction create(IWorkbenchWindow window) {
+            RetargetAction action = new RetargetAction(getId(),
+                    MindMapMessages.DuplicateSheet_text);
+            action.setToolTipText(MindMapMessages.DuplicateSheet_toolTip);
+            action.setActionDefinitionId("org.xmind.ui.command.duplicateSheet"); //$NON-NLS-1$
+            return action;
+        }
+    };
+
+    public static final ActionFactory COPY_SHEET = new ActionFactory(
+            "org.xmind.ui.copySheet") { //$NON-NLS-1$
+        public IWorkbenchAction create(IWorkbenchWindow window) {
+            RetargetAction action = new RetargetAction(getId(),
+                    MindMapMessages.CopySheet_text);
+            action.setToolTipText(WorkbenchMessages.Workbench_copyToolTip);
+            action.setActionDefinitionId("org.xmind.ui.command.copySheet"); //$NON-NLS-1$
+            return action;
+        }
+    };
+
+    public static final ActionFactory PASTE_SHEET = new ActionFactory(
+            "org.xmind.ui.pasteSheet") { //$NON-NLS-1$
+        public IWorkbenchAction create(IWorkbenchWindow window) {
+            RetargetAction action = new RetargetAction(getId(),
+                    MindMapMessages.PasteSheet_text);
+            action.setToolTipText(WorkbenchMessages.Workbench_pasteToolTip);
+            action.setActionDefinitionId("org.xmind.ui.command.pasteSheet"); //$NON-NLS-1$
+            return action;
+        }
+    };
+
+    public static final ActionFactory REMOVE_ALL_STYLES = new ActionFactory(
+            "org.xmindl.ui.removeAllStyles") { //$NON-NLS-1$
+        public IWorkbenchAction create(IWorkbenchWindow window) {
+            RetargetAction action = new RetargetAction(getId(),
+                    MindMapMessages.RemoveAllStyles_text);
+            action.setToolTipText(MindMapMessages.RemoveAllStyles_tooltip);
+            action.setActionDefinitionId("org.xmind.ui.command.removeAllStyles"); //$NON-NLS-1$
+            return action;
+        }
+    };
 }

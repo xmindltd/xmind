@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.gef.ui
-Bundle-Version: 3.5.1.qualifier
+Bundle-Version: 3.5.2.qualifier
 Bundle-Activator: org.xmind.gef.ui.internal.GEFPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,

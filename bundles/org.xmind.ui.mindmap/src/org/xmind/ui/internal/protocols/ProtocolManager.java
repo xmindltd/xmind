@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.internal.protocols;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.eclipse.ui.internal.registry.RegistryReader;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.ui.browser.BrowserSupport;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.browser.BrowserUtil;
 import org.xmind.ui.internal.mindmap.TopicContext;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IProtocol;
@@ -59,8 +61,16 @@ public class ProtocolManager extends RegistryReader implements IProtocolManager 
         public void run() {
             SafeRunner.run(new SafeRunnable() {
                 public void run() throws Exception {
+                    String theURL = url;
+                    try {
+                        URI uri = new URI(theURL);
+                        if ("www.xmind.net".equals(uri.getHost())) { //$NON-NLS-1$
+                            theURL = BrowserUtil.makeRedirectURL(theURL);
+                        }
+                    }catch(Exception ignored) {
+                    }
                     BrowserSupport.getInstance()
-                            .createBrowser(DEFAULT_BROWSER_ID).openURL(url);
+                            .createBrowser(DEFAULT_BROWSER_ID).openURL(theURL);
                 }
             });
         }

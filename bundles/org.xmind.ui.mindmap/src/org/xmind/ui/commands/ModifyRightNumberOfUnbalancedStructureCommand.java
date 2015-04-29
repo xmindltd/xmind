@@ -25,29 +25,21 @@ public class ModifyRightNumberOfUnbalancedStructureCommand extends
     }
 
     public void redo() {
-        if (postNum < 0) {
-            topic.deleteExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
-        } else {
-            ITopicExtension extension = topic
-                    .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
-            ITopicExtensionElement element = extension.getContent()
-                    .getCreatedChild(
-                            UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
-            element.setTextContent(String.valueOf(postNum));
-        }
+        ITopicExtension extension = topic
+                .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
+        ITopicExtensionElement element = extension.getContent()
+                .getCreatedChild(UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
+        element.setTextContent(String.valueOf(postNum));
         fireForceStructureChange();
         super.redo();
     }
 
     public void undo() {
-        if (postNum >= 0) {
-            ITopicExtension extension = topic
-                    .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
-            ITopicExtensionElement element = extension.getContent()
-                    .getCreatedChild(
-                            UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
-            element.setTextContent(preNum);
-        }
+        ITopicExtension extension = topic
+                .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
+        ITopicExtensionElement element = extension.getContent()
+                .getCreatedChild(UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
+        element.setTextContent(preNum);
         fireForceStructureChange();
         super.undo();
     }

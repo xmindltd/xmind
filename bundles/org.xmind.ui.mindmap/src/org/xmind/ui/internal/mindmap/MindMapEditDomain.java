@@ -42,6 +42,7 @@ import static org.xmind.ui.mindmap.MindMapUI.REQ_MODIFY_THEME;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_MOVE_CONTROL_POINT;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_NAV_CHILD;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_NAV_SIBLING;
+import static org.xmind.ui.mindmap.MindMapUI.REQ_REMOVE_ALLSTYLES;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_REPLACE_ALL;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_RESET_POSITION;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_RETARGET_REL;
@@ -122,6 +123,7 @@ public class MindMapEditDomain extends EditDomain {
         getPartRoles().setRole(REQ_MODIFY_NUMBERING, GEF.ROLE_MODIFIABLE);
         getPartRoles().setRole(REQ_RESET_POSITION, GEF.ROLE_MODIFIABLE);
         getPartRoles().setRole(REQ_MODIFY_THEME, GEF.ROLE_MODIFIABLE);
+        getPartRoles().setRole(REQ_REMOVE_ALLSTYLES, GEF.ROLE_MODIFIABLE);
 
         getPartRoles().setRole(REQ_SHOW_LEGEND, MindMapUI.ROLE_MAP);
         getPartRoles().setRole(REQ_HIDE_LEGEND, MindMapUI.ROLE_MAP);

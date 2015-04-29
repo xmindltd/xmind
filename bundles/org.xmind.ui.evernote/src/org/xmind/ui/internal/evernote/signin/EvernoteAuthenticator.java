@@ -5,8 +5,11 @@ import java.util.Properties;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.swt.widgets.Display;
+import org.xmind.ui.evernote.EvernoteStore;
 import org.xmind.ui.evernote.signin.Evernote;
 import org.xmind.ui.evernote.signin.IEvernoteAccount;
+
+import com.evernote.clients.UserStoreClient;
 
 /**
  * @author Jason Wong
@@ -78,6 +81,15 @@ public class EvernoteAuthenticator {
     }
 
     public void signOut() {
+        IEvernoteAccount account = Evernote.getAccountInfo();
+        if (account != null) {
+            EvernoteStore evernoteStore = new EvernoteStore(account);
+            try {
+                UserStoreClient userStore = evernoteStore.getUserStore();
+                userStore.revokeLongSession();
+            } catch (Exception e) {
+            }
+        }
         authenticationChanged(null, null, null);
     }
 

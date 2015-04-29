@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.hebe.feature"
       label="XMind for Eclipse"
-      version="3.5.1.qualifier"
+      version="3.5.2.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -242,6 +242,13 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
 
    <plugin
          id="org.xmind.ui.evernote"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.freehep.graphicsio"
          download-size="0"
          install-size="0"
          version="0.0.0"

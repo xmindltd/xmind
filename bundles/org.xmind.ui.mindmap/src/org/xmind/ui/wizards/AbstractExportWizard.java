@@ -18,11 +18,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IExportWizard;
 import org.eclipse.ui.IWorkbench;
@@ -32,6 +38,68 @@ import org.xmind.ui.internal.wizards.WizardMessages;
 
 public abstract class AbstractExportWizard extends Wizard implements
         IExportWizard {
+
+    protected class ExportSucceedDialog extends Dialog {
+
+        private IProgressMonitor monitor;
+
+        protected ExportSucceedDialog(Shell parentShell) {
+            super(parentShell);
+        }
+
+        public ExportSucceedDialog(Shell parentShell, IProgressMonitor monitor) {
+            super(parentShell);
+            this.monitor = monitor;
+        }
+
+        @Override
+        protected void configureShell(Shell newShell) {
+            super.configureShell(newShell);
+            newShell.setText(WizardMessages.ExportPage_OpenFileConfirm_title);
+        }
+
+        @Override
+        protected Control createDialogArea(Composite parent) {
+            Control area = super.createDialogArea(parent);
+
+            Label message = new Label((Composite) area, SWT.NONE);
+            message.setText(WizardMessages.ExportPage_OpenFileConfirm_message);
+
+            return area;
+        }
+
+        @Override
+        protected void createButtonsForButtonBar(Composite parent) {
+            createButton(parent, IDialogConstants.OPEN_ID,
+                    WizardMessages.ExportPage_OpenFileConfirm_folder, false);
+            createButton(parent, IDialogConstants.OK_ID,
+                    WizardMessages.ExportPage_OpenFileConfirm_open, true);
+            createButton(parent, IDialogConstants.CANCEL_ID,
+                    WizardMessages.ExportPage_OpenFileConfirm_close, false);
+
+            getButton(IDialogConstants.OK_ID).forceFocus();
+        }
+
+        @Override
+        protected void buttonPressed(int buttonId) {
+            super.buttonPressed(buttonId);
+            if (IDialogConstants.OPEN_ID == buttonId) {
+                openPressed();
+            }
+        }
+
+        @Override
+        protected void okPressed() {
+            openFile(getTargetPath(), monitor);
+            super.okPressed();
+        }
+
+        private void openPressed() {
+            openFile(getTargetFolder(), monitor);
+            close();
+        }
+
+    }
 
     protected static final String KEY_PATH_HISTORY = "PATH_HISTORY"; //$NON-NLS-1$
 
@@ -122,11 +190,13 @@ public abstract class AbstractExportWizard extends Wizard implements
     }
 
     protected void launchTargetFile(boolean fileOrDirectory,
-            IProgressMonitor monitor, Display display, Shell parentShell) {
-        if (new File(getTargetPath()).exists()) {
-            monitor.subTask(WizardMessages.ExportPage_Launching);
-            Program.launch(getTargetPath());
-        }
+            final IProgressMonitor monitor, Display display,
+            final Shell parentShell) {
+        display.syncExec(new Runnable() {
+            public void run() {
+                new ExportSucceedDialog(parentShell, monitor).open();
+            }
+        });
     }
 
     protected String requestTemporaryPath(String applicationName,
@@ -184,12 +254,23 @@ public abstract class AbstractExportWizard extends Wizard implements
         return name.replaceAll("\\r\\n|\\r|\\n", " "); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    public void openFile(String path, IProgressMonitor monitor) {
+        if (new File(path).exists()) {
+            monitor.subTask(WizardMessages.ExportPage_Launching);
+            Program.launch(path);
+        }
+    }
+
     public void setTargetPath(String path) {
         this.targetPath = path;
     }
 
     public String getTargetPath() {
         return targetPath;
+    }
+
+    public String getTargetFolder() {
+        return targetPath.substring(0, targetPath.lastIndexOf(File.separator));
     }
 
     public boolean hasTargetPath() {

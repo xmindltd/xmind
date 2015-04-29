@@ -100,6 +100,7 @@ import org.xmind.ui.internal.actions.ModifyHyperlinkAction;
 import org.xmind.ui.internal.actions.NewSheetFromTemplateDialogAction;
 import org.xmind.ui.internal.actions.OpenHyperlinkAction;
 import org.xmind.ui.internal.actions.PrintMapAction;
+import org.xmind.ui.internal.actions.RemoveAllStylesAction;
 import org.xmind.ui.internal.actions.ResetPositionAction;
 import org.xmind.ui.internal.actions.SaveAttachmentAsAction;
 import org.xmind.ui.internal.actions.SelectBrothersAction;
@@ -618,6 +619,11 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         ResetPositionAction resetPositionAction = new ResetPositionAction(this);
         actionRegistry.addAction(resetPositionAction);
         addSelectionAction(resetPositionAction);
+
+        RemoveAllStylesAction removeAllStylesAction = new RemoveAllStylesAction(
+                this);
+        actionRegistry.addAction(removeAllStylesAction);
+        addSelectionAction(removeAllStylesAction);
 
         actionRegistry.addAction(new RequestAction(MindMapActionFactory.MOVE_UP
                 .getId(), this, GEF.REQ_MOVE_UP));

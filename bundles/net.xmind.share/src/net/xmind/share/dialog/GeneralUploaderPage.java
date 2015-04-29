@@ -30,9 +30,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.events.IHyperlinkListener;
-import org.eclipse.ui.forms.widgets.FormText;
+import org.eclipse.ui.forms.widgets.Hyperlink;
+import org.xmind.ui.resources.FontUtils;
 
 public class GeneralUploaderPage extends UploaderPage implements
         PropertyChangeListener {
@@ -43,7 +44,11 @@ public class GeneralUploaderPage extends UploaderPage implements
 
     private InfoField descriptionField;
 
-    private FormText privacyText;
+    private Composite privacyText;
+
+    private Label accessibility;
+
+    private Label allowed;
 
     public GeneralUploaderPage() {
         setTitle(Messages.UploaderDialog_GeneralPage_title);
@@ -56,16 +61,13 @@ public class GeneralUploaderPage extends UploaderPage implements
         GridLayout layout = new GridLayout();
         layout.verticalSpacing = 10;
         composite.setLayout(layout);
+        composite.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, true,
+                false));
 
         titleField = new TitleInfoField(false, true, true);
         titleField.fill(composite);
         titleField.setName(Messages.UploaderDialog_Title_text);
         titleField.setText(getInfo().getString(Info.TITLE));
-//        titleField.getTextWidget().addModifyListener(new ModifyListener() {
-//            public void modifyText(ModifyEvent e) {
-//                getInfo().setProperty(Info.TITLE, titleField.getText());
-//            }
-//        });
 
         titleField.getCanvas().addListener(SWT.Resize, new Listener() {
 
@@ -97,25 +99,20 @@ public class GeneralUploaderPage extends UploaderPage implements
     }
 
     private void createPrivacySection(Composite parent) {
-        privacyText = new FormText(parent, SWT.NO_FOCUS);
+        privacyText = new Composite(parent, SWT.NONE);
+
+        GridLayout layout = new GridLayout(7, false);
+        layout.marginHeight = 0;
+        layout.marginLeft = 0;
+        layout.marginRight = 100;
+        layout.verticalSpacing = 0;
+        layout.horizontalSpacing = 0;
+        privacyText.setLayout(layout);
+
         privacyText
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         privacyText.setBackground(parent.getBackground());
-        privacyText.addHyperlinkListener(new IHyperlinkListener() {
-
-            public void linkExited(HyperlinkEvent e) {
-            }
-
-            public void linkEntered(HyperlinkEvent e) {
-            }
-
-            public void linkActivated(HyperlinkEvent e) {
-                if ("privacy".equals(e.getHref())) { //$NON-NLS-1$
-                    goToPrivacyPage();
-                }
-            }
-        });
-        updatePrivacyLabel();
+        createtePrivacyLabel();
     }
 
     private void createLanguageSection(Composite parent) {
@@ -189,13 +186,57 @@ public class GeneralUploaderPage extends UploaderPage implements
         }
     }
 
-    private void updatePrivacyLabel() {
+    private void createtePrivacyLabel() {
         if (privacyText == null || privacyText.isDisposed())
             return;
-        privacyText.setText(
-                NLS.bind(Messages.UploaderDialog_Privacy_prompt, new String[] {
-                        getAccessibilityText(), getDownloadableText(),
-                        "privacy" }), true, false); //$NON-NLS-1$
+
+        createPrivacyLabel(privacyText, Messages.UploaderDialog_Privacy_text,
+                false);
+        accessibility = createPrivacyLabel(privacyText, getAccessibilityText(),
+                true);
+        createPrivacyLabel(privacyText,
+                NLS.bind(Messages.UploaderDialog_Download_text, ". "), //$NON-NLS-1$
+                false);
+        allowed = createPrivacyLabel(privacyText, getDownloadableText(), true);
+        createPrivacyLabel(privacyText, ". (", false); //$NON-NLS-1$
+        createPrivacyLink(privacyText);
+        createPrivacyLabel(privacyText, ")", false); //$NON-NLS-1$
+    }
+
+    private void updatePrivacyLabel() {
+        if (accessibility != null && !accessibility.isDisposed()) {
+            accessibility.setText(getAccessibilityText());
+        }
+
+        if (allowed != null && !allowed.isDisposed()) {
+            allowed.setText(getDownloadableText());
+        }
+
+        privacyText.layout(true, true);
+    }
+
+    private Label createPrivacyLabel(Composite parent, String text,
+            boolean isBold) {
+        Label label = new Label(parent, SWT.NONE);
+
+        if (isBold)
+            label.setFont(FontUtils.getBold(label.getFont()));
+
+        label.setText(text);
+        return label;
+    }
+
+    private void createPrivacyLink(Composite parent) {
+        Hyperlink link = new Hyperlink(parent, SWT.NONE);
+
+        link.setForeground(link.getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        link.setUnderlined(true);
+        link.setText(Messages.UploaderDialog_Privacy_link);
+        link.addHyperlinkListener(new HyperlinkAdapter() {
+            public void linkActivated(HyperlinkEvent e) {
+                goToPrivacyPage();
+            }
+        });
     }
 
     private String getAccessibilityText() {

@@ -25,7 +25,6 @@ import org.xmind.gef.service.ZoomingAndPanningRevealService;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.ITopicPart;
-import org.xmind.ui.mindmap.MindMapUI;
 
 public class MindMapRevealService extends ZoomingAndPanningRevealService {
 
@@ -44,10 +43,6 @@ public class MindMapRevealService extends ZoomingAndPanningRevealService {
     @Override
     protected boolean exclude(IGraphicalPart part) {
         return part instanceof ISheetPart;
-    }
-
-    protected boolean isAnimationEnabled() {
-        return MindMapUI.isAnimationEnabled();
     }
 
     /*

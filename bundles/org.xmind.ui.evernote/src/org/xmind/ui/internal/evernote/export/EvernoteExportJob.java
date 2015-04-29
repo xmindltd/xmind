@@ -15,13 +15,11 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.ui.evernote.EvernotePlugin;
+import org.xmind.ui.evernote.EvernoteStore;
 import org.xmind.ui.evernote.signin.IEvernoteAccount;
 import org.xmind.ui.internal.evernote.EvernoteMessages;
 import org.xmind.ui.mindmap.IMindMapViewer;
 
-import com.evernote.auth.EvernoteAuth;
-import com.evernote.auth.EvernoteService;
-import com.evernote.clients.ClientFactory;
 import com.evernote.clients.NoteStoreClient;
 import com.evernote.clients.UserStoreClient;
 import com.evernote.edam.error.EDAMErrorCode;
@@ -69,14 +67,13 @@ public class EvernoteExportJob extends Job {
             return new Status(IStatus.ERROR, EvernotePlugin.PLUGIN_ID,
                     "No display is available."); //$NON-NLS-1$
 
-        ClientFactory factory = new ClientFactory(new EvernoteAuth(
-                getEvernoteService(), accountInfo.getAuthToken()));
+        final EvernoteStore evernoteStore = new EvernoteStore(accountInfo);
         final NoteStoreClient noteStore;
         final UserStoreClient userStore;
         final List<Notebook> notebooks;
         try {
-            noteStore = factory.createNoteStoreClient();
-            userStore = factory.createUserStoreClient();
+            noteStore = evernoteStore.getNoteStore();
+            userStore = evernoteStore.getUserStore();
 
             notebooks = noteStore.listNotebooks();
             user = userStore.getUser();
@@ -101,7 +98,8 @@ public class EvernoteExportJob extends Job {
                 if (shell != null)
                     shell.setActive();
 
-                dialog[0] = new EvernoteExportDialog(shell, notebooks);
+                dialog[0] = new EvernoteExportDialog(shell, notebooks,
+                        evernoteStore.getEvernoteService());
                 result[0] = dialog[0].open();
             }
         });
@@ -143,12 +141,13 @@ public class EvernoteExportJob extends Job {
                     .bind(EvernoteMessages.EvernoteExportJob_LimitReached_message_withMaximumNoteSize,
                             getMaximumNoteSize());
         if (message != null)
-            return NLS.bind(
-                    EvernoteMessages.EvernoteExportJob_OtherException_message_withErrorMessage,
-                    message);
+            return NLS
+                    .bind(EvernoteMessages.EvernoteExportJob_OtherException_message_withErrorMessage,
+                            message);
         else
-            return NLS.bind(EvernoteMessages.EvernoteExportJob_systemErrorText_withErrorMessage,
-                    errorCode.toString());
+            return NLS
+                    .bind(EvernoteMessages.EvernoteExportJob_systemErrorText_withErrorMessage,
+                            errorCode.toString());
     }
 
     private IStatus error(EDAMUserException e) {
@@ -170,12 +169,6 @@ public class EvernoteExportJob extends Job {
                 NLS.bind(
                         EvernoteMessages.EvernoteExportJob_networkErrorText_withErrorMessage,
                         e.getMessage()), e);
-    }
-
-    private EvernoteService getEvernoteService() {
-        return EvernoteService.YINXIANG.name().equals(
-                accountInfo.getServiceType()) ? EvernoteService.YINXIANG
-                : EvernoteService.PRODUCTION;
     }
 
     private long getMonthlyQuota() {

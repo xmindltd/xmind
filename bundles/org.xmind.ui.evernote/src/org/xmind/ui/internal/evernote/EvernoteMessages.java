@@ -31,27 +31,23 @@ public class EvernoteMessages extends NLS {
 
     public static String EvernoteExportJob_UnknownError_message;
     public static String EvernoteExportJob_AuthExpired_message;
-
     public static String EvernoteExportJob_InvalidAuth_message;
-
     public static String EvernoteExportJob_jobName_withCentralTopicTitle;
     public static String EvernoteExportJob_QuotaReached_message_withMonthlyQuota;
     public static String EvernoteExportJob_LimitReached_message_withMaximumNoteSize;
-
     public static String EvernoteExportJob_networkErrorText_withErrorMessage;
     public static String EvernoteExportJob_OtherException_message_withErrorMessage;
-
     public static String EvernoteExportJob_systemErrorText_withErrorMessage;
 
     public static String EvernoteExportHandler_okActionLabel;
-
     public static String EvernoteExportHandler_successfullySaveText;
 
     public static String EvernoteOAuthJob_title;
 
     public static String EvernotePrefPage_unlinkAccountText;
-
     public static String EvernotePrefPage_unlinkAccountTitle;
+
+    public static String EvernoteExporter_Note_untitled;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, EvernoteMessages.class);

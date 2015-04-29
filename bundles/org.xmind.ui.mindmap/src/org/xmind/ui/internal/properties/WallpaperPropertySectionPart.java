@@ -377,7 +377,7 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
     private void removeWallpaper() {
         Request request = createStyleRequest(CommandMessages.Command_ModifyWallpaper);
-        addStyle(request, Styles.Background, null);
+        addStyle(request, Styles.Background, ""); //$NON-NLS-1$
         sendRequest(request);
     }
 

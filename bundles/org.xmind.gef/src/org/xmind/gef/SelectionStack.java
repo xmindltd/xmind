@@ -156,6 +156,9 @@ public class SelectionStack implements ISelectionStack, ICommandStackListener {
             ISelection selection = selectionProvider.getSelection();
             selections.set(cursor, selection);
 //            }
+        } else if (cursor == selections.size()) {
+            ISelection selection = selectionProvider.getSelection();
+            selections.add(cursor, selection);
         }
     }
 

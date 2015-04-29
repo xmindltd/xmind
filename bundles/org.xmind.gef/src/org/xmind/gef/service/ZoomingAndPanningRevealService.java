@@ -134,6 +134,8 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
 
     private boolean zoomed = false;
 
+    private boolean animationEnabled = true;
+
     private boolean shouldRevealOnIntersection = true;
 
     protected ZoomingAndPanningRevealService(IGraphicalViewer viewer) {
@@ -195,8 +197,12 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
         return this.zoomed;
     }
 
+    public void setAnimationEnabled(boolean animationEnabled) {
+        this.animationEnabled = animationEnabled;
+    }
+
     protected boolean isAnimationEnabled() {
-        return true;
+        return animationEnabled;
     }
 
     protected void activate() {

@@ -87,8 +87,9 @@ public class RemoteCommandPlugin implements BundleActivator {
     }
 
     public boolean isDebugging(String option) {
-        return getDebugOptions().isDebugEnabled()
-                && getDebugOptions()
+        DebugOptions debugOptions = getDebugOptions();
+        return debugOptions!=null&&debugOptions.isDebugEnabled()
+                && debugOptions
                         .getBooleanOption(PLUGIN_ID + option, false);
     }
 

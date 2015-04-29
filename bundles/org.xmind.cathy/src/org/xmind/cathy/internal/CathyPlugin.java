@@ -270,9 +270,9 @@ public class CathyPlugin extends AbstractUIPlugin {
     }
 
     public boolean isDebugging(String option) {
-        return getDebugOptions().isDebugEnabled()
-                && getDebugOptions()
-                        .getBooleanOption(PLUGIN_ID + option, false);
+        DebugOptions debugOptions = getDebugOptions();
+        return debugOptions != null && debugOptions.isDebugEnabled()
+                && debugOptions.getBooleanOption(PLUGIN_ID + option, false);
     }
 
 }

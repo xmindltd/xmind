@@ -90,8 +90,9 @@ public class SimpleRichTextActionBarContributor extends
         alignGroup.add(alignRightAction);
 
         int colorChooserStyle = ColorPicker.AUTO;
-        foregroundPicker = new ColorPicker(colorChooserStyle, PaletteContents
-                .getDefault(), RichTextMessages.ForegroundAction_text,
+        foregroundPicker = new ColorPicker(colorChooserStyle,
+                PaletteContents.getDefault(),
+                RichTextMessages.ForegroundAction_text,
                 ToolkitImages.get(ToolkitImages.FOREGROUND));
         foregroundPicker
                 .setAutoColor(RichTextUtils.DEFAULT_FOREGROUND.getRGB());
@@ -101,8 +102,9 @@ public class SimpleRichTextActionBarContributor extends
                         foregroundChanged(event);
                     }
                 });
-        backgroundPicker = new ColorPicker(colorChooserStyle, PaletteContents
-                .getDefault(), RichTextMessages.BackgroundAction_text,
+        backgroundPicker = new ColorPicker(colorChooserStyle,
+                PaletteContents.getDefault(),
+                RichTextMessages.BackgroundAction_text,
                 ToolkitImages.get(ToolkitImages.BACKGROUND));
         backgroundPicker
                 .setAutoColor(RichTextUtils.DEFAULT_BACKGROUND.getRGB());
@@ -115,17 +117,23 @@ public class SimpleRichTextActionBarContributor extends
     }
 
     private void backgroundChanged(SelectionChangedEvent event) {
-        IColorSelection selection = (IColorSelection) event.getSelection();
-        Color c = selection.isAutomatic() ? null : ColorUtils
-                .getColor(selection.getColor());
-        getViewer().getRenderer().setSelectionBackground(c);
+        ISelection selection = event.getSelection();
+        if (selection instanceof IColorSelection) {
+            IColorSelection colorSelection = (IColorSelection) selection;
+            Color c = colorSelection.isAutomatic() ? null : ColorUtils
+                    .getColor(colorSelection.getColor());
+            getViewer().getRenderer().setSelectionBackground(c);
+        }
     }
 
     private void foregroundChanged(SelectionChangedEvent event) {
-        IColorSelection selection = (IColorSelection) event.getSelection();
-        Color c = selection.isAutomatic() ? null : ColorUtils
-                .getColor(selection.getColor());
-        getViewer().getRenderer().setSelectionForeground(c);
+        ISelection selection = event.getSelection();
+        if (selection instanceof IColorSelection) {
+            IColorSelection colorSelection = (IColorSelection) selection;
+            Color c = colorSelection.isAutomatic() ? null : ColorUtils
+                    .getColor(colorSelection.getColor());
+            getViewer().getRenderer().setSelectionForeground(c);
+        }
     }
 
     public void fillMenu(IMenuManager menu) {
@@ -185,8 +193,7 @@ public class SimpleRichTextActionBarContributor extends
     private void updateColorChoosers(boolean enabled) {
         IRichTextRenderer renderer = getViewer().getRenderer();
         TextStyle style = (renderer instanceof RichTextRenderer) ? ((RichTextRenderer) renderer)
-                .getSelectionTextStyle()
-                : null;
+                .getSelectionTextStyle() : null;
         int foregroundType = (style == null || style.foreground == null) ? ColorSelection.AUTO
                 : ColorSelection.CUSTOM;
         foregroundPicker.setSelection(new ColorSelection(foregroundType,

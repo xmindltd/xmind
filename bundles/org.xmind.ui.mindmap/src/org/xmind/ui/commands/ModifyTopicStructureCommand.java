@@ -14,20 +14,50 @@
 package org.xmind.ui.commands;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.ui.ISourceProvider;
 import org.xmind.core.ITopic;
+import org.xmind.core.ITopicExtension;
+import org.xmind.core.ITopicExtensionElement;
 import org.xmind.gef.command.ModifyCommand;
 
 public class ModifyTopicStructureCommand extends ModifyCommand {
 
+    private final static String STRUCTUREID_UNBALANCED = "org.xmind.ui.map.unbalanced"; //$NON-NLS-1$
+    private final static String EXTENTION_UNBALANCEDSTRUCTURE = "org.xmind.ui.map.unbalanced"; //$NON-NLS-1$
+    private final static String EXTENTIONELEMENT_RIGHTNUMBER = "right-number";//$NON-NLS-1$
+    private final static String INVALID_RIGHT_NUMBER = "-1"; //$NON-NLS-1$
+
+    private Map<ITopicExtension, String> extToRightNum = new HashMap<ITopicExtension, String>();
+
     public ModifyTopicStructureCommand(ITopic source, String newStructureClass) {
         super(source, newStructureClass);
+        ITopicExtension topicExtension = source
+                .getExtension(EXTENTION_UNBALANCEDSTRUCTURE);
+        if (topicExtension != null) {
+            String rightNum = topicExtension.getContent()
+                    .getCreatedChild(EXTENTIONELEMENT_RIGHTNUMBER)
+                    .getTextContent();
+            extToRightNum.put(topicExtension, rightNum);
+        }
+
     }
 
     public ModifyTopicStructureCommand(Collection<ITopic> sources,
             String newStructureClass) {
         super(sources, newStructureClass);
+        for (ITopic topic : sources) {
+            ITopicExtension extension = topic
+                    .getExtension(EXTENTION_UNBALANCEDSTRUCTURE);
+            if (extension != null) {
+                String rightNum = extension.getContent()
+                        .getCreatedChild(EXTENTIONELEMENT_RIGHTNUMBER)
+                        .getTextContent();
+                extToRightNum.put(extension, rightNum);
+            }
+        }
     }
 
     public ModifyTopicStructureCommand(ISourceProvider sourceProvider,
@@ -46,6 +76,25 @@ public class ModifyTopicStructureCommand extends ModifyCommand {
         if (source instanceof ITopic) {
             ITopic topic = (ITopic) source;
             if (value == null || value instanceof String) {
+                String oldStructure = topic.getStructureClass();
+                if (STRUCTUREID_UNBALANCED.equals(oldStructure)) {
+                    ITopicExtension extension = topic
+                            .createExtension(EXTENTION_UNBALANCEDSTRUCTURE);
+                    ITopicExtensionElement rightNum = extension.getContent()
+                            .getCreatedChild(EXTENTIONELEMENT_RIGHTNUMBER);
+                    rightNum.setTextContent(INVALID_RIGHT_NUMBER);
+
+                } else if (STRUCTUREID_UNBALANCED.equals(value)) {
+                    ITopicExtension extension = topic
+                            .createExtension(EXTENTION_UNBALANCEDSTRUCTURE);
+                    boolean has = extToRightNum.containsKey(extension);
+                    if (has) {
+                        String rightNum = extToRightNum.get(extension);
+                        extension.getContent()
+                                .getCreatedChild(EXTENTIONELEMENT_RIGHTNUMBER)
+                                .setTextContent(rightNum);
+                    }
+                }
                 topic.setStructureClass((String) value);
             }
         }

@@ -84,8 +84,8 @@ public class BranchDummy {
             if (Styles.RotateAngle.equals(key))
                 return Double.toString(0);
             return sourceBranch.getBranchPolicy()
-                    .getStyleSelector(sourceBranch).getAutoValue(sourceBranch,
-                            key, defaultValueProvider);
+                    .getStyleSelector(sourceBranch)
+                    .getAutoValue(sourceBranch, key, defaultValueProvider);
         }
 
         public String getUserValue(IGraphicalPart part, String key) {
@@ -95,8 +95,8 @@ public class BranchDummy {
             if (Styles.RotateAngle.equals(key))
                 return Double.toString(0);
             return sourceBranch.getBranchPolicy()
-                    .getStyleSelector(sourceBranch).getUserValue(sourceBranch,
-                            key);
+                    .getStyleSelector(sourceBranch)
+                    .getUserValue(sourceBranch, key);
         }
 
         public String getStyleValue(IGraphicalPart part, String key,
@@ -107,8 +107,8 @@ public class BranchDummy {
             if (Styles.RotateAngle.equals(key))
                 return Double.toString(0);
             return sourceBranch.getBranchPolicy()
-                    .getStyleSelector(sourceBranch).getStyleValue(sourceBranch,
-                            key, defaultValueProvider);
+                    .getStyleSelector(sourceBranch)
+                    .getStyleValue(sourceBranch, key, defaultValueProvider);
         }
 
         public void flushStyleCaches(IBranchPart branch) {

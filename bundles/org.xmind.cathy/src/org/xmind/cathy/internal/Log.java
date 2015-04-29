@@ -28,9 +28,10 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.xmind.core.util.FileUtils;
 
-public class Log {
+public class Log implements ISchedulingRule {
 
     public static final String SINGLETON = ".singleton"; //$NON-NLS-1$
 
@@ -180,5 +181,29 @@ public class Log {
         if (lineSeparator == null)
             lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
         return lineSeparator;
+    }
+
+    public boolean contains(ISchedulingRule rule) {
+        if (rule == this)
+            return true;
+        if (rule instanceof Log) {
+            Log log = (Log) rule;
+            if (log.file == null || file == null)
+                return false;
+            return log.file.getAbsolutePath().equals(file.getAbsolutePath());
+        }
+        return false;
+    }
+
+    public boolean isConflicting(ISchedulingRule rule) {
+        if (rule == this)
+            return true;
+        if (rule instanceof Log) {
+            Log log = (Log) rule;
+            if (log.file == null || file == null)
+                return false;
+            return log.file.getAbsolutePath().equals(file.getAbsolutePath());
+        }
+        return false;
     }
 }

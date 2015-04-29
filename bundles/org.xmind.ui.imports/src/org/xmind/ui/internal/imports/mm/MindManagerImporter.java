@@ -1297,13 +1297,13 @@ public class MindManagerImporter extends MindMapImporter implements
             return NUMBER_FORMAT_NONE;
 
         String numberFormat = numbering.substring(formatIndex, formatIndex + 1);
-        if (numberFormat.equals("1")) //$NON-NLS-1$
+        if ("1".equals(numberFormat)) //$NON-NLS-1$
             return NUMBER_FORMAT_ARABIC;
-        if (numberFormat.equals("I") || numberFormat.equals("i")) //$NON-NLS-1$ //$NON-NLS-2$
+        if ("I".equals(numberFormat) || "i".equals(numberFormat)) //$NON-NLS-1$ //$NON-NLS-2$
             return NUMBER_FORMAT_ROMAN;
-        if (numberFormat.equals("A")) //$NON-NLS-1$
+        if ("A".equals(numberFormat)) //$NON-NLS-1$
             return NUMBER_FORMAT_UPPERCASE;
-        if (numberFormat.equals("a")) //$NON-NLS-1$
+        if ("a".equals(numberFormat)) //$NON-NLS-1$
             return NUMBER_FORMAT_LOWERCASE;
         return NUMBER_FORMAT_NONE;
     }

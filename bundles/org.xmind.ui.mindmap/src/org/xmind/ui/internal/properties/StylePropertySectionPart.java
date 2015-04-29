@@ -189,8 +189,13 @@ public class StylePropertySectionPart extends StyledPropertySectionPart {
             showStyleEditorDialog.addListener(SWT.Selection, new Listener() {
                 public void handleEvent(Event event) {
                     close();
-                    showStyleEditorDialog(MindMapUI.getResourceManager()
-                            .getSystemStyleSheet().createStyle(getInputType()));
+                    display.asyncExec(new Runnable() {
+                        public void run() {
+                            showStyleEditorDialog(MindMapUI
+                                    .getResourceManager().getSystemStyleSheet()
+                                    .createStyle(getInputType()));
+                        }
+                    });
                 }
             });
 

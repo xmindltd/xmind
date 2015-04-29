@@ -188,6 +188,15 @@
                         name="org.eclipse.ui.views.showView.viewId"
                         value="org.xmind.ui.LocalNetworkSharingView">
                   </parameter>
+                  <visibleWhen
+                        checkEnabled="false">
+                     <not>
+                        <systemTest
+                              property="osgi.os"
+                              value="linux">
+                        </systemTest>
+                     </not>
+                  </visibleWhen>
                </command>
             </menu>
             <separator
@@ -335,11 +344,6 @@
                   disabledIcon="icons/d/newSheetFromTemplate.png"
                   icon="icons/e/newSheetFromTemplate.png"
                   label="%menu.command.newSheetFromTemplate.label"
-                  style="push">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.deleteSheet"
-                  label="%menu.command.deleteSheet.label"
                   style="push">
             </command>
             <separator
@@ -608,6 +612,11 @@
                   name="org.xmind.ui.modifyEnd"
                   visible="false">
             </separator>
+            <command
+                  commandId="org.xmind.ui.command.removeAllStyles"
+                  label="%menu.command.removeAllStyles "
+                  style="push">
+            </command>
          </menu>
          <menu
                id="org.xmind.ui.tools"
@@ -735,6 +744,7 @@
             locationURI="menu:edit?before=selectAll">
          <command
                commandId="org.xmind.ui.command.goHome"
+               label="%menu.edit.command.goHome.label"
                style="push">
          </command>
       </menuContribution>
@@ -743,10 +753,12 @@
             locationURI="menu:edit?after=selectAll">
          <command
                commandId="org.xmind.ui.command.selectBrothers"
+               label="%menu.edit.command.selectBrothers.label"
                style="push">
          </command>
          <command
                commandId="org.xmind.ui.command.selectChildren"
+               label="%menu.edit.command.selectChildren.label"
                style="push">
          </command>
       </menuContribution>
@@ -755,6 +767,7 @@
             locationURI="menu:file?after=saveAll">
          <command
                commandId="org.xmind.ui.command.saveSheetAs"
+               label="%menu.file.command.saveSheetAs.label"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -768,6 +781,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.saveTemplate"
+               label="%menu.file.command.saveTemplateAs.label"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -1097,6 +1111,7 @@
             locationURI="menu:file?after=additions">
          <command
                commandId="com.xmindshare.uploader.commands.upload"
+               label="%menu.file.command.upload.label"
                style="push">
          </command>
       </menuContribution>
@@ -1422,6 +1437,12 @@
                         <adapt
                               type="org.xmind.core.IBoundary">
                         </adapt>
+                        <adapt
+                              type="org.xmind.core.IImage">
+                        </adapt>
+                        <adapt
+                              type="org.xmind.core.marker.IMarkerRef">
+                        </adapt>
                      </or>
                   </iterate>
                </with>
@@ -1444,6 +1465,12 @@
                         </adapt>
                         <adapt
                               type="org.xmind.core.IBoundary">
+                        </adapt>
+                        <adapt
+                              type="org.xmind.core.IImage">
+                        </adapt>
+                        <adapt
+                              type="org.xmind.core.marker.IMarkerRef">
                         </adapt>
                      </or>
                   </iterate>
@@ -1870,10 +1897,12 @@
             locationURI="menu:file?after=import.ext">
          <command
                commandId="org.xmind.ui.command.import"
+               label="%menu.file.command.import.label"
                style="push">
          </command>
          <command
                commandId="org.xmind.ui.command.export"
+               label="%menu.file.command.export.label"
                style="push">
          </command>
       </menuContribution>
@@ -1882,6 +1911,7 @@
             locationURI="menu:help?after=group.welcome">
          <command
                commandId="org.xmind.ui.command.welcome"
+               label="%menu.help.command.welcomeToXMind.label"
                style="push">
          </command>
       </menuContribution>
@@ -1900,6 +1930,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.reduceFileSize"
+               label="%menu.file.command.reduceFileSize.label"
                style="push">
          </command>
       </menuContribution>
@@ -1914,40 +1945,6 @@
                style="push">
          </command>
       </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.core.expressions.definitions">
-      <definition
-            id="org.xmind.ui.showProFeatures">
-         <or>
-            <systemTest
-                  property="org.xmind.product.license_type"
-                  value="Pro">
-            </systemTest>
-            <systemTest
-                  property="org.xmind.product.license_type"
-                  value="Plus">
-            </systemTest>
-            <systemTest
-                  property="org.xmind.product.license_type"
-                  value="Sub">
-            </systemTest>
-            <not>
-               <test
-                     property="org.xmind.ui.preference.key"
-                     value="hideProFeatures">
-               </test>
-            </not>
-         </or>
-      </definition>
-      <definition
-            id="org.xmind.ui.hideProFeatures">
-         <not>
-            <reference
-                  definitionId="org.xmind.ui.showProFeatures">
-            </reference>
-         </not>
-      </definition>
    </extension>
 
 </plugin>

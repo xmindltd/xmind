@@ -75,6 +75,11 @@
             name="%prefPage.keys.name">
          <keywordReference id="org.eclipse.ui.ide.keys"/>
       </page>
+      <page
+            class="org.xmind.cathy.internal.LanguagePrefPage"
+            id="org.xmind.ui.LanguagePrefPage"
+            name="%prefPage.language.name">
+      </page>
       <!--
       <page
             name="%prefPage.appearance.name"

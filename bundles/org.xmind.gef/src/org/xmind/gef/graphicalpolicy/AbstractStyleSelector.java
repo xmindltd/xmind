@@ -42,6 +42,7 @@ public abstract class AbstractStyleSelector implements IStyleSelector {
                 return value;
         }
         String value = getUserValue(part, key);
+
         if (!isValidValue(part, key, value) && !ignoresAutoValue(part, key))
             value = getAutoValue(part, key, defaultValueProvider);
         return value;

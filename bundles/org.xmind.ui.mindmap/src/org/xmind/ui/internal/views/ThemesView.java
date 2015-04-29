@@ -26,9 +26,12 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -36,18 +39,32 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.part.IContributedContentsView;
 import org.eclipse.ui.part.ViewPart;
 import org.xmind.core.Core;
+import org.xmind.core.IBoundary;
+import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
+import org.xmind.core.ISummary;
+import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
@@ -68,6 +85,8 @@ import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.prefs.PrefConstants;
+import org.xmind.ui.util.MindMapUtils;
 
 public class ThemesView extends ViewPart implements IContributedContentsView,
         IPartListener, IPageChangedListener, ICoreEventListener {
@@ -135,15 +154,199 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
     }
 
     private class ChangeThemeListener implements IOpenListener {
+
+        private class ThemeOverrideDialog extends Dialog {
+            private Button rememberCheck;
+
+            protected ThemeOverrideDialog(Shell parentShell) {
+                super(parentShell);
+            }
+
+            @Override
+            protected void configureShell(Shell newShell) {
+                super.configureShell(newShell);
+                newShell.setText(Messages.ThemesView_Dialog_title);
+            }
+
+            @Override
+            protected Control createDialogArea(Composite parent) {
+                Composite composite = (Composite) super
+                        .createDialogArea(parent);
+
+                Label label = new Label(composite, SWT.NONE);
+                label.setText(Messages.ThemesView_Dialog_message);
+
+                createRememberCheck(composite);
+
+                return composite;
+            }
+
+            private void createRememberCheck(Composite parent) {
+                Composite composite = new Composite(parent, SWT.NONE);
+                GridLayout gridLayout = new GridLayout(1, false);
+                gridLayout.marginTop = 25;
+                composite.setLayout(gridLayout);
+                composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+                rememberCheck = new Button(composite, SWT.CHECK);
+                rememberCheck.setText(Messages.ThemesView_Dialog_Check);
+                rememberCheck.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
+                        true, true));
+            }
+
+            protected Control createButtonBar(Composite parent) {
+                Composite composite = new Composite(parent, SWT.NONE);
+                composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                        false));
+                GridLayout gridLayout = new GridLayout(2, false);
+                gridLayout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
+                gridLayout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
+                gridLayout.marginBottom = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
+                gridLayout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+                gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+                composite.setLayout(gridLayout);
+
+                createPrefLink(composite);
+
+                Composite buttonBar = new Composite(composite, SWT.NONE);
+                GridLayout layout = new GridLayout();
+                layout.numColumns = 0; // this is incremented by createButton
+                layout.makeColumnsEqualWidth = false;
+                layout.marginWidth = 0;
+                layout.marginHeight = 0;
+                layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+                layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+                buttonBar.setLayout(layout);
+                buttonBar.setLayoutData(new GridData(SWT.END, SWT.CENTER, true,
+                        true));
+                buttonBar.setFont(parent.getFont());
+
+                createButtonsForButtonBar(buttonBar);
+                return buttonBar;
+            }
+
+            private void createPrefLink(Composite parent) {
+                Hyperlink prefLink = new Hyperlink(parent, SWT.SINGLE);
+                prefLink.setText(Messages.ThemesView_Dialog_PrefLink);
+                prefLink.setUnderlined(true);
+                prefLink.setForeground(parent.getDisplay().getSystemColor(
+                        SWT.COLOR_BLUE));
+
+                prefLink.addHyperlinkListener(new HyperlinkAdapter() {
+                    @Override
+                    public void linkActivated(HyperlinkEvent e) {
+                        PreferencesUtil.createPreferenceDialogOn(null,
+                                "org.xmind.ui.ThemePrefPage", null, null) //$NON-NLS-1$
+                                .open();
+                    }
+                });
+            }
+
+            @Override
+            protected void createButtonsForButtonBar(Composite parent) {
+                createButton(parent, IDialogConstants.OK_ID,
+                        Messages.ThemesView_OverrideButton, true);
+                createButton(parent, IDialogConstants.NO_ID,
+                        Messages.ThemesView_KeepButton, false);
+            }
+
+            @Override
+            protected void buttonPressed(int buttonId) {
+                super.buttonPressed(buttonId);
+                if (IDialogConstants.NO_ID == buttonId)
+                    noPressed();
+            }
+
+            @Override
+            protected void okPressed() {
+                if (rememberCheck.getSelection())
+                    pref.setValue(PrefConstants.THEME_APPLY,
+                            PrefConstants.THEME_OVERRIDE);
+                else
+                    pref.setValue(PrefConstants.THEME_APPLY,
+                            PrefConstants.ASK_USER);
+                super.okPressed();
+            }
+
+            private void noPressed() {
+                if (rememberCheck.getSelection())
+                    pref.setValue(PrefConstants.THEME_APPLY,
+                            PrefConstants.THEME_KEEP);
+                else
+                    pref.setValue(PrefConstants.THEME_APPLY,
+                            PrefConstants.ASK_USER);
+                setReturnCode(IDialogConstants.NO_ID);
+                close();
+            }
+
+        }
+
+        private IPreferenceStore pref = MindMapUIPlugin.getDefault()
+                .getPreferenceStore();
+
         public void open(OpenEvent event) {
             if (updatingSelection)
                 return;
 
+            String themeApply = pref.getString(PrefConstants.THEME_APPLY);
+            if (isThemeModified()
+                    && (PrefConstants.ASK_USER.equals(themeApply) || IPreferenceStore.STRING_DEFAULT_DEFAULT
+                            .equals(themeApply))) {
+                int code = openCoverDialog();
+                if (IDialogConstants.CANCEL_ID == code)
+                    return;
+
+                if (IDialogConstants.OK_ID == code)
+                    themeApply = PrefConstants.THEME_OVERRIDE;
+                else if (IDialogConstants.NO_ID == code)
+                    themeApply = PrefConstants.THEME_KEEP;
+            }
+
             Object o = ((IStructuredSelection) event.getSelection())
                     .getFirstElement();
             if (o != null && o instanceof IStyle) {
-                changeTheme((IStyle) o);
+                changeTheme((IStyle) o, themeApply);
             }
+        }
+
+        private int openCoverDialog() {
+            Shell shell = getViewSite().getShell();
+            if (shell != null)
+                return new ThemeOverrideDialog(shell).open();
+            return IDialogConstants.NO_ID;
+        }
+
+        private boolean isThemeModified() {
+            ISheet sheet = MindMapUtils.getSheet();
+            if (sheet == null)
+                return false;
+
+            if (sheet.getStyleId() != null)
+                return true;
+
+            List<ITopic> topics = MindMapUtils.getAllTopics(sheet);
+            for (ITopic topic : topics) {
+                if (topic.getStyleId() != null)
+                    return true;
+                Set<IBoundary> boundaries = topic.getBoundaries();
+                for (IBoundary boundary : boundaries) {
+                    if (boundary.getStyleId() != null)
+                        return true;
+                }
+                Set<ISummary> summaries = topic.getSummaries();
+                for (ISummary summary : summaries) {
+                    if (summary.getStyleId() != null)
+                        return true;
+                }
+            }
+
+            Set<IRelationship> relationships = sheet.getRelationships();
+            for (IRelationship relationship : relationships) {
+                if (relationship.getStyleId() != null)
+                    return true;
+            }
+
+            return false;
         }
     }
 
@@ -322,7 +525,7 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
         return targetList;
     }
 
-    private void changeTheme(IStyle theme) {
+    private void changeTheme(IStyle theme, String apply) {
         if (activeEditor == null)
             return;
 
@@ -344,7 +547,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
 
         domain.handleRequest(new Request(MindMapUI.REQ_MODIFY_THEME)
                 .setViewer(viewer).setPrimaryTarget(sheetPart)
-                .setParameter(MindMapUI.PARAM_RESOURCE, theme));
+                .setParameter(MindMapUI.PARAM_RESOURCE, theme)
+                .setParameter(MindMapUI.PARAM_OVERRIDE, apply));
         updateSelection();
     }
 

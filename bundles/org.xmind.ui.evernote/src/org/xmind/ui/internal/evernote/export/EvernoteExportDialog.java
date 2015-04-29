@@ -35,6 +35,7 @@ import org.xmind.ui.evernote.EvernotePlugin;
 import org.xmind.ui.internal.evernote.EvernoteMessages;
 import org.xmind.ui.resources.FontUtils;
 
+import com.evernote.auth.EvernoteService;
 import com.evernote.edam.type.Notebook;
 
 /**
@@ -52,6 +53,8 @@ public class EvernoteExportDialog extends Dialog {
 
     private static final String EVERNOTE_LOGO = "icons/evernote_logo.png"; //$NON-NLS-1$
 
+    private static final String YINXIANG_LOGO = "icons/yinxiang_logo.png"; //$NON-NLS-1$
+
     private static final String PROPERTY_NAME = "PROPERTY_NAME"; //$NON-NLS-1$
 
     private final Map<String, Widget> widgets = new HashMap<String, Widget>();
@@ -64,11 +67,19 @@ public class EvernoteExportDialog extends Dialog {
 
     private List<Notebook> notebooks;
 
+    private EvernoteService evernoteService;
+
     private Combo notebookCombo;
 
     public EvernoteExportDialog(Shell parentShell, List<Notebook> notebooks) {
         super(parentShell);
         this.notebooks = notebooks;
+    }
+
+    public EvernoteExportDialog(Shell parentShell, List<Notebook> notebooks,
+            EvernoteService evernoteService) {
+        this(parentShell, notebooks);
+        this.evernoteService = evernoteService;
     }
 
     @Override
@@ -136,7 +147,12 @@ public class EvernoteExportDialog extends Dialog {
         content.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         createOptionArea(content);
-        createImageLabel(content, EVERNOTE_LOGO);
+
+        if (EvernoteService.YINXIANG.name().equals(evernoteService.name())) {
+            createImageLabel(content, YINXIANG_LOGO);
+        } else {
+            createImageLabel(content, EVERNOTE_LOGO);
+        }
     }
 
     private void createOptionArea(Composite parent) {
