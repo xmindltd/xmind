@@ -572,7 +572,11 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
         if (textArea == null) {
             PrecisionDimension size = calculateTextSize(wHint);
             textArea = new PrecisionRectangle();
-            textArea.width = size.width + PADDING * 2 + RIGHT_MARGIN;
+            float rightMargin = RIGHT_MARGIN;
+            int height = getFont().getFontData()[0].getHeight();
+            if (height > 30)
+                rightMargin = rightMargin + 5;
+            textArea.width = size.width + PADDING * 2 + rightMargin;
             textArea.height = size.height + PADDING * 2;
             textArea.x = -(textArea.width / 2);
             textArea.y = -(textArea.height / 2);

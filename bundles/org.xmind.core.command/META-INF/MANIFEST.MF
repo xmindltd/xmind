@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XMind Command
 Bundle-SymbolicName: org.xmind.core.command;singleton:=true
-Bundle-Version: 3.5.2.qualifier
+Bundle-Version: 3.5.3.qualifier
 Bundle-Activator: org.xmind.core.internal.command.XMindCommandPlugin
 Bundle-Vendor: XMind Ltd.
 Require-Bundle: org.eclipse.core.runtime

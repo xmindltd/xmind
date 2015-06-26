@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.UploadToBiggerplate.description"
+            id="org.xmind.ui.command.biggerplate"
+            name="%command.UploadToBiggerplate.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:file?after=additions">
+         <command
+               commandId="org.xmind.ui.command.biggerplate"
+               label="%command.UploadToBiggerplate.label"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.ui.biggerplate.BiggerplateUploadHandler"
+            commandId="org.xmind.ui.command.biggerplate">
+         <enabledWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="org.xmind.ui.MindMapEditor">
+               </equals>
+            </with>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.xmind.ui.biggerplate.BiggerplatePrefPage"
+            id="org.xmind.ui.biggerplatePrefPage"
+            name="%page.Biggerplate.name">
+      </page>
+   </extension>
+   
+</plugin>

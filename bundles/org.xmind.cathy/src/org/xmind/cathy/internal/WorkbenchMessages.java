@@ -113,7 +113,7 @@ public class WorkbenchMessages extends NLS {
 
     public static String SupportLanguageName_English;
 
-    public static String SupportLanguageName_Estonian;
+    public static String SupportLanguageName_Spanish;
 
     public static String SupportLanguageName_French;
 

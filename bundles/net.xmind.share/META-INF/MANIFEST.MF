@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: net.xmind.share;singleton:=true
-Bundle-Version: 3.5.2.qualifier
+Bundle-Version: 3.5.3.qualifier
 Bundle-Activator: net.xmind.share.XmindSharePlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,

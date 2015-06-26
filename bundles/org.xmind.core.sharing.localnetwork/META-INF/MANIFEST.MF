@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.core.sharing.localnetwork;singleton:=true
-Bundle-Version: 3.5.2.qualifier
+Bundle-Version: 3.5.3.qualifier
 Bundle-Activator: org.xmind.core.internal.sharing.LocalNetworkSharing
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,

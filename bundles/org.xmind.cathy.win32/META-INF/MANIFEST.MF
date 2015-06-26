@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.cathy.win32;singleton:=true
-Bundle-Version: 3.5.2.qualifier
+Bundle-Version: 3.5.3.qualifier
 Bundle-Vendor: %providerName
 Fragment-Host: org.xmind.cathy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -254,11 +254,7 @@ public class ImagePreviewViewer {
 
     protected void createRatioControls(Composite parent) {
         Composite bar = new Composite(parent, SWT.NONE);
-        GridData layoutData = new GridData();
-        layoutData.horizontalAlignment = GridData.CENTER;
-        layoutData.verticalAlignment = GridData.FILL;
-        layoutData.grabExcessHorizontalSpace = true;
-        layoutData.grabExcessVerticalSpace = false;
+        GridData layoutData = new GridData(SWT.CENTER, SWT.CENTER, false, false);
         layoutData.widthHint = getPrefWidth();
         bar.setLayoutData(layoutData);
         GridLayout layout = new GridLayout(3, false);
@@ -268,16 +264,16 @@ public class ImagePreviewViewer {
         bar.setLayout(layout);
 
         ToolBar zoomOutBar = new ToolBar(bar, SWT.FLAT);
-        zoomOutBar.setLayoutData(new GridData(GridData.BEGINNING,
-                GridData.CENTER, false, false));
+        zoomOutBar.setLayoutData(new GridData(SWT.RIGHT, GridData.CENTER,
+                false, false));
         if (zoomOutAction == null) {
             zoomOutAction = new ZoomOutAction();
         }
         new ActionContributionItem(zoomOutAction).fill(zoomOutBar, 0);
 
         slider = new SliderViewer(bar, SWT.HORIZONTAL);
-        GridData sliderLayoutData = new GridData(GridData.CENTER,
-                GridData.CENTER, true, false);
+        GridData sliderLayoutData = new GridData(GridData.CENTER, GridData.CENTER,
+                false, false);
         sliderLayoutData.widthHint = 200;
         sliderLayoutData.minimumWidth = 80;
         slider.getControl().setLayoutData(sliderLayoutData);
@@ -288,8 +284,8 @@ public class ImagePreviewViewer {
         slider.addSelectionChangedListener(sliderListener);
 
         ToolBar zoomInBar = new ToolBar(bar, SWT.FLAT);
-        zoomInBar.setLayoutData(new GridData(GridData.END, GridData.CENTER,
-                false, false));
+        zoomInBar.setLayoutData(new GridData(SWT.LEFT, GridData.CENTER, false,
+                false));
         if (zoomInAction == null) {
             zoomInAction = new ZoomInAction();
         }

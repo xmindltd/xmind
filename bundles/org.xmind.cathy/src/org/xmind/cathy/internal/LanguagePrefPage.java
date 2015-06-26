@@ -103,7 +103,7 @@ public class LanguagePrefPage extends FieldEditorPreferencePage implements
         supportLangsMap.put("da", WorkbenchMessages.SupportLanguageName_Danish); //$NON-NLS-1$
         supportLangsMap.put("de", WorkbenchMessages.SupportLanguageName_German); //$NON-NLS-1$
         supportLangsMap.put(
-                "es", WorkbenchMessages.SupportLanguageName_Estonian); //$NON-NLS-1$
+                "es", WorkbenchMessages.SupportLanguageName_Spanish); //$NON-NLS-1$
         supportLangsMap.put("fr", WorkbenchMessages.SupportLanguageName_French); //$NON-NLS-1$
         supportLangsMap
                 .put("it", WorkbenchMessages.SupportLanguageName_Italian); //$NON-NLS-1$

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.spreadsheet;singleton:=true
-Bundle-Version: 3.5.2.qualifier
+Bundle-Version: 3.5.3.qualifier
 Bundle-Activator: org.xmind.ui.internal.spreadsheet.SpreadsheetUIPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

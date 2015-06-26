@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Successfully Authorised</title>
+</head>
+<body>
+	<div align="right">This page will close in <span id="count">8</span> seconds.</div>
+	<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <center><div>You've successfully authorised XMind to access your Biggerplate account. Please back to XMind software, and upload your mind map.</div><center>
+  <script>
+  var num = 8;
+  function countDown() {
+    num--;
+    document.getElementById('count').innerText = num;
+    if (!num) {
+      clearInterval(interval);
+      window.close();
+    }
+  }
+  var interval = setInterval(countDown, 1000);
+  </script>
+</body>
+</html>

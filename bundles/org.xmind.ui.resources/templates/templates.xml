@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <templates>
 	<template resource="To Do List.xmt" name="%template.toDoList.name" />
-	<template resource="Six Thinking Hats.xmt" name="%template.sixThinkingHats.name" />
 	<template resource="Flow Chart.xmt" name="%template.flowChart.name" />
 	<template resource="Travel Plan.xmt" name="%template.travelPlan.name" />
 	<template resource="Weight-loss Program.xmt" name="%template.weightLossProgram.name" />
