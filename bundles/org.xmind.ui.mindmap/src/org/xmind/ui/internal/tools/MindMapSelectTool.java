@@ -55,6 +55,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.xmind.core.IImage;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
+import org.xmind.core.ITopicExtension;
+import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.gef.GEF;
@@ -86,6 +88,7 @@ import org.xmind.ui.branch.IBranchMoveSupport;
 import org.xmind.ui.internal.actions.GroupMarkers;
 import org.xmind.ui.internal.editor.IMESupport;
 import org.xmind.ui.internal.mindmap.IconTipPart;
+import org.xmind.ui.internal.mindmap.InfoItemIconPart;
 import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.internal.protocols.FileProtocol;
 import org.xmind.ui.mindmap.IBranchPart;
@@ -93,6 +96,7 @@ import org.xmind.ui.mindmap.IBranchRangePart;
 import org.xmind.ui.mindmap.IDrillDownTraceService;
 import org.xmind.ui.mindmap.IIconTipPart;
 import org.xmind.ui.mindmap.IImagePart;
+import org.xmind.ui.mindmap.IInfoItemPart;
 import org.xmind.ui.mindmap.ILabelPart;
 import org.xmind.ui.mindmap.ILegendItemPart;
 import org.xmind.ui.mindmap.ILegendPart;
@@ -131,7 +135,8 @@ public class MindMapSelectTool extends SelectTool {
         return super.handleMouseDown(me);
     }
 
-    protected void handleMouseDownOnPlusMinus(MouseEvent me, IBranchPart branch) {
+    protected void handleMouseDownOnPlusMinus(MouseEvent me,
+            IBranchPart branch) {
         getStatus().setStatus(GEF.ST_MOUSE_PRESSED, true);
         getStatus().setStatus(GEF.ST_MOUSE_RIGHT, !me.leftOrRight);
 
@@ -164,8 +169,33 @@ public class MindMapSelectTool extends SelectTool {
                 showMarkerMenu((IMarkerPart) me.target);
                 return true;
             }
+        } else if (me.target instanceof InfoItemIconPart) {
+            if (me.leftOrRight) {
+                handleMouseUpOnInforItem(me);
+                return true;
+            }
         }
         return super.handleMouseUp(me);
+    }
+
+    private void handleMouseUpOnInforItem(MouseEvent me) {
+        getStatus().setStatus(GEF.ST_NO_DRAGGING, false);
+        getStatus().setStatus(GEF.ST_MOUSE_PRESSED, false);
+        InfoItemIconPart inforItem = (InfoItemIconPart) me.target;
+        selectSingle(inforItem.getTopicPart());
+        final IAction action = inforItem.getAction();
+        if (action != null) {
+            setToSelectOnMouseUp(null);
+            Display.getCurrent().asyncExec(new Runnable() {
+                public void run() {
+                    SafeRunner.run(new SafeRunnable() {
+                        public void run() throws Exception {
+                            action.run();
+                        }
+                    });
+                }
+            });
+        }
     }
 
     protected void handleMouseUpOnIconTip(final MouseEvent me) {
@@ -193,10 +223,10 @@ public class MindMapSelectTool extends SelectTool {
             if (me.target == null
                     || me.target == getTargetViewer().getRootPart()
                     || me.target instanceof ISheetPart) {
-                IBranchPart branch = findBranch(
-                        getTargetViewer().getRootPart(), me.cursorLocation);
-                if (branch == null
-                        || !handleDoubleClickOnBranch(branch, me.cursorLocation)) {
+                IBranchPart branch = findBranch(getTargetViewer().getRootPart(),
+                        me.cursorLocation);
+                if (branch == null || !handleDoubleClickOnBranch(branch,
+                        me.cursorLocation)) {
                     handleCreateFloatingTopicRequest(me.cursorLocation);
                 }
                 me.consume();
@@ -216,6 +246,11 @@ public class MindMapSelectTool extends SelectTool {
                     && branch.getFigure().containsPoint(pos)) {
                 if (branch.canSearchChild()) {
                     for (IBranchPart sub : branch.getSubBranches()) {
+                        IBranchPart b = findBranch(sub, pos);
+                        if (b != null)
+                            return b;
+                    }
+                    for (IBranchPart sub : branch.getCalloutBranches()) {
                         IBranchPart b = findBranch(sub, pos);
                         if (b != null)
                             return b;
@@ -246,8 +281,8 @@ public class MindMapSelectTool extends SelectTool {
             IStructure structure = branch.getBranchPolicy()
                     .getStructure(branch);
             if (structure instanceof IBranchDoubleClickSupport) {
-                if (((IBranchDoubleClickSupport) structure).handleDoubleClick(
-                        branch, pos))
+                if (((IBranchDoubleClickSupport) structure)
+                        .handleDoubleClick(branch, pos))
                     return true;
             }
             branch = branch.getParentBranch();
@@ -426,8 +461,8 @@ public class MindMapSelectTool extends SelectTool {
             IStructure structure = branch.getBranchPolicy()
                     .getStructure(branch);
             if (structure instanceof IBranchMoveSupport) {
-                boolean canMove = ((IBranchMoveSupport) structure).canMove(
-                        branch, me);
+                boolean canMove = ((IBranchMoveSupport) structure)
+                        .canMove(branch, me);
                 if (canMove) {
                     movingSourceBranch = branch;
                 }
@@ -441,8 +476,8 @@ public class MindMapSelectTool extends SelectTool {
     protected String getMoveTool(IPart source, MouseDragEvent me) {
         if (movingSourceBranch != null) {
             return ((IBranchMoveSupport) movingSourceBranch.getBranchPolicy()
-                    .getStructure(movingSourceBranch)).getMoveTool(
-                    movingSourceBranch, me);
+                    .getStructure(movingSourceBranch))
+                            .getMoveTool(movingSourceBranch, me);
         }
         if (source instanceof ITopicPart) {
             return MindMapUI.TOOL_MOVE_TOPIC;
@@ -664,10 +699,14 @@ public class MindMapSelectTool extends SelectTool {
         }
     }
 
-    private void collectBrothers(IBranchPart branch, List<ITopicPart> toSelect) {
+    private void collectBrothers(IBranchPart branch,
+            List<ITopicPart> toSelect) {
         IBranchPart parent = branch.getParentBranch();
         if (parent != null) {
             for (IBranchPart child : parent.getSubBranches()) {
+                toSelect.add(child.getTopicPart());
+            }
+            for (IBranchPart child : parent.getCalloutBranches()) {
                 toSelect.add(child.getTopicPart());
             }
         }
@@ -687,8 +726,12 @@ public class MindMapSelectTool extends SelectTool {
         }
     }
 
-    private void collectChildren(IBranchPart branch, List<ITopicPart> toSelect) {
+    private void collectChildren(IBranchPart branch,
+            List<ITopicPart> toSelect) {
         for (IBranchPart child : branch.getSubBranches()) {
+            toSelect.add(child.getTopicPart());
+        }
+        for (IBranchPart child : branch.getCalloutBranches()) {
             toSelect.add(child.getTopicPart());
         }
     }
@@ -781,12 +824,12 @@ public class MindMapSelectTool extends SelectTool {
     }
 
     protected void expand(List<IBranchPart> branches) {
-        getDomain().handleRequest(
-                new Request(GEF.REQ_EXTEND).setViewer(getTargetViewer())
-                        .setTargets(branches));
+        getDomain().handleRequest(new Request(GEF.REQ_EXTEND)
+                .setViewer(getTargetViewer()).setTargets(branches));
     }
 
-    protected Request createAddAttachmentRequest(Request request, IViewer viewer) {
+    protected Request createAddAttachmentRequest(Request request,
+            IViewer viewer) {
         List<ITopicPart> topics = MindMapUtils
                 .getTopicParts(getSelectedParts(viewer));
         if (topics.isEmpty())
@@ -875,8 +918,8 @@ public class MindMapSelectTool extends SelectTool {
         if (location == null)
             return;
 
-        ISheetPart sheet = (ISheetPart) getTargetViewer().getAdapter(
-                ISheetPart.class);
+        ISheetPart sheet = (ISheetPart) getTargetViewer()
+                .getAdapter(ISheetPart.class);
         if (sheet == null)
             return;
 
@@ -928,12 +971,13 @@ public class MindMapSelectTool extends SelectTool {
         return null;
     }
 
-    private Request createCreateSummaryRequest(Request request, IViewer viewer) {
+    private Request createCreateSummaryRequest(Request request,
+            IViewer viewer) {
         List<IPart> selectedParts = getSelectedParts(getTargetViewer());
         List<ITopic> topics = MindMapUtils.getTopics(selectedParts);
         if (!topics.isEmpty()) {
-            List<IPart> parts = MindMapUtils
-                    .getParts(topics, getTargetViewer());
+            List<IPart> parts = MindMapUtils.getParts(topics,
+                    getTargetViewer());
             request.setTargets(parts);
             request.setParameter(MindMapUI.PARAM_WITH_ANIMATION, Boolean.TRUE);
             return request;
@@ -973,15 +1017,34 @@ public class MindMapSelectTool extends SelectTool {
         if (m instanceof ITopic) {
             drillDown(viewer, sheet, (ITopic) m);
             if (viewer.getEditDomain() != null) {
-                viewer.getEditDomain().handleRequest(
-                        MindMapUI.REQ_SELECT_CENTRAL, viewer);
+                viewer.getEditDomain()
+                        .handleRequest(MindMapUI.REQ_SELECT_CENTRAL, viewer);
             }
         }
     }
 
     private void drillDown(IViewer viewer, ISheet sheet, ITopic newRoot) {
         IMindMap newInput = new MindMap(sheet, newRoot);
+        initTopicRightNumber(newRoot);
         viewer.setInput(newInput);
+    }
+
+    private void initTopicRightNumber(ITopic newRoot) {
+        String structureClass = newRoot.getStructureClass();
+        if ("org.xmind.ui.map.unbalanced".equals(structureClass) //$NON-NLS-1$
+                || structureClass == null) {
+            ITopicExtension extension = newRoot
+                    .createExtension("org.xmind.ui.map.unbalanced"); //$NON-NLS-1$
+            ITopicExtensionElement element = extension.getContent()
+                    .getCreatedChild("right-number"); //$NON-NLS-1$
+            String rightNum = element.getTextContent();
+            if (rightNum == null) {
+                int size = newRoot.getChildren(ITopic.ATTACHED).size();
+                if (size > 3)
+                    size = size / 2;
+                element.setTextContent(String.valueOf(size));
+            }
+        }
     }
 
     protected void handleDrillUp(IViewer viewer) {
@@ -1013,6 +1076,8 @@ public class MindMapSelectTool extends SelectTool {
                 targets.set(i, ((IImagePart) p).getTopicPart());
             } else if (p instanceof INumberingPart) {
                 targets.set(i, ((INumberingPart) p).getTopicPart());
+            } else if (p instanceof IInfoItemPart) {
+                targets.set(i, ((IInfoItemPart) p).getTopicPart());
             }
         }
         request.setTargets(targets);
@@ -1033,7 +1098,8 @@ public class MindMapSelectTool extends SelectTool {
         return super.getEditTool(source, request);
     }
 
-    protected Request createEditRequestOnDoubleClick(IPart source, MouseEvent me) {
+    protected Request createEditRequestOnDoubleClick(IPart source,
+            MouseEvent me) {
         if (source instanceof ILabelPart) {
             ILabelPart label = (ILabelPart) source;
             IBranchPart branch = label.getOwnedBranch();
@@ -1078,8 +1144,8 @@ public class MindMapSelectTool extends SelectTool {
         markersItem.setSourceMarkerRef(target.getMarkerRef());
         markersItem.setSelectionProvider(getTargetViewer());
         menuManager.add(markersItem);
-        final Menu menu = menuManager.createContextMenu(getTargetViewer()
-                .getControl());
+        final Menu menu = menuManager
+                .createContextMenu(getTargetViewer().getControl());
         Point p = getTargetViewer().computeToDisplay(
                 target.getFigure().getBounds().getBottomLeft(), true);
         menu.setLocation(p.x, p.y);
@@ -1161,10 +1227,11 @@ public class MindMapSelectTool extends SelectTool {
             return false;
 
         IFigure contents = viewport.getContents();
-        Rectangle contentsBounds = contents instanceof FreeformFigure ? ((FreeformFigure) contents)
-                .getFreeformExtent() : contents.getBounds();
-        contentsBounds = contentsBounds.getExpanded(60, 60).intersect(
-                contents.getBounds());
+        Rectangle contentsBounds = contents instanceof FreeformFigure
+                ? ((FreeformFigure) contents).getFreeformExtent()
+                : contents.getBounds();
+        contentsBounds = contentsBounds.getExpanded(60, 60)
+                .intersect(contents.getBounds());
         Rectangle clientArea = viewport.getClientArea();
         Point center = ((IGraphicalViewer) viewer).getCenterPoint().getCopy();
         int d;

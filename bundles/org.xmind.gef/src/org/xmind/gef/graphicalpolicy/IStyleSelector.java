@@ -123,4 +123,6 @@ public interface IStyleSelector {
     String getAutoValue(IGraphicalPart part, String key,
             IStyleValueProvider defaultValueProvider);
 
+    String getOverridedValue(IGraphicalPart part, String key, String layerName);
+
 }

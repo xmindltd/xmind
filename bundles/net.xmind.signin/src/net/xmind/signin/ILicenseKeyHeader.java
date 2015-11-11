@@ -194,8 +194,9 @@ public interface ILicenseKeyHeader {
      * <li>Character 7 is the <em>type of the licensee</em></li>
      * <li>Character 8 &amp; 9 = the <em>years of free version upgrade</em>
      * applied to this license key (Base36 encoded, left padded with 0)</li>
-     * <li>Character 10, 11 &amp; 12 = (reserved for future use, currently
-     * randomly generated and Base36 encoded)</li>
+     * <li>Character 10 is the <em>free months number of the license</em></li>
+     * <li>Character 11 &amp; 12 = (reserved for future use, currently randomly
+     * generated and Base36 encoded)</li>
      * </ol>
      * 
      * <p>

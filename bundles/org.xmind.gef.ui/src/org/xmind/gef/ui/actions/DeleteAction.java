@@ -22,6 +22,7 @@ public class DeleteAction extends RequestAction implements ISelectionAction {
 
     public DeleteAction(IGraphicalEditorPage page) {
         super(ActionFactory.DELETE.getId(), page, GEF.REQ_DELETE);
+        setActionDefinitionId(ActionFactory.DELETE.getCommandId());
     }
 
     public void setSelection(ISelection selection) {

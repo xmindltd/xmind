@@ -40,11 +40,15 @@ import org.xmind.core.IEncryptionData;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IFileEntryFilter;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.event.ICoreEventListener;
+import org.xmind.core.event.ICoreEventRegistration;
+import org.xmind.core.event.ICoreEventSource;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Manifest;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 
-public class ManifestImpl extends Manifest {
+public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     private static final Collection<IFileEntry> NO_ENTRIES = Collections
             .emptyList();
@@ -107,7 +111,7 @@ public class ManifestImpl extends Manifest {
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
-        return ownedWorkbook != null;
+        return ownedWorkbook == null;
     }
 
     protected Collection<IFileEntry> getAllRegisteredEntries() {
@@ -132,8 +136,8 @@ public class ManifestImpl extends Manifest {
      * IFileEntryFilter)
      */
     public Iterator<IFileEntry> iterFileEntries(final IFileEntryFilter filter) {
-        final Iterator<Element> it = DOMUtils.childElementIterByTag(
-                getManifestElement(), TAG_FILE_ENTRY);
+        final Iterator<Element> it = DOMUtils
+                .childElementIterByTag(getManifestElement(), TAG_FILE_ENTRY);
         return new Iterator<IFileEntry>() {
 
             IFileEntry next = findNext();
@@ -204,8 +208,8 @@ public class ManifestImpl extends Manifest {
     }
 
     private Element findEntryElementByPath(String path) {
-        Iterator<Element> it = DOMUtils.childElementIterByTag(
-                getManifestElement(), TAG_FILE_ENTRY);
+        Iterator<Element> it = DOMUtils
+                .childElementIterByTag(getManifestElement(), TAG_FILE_ENTRY);
         while (it.hasNext()) {
             Element e = it.next();
             if (path.equals(e.getAttribute(ATTR_FULL_PATH)))
@@ -265,6 +269,8 @@ public class ManifestImpl extends Manifest {
         if (e != null) {
             insertFileEntryImpl(e);
         }
+        getCoreEventSupport().dispatchTargetChange(this, Core.FileEntryAdd,
+                entry);
     }
 
     protected void removeFileEntry(IFileEntry entry) {
@@ -274,6 +280,8 @@ public class ManifestImpl extends Manifest {
             if (m == e.getParentNode())
                 m.removeChild(e);
         }
+        getCoreEventSupport().dispatchTargetChange(this, Core.FileEntryRemove,
+                entry);
     }
 
     private void insertFileEntryImpl(Element entryElement) {
@@ -293,8 +301,8 @@ public class ManifestImpl extends Manifest {
     }
 
     private Element findInsertLocation(Element entryElement, String path) {
-        Iterator<Element> it = DOMUtils.childElementIterByTag(
-                getManifestElement(), TAG_FILE_ENTRY);
+        Iterator<Element> it = DOMUtils
+                .childElementIterByTag(getManifestElement(), TAG_FILE_ENTRY);
         while (it.hasNext()) {
             Element e = it.next();
             if (e != entryElement && e.hasAttribute(ATTR_FULL_PATH)) {
@@ -321,8 +329,8 @@ public class ManifestImpl extends Manifest {
             throw new FileNotFoundException("Source path does not exists."); //$NON-NLS-1$
 
         if (file.isFile()) {
-            IFileEntry entry = createAttachmentFromStream(new FileInputStream(
-                    sourcePath), sourcePath, mediaType);
+            IFileEntry entry = createAttachmentFromStream(
+                    new FileInputStream(sourcePath), sourcePath, mediaType);
             if (entry != null) {
                 entry.setTime(file.lastModified());
             }
@@ -368,8 +376,8 @@ public class ManifestImpl extends Manifest {
                     }
                 }
             } else if (f.isDirectory()) {
-                String path = parentPath == null ? sub + "/" : //$NON-NLS-1$
-                        parentPath + sub + "/"; //$NON-NLS-1$
+                String path = parentPath == null ? sub + "/" //$NON-NLS-1$
+                        : parentPath + sub + "/"; //$NON-NLS-1$
                 importDirectory(path, f);
             }
         }
@@ -446,8 +454,8 @@ public class ManifestImpl extends Manifest {
         for (IFileEntry sourceSubEntry : sourceEntry.getSubEntries()) {
             String sourceSubPath = sourceSubEntry.getPath();
             if (sourceSubPath != null) {
-                String subPath = sourceSubPath.substring(sourceParentPath
-                        .length());
+                String subPath = sourceSubPath
+                        .substring(sourceParentPath.length());
                 if (parentPath != null) {
                     subPath = parentPath + subPath;
                 }
@@ -491,6 +499,16 @@ public class ManifestImpl extends Manifest {
         if (entry != null)
             return entry.getEncryptionData();
         return null;
+    }
+
+    public ICoreEventRegistration registerCoreEventListener(String type,
+            ICoreEventListener listener) {
+        return ownedWorkbook.getCoreEventSupport()
+                .registerCoreEventListener(this, type, listener);
+    }
+
+    public ICoreEventSupport getCoreEventSupport() {
+        return ownedWorkbook.getCoreEventSupport();
     }
 
 }

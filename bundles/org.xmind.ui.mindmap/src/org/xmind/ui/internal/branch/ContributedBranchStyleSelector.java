@@ -23,17 +23,13 @@ import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.xmind.gef.part.IGraphicalPart;
-import org.xmind.ui.branch.IBranchStyleSelector;
 import org.xmind.ui.internal.RegistryConstants;
 import org.xmind.ui.mindmap.IBranchPart;
-import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.style.LayeredStyleSelector;
-import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.util.Logger;
 
-public class ContributedBranchStyleSelector extends LayeredStyleSelector
-        implements IBranchStyleSelector {
+public class ContributedBranchStyleSelector
+        extends AbstractBranchStyleSelector {
 
     private BranchPolicyManager manager;
 
@@ -41,10 +37,9 @@ public class ContributedBranchStyleSelector extends LayeredStyleSelector
 
     private Map<String, List<OverridedStyle>> overridedStyles;
 
-    private Map<String, String> inheritedStyleKeys;
-
     public ContributedBranchStyleSelector(BranchPolicyManager manager,
             IConfigurationElement element) {
+        this.manager = manager;
         this.element = element;
         loadInheritedStyles();
     }
@@ -67,72 +62,29 @@ public class ContributedBranchStyleSelector extends LayeredStyleSelector
                 Styles.LAYER_BEFORE_DEFAULT_VALUE);
     }
 
-    protected void registerInheritedStyleKey(String key, String layer) {
-        if (key == null)
-            return;
-        if (inheritedStyleKeys == null)
-            inheritedStyleKeys = new HashMap<String, String>();
-        inheritedStyleKeys.put(key, layer);
-    }
-
-    public String getFamilyName(IGraphicalPart part) {
-        if (part instanceof IBranchPart) {
-            IBranchPart branch = (IBranchPart) part;
-            String branchType = branch.getBranchType();
-            if (MindMapUI.BRANCH_CENTRAL.equals(branchType))
-                return Styles.FAMILY_CENTRAL_TOPIC;
-            if (MindMapUI.BRANCH_MAIN.equals(branchType))
-                return Styles.FAMILY_MAIN_TOPIC;
-            if (MindMapUI.BRANCH_FLOATING.equals(branchType))
-                return Styles.FAMILY_FLOATING_TOPIC;
-            if (MindMapUI.BRANCH_SUMMARY.equals(branchType))
-                return Styles.FAMILY_SUMMARY_TOPIC;
-        }
-        return Styles.FAMILY_SUB_TOPIC;
-    }
-
-    public void flushStyleCaches(IBranchPart branch) {
-        ParentValueProvider.flush(branch);
-    }
-
-    protected String getThemeStyleValue(IGraphicalPart part, String familyName,
-            String key) {
-        if (Styles.LineColor.equals(key)
-                && Styles.FAMILY_MAIN_TOPIC.equals(familyName)
-                && part instanceof IBranchPart) {
-            String value = StyleUtils
-                    .getIndexedBranchLineColor((IBranchPart) part);
-            if (isValidValue(part, key, value))
-                return value;
-        }
-        return super.getThemeStyleValue(part, familyName, key);
-    }
-
     protected String getLayeredProperty(IGraphicalPart part, String layerName,
             String familyName, String key) {
-        if (part instanceof IBranchPart && inheritedStyleKeys != null
-                && layerName.equals(inheritedStyleKeys.get(key))) {
-            String value = getLayeredProperty(part,
-                    Styles.LAYER_BEFORE_PARENT_VALUE, familyName, key);
-            if (isValidValue(part, key, value)) {
-                return getCheckedValue(value);
-            }
-            value = ParentValueProvider.getValueProvider((IBranchPart) part)
-                    .getParentValue(key);
-            if (isValidValue(part, key, value))
-                return getCheckedValue(value);
-        }
+        String value = super.getLayeredProperty(part, layerName, familyName,
+                key);
+        if (isValidValue(part, key, value))
+            return getCheckedValue(value);
+
         if (part instanceof IBranchPart) {
             IBranchPart branch = (IBranchPart) part;
             List<OverridedStyle> overrideds = getOverridedStyles(key);
             if (overrideds != null && !overrideds.isEmpty()) {
-                String value = getOverridedValue(branch, layerName, key,
-                        overrideds);
+                value = getOverridedValue(branch, layerName, key, overrideds);
                 if (value != null)
                     return value;
             }
         }
-        return null;
+        return value;
+    }
+
+    public String getOverridedValue(IGraphicalPart part, String key,
+            String layerName) {
+        String familyName = getFamilyName(part);
+        return getLayeredProperty(part, layerName, familyName, key);
     }
 
     private String getOverridedValue(IBranchPart branch, String layerName,
@@ -177,7 +129,8 @@ public class ContributedBranchStyleSelector extends LayeredStyleSelector
 
     private void loadOverridedStyle(IConfigurationElement element) {
         try {
-            OverridedStyle overridedStyle = new OverridedStyle(manager, element);
+            OverridedStyle overridedStyle = new OverridedStyle(manager,
+                    element);
             registerOverridedStyle(overridedStyle);
         } catch (CoreException e) {
             Logger.log(e, "Failed to load overrided style: " + element); //$NON-NLS-1$

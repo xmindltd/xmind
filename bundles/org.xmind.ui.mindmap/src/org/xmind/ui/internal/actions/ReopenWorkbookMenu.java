@@ -32,12 +32,17 @@ import org.xmind.ui.internal.editor.WorkbookHistory;
 import org.xmind.ui.internal.editor.WorkbookHistoryItem;
 import org.xmind.ui.util.Logger;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated Use {@link RecentFileListContributionItem} instead
+ */
 public class ReopenWorkbookMenu extends Action implements IWorkbenchAction {
 
     private static final String MODIFIED_TIME_KEY = "org.xmind.ui.workbookHistory.lastModifiedTime"; //$NON-NLS-1$
 
-    private class WorkbookHistoryMenuCreator implements IMenuCreator,
-            MenuListener {
+    private class WorkbookHistoryMenuCreator
+            implements IMenuCreator, MenuListener {
 
         private Menu menu;
 
@@ -107,11 +112,11 @@ public class ReopenWorkbookMenu extends Action implements IWorkbenchAction {
         if (m != null) {
             // position the menu below the drop down item
             Rectangle r = ti.getBounds();
-            Point point = ti.getParent().toDisplay(
-                    new Point(r.x, r.y + r.height));
+            Point point = ti.getParent()
+                    .toDisplay(new Point(r.x, r.y + r.height));
             m.setLocation(point.x, point.y); // waiting
                                              // for SWT
-            // 0.42
+                                             // 0.42
             m.setVisible(true);
             return; // we don't fire the action
         }
@@ -122,7 +127,8 @@ public class ReopenWorkbookMenu extends Action implements IWorkbenchAction {
                 .getLastModifiedTime();
         Object cachedLastModifiedTime = menu.getData(MODIFIED_TIME_KEY);
         if (cachedLastModifiedTime instanceof Long
-                && ((Long) cachedLastModifiedTime).longValue() >= lastModifiedTime)
+                && ((Long) cachedLastModifiedTime)
+                        .longValue() >= lastModifiedTime)
             return;
 
         rebuildMenu(menu);
@@ -134,8 +140,8 @@ public class ReopenWorkbookMenu extends Action implements IWorkbenchAction {
         fillMenu(menu);
         if (menu.getItemCount() == 0) {
             MenuItem placeholder = new MenuItem(menu, SWT.PUSH, 0);
-            placeholder
-                    .setText(MindMapMessages.ReopenWorkbookMenu_NoItemsPlaceholder_text);
+            placeholder.setText(
+                    MindMapMessages.ReopenWorkbookMenu_NoItemsPlaceholder_text);
             placeholder.setEnabled(false);
         }
     }
@@ -169,7 +175,8 @@ public class ReopenWorkbookMenu extends Action implements IWorkbenchAction {
         }
     }
 
-    private int fillWithItems(Menu menu, int index, WorkbookHistoryItem[] items) {
+    private int fillWithItems(Menu menu, int index,
+            WorkbookHistoryItem[] items) {
         Object[] paths = getDisambiguatedPaths(items);
         for (int i = 0; i < items.length; i++) {
             WorkbookHistoryItem item = items[i];
@@ -228,23 +235,24 @@ public class ReopenWorkbookMenu extends Action implements IWorkbenchAction {
         }
 
         public boolean canDisambiguateWith(FileDissection that) {
-            return that != null
-                    && this.head.equals(that.head)
-                    && (this.neck == null || this.neck == that.neck || (this.neck != null && this.neck
-                            .equals(that.neck)))
+            return that != null && this.head.equals(that.head)
+                    && (this.neck == null || this.neck == that.neck
+                            || (this.neck != null
+                                    && this.neck.equals(that.neck)))
                     && (this.body != null || that.body != null);
         }
 
         @Override
         public String toString() {
-            return neck == null ? head : String.format(
-                    "%2$s - %3$s", File.separator, head, neck); //$NON-NLS-1$
+            return neck == null ? head
+                    : String.format("%2$s - %3$s", File.separator, head, neck); //$NON-NLS-1$
         }
     }
 
     private Object[] getDisambiguatedPaths(WorkbookHistoryItem[] items) {
         Object[] paths = new Object[items.length];
-        List<FileDissection> files = new ArrayList<FileDissection>(items.length);
+        List<FileDissection> files = new ArrayList<FileDissection>(
+                items.length);
 
         for (int i = 0; i < items.length; i++) {
             WorkbookHistoryItem item = items[i];

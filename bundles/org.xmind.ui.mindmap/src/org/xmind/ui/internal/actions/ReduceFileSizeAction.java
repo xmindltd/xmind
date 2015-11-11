@@ -8,6 +8,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.xmind.ui.internal.dialogs.ReduceFileSizeDialog;
 
+@Deprecated
 public class ReduceFileSizeAction implements IEditorActionDelegate {
 
     private IEditorPart editor;

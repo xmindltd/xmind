@@ -13,6 +13,16 @@
  *******************************************************************************/
 package org.xmind.ui.internal;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -34,6 +44,8 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
 
     private ServiceTracker<DebugOptions, DebugOptions> debugTracker = null;
 
+    private Set<Job> jobs = new HashSet<Job>();
+
     /**
      * The constructor
      */
@@ -44,27 +56,27 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
+     * BundleContext )
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
 
         //Shell shell = plugin.getWorkbench().getDisplay().getActiveShell();
-        Core.getWorkbookBuilder().setDefaultEncryptionHandler(
-                new PasswordProvider());
+        Core.getWorkbookBuilder()
+                .setDefaultEncryptionHandler(new PasswordProvider());
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
+     * BundleContext )
      */
     public void stop(BundleContext context) throws Exception {
+        cancelAllJobs();
+
         BackgroundWorkbookSaver.getInstance().stopAll();
 
         if (commandServiceTracker != null) {
@@ -121,8 +133,45 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
      *         <code>false</code> otherwise
      */
     public static boolean isDebugging(String option) {
-        return getDefault().getDebugOptions().getBooleanOption(
-                PLUGIN_ID + option, false);
+        return getDefault().getDebugOptions()
+                .getBooleanOption(PLUGIN_ID + option, false);
+    }
+
+    public static <T> T getAdapter(Object obj, Class<T> adapter) {
+        Assert.isNotNull(adapter);
+        if (adapter.isInstance(obj))
+            return adapter.cast(obj);
+
+        if (obj instanceof IAdaptable) {
+            T result = ((IAdaptable) obj).getAdapter(adapter);
+            if (result != null)
+                return result;
+        }
+
+        if (!(obj instanceof PlatformObject)) {
+            T result = Platform.getAdapterManager().getAdapter(obj, adapter);
+            if (result != null)
+                return result;
+        }
+
+        return null;
+    }
+
+    public void registerJob(Job job) {
+        jobs.add(job);
+        job.addJobChangeListener(new JobChangeAdapter() {
+            public void done(IJobChangeEvent event) {
+                super.done(event);
+                jobs.remove(event.getJob());
+            }
+        });
+    }
+
+    private void cancelAllJobs() {
+        Object[] runningJobs = jobs.toArray();
+        for (int i = 0; i < runningJobs.length; i++) {
+            ((Job) runningJobs[i]).cancel();
+        }
     }
 
 }

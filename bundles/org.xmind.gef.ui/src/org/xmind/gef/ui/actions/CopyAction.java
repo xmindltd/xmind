@@ -22,6 +22,7 @@ public class CopyAction extends RequestAction implements ISelectionAction {
 
     public CopyAction(IGraphicalEditorPage page) {
         super(ActionFactory.COPY.getId(), page, GEF.REQ_COPY);
+        setActionDefinitionId(ActionFactory.COPY.getCommandId());
     }
 
     public void setSelection(ISelection selection) {

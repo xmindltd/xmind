@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="contributedContentsViews" name="%extension-point.name" schema="schema/contributedContentsViews.exsd"/>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
@@ -9,6 +10,13 @@
             namespace="org.xmind.ui.properties.editingEntry"
             properties="editable,resettable,isPropertySet"
             type="org.xmind.ui.properties.IPropertyEditingEntry">
+      </propertyTester>
+      <propertyTester
+            class="org.xmind.ui.views.ContributedContentsViewTester"
+            id="org.xmind.ui.propertyTester.contributedContentsViewTester"
+            namespace="org.xmind.ui.contributedContentsView"
+            properties="isContributed,contributingPartId,contributingPartCanAdaptTo"
+            type="org.eclipse.ui.IWorkbenchPart">
       </propertyTester>
    </extension>
    <extension

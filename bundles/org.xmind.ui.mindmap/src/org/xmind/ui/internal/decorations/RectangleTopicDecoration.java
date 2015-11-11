@@ -28,8 +28,22 @@ public class RectangleTopicDecoration extends AbstractTopicDecoration {
         super(id);
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
-        shape.addRectangle(box.x, box.y, box.width, box.height);
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
+        if (purpose == CHECK) {
+            int halfLineWidth = getLineWidth() / 2;
+            shape.moveTo(box.x - halfLineWidth, box.y - halfLineWidth);
+            shape.lineTo(box.x - halfLineWidth, box.bottom() + halfLineWidth);
+            shape.lineTo(box.right() + halfLineWidth,
+                    box.bottom() + halfLineWidth);
+            shape.lineTo(box.right() + halfLineWidth, box.y - halfLineWidth);
+        } else {
+            shape.moveTo(box.getTopLeft());
+            shape.lineTo(box.getBottomLeft());
+            shape.lineTo(box.getBottomRight());
+            shape.lineTo(box.getTopRight());
+        }
+        shape.close();
     }
 
 }

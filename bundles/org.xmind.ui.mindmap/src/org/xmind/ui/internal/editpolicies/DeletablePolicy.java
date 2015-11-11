@@ -79,8 +79,8 @@ public class DeletablePolicy extends MindMapPolicyBase {
                         .equalsIgnoreCase(centralTopicStricture);
 
         if (isUnthrowedSideStructure) {
-            ITopicExtension extension = centralTopic
-                    .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
+            ITopicExtension extension = centralTopic.createExtension(
+                    UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
             ITopicExtensionElement ee = extension.getContent().getCreatedChild(
                     UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
             String preDeleteRightNum = ee.getTextContent();
@@ -88,17 +88,17 @@ public class DeletablePolicy extends MindMapPolicyBase {
                 preDeleteRightNum = String.valueOf(0);
             int postDeleteRightNum = Integer.valueOf(preDeleteRightNum);
             for (IPart topicPart : targets) {
-                if (topicPart instanceof ITopicPart
-                        && !(ITopic.SUMMARY.equals(((ITopicPart) topicPart)
-                                .getTopic().getType()))) {
+                if (topicPart instanceof ITopicPart && !(ITopic.SUMMARY.equals(
+                        ((ITopicPart) topicPart).getTopic().getType()))) {
                     IBranchPart mainBranch = MindMapUtils.findBranch(topicPart);
                     if (!mainBranch.isCentral()) {
                         IBranchPart centralBranch = mainBranch
                                 .getParentBranch();
-                        if (centralBranch != null && centralBranch.isCentral()) {
+                        if (centralBranch != null
+                                && centralBranch.isCentral()) {
                             IStructure structure = centralBranch
-                                    .getBranchPolicy().getStructure(
-                                            centralBranch);
+                                    .getBranchPolicy()
+                                    .getStructure(centralBranch);
                             if ((((IBranchStructureExtension) structure)
                                     .getChildTargetOrientation(centralBranch,
                                             mainBranch) == PositionConstants.WEST)) {
@@ -108,10 +108,13 @@ public class DeletablePolicy extends MindMapPolicyBase {
                     }
                 }
             }
-            builder.addPendingCommand(
-                    new ModifyRightNumberOfUnbalancedStructureCommand(
-                            centralTopic, preDeleteRightNum, postDeleteRightNum),
-                    true);
+            if (!preDeleteRightNum.equals(postDeleteRightNum)) {
+                builder.addPendingCommand(
+                        new ModifyRightNumberOfUnbalancedStructureCommand(
+                                centralTopic, preDeleteRightNum,
+                                postDeleteRightNum),
+                        true);
+            }
         }
 
         builder.start();
@@ -148,8 +151,8 @@ public class DeletablePolicy extends MindMapPolicyBase {
         topics.remove(rootTopic);
         topics = MindMapUtils.filterOutDescendents(topics, rootTopic);
 
-        List<Object> others = new ArrayList<Object>(targets.size()
-                - topics.size());
+        List<Object> others = new ArrayList<Object>(
+                targets.size() - topics.size());
         for (IPart p : targets) {
             Object m = MindMapUtils.getRealModel(p);
             if (m instanceof IRelationship) {
@@ -168,8 +171,8 @@ public class DeletablePolicy extends MindMapPolicyBase {
         if (topics.isEmpty() && others.isEmpty())
             return null;
 
-        ArrayList<Object> list = new ArrayList<Object>(topics.size()
-                + others.size());
+        ArrayList<Object> list = new ArrayList<Object>(
+                topics.size() + others.size());
         list.addAll(topics);
         list.addAll(others);
         return list;

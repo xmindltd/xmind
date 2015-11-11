@@ -18,7 +18,7 @@ import org.eclipse.jface.viewers.ISelection;
 
 public interface IRichTextAction extends IAction {
 
-    void selctionChanged(IRichTextEditViewer viewer, ISelection selection);
+    void selectionChanged(IRichTextEditViewer viewer, ISelection selection);
 
     void dispose();
 

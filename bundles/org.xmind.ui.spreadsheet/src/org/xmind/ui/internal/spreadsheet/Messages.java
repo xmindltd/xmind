@@ -19,7 +19,10 @@ public class Messages extends NLS {
 
     public static String Command_MoveColumn;
     public static String Command_AddColumn;
-    public static String Column_pattern;
+
+    public static String Command_MoveRow;
+    public static String Command_AddRow;
+    public static String Label_pattern;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

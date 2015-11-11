@@ -22,8 +22,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Pattern;
 
-import net.xmind.signin.IDataStore;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -59,6 +57,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.viewers.FileUtils;
 
@@ -129,8 +129,8 @@ public class XMindUpdater {
 
         private void createIcon(Composite parent) {
             Label label = new Label(parent, SWT.NONE);
-            label.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING,
-                    false, false));
+            label.setLayoutData(
+                    new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
             ImageDescriptor imgDesc = AbstractUIPlugin
                     .imageDescriptorFromPlugin("org.xmind.cathy", //$NON-NLS-1$
                             "icons/xmind.48.png"); //$NON-NLS-1$
@@ -143,8 +143,8 @@ public class XMindUpdater {
                     }
                 });
             } else {
-                label.setImage(parent.getDisplay().getSystemImage(
-                        SWT.ICON_INFORMATION));
+                label.setImage(parent.getDisplay()
+                        .getSystemImage(SWT.ICON_INFORMATION));
             }
         }
 
@@ -168,20 +168,20 @@ public class XMindUpdater {
 
         private void createMessageArea(Composite parent) {
             Label label = new Label(parent, SWT.WRAP);
-            label.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-                    false));
+            label.setLayoutData(
+                    new GridData(SWT.FILL, SWT.BEGINNING, true, false));
             label.setText(Messages.XMindUpdater_Dialog_NewVersionAvailable);
-            label.setFont(FontUtils.getBoldRelative(
-                    JFaceResources.DEFAULT_FONT, 1));
+            label.setFont(
+                    FontUtils.getBoldRelative(JFaceResources.DEFAULT_FONT, 1));
         }
 
         private void createSpecArea(Composite parent) {
             Label label = new Label(parent, SWT.WRAP);
-            label.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-                    false));
-            label.setText(NLS.bind(
-                    Messages.XMindUpdater_NewDialog_NewVersionLabel,
-                    data.getBuildId()));
+            label.setLayoutData(
+                    new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+            label.setText(
+                    NLS.bind(Messages.XMindUpdater_NewDialog_NewVersionLabel,
+                            data.getBuildId()));
         }
 
         private void createWhatsNewArea(Composite parent) {
@@ -200,10 +200,14 @@ public class XMindUpdater {
             GridLayout layout = new GridLayout();
             layout.numColumns = 2; // this is incremented by createButton
             layout.makeColumnsEqualWidth = false;
-            layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-            layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-            layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-            layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+            layout.marginWidth = convertHorizontalDLUsToPixels(
+                    IDialogConstants.HORIZONTAL_MARGIN);
+            layout.marginHeight = convertVerticalDLUsToPixels(
+                    IDialogConstants.VERTICAL_MARGIN);
+            layout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                    IDialogConstants.HORIZONTAL_SPACING);
+            layout.verticalSpacing = convertVerticalDLUsToPixels(
+                    IDialogConstants.VERTICAL_SPACING);
 
             // Align buttons starting from the right side of logo.
             layout.marginLeft = 60;
@@ -225,10 +229,14 @@ public class XMindUpdater {
             GridLayout layout = new GridLayout();
             layout.numColumns = 0; // this is incremented by createButton
             layout.makeColumnsEqualWidth = true;
-            layout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-            layout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-            layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-            layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+            layout.marginWidth = convertHorizontalDLUsToPixels(
+                    IDialogConstants.HORIZONTAL_MARGIN);
+            layout.marginHeight = convertVerticalDLUsToPixels(
+                    IDialogConstants.VERTICAL_MARGIN);
+            layout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                    IDialogConstants.HORIZONTAL_SPACING);
+            layout.verticalSpacing = convertVerticalDLUsToPixels(
+                    IDialogConstants.VERTICAL_SPACING);
             composite.setLayout(layout);
             GridData data = new GridData(SWT.LEFT, SWT.CENTER, true, false);
             composite.setLayoutData(data);
@@ -250,7 +258,7 @@ public class XMindUpdater {
                     Messages.XMindUpdater_NewDialog_RemindLaterLabel, false);
             createButton(parent, DOWNLOAD_ID,
                     Messages.XMindUpdater_NewDialog_UpdateLabel, true)
-                    .setFocus();
+                            .setFocus();
         }
 
         @Override
@@ -285,10 +293,10 @@ public class XMindUpdater {
         this(workbench, Display.getCurrent(), null, skippable, false, false);
     }
 
-    public XMindUpdater(IWorkbench workbench, UpdateData data,
-            String skippable, boolean installPermitted) {
-        this(workbench, Display.getCurrent(), data, skippable,
-                installPermitted, false);
+    public XMindUpdater(IWorkbench workbench, UpdateData data, String skippable,
+            boolean installPermitted) {
+        this(workbench, Display.getCurrent(), data, skippable, installPermitted,
+                false);
     }
 
     public XMindUpdater(IWorkbench workbench, Display display, UpdateData data,
@@ -418,8 +426,8 @@ public class XMindUpdater {
             return CANCELED;
 
         if (request.getError() != null)
-            return error(request.getError(), request.getError()
-                    .getLocalizedMessage());
+            return error(request.getError(),
+                    request.getError().getLocalizedMessage());
 
         monitor.done();
 
@@ -454,14 +462,12 @@ public class XMindUpdater {
                     return OK;
                 }
             }
-            return error(
-                    null,
+            return error(null,
                     NLS.bind(
                             Messages.XMindUpdater_Error_FailedToCheck_with_responseText,
                             request.getResponseText()));
         } else {
-            return error(
-                    null,
+            return error(null,
                     NLS.bind(
                             Messages.XMindUpdater_Error_FailedToCheck_with_responseCode,
                             code));
@@ -490,11 +496,10 @@ public class XMindUpdater {
                     return OK;
                 } else if (code == SKIP_ID) {
 //                    openAllDownloadsUrl();
-                    preferenceStore
-                            .setValue(
-                                    "needSkipVersion", //$NON-NLS-1$
-                                    version == null ? IPreferenceStore.STRING_DEFAULT_DEFAULT
-                                            : version);
+                    preferenceStore.setValue("needSkipVersion", //$NON-NLS-1$
+                            version == null
+                                    ? IPreferenceStore.STRING_DEFAULT_DEFAULT
+                                    : version);
                 } else if (code == REMIND_ME_ID) {
                     preferenceStore.setValue("needSkipVersion", //$NON-NLS-1$
                             IPreferenceStore.STRING_DEFAULT_DEFAULT);
@@ -585,8 +590,7 @@ public class XMindUpdater {
             int status = request.getStatusCode();
             Throwable error = request.getError();
             if (error != null) {
-                return error(
-                        error,
+                return error(error,
                         NLS.bind(
                                 Messages.XMindUpdater_Error_FailedToDownload_with_errorDescription,
                                 error.getLocalizedMessage()));
@@ -604,14 +608,12 @@ public class XMindUpdater {
                 } else if (status == XMindNetRequest.HTTP_RECEIVING) {
                     newProgress = 20;
                 } else if (status == XMindNetRequest.HTTP_ERROR) {
-                    return error(
-                            request.getError(),
+                    return error(request.getError(),
                             Messages.XMindUpdater_Error_FailedToDownloadUnknownError);
                 } else if (status == XMindNetRequest.HTTP_OK) {
                     break;
                 } else {
-                    return error(
-                            request.getError(),
+                    return error(request.getError(),
                             NLS.bind(
                                     Messages.XMindUpdater_Error_FailedToDownloadUnknownError_with_responseCode,
                                     status));
@@ -628,10 +630,9 @@ public class XMindUpdater {
                     int newProgress = (int) (bytes * 80.0 / total);
                     if (newProgress > receivingProgress) {
                         monitor.worked(newProgress - receivingProgress);
-                        monitor.subTask(NLS
-                                .bind(Messages.XMindUpdater_Task_DownloadProgress_with_percentage,
-                                        String.format(
-                                                "%.2f", bytes * 100.0 / total))); //$NON-NLS-1$
+                        monitor.subTask(NLS.bind(
+                                Messages.XMindUpdater_Task_DownloadProgress_with_percentage,
+                                String.format("%.2f", bytes * 100.0 / total))); //$NON-NLS-1$
                         receivingProgress = newProgress;
                     }
                 }
@@ -652,8 +653,7 @@ public class XMindUpdater {
         int status = request.getStatusCode();
         Throwable error = request.getError();
         if (error != null) {
-            return error(
-                    error,
+            return error(error,
                     NLS.bind(
                             Messages.XMindUpdater_Error_FailedToDownload_with_errorDescription,
                             error.getLocalizedMessage()));
@@ -661,8 +661,7 @@ public class XMindUpdater {
             return error(request.getError(),
                     Messages.XMindUpdater_Error_FailedToDownloadUnknownError);
         } else if (status != XMindNetRequest.HTTP_OK) {
-            return error(
-                    request.getError(),
+            return error(request.getError(),
                     NLS.bind(
                             Messages.XMindUpdater_Error_FailedToDownloadUnknownError_with_responseCode,
                             status));
@@ -685,16 +684,14 @@ public class XMindUpdater {
         monitor.subTask(Messages.XMindUpdater_Task_ConfirmInstalling);
         return runInUI(monitor, new IRunnable() {
             public IStatus run(IProgressMonitor monitor) throws Exception {
-                int choice = new MessageDialog(
-                        getParentShell(),
-                        Messages.XMindUpdater_DialogTitle,
-                        null,
+                int choice = new MessageDialog(getParentShell(),
+                        Messages.XMindUpdater_DialogTitle, null,
                         Messages.XMindUpdater_Dialog_ConfirmInstalling,
                         SWT.ICON_INFORMATION,
                         new String[] {
                                 Messages.XMindUpdater_Action_QuitAndInstall_text,
-                                Messages.XMindUpdater_Action_Later_text }, 0)
-                        .open();
+                                Messages.XMindUpdater_Action_Later_text },
+                        0).open();
                 if (choice == 0) {
                     return OK;
                 }
@@ -747,19 +744,17 @@ public class XMindUpdater {
         if (file == null)
             return CANCELED;
         if (!file.exists())
-            return error(
-                    null,
+            return error(null,
                     NLS.bind(
                             Messages.XMindUpdater_Error_InstallerExecutableNotFound_with_executablePath,
                             file.getAbsolutePath()));
         if (file.canExecute()) {
             try {
-                Runtime.getRuntime().exec(
-                        new String[] { file.getAbsolutePath() });
+                Runtime.getRuntime()
+                        .exec(new String[] { file.getAbsolutePath() });
                 return OK;
             } catch (IOException e) {
-                return error(
-                        e,
+                return error(e,
                         NLS.bind(
                                 Messages.XMindUpdater_Error_FailedToExecuteInstaller_with_errorDescription,
                                 e.getLocalizedMessage()));
@@ -790,8 +785,8 @@ public class XMindUpdater {
 
     private IStatus updateOnWindows(IProgressMonitor monitor,
             final File installerFile) {
-        return launchShell(monitor, installerFile.getAbsolutePath(),
-                "/SILENT", "/mode=update"); //$NON-NLS-1$ //$NON-NLS-2$
+        return launchShell(monitor, installerFile.getAbsolutePath(), "/SILENT", //$NON-NLS-1$
+                "/mode=update"); //$NON-NLS-1$
 //        String installPath = getInstallPath();
 //        try {
 //            File batch = File.createTempFile("xmind-update", ".vbs"); //$NON-NLS-1$//$NON-NLS-2$
@@ -849,8 +844,8 @@ public class XMindUpdater {
                         appPath);
                 if (scriptPath != null) {
                     try {
-                        Runtime.getRuntime().exec(
-                                new String[] { "open", scriptPath }); //$NON-NLS-1$
+                        Runtime.getRuntime()
+                                .exec(new String[] { "open", scriptPath }); //$NON-NLS-1$
                         return OK;
                     } catch (IOException e) {
                     }
@@ -871,8 +866,9 @@ public class XMindUpdater {
         String quotedDMGPath = quote(installerFile.getAbsolutePath());
         String workspacePath = getWorkspacePath();
         try {
-            String quotedLogPath = workspacePath == null ? quote(File
-                    .createTempFile("updatexmind", ".log").getAbsolutePath())
+            String quotedLogPath = workspacePath == null
+                    ? quote(File.createTempFile("updatexmind", ".log")
+                            .getAbsolutePath())
                     : quote(workspacePath + "/updatexmind.log");
             File script = File.createTempFile("xmind-update", ".sh");
             ScriptWriter writer = new ScriptWriter(script);
@@ -977,8 +973,7 @@ public class XMindUpdater {
             Runtime.getRuntime().exec(commands);
             return OK;
         } catch (IOException e) {
-            return error(
-                    e,
+            return error(e,
                     NLS.bind(
                             Messages.XMindUpdater_Error_FailedToExecuteCommand_with_commandLine,
                             getCommandLine(commands)));
@@ -1092,10 +1087,11 @@ public class XMindUpdater {
         int choice = new MessageDialog(null, Messages.XMindUpdater_DialogTitle,
                 null,
                 Messages.XMindUpdater_Dialog_ConfirmInstallingOnStartupCheck,
-                SWT.ICON_INFORMATION, new String[] {
-                        Messages.XMindUpdater_Action_Install_text,
+                SWT.ICON_INFORMATION,
+                new String[] { Messages.XMindUpdater_Action_Install_text,
                         Messages.XMindUpdater_Action_Clear_text,
-                        Messages.XMindUpdater_Action_Later_text }, 0).open();
+                        Messages.XMindUpdater_Action_Later_text },
+                0).open();
         if (choice == 1) {
             if (MessageDialog.openQuestion(null,
                     Messages.XMindUpdater_DialogTitle,
@@ -1105,8 +1101,8 @@ public class XMindUpdater {
         if (choice != 0)
             return false;
 
-        return new XMindUpdater(null, data, SKIPPABLE_NO, true).run(
-                new NullProgressMonitor()).isOK();
+        return new XMindUpdater(null, data, SKIPPABLE_NO, true)
+                .run(new NullProgressMonitor()).isOK();
     }
 
     private static int compareVersion(String version1, String version2) {

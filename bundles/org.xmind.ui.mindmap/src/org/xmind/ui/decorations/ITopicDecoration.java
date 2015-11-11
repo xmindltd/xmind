@@ -15,6 +15,7 @@ package org.xmind.ui.decorations;
 
 import org.eclipse.draw2d.IFigure;
 import org.xmind.gef.draw2d.decoration.IShapeDecorationEx;
+import org.xmind.gef.draw2d.graphics.Path;
 
 public interface ITopicDecoration extends IShapeDecorationEx {
 
@@ -47,5 +48,7 @@ public interface ITopicDecoration extends IShapeDecorationEx {
     public int getBottomMargin();
 
     public void setBottomMargin(IFigure figure, int value);
+
+    public Path createClippingPath(IFigure figure);
 
 }

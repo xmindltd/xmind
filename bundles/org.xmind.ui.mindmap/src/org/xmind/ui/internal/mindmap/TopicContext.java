@@ -53,6 +53,7 @@ public class TopicContext implements IAdaptable {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         Object o = topicPart.getAdapter(adapter);
         if (o != null)

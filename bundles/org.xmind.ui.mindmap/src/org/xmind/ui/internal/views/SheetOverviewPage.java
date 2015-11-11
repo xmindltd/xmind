@@ -39,8 +39,8 @@ import org.xmind.gef.draw2d.graphics.ScaledGraphics;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.resources.ColorUtils;
 
-public class SheetOverviewPage extends Page implements
-        ISelectionChangedListener, IInputChangedListener,
+public class SheetOverviewPage extends Page
+        implements ISelectionChangedListener, IInputChangedListener,
         PropertyChangeListener, IZoomListener, Listener {
 
     private class ContentsFigure extends Figure {
@@ -57,16 +57,30 @@ public class SheetOverviewPage extends Page implements
                 return;
 
             graphics.setAntialias(SWT.ON);
-            Point offset = getBounds().getLocation();
-            graphics.translate(offset);
-            ScaledGraphics sg = new ScaledGraphics(graphics);
-            sg.scale(zoomScale);
+
+            graphics.pushState();
             try {
-//                paintDelegate(sg, sourceBackground);
-                paintDelegate(sg, sourceContents);
+                Point offset = getBounds().getLocation();
+                graphics.translate(offset);
+
+                Graphics g = graphics;
+                ScaledGraphics sg = null;
+                if (ScaledGraphics.SCALED_GRAPHICS_ENABLED) {
+                    sg = new ScaledGraphics(graphics);
+                    sg.scale(zoomScale);
+                    g = sg;
+                } else {
+                    g.scale(zoomScale);
+                }
+                try {
+                    paintDelegate(g, sourceContents);
+                } finally {
+                    if (sg != null) {
+                        sg.dispose();
+                    }
+                }
             } finally {
-                sg.dispose();
-                graphics.translate(offset.negate());
+                graphics.popState();
             }
 
             Rectangle area = getClientArea();
@@ -191,7 +205,8 @@ public class SheetOverviewPage extends Page implements
         update();
     }
 
-    public void scaleChanged(ZoomObject source, double oldValue, double newValue) {
+    public void scaleChanged(ZoomObject source, double oldValue,
+            double newValue) {
         update();
     }
 
@@ -256,13 +271,12 @@ public class SheetOverviewPage extends Page implements
                     sourceViewport.getViewLocation());
             Dimension size = sourceViewport.getSize();
             double sourceScale = sourceZoomManager.getScale();
-            feedbackBounds = new Rectangle(loc
-                    .scale(1 / sourceScale)
-                    .translate(
-                            new PrecisionPoint(sourceBounds.getLocation())
-                                    .negate()).scale(zoomScale)
-                    .translate(margins.left, margins.top).toDraw2DPoint(),
-                    size.scale(zoomScale / sourceScale));
+            feedbackBounds = new Rectangle(
+                    loc.scale(1 / sourceScale)
+                            .translate(new PrecisionPoint(
+                                    sourceBounds.getLocation()).negate())
+                    .scale(zoomScale).translate(margins.left, margins.top)
+                    .toDraw2DPoint(), size.scale(zoomScale / sourceScale));
         }
         contents.setBounds(area.getShrinked(margins));
         contents.repaint();
@@ -344,8 +358,9 @@ public class SheetOverviewPage extends Page implements
     private void feedbackMoved(int x, int y) {
         int dx = x - moveStart.x;
         int dy = y - moveStart.y;
-        Dimension offset = new PrecisionDimension(dx, dy).scale(
-                sourceZoomManager.getScale() / zoomScale).toDraw2DDimension();
+        Dimension offset = new PrecisionDimension(dx, dy)
+                .scale(sourceZoomManager.getScale() / zoomScale)
+                .toDraw2DDimension();
         sourceViewer.scrollTo(sourceStart.getTranslated(offset));
     }
 

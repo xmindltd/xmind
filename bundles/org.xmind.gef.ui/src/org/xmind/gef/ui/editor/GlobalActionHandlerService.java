@@ -61,6 +61,10 @@ public class GlobalActionHandlerService implements IGlobalActionHandlerService,
         if (actionBarsList != null) {
             actionBarsList.remove(actionBars);
         }
+        if (actionBars != null) {
+            actionBars.clearGlobalActionHandlers();
+            actionBars.updateActionBars();
+        }
     }
 
     private IGlobalActionHandlerUpdater getUpdater() {

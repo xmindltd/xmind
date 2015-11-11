@@ -6,7 +6,6 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.action.StatusLineLayoutData;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -105,15 +104,15 @@ public class AutoBackupIndicator extends WorkbenchWindowControlContribution
         ps = CathyPlugin.getDefault().getPreferenceStore();
 
         Composite composite = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(2, false);
+        GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
         layout.verticalSpacing = 0;
         layout.horizontalSpacing = 4;
         composite.setLayout(layout);
 
-        Label sep = new Label(composite, SWT.SEPARATOR | SWT.VERTICAL);
-        sep.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, true));
+//        Label sep = new Label(composite, SWT.SEPARATOR | SWT.VERTICAL);
+//        sep.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, true));
 
         label = new Label(composite, SWT.CENTER);
         label.setText(WorkbenchMessages.AutoBackupIndicator_AutoSaveDisabled_label);
@@ -139,7 +138,7 @@ public class AutoBackupIndicator extends WorkbenchWindowControlContribution
 
         updateEnablement();
 
-        composite.setLayoutData(new StatusLineLayoutData());
+//        composite.setLayoutData(new StatusLineLayoutData());
 
         ps.removePropertyChangeListener(this);
         ps.addPropertyChangeListener(this);

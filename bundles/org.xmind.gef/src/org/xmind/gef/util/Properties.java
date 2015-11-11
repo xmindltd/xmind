@@ -17,6 +17,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -122,8 +123,14 @@ public class Properties implements Cloneable {
     }
 
     public void clear() {
-        for (String key : contents.keySet()) {
-            set(key, null);
+        Iterator<String> ite = contents.keySet().iterator();
+        while (ite.hasNext()) {
+            String key = ite.next();
+            Object oldValue = contents.get(key);
+            ite.remove();
+            if (oldValue != null) {
+                eventSupport.firePropertyChange(key, oldValue, null);
+            }
         }
     }
 

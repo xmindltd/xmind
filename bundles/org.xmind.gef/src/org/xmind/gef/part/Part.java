@@ -279,6 +279,7 @@ public class Part implements IPart {
     /**
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IPartSite.class)
             return getSite();

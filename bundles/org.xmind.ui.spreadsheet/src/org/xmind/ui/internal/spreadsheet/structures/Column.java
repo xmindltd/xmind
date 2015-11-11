@@ -124,12 +124,13 @@ public class Column implements Comparable<Column> {
 
         int lineWidth = getOwnedChart().getLineWidth();
         int index = getOwnedChart().getColumnIndex(this);
-        IInsertion ins = (IInsertion) MindMapUtils.getCache(getOwnedChart()
-                .getTitle(), Spreadsheet.CACHE_COLUMN_INSERTION);
+        IInsertion ins = (IInsertion) MindMapUtils.getCache(
+                getOwnedChart().getTitle(), Spreadsheet.CACHE_COLUMN_INSERTION);
         int x;
         if (index == 0) {
-            x = getOwnedChart().getTitle().getFigure().getBounds().x
-                    + lineWidth + getOwnedChart().getRowHeadWidth() + lineWidth
+
+            x = getOwnedChart().getTitle().getFigure().getBounds().x + lineWidth
+                    + getOwnedChart().getRowHeadWidth() + lineWidth
                     + getOwnedChart().getMinorSpacing();
         } else {
             Column prev = getOwnedChart().getColumn(index - 1);
@@ -149,8 +150,8 @@ public class Column implements Comparable<Column> {
 //            System.out.println(head.toString() + ": (" + left.intValue() + ","
 //                    + right + ")");
             if (ins != null && ins.getIndex() == numCols) {
-                right -= ins.getSize().width
-                        + getOwnedChart().getMinorSpacing() + lineWidth;
+                right -= ins.getSize().width + getOwnedChart().getMinorSpacing()
+                        + lineWidth;
             }
             w = right - lineWidth - this.left.intValue();
         } else {

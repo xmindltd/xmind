@@ -71,4 +71,8 @@ public interface ISubDirection extends PositionConstants {
             IPrecisionTransformer h, PrecisionRotator r, double spacing,
             List<IBranchPart> subbranches);
 
+    void fillFishboneExtraData(IBranchPart branch, FishboneData data,
+            IPrecisionTransformer h, PrecisionRotator r, double spacing,
+            boolean extraBranch);
+
 }

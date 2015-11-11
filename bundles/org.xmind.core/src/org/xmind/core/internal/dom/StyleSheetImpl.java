@@ -46,8 +46,8 @@ import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.IPropertiesProvider;
 import org.xmind.core.util.Property;
 
-public class StyleSheetImpl extends StyleSheet implements
-        INodeAdaptableFactory, ICoreEventSource, IPropertiesProvider {
+public class StyleSheetImpl extends StyleSheet implements INodeAdaptableFactory,
+        ICoreEventSource, IPropertiesProvider {
 
     private Document implementation;
 
@@ -67,8 +67,8 @@ public class StyleSheetImpl extends StyleSheet implements
     }
 
     private void init() {
-        Element s = DOMUtils
-                .ensureChildElement(implementation, TAG_STYLE_SHEET);
+        Element s = DOMUtils.ensureChildElement(implementation,
+                TAG_STYLE_SHEET);
         NS.setNS(NS.Style, s, NS.SVG, NS.Fo);
         InternalDOMUtils.addVersion(implementation);
     }

@@ -113,7 +113,7 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
      * 
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         if (adapter == ISharingService.class)
             return service;

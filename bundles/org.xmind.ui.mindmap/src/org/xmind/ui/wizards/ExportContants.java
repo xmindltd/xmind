@@ -39,4 +39,14 @@ public class ExportContants {
 
     //public static final String INCLUDE_BOUNDARIES = "includeBoundaries"; //$NON-NLS-1$
 
+    public static final String PLUS_MINUS_VISIBILITY = "plusMinusVisibility"; //$NON-NLS-1$
+
+    public static final String PLUS_MINUS_VISIBLE = "plusMinusVisible"; //$NON-NLS-1$
+
+    public static final String PLUS_MINUS_HIDDEN = "plusMinusHidden"; //$NON-NLS-1$
+
+    public static final String PLUS_VISIBLE_MINUS_HIDDEN = "plusVisibleMinusHidden"; //$NON-NLS-1$
+
+    public static final String DEFAULT_PLUS_MINUS_VISIBILITY_VALUE = PLUS_MINUS_HIDDEN;
+
 }

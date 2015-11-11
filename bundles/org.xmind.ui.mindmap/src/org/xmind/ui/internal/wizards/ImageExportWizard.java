@@ -35,6 +35,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -48,11 +49,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ImageWriter;
+import org.xmind.gef.util.Properties;
 import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.internal.dialogs.DialogMessages;
 import org.xmind.ui.internal.dialogs.DialogUtils;
 import org.xmind.ui.io.MonitoredOutputStream;
 import org.xmind.ui.mindmap.GhostShellProvider;
 import org.xmind.ui.mindmap.IMindMapImages;
+import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.FontUtils;
@@ -60,8 +64,37 @@ import org.xmind.ui.util.ImageFormat;
 import org.xmind.ui.viewers.ImagePreviewViewer;
 import org.xmind.ui.wizards.AbstractMindMapExportPage;
 import org.xmind.ui.wizards.AbstractMindMapExportWizard;
+import org.xmind.ui.wizards.ExportContants;
 
 public class ImageExportWizard extends AbstractMindMapExportWizard {
+
+    public static enum Entries {
+        PlusMinusVisible(ExportContants.PLUS_MINUS_VISIBLE,
+                IMindMapViewer.PLUS_MINUS_VISIBLE), //
+                PlusMinusHidden(ExportContants.PLUS_MINUS_HIDDEN,
+                        IMindMapViewer.PLUS_MINUS_HIDDEN), //
+                        PlusVisibleMinusHidden(
+                                ExportContants.PLUS_VISIBLE_MINUS_HIDDEN,
+                                IMindMapViewer.PLUS_VISIBLE_MINUS_HIDDEN);
+
+        private String settingsValue;
+
+        private String propertiesValue;
+
+        private Entries(String settingsValue, String propertiesValue) {
+            this.settingsValue = settingsValue;
+            this.propertiesValue = propertiesValue;
+        }
+
+        public static String getPropertiesValue(String settingsValue) {
+            for (Entries entry : values()) {
+                if (entry.settingsValue.equals(settingsValue)) {
+                    return entry.propertiesValue;
+                }
+            }
+            return ""; //$NON-NLS-1$
+        }
+    }
 
     private static final String IMAGE_EXPORT_PAGE_NAME = "imageExportPage"; //$NON-NLS-1$
 
@@ -82,13 +115,13 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
         }, //
         Generating(WizardMessages.ImageExportPage_GeneratingPreview,
                 SWT.COLOR_DARK_GRAY, SWT.NONE), //
-        Error(WizardMessages.ImageExportPage_FailedToGeneratePreview,
-                SWT.COLOR_DARK_RED, SWT.NONE) {
-            public String getTitle(Image image, boolean largeImage) {
-                return makeErrorMessage(super.getTitle(image, largeImage),
-                        largeImage);
-            }
-        };
+                Error(WizardMessages.ImageExportPage_FailedToGeneratePreview,
+                        SWT.COLOR_DARK_RED, SWT.NONE) {
+                    public String getTitle(Image image, boolean largeImage) {
+                        return makeErrorMessage(
+                                super.getTitle(image, largeImage), largeImage);
+                    }
+                };
 
         private int colorId;
 
@@ -137,7 +170,8 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.beginTask(null, 100);
 
-                monitor.subTask(WizardMessages.ImageExportPage_GeneratePreview_CreatingSourceImage);
+                monitor.subTask(
+                        WizardMessages.ImageExportPage_GeneratePreview_CreatingSourceImage);
                 final MindMapImageExporter exporter = getImageExporter(display);
 
                 final Image[] _image = new Image[1];
@@ -157,9 +191,7 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                         generatePreviewJob = null;
                     asyncUpdateViewer(display, null, PreviewState.Error, false,
                             null);
-                    return new Status(
-                            IStatus.ERROR,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.ImageExportPage_GeneratePreview_CouldNotCreateSourceImage,
                             _error[0]);
                 }
@@ -170,8 +202,7 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                     if (monitor.isCanceled()) {
                         if (generatePreviewJob == this)
                             generatePreviewJob = null;
-                        return new Status(
-                                IStatus.CANCEL,
+                        return new Status(IStatus.CANCEL,
                                 MindMapUIPlugin.PLUGIN_ID,
                                 WizardMessages.ImageExportPage_GeneratePreview_Canceled);
                     }
@@ -180,7 +211,8 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                     boolean largeImage = isImageLarge(image);
                     Point origin = null;
 
-                    monitor.subTask(WizardMessages.ImageExportPage_GeneratePreview_SavingTempFile);
+                    monitor.subTask(
+                            WizardMessages.ImageExportPage_GeneratePreview_SavingTempFile);
                     try {
                         writeImage(image, destPath, monitor);
                         origin = exporter.calcRelativeOrigin();
@@ -188,8 +220,7 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                         deleteTemporaryPath(destPath);
                         if (generatePreviewJob == this)
                             generatePreviewJob = null;
-                        return new Status(
-                                IStatus.CANCEL,
+                        return new Status(IStatus.CANCEL,
                                 MindMapUIPlugin.PLUGIN_ID,
                                 WizardMessages.ImageExportPage_GeneratePreview_Canceled);
                     } catch (Throwable e) {
@@ -197,53 +228,51 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                         if (monitor.isCanceled()) {
                             if (generatePreviewJob == this)
                                 generatePreviewJob = null;
-                            return new Status(
-                                    IStatus.CANCEL,
+                            return new Status(IStatus.CANCEL,
                                     MindMapUIPlugin.PLUGIN_ID,
                                     WizardMessages.ImageExportPage_GeneratePreview_Canceled);
                         }
                         asyncUpdateViewer(display, null, PreviewState.Error,
                                 largeImage, origin);
-                        return new Status(
-                                IStatus.CANCEL,
+                        return new Status(IStatus.CANCEL,
                                 MindMapUIPlugin.PLUGIN_ID,
                                 makeErrorMessage(
                                         WizardMessages.ImageExportPage_GeneratePreview_CouldNotSavePreviewImage,
-                                        largeImage), e);
+                                        largeImage),
+                                e);
                     }
                     if (monitor.isCanceled()) {
                         deleteTemporaryPath(destPath);
                         if (generatePreviewJob == this)
                             generatePreviewJob = null;
-                        return new Status(
-                                IStatus.CANCEL,
+                        return new Status(IStatus.CANCEL,
                                 MindMapUIPlugin.PLUGIN_ID,
                                 WizardMessages.ImageExportPage_GeneratePreview_Canceled);
                     }
                     monitor.worked(40);
 
-                    monitor.subTask(WizardMessages.ImageExportPage_GeneratePreview_LoadingTempFile);
+                    monitor.subTask(
+                            WizardMessages.ImageExportPage_GeneratePreview_LoadingTempFile);
                     File previewFile = new File(destPath);
                     if (!previewFile.exists() || !previewFile.canRead()) {
                         if (generatePreviewJob == this)
                             generatePreviewJob = null;
                         asyncUpdateViewer(display, null, PreviewState.Error,
                                 largeImage, origin);
-                        return new Status(
-                                IStatus.CANCEL,
+                        return new Status(IStatus.CANCEL,
                                 MindMapUIPlugin.PLUGIN_ID,
                                 WizardMessages.ImageExportPage_GeneratePreview_CouldNotLoadPreviewImage);
                     }
 
                     try {
-                        previewImage = new Image(Display.getCurrent(), destPath);
+                        previewImage = new Image(Display.getCurrent(),
+                                destPath);
                     } catch (Throwable e) {
                         if (generatePreviewJob == this)
                             generatePreviewJob = null;
                         asyncUpdateViewer(display, null, PreviewState.Error,
                                 largeImage, origin);
-                        return new Status(
-                                IStatus.CANCEL,
+                        return new Status(IStatus.CANCEL,
                                 MindMapUIPlugin.PLUGIN_ID,
                                 WizardMessages.ImageExportPage_GeneratePreview_CouldNotLoadPreviewImage,
                                 e);
@@ -254,9 +283,7 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                     if (generatePreviewJob == this)
                         generatePreviewJob = null;
                     monitor.done();
-                    return new Status(
-                            IStatus.OK,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.OK, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.ImageExportPage_GeneratePreview_Completed);
                 } finally {
                     image.dispose();
@@ -277,6 +304,12 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
         private PreviewState previewState;
 
+        private Button showBothRadio;
+
+        private Button hideBothRadio;
+
+        private Button hideMinusShowPlusRadio;
+
         protected ImageExportPage() {
             super(IMAGE_EXPORT_PAGE_NAME, WizardMessages.ImageExportPage_title);
             setDescription(WizardMessages.ImageExportPage_description);
@@ -290,11 +323,12 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
             setControl(composite);
 
             createFormatControls(composite);
+            createShowPlusMinusControls(composite);
             createPreviewControl(composite);
 
             Control fileGroup = createFileControls(composite);
-            fileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            fileGroup.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
 
             generatePreview(getFormat());
         }
@@ -325,12 +359,13 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
             GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
             gd.widthHint = 400;
             label.setLayoutData(gd);
-            label.setText(WizardMessages.ImageExportPage_FormatGroup_description);
+            label.setText(
+                    WizardMessages.ImageExportPage_FormatGroup_description);
 
-            formatCombo = new Combo(group, SWT.READ_ONLY | SWT.SIMPLE
-                    | SWT.DROP_DOWN | SWT.BORDER);
-            formatCombo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            formatCombo = new Combo(group,
+                    SWT.READ_ONLY | SWT.SIMPLE | SWT.DROP_DOWN | SWT.BORDER);
+            formatCombo.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
             for (ImageFormat format : ImageFormat.values()) {
                 formatCombo.add(format.getDescription());
             }
@@ -338,6 +373,90 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                 formatCombo.select(getFormat().ordinal());
             }
             hookWidget(formatCombo, SWT.Selection);
+        }
+
+        private void createShowPlusMinusControls(Composite parent) {
+            Group group = new Group(parent, SWT.NONE);
+            group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+            group.setLayout(new GridLayout());
+            group.setText(DialogMessages.PageSetupDialog_PlusAndMinusIcons);
+
+            Composite radioGroup = new Composite(group, SWT.NONE);
+            GridLayout gridLayout = new GridLayout(3, false);
+            gridLayout.marginWidth = 0;
+            gridLayout.marginHeight = 3;
+            gridLayout.verticalSpacing = 0;
+            gridLayout.horizontalSpacing = 30;
+            radioGroup.setLayout(gridLayout);
+            GridData gridData = new GridData(SWT.FILL, SWT.FILL, false, false);
+            gridData.widthHint = 400;
+            gridData.heightHint = SWT.DEFAULT;
+            gridData.horizontalIndent = 10;
+            radioGroup.setLayoutData(gridData);
+
+            createShowPlusMinusRadios(radioGroup);
+        }
+
+        private void createShowPlusMinusRadios(Composite parent) {
+            hideBothRadio = new Button(parent, SWT.RADIO);
+            hideBothRadio.setText(DialogMessages.PageSetupDialog_HideBoth);
+            hideBothRadio.setLayoutData(
+                    new GridData(SWT.LEFT, SWT.CENTER, false, false));
+            hookWidget(hideBothRadio, SWT.Selection);
+
+            showBothRadio = new Button(parent, SWT.RADIO);
+            showBothRadio.setText(DialogMessages.PageSetupDialog_ShowBoth);
+            showBothRadio.setLayoutData(
+                    new GridData(SWT.CENTER, SWT.CENTER, false, false));
+            hookWidget(showBothRadio, SWT.Selection);
+
+            hideMinusShowPlusRadio = new Button(parent, SWT.RADIO);
+            hideMinusShowPlusRadio
+                    .setText(DialogMessages.PageSetupDialog_HideMinusShowPlus);
+            hideMinusShowPlusRadio.setLayoutData(
+                    new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+            hookWidget(hideMinusShowPlusRadio, SWT.Selection);
+
+            String plusMinusVisibility = getDialogSettings()
+                    .get(ExportContants.PLUS_MINUS_VISIBILITY);
+            if (plusMinusVisibility == null || "".equals(plusMinusVisibility)) { //$NON-NLS-1$
+                getDialogSettings().put(ExportContants.PLUS_MINUS_VISIBILITY,
+                        ExportContants.DEFAULT_PLUS_MINUS_VISIBILITY_VALUE);
+            }
+            updateShowPlusMinusRadiosState();
+        }
+
+        private void updateShowPlusMinusRadiosState() {
+            String plusMinusVisibility = getDialogSettings()
+                    .get(ExportContants.PLUS_MINUS_VISIBILITY);
+            hideBothRadio.setSelection(ExportContants.PLUS_MINUS_HIDDEN
+                    .equals(plusMinusVisibility));
+            showBothRadio.setSelection(ExportContants.PLUS_MINUS_VISIBLE
+                    .equals(plusMinusVisibility));
+            hideMinusShowPlusRadio
+                    .setSelection(ExportContants.PLUS_VISIBLE_MINUS_HIDDEN
+                            .equals(plusMinusVisibility));
+        }
+
+        private void setProperty(String key, String value) {
+            getDialogSettings().put(key, value);
+            updateShowPlusMinusRadiosState();
+            updatePreview();
+        }
+
+        private void updatePreview() {
+            Display display = getControl().getDisplay();
+            MindMapImageExporter exporter = getImageExporter(display);
+
+            Properties properties = exporter.getProperties();
+            if (properties != null) {
+                String plusMinusVisibility = getDialogSettings()
+                        .get(ExportContants.PLUS_MINUS_VISIBILITY);
+                properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
+                        plusMinusVisibility);
+            }
+
+            generatePreview(getFormat());
         }
 
         public void dispose() {
@@ -370,6 +489,15 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                 if (oldFormat != getFormat()) {
                     formatChanged();
                 }
+            } else if (event.widget == hideBothRadio) {
+                setProperty(ExportContants.PLUS_MINUS_VISIBILITY,
+                        ExportContants.PLUS_MINUS_HIDDEN);
+            } else if (event.widget == showBothRadio) {
+                setProperty(ExportContants.PLUS_MINUS_VISIBILITY,
+                        ExportContants.PLUS_MINUS_VISIBLE);
+            } else if (event.widget == hideMinusShowPlusRadio) {
+                setProperty(ExportContants.PLUS_MINUS_VISIBILITY,
+                        ExportContants.PLUS_VISIBLE_MINUS_HIDDEN);
             } else if (viewer != null && event.widget == viewer.getControl()) {
                 updateViewerSize();
             } else {
@@ -452,8 +580,8 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
             }
             disposePreview();
 
-            previewPath = requestTemporaryPath(null, format.getExtensions()
-                    .get(0), true);
+            previewPath = requestTemporaryPath(null,
+                    format.getExtensions().get(0), true);
             if (previewPath == null) {
                 updateViewer(null, PreviewState.Error, false, null);
                 return;
@@ -519,10 +647,10 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
     public ImageExportWizard() {
         setWindowTitle(WizardMessages.ImageExportWizard_windowTitle);
-        setDefaultPageImageDescriptor(MindMapUI.getImages().getWizBan(
-                IMindMapImages.WIZ_EXPORT));
-        setDialogSettings(MindMapUIPlugin.getDefault().getDialogSettings(
-                DIALOG_SETTINGS_SECTION_ID));
+        setDefaultPageImageDescriptor(
+                MindMapUI.getImages().getWizBan(IMindMapImages.WIZ_EXPORT));
+        setDialogSettings(MindMapUIPlugin.getDefault()
+                .getDialogSettings(DIALOG_SETTINGS_SECTION_ID));
         setNeedsProgressMonitor(true);
     }
 
@@ -576,8 +704,7 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
     }
 
     protected boolean isExtensionCompatible(String path, String extension) {
-        return super.isExtensionCompatible(path, extension)
-                && hasFormat()
+        return super.isExtensionCompatible(path, extension) && hasFormat()
                 && getFormat().getExtensions()
                         .contains(extension.toLowerCase());
     }
@@ -614,8 +741,13 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
      */
     private MindMapImageExporter createImageExporter(Display display) {
         MindMapImageExporter exporter = new MindMapImageExporter(display);
-        exporter.setSource(getSourceMindMap(), getShellProvider(display), null,
-                null);
+
+        Properties properties = new Properties();
+        properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
+                getDialogSettings().get(ExportContants.PLUS_MINUS_VISIBILITY));
+        exporter.setSource(getSourceMindMap(), getShellProvider(display),
+                properties, null);
+
         return exporter;
     }
 
@@ -668,8 +800,8 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
     protected void writeImage(Image image, String destPath,
             IProgressMonitor monitor) throws IOException {
-        OutputStream output = new MonitoredOutputStream(new FileOutputStream(
-                destPath), monitor);
+        OutputStream output = new MonitoredOutputStream(
+                new FileOutputStream(destPath), monitor);
         ImageWriter writer = createImageWriter(image, output);
         try {
             writer.write();
@@ -679,13 +811,13 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
     }
 
     protected ImageWriter createImageWriter(Image image, OutputStream output) {
-        return ImageExportUtils.createImageWriter(image, getFormat()
-                .getSWTFormat(), output);
+        return ImageExportUtils.createImageWriter(image,
+                getFormat().getSWTFormat(), output);
     }
 
     protected void doExport(IProgressMonitor monitor, final Display display,
-            final Shell parentShell) throws InvocationTargetException,
-            InterruptedException {
+            final Shell parentShell)
+                    throws InvocationTargetException, InterruptedException {
         monitor.beginTask(null, 100);
 
         monitor.subTask(WizardMessages.ImageExport_CreatingSourceImage);
@@ -707,8 +839,8 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
             monitor.worked(50);
 
             String path = getTargetPath();
-            monitor.subTask(NLS.bind(
-                    WizardMessages.ImageExport_WritingTargetFile, path));
+            monitor.subTask(NLS
+                    .bind(WizardMessages.ImageExport_WritingTargetFile, path));
             try {
                 writeImage(image, path, monitor);
             } catch (IOException e) {

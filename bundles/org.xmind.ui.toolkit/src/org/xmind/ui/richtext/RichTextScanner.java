@@ -137,9 +137,12 @@ public class RichTextScanner implements ITokenScanner {
                 if (style == null)
                     style = RichTextUtils.DEFAULT_STYLE;
                 style = (StyleRange) style.clone();
-                if (style.foreground == null) {
-                    style.foreground = Display.getCurrent().getSystemColor(
-                            SWT.COLOR_BLUE);
+                if (style.foreground == null
+                        || style.foreground == RichTextUtils.DEFAULT_FOREGROUND
+                        || style.foreground
+                                .equals(RichTextUtils.DEFAULT_FOREGROUND)) {
+                    style.foreground = Display.getCurrent()
+                            .getSystemColor(SWT.COLOR_BLUE);
                 }
                 style.underline = true;
             }
@@ -187,9 +190,12 @@ public class RichTextScanner implements ITokenScanner {
             if (style == null)
                 style = RichTextUtils.DEFAULT_STYLE;
             style = (StyleRange) style.clone();
-            if (style.foreground == null) {
-                style.foreground = Display.getCurrent().getSystemColor(
-                        SWT.COLOR_BLUE);
+            if (style.foreground == null
+                    || style.foreground == RichTextUtils.DEFAULT_FOREGROUND
+                    || style.foreground
+                            .equals(RichTextUtils.DEFAULT_FOREGROUND)) {
+                style.foreground = Display.getCurrent()
+                        .getSystemColor(SWT.COLOR_BLUE);
             }
             style.underline = true;
         }

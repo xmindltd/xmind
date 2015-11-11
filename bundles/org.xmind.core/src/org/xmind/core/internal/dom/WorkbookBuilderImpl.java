@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionHandler;
+import org.xmind.core.IMeta;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.AbstractWorkbookBuilder;
 import org.xmind.core.io.ByteArrayStorage;
@@ -37,8 +38,8 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class WorkbookBuilderImpl extends AbstractWorkbookBuilder implements
-        ErrorHandler {
+public class WorkbookBuilderImpl extends AbstractWorkbookBuilder
+        implements ErrorHandler {
 
     private IEncryptionHandler defaultEncryptionHandler = null;
 
@@ -119,6 +120,24 @@ public class WorkbookBuilderImpl extends AbstractWorkbookBuilder implements
         Document impl = createDocument();
         WorkbookImpl workbook = new WorkbookImpl(impl, file);
         workbook.setCreator(creatorName, creatorversion);
+        IMeta meta = workbook.getMeta();
+        String name = System.getProperty(DOMConstants.AUTHOR_NAME);
+        if (name == null)
+            name = System.getProperty("user.name"); //$NON-NLS-1$
+        if (name != null)
+            meta.setValue(IMeta.AUTHOR_NAME, name);
+
+        String email = System.getProperty(DOMConstants.AUTHOR_EMAIL);
+        if (email != null)
+            meta.setValue(IMeta.AUTHOR_EMAIL, email);
+
+        String org = System.getProperty(DOMConstants.AUTHOR_ORG);
+        if (org != null)
+            meta.setValue(IMeta.AUTHOR_ORG, org);
+
+        if (meta.getValue(IMeta.CREATED_TIME) == null)
+            meta.setValue(IMeta.CREATED_TIME,
+                    NumberUtils.formatDate(System.currentTimeMillis()));
         return workbook;
     }
 
@@ -153,12 +172,12 @@ public class WorkbookBuilderImpl extends AbstractWorkbookBuilder implements
      * org.xmind.core.IEncryptionHandler)
      */
     protected IWorkbook doLoadFromSteam(InputStream in, IStorage storage,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException {
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException {
         // ZipInputStream has some stability issues, so we have to extract
         // contents into a transient folder first.
-        File tempDir = new File(Core.getWorkspace().getTempDir(
-                "transient/" + Core.getIdFactory().createId())); //$NON-NLS-1$
+        File tempDir = new File(Core.getWorkspace()
+                .getTempDir("transient/" + Core.getIdFactory().createId())); //$NON-NLS-1$
         FileUtils.ensureDirectory(tempDir);
         IStorage tempStorage = new DirectoryStorage(tempDir);
         try {
@@ -184,8 +203,8 @@ public class WorkbookBuilderImpl extends AbstractWorkbookBuilder implements
      * org.xmind.core.IEncryptionHandler)
      */
     public IWorkbook loadFromInputSource(IInputSource source, IStorage storage,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException {
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException {
         if (storage == null) {
             storage = new ByteArrayStorage();
         }

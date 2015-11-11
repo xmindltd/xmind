@@ -7,10 +7,17 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
+import org.xmind.ui.IEditorHistory;
 import org.xmind.ui.dialogs.IDialogConstants;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.mindmap.MindMapUI;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated Use {@link IEditorHistory} instead
+ */
 public class WorkbookHistoryItem {
 
     static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
@@ -36,8 +43,9 @@ public class WorkbookHistoryItem {
     }
 
     public String getPath() {
-        if (uri.startsWith(FILE_PROTOCOL))
-            return uri.substring(5);
+        if (FilePathParser.isFileURI(uri)) {
+            return FilePathParser.toPath(uri);
+        }
         return uri;
     }
 
@@ -55,11 +63,9 @@ public class WorkbookHistoryItem {
 
     public void reopen(IWorkbenchPage page) throws CoreException {
         if (!new File(getPath()).exists()) {
-            MessageDialog
-                    .openWarning(
-                            new Shell(),
-                            IDialogConstants.COMMON_TITLE,
-                            MindMapMessages.WorkbookHistoryItem_FileMissingMessage);
+            MessageDialog.openWarning(new Shell(),
+                    IDialogConstants.COMMON_TITLE,
+                    MindMapMessages.WorkbookHistoryItem_FileMissingMessage);
             return;
         }
         page.openEditor(createNewEditorInput(), MindMapUI.MINDMAP_EDITOR_ID,
@@ -72,7 +78,7 @@ public class WorkbookHistoryItem {
     }
 
     static String toURI(String filePath) {
-        return FILE_PROTOCOL + filePath;
+        return FilePathParser.toURI(filePath, false);
     }
 
 }

@@ -38,6 +38,7 @@ import org.xmind.ui.branch.BoundaryLayoutHelper;
 import org.xmind.ui.branch.IBranchPolicy;
 import org.xmind.ui.branch.IInsertion;
 import org.xmind.ui.branch.Insertion;
+import org.xmind.ui.internal.figures.TopicFigure;
 import org.xmind.ui.internal.fishbone.Fishbone;
 import org.xmind.ui.internal.fishbone.decorations.MainFishboneBranchDecoration;
 import org.xmind.ui.mindmap.IBranchPart;
@@ -49,6 +50,7 @@ import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.tools.ParentSearchKey;
 
+@SuppressWarnings("restriction")
 public class MainFishboneStructure extends AbstractBranchStructure {
 
     private static final double sin = Math.sin(Math
@@ -328,16 +330,16 @@ public class MainFishboneStructure extends AbstractBranchStructure {
         if (topic instanceof INodePart) {
             IAnchor anchor = ((INodePart) topic).getTargetAnchor(branch);
             if (anchor != null) {
-                return anchor.getLocation(getChildTargetOrientation(branch,
-                        child), 0);
+                return anchor.getLocation(
+                        getChildTargetOrientation(branch, child), 0);
             }
         }
         return new PrecisionPoint(getReference(child));
     }
 
     public boolean isChildUpwards(IBranchPart branch, IBranchPart child) {
-        return isChildUpwards(branch, child, branch.getSubBranches().indexOf(
-                child));
+        return isChildUpwards(branch, child,
+                branch.getSubBranches().indexOf(child));
     }
 
     private boolean isChildUpwards(IBranchPart branch, IBranchPart child,
@@ -363,11 +365,7 @@ public class MainFishboneStructure extends AbstractBranchStructure {
 //        return direction.getChildRotateAngle(isChildUpwards(branch, child));
     }
 
-    public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return calcChildIndex(branch, key, false);
-    }
-
-    private int calcChildIndex(IBranchPart branch, ParentSearchKey key,
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
             boolean withDisabled) {
         if (branch.getSubBranches().isEmpty() || branch.isFolded())
             return withDisabled ? 0 : -1;
@@ -398,7 +396,7 @@ public class MainFishboneStructure extends AbstractBranchStructure {
     private static final Dimension INSERTION_SIZE = new Dimension(30, 1);
 
     public IInsertion calcInsertion(IBranchPart branch, ParentSearchKey key) {
-        return new Insertion(branch, calcChildIndex(branch, key, true),
+        return new Insertion(branch, calcInsIndex(branch, key, true),
                 INSERTION_SIZE);
     }
 
@@ -522,4 +520,142 @@ public class MainFishboneStructure extends AbstractBranchStructure {
         return super.getQuickMoveOffset(branch, child, direction);
     }
 
+    @Override
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+
+        if (subBranches.isEmpty())
+            return calcFirstChildPosition(branch, key);
+
+        int index = calcInsIndex(branch, key, true);
+
+        if (index == subBranches.size()) {
+            return calcInventPosition(subBranches.get(index - 1), null, key,
+                    false);
+        }
+        return calcInventPosition(subBranches.get(index), null, key, true);
+    }
+
+    @Override
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        if (disables != null) {
+            if (disables.contains(index - 1)) {
+                index--;
+                oldIndex = index;
+            } else if (disables.contains(index)) {
+                oldIndex = index;
+            }
+        }
+        Dimension inventSize = key.getInvent().getSize();
+        boolean upWard = (index + 1) % 2 == 0;
+        boolean leftWard = IMainDirection.LeftHeaded.equals(direction);
+
+        if (index == oldIndex) {
+            IBranchPart sub = subBranches.get(index);
+            Dimension size = sub.getTopicPart().getFigure().getSize();
+
+            double w = (size.height * sin - size.width * cos)
+                    / (sin * sin - cos * cos);
+
+            double deltaX = size.width * 0.5d - w * cos + inventSize.width
+                    * 0.5d + inventSize.width * cos * 0.5d;
+            double deltaY = upWard ? (-size.height + inventSize.width * sin) * 0.5d
+                    : (size.height - inventSize.width * sin) * 0.5d;
+
+            return getReference(sub).getTranslated(leftWard ? deltaX : -deltaX,
+                    deltaY);
+        }
+
+        return calcInsertPosition(branch, child, key);
+    }
+
+    @Override
+    protected Point calcInventPosition(IBranchPart orientation,
+            IBranchPart assist, ParentSearchKey key, boolean isBeforeOrientation) {
+        Dimension inventSize = key.getInvent().getSize();
+        Dimension insSize = key.getFigure().getSize();
+
+        double deltaY = inventSize.width * sin * 0.5d;
+
+        boolean upwards = isChildUpwards(orientation.getParentBranch(),
+                orientation);
+
+        double y = upwards ^ isBeforeOrientation ? deltaY : -deltaY;
+
+        double x;
+        if (isBeforeOrientation) {
+            double offset = calcBeforeOffset(orientation);
+
+            double deltaX = (insSize.height / sin - inventSize.width * cos - inventSize.width) * 0.5d;
+
+            x = offset
+                    + (direction.equals(IMainDirection.RightHeaded) ? deltaX
+                            : -deltaX);
+        } else {
+            Rectangle pBounds = orientation.getParentBranch().getFigure()
+                    .getBounds();
+
+            x = direction.equals(IMainDirection.RightHeaded) ? pBounds.x
+                    : pBounds.right();
+        }
+
+        return new Point().getTranslated(x, y);
+    }
+
+    private double calcBeforeOffset(IBranchPart branch) {
+        double offset = 0.0d;
+        double cot = cos / sin;
+
+        List<IBranchPart> callouts = branch.getCalloutBranches();
+        if (callouts == null || callouts.isEmpty()) {
+            IFigure figure = branch.getTopicPart().getFigure();
+            Rectangle bounds = figure.getBounds();
+            double height = ((TopicFigure) figure)
+                    .getNormalPreferredBounds(new Point()).height;
+            double delta = height * cos * cot;
+            offset = direction.equals(IMainDirection.RightHeaded) ? bounds
+                    .right() + delta : bounds.x - delta;
+        } else {
+            Rectangle bounds = branch.getFigure().getBounds();
+            offset = direction.equals(IMainDirection.RightHeaded) ? bounds
+                    .right() : bounds.x;
+
+            for (IBranchPart callout : callouts) {
+                Rectangle calloutBounds = callout.getFigure().getBounds();
+                if (direction.equals(ISubDirection.NE)) {
+                    Point tl = calloutBounds.getTopLeft();
+                    offset = Math.min(offset, tl.x - (-tl.y) * cot);
+                } else if (direction.equals(ISubDirection.SE)) {
+                    Point bl = calloutBounds.getBottomLeft();
+                    offset = Math.min(offset, bl.x - (bl.y) * cot);
+                } else if (direction.equals(ISubDirection.NW)) {
+                    Point tr = calloutBounds.getTopRight();
+                    offset = Math.max(offset, tr.x + (tr.y) * cot);
+                } else {
+                    Point br = calloutBounds.getBottomRight();
+                    offset = Math.max(offset, br.x + (br.y) * cot);
+                }
+            }
+        }
+
+        return offset;
+    }
+
+    @Override
+    protected Point calcFirstChildPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        double minorSpacing = getMinorSpacing(branch) * fMinor;
+        double x = branch.getFigure().getSize().width * 0.5d
+                + key.getFigure().getSize().width * 0.5d;
+        return getFigureLocation(branch.getFigure()).getTranslated(
+                IMainDirection.LeftHeaded.equals(direction) ? x : -x,
+                -minorSpacing);
+    }
 }

@@ -66,7 +66,7 @@ public abstract class RichTextActionBarContributor implements
 
     public void selectionChanged(ISelection selection, boolean enabled) {
         for (IRichTextAction action : richTextActions.values()) {
-            action.selctionChanged(viewer, selection);
+            action.selectionChanged(viewer, selection);
             action.setEnabled(enabled);
         }
     }

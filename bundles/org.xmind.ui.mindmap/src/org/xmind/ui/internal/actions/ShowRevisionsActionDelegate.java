@@ -8,6 +8,7 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.xmind.ui.mindmap.MindMapUI;
 
+@Deprecated
 public class ShowRevisionsActionDelegate implements IEditorActionDelegate {
 
     private IEditorPart editor;

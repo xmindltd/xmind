@@ -29,6 +29,14 @@ public class SpreadsheetPropertyTester implements IBranchPropertyTester {
                         .booleanValue();
             }
             return false;
+        } else if (Spreadsheet.P_IS_ALTERNATIVE_Colunm.equals(property)) {
+            if (expectedValue == null)
+                return isAlternativeRow(branch);
+            if (expectedValue instanceof Boolean) {
+                return isAlternativeRow(branch) == ((Boolean) expectedValue)
+                        .booleanValue();
+            }
+            return false;
         } else if (Spreadsheet.P_USER_STRUCTURE_CLASS.equals(property)) {
             if (expectedValue == null || expectedValue instanceof String) {
                 return isUserStructureClass(branch, (String) expectedValue);

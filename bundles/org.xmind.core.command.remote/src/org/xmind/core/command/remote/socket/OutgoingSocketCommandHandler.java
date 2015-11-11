@@ -42,6 +42,11 @@ import org.xmind.core.internal.command.remote.RemoteCommandPlugin;
  */
 public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
 
+    private static final String DEBUG_OPTION = "/debug/outgoingSocketCommandHandler"; //$NON-NLS-1$
+
+    private static boolean DEBUGGING = RemoteCommandPlugin.getDefault()
+            .isDebugging(DEBUG_OPTION);
+
     private ISocketAddress remoteAddress;
 
     private SocketPool socketPool = null;
@@ -64,7 +69,8 @@ public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
             int timeout) {
         monitor.beginTask(null, 100);
 
-        monitor.subTask(NLS.bind(Messages.OutgoingSocketCommandHandler_ConnectionRemoteCommand_Message,
+        monitor.subTask(NLS.bind(
+                Messages.OutgoingSocketCommandHandler_ConnectionRemoteCommand_Message,
                 remoteAddress));
         Socket socket = new Socket();
         try {
@@ -79,12 +85,18 @@ public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
                 if (socketPool != null)
                     socketPool.addSocket(socket);
             } catch (IOException e) {
-                return new Status(
-                        IStatus.WARNING,
-                        RemoteCommandPlugin.PLUGIN_ID,
+                if (DEBUGGING)
+                    return new Status(IStatus.ERROR,
+                            RemoteCommandPlugin.PLUGIN_ID,
+                            NLS.bind(
+                                    Messages.OutgoingSocketCommandHandler_ConnectionFailed_Message,
+                                    remoteAddress),
+                            e);
+                return new Status(IStatus.CANCEL, RemoteCommandPlugin.PLUGIN_ID,
                         NLS.bind(
                                 Messages.OutgoingSocketCommandHandler_ConnectionFailed_Message,
-                                remoteAddress), e);
+                                remoteAddress),
+                        e);
             }
             if (monitor.isCanceled())
                 return Status.CANCEL_STATUS;
@@ -94,8 +106,10 @@ public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
                 input = socket.getInputStream();
             } catch (IOException e) {
                 return new Status(IStatus.ERROR, RemoteCommandPlugin.PLUGIN_ID,
-                        NLS.bind(Messages.OutgoingSocketCommandHandler_FailedOpenInputStream,
-                                remoteAddress), e);
+                        NLS.bind(
+                                Messages.OutgoingSocketCommandHandler_FailedOpenInputStream,
+                                remoteAddress),
+                        e);
             }
             try {
                 if (monitor.isCanceled())
@@ -106,9 +120,11 @@ public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
                     output = socket.getOutputStream();
                 } catch (IOException e) {
                     return new Status(IStatus.ERROR,
-                            RemoteCommandPlugin.PLUGIN_ID, NLS.bind(
+                            RemoteCommandPlugin.PLUGIN_ID,
+                            NLS.bind(
                                     Messages.OutgoingSocketCommandHandler_FailedOpenOutputStream,
-                                    remoteAddress), e);
+                                    remoteAddress),
+                            e);
                 }
                 try {
                     if (monitor.isCanceled())
@@ -118,9 +134,8 @@ public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
 
                     IProgressMonitor handleMonitor = new SubProgressMonitor(
                             monitor, 90);
-                    IStatus handled = super.handleOutgoingCommand(
-                            handleMonitor, command, returnValueConsumer, input,
-                            output);
+                    IStatus handled = super.handleOutgoingCommand(handleMonitor,
+                            command, returnValueConsumer, input, output);
                     if (!handleMonitor.isCanceled())
                         handleMonitor.done();
                     if (!monitor.isCanceled())
@@ -151,24 +166,22 @@ public class OutgoingSocketCommandHandler extends OutgoingCommandHandler {
 
     protected IStatus createSendingErrorStatus(IOException e) {
         if (e instanceof SocketTimeoutException) {
-            return new Status(
-                    IStatus.WARNING,
-                    getPluginId(),
+            return new Status(IStatus.WARNING, getPluginId(),
                     NLS.bind(
                             Messages.OutgoingSocketCommandHandler_ConnectionTimeOut,
-                            remoteAddress), e);
+                            remoteAddress),
+                    e);
         }
         return super.createSendingErrorStatus(e);
     }
 
     protected IStatus createReceivingErrorStatus(IOException e) {
         if (e instanceof SocketTimeoutException) {
-            return new Status(
-                    IStatus.WARNING,
-                    getPluginId(),
+            return new Status(IStatus.WARNING, getPluginId(),
                     NLS.bind(
                             Messages.OutgoingSocketCommandHandler_ConnectionTimeOut,
-                            remoteAddress), e);
+                            remoteAddress),
+                    e);
         }
         return super.createReceivingErrorStatus(e);
     }

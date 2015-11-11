@@ -29,13 +29,14 @@ public class DiamondTopicDecoration extends AbstractTopicDecoration {
         super(id);
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
         float cx = box.x + box.width * 0.5f;
         float cy = box.y + box.height * 0.5f;
         shape.moveTo(cx, box.y);
-        shape.lineTo(box.right(), cy);
-        shape.lineTo(cx, box.bottom());
         shape.lineTo(box.x, cy);
+        shape.lineTo(cx, box.bottom());
+        shape.lineTo(box.right(), cy);
         shape.close();
     }
 
@@ -50,9 +51,11 @@ public class DiamondTopicDecoration extends AbstractTopicDecoration {
         double py = refY - cy;
 
         if (px == 0)
-            return new PrecisionPoint(refX, (py > 0) ? cy + h : cy - h);
+            return new PrecisionPoint(refX,
+                    (py > 0) ? cy + h + expansion : cy - h - expansion);
         if (py == 0)
-            return new PrecisionPoint((px > 0) ? cx + w : cx - w, refY);
+            return new PrecisionPoint(
+                    (px > 0) ? cx + w + expansion : cx - w - expansion, refY);
 
         double x = 0;
         double y = 0;
@@ -74,8 +77,18 @@ public class DiamondTopicDecoration extends AbstractTopicDecoration {
             x = -(h * w * px) / (h * px + w * py);
             y = -(h * w * py) / (h * px + w * py);
         }
+        double scale = 0.5
+                / Math.max(Math.abs(px) / r.width, Math.abs(py) / r.height);
+        px *= scale;
+        py *= scale;
+        double d = Math.hypot(px, py);
+        if (d != 0) {
+            double s = expansion / d;
+            px = px * s;
+            py = py * s;
+        }
 
-        return new PrecisionPoint(x + cx, y + cy);
+        return new PrecisionPoint(x + cx + px, y + cy + py);
     }
 
     public Insets getPreferredInsets(IFigure figure, int width, int height) {

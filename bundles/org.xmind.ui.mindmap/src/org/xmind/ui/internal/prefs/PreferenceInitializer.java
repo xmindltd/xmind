@@ -27,14 +27,15 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
     public void initializeDefaultPreferences() {
         IScopeContext context = DefaultScope.INSTANCE;
-        IEclipsePreferences node = context.getNode(MindMapUIPlugin.getDefault()
-                .getBundle().getSymbolicName());
+        IEclipsePreferences node = context.getNode(
+                MindMapUIPlugin.getDefault().getBundle().getSymbolicName());
         node.putBoolean(PrefConstants.ANIMATION_ENABLED, false);
         node.putBoolean(PrefConstants.SHADOW_ENABLED, false);
         node.putBoolean(PrefConstants.OVERLAPS_ALLOWED, false);
         node.putBoolean(PrefConstants.FREE_POSITION_ALLOWED, true);
         node.putBoolean(PrefConstants.AUTO_BACKUP_ENABLE, true);
-        node.put(PrefConstants.DND_CLIENT_ID_ORDER, DEFAULT_DND_CLIENT_ID_ORDER);
+        node.put(PrefConstants.DND_CLIENT_ID_ORDER,
+                DEFAULT_DND_CLIENT_ID_ORDER);
         node.putInt(PrefConstants.UNDO_LIMIT, 100);
 
         node.putBoolean(PrefConstants.GRADIENT_COLOR, true);
@@ -43,6 +44,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
         node.putInt(PrefConstants.UNDO_REDO_TIPS_FADE_DELAY,
                 UndoRedoTipsService.DEFAULT_DURATION);
+
     }
 
 }

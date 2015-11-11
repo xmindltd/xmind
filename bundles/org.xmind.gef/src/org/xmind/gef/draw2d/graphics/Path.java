@@ -109,7 +109,8 @@ public class Path extends org.eclipse.swt.graphics.Path {
                 corner);
     }
 
-    public void addRoundedRectangleByRatio(Rectangle bounds, float cornerRatio) {
+    public void addRoundedRectangleByRatio(Rectangle bounds,
+            float cornerRatio) {
         addRoundedRectangle(bounds.x, bounds.y, bounds.width, bounds.height,
                 Math.min(bounds.width, bounds.height) * cornerRatio);
     }
@@ -121,36 +122,60 @@ public class Path extends org.eclipse.swt.graphics.Path {
 
     private static final float CORNER_CONTROL_RATIO = 0.447715f;
 
-    public void addRoundedRectangle(float x, float y, float width,
-            float height, float corner) {
+    public void addRoundedRectangle(float x, float y, float width, float height,
+            float corner) {
         float r = x + width;
         float b = y + height;
         float x0 = x + width / 2;
         float y0 = y + height / 2;
 
-        float y1 = Math.min(y + corner, y0);
-        moveTo(x, y1);
-
         float x1 = Math.min(x + corner, x0);
+        moveTo(x1, y);
+
+        float y1 = Math.min(y + corner, y0);
         float cx1 = x + (x1 - x) * CORNER_CONTROL_RATIO;
         float cy1 = y + (y1 - y) * CORNER_CONTROL_RATIO;
-        cubicTo(x, cy1, cx1, y, x1, y);
-
-        float x2 = Math.max(r - corner, x0);
-        lineTo(x2, y);
-
-        float cx2 = r - (r - x2) * CORNER_CONTROL_RATIO;
-        cubicTo(cx2, y, r, cy1, r, y1);
+        cubicTo(cx1, y, x, cy1, x, y1);
 
         float y2 = Math.max(b - corner, y0);
-        lineTo(r, y2);
+        lineTo(x, y2);
 
         float cy2 = b - (b - y2) * CORNER_CONTROL_RATIO;
-        cubicTo(r, cy2, cx2, b, x2, b);
+        cubicTo(x, cy2, cx1, b, x1, b);
 
-        lineTo(x1, b);
+        float x2 = Math.max(r - corner, x0);
+        lineTo(x2, b);
 
-        cubicTo(cx1, b, x, cy2, x, y2);
+        float cx2 = r - (r - x2) * CORNER_CONTROL_RATIO;
+        cubicTo(cx2, b, r, cy2, r, y2);
+
+        lineTo(r, y1);
+
+        cubicTo(r, cy1, cx2, y, x2, y);
+
+//        float y1 = Math.min(y + corner, y0);
+//        moveTo(x, y1);
+
+//        float x1 = Math.min(x + corner, x0);
+//        float cx1 = x + (x1 - x) * CORNER_CONTROL_RATIO;
+//        float cy1 = y + (y1 - y) * CORNER_CONTROL_RATIO;
+//        cubicTo(x, cy1, cx1, y, x1, y);
+//
+//        float x2 = Math.max(r - corner, x0);
+//        lineTo(x2, y);
+//
+//        float cx2 = r - (r - x2) * CORNER_CONTROL_RATIO;
+//        cubicTo(cx2, y, r, cy1, r, y1);
+//
+//        float y2 = Math.max(b - corner, y0);
+//        lineTo(r, y2);
+//
+//        float cy2 = b - (b - y2) * CORNER_CONTROL_RATIO;
+//        cubicTo(r, cy2, cx2, b, x2, b);
+//
+//        lineTo(x1, b);
+//
+//        cubicTo(cx1, b, x, cy2, x, y2);
 
         close();
     }
@@ -195,7 +220,8 @@ public class Path extends org.eclipse.swt.graphics.Path {
         close();
     }
 
-    private float[] calcPoint(float x1, float y1, float x2, float y2, float dist) {
+    private float[] calcPoint(float x1, float y1, float x2, float y2,
+            float dist) {
         float x;
         float y;
         if (x1 == x2) {
@@ -227,6 +253,12 @@ public class Path extends org.eclipse.swt.graphics.Path {
 
     public void addString(String text, Point loc, Font font) {
         super.addString(text, loc.x, loc.y, font);
+    }
+
+    public PrecisionPoint getCurrentPoint() {
+        float[] current = new float[2];
+        getCurrentPoint(current);
+        return new PrecisionPoint(current[0], current[1]);
     }
 
 }

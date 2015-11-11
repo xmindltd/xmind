@@ -14,6 +14,7 @@
 package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_FORMAT;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_SEPARATOR;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_PREPENDING_NUMBERS;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_NUMBERING;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_PREFIX;
@@ -78,6 +79,13 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         if (e == null)
             return null;
         return DOMUtils.getAttribute(e, ATTR_NUMBER_FORMAT);
+    }
+
+    public String getSeparator() {
+        Element e = getNumberingElement();
+        if (e == null)
+            return null;
+        return DOMUtils.getAttribute(e, ATTR_NUMBER_SEPARATOR);
     }
 
     public String getPrefix() {
@@ -166,7 +174,7 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         setAttribute(ATTR_NUMBER_FORMAT, format);
         String newValue = getNumberFormat();
         fireValueChange(Core.NumberFormat, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setPrefix(String prefix) {
@@ -174,7 +182,7 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         setText(TAG_PREFIX, prefix);
         String newValue = getPrefix();
         fireValueChange(Core.NumberingPrefix, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setPrependsParentNumbers(boolean prepend) {
@@ -182,7 +190,7 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         setAttribute(ATTR_PREPENDING_NUMBERS, prepend ? null : VAL_NONE);
         Boolean newValue = Boolean.valueOf(prependsParentNumbers());
         fireValueChange(Core.NumberPrepending, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setSuffix(String suffix) {
@@ -190,7 +198,15 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         setText(TAG_SUFFIX, suffix);
         String newValue = getSuffix();
         fireValueChange(Core.NumberingSuffix, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
+    }
+
+    public void setSeparator(String separator) {
+        String oldValue = getSeparator();
+        setAttribute(ATTR_NUMBER_SEPARATOR, separator);
+        String newValue = getSeparator();
+        fireValueChange(Core.NumberingSeparator, oldValue, newValue);
+        ownedTopic.updateModificationInfo();
     }
 
     private void fireValueChange(String eventType, Object oldValue,

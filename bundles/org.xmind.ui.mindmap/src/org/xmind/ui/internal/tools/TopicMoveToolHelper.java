@@ -31,11 +31,14 @@ import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.IViewer;
+import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.draw2d.IAnchor;
 import org.xmind.gef.draw2d.IAnchorListener;
 import org.xmind.gef.draw2d.IUseTransparency;
 import org.xmind.gef.draw2d.SelectionFigure;
 import org.xmind.gef.draw2d.decoration.ICorneredDecoration;
+import org.xmind.gef.draw2d.decoration.IDecoration;
+import org.xmind.gef.draw2d.decoration.IShapeDecoration;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.gef.graphicalpolicy.IStructure;
@@ -67,8 +70,9 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
             if (parent != null) {
                 if (connection != null)
                     connection.paint(this, graphics);
-                if (!cursorOverParent)
+                if (!cursorOverParent && !specialConnection) {
                     paintExpandedLine(graphics, parent);
+                }
             }
             super.paintFigure(graphics);
         }
@@ -87,11 +91,11 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
                 return;
 
             PrecisionPoint p1 = anc.getLocation(orientation, 0);
-            PrecisionPoint p2 = anc.getLocation(orientation, connections
-                    .getSourceExpansion());
+            PrecisionPoint p2 = anc.getLocation(orientation,
+                    connections.getSourceExpansion());
             graphics.setLineStyle(SWT.LINE_SOLID);
-            graphics.setLineWidth(Math.max(LINE_WIDTH_DUMMY, connections
-                    .getLineWidth()));
+            graphics.setLineWidth(Math.max(LINE_WIDTH_DUMMY,
+                    connections.getLineWidth()));
             graphics.setForegroundColor(ColorUtils.getColor(COLOR_WARNING));
             graphics.setAlpha(connections.getAlpha());
             Path p = new Path(Display.getCurrent());
@@ -137,6 +141,8 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
     private DummyAnchor targetAnchor = null;
 
     private IAnchorListener targetAnchorListener = null;
+
+    private boolean specialConnection = false;
 
     public void activate(EditDomain domain, IViewer viewer) {
         super.activate(domain, viewer);
@@ -194,56 +200,78 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
 //    }
 
     public void update(IBranchPart targetParent, ParentSearchKey key) {
-        IBranchPart oldParent = this.parent;
+        update(targetParent, true, key, -1);
+    }
 
-        this.parent = targetParent;
+    private void updateCalloutConnection(IBranchPart parent, int index,
+            IBranchPart feedback) {
+        IDecoration originConnection = parent.getCalloutConnections()
+                .getDecoration(index);
+        if (!(originConnection instanceof IBranchConnectionDecoration))
+            return;
+        IBranchConnectionDecoration branchConnectionDecoration = (IBranchConnectionDecoration) originConnection;
+        String connectionId = originConnection.getId();
 
-        if (feedbackService != null && oldParent != null
-                && oldParent.getStatus().isActive()) {
-            feedbackService.removeSelection(oldParent.getTopicPart()
-                    .getFigure());
+        if (!isSameDecoration(connection, connectionId)) {
+            connection = createBranchConnection(parent, connectionId);
         }
+        if (connection != null) {
+            connection.setId(connectionId);
+            connection.setSourceAnchor(connectionFigure, sourceAnchor);
 
-        IFigure parentTopicFigure = targetParent == null ? null : targetParent
-                .getTopicPart().getFigure();
-
-        cursorOverParent = parentTopicFigure != null
-                && parentTopicFigure.containsPoint(key.getCursorPos());
-
-        setSourceAnchor(targetParent == null ? null : targetParent
-                .getConnections().getSourceAnchor());
-
-        if (connectionFigure != null) {
-            if (parentTopicFigure != null) {
-                Rectangle bounds = parentTopicFigure.getBounds().getUnion(
-                        key.getFigure().getBounds()).expand(10, 10);
-                connectionFigure.setBounds(bounds);
-                connectionFigure.setVisible(targetParent != null);
-            } else {
-                connectionFigure.setVisible(false);
+            if (targetAnchor == null) {
+                targetAnchor = new DummyAnchor();
+                if (targetAnchorListener == null) {
+                    targetAnchorListener = new IAnchorListener() {
+                        public void anchorMoved(IAnchor anchor) {
+                            if (connection != null && connectionFigure != null) {
+                                connection.reroute(connectionFigure);
+                            }
+                        }
+                    };
+                }
+                targetAnchor.addAnchorListener(targetAnchorListener);
             }
-            if (targetParent != null) {
-                updateConnection(targetParent, key.getFeedback());
+            targetAnchor.setOwner(feedback.getTopicPart().getFigure());
+            connection.setTargetAnchor(connectionFigure, targetAnchor);
+
+            connection.setLineStyle(connectionFigure,
+                    branchConnectionDecoration.getLineStyle());
+            connection.setLineWidth(connectionFigure,
+                    branchConnectionDecoration.getLineWidth());
+            connection.setLineColor(connectionFigure,
+                    ColorUtils.getColor(COLOR_WARNING));
+
+            connection.setSourceOrientation(connectionFigure,
+                    PositionConstants.CENTER);
+            connection.setSourceExpansion(connectionFigure,
+                    branchConnectionDecoration.getSourceExpansion());
+
+            connection.setTargetOrientation(connectionFigure,
+                    PositionConstants.NONE);
+            connection.setTargetExpansion(connectionFigure, 0);
+            if (connection instanceof IShapeDecoration) {
+                ((IShapeDecoration) connection).setFillColor(connectionFigure,
+                        ColorUtils.getColor(COLOR_WARNING));
             }
-        }
+            if (connectionFigure.getParent() instanceof IUseTransparency) {
+                connection.setAlpha(connectionFigure,
+                        ((IUseTransparency) connectionFigure.getParent())
+                                .getMainAlpha());
+            }
+            if (connection instanceof ICorneredDecoration
+                    && (branchConnectionDecoration instanceof ICorneredDecoration)) {
+                ((ICorneredDecoration) connection).setCornerSize(
+                        connectionFigure,
+                        ((ICorneredDecoration) branchConnectionDecoration)
+                                .getCornerSize());
+            }
 
-        if (feedbackService != null && parentTopicFigure != null) {
-            SelectionFigure selectionFigure = feedbackService
-                    .addSelection(parentTopicFigure);
-            selectionFigure.setPreselectionColor(ColorUtils
-                    .getColor(COLOR_WARNING));
-            selectionFigure.setPreselectionFillColor(ColorUtils
-                    .getColor(COLOR_WARNING));
-            selectionFigure.setPreselectionFillAlpha(0x10);
-            selectionFigure.setPreselected(true);
-        }
-
-        IInsertion oldInsertion = this.insertion;
-        IInsertion newInsertion = calcInsertion(parent, key);
-        if (oldInsertion != newInsertion
-                && (newInsertion == null || !newInsertion.equals(oldInsertion))) {
-            this.insertion = newInsertion;
-            animInsertion(oldInsertion, newInsertion);
+            connection.setVisible(connectionFigure,
+                    !cursorOverParent && connectionFigure.isVisible()
+                            && connection.getSourceAnchor() != null
+                            && connection.getTargetAnchor() != null);
+            connection.reroute(connectionFigure);
         }
     }
 
@@ -268,7 +296,8 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
         }
     }
 
-    private void updateConnection(IBranchPart parent, IBranchPart feedback) {
+    private void updateConnection(IBranchPart parent, ParentSearchKey key) {
+        IBranchPart feedback = key.getFeedback();
         IBranchConnections connections = parent.getConnections();
         String connectionId = connections.getId();
         if (!isSameDecoration(connection, connectionId)) {
@@ -291,17 +320,24 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
                 }
                 targetAnchor.addAnchorListener(targetAnchorListener);
             }
-            targetAnchor.setOwner(feedback.getTopicPart().getFigure());
+
+            IFigure fig = key.getInvent();
+            if (fig == null)
+                fig = key.getFigure();
+            IShapeDecoration shape = ((DecoratedShapeFigure) fig)
+                    .getDecoration();
+            shape.setFillColor(fig, ColorUtils.getColor(COLOR_WARNING));
+            targetAnchor.setOwner(fig);
             connection.setTargetAnchor(connectionFigure, targetAnchor);
 
-            connection.setLineStyle(connectionFigure, connections
-                    .getLineStyle());
-            connection.setLineWidth(connectionFigure, Math.max(
-                    LINE_WIDTH_DUMMY, connections.getLineWidth()));
-            connection.setSourceOrientation(connectionFigure, connections
-                    .getSourceOrientation());
-            connection.setSourceExpansion(connectionFigure, connections
-                    .getSourceExpansion());
+            connection.setLineStyle(connectionFigure,
+                    connections.getLineStyle());
+            connection.setLineWidth(connectionFigure,
+                    Math.max(LINE_WIDTH_DUMMY, connections.getLineWidth()));
+            connection.setSourceOrientation(connectionFigure,
+                    connections.getSourceOrientation());
+            connection.setSourceExpansion(connectionFigure,
+                    connections.getSourceExpansion());
 
             int targetOrientation = PositionConstants.NONE;
             IStructure structure = parent.getBranchPolicy()
@@ -313,8 +349,8 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
             connection
                     .setTargetOrientation(connectionFigure, targetOrientation);
             connection.setTargetExpansion(connectionFigure, 0);
-            connection.setLineColor(connectionFigure, ColorUtils
-                    .getColor(COLOR_WARNING));
+            connection.setLineColor(connectionFigure,
+                    ColorUtils.getColor(COLOR_WARNING));
             if (connectionFigure.getParent() instanceof IUseTransparency) {
                 connection.setAlpha(connectionFigure,
                         ((IUseTransparency) connectionFigure.getParent())
@@ -325,10 +361,10 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
                         connectionFigure, connections.getCornerSize());
             }
 
-            connection.setVisible(connectionFigure, !cursorOverParent
-                    && connectionFigure.isVisible()
-                    && connection.getSourceAnchor() != null
-                    && connection.getTargetAnchor() != null);
+            connection.setVisible(connectionFigure,
+                    !cursorOverParent && connectionFigure.isVisible()
+                            && connection.getSourceAnchor() != null
+                            && connection.getTargetAnchor() != null);
             connection.reroute(connectionFigure);
         }
     }
@@ -356,9 +392,10 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
         if (parent != null) {
             IStructure structure = parent.getBranchPolicy()
                     .getStructure(parent);
-            if (structure instanceof IInsertableBranchStructureExtension)
+            if (structure instanceof IInsertableBranchStructureExtension) {
                 return ((IInsertableBranchStructureExtension) structure)
                         .calcInsertion(parent, key);
+            }
         }
         return null;
     }
@@ -383,4 +420,86 @@ public class TopicMoveToolHelper extends ToolHelperBase implements
         }
     }
 
+    public void update(IBranchPart targetParent, boolean moved,
+            ParentSearchKey key, int specialIndex) {
+        IBranchPart oldParent = this.parent;
+
+        this.parent = targetParent;
+
+        if (feedbackService != null && oldParent != null
+                && oldParent.getStatus().isActive()) {
+            feedbackService.removeSelection(oldParent.getTopicPart()
+                    .getFigure());
+        }
+
+        IFigure parentTopicFigure = targetParent == null ? null : targetParent
+                .getTopicPart().getFigure();
+
+        cursorOverParent = parentTopicFigure != null
+                && parentTopicFigure.containsPoint(key.getCursorPos());
+
+        specialConnection = specialIndex > -1;
+
+        if (specialIndex > -1) {
+            setSourceAnchor(targetParent == null ? null
+                    : ((IBranchConnectionDecoration) targetParent
+                            .getCalloutConnections()
+                            .getDecoration(specialIndex)).getSourceAnchor());
+        } else {
+            setSourceAnchor(targetParent == null ? null : targetParent
+                    .getConnections().getSourceAnchor());
+        }
+
+        if (connectionFigure != null) {
+            if (parentTopicFigure != null) {
+                Rectangle bounds;
+                if (specialIndex <= -1 && key.getInvent() != null)
+                    bounds = parentTopicFigure.getBounds()
+                            .getUnion(key.getInvent().getBounds())
+                            .expand(10, 10);
+                else
+                    bounds = parentTopicFigure.getBounds()
+                            .getUnion(key.getFigure().getBounds())
+                            .expand(10, 10);
+                connectionFigure.setBounds(bounds);
+                connectionFigure.setVisible(targetParent != null);
+            } else {
+                connectionFigure.setVisible(false);
+            }
+            if (targetParent != null) {
+                if (specialIndex > -1) {
+                    updateCalloutConnection(targetParent, specialIndex,
+                            key.getFeedback());
+                } else {
+                    updateConnection(targetParent, key);
+                }
+            }
+        }
+
+        if (feedbackService != null && parentTopicFigure != null) {
+            SelectionFigure selectionFigure = feedbackService
+                    .addSelection(parentTopicFigure);
+            selectionFigure.setPreselectionColor(ColorUtils
+                    .getColor(COLOR_WARNING));
+            selectionFigure.setPreselectionFillColor(ColorUtils
+                    .getColor(COLOR_WARNING));
+            selectionFigure.setPreselectionFillAlpha(0x10);
+            selectionFigure.setPreselected(true);
+        }
+
+        if (moved) {
+            IInsertion oldInsertion = this.insertion;
+            IInsertion newInsertion = calcInsertion(parent, key);
+            if (oldInsertion != newInsertion
+                    && (newInsertion == null || !newInsertion
+                            .equals(oldInsertion))) {
+                this.insertion = newInsertion;
+                animInsertion(oldInsertion, newInsertion);
+            }
+        } else {
+            IInsertion oldiIInsertion = this.insertion;
+            this.insertion = null;
+            animInsertion(oldiIInsertion, null);
+        }
+    }
 }

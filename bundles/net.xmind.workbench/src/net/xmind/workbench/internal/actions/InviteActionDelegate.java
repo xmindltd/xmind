@@ -1,13 +1,14 @@
 package net.xmind.workbench.internal.actions;
 
-import net.xmind.signin.XMindNet;
-import net.xmind.workbench.internal.XMindNetWorkbench;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+import net.xmind.signin.XMindNet;
+import net.xmind.workbench.internal.XMindNetWorkbench;
+
+@Deprecated
 public class InviteActionDelegate implements IWorkbenchWindowActionDelegate {
 
     private IWorkbenchWindow window;

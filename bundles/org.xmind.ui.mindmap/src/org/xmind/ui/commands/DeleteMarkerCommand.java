@@ -18,6 +18,7 @@ import org.xmind.core.ITopic;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.gef.GEF;
 import org.xmind.gef.command.SourceCommand;
+import org.xmind.ui.internal.MindMapMessages;
 
 public class DeleteMarkerCommand extends SourceCommand {
 
@@ -27,6 +28,7 @@ public class DeleteMarkerCommand extends SourceCommand {
         super(topic);
         Assert.isNotNull(markerId);
         this.markerId = markerId;
+        setLabel(MindMapMessages.DeleteMarker_label);
     }
 
     public DeleteMarkerCommand(IMarkerRef markerRef) {
@@ -37,6 +39,7 @@ public class DeleteMarkerCommand extends SourceCommand {
         Assert.isNotNull(markerId);
         setSource(topic);
         this.markerId = markerId;
+        setLabel(MindMapMessages.DeleteMarker_label);
     }
 
     public int getType() {

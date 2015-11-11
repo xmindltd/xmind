@@ -36,9 +36,9 @@ import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.geometry.PrecisionRotator;
 import org.xmind.ui.decorations.ITopicDecoration;
 
-public class TopicFigure extends DecoratedShapeFigure implements ITitledFigure,
-        IMinimizable, IShadowedFigure, IRotatableReferencedFigure,
-        IRelayerableFigure {
+public class TopicFigure extends DecoratedShapeFigure
+        implements ITitledFigure, IMinimizable, IShadowedFigure,
+        IRotatableReferencedFigure, IRelayerableFigure {
 
     protected static final int FLAG_MINIMIZED = MAX_FLAG << 1;
     protected static final int FLAG_RELAYERED = MAX_FLAG << 2;
@@ -113,14 +113,14 @@ public class TopicFigure extends DecoratedShapeFigure implements ITitledFigure,
 
     public String toString() {
         if (title != null)
-            return title.getText();
+            return "TopicFigure(" + title.getText() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
         return super.toString();
     }
 
     public PrecisionRectangle getNormalPreferredBounds(Point reference) {
         PrecisionInsets ins = getNormalReferenceDescription();
-        return new PrecisionRectangle(reference.x - ins.left, reference.y
-                - ins.top, ins.getWidth(), ins.getHeight());
+        return new PrecisionRectangle(reference.x - ins.left,
+                reference.y - ins.top, ins.getWidth(), ins.getHeight());
     }
 
     public PrecisionInsets getNormalReferenceDescription() {

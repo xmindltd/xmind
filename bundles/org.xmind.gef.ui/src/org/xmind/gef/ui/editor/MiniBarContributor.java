@@ -42,6 +42,7 @@ public class MiniBarContributor implements IMiniBarContributor {
     public void dispose() {
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IMiniBar.class)
             return bar;

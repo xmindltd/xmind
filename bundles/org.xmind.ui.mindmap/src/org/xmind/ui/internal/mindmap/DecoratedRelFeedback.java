@@ -43,8 +43,8 @@ public class DecoratedRelFeedback extends DecoratedLineFeedback {
     }
 
     protected String getNewDecorationId() {
-        return StyleUtils.getString(getHost(), StyleUtils
-                .getStyleSelector(getHost()), Styles.ShapeClass,
+        return StyleUtils.getString(getHost(),
+                StyleUtils.getStyleSelector(getHost()), Styles.ShapeClass,
                 Styles.REL_SHAPE_STRAIGHT);
     }
 
@@ -65,18 +65,18 @@ public class DecoratedRelFeedback extends DecoratedLineFeedback {
             IRelationshipDecoration decoration) {
         if (r != null) {
             IControlPoint cp0 = r.getControlPoint(0);
-            decoration.setRelativeSourceControlPoint(figure, MindMapUtils
-                    .toGraphicalPosition(cp0.getPosition()));
-//            Double angle = cp0 == null ? null : cp0.getAngle();
-//            Double amount = cp0 == null ? null : cp0.getAmount();
-//            decoration.setSourceControlPointHint(figure, angle, amount);
+            decoration.setRelativeSourceControlPoint(figure,
+                    MindMapUtils.toGraphicalPosition(cp0.getPosition()));
+            Double angle = cp0 == null ? null : cp0.getPolarAngle();
+            Double amount = cp0 == null ? null : cp0.getPolarAmount();
+            decoration.setSourceControlPointHint(figure, angle, amount);
 
             IControlPoint cp1 = r.getControlPoint(1);
-            decoration.setRelativeTargetControlPoint(figure, MindMapUtils
-                    .toGraphicalPosition(cp1.getPosition()));
-//            angle = cp1 == null ? null : cp1.getAngle();
-//            amount = cp1 == null ? null : cp1.getAmount();
-//            decoration.setTargetControlPointHint(figure, angle, amount);
+            decoration.setRelativeTargetControlPoint(figure,
+                    MindMapUtils.toGraphicalPosition(cp1.getPosition()));
+            angle = cp1 == null ? null : cp1.getPolarAngle();
+            amount = cp1 == null ? null : cp1.getPolarAmount();
+            decoration.setTargetControlPointHint(figure, angle, amount);
         }
     }
 

@@ -57,7 +57,8 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
     /**
      * @param implementation
      */
-    public RelationshipImpl(Element implementation, WorkbookImpl ownedWorkbook) {
+    public RelationshipImpl(Element implementation,
+            WorkbookImpl ownedWorkbook) {
         super();
         this.implementation = DOMUtils.addIdAttribute(implementation);
         this.ownedWorkbook = ownedWorkbook;
@@ -113,7 +114,7 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         DOMUtils.setAttribute(implementation, ATTR_END1, id);
         String newId = getEnd1Id();
         fireValueChange(Core.RelationshipEnd1, oldId, newId);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -131,7 +132,7 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         DOMUtils.setAttribute(implementation, ATTR_END2, id);
         String newId = getEnd2Id();
         fireValueChange(Core.RelationshipEnd2, oldId, newId);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /*
@@ -158,8 +159,8 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         if (endId == null)
             return null;
 
-        IAdaptable obj = ownedWorkbook.getAdaptableRegistry().getAdaptable(
-                endId, implementation.getOwnerDocument());
+        IAdaptable obj = ownedWorkbook.getAdaptableRegistry()
+                .getAdaptable(endId, implementation.getOwnerDocument());
         if (obj instanceof IRelationshipEnd) {
             return (IRelationshipEnd) obj;
         }
@@ -189,7 +190,7 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         DOMUtils.setText(implementation, TAG_TITLE, titleText);
         String newText = getLocalTitleText();
         fireValueChange(Core.TitleText, oldText, newText);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -245,14 +246,14 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
         String newValue = getStyleId();
         fireValueChange(Core.Style, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public IControlPoint getControlPoint(int index) {
         if (controlPoints == null)
             controlPoints = new HashMap<Integer, ControlPointImpl>();
-        ControlPointImpl controlPoint = controlPoints.get(Integer
-                .valueOf(index));
+        ControlPointImpl controlPoint = controlPoints
+                .get(Integer.valueOf(index));
         if (controlPoint == null) {
             controlPoint = new ControlPointImpl(this, index);
             controlPoints.put(Integer.valueOf(index), controlPoint);
@@ -353,46 +354,27 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         return coreEventSupport;
     }
 
-    private void fireValueChange(String type, Object oldValue, Object newValue) {
+    private void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         getCoreEventSupport().dispatchValueChange(this, type, oldValue,
                 newValue);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IModifiable#getModifiedTime()
-     */
     public long getModifiedTime() {
-        String time = DOMUtils.getAttribute(getImplementation(),
-                DOMConstants.ATTR_TIMESTAMP);
-        return NumberUtils.safeParseLong(time, 0);
+        return InternalDOMUtils.getModifiedTime(this, implementation);
     }
 
-    public void updateModifiedTime() {
-        setModifiedTime(System.currentTimeMillis());
-        ISheet parent = getParent();
-        if (parent != null) {
-            ((SheetImpl) parent).updateModifiedTime();
+    public String getModifiedBy() {
+        return InternalDOMUtils.getModifiedBy(this, implementation);
+    }
+
+    protected void updateModificationInfo() {
+        InternalDOMUtils.updateModificationInfo(this);
+
+        ISheet sheet = getParent();
+        if (sheet != null) {
+            ((SheetImpl) sheet).updateModificationInfo();
         }
     }
 
-    public void setModifiedTime(long time) {
-//        updatingTimestamp = true;
-        long oldTime = getModifiedTime();
-        DOMUtils.setAttribute(getImplementation(), DOMConstants.ATTR_TIMESTAMP,
-                Long.toString(time));
-        long newTime = getModifiedTime();
-//        updatingTimestamp = false;
-        fireValueChange(Core.ModifyTime, oldTime, newTime);
-    }
-
-//    private void fireIndexedTargetChange(String type, Object target, int index) {
-//        ICoreEventSupport coreEventSupport = getCoreEventSupport(false);
-//        if (coreEventSupport != null) {
-//            coreEventSupport.dispatchIndexedTargetChange(this, type, target,
-//                    index);
-//        }
-//    }
-//
 }

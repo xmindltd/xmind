@@ -4,6 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins">
 		<accessrules>
 			<accessrule kind="accessible" pattern="org/eclipse/ui/internal/**"/>
+			<accessrule kind="accessible" pattern="org/eclipse/e4/ui/internal/**"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>

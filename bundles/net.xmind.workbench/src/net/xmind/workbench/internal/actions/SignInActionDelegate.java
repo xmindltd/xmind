@@ -13,12 +13,6 @@
  *******************************************************************************/
 package net.xmind.workbench.internal.actions;
 
-import net.xmind.signin.IAccountInfo;
-import net.xmind.signin.IAuthenticationListener;
-import net.xmind.signin.XMindNet;
-import net.xmind.signin.internal.Messages;
-import net.xmind.workbench.internal.XMindNetWorkbench;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
@@ -27,6 +21,13 @@ import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+import net.xmind.signin.IAccountInfo;
+import net.xmind.signin.IAuthenticationListener;
+import net.xmind.signin.XMindNet;
+import net.xmind.signin.internal.Messages;
+import net.xmind.workbench.internal.XMindNetWorkbench;
+
+@Deprecated
 public class SignInActionDelegate implements IWorkbenchWindowActionDelegate,
         IActionDelegate2, IAuthenticationListener {
 

@@ -2,3 +2,4 @@
 org.xmind.core.command.remote/debug=false
 org.xmind.core.command.remote/debug/incomingCommandHandler=false
 org.xmind.core.command.remote/debug/outgoingCommandHandler=false
+org.xmind.core.command.remote/debug/outgoingSocketCommandHandler=false

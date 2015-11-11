@@ -314,7 +314,7 @@ public class LocalNetworkSharingService implements ISharingService,
         System.setProperty(PROP_STATUS, STATUS_VALUES[INACTIVE]);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         if (adapter == ICommandServiceDomain.class)
             return domain;

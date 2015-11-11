@@ -42,6 +42,7 @@ import org.xmind.gef.part.PartEvent;
 import org.xmind.gef.policy.NullEditPolicy;
 import org.xmind.gef.service.IFeedback;
 import org.xmind.gef.util.GEFUtils;
+import org.xmind.ui.decorations.IBoundaryDecoration;
 import org.xmind.ui.internal.decorators.BoundaryDecorator;
 import org.xmind.ui.internal.figures.BoundaryFigure;
 import org.xmind.ui.internal.graphicalpolicies.BoundaryGraphicalPolicy;
@@ -55,6 +56,7 @@ import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.ITitleTextPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.mindmap.RangeEvent;
+import org.xmind.ui.style.Styles;
 
 public class BoundaryPart extends NodePart implements IBoundaryPart {
 
@@ -106,7 +108,7 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
     }
 
     protected Object[] getModelChildren(Object model) {
-        if (hasTitle()) {
+        if (hasTitle() && !isPolygonShape(getFigure())) {
             return new Object[] { new ViewerModel(BoundaryTitleTextPart.class,
                     getBoundary()) };
         }
@@ -119,13 +121,27 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
 
     public void setTitle(ITitleTextPart title) {
         this.title = title;
-        ((BoundaryFigure) getFigure()).setTitle(title == null ? null : title
-                .getTextFigure());
+        ((BoundaryFigure) getFigure())
+                .setTitle(title == null ? null : title.getTextFigure());
     }
 
     private boolean hasTitle() {
         ITitled titled = getBoundary();
         return titled.hasTitle() && !"".equals(titled.getTitleText()); //$NON-NLS-1$
+    }
+
+    private boolean isPolygonShape(IFigure figure) {
+        if (figure == null || !(figure instanceof BoundaryFigure))
+            return false;
+
+        IBoundaryDecoration decoration = ((BoundaryFigure) figure)
+                .getDecoration();
+        if (decoration == null)
+            return false;
+
+        return Styles.BOUNDARY_SHAPE_POLYGON.equals(decoration.getId())
+                || Styles.BOUNDARY_SHAPE_ROUNDEDPOLYGON
+                        .equals(decoration.getId());
     }
 
     @SuppressWarnings("unchecked")
@@ -173,16 +189,16 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
 
     protected void declareEditPolicies(IRequestHandler reqHandler) {
         super.declareEditPolicies(reqHandler);
-        reqHandler.installEditPolicy(GEF.ROLE_SELECTABLE, NullEditPolicy
-                .getInstance());
+        reqHandler.installEditPolicy(GEF.ROLE_SELECTABLE,
+                NullEditPolicy.getInstance());
         reqHandler.installEditPolicy(GEF.ROLE_DELETABLE,
                 MindMapUI.POLICY_DELETABLE);
         reqHandler.installEditPolicy(GEF.ROLE_EDITABLE,
                 MindMapUI.POLICY_EDITABLE);
         reqHandler.installEditPolicy(GEF.ROLE_MODIFIABLE,
                 MindMapUI.POLICY_MODIFIABLE);
-        reqHandler.installEditPolicy(GEF.ROLE_MOVABLE, NullEditPolicy
-                .getInstance());
+        reqHandler.installEditPolicy(GEF.ROLE_MOVABLE,
+                NullEditPolicy.getInstance());
 
         reqHandler.installEditPolicy(GEF.ROLE_NAVIGABLE,
                 MindMapUI.POLICY_TOPIC_NAVIGABLE);
@@ -211,11 +227,16 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
             }
             fireRangeChanged();
         } else if (Core.TitleText.equals(type)) {
-            ((BoundaryFigure) getFigure()).setTitleVisible(hasTitle());
+            ((BoundaryFigure) getFigure()).setTitleVisible(
+                    hasTitle() && !isPolygonShape(getFigure()));
             refresh();
             getFigure().revalidate();
         } else if (Core.Style.equals(type)) {
             update();
+            ((BoundaryFigure) getFigure()).setTitleVisible(
+                    hasTitle() && !isPolygonShape(getFigure()));
+            refresh();
+            getFigure().revalidate();
         } else {
             super.handleCoreEvent(event);
         }
@@ -223,7 +244,8 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
 
     public List<IBranchPart> getEnclosingBranches() {
         if (enclosingBranches == null) {
-            enclosingBranches = fillEnclosingBranches(new ArrayList<IBranchPart>());
+            enclosingBranches = fillEnclosingBranches(
+                    new ArrayList<IBranchPart>());
         }
         return enclosingBranches;
     }
@@ -287,7 +309,7 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
 
     protected IFigure createFigure() {
         BoundaryFigure figure = new BoundaryFigure();
-        figure.setTitleVisible(hasTitle());
+        figure.setTitleVisible(hasTitle() && !isPolygonShape(figure));
         return figure;
     }
 
@@ -312,7 +334,7 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
     }
 
     public IFigure findTooltipAt(Point position) {
-        if (hasTitle() && title != null
+        if (hasTitle() && !isPolygonShape(getFigure()) && title != null
                 && title.getFigure().containsPoint(position)) {
             return new Label(getBoundary().getTitleText());
         }
@@ -329,7 +351,8 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
 
     public boolean containsPoint(Point position) {
         return super.containsPoint(position)
-                || ((BoundaryFeedback) getFeedback()).getOrientation(position) != PositionConstants.NONE;
+                || ((BoundaryFeedback) getFeedback())
+                        .getOrientation(position) != PositionConstants.NONE;
     }
 
     public IAnchor getSourceAnchor(IGraphicalPart connection) {

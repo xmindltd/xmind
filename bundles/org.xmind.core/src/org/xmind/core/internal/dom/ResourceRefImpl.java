@@ -17,11 +17,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IResourceRef;
+import org.xmind.core.internal.AbstractWorkbookComponent;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.util.DOMUtils;
 
-public class ResourceRefImpl implements IResourceRef {
+public class ResourceRefImpl extends AbstractWorkbookComponent
+        implements IResourceRef {
 
     private Element implementation;
 
@@ -69,7 +71,8 @@ public class ResourceRefImpl implements IResourceRef {
     public Object getAdapter(Class adapter) {
         if (adapter == Node.class || adapter == Element.class)
             return implementation;
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public Object getResource() {

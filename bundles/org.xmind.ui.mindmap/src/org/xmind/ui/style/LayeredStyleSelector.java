@@ -21,6 +21,7 @@ import static org.xmind.ui.style.Styles.LAYER_BEFORE_USER_VALUE;
 import org.xmind.gef.graphicalpolicy.IStyleValueProvider;
 import org.xmind.gef.part.IGraphicalPart;
 
+@Deprecated
 public abstract class LayeredStyleSelector extends MindMapStyleSelectorBase {
 
     protected String getThemeStyleValue(IGraphicalPart part, String familyName,
@@ -37,8 +38,8 @@ public abstract class LayeredStyleSelector extends MindMapStyleSelectorBase {
             String familyName, String key,
             IStyleValueProvider defaultValueProvider) {
         String value = null;
-        value = getLayeredProperty(part, LAYER_BEFORE_DEFAULT_VALUE,
-                familyName, key);
+        value = getLayeredProperty(part, LAYER_BEFORE_DEFAULT_VALUE, familyName,
+                key);
         if (isValidValue(part, key, value))
             return getCheckedValue(value);
 
@@ -47,7 +48,8 @@ public abstract class LayeredStyleSelector extends MindMapStyleSelectorBase {
         if (isValidValue(part, key, value))
             return getCheckedValue(value);
 
-        value = getLayeredProperty(part, LAYER_AFTER_ALL_VALUE, familyName, key);
+        value = getLayeredProperty(part, LAYER_AFTER_ALL_VALUE, familyName,
+                key);
         return value;
     }
 

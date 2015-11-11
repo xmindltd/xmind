@@ -20,10 +20,12 @@ import org.w3c.dom.Node;
 import org.xmind.core.IParagraph;
 import org.xmind.core.ISpan;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.AbstractWorkbookComponent;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.util.DOMUtils;
 
-public class ParagraphImpl implements IParagraph {
+public class ParagraphImpl extends AbstractWorkbookComponent
+        implements IParagraph {
 
     private Element implementation;
 
@@ -84,12 +86,13 @@ public class ParagraphImpl implements IParagraph {
     public Object getAdapter(Class adapter) {
         if (adapter == Node.class || adapter == Element.class)
             return implementation;
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public String getStyleId() {
-        return DOMUtils
-                .getAttribute(implementation, DOMConstants.ATTR_STYLE_ID);
+        return DOMUtils.getAttribute(implementation,
+                DOMConstants.ATTR_STYLE_ID);
     }
 
     public void setStyleId(String styleId) {

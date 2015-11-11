@@ -1,7 +1,5 @@
 package net.xmind.share.actions;
 
-import net.xmind.share.Uploader;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -9,13 +7,15 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.ui.internal.handlers.MindMapHandlerUtil;
 import org.xmind.ui.mindmap.IMindMapViewer;
 
-public class Uploadhandler extends AbstractHandler {
+import net.xmind.share.Uploader;
+
+public class UploadHandler extends AbstractHandler {
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
         upload(event);
@@ -23,7 +23,7 @@ public class Uploadhandler extends AbstractHandler {
     }
 
     private void upload(ExecutionEvent event) {
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
+        IEditorPart editor = MindMapHandlerUtil.findContributingEditor(event);
         if (!(editor instanceof IGraphicalEditor))
             return;
 

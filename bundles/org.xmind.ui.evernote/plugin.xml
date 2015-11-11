@@ -13,20 +13,17 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="menu:file?end=save.ext">
+            locationURI="menu:file?endof=save.group">
+         <separator
+               name="org.xmind.ui.evernote.separator"
+               visible="true">
+         </separator>
          <command
                commandId="org.xmind.ui.command.evernote.save"
                icon="icons/evernote_menu.png"
                label="%command.saveToEvernote.label"
                style="push">
-            <visibleWhen
-                  checkEnabled="true">
-            </visibleWhen>
          </command>
-         <separator
-               name="org.xmind.ui.evernote.separator"
-               visible="true">
-         </separator>
       </menuContribution>
    </extension>
    <extension
@@ -34,14 +31,11 @@
       <handler
             class="org.xmind.ui.internal.evernote.export.EvernoteExportHandler"
             commandId="org.xmind.ui.command.evernote.save">
-         <enabledWhen>
-            <with
-                  variable="activeEditorId">
-               <equals
-                     value="org.xmind.ui.MindMapEditor">
-               </equals>
-            </with>
-         </enabledWhen>
+         <activeWhen>
+               <reference
+                     definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+               </reference>
+         </activeWhen>
       </handler>
    </extension>
    <extension

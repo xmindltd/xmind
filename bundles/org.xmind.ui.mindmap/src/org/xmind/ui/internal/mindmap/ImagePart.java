@@ -294,17 +294,17 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
      * org.xmind.gef.part.GraphicalEditPart#findAt(org.eclipse.draw2d.geometry
      * .Point)
      */
-    @Override
-    public IPart findAt(Point position) {
-        if (!getStatus().isSelected()) {
-            ITopicPart topicPart = getTopicPart();
-            if (topicPart != null) {
-                if (!topicPart.getStatus().isSelected())
-                    return null;
-            }
-        }
-        return super.findAt(position);
-    }
+//    @Override
+//    public IPart findAt(Point position) {
+//        if (!getStatus().isSelected()) {
+//            ITopicPart topicPart = getTopicPart();
+//            if (topicPart != null) {
+//                if (!topicPart.getStatus().isSelected())
+//                    return null;
+//            }
+//        }
+//        return super.findAt(position);
+//    }
 
     public boolean containsPoint(Point position) {
         return super.containsPoint(position)

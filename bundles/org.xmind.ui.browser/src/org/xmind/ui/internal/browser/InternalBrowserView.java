@@ -45,8 +45,8 @@ import org.xmind.ui.internal.browser.actions.CutAction;
 import org.xmind.ui.internal.browser.actions.DeleteAction;
 import org.xmind.ui.internal.browser.actions.PasteAction;
 
-public class InternalBrowserView extends ViewPart implements
-        IBrowserViewerContainer {
+public class InternalBrowserView extends ViewPart
+        implements IBrowserViewerContainer {
 
     private class OpenInExternalAction extends Action {
         /**
@@ -55,7 +55,8 @@ public class InternalBrowserView extends ViewPart implements
         public OpenInExternalAction() {
             super(BrowserMessages.BrowserView_OpenInExternalBrowser_text,
                     BrowserImages.getImageDescriptor(BrowserImages.BROWSER));
-            setToolTipText(BrowserMessages.BrowserView_OpenInExternalBrowser_toolTip);
+            setToolTipText(
+                    BrowserMessages.BrowserView_OpenInExternalBrowser_toolTip);
         }
 
         /*
@@ -69,8 +70,8 @@ public class InternalBrowserView extends ViewPart implements
                     || viewer.getControl().isDisposed())
                 return;
 
-            IBrowser browser = BrowserSupport.getInstance().createBrowser(
-                    IBrowserSupport.AS_EXTERNAL);
+            IBrowser browser = BrowserSupport.getInstance()
+                    .createBrowser(IBrowserSupport.AS_EXTERNAL);
             try {
                 browser.openURL(viewer.getURL());
             } catch (PartInitException e) {
@@ -163,10 +164,11 @@ public class InternalBrowserView extends ViewPart implements
     }
 
     @Override
-    public void init(IViewSite site, IMemento memento) throws PartInitException {
+    public void init(IViewSite site, IMemento memento)
+            throws PartInitException {
         this.clientId = site.getSecondaryId();
-        Integer styleValue = memento == null ? null : memento
-                .getInteger(KEY_STYLE);
+        Integer styleValue = memento == null ? null
+                : memento.getInteger(KEY_STYLE);
         this.style = styleValue == null ? SWT.NONE : styleValue.intValue();
         super.init(site, memento);
     }
@@ -175,8 +177,8 @@ public class InternalBrowserView extends ViewPart implements
         viewer = new BrowserViewer(parent, style, this);
         initActions();
         final Image defaultImage = getTitleImage();
-        viewer.getBusyIndicator().addSelectionChangedListener(
-                new ISelectionChangedListener() {
+        viewer.getBusyIndicator()
+                .addSelectionChangedListener(new ISelectionChangedListener() {
                     public void selectionChanged(SelectionChangedEvent event) {
                         if (!parent.isDisposed()) {
                             parent.getDisplay().asyncExec(new Runnable() {
@@ -215,19 +217,19 @@ public class InternalBrowserView extends ViewPart implements
         menu.add(openInExternalAction);
         menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
-        IToolBarManager toolBar = actionBars.getToolBarManager();
-        toolBar.add(new GroupMarker(GROUP_CONTROLS));
-        toolBar.add(openInExternalAction);
-        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+//        IToolBarManager toolBar = actionBars.getToolBarManager();
+//        toolBar.add(new GroupMarker(GROUP_CONTROLS));
+//        toolBar.add(openInExternalAction);
+//        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
         registerAction(actionBars, new CopyAction(viewer));
         registerAction(actionBars, new CutAction(viewer));
         registerAction(actionBars, new PasteAction(viewer));
         registerAction(actionBars, new DeleteAction(viewer));
 
-        if ((style & IBrowserSupport.NO_TOOLBAR) != 0) {
-            addControls(toolBar);
-        }
+//        if ((style & IBrowserSupport.NO_TOOLBAR) != 0) {
+//            addControls(toolBar);
+//        }
     }
 
     private void registerAction(IActionBars actionBars, IAction action) {
@@ -248,6 +250,7 @@ public class InternalBrowserView extends ViewPart implements
         return viewer;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IBrowserViewer.class)
             return viewer;

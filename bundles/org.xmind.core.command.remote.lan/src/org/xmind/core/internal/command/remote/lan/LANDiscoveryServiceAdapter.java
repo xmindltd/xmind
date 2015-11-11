@@ -155,7 +155,7 @@ public class LANDiscoveryServiceAdapter implements ICommandServerAdvertiser,
         return Status.OK_STATUS;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         Object adapted = null;
         if (advertiserImpl != null) {

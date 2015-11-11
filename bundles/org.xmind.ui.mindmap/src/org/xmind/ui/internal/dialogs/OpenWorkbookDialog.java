@@ -30,6 +30,7 @@ import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.MindMapUI;
 
+@Deprecated
 public class OpenWorkbookDialog {
 
     private static final String OPEN_DIALOG_SETTINGS_ID = "org.xmind.ui.openDialog"; //$NON-NLS-1$
@@ -61,14 +62,14 @@ public class OpenWorkbookDialog {
         String allSupportedFileExt = String.format("%s;%s;%s", //$NON-NLS-1$
                 xmindExt, xmtExt, oldExt);
         String allExt = "*.*"; //$NON-NLS-1$
-        fd.setFilterExtensions(new String[] { xmindExt, oldExt,
-                allSupportedFileExt, allExt });
+        fd.setFilterExtensions(
+                new String[] { xmindExt, oldExt, allSupportedFileExt, allExt });
         fd.setFilterNames(new String[] {
                 NLS.bind("{0} ({1})", DialogMessages.WorkbookFilterName, //$NON-NLS-1$
                         xmindExt),
                 NLS.bind("{0} ({1})", DialogMessages.OldWorkbookFilterName, //$NON-NLS-1$
                         oldExt),
-                NLS.bind("{0} ({1}, {2})", //$NON-NLS-1$
+                NLS.bind("{0} ({1}, {2}, {3})", //$NON-NLS-1$
                         new Object[] {
                                 DialogMessages.AllSupportedFilesFilterName,
                                 xmindExt, xmtExt, oldExt }),
@@ -86,7 +87,8 @@ public class OpenWorkbookDialog {
         String[] fileNames = fd.getFileNames();
         setFilterIndex(fd.getFilterIndex());
         setFilterPath(path);
-        List<IEditorPart> editors = new ArrayList<IEditorPart>(fileNames.length);
+        List<IEditorPart> editors = new ArrayList<IEditorPart>(
+                fileNames.length);
         for (int i = 0; i < fileNames.length; i++) {
             File file = new File(path, fileNames[i]);
             if (file.exists()) {
@@ -112,7 +114,7 @@ public class OpenWorkbookDialog {
                 return filterIndex;
         } catch (NumberFormatException ignore) {
         }
-        return 2;
+        return 0;
     }
 
     private void setFilterPath(String path) {

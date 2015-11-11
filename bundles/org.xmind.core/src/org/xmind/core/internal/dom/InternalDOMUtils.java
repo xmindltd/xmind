@@ -18,6 +18,9 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_VERSION;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmind.core.Core;
+import org.xmind.core.IAdaptable;
+import org.xmind.core.event.ICoreEventSource;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.util.DOMUtils;
 
 /**
@@ -29,16 +32,16 @@ public class InternalDOMUtils {
     public static void addVersion(Document document) {
         Element element = document.getDocumentElement();
         if (element != null && !element.hasAttribute(ATTR_VERSION)) {
-            DOMUtils.setAttribute(element, ATTR_VERSION, Core
-                    .getCurrentVersion());
+            DOMUtils.setAttribute(element, ATTR_VERSION,
+                    Core.getCurrentVersion());
         }
     }
 
     public static void replaceVersion(Document document) {
         Element element = document.getDocumentElement();
         if (element != null) {
-            DOMUtils.setAttribute(element, ATTR_VERSION, Core
-                    .getCurrentVersion());
+            DOMUtils.setAttribute(element, ATTR_VERSION,
+                    Core.getCurrentVersion());
         }
     }
 
@@ -98,9 +101,11 @@ public class InternalDOMUtils {
             String tagName, NS... nss) {
         if (tagName != null) {
             if (text.indexOf("<" + tagName) < 0) { //$NON-NLS-1$
-                StringBuffer sb = new StringBuffer(tagName.length()
-                        + (defaultNS != null ? defaultNS.getURI().length() : 0)
-                        + nss.length * 20 + 2);
+                StringBuffer sb = new StringBuffer(
+                        tagName.length()
+                                + (defaultNS != null
+                                        ? defaultNS.getURI().length() : 0)
+                                + nss.length * 20 + 2);
                 sb.append('<');
                 sb.append(tagName);
                 if (defaultNS != null) {
@@ -144,8 +149,8 @@ public class InternalDOMUtils {
     }
 
     public static int getStartIndex(String rangeValue) {
-        if (rangeValue != null
-                && rangeValue.startsWith("(") && rangeValue.endsWith(")")) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (rangeValue != null && rangeValue.startsWith("(") //$NON-NLS-1$
+                && rangeValue.endsWith(")")) { //$NON-NLS-1$
             int sep = rangeValue.indexOf(',');
             if (sep > 0) {
                 String startIndexValue = rangeValue.substring(1, sep).trim();
@@ -157,17 +162,57 @@ public class InternalDOMUtils {
     }
 
     public static int getEndIndex(String rangeValue) {
-        if (rangeValue != null
-                && rangeValue.startsWith("(") && rangeValue.endsWith(")")) { //$NON-NLS-1$ //$NON-NLS-2$
+        if (rangeValue != null && rangeValue.startsWith("(") //$NON-NLS-1$
+                && rangeValue.endsWith(")")) { //$NON-NLS-1$
             int sep = rangeValue.lastIndexOf(',');
             if (sep > 0) {
-                String endIndexValue = rangeValue.substring(sep + 1,
-                        rangeValue.length() - 1).trim();
+                String endIndexValue = rangeValue
+                        .substring(sep + 1, rangeValue.length() - 1).trim();
                 int index = NumberUtils.safeParseInt(endIndexValue, -1);
                 return index < 0 ? -1 : index;
             }
         }
         return -1;
+    }
+
+    public static void updateModificationInfo(IAdaptable obj) {
+        Element ele = (Element) obj.getAdapter(Element.class);
+        if (ele == null)
+            return;
+
+        long oldTime = getModifiedTime(obj, ele);
+        long newTime = System.currentTimeMillis();
+        DOMUtils.setAttribute(ele, DOMConstants.ATTR_TIMESTAMP,
+                Long.toString(newTime));
+
+        DOMUtils.setAttribute(ele, DOMConstants.ATTR_MODIFYBY, null);
+        DOMUtils.setAttribute(ele, DOMConstants.ATTR_MODIFIED_BY,
+                getDefaultModifierName());
+
+        ICoreEventSupport eventSupport = (ICoreEventSupport) obj
+                .getAdapter(ICoreEventSupport.class);
+        if (eventSupport != null && obj instanceof ICoreEventSource) {
+            eventSupport.dispatchValueChange((ICoreEventSource) obj,
+                    Core.ModifyTime, Long.valueOf(oldTime),
+                    Long.valueOf(newTime));
+        }
+    }
+
+    public static long getModifiedTime(IAdaptable obj, Element ele) {
+        String time = DOMUtils.getAttribute(ele, DOMConstants.ATTR_TIMESTAMP);
+        return NumberUtils.safeParseLong(time, 0);
+    }
+
+    public static String getModifiedBy(IAdaptable obj, Element ele) {
+        String name = DOMUtils.getAttribute(ele, DOMConstants.ATTR_MODIFIED_BY);
+        if (name != null)
+            return name;
+        return DOMUtils.getAttribute(ele, DOMConstants.ATTR_MODIFYBY);
+    }
+
+    public static String getDefaultModifierName() {
+        String name = System.getProperty(DOMConstants.AUTHOR_NAME);
+        return name != null ? name : System.getProperty("user.name"); //$NON-NLS-1$
     }
 
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dashboard>
+
+<command
+		id="org.xmind.ui.part.dashboard.back"
+		label="%back"
+		iconURI="platform:/plugin/org.xmind.cathy/dashboard/back.png"
+		commandId="org.eclipse.ui.file.closePart">
+</command>
+	
+<page
+		id="org.xmind.ui.part.dashboard.new"
+		label="%new"
+		iconURI="platform:/plugin/org.xmind.cathy/dashboard/new.png"
+		contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.dashboard.NewFileDashboardPage">
+</page>
+	
+<page
+		id="org.xmind.ui.part.dashboard.recent"
+		label="%recent"
+		iconURI="platform:/plugin/org.xmind.cathy/dashboard/recent.png"
+		contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.dashboard.RecentFileListDashboardPage">
+</page>
+	
+<command
+		id="org.xmind.ui.part.dashboard.open"
+		label="%open"
+		iconURI="platform:/plugin/org.xmind.cathy/dashboard/open.png"
+		commandId="org.xmind.ui.command.openWorkbook">
+</command>
+	
+<space
+		id="org.xmind.ui.part.dashboard.separator.1"
+		width="fill"/>
+	
+<command
+		id="org.xmind.ui.part.dashboard.preferences"
+		label="%preferences"
+		iconURI="platform:/plugin/org.xmind.cathy/dashboard/preferences.png"
+		commandId="org.eclipse.ui.window.preferences">
+	<parameter
+			name="preferencePageId"
+			value="org.eclipse.ui.preferencePages.Workbench">
+	</parameter>
+</command>
+	
+</dashboard>

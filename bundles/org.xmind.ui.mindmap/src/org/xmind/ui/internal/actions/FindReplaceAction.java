@@ -29,6 +29,7 @@ public class FindReplaceAction extends Action implements IWorkbenchAction {
         super();
         this.window = window;
         setId(ActionFactory.FIND.getId());
+        setActionDefinitionId(ActionFactory.FIND.getCommandId());
     }
 
     public void run() {
@@ -39,8 +40,8 @@ public class FindReplaceAction extends Action implements IWorkbenchAction {
         if (dialog != null) {
             ISelection selection = window.getSelectionService().getSelection();
             if (selection instanceof ITextSelection) {
-                dialog.setInitialFindText(((ITextSelection) selection)
-                        .getText());
+                dialog.setInitialFindText(
+                        ((ITextSelection) selection).getText());
             }
             dialog.open();
         }

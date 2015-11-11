@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.xmind.ui.internal.mindmap;
 
+import java.util.List;
+
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.IFigure;
@@ -22,14 +24,15 @@ import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
 import org.xmind.core.ITopic;
 import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
@@ -43,15 +46,18 @@ import org.xmind.ui.internal.decorators.IconTipDecorator;
 import org.xmind.ui.mindmap.IIconTipPart;
 import org.xmind.ui.mindmap.ISelectionFeedbackHelper;
 import org.xmind.ui.mindmap.ITopicPart;
+import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.resources.ImageReference;
 
-public class IconTipPart extends MindMapPartBase implements IIconTipPart,
-        IPropertyChangeListener {
+public class IconTipPart extends MindMapPartBase
+        implements IIconTipPart, IPropertyChangeListener {
+
+    public static final String TEXT_COLOR = "#2e2e2e"; //$NON-NLS-1$
 
     private IAction action;
 
-    private Menu menu;
+    private IMenuManager menu;
 
     private String actionId;
 
@@ -79,8 +85,28 @@ public class IconTipPart extends MindMapPartBase implements IIconTipPart,
         return (SizeableImageFigure) super.getFigure();
     }
 
-    public Menu getPopupMenu() {
-        return menu;
+    public IMenuManager getPopupMenu() {
+        TopicPart topicPart = (TopicPart) getParent();
+        ITopic topic = topicPart.getTopic();
+        IconTip iconTip = (IconTip) IconTipPart.this.getModel();
+        final List<IAction> actions = iconTip.getInfoItemContributor()
+                .getPopupMenuActions(topicPart, topic);
+        if (actions == null || actions.isEmpty()) {
+            return null;
+        } else {
+            if (menu == null) {
+                menu = new MenuManager();
+                menu.setRemoveAllWhenShown(true);
+                menu.addMenuListener(new IMenuListener() {
+                    public void menuAboutToShow(IMenuManager manager) {
+                        for (IAction action : actions) {
+                            menu.add(action);
+                        }
+                    }
+                });
+            }
+            return menu;
+        }
     }
 
     public ITopic getTopic() {
@@ -163,18 +189,18 @@ public class IconTipPart extends MindMapPartBase implements IIconTipPart,
     }
 
     private void updateImage() {
-        ImageDescriptor oldImageDescriptor = imageRef == null ? null : imageRef
-                .getImageDescriptor();
-        ImageDescriptor newImageDescriptor = action == null ? null : action
-                .getImageDescriptor();
+        ImageDescriptor oldImageDescriptor = imageRef == null ? null
+                : imageRef.getImageDescriptor();
+        ImageDescriptor newImageDescriptor = action == null ? null
+                : action.getImageDescriptor();
         if (oldImageDescriptor != newImageDescriptor
-                && (oldImageDescriptor == null || !oldImageDescriptor
-                        .equals(newImageDescriptor))) {
+                && (oldImageDescriptor == null
+                        || !oldImageDescriptor.equals(newImageDescriptor))) {
             if (imageRef != null) {
                 imageRef.dispose();
             }
-            imageRef = newImageDescriptor == null ? null : new ImageReference(
-                    newImageDescriptor, false);
+            imageRef = newImageDescriptor == null ? null
+                    : new ImageReference(newImageDescriptor, false);
         }
     }
 
@@ -205,12 +231,19 @@ public class IconTipPart extends MindMapPartBase implements IIconTipPart,
                 layout.setSpacing(7);
                 fig.setLayoutManager(layout);
 
+//                if (actionId != null
+//                        && actionId.equals(MindMapActionFactory.EDIT_NOTES
+//                                .getId())) {
+//                    text = null;
+//                }
+
                 if (text != null) {
                     text = Action.removeAcceleratorText(text);
                     text = Action.removeMnemonics(text);
                     Label title = new Label(text);
-                    title.setFont(FontUtils
-                            .getBold(JFaceResources.DEFAULT_FONT));
+                    title.setFont(
+                            FontUtils.getBold(JFaceResources.DEFAULT_FONT));
+                    title.setForegroundColor(ColorConstants.darkGray);
                     fig.add(title);
                 }
 
@@ -218,11 +251,17 @@ public class IconTipPart extends MindMapPartBase implements IIconTipPart,
                     RotatableWrapLabel description = new RotatableWrapLabel(
                             tooltip, RotatableWrapLabel.NORMAL);
                     description.setTextAlignment(PositionConstants.LEFT);
-                    description.setPrefWidth(Display.getCurrent()
-                            .getClientArea().width / 3);
+                    description
+                            .setPrefWidth(
+                                    Math.min(
+                                            Display.getCurrent()
+                                                    .getClientArea().width / 3,
+                                            350));
                     description.setFont(FontUtils.getRelativeHeight(
                             JFaceResources.DEFAULT_FONT, -1));
-                    description.setForegroundColor(ColorConstants.gray);
+//                    description.setForegroundColor(ColorConstants.gray);
+                    description.setForegroundColor(
+                            ColorUtils.getColor(TEXT_COLOR));
                     fig.add(description);
                 }
 
@@ -270,4 +309,7 @@ public class IconTipPart extends MindMapPartBase implements IIconTipPart,
         }
     }
 
+    public String getActionId() {
+        return actionId;
+    }
 }

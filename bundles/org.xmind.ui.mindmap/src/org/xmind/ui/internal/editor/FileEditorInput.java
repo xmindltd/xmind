@@ -44,6 +44,7 @@ public class FileEditorInput implements IEditorInput, IPersistableElement {
         return file.getAbsolutePath();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == File.class)
             return file;

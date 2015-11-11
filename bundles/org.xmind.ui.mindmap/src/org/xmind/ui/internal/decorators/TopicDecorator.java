@@ -23,14 +23,18 @@ import static org.xmind.ui.style.StyleUtils.isSameDecoration;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.xmind.gef.draw2d.decoration.ICorneredDecoration;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
+import org.xmind.ui.decorations.ICalloutTopicDecoration;
 import org.xmind.ui.decorations.ITopicDecoration;
 import org.xmind.ui.internal.figures.TopicFigure;
+import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ISheetPart;
+import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
@@ -54,8 +58,18 @@ public class TopicDecorator extends Decorator {
             TopicFigure figure) {
         ITopicDecoration shape = figure.getDecoration();
 
-        String newShapeId = getString(part, ss, Styles.ShapeClass,
-                Styles.TOPIC_SHAPE_ROUNDEDRECT);
+        String defaultShapeId = Styles.TOPIC_SHAPE_ROUNDEDRECT;
+        String shapeKey = Styles.ShapeClass;
+
+        if (part instanceof IBranchPart) {
+            String branchType = ((IBranchPart) part).getBranchType();
+            if (MindMapUI.BRANCH_CALLOUT.equals(branchType)) {
+                defaultShapeId = Styles.CALLOUT_TOPIC_SHAPE_BALLOON_ELLIPSE;
+                shapeKey = Styles.CalloutShapeClass;
+            }
+        }
+        String newShapeId = getString(part, ss, shapeKey, defaultShapeId);
+
         if (!isSameDecoration(shape, newShapeId)) {
             shape = createTopicDecoration(part, newShapeId);
             figure.setDecoration(shape);
@@ -65,48 +79,83 @@ public class TopicDecorator extends Decorator {
             shape.setAlpha(figure, 0xff);
             shape.setFillAlpha(figure, 0xff);
             shape.setLineAlpha(figure, 0xff);
-            shape.setFillColor(
-                    figure,
-                    getColor(part, ss, Styles.FillColor, decorationId,
-                            Styles.DEF_TOPIC_FILL_COLOR));
+            Color fillColor = getColor(part, ss, Styles.FillColor, decorationId,
+                    Styles.DEF_TOPIC_FILL_COLOR);
+            shape.setFillColor(figure, fillColor);
 
             shape.setGradient(figure, isGradientColor(part, figure, shape));
 
+            int fontSize = 0;
+            if (figure.getTitle() != null) {
+                fontSize = getInteger(part, ss, Styles.FontSize, 0);
+            }
+
+            fontSize = fontSize < 56 ? fontSize : 56;
+
             shape.setLeftMargin(figure,
-                    getInteger(part, ss, Styles.LeftMargin, decorationId, 10));
+                    getInteger(part, ss, Styles.LeftMargin, decorationId, 10)
+                            + (int) (fontSize * 0.5));
             shape.setRightMargin(figure,
-                    getInteger(part, ss, Styles.LeftMargin, decorationId, 10));
+                    getInteger(part, ss, Styles.RightMargin, decorationId, 10)
+                            + (int) (fontSize * 0.5));
             shape.setTopMargin(figure,
-                    getInteger(part, ss, Styles.TopMargin, decorationId, 5));
+                    getInteger(part, ss, Styles.TopMargin, decorationId, 5)
+                            + (int) (fontSize * 0.1));
             shape.setBottomMargin(figure,
-                    getInteger(part, ss, Styles.BottomMargin, decorationId, 5));
+                    getInteger(part, ss, Styles.BottomMargin, decorationId, 5)
+                            + (int) (fontSize * 0.1));
 
             String defaultColor = ColorUtils
-                    .toString(getColor(part, ss, Styles.LineColor,
-                            decorationId, Styles.DEF_TOPIC_LINE_COLOR));
-            shape.setLineColor(
-                    figure,
-                    getColor(part, ss, Styles.BorderLineColor, decorationId,
-                            defaultColor));
+                    .toString(getColor(part, ss, Styles.LineColor, decorationId,
+                            Styles.DEF_TOPIC_LINE_COLOR));
+            Color borderLineColor = getColor(part, ss, Styles.BorderLineColor,
+                    decorationId, defaultColor);
+            shape.setLineColor(figure, borderLineColor);
 
             int defaultWidth = getInteger(part, ss, Styles.LineWidth,
                     decorationId, 1);
-            shape.setLineWidth(
-                    figure,
-                    getInteger(part, ss, Styles.BorderLineWidth, decorationId,
-                            defaultWidth));
+            int borderLineWidth = getInteger(part, ss, Styles.BorderLineWidth,
+                    decorationId, defaultWidth);
+            shape.setLineWidth(figure, borderLineWidth);
 
-            shape.setLineStyle(figure,
-                    getLineStyle(part, ss, decorationId, SWT.LINE_SOLID));
+            int lineStyle = getLineStyle(part, ss, decorationId,
+                    SWT.LINE_SOLID);
+            shape.setLineStyle(figure, lineStyle);
             shape.setVisible(figure, true);
 
+            int cornerSize = getInteger(part, ss, Styles.ShapeCorner,
+                    decorationId, 10);
             if (shape instanceof ICorneredDecoration) {
-                ((ICorneredDecoration) shape).setCornerSize(
-                        figure,
-                        getInteger(part, ss, Styles.ShapeCorner, decorationId,
-                                10));
+                ((ICorneredDecoration) shape).setCornerSize(figure, cornerSize);
+            }
+
+            if (shape instanceof ICalloutTopicDecoration) {
+                ICalloutTopicDecoration calloutDecoration = (ICalloutTopicDecoration) shape;
+                String fromLineClass = MindMapUI.getDecorationManager()
+                        .getDecorationDescriptor(decorationId)
+                        .getDefaultValueProvider(Styles.CalloutLineClass)
+                        .getValue(part, Styles.CalloutLineClass);
+                calloutDecoration.setFromLineClass(figure, getString(part, ss,
+                        Styles.CalloutLineClass, fromLineClass));
+                calloutDecoration.setFromLineColor(figure,
+                        getColor(part, ss, Styles.CalloutLineColor,
+                                decorationId,
+                                ColorUtils.toString(borderLineColor)));
+                String defaultFromFillColor = fillColor == null ? Styles.NONE
+                        : ColorUtils.toString(fillColor);
+                calloutDecoration.setFromFillColor(figure,
+                        getColor(part, ss, Styles.CalloutFillColor,
+                                decorationId, defaultFromFillColor));
+                calloutDecoration.setFromLineStyle(figure, getInteger(part, ss,
+                        Styles.CalloutLinePattern, decorationId, lineStyle));
+                calloutDecoration.setFromLineWidth(figure,
+                        getInteger(part, ss, Styles.CalloutLineWidth,
+                                decorationId, borderLineWidth));
+                calloutDecoration.setFromLineCorner(figure, getInteger(part, ss,
+                        Styles.CalloutLineCorner, decorationId, cornerSize));
             }
         }
+
         double angle = StyleUtils.getDouble(part, ss, Styles.RotateAngle, 0);
         figure.setRotationDegrees(angle);
     }

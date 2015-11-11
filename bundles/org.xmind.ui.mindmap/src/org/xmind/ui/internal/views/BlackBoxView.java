@@ -9,7 +9,6 @@ import java.util.List;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -77,13 +76,14 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
     public BlackBoxView() {
     }
 
-    private static class BlackBoxContentProvider implements
-            ITreeContentProvider {
+    private static class BlackBoxContentProvider
+            implements ITreeContentProvider {
 
         public void dispose() {
         }
 
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        public void inputChanged(Viewer viewer, Object oldInput,
+                Object newInput) {
         }
 
         public Object[] getElements(Object inputElement) {
@@ -118,11 +118,11 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
             if (element instanceof IBlackBoxMap) {
                 String filePath = ((IBlackBoxMap) element).getSource();
                 int index = filePath.lastIndexOf(File.separatorChar);
-                String fileName = index <= 0 ? filePath : filePath
-                        .substring(index + 1);
+                String fileName = index <= 0 ? filePath
+                        : filePath.substring(index + 1);
                 index = fileName.lastIndexOf('.');
-                String fileNoExtension = index <= 0 ? fileName : fileName
-                        .substring(0, index);
+                String fileNoExtension = index <= 0 ? fileName
+                        : fileName.substring(0, index);
                 return fileNoExtension;
 
             } else if (element instanceof IBlackBoxVersion) {
@@ -141,8 +141,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
                 String mapName = index <= 0 ? path : path.substring(index + 1);
                 return mapName;
             } else if (element instanceof IBlackBoxVersion) {
-                Long timestamp = Long.valueOf(((IBlackBoxVersion) element)
-                        .getTimestamp());
+                Long timestamp = Long
+                        .valueOf(((IBlackBoxVersion) element).getTimestamp());
                 return String.format("%tF %tT", timestamp, timestamp); //$NON-NLS-1$
             }
             return null;
@@ -151,8 +151,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
         @Override
         public Image getImage(Object element) {
             if (element instanceof IBlackBoxMap) {
-                ImageDescriptor image = MindMapUI.getImages().get(
-                        IMindMapImages.XMIND_ICON);
+                ImageDescriptor image = MindMapUI.getImages()
+                        .get(IMindMapImages.XMIND_ICON);
                 if (image != null)
                     return image.createImage();
             }
@@ -167,8 +167,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
                 return ((IBlackBoxMap) element).getSource();
             } else if (element instanceof IBlackBoxVersion) {
 
-                float fileSize = ((float) ((IBlackBoxVersion) element)
-                        .getFile().length()) / 1024;
+                float fileSize = ((float) ((IBlackBoxVersion) element).getFile()
+                        .length()) / 1024;
                 String fss = String.valueOf(fileSize);
                 int index = fss.indexOf('.');
                 if (index < 0)
@@ -181,8 +181,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
 
     }
 
-    private class OpenReversionAction extends Action implements
-            ISelectionChangedListener {
+    private class OpenReversionAction extends Action
+            implements ISelectionChangedListener {
         private File reversionFile;
 
         private IBlackBoxMap map = null;
@@ -217,8 +217,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
 
     }
 
-    private class DeleteBackupsAction extends Action implements
-            ISelectionChangedListener {
+    private class DeleteBackupsAction extends Action
+            implements ISelectionChangedListener {
         private List<IBlackBoxMap> mapsToDelete = new ArrayList<IBlackBoxMap>();
         private List<IBlackBoxVersion> versionsToDelete = new ArrayList<IBlackBoxVersion>();
 
@@ -308,16 +308,16 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
     }
 
     private void registerCoreEvent() {
-        coreEventRegister.setNextSourceFrom(BlackBoxManager.getInstance()
-                .getLibrary());
+        coreEventRegister
+                .setNextSourceFrom(BlackBoxManager.getInstance().getLibrary());
         coreEventRegister.register(VERSION_ADD);
         coreEventRegister.register(VERSION_REMOVE);
         coreEventRegister.register(MAP_REMOVE);
     }
 
     private Control createViewer(Composite parent) {
-        viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL
-                | SWT.FULL_SELECTION);
+        viewer = new TreeViewer(parent,
+                SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
         viewer.getTree().setHeaderVisible(true);
         viewer.getTree().setLinesVisible(true);
         viewer.setContentProvider(new BlackBoxContentProvider());
@@ -360,26 +360,26 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
         OpenReversionAction openAction = new OpenReversionAction();
         openAction.setText(Messages.BlackBoxView_OpenVersion);
         openAction.setToolTipText(Messages.BlackBoxView_OpenVersion);
-        openAction.setImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.OPEN, true));
-        openAction.setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.OPEN, false));
+        openAction.setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.OPEN, true));
+        openAction.setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.OPEN, false));
         addAction(openAction);
 
         DeleteBackupsAction deleteAction = new DeleteBackupsAction();
         deleteAction.setText(Messages.BlackBoxView_DeleteBackups);
         deleteAction.setToolTipText(Messages.BlackBoxView_DeleteBackups);
-        deleteAction.setImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.DELETE, true));
-        deleteAction.setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.DELETE, false));
+        deleteAction.setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        deleteAction.setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.DELETE, false));
         addAction(deleteAction);
 
-        IToolBarManager toolbar = getViewSite().getActionBars()
-                .getToolBarManager();
-        toolbar.add(openAction);
-        toolbar.add(deleteAction);
-        toolbar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+//        IToolBarManager toolbar = getViewSite().getActionBars()
+//                .getToolBarManager();
+//        toolbar.add(openAction);
+//        toolbar.add(deleteAction);
+//        toolbar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
         IMenuManager menu = getViewSite().getActionBars().getMenuManager();
         menu.add(openAction);
@@ -390,16 +390,16 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
         contextMenu = new MenuManager("#PopupMenu"); //$NON-NLS-1$
         contextMenu.add(openAction);
         contextMenu.add(deleteAction);
-        viewer.getControl().setMenu(
-                contextMenu.createContextMenu(viewer.getControl()));
+        viewer.getControl()
+                .setMenu(contextMenu.createContextMenu(viewer.getControl()));
         getSite().registerContextMenu(contextMenu, viewer);
     }
 
     private void addAction(IAction action) {
         actions.add(action);
         if (action.getId() != null) {
-            getViewSite().getActionBars().setGlobalActionHandler(
-                    action.getId(), action);
+            getViewSite().getActionBars().setGlobalActionHandler(action.getId(),
+                    action);
         }
         if (action instanceof ISelectionChangedListener) {
             getViewSite().getSelectionProvider().addSelectionChangedListener(
@@ -430,9 +430,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
         }
         for (IAction action : actions) {
             if (action instanceof ISelectionChangedListener) {
-                getSite().getSelectionProvider()
-                        .removeSelectionChangedListener(
-                                (ISelectionChangedListener) action);
+                getSite().getSelectionProvider().removeSelectionChangedListener(
+                        (ISelectionChangedListener) action);
             }
         }
         actions.clear();
@@ -465,8 +464,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
 
     private void handleOpen(File reversionFile, IBlackBoxMap map) {
         try {
-            IWorkbook workbook = Core.getWorkbookBuilder().loadFromFile(
-                    reversionFile);
+            IWorkbook workbook = Core.getWorkbookBuilder()
+                    .loadFromFile(reversionFile);
             workbook.setFile(map.getSource());
             IEditorInput input = MME.createLoadedEditorInput(
                     new File(map.getSource()).getName(), workbook);

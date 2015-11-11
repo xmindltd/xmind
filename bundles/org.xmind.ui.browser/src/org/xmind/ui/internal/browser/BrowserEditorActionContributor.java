@@ -39,7 +39,8 @@ public class BrowserEditorActionContributor extends EditorActionBarContributor {
         public OpenInExternalAction() {
             super(BrowserMessages.BrowserView_OpenInExternalBrowser_text,
                     BrowserImages.getImageDescriptor(BrowserImages.BROWSER));
-            setToolTipText(BrowserMessages.BrowserView_OpenInExternalBrowser_toolTip);
+            setToolTipText(
+                    BrowserMessages.BrowserView_OpenInExternalBrowser_toolTip);
             setEnabled(false);
         }
 
@@ -67,8 +68,8 @@ public class BrowserEditorActionContributor extends EditorActionBarContributor {
                     || viewer.getControl().isDisposed())
                 return;
 
-            IBrowser browser = BrowserSupport.getInstance().createBrowser(
-                    IBrowserSupport.AS_EXTERNAL);
+            IBrowser browser = BrowserSupport.getInstance()
+                    .createBrowser(IBrowserSupport.AS_EXTERNAL);
             try {
                 browser.openURL(viewer.getURL());
             } catch (PartInitException e) {
@@ -94,9 +95,8 @@ public class BrowserEditorActionContributor extends EditorActionBarContributor {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.part.EditorActionBarContributor#contributeToMenu(org.eclipse
-     * .jface.action.IMenuManager)
+     * @see org.eclipse.ui.part.EditorActionBarContributor#contributeToMenu(org.
+     * eclipse .jface.action.IMenuManager)
      */
     @Override
     public void contributeToMenu(IMenuManager menuManager) {
@@ -112,8 +112,8 @@ public class BrowserEditorActionContributor extends EditorActionBarContributor {
 
     @Override
     public void contributeToToolBar(IToolBarManager toolBarManager) {
-        super.contributeToToolBar(toolBarManager);
-        toolBarManager.add(openInExternalAction);
+//        super.contributeToToolBar(toolBarManager);
+//        toolBarManager.add(openInExternalAction);
     }
 
     public void setActiveEditor(IEditorPart targetEditor) {

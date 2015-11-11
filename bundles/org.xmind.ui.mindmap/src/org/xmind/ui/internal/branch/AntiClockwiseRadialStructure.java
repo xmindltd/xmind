@@ -39,6 +39,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
             left = !(index >= getRadialData(branch).getNumRight());
         } else if (branch.getSummaryBranches().contains(child)) {
             left = !(isSummaryChildLeft(branch, child));
+        } else if (branch.getCalloutBranches().contains(child)) {
+            left = isChildLeft(branch.getParentBranch(), branch);
         } else {
             left = RadialUtils.isLeft(getReference(branch).x,
                     getReference(child).x);
@@ -80,8 +82,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
             if (insertion != null && i == insertion.getIndex()) {
                 if (i != numRight || insertion.right) {
                     Point p = ref.getTranslated(cache.getX(y, right), y);
-                    Rectangle insBounds = RadialUtils.getPrefBounds(insertion
-                            .getSize(), p, right);
+                    Rectangle insBounds = RadialUtils.getPrefBounds(
+                            insertion.getSize(), p, right);
                     info.add(insBounds);
                     if (insertion.right)
                         y -= insHeight;
@@ -116,8 +118,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
                 if ((i == numRight - 1 && insertion.getIndex() == numRight && !insertion.right)
                         || i == num) {
                     Point p = ref.getTranslated(cache.getX(y, right), y);
-                    Rectangle insBounds = RadialUtils.getPrefBounds(insertion
-                            .getSize(), p, right);
+                    Rectangle insBounds = RadialUtils.getPrefBounds(
+                            insertion.getSize(), p, right);
                     info.add(insBounds);
 
                     y += insHeight;
@@ -303,4 +305,121 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
         }
         return PositionConstants.WEST;
     }
+
+    @Override
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+
+        Point firstLoc = calcFirstChildPosition(branch, key);
+        if (subBranches.isEmpty())
+            return firstLoc;
+
+        int index = calcInsIndex(branch, key, true);
+        RadialData cache = getRadialData(branch);
+
+        int subSize = subBranches.size();
+        int left = cache.getNumRight();
+        int right = subSize - left;
+
+        Dimension insSize = key.getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        IBranchPart first = subBranches.get(0);
+        Rectangle fBounds = first.getFigure().getBounds();
+        if (index == 0) {
+            int x = fBounds.right() - inventSize.width / 2;
+            int y = fBounds.y - (insSize.height + inventSize.height) / 2;
+            return new Point(x, y);
+        }
+
+        if (index == subSize || index == -1) {
+            if (subSize == 1 && isWithinThreshold(first)) {
+                if (fBounds.bottom() > 0) {
+                    int x = fBounds.right() - inventSize.width / 2;
+                    int y = fBounds.bottom()
+                            + (insSize.height + inventSize.height) / 2;
+                    return new Point(x, y);
+                } else {
+                    return new Point(firstLoc.x, -firstLoc.y);
+                }
+            }
+
+            if (right == 0)
+                return firstLoc.getNegated();
+
+            IBranchPart sub = subBranches.get(subSize - 1);
+            Rectangle bounds = sub.getFigure().getBounds();
+            if (right == 1 && bounds.y > 0)
+                return new Point(-firstLoc.x, firstLoc.y);
+
+            int x = bounds.x + inventSize.width / 2;
+            int y = bounds.y - (insSize.height + inventSize.height) / 2;
+            return new Point(x, y);
+        }
+
+        if (index == left) {
+            boolean isLeft = (left == 1 && right == 1)
+                    || isRight(subBranches, child, left);
+            IBranchPart sub = isLeft ? subBranches.get(index - 1) : subBranches
+                    .get(index);
+            Rectangle bounds = sub.getFigure().getBounds();
+            int x;
+            if (isLeft)
+                x = bounds.right() - inventSize.width / 2;
+            else
+                x = bounds.x + inventSize.width / 2;
+            int y = bounds.bottom() + (insSize.height + inventSize.height) / 2;
+            return new Point(x, y);
+        }
+
+        boolean isLeft = index < left;
+        return calcInventPosition(subBranches.get(isLeft ? index - 1 : index),
+                subBranches.get(isLeft ? index : index - 1), key, !isLeft);
+    }
+
+    @Override
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        if (disables != null) {
+            if (disables.contains(index - 1)) {
+                index--;
+                oldIndex = index;
+            } else if (disables.contains(index)) {
+                oldIndex = index;
+            }
+        }
+
+        RadialData cache = getRadialData(branch);
+
+        int left = cache.getNumRight();
+
+        Dimension inventSize = key.getInvent().getSize();
+        if (index == oldIndex) {
+            if (index == left - 1 && key.getCursorPos().x > 0
+                    && (!subBranches.get(left).getFigure().isEnabled()))
+                index += 1;
+            int delta = getTopicSize(subBranches.get(index)).width / 2
+                    - inventSize.width / 2;
+            int deltaX = index < left ? delta : -delta;
+            return getReference(subBranches.get(index))
+                    .getTranslated(deltaX, 0);
+        }
+        return calcInsertPosition(branch, child, key);
+    }
+
+    protected Point calcFirstChildPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        int y = -(getMinorSpacing(branch) * 3 / 4 + 8) * 4;
+        int x = getRadialData(branch).getX(y, true);
+
+        return getReference(branch).getTranslated(-x, y).getTranslated(
+                -key.getInvent().getSize().width / 2, 0);
+    }
+
 }

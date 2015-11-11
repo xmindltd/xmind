@@ -17,12 +17,11 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.EditDomain;
+import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
-import org.xmind.gef.ui.editor.IGraphicalEditor;
-import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 
 /**
@@ -34,40 +33,25 @@ import org.xmind.ui.mindmap.MindMapUI;
 public class ApplyStyleHandler extends AbstractHandler {
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        applyStyle(event);
+        applyStyleToEditor(MindMapHandlerUtil.findStyle(event),
+                MindMapHandlerUtil.findContributingEditor(event));
         return null;
     }
 
-    /**
-     * @param event
-     */
-    private void applyStyle(ExecutionEvent event) {
-        IStyle style = MindMapHandlerUtil.findStyle(event);
-        if (style == null)
-            return;
-
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
-        if (editor == null)
-            return;
-
-        applyStyleToEditor(style, editor);
-    }
-
     private void applyStyleToEditor(IStyle style, IEditorPart editor) {
-        if (!(editor instanceof IGraphicalEditor))
+        if (style == null || editor == null)
             return;
 
-        IGraphicalEditorPage page = ((IGraphicalEditor) editor)
-                .getActivePageInstance();
-        if (page == null)
+        IViewer viewer = MindMapUIPlugin.getAdapter(editor, IViewer.class);
+        if (viewer == null)
             return;
 
-        EditDomain editDomain = page.getEditDomain();
+        EditDomain editDomain = viewer.getEditDomain();
         if (editDomain == null)
             return;
 
         editDomain.handleRequest(new Request(MindMapUI.REQ_MODIFY_STYLE)
-                .setViewer(page.getViewer()).setDomain(editDomain)
+                .setViewer(viewer).setDomain(editDomain)
                 .setParameter(MindMapUI.PARAM_RESOURCE, style));
     }
 

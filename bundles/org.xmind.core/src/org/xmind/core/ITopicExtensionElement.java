@@ -15,7 +15,7 @@ package org.xmind.core;
 
 import java.util.List;
 
-public interface ITopicExtensionElement extends IAdaptable {
+public interface ITopicExtensionElement extends IAdaptable, IWorkbookComponent {
 
     ITopicExtension getExtension();
 

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.branch;
 
+import org.eclipse.draw2d.geometry.Point;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.tools.ParentSearchKey;
 
@@ -40,5 +41,25 @@ public interface IInsertableBranchStructureExtension {
      * @return
      */
     IInsertion calcInsertion(IBranchPart branch, ParentSearchKey key);
+
+    /**
+     * 
+     * @param branch
+     * @param child
+     * @param key
+     * @return
+     */
+    Point calcInsertionPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key);
+
+    /**
+     * 
+     * @param branch
+     * @param child
+     * @param key
+     * @return
+     */
+    boolean isBranchMoved(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key);
 
 }

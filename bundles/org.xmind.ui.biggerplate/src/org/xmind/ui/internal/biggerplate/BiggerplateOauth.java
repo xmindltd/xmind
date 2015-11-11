@@ -1,14 +1,15 @@
 package org.xmind.ui.internal.biggerplate;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
-
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.internal.XMindNetRequest;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -16,12 +17,13 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.program.Program;
 import org.osgi.framework.Bundle;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.biggerplate.BiggerplatePlugin;
 import org.xmind.ui.internal.biggerplate.jobs.CancelableJob;
 import org.xmind.ui.internal.biggerplate.jobs.IJobClosedListener;
 import org.xmind.ui.internal.biggerplate.utils.UrlUtils;
 
-@SuppressWarnings("restriction")
 public final class BiggerplateOauth {
 
     public static final String PREFERENCE_STORE_REFRESH_TOKEN_KEY = "org.xmind.ui.biggerplate.preference.refreshToken"; //$NON-NLS-1$
@@ -45,11 +47,13 @@ public final class BiggerplateOauth {
     private static final String REDIRECT_URI = "http://localhost:" //$NON-NLS-1$
             + REDIRECT_URI_PORT + "/"; //$NON-NLS-1$
 
+    private static final String PATH = "pages/"; //$NON-NLS-1$
+
     private static ServerSocket server;
 
     public static String getAccessToken(Info info, CancelableJob job) {
-        String refreshToken = getPreferenceStore().getString(
-                PREFERENCE_STORE_REFRESH_TOKEN_KEY);
+        String refreshToken = getPreferenceStore()
+                .getString(PREFERENCE_STORE_REFRESH_TOKEN_KEY);
 
         if (refreshToken == null || refreshToken.equals("")) { //$NON-NLS-1$
             generateAccessToken(info, job);
@@ -117,8 +121,8 @@ public final class BiggerplateOauth {
 
             socket = server.accept();
 
-            br = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
+            br = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
             String url = br.readLine();
             while (url != null) {
                 code = UrlUtils.getParameter(url, "code"); //$NON-NLS-1$
@@ -127,6 +131,9 @@ public final class BiggerplateOauth {
                 }
                 url = br.readLine();
             }
+
+            writePageContent(socket);
+
             return code;
         } catch (IOException e) {
             e.printStackTrace();
@@ -144,6 +151,36 @@ public final class BiggerplateOauth {
                 if (server != null) {
                     server.close();
                     server = null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void writePageContent(Socket socket) {
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(getFullFilePath(PATH + "info.html")))); //$NON-NLS-1$
+            bw = new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream()));
+            String line = br.readLine();
+            while (line != null) {
+                bw.write(line);
+                line = br.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+                if (bw != null) {
+                    bw.flush();
+                    bw.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -185,7 +222,7 @@ public final class BiggerplateOauth {
         String code = getCode(info, job);
         if (code == null) {
             if (!info.getBoolean(Info.CANCELED)) {
-                Program.launch(getFullFilePath("pages/fail.html")); //$NON-NLS-1$
+                Program.launch(getFullFilePath(PATH + "fail.html")); //$NON-NLS-1$
             }
             return;
         }
@@ -242,27 +279,26 @@ public final class BiggerplateOauth {
         if (!info.getBoolean(Info.CANCELED)) {
             String accessToken = info.getString(Info.ACCESS_TOKEN);
             if (accessToken != null && !accessToken.equals("")) { //$NON-NLS-1$
-                Program.launch(getFullFilePath("pages/success.html")); //$NON-NLS-1$
+                Program.launch(getFullFilePath(PATH + "success.html")); //$NON-NLS-1$
             } else {
-                Program.launch(getFullFilePath("pages/fail.html")); //$NON-NLS-1$
+                Program.launch(getFullFilePath(PATH + "fail.html")); //$NON-NLS-1$
             }
         }
     }
 
     private static String getFullFilePath(String path) {
         Bundle bundle = Platform.getBundle(BiggerplatePlugin.PLUGIN_ID);
-        Path path1 = new Path(path);
-        URL url = FileLocator.find(bundle, path1, null);
+        URL url = FileLocator.find(bundle, new Path(path), null);
         try {
-            return FileLocator.toFileURL(url).toString();
+            url = FileLocator.toFileURL(url);
         } catch (IOException e) {
-            e.printStackTrace();
-            return ""; //$NON-NLS-1$
         }
+        File file = new Path(url.getPath()).toFile();
+        return file.getAbsolutePath();
     }
 
-    private static void refreshAccessToken(String refreshToken,
-            final Info info, final CancelableJob job) {
+    private static void refreshAccessToken(String refreshToken, final Info info,
+            final CancelableJob job) {
         if (isJobCanceled(job)) {
             info.setBoolean(Info.CANCELED, true);
             return;
@@ -300,18 +336,17 @@ public final class BiggerplateOauth {
             if (accessToken != null && !accessToken.equals("")) { //$NON-NLS-1$
                 String newRefreshToken = data.getString(DATA_REFRESH_TOKEN_KEY);
                 if (newRefreshToken != null && !newRefreshToken.equals("")) { //$NON-NLS-1$
-                    getPreferenceStore()
-                            .setValue(PREFERENCE_STORE_REFRESH_TOKEN_KEY,
-                                    newRefreshToken);
                     getPreferenceStore().setValue(
-                            PREFERENCE_STORE_USERNAME_KEY,
+                            PREFERENCE_STORE_REFRESH_TOKEN_KEY,
+                            newRefreshToken);
+                    getPreferenceStore().setValue(PREFERENCE_STORE_USERNAME_KEY,
                             BiggerplateAPI.getUsername(info));
                 }
             } else {
-                getPreferenceStore().setValue(
-                        PREFERENCE_STORE_REFRESH_TOKEN_KEY, ""); //$NON-NLS-1$
                 getPreferenceStore()
-                        .setValue(PREFERENCE_STORE_USERNAME_KEY, ""); //$NON-NLS-1$
+                        .setValue(PREFERENCE_STORE_REFRESH_TOKEN_KEY, ""); //$NON-NLS-1$
+                getPreferenceStore().setValue(PREFERENCE_STORE_USERNAME_KEY,
+                        ""); //$NON-NLS-1$
                 generateAccessToken(info, job);
             }
         }

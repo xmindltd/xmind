@@ -21,8 +21,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.xmind.gef.Disposable;
 import org.xmind.ui.viewers.ICompositeProvider;
 
-public class GhostShellProvider extends Disposable implements
-        ICompositeProvider {
+public class GhostShellProvider extends Disposable
+        implements ICompositeProvider {
 
     private Display display;
 
@@ -57,16 +57,16 @@ public class GhostShellProvider extends Disposable implements
         if (shell == null) {
             shell = new Shell(parentShell, SWT.NO_TRIM);
             shell.setBounds(-300, -300, 180, 180);
-            if (!"cocoa".equals(SWT.getPlatform())) { //$NON-NLS-1$
-                shell.setVisible(true);
-                display.asyncExec(new Runnable() {
-                    public void run() {
-                        if (shell != null && !shell.isDisposed()) {
-                            shell.setVisible(false);
-                        }
-                    }
-                });
-            }
+//            if (!"cocoa".equals(SWT.getPlatform())) { //$NON-NLS-1$
+//                shell.setVisible(true);
+//                display.asyncExec(new Runnable() {
+//                    public void run() {
+//                        if (shell != null && !shell.isDisposed()) {
+//                            shell.setVisible(false);
+//                        }
+//                    }
+//                });
+//            }
         }
         return shell;
     }

@@ -30,9 +30,13 @@
 		<resource-mapping src="urn:mindjet:ExclamationMark" dest="other-exclam" />
 		
 		<resource-mapping src="0" dest="task-start" />
+		<resource-mapping src="10" dest="task-oct" /> 
 		<resource-mapping src="25" dest="task-quarter" />
+		<resource-mapping src="35" dest="task-3oct" />
 		<resource-mapping src="50" dest="task-half" />
+		<resource-mapping src="65" dest="task-5oct" />
 		<resource-mapping src="75" dest="task-3quar" />
+		<resource-mapping src="90" dest="task-7oct" />
 		<resource-mapping src="100" dest="task-done" />
 		
 		<resource-mapping src="urn:mindjet:Prio1" dest="priority-1" />
@@ -41,6 +45,9 @@
 		<resource-mapping src="urn:mindjet:Prio4" dest="priority-4" />
 		<resource-mapping src="urn:mindjet:Prio5" dest="priority-5" />
 		<resource-mapping src="urn:mindjet:Prio6" dest="priority-6" />
+		<resource-mapping src="urn:mindjet:Prio7" dest="priority-7" />
+		<resource-mapping src="urn:mindjet:Prio8" dest="priority-8" />
+		<resource-mapping src="urn:mindjet:Prio9" dest="priority-9" />
 		
 		<resource-mapping src="urn:mindjet:ArrowUp" dest="arrow-up" />
 		<resource-mapping src="urn:mindjet:ArrowDown" dest="arrow-down" />

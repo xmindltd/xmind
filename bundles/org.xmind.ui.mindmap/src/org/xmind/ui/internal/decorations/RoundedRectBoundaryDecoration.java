@@ -32,7 +32,8 @@ public class RoundedRectBoundaryDecoration extends AbstractBoundaryDecoration
         super(id);
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
         int c = getAppliedCornerSize();
         if (c == 0) {
             shape.addRectangle(box);

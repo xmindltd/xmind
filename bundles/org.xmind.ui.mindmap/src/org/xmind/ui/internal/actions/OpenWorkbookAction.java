@@ -21,6 +21,7 @@ import org.xmind.ui.internal.dialogs.OpenWorkbookDialog;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 
+@Deprecated
 public class OpenWorkbookAction extends Action implements IWorkbenchAction {
 
     private IWorkbenchWindow window;
@@ -31,9 +32,10 @@ public class OpenWorkbookAction extends Action implements IWorkbenchAction {
             throw new IllegalArgumentException();
         this.window = window;
         setId("org.xmind.ui.open"); //$NON-NLS-1$
-        setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.OPEN, true));
-        setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.OPEN, false));
+        setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.OPEN, true));
+        setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.OPEN, false));
         setToolTipText(MindMapMessages.OpenWorkbook_toolTip);
         setActionDefinitionId("org.xmind.ui.command.openWorkbook"); //$NON-NLS-1$
     }

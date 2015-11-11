@@ -106,8 +106,7 @@ public class LabelPart extends MindMapPartBase implements ILabelPart,
 
     }
 
-    protected void registerCoreEvents(Object source,
-            ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.Labels);
     }

@@ -22,8 +22,10 @@ public enum NS {
     Style("style", "urn:xmind:xmap:xmlns:style:2.0"), //$NON-NLS-1$ //$NON-NLS-2$
     Marker("marker", "urn:xmind:xmap:xmlns:marker:2.0"), //$NON-NLS-1$ //$NON-NLS-2$
     Meta("meta", "urn:xmind:xmap:xmlns:meta:2.0"), //$NON-NLS-1$ //$NON-NLS-2$
+    Comments("comments", "urn:xmind:xmap:xmlns:comments:2.0"), //$NON-NLS-1$ //$NON-NLS-2$
     Manifest("manifest", "urn:xmind:xmap:xmlns:manifest:1.0"), //$NON-NLS-1$ //$NON-NLS-2$
     Revision("revision", "urn:xmind:xmap:xmlns:revision:1.0"), //$NON-NLS-1$ //$NON-NLS-2$
+    Assignee("assignee", "urn:xmind:xmap:xmlns:assignee:1.0"), //$NON-NLS-1$//$NON-NLS-2$
 
     /* External Namespaces */
     Xhtml("xhtml", "http://www.w3.org/1999/xhtml"), //$NON-NLS-1$ //$NON-NLS-2$

@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.Page;
 import org.xmind.ui.internal.MindMapMessages;
 
+@Deprecated
 public class DefaultOverviewPage extends Page {
 
     private Control control;

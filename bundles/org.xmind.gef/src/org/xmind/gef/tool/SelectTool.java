@@ -127,7 +127,7 @@ public class SelectTool extends GraphicalTool {
 
         IPart dragSource = me.source;
         String toolType = null;
-        if (canStartBrowsing(me)) {
+        if (canStartBrowsing(dragSource, me)) {
             toolType = getBrowseToolId();
         } else {
             if (canMove(dragSource, me)) {
@@ -171,8 +171,10 @@ public class SelectTool extends GraphicalTool {
         }
     }
 
-    protected boolean canStartBrowsing(MouseDragEvent me) {
-        return getStatus().isStatus(GEF.ST_MOUSE_RIGHT);
+    protected boolean canStartBrowsing(IPart host, MouseDragEvent me) {
+        return getStatus().isStatus(GEF.ST_MOUSE_RIGHT)
+                || (getStatus().isStatus(GEF.ST_MOUSE_PRESSED) && host
+                        .hasRole(GEF.ROLE_MAP_MOVABLE));
     }
 
     protected boolean canMove(IPart host, MouseDragEvent me) {

@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.draw2d.FigureListener;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
+import org.xmind.core.IControlPoint;
 import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
@@ -44,8 +45,8 @@ import org.xmind.ui.mindmap.MindMapUI;
 
 public class RelationshipDummy {
 
-    private static class DummyNodePart extends NodePart implements
-            FigureListener {
+    private static class DummyNodePart extends NodePart
+            implements FigureListener {
 
         private IGraphicalPart source;
 
@@ -136,7 +137,8 @@ public class RelationshipDummy {
             super(owner);
         }
 
-        public PrecisionPoint getLocation(double x, double y, double expansion) {
+        public PrecisionPoint getLocation(double x, double y,
+                double expansion) {
             return getReferencePoint();
         }
     }
@@ -163,6 +165,16 @@ public class RelationshipDummy {
             Point cursorPosition, IGraphicalViewer viewer) {
         this.viewer = viewer;
         createDummyModels();
+
+        IControlPoint cp1 = r.getControlPoint(0);
+        IControlPoint cp2 = r.getControlPoint(1);
+
+        cp1.setPolarAngle(Math.PI / 12);
+        cp1.setPolarAmount(0.3);
+
+        cp2.setPolarAngle(Math.PI / 12);
+        cp2.setPolarAmount(0.3);
+
         sn = new DummyNodePart(sourceNode);
         tn = new DummyNodePart();
         rel = new DummyRelPart();
@@ -175,8 +187,8 @@ public class RelationshipDummy {
                 .getService(IFeedbackService.class);
 
         if (feedbackService != null) {
-            SelectionFigure selectionDummy = feedbackService.setSelected(sn
-                    .getFigure());
+            SelectionFigure selectionDummy = feedbackService
+                    .setSelected(sn.getFigure());
             //selectionDummy.setSelectionColor(ColorUtils.getColor(MindMapUI.COLOR_WARNING));
             selectionDummy.setSelectionAlpha(0x90);
         }
@@ -191,6 +203,16 @@ public class RelationshipDummy {
         r.setStyleId(sr.getStyleId());
         r.getControlPoint(0).setPosition(sr.getControlPoint(0).getPosition());
         r.getControlPoint(1).setPosition(sr.getControlPoint(1).getPosition());
+
+        r.getControlPoint(0)
+                .setPolarAngle(sr.getControlPoint(0).getPolarAngle());
+        r.getControlPoint(0)
+                .setPolarAmount(sr.getControlPoint(0).getPolarAmount());
+        r.getControlPoint(1)
+                .setPolarAngle(sr.getControlPoint(1).getPolarAngle());
+        r.getControlPoint(1)
+                .setPolarAmount(sr.getControlPoint(1).getPolarAmount());
+
 //        if (cp != null) {
 //            r.setControlPoint(0, cp.getAngle(), cp.getAmount());
 //        }

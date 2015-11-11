@@ -2,20 +2,18 @@ package org.xmind.ui.internal.biggerplate;
 
 import java.io.File;
 
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.internal.XMindNetRequest;
-
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.internal.biggerplate.jobs.CancelableJob;
 import org.xmind.ui.internal.biggerplate.jobs.IJobClosedListener;
 
-@SuppressWarnings("restriction")
 public class BiggerplateAPI {
 
-    private static final String UPLOAD_URL = "http://api.staging.biggerplate.com/maps"; //$NON-NLS-1$
+    private static final String UPLOAD_URL = "https://api.biggerplate.com/maps"; //$NON-NLS-1$
 
-    private static final String USER_INFO_URL = "http://api.staging.biggerplate.com/users/me"; //$NON-NLS-1$
+    private static final String USER_INFO_URL = "https://api.biggerplate.com/users/me"; //$NON-NLS-1$
 
-    private static final String DATA_MAP_KEY = "map"; //$NON-NLS-1$
+    private static final String DATA_RESULT_MAP_URL_KEY = "url"; //$NON-NLS-1$
 
     private static final String DATA_USERNAME_KEY = "UserName"; //$NON-NLS-1$
 
@@ -32,8 +30,8 @@ public class BiggerplateAPI {
         }
         request.addParameter("description", description); //$NON-NLS-1$
 
-        BiggerplateUploader.validateUploadFile(((File) info
-                .getProperty(Info.FILE)).getAbsolutePath());
+        BiggerplateUploader.validateUploadFile(
+                ((File) info.getProperty(Info.FILE)).getAbsolutePath());
         request.addParameter("map", (File) info.getProperty(Info.FILE)); //$NON-NLS-1$
 
         job.addJobClosedListener(new IJobClosedListener() {
@@ -55,7 +53,8 @@ public class BiggerplateAPI {
 
         IDataStore data = request.getData();
         if (data != null) {
-            info.setProperty(Info.RESULT_URL, data.getString(DATA_MAP_KEY));
+            info.setProperty(Info.RESULT_URL,
+                    data.getString(DATA_RESULT_MAP_URL_KEY));
         }
     }
 

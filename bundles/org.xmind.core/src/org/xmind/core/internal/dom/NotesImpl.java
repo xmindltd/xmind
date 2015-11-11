@@ -141,7 +141,7 @@ public class NotesImpl extends Notes {
         }
 
         fireTargetValueChange(format, oldContent, content);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     private INotesContent getNotesContent(Element oldContentEle) {

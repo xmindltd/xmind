@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><xmap-styles xmlns="urn:xmind:xmap:xmlns:style:2.0" xmlns:fo="http://www.w3.org/1999/XSL/Format" xmlns:svg="http://www.w3.org/2000/svg" version="2.0"><automatic-styles><style id="2ci8evjkhmr5m5tkgafaumb35m" name="" type="relationship">
+			<relationship-properties arrow-begin-class="org.xmind.arrowShape.none" arrow-end-class="org.xmind.arrowShape.triangle" fo:color="#BF1E1B" fo:font-family="Comic Sans MS" fo:font-size="12pt" line-color="#BF1E1B" line-pattern="dash" line-width="1pt" shape-class="org.xmind.relationshipShape.curved"/>
+		</style><style id="20imgh8165s0ch5i3r71bde560" name="" type="topic">
+			<topic-properties fo:color="#004080" fo:font-family="Verdana" fo:font-weight="normal" line-class="org.xmind.branchConnection.curve" line-color="#004080" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#68A3DF"/>
+		</style><style id="3a9i9g231bi15sjip958ldvc2a" name="" type="topic">
+			<topic-properties fo:color="#004080" fo:font-family="Verdana" svg:fill="none"/>
+		</style><style id="1meu19hsvqff5e9aeeulslcega" name="" type="topic">
+			<topic-properties fo:color="#004080" fo:font-family="Verdana" fo:font-weight="normal" line-class="org.xmind.branchConnection.curve" line-color="#004080" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#D3DFFF"/>
+		</style><style id="6haq0nnra20q2d6kq7pe4e8168" name="" type="topic">
+			<topic-properties fo:color="#004080" fo:font-family="Verdana" svg:fill="#D3DFFF"/>
+		</style><style id="7ba0jerumtm0ngq12oc01p3iih" name="" type="topic">
+			<topic-properties border-line-width="0pt" fo:color="#BF1E1B" fo:font-family="Comic Sans MS" fo:font-size="12pt" line-class="org.xmind.branchConnection.arrowedCurve" shape-class="org.xmind.topicShape.ellipse" svg:fill="none"/>
+		</style><style id="2fcia2jt9sobnapjdplqqkuusq" name="" type="boundary">
+			<boundary-properties fo:color="#535353" fo:font-family="Verdana" line-color="#999999" line-pattern="dash" line-width="1pt" shape-class="org.xmind.boundaryShape.scallops" svg:fill="#FFFFFF"/>
+		</style></automatic-styles><master-styles><style id="xminddefaultthemeid2014" name="%professional" type="theme">
+			<theme-properties>
+				<default-style style-family="relationship" style-id="2ci8evjkhmr5m5tkgafaumb35m"/>
+				<default-style style-family="centralTopic" style-id="20imgh8165s0ch5i3r71bde560"/>
+				<default-style style-family="subTopic" style-id="3a9i9g231bi15sjip958ldvc2a"/>
+				<default-style style-family="floatingTopic" style-id="1meu19hsvqff5e9aeeulslcega"/>
+				<default-style style-family="mainTopic" style-id="6haq0nnra20q2d6kq7pe4e8168"/>
+				<default-style style-family="summaryTopic" style-id="7ba0jerumtm0ngq12oc01p3iih"/>
+				<default-style style-family="boundary" style-id="2fcia2jt9sobnapjdplqqkuusq"/>
+			</theme-properties>
+		</style></master-styles></xmap-styles>

@@ -64,7 +64,7 @@ public class RemoteSharedLibrary implements IRemoteSharedLibrary {
      * 
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         if (adapter == IRemoteCommandService.class)
             return remoteService;

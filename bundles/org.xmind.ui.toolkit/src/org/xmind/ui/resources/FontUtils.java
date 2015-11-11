@@ -65,12 +65,29 @@ public class FontUtils {
     }
 
     private static List<String> findAvailableFontNamesBySWT() {
-        FontData[] fonts = Display.getCurrent().getFontList(null, true);
+        Display display = Display.getCurrent() != null ? Display.getCurrent()
+                : new Display();
+        FontData[] fonts = display.getFontList(null, true);
         Set<String> set = new TreeSet<String>();
         for (int i = 0; i < fonts.length; i++) {
-            set.add(fonts[i].getName());
+            String name = fonts[i].getName();
+            if (!name.startsWith("@")) //$NON-NLS-1$
+                set.add(name);
         }
         return new ArrayList<String>(set);
+    }
+
+    public static String getAAvailableFontNameFor(String nameContainer) {
+        if (nameContainer == null)
+            return null;
+        List<String> availableFontNames = getAvailableFontNames();
+        String[] suggestedNames = nameContainer.split(","); //$NON-NLS-1$
+        for (String suggestedName : suggestedNames) {
+            if (availableFontNames.contains(suggestedName)) {
+                return suggestedName;
+            }
+        }
+        return null;
     }
 
     /**
@@ -213,8 +230,7 @@ public class FontUtils {
                                 .getLocalGraphicsEnvironment()
                                 .getAvailableFontFamilyNames();
                     }
-                },
-                        "Get Available Font Family Names From AWT-GraphicsEnvironment"); //$NON-NLS-1$
+                }, "Get Available Font Family Names From AWT-GraphicsEnvironment"); //$NON-NLS-1$
                 th.setDaemon(true);
                 th.start();
                 while (nameList[0] == null) {
@@ -233,7 +249,8 @@ public class FontUtils {
                 return nameList[0];
             }
 
-            private void filterFontList(IProgressMonitor monitor, String[] names) {
+            private void filterFontList(IProgressMonitor monitor,
+                    String[] names) {
                 monitor.beginTask(null, names.length);
                 final ArrayList<String> list = new ArrayList<String>(
                         names.length);
@@ -278,7 +295,8 @@ public class FontUtils {
                     if (callback != null) {
                         display.asyncExec(new Runnable() {
                             public void run() {
-                                callback.setAvailableFontNames(availableFontNames);
+                                callback.setAvailableFontNames(
+                                        availableFontNames);
                             }
                         });
                     }
@@ -364,8 +382,9 @@ public class FontUtils {
             if (eles.length > 0) {
                 String name = eles[0].trim();
                 if ("".equals(name)) { //$NON-NLS-1$
-                    name = JFaceResources.getFontRegistry().getFontData(
-                            JFaceResources.DEFAULT_FONT)[0].getName();
+                    name = JFaceResources.getFontRegistry()
+                            .getFontData(JFaceResources.DEFAULT_FONT)[0]
+                                    .getName();
                 }
 
                 int size = -1;
@@ -376,8 +395,9 @@ public class FontUtils {
                     }
                 }
                 if (size < 0) {
-                    size = JFaceResources.getFontRegistry().getFontData(
-                            JFaceResources.DEFAULT_FONT)[0].getHeight();
+                    size = JFaceResources.getFontRegistry()
+                            .getFontData(JFaceResources.DEFAULT_FONT)[0]
+                                    .getHeight();
                 }
 
                 int style = -1;
@@ -392,11 +412,12 @@ public class FontUtils {
                     }
                 }
                 if (style < 0) {
-                    style = JFaceResources.getFontRegistry().getFontData(
-                            JFaceResources.DEFAULT_FONT)[0].getStyle();
+                    style = JFaceResources.getFontRegistry()
+                            .getFontData(JFaceResources.DEFAULT_FONT)[0]
+                                    .getStyle();
                 }
-                FontData[] fontData = new FontData[] { new FontData(name, size,
-                        style) };
+                FontData[] fontData = new FontData[] {
+                        new FontData(name, size, style) };
                 return fontData;
             }
         }
@@ -466,7 +487,8 @@ public class FontUtils {
         FontData[] newFontData = new FontData[fontData.length];
         for (int i = 0; i < fontData.length; i++) {
             FontData old = fontData[i];
-            newFontData[i] = new FontData(name, old.getHeight(), old.getStyle());
+            newFontData[i] = new FontData(name, old.getHeight(),
+                    old.getStyle());
         }
         return newFontData;
     }
@@ -477,19 +499,21 @@ public class FontUtils {
         FontData[] newFontData = new FontData[fontData.length];
         for (int i = 0; i < fontData.length; i++) {
             FontData old = fontData[i];
-            newFontData[i] = new FontData(old.getName(), height, old.getStyle());
+            newFontData[i] = new FontData(old.getName(), height,
+                    old.getStyle());
         }
         return newFontData;
     }
 
-    public static FontData[] relativeHeight(FontData[] fontData, int deltaHeight) {
+    public static FontData[] relativeHeight(FontData[] fontData,
+            int deltaHeight) {
         if (deltaHeight == 0 || fontData == null)
             return fontData;
         FontData[] newFontData = new FontData[fontData.length];
         for (int i = 0; i < fontData.length; i++) {
             FontData old = fontData[i];
-            newFontData[i] = new FontData(old.getName(), old.getHeight()
-                    + deltaHeight, old.getStyle());
+            newFontData[i] = new FontData(old.getName(),
+                    old.getHeight() + deltaHeight, old.getStyle());
         }
         return newFontData;
     }
@@ -737,10 +761,8 @@ public class FontUtils {
             if (newStyle < 0)
                 return reg.get(key);
             FontData[] fontData = reg.getFontData(key);
-            return getFont(
-                    newKey,
-                    style(fontData, ((newStyle & SWT.BOLD) != 0),
-                            ((newStyle & SWT.ITALIC) != 0)));
+            return getFont(newKey, style(fontData, ((newStyle & SWT.BOLD) != 0),
+                    ((newStyle & SWT.ITALIC) != 0)));
         }
         return null;
     }

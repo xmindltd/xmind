@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.TextStyle;
+import org.xmind.gef.GEF;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
 
@@ -41,6 +42,8 @@ public class TextStyleData {
 
     public int align;
 
+    public int textCase;
+
     public TextStyleData() {
         this(JFaceResources.getDefaultFont().getFontData()[0]);
     }
@@ -55,6 +58,7 @@ public class TextStyleData {
         this.strikeout = false;
 
         this.align = PositionConstants.LEFT;
+        this.textCase = GEF.MANUAL;
     }
 
     public TextStyleData(TextStyleData data) {
@@ -67,7 +71,7 @@ public class TextStyleData {
         this.strikeout = data.strikeout;
 
         this.align = data.align;
-
+        this.textCase = data.textCase;
     }
 
     public FontData createFontData() {
@@ -84,8 +88,8 @@ public class TextStyleData {
     }
 
     public TextStyle createTextStyle() {
-        TextStyle textStyle = new TextStyle(createFont(), ColorUtils
-                .getColor(color), null);
+        TextStyle textStyle = new TextStyle(createFont(),
+                ColorUtils.getColor(color), null);
         textStyle.underline = underline;
         textStyle.strikeout = strikeout;
 
@@ -108,7 +112,7 @@ public class TextStyleData {
                 && this.underline == that.underline
                 && this.strikeout == that.strikeout
 
-                && this.align == that.align;
+                && this.align == that.align && this.textCase == that.textCase;
     }
 
     public int hashCode() {
@@ -126,6 +130,7 @@ public class TextStyleData {
         if (color != null)
             c ^= color.hashCode();
         c ^= align;
+        c ^= textCase;
         return c;
     }
 
@@ -148,6 +153,7 @@ public class TextStyleData {
             sb.append("strikeout"); //$NON-NLS-1$
         sb.append(",align="); //$NON-NLS-1$
         sb.append(align);
+        sb.append(textCase);
         sb.append("}"); //$NON-NLS-1$
         return sb.toString();
     }

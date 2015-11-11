@@ -28,6 +28,10 @@ public class StraightBranchConnection extends AbstractBranchConnection {
 
     private PrecisionPoint t2 = new PrecisionPoint();
 
+    private PrecisionPoint c1 = new PrecisionPoint();
+
+    private PrecisionPoint c2 = new PrecisionPoint();
+
     private boolean cachedTapered;
 
     public StraightBranchConnection() {
@@ -43,6 +47,8 @@ public class StraightBranchConnection extends AbstractBranchConnection {
         PrecisionPoint p2 = getTargetPosition(figure);
         if (isTapered()) {
             shape.moveTo(s1);
+            shape.lineTo(c1);
+            shape.lineTo(c2);
             shape.lineTo(s2);
             shape.lineTo(t2);
             shape.lineTo(t1);
@@ -64,6 +70,10 @@ public class StraightBranchConnection extends AbstractBranchConnection {
         if (isTapered()) {
             calcTaperedPositions(sourcePos, targetPos, 0, s1, s2);
             calcTaperedPositions(sourcePos, targetPos, 1, t1, t2);
+
+            calculateSourceControlPoints(t1, s1, s2, c1);
+            calculateSourceControlPoints(t2, s2, s1, c2);
         }
     }
+
 }

@@ -33,6 +33,7 @@ public class SpreadsheetBranchHook implements IBranchHook, ICoreEventListener {
         ITopic topic = branch.getTopic();
         register = new CoreEventRegister(topic, this);
         register.register(Spreadsheet.EVENT_MODIFY_COLUMN_ORDER);
+        register.register(Spreadsheet.EVENT_MODIFY_ROW_ORDER);
     }
 
     public void unhook(IBranchPart branch) {
@@ -45,8 +46,9 @@ public class SpreadsheetBranchHook implements IBranchHook, ICoreEventListener {
 
     public void handleCoreEvent(CoreEvent event) {
         if (branch != null
-                && Spreadsheet.EVENT_MODIFY_COLUMN_ORDER
-                        .equals(event.getType())) {
+                && (Spreadsheet.EVENT_MODIFY_COLUMN_ORDER.equals(event
+                        .getType()) || Spreadsheet.EVENT_MODIFY_ROW_ORDER
+                        .equals(event.getType()))) {
             Control c = branch.getSite().getViewerControl();
             if (c != null && !c.isDisposed()) {
                 c.getDisplay().syncExec(new Runnable() {

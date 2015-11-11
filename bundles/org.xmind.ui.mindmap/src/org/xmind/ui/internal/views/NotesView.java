@@ -22,6 +22,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -39,8 +40,10 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.DisposeEvent;
@@ -48,6 +51,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -55,8 +59,6 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.ISaveablePart;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -71,6 +73,7 @@ import org.eclipse.ui.part.IContributedContentsView;
 import org.eclipse.ui.part.ViewPart;
 import org.xmind.core.Core;
 import org.xmind.core.INotes;
+import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.CoreEvent;
@@ -89,11 +92,14 @@ import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.ModifyNotesCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.actions.FindReplaceAction;
+import org.xmind.ui.internal.actions.ShowAllNotesAction;
 import org.xmind.ui.internal.dialogs.DialogUtils;
 import org.xmind.ui.internal.findreplace.IFindReplaceOperationProvider;
+import org.xmind.ui.internal.notes.INotesContentViewer;
 import org.xmind.ui.internal.notes.NotesFindReplaceOperationProvider;
-import org.xmind.ui.internal.notes.NotesViewer;
 import org.xmind.ui.internal.notes.RichDocumentNotesAdapter;
+import org.xmind.ui.internal.notes.SheetNotesViewer;
+import org.xmind.ui.internal.notes.TopicNotesViewer;
 import org.xmind.ui.internal.spelling.SpellingPlugin;
 import org.xmind.ui.internal.spellsupport.SpellingSupport;
 import org.xmind.ui.mindmap.IMindMapImages;
@@ -108,14 +114,15 @@ import org.xmind.ui.richtext.IRichTextEditViewer;
 import org.xmind.ui.richtext.IRichTextRenderer;
 import org.xmind.ui.richtext.ImagePlaceHolder;
 import org.xmind.ui.richtext.LineStyle;
+import org.xmind.ui.richtext.RichTextEditViewer;
 import org.xmind.ui.richtext.RichTextUtils;
 import org.xmind.ui.richtext.TextActionConstants;
 import org.xmind.ui.texteditor.IMenuContributor;
 import org.xmind.ui.texteditor.ISpellingActivation;
 import org.xmind.ui.util.Logger;
 
-public class NotesView extends ViewPart implements IPartListener,
-        ISelectionListener, ICoreEventListener, IDocumentListener,
+public class NotesView extends ViewPart
+        implements IPartListener, ICoreEventListener, IDocumentListener,
         IRichDocumentListener, IContributedContentsView,
         ISelectionChangedListener, IPropertyChangeListener {
 
@@ -148,8 +155,8 @@ public class NotesView extends ViewPart implements IPartListener,
 
         private void activateContext() {
             if (service == null)
-                service = (IContextService) getSite().getService(
-                        IContextService.class);
+                service = (IContextService) getSite()
+                        .getService(IContextService.class);
             if (service != null) {
                 context = service.activateContext(NOTES_EDIT_CONTEXT_ID);
             }
@@ -165,17 +172,17 @@ public class NotesView extends ViewPart implements IPartListener,
         private IRichTextEditViewer viewer;
 
         public InsertImageAction(IRichTextEditViewer viewer) {
-            super(MindMapMessages.InsertImage_text, MindMapUI.getImages().get(
-                    IMindMapImages.INSERT_IMAGE, true));
+            super(MindMapMessages.InsertImage_text, MindMapUI.getImages()
+                    .get(IMindMapImages.INSERT_IMAGE, true));
             this.viewer = viewer;
             setToolTipText(MindMapMessages.NotesView_InsertImage_toolTip);
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.INSERT_IMAGE, false));
+            setDisabledImageDescriptor(MindMapUI.getImages()
+                    .get(IMindMapImages.INSERT_IMAGE, false));
         }
 
         public void run() {
-            if (viewer == null || viewer.getControl().isDisposed()
-                    || adapter == null)
+            if (!(viewer instanceof RichTextEditViewer)
+                    || viewer.getControl().isDisposed() || adapter == null)
                 return;
 
             String path = getPath();
@@ -199,23 +206,23 @@ public class NotesView extends ViewPart implements IPartListener,
             viewer = null;
         }
 
-        public void selctionChanged(IRichTextEditViewer viewer,
+        public void selectionChanged(IRichTextEditViewer viewer,
                 ISelection selection) {
         }
 
     }
 
-    private class InsertHyperlinkAction extends Action implements
-            IRichTextAction {
+    private class InsertHyperlinkAction extends Action
+            implements IRichTextAction {
 
         private IRichTextEditViewer viewer;
 
         public InsertHyperlinkAction(IRichTextEditViewer viewer) {
-            super(MindMapMessages.InsertHyperlinkAction_text, MindMapUI
-                    .getImages().get(IMindMapImages.HYPERLINK, true));
+            super(MindMapMessages.InsertHyperlinkAction_text,
+                    MindMapUI.getImages().get(IMindMapImages.HYPERLINK, true));
             setToolTipText(MindMapMessages.InserthyperlinkAction_toolTip);
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.HYPERLINK, false));
+            setDisabledImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.HYPERLINK, false));
             this.viewer = viewer;
         }
 
@@ -245,9 +252,9 @@ public class NotesView extends ViewPart implements IPartListener,
                         end = start + link.length;
 
                     } catch (BadLocationException e) {
-                        String message = String
-                                .format("Unexpected hyperlink range: start=%d, length=%d", //$NON-NLS-1$
-                                        link.start, link.length);
+                        String message = String.format(
+                                "Unexpected hyperlink range: start=%d, length=%d", //$NON-NLS-1$
+                                link.start, link.length);
                         Logger.log(e, message);
                     }
                 }
@@ -267,16 +274,16 @@ public class NotesView extends ViewPart implements IPartListener,
                 }
             }
 
-            NotesHyperlinkDialog dialog = new NotesHyperlinkDialog(getSite()
-                    .getShell(), oldHref, oldText);
+            NotesHyperlinkDialog dialog = new NotesHyperlinkDialog(
+                    getSite().getShell(), oldHref, oldText);
             int ret = dialog.open();
             if (ret == NotesHyperlinkDialog.OK) {
                 String newText = dialog.getDisplayText();
                 String newHref = dialog.getHref();
                 if (oldHyperlink != null && newText.equals(oldText)) {
                     if (!oldHyperlink.href.equals(newHref)) {
-                        RichTextUtils.replaceHyperlinkHref(
-                                viewer.getDocument(), oldHyperlink, newHref);
+                        RichTextUtils.replaceHyperlinkHref(viewer.getDocument(),
+                                oldHyperlink, newHref);
                     }
                 } else {
                     if ("".equals(newText)) { //$NON-NLS-1$
@@ -291,7 +298,7 @@ public class NotesView extends ViewPart implements IPartListener,
             viewer = null;
         }
 
-        public void selctionChanged(IRichTextEditViewer viewer,
+        public void selectionChanged(IRichTextEditViewer viewer,
                 ISelection selection) {
         }
 
@@ -306,10 +313,12 @@ public class NotesView extends ViewPart implements IPartListener,
         }
 
         public void run() {
-            if (viewer == null || viewer.getControl().isDisposed())
+            if (!(viewer instanceof TopicNotesViewer)
+                    || viewer.getControl().isDisposed())
                 return;
 
-            TextViewer textViewer = viewer.getImplementation().getTextViewer();
+            TextViewer textViewer = ((TopicNotesViewer) viewer)
+                    .getImplementation().getTextViewer();
             if (textViewer.canDoOperation(op)) {
                 textViewer.doOperation(op);
             }
@@ -320,11 +329,13 @@ public class NotesView extends ViewPart implements IPartListener,
         }
     }
 
-    private class NotesViewRichTextActionBarContributor extends
-            FullRichTextActionBarContributor {
+    private class NotesViewRichTextActionBarContributor
+            extends FullRichTextActionBarContributor {
 
         private IRichTextAction insertImageAction;
         private IRichTextAction insertHyperlinkAction;
+
+        private IAction showAllNotesAction;
 
         protected void makeActions(IRichTextEditViewer viewer) {
             super.makeActions(viewer);
@@ -334,6 +345,13 @@ public class NotesView extends ViewPart implements IPartListener,
 
             insertHyperlinkAction = new InsertHyperlinkAction(viewer);
             addRichTextAction(insertHyperlinkAction);
+
+            showAllNotesAction = new ShowAllNotesAction(NotesView.this);
+//            addRichTextAction(showAllNotesAction);
+        }
+
+        public void fillMenu(IMenuManager menu) {
+//            menu.add(showAllNotesAction);
         }
 
         public void fillToolBar(IToolBarManager toolbar) {
@@ -341,6 +359,7 @@ public class NotesView extends ViewPart implements IPartListener,
             toolbar.add(new Separator());
             toolbar.add(insertImageAction);
             toolbar.add(insertHyperlinkAction);
+            toolbar.add(showAllNotesAction);
         }
 
         @Override
@@ -398,11 +417,11 @@ public class NotesView extends ViewPart implements IPartListener,
 
     private ITopicPart currentTopicPart;
 
-    private NotesViewer viewer;
+    private INotesContentViewer viewer;
 
     private RichDocumentNotesAdapter adapter;
 
-    private NotesViewRichTextActionBarContributor contributor;
+    private NotesViewRichTextActionBarContributor topicViewerContributor;
 
     private ICoreEventRegister eventRegister;
 
@@ -429,31 +448,35 @@ public class NotesView extends ViewPart implements IPartListener,
 
     private IPreferenceStore spellingPreferences;
 
+    private boolean updating;
+
+    private Composite contentArea;
+
+    private ISelectionChangedListener listener;
+
     public IWorkbenchPart getContributingPart() {
         return contributingEditor;
     }
 
-    private boolean updating;
-
     public void createPartControl(Composite parent) {
-        contributor = new NotesViewRichTextActionBarContributor();
-        viewer = new NotesViewer();
-        viewer.setContributor(contributor);
-        viewer.createControl(parent);
-        viewer.getImplementation().addPostSelectionChangedListener(this);
-        viewer.setInput(null);
-
-        addSpellChecker();
-
-        activateHandlers();
+        contentArea = createComposite(parent);
+        topicViewerContributor = new NotesViewRichTextActionBarContributor();
         IActionBars actionBars = getViewSite().getActionBars();
         createActions(actionBars);
-        contributor.fillMenu(actionBars.getMenuManager());
-        new ContextActivator(viewer.getImplementation().getFocusControl());
 
         getSite().getPage().addPartListener(this);
-        getSite().getPage().addSelectionListener(this);
         showBootstrapContent();
+    }
+
+    private Composite createComposite(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        composite.setLayout(layout);
+        composite.setEnabled(false);
+
+        return composite;
     }
 
     private void activateHandlers() {
@@ -467,8 +490,9 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void addSpellChecker() {
-        spellingActivation = SpellingSupport.getInstance().activateSpelling(
-                viewer.getImplementation().getTextViewer());
+        spellingActivation = SpellingSupport.getInstance()
+                .activateSpelling(((TopicNotesViewer) viewer)
+                        .getImplementation().getTextViewer());
         spellingPreferences = SpellingPlugin.getDefault().getPreferenceStore();
         if (spellingPreferences != null) {
             spellingPreferences.addPropertyChangeListener(this);
@@ -512,8 +536,8 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void registerTextActionHandlers() {
-        handlerService = (IHandlerService) getSite().getService(
-                IHandlerService.class);
+        handlerService = (IHandlerService) getSite()
+                .getService(IHandlerService.class);
         if (handlerService != null) {
             activateHandler(TextActionConstants.FONT_ID,
                     "org.xmind.ui.command.text.font"); //$NON-NLS-1$
@@ -533,11 +557,12 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void activateHandler(String actionId, String commandId) {
-        IRichTextAction action = contributor.getRichTextAction(actionId);
+        IRichTextAction action = topicViewerContributor
+                .getRichTextAction(actionId);
         if (action != null) {
             action.setActionDefinitionId(commandId);
-            IHandlerActivation activation = handlerService.activateHandler(
-                    commandId, new ActionHandler(action));
+            IHandlerActivation activation = handlerService
+                    .activateHandler(commandId, new ActionHandler(action));
             if (handlerActivations == null)
                 handlerActivations = new ArrayList<IHandlerActivation>(10);
             handlerActivations.add(activation);
@@ -546,16 +571,10 @@ public class NotesView extends ViewPart implements IPartListener,
 
     private void showBootstrapContent() {
         IEditorPart activeEditor = getSite().getPage().getActiveEditor();
-        if (activeEditor != null) {
-            partActivated(activeEditor);
-            ISelection selection;
-            if (contributingEditor == null) {
-                selection = null;
-            } else {
-                selection = contributingEditor.getSite().getSelectionProvider()
-                        .getSelection();
-            }
-            editorSelectionChanged(selection);
+        if (activeEditor instanceof IGraphicalEditor) {
+            setContributingEditor((IGraphicalEditor) activeEditor);
+        } else {
+            editorSelectionChanged(StructuredSelection.EMPTY);
         }
     }
 
@@ -563,9 +582,9 @@ public class NotesView extends ViewPart implements IPartListener,
         deactivateHandlers();
         removeSpellChecker();
 
-        editorSelectionChanged(null);
+        setCurrentTopicPart(null);
         getSite().getPage().removePartListener(this);
-        getSite().getPage().removeSelectionListener(this);
+        setContributingEditor(null);
 
         if (handlerService != null && handlerActivations != null) {
             for (IHandlerActivation activation : handlerActivations) {
@@ -592,7 +611,10 @@ public class NotesView extends ViewPart implements IPartListener,
             adapter.dispose();
             adapter = null;
         }
-        viewer = null;
+        if (viewer != null) {
+            viewer.dispose();
+            viewer = null;
+        }
     }
 
     private void removeSpellChecker() {
@@ -601,23 +623,26 @@ public class NotesView extends ViewPart implements IPartListener,
             spellingPreferences = null;
         }
         if (spellingActivation != null) {
-            spellingActivation.getSpellingSupport().deactivateSpelling(
-                    spellingActivation);
+            spellingActivation.getSpellingSupport()
+                    .deactivateSpelling(spellingActivation);
             spellingActivation = null;
         }
     }
 
     private void deactivateHandlers() {
         if (commitHandlerActivation != null) {
-            commitHandlerActivation.getHandlerService().deactivateHandler(
-                    commitHandlerActivation);
+            commitHandlerActivation.getHandlerService()
+                    .deactivateHandler(commitHandlerActivation);
             commitHandlerActivation = null;
         }
     }
 
     public void setFocus() {
-        if (viewer != null) {
-            viewer.getImplementation().getFocusControl().setFocus();
+        if (viewer instanceof TopicNotesViewer) {
+            ((TopicNotesViewer) viewer).getImplementation().getFocusControl()
+                    .setFocus();
+        } else if (viewer instanceof SheetNotesViewer) {
+            viewer.getControl().setFocus();
         }
     }
 
@@ -633,7 +658,40 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void setContributingEditor(IGraphicalEditor editor) {
-        this.contributingEditor = editor;
+        if (editor == contributingEditor) {
+            return;
+        }
+
+        if (contributingEditor != null) {
+            ISelectionProvider selectionProvider = contributingEditor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider != null)
+                selectionProvider.removeSelectionChangedListener(
+                        getSelectionChangedListener());
+        }
+
+        contributingEditor = editor;
+
+        ISelection newSelection = null;
+
+        if (contributingEditor != null) {
+            ISelectionProvider selectionProvider = contributingEditor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider != null) {
+                selectionProvider.addSelectionChangedListener(
+                        getSelectionChangedListener());
+                newSelection = selectionProvider.getSelection();
+            }
+        }
+        if (newSelection == null) {
+            newSelection = StructuredSelection.EMPTY;
+        }
+
+        if (contentArea.isDisposed()) {
+            return;
+        }
+
+        editorSelectionChanged(newSelection);
     }
 
     public void partBroughtToTop(IWorkbenchPart part) {
@@ -643,7 +701,6 @@ public class NotesView extends ViewPart implements IPartListener,
         if (DEBUG)
             System.out.println("Part closed: " + part); //$NON-NLS-1$
         if (part == this.contributingEditor) {
-            selectionChanged(part, null);
             setContributingEditor(null);
         }
     }
@@ -657,8 +714,10 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void saveNotes() {
-        if (adapter == null || currentTopicPart == null || viewer == null
-                || viewer.getControl().isDisposed() || !viewer.hasModified()) {
+        if (adapter == null || currentTopicPart == null
+                || !(viewer instanceof TopicNotesViewer)
+                || viewer.getControl().isDisposed()
+                || !((TopicNotesViewer) viewer).hasModified()) {
             deactivateJob();
             return;
         }
@@ -674,7 +733,7 @@ public class NotesView extends ViewPart implements IPartListener,
         } else {
             forceSaveNotes(topic);
         }
-        viewer.resetModified();
+        ((TopicNotesViewer) viewer).resetModified();
         savingNotes = false;
 
         deactivateJob();
@@ -711,11 +770,10 @@ public class NotesView extends ViewPart implements IPartListener,
     public void partOpened(IWorkbenchPart part) {
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IContributedContentsView.class) {
             return this;
-        } else if (adapter == ISaveablePart.class) {
-            return getSaveablePart();
         } else if (adapter == IFindReplaceOperationProvider.class) {
             if (notesOperationProvider == null) {
                 notesOperationProvider = new NotesFindReplaceOperationProvider(
@@ -723,8 +781,9 @@ public class NotesView extends ViewPart implements IPartListener,
             }
             return notesOperationProvider;
         } else if (adapter == IFindReplaceTarget.class) {
-            if (viewer != null) {
-                IRichTextEditViewer rtViewer = viewer.getImplementation();
+            if (viewer instanceof TopicNotesViewer) {
+                IRichTextEditViewer rtViewer = ((TopicNotesViewer) viewer)
+                        .getImplementation();
                 if (rtViewer != null) {
                     TextViewer textViewer = rtViewer.getTextViewer();
                     if (textViewer != null)
@@ -732,35 +791,23 @@ public class NotesView extends ViewPart implements IPartListener,
                 }
             }
         } else if (adapter == ITextViewer.class) {
-            if (viewer != null) {
-                IRichTextEditViewer rtViewer = viewer.getImplementation();
+            if (viewer instanceof TopicNotesViewer) {
+                IRichTextEditViewer rtViewer = ((TopicNotesViewer) viewer)
+                        .getImplementation();
                 if (rtViewer != null)
                     return rtViewer.getTextViewer();
             }
         } else if (adapter == IRichTextEditViewer.class) {
-            if (viewer != null) {
-                return viewer.getImplementation();
+            if (viewer instanceof TopicNotesViewer) {
+                return ((TopicNotesViewer) viewer).getImplementation();
             }
         } else if (adapter == ITopicPart.class) {
             return currentTopicPart;
         } else if (adapter == ITopic.class) {
-            return currentTopicPart == null ? null : currentTopicPart
-                    .getTopic();
+            return currentTopicPart == null ? null
+                    : currentTopicPart.getTopic();
         }
         return super.getAdapter(adapter);
-    }
-
-    private ISaveablePart getSaveablePart() {
-        if (getContributingPart() instanceof ISaveablePart)
-            return (ISaveablePart) getContributingPart();
-        return null;
-    }
-
-    public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-        if (part != contributingEditor)
-            return;
-
-        editorSelectionChanged(selection);
     }
 
     private void editorSelectionChanged(ISelection selection) {
@@ -770,6 +817,14 @@ public class NotesView extends ViewPart implements IPartListener,
 
         currentSelection = selection;
         setCurrentTopicPart(findSelectedTopicPart());
+
+        if (currentSelection instanceof IStructuredSelection) {
+            Object obj = ((IStructuredSelection) currentSelection)
+                    .getFirstElement();
+            updateViewer(obj);
+        } else {
+            updateViewer(null);
+        }
     }
 
     private void setCurrentTopicPart(ITopicPart topicPart) {
@@ -779,7 +834,7 @@ public class NotesView extends ViewPart implements IPartListener,
         unhookTopic();
         saveNotes();
         this.currentTopicPart = topicPart;
-        forceRefreshViewer();
+//        forceRefreshViewer();
         hookTopic();
     }
 
@@ -807,7 +862,8 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void hookDocument() {
-        IRichDocument document = viewer.getImplementation().getDocument();
+        IRichDocument document = ((TopicNotesViewer) viewer).getImplementation()
+                .getDocument();
         if (document != null) {
             document.addDocumentListener(this);
             document.addRichDocumentListener(this);
@@ -817,7 +873,8 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void unhookDocument() {
-        IRichDocument document = viewer.getImplementation().getDocument();
+        IRichDocument document = ((TopicNotesViewer) viewer).getImplementation()
+                .getDocument();
         if (document != null) {
             document.removeDocumentListener(this);
             document.removeRichDocumentListener(this);
@@ -900,10 +957,11 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void updateJob() {
-        if (viewer == null || viewer.getControl().isDisposed())
+        if (!(viewer instanceof TopicNotesViewer)
+                || viewer.getControl().isDisposed())
             return;
 
-        if (viewer.hasModified()) {
+        if (((TopicNotesViewer) viewer).hasModified()) {
             activateJob();
         } else {
             deactivateJob();
@@ -934,10 +992,12 @@ public class NotesView extends ViewPart implements IPartListener,
     }
 
     private void updateTextActions() {
-        if (viewer == null || viewer.getControl().isDisposed()
-                || textActions == null || textActions.isEmpty())
+        if (!(viewer instanceof TopicNotesViewer)
+                || viewer.getControl().isDisposed() || textActions == null
+                || textActions.isEmpty())
             return;
-        TextViewer textViewer = viewer.getImplementation().getTextViewer();
+        TextViewer textViewer = ((TopicNotesViewer) viewer).getImplementation()
+                .getTextViewer();
         if (textViewer != null) {
             for (TextAction action : textActions) {
                 action.update(textViewer);
@@ -995,17 +1055,97 @@ public class NotesView extends ViewPart implements IPartListener,
     public void propertyChange(PropertyChangeEvent event) {
         if (SpellingPlugin.SPELLING_CHECK_ENABLED.equals(event.getProperty())) {
             if (spellingActivation != null) {
-                spellingActivation.getSpellingSupport().deactivateSpelling(
-                        spellingActivation);
+                spellingActivation.getSpellingSupport()
+                        .deactivateSpelling(spellingActivation);
                 spellingActivation = null;
             }
             if (spellingPreferences
                     .getBoolean(SpellingPlugin.SPELLING_CHECK_ENABLED)) {
                 spellingActivation = SpellingSupport.getInstance()
-                        .activateSpelling(
-                                viewer.getImplementation().getTextViewer());
+                        .activateSpelling(((TopicNotesViewer) viewer)
+                                .getImplementation().getTextViewer());
             }
         }
+    }
+
+    private void updateViewer(Object input) {
+        if (contentArea == null || contentArea.isDisposed()) {
+            return;
+        }
+        contentArea.setRedraw(false);
+        contentArea.setEnabled(true);
+
+        RichDocumentNotesAdapter oldAdapter = this.adapter;
+        if (viewer instanceof TopicNotesViewer && input instanceof ITopic) {
+            unhookDocument();
+            this.adapter = createNotesAdapter();
+            viewer.setInput(adapter);
+            hookDocument();
+        } else if (viewer instanceof SheetNotesViewer
+                && input instanceof ISheet) {
+            viewer.setInput((ISheet) input);
+            ((SheetNotesViewer) viewer).setEditor(contributingEditor);
+        } else {
+            if (viewer instanceof TopicNotesViewer) {
+                removeSpellChecker();
+                deactivateHandlers();
+                if (((TopicNotesViewer) viewer).getImplementation() != null) {
+                    ((TopicNotesViewer) viewer).getImplementation()
+                            .removePostSelectionChangedListener(this);
+                }
+                unhookDocument();
+            }
+            if (viewer instanceof SheetNotesViewer) {
+                ((SheetNotesViewer) viewer).setEditor(null);
+            }
+            if (viewer != null) {
+                viewer.dispose();
+                viewer = null;
+            }
+
+            if (input instanceof ITopic) {
+                viewer = new TopicNotesViewer(topicViewerContributor);
+                viewer.createControl(contentArea);
+                this.adapter = createNotesAdapter();
+                viewer.setInput(adapter);
+                addSpellChecker();
+                activateHandlers();
+                ((TopicNotesViewer) viewer).getImplementation()
+                        .addPostSelectionChangedListener(this);
+                hookDocument();
+
+                IActionBars actionBars = getViewSite().getActionBars();
+                topicViewerContributor.fillMenu(actionBars.getMenuManager());
+                new ContextActivator(((TopicNotesViewer) viewer)
+                        .getImplementation().getFocusControl());
+
+            } else if (input instanceof ISheet) {
+                viewer = new SheetNotesViewer(contributingEditor);
+                viewer.createControl(contentArea);
+                viewer.setInput((ISheet) input);
+            } else {
+                contentArea.setEnabled(false);
+            }
+        }
+        contentArea.setRedraw(true);
+        contentArea.layout(true, true);
+
+        if (oldAdapter != null) {
+            oldAdapter.dispose();
+        }
+        update();
+    }
+
+    private ISelectionChangedListener getSelectionChangedListener() {
+        if (listener == null) {
+            listener = new ISelectionChangedListener() {
+
+                public void selectionChanged(SelectionChangedEvent event) {
+                    editorSelectionChanged(event.getSelection());
+                }
+            };
+        }
+        return listener;
     }
 
 }

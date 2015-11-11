@@ -13,6 +13,12 @@
  *******************************************************************************/
 package org.xmind.ui.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+
 /**
  * 
  * @author Frank Shaka
@@ -95,4 +101,17 @@ public class TextFormatter {
     public static String removeNewLineCharacter(String text) {
         return text.replaceAll(" ?(\\r\\n|\\n|\\r)+", " "); //$NON-NLS-1$ //$NON-NLS-2$
     }
+
+    public static String formatTimeMillis(String timeMillis, String pattern) {
+        if (timeMillis == null || pattern == null) {
+            return null;
+        }
+        long millis = Long.parseLong(timeMillis);
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTimeInMillis(millis);
+        DateFormat formatter = new SimpleDateFormat(pattern,
+                Locale.getDefault());
+        return formatter.format(calendar.getTime());
+    }
+
 }

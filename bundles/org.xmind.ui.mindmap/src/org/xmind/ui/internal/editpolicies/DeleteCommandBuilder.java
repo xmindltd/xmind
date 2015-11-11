@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.xmind.ui.internal.editpolicies;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -29,11 +31,13 @@ import org.xmind.core.ISheet;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.ITopicRange;
+import org.xmind.core.comment.IComment;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.ui.commands.CommandBuilder;
 import org.xmind.ui.commands.DeleteBoundaryCommand;
+import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.commands.DeleteMarkerCommand;
 import org.xmind.ui.commands.DeleteRelationshipCommand;
 import org.xmind.ui.commands.DeleteSummaryCommand;
@@ -137,6 +141,7 @@ public class DeleteCommandBuilder extends CommandBuilder {
             return;
 
         deleteRelsByTopic(topic);
+        deleteComments(topic);
 
         ITopic parent = topic.getParent();
         if (parent != null) {
@@ -155,6 +160,39 @@ public class DeleteCommandBuilder extends CommandBuilder {
 
         addDeleted(topic);
         endDeleting();
+    }
+
+    private void deleteComments(ITopic topic) {
+        List<ITopic> topics = getAllDescendents(topic);
+        for (ITopic t : topics) {
+            List<IComment> comments = t.getOwnedWorkbook().getCommentManager()
+                    .getComments(t);
+            if (comments.size() != 0) {
+                for (IComment comment : comments) {
+                    add(new DeleteCommentCommand(comment), false);
+                }
+            }
+        }
+    }
+
+    //return it and all its descendents.
+    private List<ITopic> getAllDescendents(ITopic topic) {
+        List<ITopic> topics = new ArrayList<ITopic>();
+        if (topic != null) {
+            addChildren(topics, topic);
+        }
+        return topics;
+    }
+
+    private void addChildren(List<ITopic> topics, ITopic topic) {
+        if (topic != null) {
+            List<ITopic> children = topic.getAllChildren();
+            topics.add(topic);
+            for (ITopic child : children) {
+                addChildren(topics, child);
+            }
+        }
+
     }
 
     protected void deleteTopicInRanges(ITopic topic, Set<ITopicRange> ranges,
@@ -297,7 +335,8 @@ public class DeleteCommandBuilder extends CommandBuilder {
         ranges.add(range);
     }
 
-    protected void deleteBoundary(IBoundary boundary, boolean sourceCollectable) {
+    protected void deleteBoundary(IBoundary boundary,
+            boolean sourceCollectable) {
         if (!startDeleting(boundary))
             return;
 

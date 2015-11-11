@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.xmind.gef.ui.internal.CommandStackPropertyTester"
+            id="org.xmind.gef.propertyTester.commandStack"
+            namespace="org.xmind.gef.commandStack"
+            properties="canUndo,canRedo,isDirty"
+            type="org.xmind.gef.command.ICommandStack">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.xmind.gef.ui.canUndoInActivePart">
+         <with
+               variable="activePart">
+            <adapt
+                  type="org.xmind.gef.command.ICommandStack">
+               <test
+                     property="org.xmind.gef.commandStack.canUndo"
+                     value="true">
+               </test>
+            </adapt>
+         </with>
+      </definition>
+      <definition
+            id="org.xmind.gef.ui.canRedoInActivePart">
+         <with
+               variable="activePart">
+            <adapt
+                  type="org.xmind.gef.command.ICommandStack">
+               <test
+                     property="org.xmind.gef.commandStack.canRedo"
+                     value="true">
+               </test>
+            </adapt>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="java.lang.Object"
+            class="org.xmind.gef.ui.internal.ModelToPartAdapterFactory">
+         <adapter
+               type="org.xmind.gef.part.IPart">
+         </adapter>
+         <adapter
+               type="org.xmind.gef.part.IGraphicalPart">
+         </adapter>
+      </factory>
+   </extension>
+
+</plugin>

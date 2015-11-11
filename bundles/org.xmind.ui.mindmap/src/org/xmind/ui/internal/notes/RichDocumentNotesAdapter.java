@@ -58,6 +58,7 @@ public class RichDocumentNotesAdapter implements IAdaptable {
         this.content = content;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IRichDocument.class)
             return getDocument();
@@ -164,7 +165,8 @@ public class RichDocumentNotesAdapter implements IAdaptable {
             return null;
         StringBuilder sb = new StringBuilder(string);
         int index = 0;
-        while ((index = sb.indexOf(ImagePlaceHolder.PLACE_HOLDER, index)) >= 0) {
+        while ((index = sb.indexOf(ImagePlaceHolder.PLACE_HOLDER,
+                index)) >= 0) {
             sb.deleteCharAt(index);
         }
         IPlainNotesContent content = (IPlainNotesContent) getWorkbook()

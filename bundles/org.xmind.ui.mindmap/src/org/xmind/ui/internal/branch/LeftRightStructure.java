@@ -23,6 +23,7 @@ import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.xmind.gef.GEF;
+import org.xmind.gef.draw2d.IAnchor;
 import org.xmind.gef.draw2d.IReferencedFigure;
 import org.xmind.gef.draw2d.geometry.HorizontalFlipper;
 import org.xmind.gef.draw2d.geometry.ITransformer;
@@ -31,6 +32,7 @@ import org.xmind.ui.branch.AbstractBranchStructure;
 import org.xmind.ui.branch.BoundaryLayoutHelper;
 import org.xmind.ui.branch.IInsertion;
 import org.xmind.ui.branch.Insertion;
+import org.xmind.ui.internal.mindmap.TopicPart;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IBranchRangePart;
 import org.xmind.ui.mindmap.IPlusMinusPart;
@@ -54,11 +56,15 @@ public class LeftRightStructure extends AbstractBranchStructure {
         return leftwards;
     }
 
-    protected void doFillPlusMinus(IBranchPart branch,
-            IPlusMinusPart plusMinus, LayoutInfo info) {
+    protected void doFillPlusMinus(IBranchPart branch, IPlusMinusPart plusMinus,
+            LayoutInfo info) {
         Point ref = info.getReference();
         t.setOrigin(ref);
         int y = ref.y;
+//        IFigure tf = branch.getTopicPart().getFigure();
+//        ITopicDecoration shape = ((TopicFigure) tf).getDecoration();
+//        if (Styles.TOPIC_SHAPE_UNDERLINE.equals(shape.getId()))
+//            y += tf.getPreferredSize().height / 2;
 
         Rectangle topicBounds = info.getCheckedClientArea();
         topicBounds = t.tr(topicBounds);
@@ -66,6 +72,7 @@ public class LeftRightStructure extends AbstractBranchStructure {
 
         IFigure pmFigure = plusMinus.getFigure();
         Dimension size = pmFigure.getPreferredSize();
+
         Rectangle r = new Rectangle(x, y - size.height / 2, size.width,
                 size.height);
         info.put(pmFigure, t.r(r));
@@ -86,9 +93,22 @@ public class LeftRightStructure extends AbstractBranchStructure {
         int x = refBounds.right() + majorSpacing;
 
         int num = subBranches.size();
-        int totalHeight = calcTotalChildrenHeight(branch, minorSpacing, true);
-        int top = totalHeight / 2;
-        int y = ref.y - top;
+
+        int anchorHeight = 0;
+        TopicPart topicPart = (TopicPart) branch.getTopicPart();
+        if (topicPart != null) {
+            IAnchor anchor = topicPart.getSourceAnchor(null);
+            anchorHeight = (int) anchor
+                    .getLocation(leftwards ? PositionConstants.EAST
+                            : PositionConstants.WEST, 0)
+                    .getDifference(anchor.getReferencePoint()).height;
+        }
+
+//        int totalHeight = calcTotalChildrenHeight(branch, minorSpacing, true);
+//        int top = totalHeight / 2;
+//        int y = ref.y - top;
+        int distanceTop = calcDistanceTop(branch, minorSpacing, true);
+        int y = ref.y + (int) anchorHeight - distanceTop;
         IInsertion insertion = getCurrentInsertion(branch);
         BoundaryLayoutHelper helper = getBoundaryLayoutHelper(branch);
 
@@ -114,7 +134,8 @@ public class LeftRightStructure extends AbstractBranchStructure {
         if (insertion != null && num == insertion.getIndex()) {
             Dimension insSize = insertion.getSize();
             if (insSize != null) {
-                Rectangle r = new Rectangle(x, y, insSize.width, insSize.height);
+                Rectangle r = new Rectangle(x, y, insSize.width,
+                        insSize.height);
                 info.add(t.rr(r));
 
             }
@@ -197,16 +218,7 @@ public class LeftRightStructure extends AbstractBranchStructure {
         return super.calcChildDistance(branch, key);
     }
 
-    private Point getChildRef(IBranchPart branch, Point branchRef,
-            ParentSearchKey key) {
-        return key.getCursorPos();
-    }
-
-    public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return calcInsIndex(branch, key, false);
-    }
-
-    private int calcInsIndex(IBranchPart branch, ParentSearchKey key,
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
             boolean withDisabled) {
         if (branch.getSubBranches().isEmpty() || branch.isFolded())
             return withDisabled ? 0 : -1;
@@ -252,6 +264,53 @@ public class LeftRightStructure extends AbstractBranchStructure {
 
     private Dimension calcInsSize(IReferencedFigure child) {
         return child.getSize().scale(0.8);
+    }
+
+    private int calcDistanceTop(IBranchPart branch, int minorSpacing,
+            boolean withInsertion) {
+        int totalAnchorHeight = 0;
+        int firstDistanceTop = 0;
+
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        int num = subBranches.size();
+        for (int i = 0; i < num; i++) {
+            IBranchPart subBranch = subBranches.get(i);
+            int h = getBorderedSize(branch, subBranch).height;
+
+            TopicPart topicPart = (TopicPart) subBranch.getTopicPart();
+            int anchorDistanceTop = 0;
+            if (topicPart != null) {
+                IAnchor anchor = topicPart.getTargetAnchor(null);
+                anchorDistanceTop = (int) anchor.getLocation(leftwards
+                        ? PositionConstants.EAST : PositionConstants.WEST, 0).y
+                        - subBranch.getFigure().getBounds().y;
+            }
+
+            if (i == 0) {
+                firstDistanceTop = anchorDistanceTop;
+                totalAnchorHeight += num == 1 ? 0 : h - anchorDistanceTop;
+                continue;
+            }
+
+            totalAnchorHeight += minorSpacing;
+            if (i == num - 1) {
+                totalAnchorHeight += anchorDistanceTop;
+                break;
+            }
+
+            totalAnchorHeight += h;
+        }
+        if (withInsertion) {
+            IInsertion ins = getCurrentInsertion(branch);
+            if (ins != null) {
+                Dimension insSize = ins.getSize();
+                if (insSize != null) {
+                    totalAnchorHeight += minorSpacing + insSize.height;
+                }
+            }
+        }
+        return totalAnchorHeight / 2 + firstDistanceTop;
+
     }
 
     private int calcTotalChildrenHeight(IBranchPart branch, int minorSpacing,

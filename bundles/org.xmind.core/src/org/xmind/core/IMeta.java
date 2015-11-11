@@ -35,6 +35,16 @@ public interface IMeta extends IAdaptable, IWorkbookComponent {
 
     String CREATOR_VERSION = CREATOR + SEP + "Version"; //$NON-NLS-1$
 
+    String CREATE = "Create"; //$NON-NLS-1$
+
+    String CREATED_TIME = CREATE + SEP + "Time"; //$NON-NLS-1$
+
+    String AUTHOR_NAME = AUTHOR + SEP + "Name"; //$NON-NLS-1$
+
+    String AUTHOR_EMAIL = AUTHOR + SEP + "Email"; //$NON-NLS-1$
+
+    String AUTHOR_ORG = AUTHOR + SEP + "Org"; //$NON-NLS-1$
+
     /**
      * Key path prefix for all configuration keys.
      */

@@ -16,8 +16,6 @@ package org.xmind.ui.internal.actions;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.part.IPart;
@@ -28,7 +26,6 @@ import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.internal.notes.NotesPopup;
 import org.xmind.ui.mindmap.ITopicPart;
-import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
 public class EditNotesAction extends PageAction implements ISelectionAction {
@@ -49,15 +46,6 @@ public class EditNotesAction extends PageAction implements ISelectionAction {
         IWorkbenchWindow window = editor.getSite().getWorkbenchWindow();
         if (window == null)
             return;
-
-        IWorkbenchPage workbenchPage = window.getActivePage();
-        if (workbenchPage != null) {
-            IViewPart notesView = workbenchPage.findView(MindMapUI.VIEW_NOTES);
-            if (notesView != null) {
-                workbenchPage.activate(notesView);
-                return;
-            }
-        }
 
         IGraphicalViewer viewer = getViewer();
         if (viewer == null)

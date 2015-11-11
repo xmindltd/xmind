@@ -13,27 +13,21 @@
  *******************************************************************************/
 package org.xmind.ui.gallery;
 
-import org.eclipse.draw2d.AbstractBorder;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayoutManager;
+import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Pattern;
-import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.AdvancedToolbarLayout;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
-import org.xmind.gef.draw2d.graphics.GradientPattern;
-import org.xmind.gef.draw2d.graphics.GraphicsUtils;
-import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.ui.resources.ColorUtils;
 
 /**
@@ -45,6 +39,7 @@ public class FrameFigure extends Figure {
     private static final int FLAG_PRESELECTED = MAX_FLAG << 2;
     private static final int FLAG_HIDE_TITLE = MAX_FLAG << 3;
     private static final int FLAG_FLAT = MAX_FLAG << 4;
+
     static {
         MAX_FLAG = FLAG_FLAT;
     }
@@ -54,40 +49,7 @@ public class FrameFigure extends Figure {
             .getColor("#2088e0"); //$NON-NLS-1$
 //    protected static final Color ColorInactive = ColorUtils.gray(ColorSelected);
 
-    private class FocusBorder extends AbstractBorder {
-
-        private Insets insets = new Insets(6);
-
-        public void paint(IFigure figure, Graphics graphics, Insets insets) {
-            boolean selected = isSelected();
-            boolean preselected = isPreselected();
-            if (!preselected && !selected)
-                return;
-
-            boolean selectedPreselected = preselected && selected;
-            boolean lighter = preselected && !selected;
-
-            graphics.setAntialias(SWT.ON);
-            graphics.setLineWidth(1);
-            graphics.setLineStyle(SWT.LINE_SOLID);
-            tempRect.setBounds(getPaintRectangle(figure, insets));
-            tempRect.shrink(1, 1);
-
-            graphics.setForegroundColor(selectedPreselected ? ColorSelectedPreselected
-                    : ColorSelected);
-
-            graphics.setAlpha(lighter ? 0x80 : 0xf0);
-            Path p = new Path(Display.getCurrent());
-            p.addRoundedRectangle(tempRect.x, tempRect.y, tempRect.width,
-                    tempRect.height, 3);
-            graphics.drawPath(p);
-            p.dispose();
-        }
-
-        public Insets getInsets(IFigure figure) {
-            return insets;
-        }
-    }
+    private static final int PADDING = 6;
 
     private RotatableWrapLabel title;
 
@@ -103,7 +65,8 @@ public class FrameFigure extends Figure {
      * 
      */
     public FrameFigure() {
-        setBorder(new FocusBorder());
+        setOpaque(false);
+        setBorder(new MarginBorder(PADDING));
         FrameBorderLayout layout = new FrameBorderLayout();
         layout.setVerticalSpacing(2);
         layout.setHorizontalSpacing(2);
@@ -115,16 +78,10 @@ public class FrameFigure extends Figure {
         titleContainer.setLayoutManager(titleContainerLayout);
         add(titleContainer, FrameBorderLayout.TOP);
 
-        title = new RotatableWrapLabel(RotatableWrapLabel.NORMAL) {
-            protected void paintFigure(Graphics graphics) {
-                if (isSelected()) {
-                    graphics.setForegroundColor(ColorConstants.white);
-                }
-                super.paintFigure(graphics);
-            }
-        };
+        title = new RotatableWrapLabel(RotatableWrapLabel.NORMAL);
         title.setTextAlignment(PositionConstants.CENTER);
         title.setAbbreviated(true);
+        title.setForegroundColor(ColorConstants.black);
         titleContainer.add(title, FrameBorderLayout.TOP);
 
         contentContainer = new Layer();
@@ -150,10 +107,9 @@ public class FrameFigure extends Figure {
         } else {
             Insets ins1 = contentContainer.getInsets();
             Insets ins2 = contentLayer.getInsets();
-            contentContainer
-                    .setPreferredSize(size.getExpanded(ins1.getWidth(),
-                            ins1.getHeight()).expand(ins2.getWidth(),
-                            ins2.getHeight()));
+            contentContainer.setPreferredSize(
+                    size.getExpanded(ins1.getWidth(), ins1.getHeight())
+                            .expand(ins2.getWidth(), ins2.getHeight()));
         }
     }
 
@@ -161,80 +117,24 @@ public class FrameFigure extends Figure {
         // Prevent external layout manager to be set.
     }
 
-    public void paint(Graphics graphics) {
-        GraphicsUtils.fixGradientBugForCarbon(graphics, this);
-        super.paint(graphics);
-    }
-
     @Override
     protected void paintFigure(Graphics graphics) {
         boolean preselected = isPreselected();
         boolean selected = isSelected();
-        if (preselected && selected) {
-            paintBackground(graphics, ColorSelectedPreselected, 0xf0);
+        if (selected) {
+            paintBackground(graphics, ColorSelected, 0xff);
         } else if (preselected) {
-            paintBackground(graphics, ColorSelected, 0x80);
-        } else if (selected) {
-            paintBackground(graphics, ColorSelected, 0xf0);
+            paintBackground(graphics, ColorSelected, 0x20);
         }
         super.paintFigure(graphics);
     }
 
     private void paintBackground(Graphics graphics, Color color, int alpha) {
-        Rectangle b = new Rectangle(getBounds()).shrink(1, 1);
-        graphics.setAntialias(SWT.ON);
+        Rectangle b = getBounds();
+//        graphics.setAntialias(SWT.ON);
         graphics.setAlpha(alpha);
-        graphics.pushState();
-        try {
-            switch (getTitlePlacement()) {
-            case PositionConstants.LEFT:
-                paintHorizontalBackground(graphics, 0, b, color, alpha,
-                        ColorUtils.gradientLighter(color), alpha);
-                break;
-            case PositionConstants.RIGHT:
-                paintHorizontalBackground(graphics, 0, b,
-                        ColorUtils.gradientLighter(color), alpha, color, alpha);
-                break;
-            case PositionConstants.BOTTOM:
-                paintVerticalBackground(graphics, 0, b,
-                        ColorUtils.gradientLighter(color), alpha, color, alpha);
-                break;
-            case PositionConstants.TOP:
-                paintVerticalBackground(graphics, 0, b, color, alpha,
-                        ColorUtils.gradientLighter(color), alpha);
-                break;
-            }
-        } finally {
-            graphics.popState();
-        }
-    }
-
-    private void paintVerticalBackground(Graphics graphics, int start,
-            Rectangle r, Color color1, int alpha1, Color color2, int alpha2) {
-        int length = r.height;
-        start += r.y;
-        Pattern p = new GradientPattern(Display.getCurrent(), r.x, start, r.x,
-                start + length, color1, alpha1, color2, alpha2);
-        graphics.setBackgroundPattern(p);
-        Path s = new Path(Display.getCurrent());
-        s.addRoundedRectangle(r.x, start, r.width, length, 3);
-        graphics.fillPath(s);
-        s.dispose();
-        p.dispose();
-    }
-
-    private void paintHorizontalBackground(Graphics graphics, int start,
-            Rectangle r, Color color, int alpha1, Color color2, int alpha2) {
-        int length = r.width;
-        start += r.x;
-        Pattern p = new GradientPattern(Display.getCurrent(), start, r.y, start
-                + length, r.y, color, alpha1, color2, alpha2);
-        graphics.setBackgroundPattern(p);
-        Path s = new Path(Display.getCurrent());
-        s.addRoundedRectangle(start, r.y, length, r.height, 3);
-        graphics.fillPath(s);
-        s.dispose();
-        p.dispose();
+        graphics.setBackgroundColor(color);
+        graphics.fillRectangle(b);
     }
 
     /**
@@ -315,6 +215,8 @@ public class FrameFigure extends Figure {
             return;
         setFlag(FLAG_SELECTED, selected);
         repaint();
+        title.setForegroundColor(
+                selected ? ColorConstants.white : ColorConstants.black);
     }
 
     public void setPreselected(boolean preselected) {

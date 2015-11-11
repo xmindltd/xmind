@@ -14,8 +14,12 @@
 package org.xmind.ui.internal.figures;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.IClippingStrategy;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.xmind.gef.draw2d.IDecoratedFigure;
 import org.xmind.gef.draw2d.IDecoratedFigureListener;
@@ -29,6 +33,7 @@ import org.xmind.gef.draw2d.graphics.AlphaGraphics;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.gef.draw2d.graphics.GrayedGraphics;
 import org.xmind.ui.decorations.IBranchDecoration;
+import org.xmind.ui.internal.decorations.CalloutBranchConnections;
 
 public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
         IMinimizable, IShadowedFigure, ITransparentableFigure {
@@ -48,6 +53,8 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
     private int mainAlpha = 0xff;
 
     private int alpha = 0xff;
+
+    private IDecoration calloutConnections = null;
 
     public boolean isFolded() {
         return getFlag(FLAG_FOLDED);
@@ -97,6 +104,18 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
         repaint();
     }
 
+    public IDecoration getCalloutConnections() {
+        return calloutConnections;
+    }
+
+    public void setCalloutConnections(IDecoration calloutConnections) {
+        if (calloutConnections == this.calloutConnections)
+            return;
+        this.calloutConnections = calloutConnections;
+        revalidate();
+        repaint();
+    }
+
     public IDecoration getDecoration() {
         return decoration;
     }
@@ -114,7 +133,8 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
         addListener(IDecoratedFigureListener.class, listener);
     }
 
-    public void removeDecoratedFigureListener(IDecoratedFigureListener listener) {
+    public void removeDecoratedFigureListener(
+            IDecoratedFigureListener listener) {
         removeListener(IDecoratedFigureListener.class, listener);
     }
 
@@ -122,8 +142,8 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
             IDecoration newDecoration) {
         Iterator listeners = getListeners(IDecoratedFigureListener.class);
         while (listeners.hasNext()) {
-            ((IDecoratedFigureListener) listeners.next()).decorationChanged(
-                    this, oldDecoration, newDecoration);
+            ((IDecoratedFigureListener) listeners.next())
+                    .decorationChanged(this, oldDecoration, newDecoration);
         }
     }
 
@@ -156,6 +176,8 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
     public void invalidate() {
         if (connections != null)
             connections.invalidate();
+        if (calloutConnections != null)
+            calloutConnections.invalidate();
         if (decoration != null)
             decoration.invalidate();
         super.invalidate();
@@ -209,17 +231,59 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
         }
     }
 
+    protected void paintChildren(Graphics graphics) {
+        List children = getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            IFigure child = (IFigure) children.get(i);
+            if (child.isVisible()) {
+                if (child instanceof TopicFigure) {
+                    graphics.setAntialias(SWT.ON);
+
+                    if (connections != null) {
+                        connections.paint(this, graphics);
+                    }
+
+                    decoration.paint(this, graphics);
+
+                    IFigure parentFigure = getParent();
+                    if (parentFigure instanceof BranchFigure) {
+                        CalloutBranchConnections parentCC = (CalloutBranchConnections) ((BranchFigure) parentFigure)
+                                .getCalloutConnections();
+                        IDecoration calloutConnection = parentCC
+                                .getDecoration(this);
+                        if (calloutConnection != null)
+                            calloutConnection.paint(parentFigure, graphics);
+
+                    }
+                    if (this.calloutConnections != null) {
+                        this.calloutConnections.paint(this, graphics);
+                    }
+                }
+                // determine clipping areas for child
+                IClippingStrategy clippingStrategy = getClippingStrategy();
+                Rectangle[] clipping = null;
+                if (clippingStrategy != null) {
+                    clipping = clippingStrategy.getClip(child);
+                } else {
+                    // default clipping behaviour is to clip at bounds
+                    clipping = new Rectangle[] { child.getBounds() };
+                }
+                // child may now paint inside the clipping areas
+                for (int j = 0; j < clipping.length; j++) {
+                    if (clipping[j].intersects(
+                            graphics.getClip(Rectangle.SINGLETON))) {
+                        graphics.clipRect(clipping[j]);
+                        child.paint(graphics);
+                        graphics.restoreState();
+                    }
+                }
+            }
+        }
+    }
+
     private void doPaintFigure(Graphics graphics) {
         graphics.setAntialias(SWT.ON);
         super.paintFigure(graphics);
-        if (decoration != null) {
-            decoration.paint(this, graphics);
-        }
-        if (connections != null) {
-            connections.paint(this, graphics);
-        }
-//        graphics.setForegroundColor(ColorConstants.red);
-//        graphics.drawRectangle(getBounds().getResized(-1, -1));
     }
 
     protected void paintBorder(Graphics graphics) {
@@ -233,6 +297,11 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
         if (connections != null && connections instanceof IShadowedDecoration) {
             ((IShadowedDecoration) connections).paintShadow(this, graphics);
         }
+        if (calloutConnections != null
+                && calloutConnections instanceof IShadowedDecoration) {
+            ((IShadowedDecoration) calloutConnections).paintShadow(this,
+                    graphics);
+        }
         if (decoration != null && decoration instanceof IShadowedDecoration) {
             ((IShadowedDecoration) decoration).paintShadow(this, graphics);
         }
@@ -241,7 +310,7 @@ public class BranchFigure extends ReferencedFigure implements IDecoratedFigure,
     public String toString() {
         for (Object c : getChildren()) {
             if (c instanceof TopicFigure) {
-                return c.toString();
+                return "BranchFigure(" + c.toString() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
         return super.toString();

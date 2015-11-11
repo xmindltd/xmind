@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import net.xmind.signin.IDataStore;
+import org.xmind.core.net.IDataStore;
 
 public class PropertyStore implements IDataStore {
 

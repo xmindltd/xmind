@@ -19,8 +19,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ContributionManager;
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -53,9 +51,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PartInitException;
 import org.xmind.ui.animation.AnimationViewer;
 import org.xmind.ui.animation.IAnimationContentProvider;
+import org.xmind.ui.browser.BrowserSupport;
+import org.xmind.ui.browser.IBrowser;
 import org.xmind.ui.browser.IBrowserSupport;
 import org.xmind.ui.browser.IBrowserViewer;
 import org.xmind.ui.browser.IBrowserViewerContainer;
@@ -74,8 +76,8 @@ public class BrowserViewer implements IBrowserViewer {
 
     private static Object DEFAULT_BUSY_PICTURES = null;
 
-    private static class BusyIndicatorContentProvider extends
-            ArrayContentProvider implements IAnimationContentProvider {
+    private static class BusyIndicatorContentProvider
+            extends ArrayContentProvider implements IAnimationContentProvider {
         public long getDuration(Object element) {
             return SWT.DEFAULT; // use default duration
         }
@@ -85,8 +87,8 @@ public class BrowserViewer implements IBrowserViewer {
         }
     }
 
-    private static class BusyIndicatorLabelProvider extends
-            ImageCachedLabelProvider {
+    private static class BusyIndicatorLabelProvider
+            extends ImageCachedLabelProvider {
         protected Image createImage(Object element) {
             if (element instanceof ImageDescriptor) {
                 ImageDescriptor desc = (ImageDescriptor) element;
@@ -96,13 +98,33 @@ public class BrowserViewer implements IBrowserViewer {
         }
     }
 
+    private class OpenInExternalAction extends Action {
+
+        public OpenInExternalAction() {
+            super(BrowserMessages.BrowserView_OpenInExternalBrowser_text,
+                    BrowserImages.getImageDescriptor(BrowserImages.BROWSER));
+            setToolTipText(
+                    BrowserMessages.BrowserView_OpenInExternalBrowser_toolTip);
+        }
+
+        public void run() {
+            IBrowser browser = BrowserSupport.getInstance()
+                    .createBrowser(IBrowserSupport.AS_EXTERNAL);
+            try {
+                browser.openURL(getURL());
+            } catch (PartInitException e) {
+                BrowserPlugin.log(e);
+            }
+        }
+    }
+
     private class BackAction extends Action {
         public BackAction() {
             super(BrowserMessages.BrowserViewer_PrevPage_toolTip, BrowserImages
                     .getImageDescriptor(BrowserImages.BACKWARD, true));
             setToolTipText(BrowserMessages.BrowserViewer_PrevPage_toolTip);
-            setDisabledImageDescriptor(BrowserImages.getImageDescriptor(
-                    BrowserImages.BACKWARD, false));
+            setDisabledImageDescriptor(BrowserImages
+                    .getImageDescriptor(BrowserImages.BACKWARD, false));
         }
 
         public void run() {
@@ -115,8 +137,8 @@ public class BrowserViewer implements IBrowserViewer {
             super(BrowserMessages.BrowserViewer_NextPage_toolTip, BrowserImages
                     .getImageDescriptor(BrowserImages.FORWARD, true));
             setToolTipText(BrowserMessages.BrowserViewer_NextPage_toolTip);
-            setDisabledImageDescriptor(BrowserImages.getImageDescriptor(
-                    BrowserImages.FORWARD, false));
+            setDisabledImageDescriptor(BrowserImages
+                    .getImageDescriptor(BrowserImages.FORWARD, false));
         }
 
         public void run() {
@@ -135,20 +157,20 @@ public class BrowserViewer implements IBrowserViewer {
             stop = true;
             setText(BrowserMessages.BrowserViewer_Stop_toolTip);
             setToolTipText(BrowserMessages.BrowserViewer_Stop_toolTip);
-            setImageDescriptor(BrowserImages.getImageDescriptor(
-                    BrowserImages.STOP, true));
-            setDisabledImageDescriptor(BrowserImages.getImageDescriptor(
-                    BrowserImages.STOP, false));
+            setImageDescriptor(
+                    BrowserImages.getImageDescriptor(BrowserImages.STOP, true));
+            setDisabledImageDescriptor(BrowserImages
+                    .getImageDescriptor(BrowserImages.STOP, false));
         }
 
         public void setRefresh() {
             stop = false;
             setText(BrowserMessages.BrowserViewer_Refresh_toolTip);
             setToolTipText(BrowserMessages.BrowserViewer_Refresh_toolTip);
-            setImageDescriptor(BrowserImages.getImageDescriptor(
-                    BrowserImages.REFRESH, true));
-            setDisabledImageDescriptor(BrowserImages.getImageDescriptor(
-                    BrowserImages.REFRESH, false));
+            setImageDescriptor(BrowserImages
+                    .getImageDescriptor(BrowserImages.REFRESH, true));
+            setDisabledImageDescriptor(BrowserImages
+                    .getImageDescriptor(BrowserImages.REFRESH, false));
         }
 
         public void run() {
@@ -237,9 +259,8 @@ public class BrowserViewer implements IBrowserViewer {
         /*
          * (non-Javadoc)
          * 
-         * @see
-         * org.eclipse.swt.browser.OpenWindowListener#open(org.eclipse.swt.browser
-         * .WindowEvent)
+         * @see org.eclipse.swt.browser.OpenWindowListener#open(org.eclipse.swt.
+         * browser .WindowEvent)
          */
         public void open(WindowEvent event) {
             if (getControl() == null || getControl().isDisposed())
@@ -453,6 +474,8 @@ public class BrowserViewer implements IBrowserViewer {
 
     private int style = 0;
 
+    private Label description;
+
     public BrowserViewer(Composite parent, int style) {
         this(parent, style, null);
     }
@@ -469,14 +492,18 @@ public class BrowserViewer implements IBrowserViewer {
         layout.verticalSpacing = 0;
         layout.numColumns = 1;
         this.composite.setLayout(layout);
-        this.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
+        this.composite
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         createContents(this.composite);
         hookControl(this.composite);
     }
 
     public int getStyle() {
         return style;
+    }
+
+    Label getDescriptionLabel() {
+        return description;
     }
 
     protected void hookControl(Control control) {
@@ -517,33 +544,37 @@ public class BrowserViewer implements IBrowserViewer {
         toolbarLayout.horizontalSpacing = 5;
         toolbarLayout.verticalSpacing = 0;
         toolBar.setLayout(toolbarLayout);
-        toolBar.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+        toolBar.setLayoutData(
+                new GridData(SWT.FILL, SWT.BEGINNING, true, false));
         createActionBar(toolBar);
         createLocationBar(toolBar);
-        createExtraContributions(toolBar);
+        //forbid extra contributions, such as SearchBoxContribution
+        //if accept in the future, we can delete browserViewerContributions extension about search box.
+//        createExtraContributions(toolBar);
         createHomeBusyIndicator(toolBar);
         toolbarLayout.numColumns = toolBar.getChildren().length;
     }
 
-    private void createExtraContributions(final Composite toolbarContainer) {
-        ContributionManager manager = new ContributionManager() {
-            public void update(boolean force) {
-                if ((style & IBrowserSupport.NO_EXTRA_CONTRIBUTIONS) == 0) {
-                    for (IContributionItem item : getItems()) {
-                        item.fill(toolbarContainer);
-                    }
-                }
-            }
-        };
-        for (IBrowserViewerContribution contribution : BrowserContributionManager
-                .getInstance().getContributions()) {
-            contribution.fillToolBar(this, manager);
-        }
-        manager.update(true);
-    }
+//    private void createExtraContributions(final Composite toolbarContainer) {
+//        ContributionManager manager = new ContributionManager() {
+//            public void update(boolean force) {
+//                if ((style & IBrowserSupport.NO_EXTRA_CONTRIBUTIONS) == 0) {
+//                    for (IContributionItem item : getItems()) {
+//                        item.fill(toolbarContainer);
+//                    }
+//                }
+//            }
+//        };
+//        for (IBrowserViewerContribution contribution : BrowserContributionManager
+//                .getInstance().getContributions()) {
+//            contribution.fillToolBar(this, manager);
+//        }
+//        manager.update(true);
+//    }
 
     private void createActionBar(Composite parent) {
         actionBar = new ToolBarManager(SWT.FLAT);
+        actionBar.add(new OpenInExternalAction());
         actionBar.add(backAction = new BackAction());
         actionBar.add(forwardAction = new ForwardAction());
         actionBar.add(stopRefreshAction = new StopRefreshAction());
@@ -555,6 +586,11 @@ public class BrowserViewer implements IBrowserViewer {
     private void createLocationBar(Composite parent) {
         location = new Combo(parent, SWT.BORDER | SWT.DROP_DOWN);
         location.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        description = new Label(parent, SWT.NONE);
+        description.setText(""); //$NON-NLS-1$
+        description
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
         updateHistory();
 
         /*
@@ -591,8 +627,8 @@ public class BrowserViewer implements IBrowserViewer {
         homeBusy.setContentProvider(new BusyIndicatorContentProvider());
         homeBusy.setLabelProvider(new BusyIndicatorLabelProvider());
         homeBusy.setInput(getDefaultBusyPictures());
-        homeBusy.getControl().setLayoutData(
-                new GridData(GridData.HORIZONTAL_ALIGN_END));
+        homeBusy.getControl()
+                .setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
         homeBusy.getControl().addListener(SWT.MouseDown, new Listener() {
             public void handleEvent(Event event) {
                 setURL(URL_HOME);
@@ -607,8 +643,8 @@ public class BrowserViewer implements IBrowserViewer {
     protected void createBrowser(Composite parent) {
         browserContainer = new Composite(parent, SWT.NONE);
         browserContainer.setLayout(new StackLayout());
-        browserContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
+        browserContainer
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         Browser b = null;
 //        try {
@@ -715,7 +751,15 @@ public class BrowserViewer implements IBrowserViewer {
     }
 
     protected void updateWithStyle() {
-        location.setVisible((style & IBrowserSupport.NO_LOCATION_BAR) == 0);
+        boolean locationVisible = (style
+                & IBrowserSupport.NO_LOCATION_BAR) == 0;
+        location.setVisible(locationVisible);
+        ((GridData) location.getLayoutData()).exclude = !locationVisible;
+
+        boolean descriptionVisible = !locationVisible;
+        description.setVisible(descriptionVisible);
+        ((GridData) description.getLayoutData()).exclude = !descriptionVisible;
+
         toolBar.layout(true);
 
         boolean hasToolBar = (style & IBrowserSupport.NO_TOOLBAR) == 0;
@@ -1023,8 +1067,8 @@ public class BrowserViewer implements IBrowserViewer {
                 listener);
     }
 
-    protected void firePropertyChangeEvent(String propertyName,
-            Object oldValue, Object newValue) {
+    protected void firePropertyChangeEvent(String propertyName, Object oldValue,
+            Object newValue) {
         propertyChangeSupport.firePropertyChange(propertyName, oldValue,
                 newValue);
     }
@@ -1341,7 +1385,8 @@ public class BrowserViewer implements IBrowserViewer {
 
     private static Object getDefaultBusyPictures() {
         if (DEFAULT_BUSY_PICTURES == null) {
-            ArrayList<ImageDescriptor> list = new ArrayList<ImageDescriptor>(13);
+            ArrayList<ImageDescriptor> list = new ArrayList<ImageDescriptor>(
+                    13);
             list.add(BrowserImages.getImageDescriptor(BrowserImages.XMIND));
             list.addAll(Arrays.asList(BrowserImages.getBusyImages()));
             DEFAULT_BUSY_PICTURES = list.toArray();

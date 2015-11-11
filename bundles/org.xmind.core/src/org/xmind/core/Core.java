@@ -15,6 +15,7 @@ package org.xmind.core;
 
 import java.util.Comparator;
 
+import org.xmind.core.comment.ICommentManagerBuilder;
 import org.xmind.core.internal.InternalCore;
 import org.xmind.core.marker.IMarkerSheetBuilder;
 import org.xmind.core.style.IStyleSheetBuilder;
@@ -784,6 +785,8 @@ public class Core {
 
     public static final String NumberPrepending = "parentNumberingPrepending"; //$NON-NLS-1$
 
+    public static final String NumberingSeparator = "numberingSeparator"; //$NON-NLS-1$
+
     /**
      * Core event type for changing the password of a workbook (value is
      * 'passwordChange').
@@ -861,7 +864,21 @@ public class Core {
     public static final String WorkbookSave = "workbookSave"; //$NON-NLS-1$
 
     /**
-     * Core event for the topic was modified.
+     * Core event for updating the modified time of an element (value is
+     * 'modifyTime'). When this event is dispatched, all other modification info
+     * has been updated such as
+     * {@link org.xmind.core.IModifiable#getModifiedBy()}.
+     * 
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>a {@link org.xmind.core.IModifiable} object</dd>
+     * <dt>OldValue:</dt>
+     * <dd>the old modified time (long)</dd>
+     * <dt>NewValue:</dt>
+     * <dd>the new modified time (long)</dd>
+     * </dl>
+     * 
+     * @see org.xmind.core.IModifiable
      */
     public static final String ModifyTime = "modifyTime"; //$NON-NLS-1$
 
@@ -875,8 +892,10 @@ public class Core {
      * <dt>Target:</dt>
      * <dd>the child {@link org.xmind.core.IRevision}</dd>
      * <dt>Data:</dt>
-     * <dd>Corresponding sheet ID</dd>
+     * <dd>Corresponding sheet ID (String)</dd>
      * </dl>
+     * 
+     * @see org.xmind.core.IRevisionManager#addRevision(IAdaptable)
      */
     public static final String RevisionAdd = "revisionAdd"; //$NON-NLS-1$
 
@@ -890,14 +909,16 @@ public class Core {
      * <dt>Target:</dt>
      * <dd>the child {@link org.xmind.core.IRevision}</dd>
      * <dt>Data:</dt>
-     * <dd>Corresponding sheet ID</dd>
+     * <dd>Corresponding sheet ID (String)</dd>
      * </dl>
+     * 
+     * @see org.xmind.core.IRevisionManager#removeRevision(IRevision)
      */
     public static final String RevisionRemove = "revisionRemove"; //$NON-NLS-1$
 
     /**
-     * Core event type for metadata change in {@link org.xmind.core.IMeta}
-     * (value is 'metadata').
+     * Core event type for value change in {@link org.xmind.core.IMeta} (value
+     * is 'metadata').
      * 
      * <dl>
      * <dt>Source:</dt>
@@ -911,6 +932,9 @@ public class Core {
      * <dd>the new {@link String} value of the metadata, or <code>null</code> to
      * indicate this metadata was deleted</dd>
      * </dl>
+     * 
+     * @see org.xmind.core.IMeta#setValue(String, String)
+     * @see org.xmind.core.IMetaData#setValue(String)
      */
     public static final String Metadata = "metadata"; //$NON-NLS-1$
 
@@ -931,8 +955,40 @@ public class Core {
      * <dt>NewValue:</dt>
      * <dd>the new {@link String} value of the attribute, or <code>null</code>
      * to indicate this attribute was removed</dd>
+     * 
+     * @see org.xmind.core.IMetaData#setAttribute(String, String)
      */
     public static final String MetadataAttribute = "metadataAttribute"; //$NON-NLS-1$
+
+    /**
+     * Core event type for adding a file entry to the owned manifest (value is
+     * 'fileEntryAdd'). A file entry is automatically added to the owned
+     * manifest once its reference count is increased from 0 to 1.
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>the {@link org.xmind.core.IManifest}</dd>
+     * <dt>Target:</dt>
+     * <dd>the {@link org.xmind.core.IFileEntry}</dd>
+     * </dl>
+     * 
+     * @see org.xmind.core.IFileEntry#increaseReference()
+     */
+    public static final String FileEntryAdd = "fileEntryAdd"; //$NON-NLS-1$
+
+    /**
+     * Core event type for removing a file entry from the owned manifest (value
+     * is 'fileEntryRemove'). A file entry is automatically removed from the
+     * owned manifest once its reference count is decreased from 1 to 0.
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>the {@link org.xmind.core.IManifest}</dd>
+     * <dt>Target:</dt>
+     * <dd>the {@link org.xmind.core.IFileEntry}</dd>
+     * </dl>
+     * 
+     * @see org.xmind.core.IFileEntry#decreaseReference()
+     */
+    public static final String FileEntryRemove = "fileEntryRemove"; //$NON-NLS-1$
 
 //    /**
 //     * Core event type for adding one or more labels (value is 'labelAdd').
@@ -1006,6 +1062,8 @@ public class Core {
      */
     public static final String MEDIA_TYPE_IMAGE_PNG = "image/png"; //$NON-NLS-1$
 
+    public static final String TopicComments = "topicComments"; //$NON-NLS-1$
+
     private Core() {
     }
 
@@ -1031,6 +1089,10 @@ public class Core {
 
     public static IStyleSheetBuilder getStyleSheetBuilder() {
         return getInternal().getStyleSheetBuilder();
+    }
+
+    public static ICommentManagerBuilder getCommentManagerBuilder() {
+        return getInternal().getCommentManagerBuilder();
     }
 
     public static final String getCurrentVersion() {

@@ -63,8 +63,8 @@ public class FreeMindExportWizard extends AbstractMindMapExportWizard {
             setControl(composite);
 
             Control fileGroup = createFileControls(composite);
-            fileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            fileGroup.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
         }
 
         @Override
@@ -80,10 +80,10 @@ public class FreeMindExportWizard extends AbstractMindMapExportWizard {
 
     public FreeMindExportWizard() {
         setWindowTitle(WizardMessages.FreeMindWizard_windowTitle);
-        setDialogSettings(MindMapUIPlugin.getDefault().getDialogSettings(
-                SELECTION_NAME));
-        setDefaultPageImageDescriptor(MindMapUI.getImages().getWizBan(
-                IMindMapImages.WIZ_EXPORT));
+        setDialogSettings(
+                MindMapUIPlugin.getDefault().getDialogSettings(SELECTION_NAME));
+        setDefaultPageImageDescriptor(
+                MindMapUI.getImages().getWizBan(IMindMapImages.WIZ_EXPORT));
     }
 
     protected void addValidPages() {
@@ -92,8 +92,8 @@ public class FreeMindExportWizard extends AbstractMindMapExportWizard {
 
     @Override
     protected void doExport(IProgressMonitor monitor, Display display,
-            Shell parentShell) throws InvocationTargetException,
-            InterruptedException {
+            Shell parentShell)
+                    throws InvocationTargetException, InterruptedException {
         IMindMap mindMap = getSourceMindMap();
         FreeMindExporter exporter = new FreeMindExporter(mindMap.getSheet(),
                 getTargetPath());
@@ -122,8 +122,7 @@ public class FreeMindExportWizard extends AbstractMindMapExportWizard {
 
     @Override
     protected String getSuggestedFileName() {
-        IMindMap mindMap = getSourceMindMap();
-        String fileName = mindMap.getCentralTopic().getTitleText();
+        String fileName = super.getSuggestedFileName();
         return fileName + FILE_EXT;
     }
 }

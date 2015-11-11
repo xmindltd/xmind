@@ -31,15 +31,17 @@ import org.xmind.gef.draw2d.geometry.HorizontalFlipper;
 import org.xmind.gef.draw2d.geometry.ITransformer;
 import org.xmind.gef.draw2d.geometry.PrecisionDimension;
 import org.xmind.gef.draw2d.geometry.PrecisionLine;
-import org.xmind.gef.draw2d.geometry.PrecisionPoint;
-import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.geometry.PrecisionLine.LineType;
 import org.xmind.gef.draw2d.geometry.PrecisionLine.Side;
+import org.xmind.gef.draw2d.geometry.PrecisionPoint;
+import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.branch.AbstractBranchStructure;
 import org.xmind.ui.branch.BoundaryLayoutHelper;
 import org.xmind.ui.branch.IInsertion;
 import org.xmind.ui.branch.Insertion;
+import org.xmind.ui.internal.figures.TopicFigure;
+import org.xmind.ui.internal.fishbone.Fishbone;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IBranchRangePart;
 import org.xmind.ui.mindmap.INodePart;
@@ -49,7 +51,14 @@ import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.tools.ParentSearchKey;
 
+@SuppressWarnings("restriction")
 public class SubFishboneStructure extends AbstractBranchStructure {
+
+    private static final double sin = Math.sin(Math
+            .toRadians(Fishbone.RotateAngle));
+
+    private static final double cos = Math.cos(Math
+            .toRadians(Fishbone.RotateAngle));
 
     private ISubDirection direction;
 
@@ -119,6 +128,20 @@ public class SubFishboneStructure extends AbstractBranchStructure {
         }
     }
 
+    @Override
+    protected void doFillCalloutBranches(IBranchPart branch,
+            List<IBranchPart> calloutBranches, LayoutInfo info) {
+        Point ref = info.getReference();
+        FishboneData fd = getCastedData(branch).getFishboneData();
+        for (IBranchPart calloutBranch : calloutBranches) {
+            IFigure figure = calloutBranch.getFigure();
+            Rectangle rect = fd.getChildPrefBounds(calloutBranch,
+                    new PrecisionPoint(ref));
+            if (rect != null)
+                info.put(figure, rect);
+        }
+    }
+
     protected Object createStructureData(IBranchPart branch) {
         return new SubFishboneData(branch, direction);
     }
@@ -140,8 +163,8 @@ public class SubFishboneStructure extends AbstractBranchStructure {
         boolean folded = branch.isFolded();
 //        PrecisionPoint offset = calcChildOffset(branch, key.getFeedback(),
 //                boneLine, sourceRay);
-        PrecisionLine childBoneLine = getChildBoneLine(branch, key
-                .getFeedback());
+        PrecisionLine childBoneLine = getChildBoneLine(branch,
+                key.getFeedback());
         double offset = calcChildOffset(boneLine, sourceRay, childBoneLine);
         if (offset > 0) {
             double range;
@@ -219,8 +242,8 @@ public class SubFishboneStructure extends AbstractBranchStructure {
         IAnchor anchor = ((INodePart) branch.getTopicPart())
                 .getSourceAnchor(branch);
         int orientation = getSourceOrientation(branch);
-        PrecisionPoint p1 = anchor.getLocation(Geometry
-                .getOppositePosition(orientation), 0);
+        PrecisionPoint p1 = anchor.getLocation(
+                Geometry.getOppositePosition(orientation), 0);
         PrecisionPoint p2 = anchor.getLocation(orientation, 0);
         return new PrecisionLine(p1, p2, LineType.Line);
     }
@@ -241,8 +264,8 @@ public class SubFishboneStructure extends AbstractBranchStructure {
                 && direction.isRotated()) {
             PrecisionPoint ref = new PrecisionPoint(((IReferencedFigure) branch
                     .getTopicPart().getFigure()).getReference());
-            PrecisionPoint p = ref.getMoved(Math.toRadians(-direction
-                    .getRotateAngle()), 100);
+            PrecisionPoint p = ref.getMoved(
+                    Math.toRadians(-direction.getRotateAngle()), 100);
             return boneLine.intersect(new PrecisionLine(ref, p, LineType.Line));
         }
         return ((INodePart) branch.getTopicPart()).getSourceAnchor(branch)
@@ -260,16 +283,12 @@ public class SubFishboneStructure extends AbstractBranchStructure {
                 LineType.Ray);
     }
 
-    public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return calcInsIndex(branch, key.getFeedback(), false);
-    }
-
     public IInsertion calcInsertion(IBranchPart branch, ParentSearchKey key) {
-        return new Insertion(branch, calcInsIndex(branch, key.getFeedback(),
-                true), key.getFigure().getSize());
+        return new Insertion(branch, calcInsIndex(branch, key, true), key
+                .getFigure().getSize());
     }
 
-    private int calcInsIndex(IBranchPart branch, IBranchPart child,
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
             boolean withDisabled) {
         if (branch.getSubBranches().isEmpty() || branch.isFolded())
             return withDisabled ? 0 : -1;
@@ -277,8 +296,9 @@ public class SubFishboneStructure extends AbstractBranchStructure {
         PrecisionLine boneLine = getBoneLine(branch);
         PrecisionPoint source = calcSourceLocation(branch, boneLine);
         PrecisionLine sourceRay = getBoneRay(source);
-        double offset = calcChildOffset(boneLine, sourceRay, getChildBoneLine(
-                branch, child));
+        double offset = calcChildOffset(boneLine, sourceRay,
+                getChildBoneLine(branch, key.getFeedback()));
+
         boolean reversed = direction.isChildrenTraverseReversed();
         List<IBranchPart> subBranches = branch.getSubBranches();
         int num = subBranches.size();
@@ -358,8 +378,8 @@ public class SubFishboneStructure extends AbstractBranchStructure {
             String nextType = direction.isRightHeaded() ? GEF.REQ_NAV_LEFT
                     : GEF.REQ_NAV_RIGHT;
             if (prevType.equals(navReqType)) {
-                ITopicPart prev = getSubTopicPart(branch, sourceChild
-                        .getBranchIndex() - 1);
+                ITopicPart prev = getSubTopicPart(branch,
+                        sourceChild.getBranchIndex() - 1);
                 if (prev == null && !sequential)
                     return branch.getTopicPart();
                 return prev;
@@ -437,5 +457,251 @@ public class SubFishboneStructure extends AbstractBranchStructure {
         if (direction == Geometry.getOppositePosition(rangeGrowthDirection))
             return -1;
         return super.getQuickMoveOffset(branch, child, direction);
+    }
+
+    @Override
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        if (subBranches.isEmpty())
+            return calcFirstChildPosition(branch, key);
+
+        int index = calcInsIndex(branch, key, true);
+
+        if (index == subBranches.size()) {
+            return calcInventPosition(subBranches.get(index - 1), null, key,
+                    false);
+        }
+        return calcInventPosition(subBranches.get(index), null, key, true);
+    }
+
+    @Override
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        if (disables != null) {
+            if (disables.contains(index - 1)) {
+                index--;
+                oldIndex = index;
+            } else if (disables.contains(index)) {
+                oldIndex = index;
+            }
+        }
+        Dimension inventSize = key.getInvent().getSize();
+
+        if (index == oldIndex) {
+            if (direction.isRotated()) {
+                IBranchPart sub = subBranches.get(index);
+                Dimension size = sub.getTopicPart().getFigure().getSize();
+                int deltaX = (size.width - inventSize.width) / 2;
+
+                return getFigureLocation(sub.getFigure()).getTranslated(
+                        direction.isRightHeaded() ? deltaX : -deltaX, 0);
+            } else {
+                IBranchPart sub = subBranches.get(index);
+                Dimension size = sub.getTopicPart().getFigure().getSize();
+
+                double w = (size.height * sin - size.width * cos)
+                        / (sin * sin - cos * cos);
+
+                double deltaX = size.width * 0.5d - w * cos + inventSize.width
+                        * 0.5d + inventSize.width * cos * 0.5d;
+                double deltaY = direction.isDownwards() ? (-size.height + inventSize.width
+                        * sin) * 0.5d
+                        : (size.height - inventSize.width * sin) * 0.5d;
+
+                return getFigureLocation(sub.getFigure()).getTranslated(
+                        direction.isRightHeaded() ? -deltaX : deltaX, deltaY);
+            }
+        }
+
+        return calcInsertPosition(branch, child, key);
+    }
+
+    @Override
+    protected Point calcFirstChildPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        if (direction.isRotated())
+            return calcFirstNormalPosition(branch, key);
+        else
+            return clacFirstRotatedPosition(branch, key);
+    }
+
+    private Point calcFirstNormalPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        Dimension size = branch.getTopicPart().getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        double h = (size.width * sin - size.height * cos)
+                / (sin * sin - cos * cos);
+        double x = h * sin * 0.5d + inventSize.height * cos / sin
+                + inventSize.width * 0.5d;
+
+        return getFigureLocation(branch.getFigure()).getTranslated(
+                direction.isRightHeaded() ? -x : x,
+                direction.isDownwards() ? inventSize.height * 0.5d
+                        : -inventSize.height * 0.5d);
+    }
+
+    private Point clacFirstRotatedPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        Dimension size = branch.getTopicPart().getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        double x = size.width * 0.5d + key.getFigure().getSize().height * sin
+                * 0.5d + inventSize.width * (1 + cos) * 0.5d;
+
+        return getFigureLocation(branch.getFigure()).getTranslated(
+                direction.isRightHeaded() ? -x : x,
+                size.height
+                        * 0.5d
+                        + (direction.isDownwards() ? inventSize.width * sin
+                                * 0.5d : -inventSize.width * sin * 0.5d));
+    }
+
+    @Override
+    protected Point calcInventPosition(IBranchPart orientation,
+            IBranchPart assist, ParentSearchKey key, boolean isBeforeOrientation) {
+        if (direction.isRotated())
+            return calcNormalPosition(orientation, key, isBeforeOrientation);
+        else
+            return calcRotatedPosition(orientation, key, isBeforeOrientation);
+
+    }
+
+    private Point calcNormalPosition(IBranchPart orientation,
+            ParentSearchKey key, boolean isBeforeOrientation) {
+        Dimension subSize = orientation.getTopicPart().getFigure().getSize();
+        Point loc = getFigureLocation(orientation.getTopicPart().getFigure());
+        Rectangle bounds = orientation.getFigure().getBounds();
+        int top = bounds.y;
+        int bottom = bounds.bottom();
+        Dimension insSize = key.getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+        double cot = cos / sin;
+
+        double x;
+
+        double right = loc.x + (subSize.width - inventSize.width) * 0.5d;
+        double left = loc.x - (subSize.width - inventSize.width) * 0.5d;
+        if (isBeforeOrientation) {
+            if (direction.equals(ISubDirection.NWR)) {
+                x = right
+                        - (loc.y - top - subSize.height * 0.5d + (insSize.height + inventSize.height) * 0.5d)
+                        * cot;
+            } else if (direction.equals(ISubDirection.SWR)) {
+                x = right
+                        + (loc.y - top + subSize.height * 0.5d + (insSize.height - inventSize.height) * 0.5d)
+                        * cot;
+            } else if (direction.equals(ISubDirection.NER)) {
+                x = left
+                        + (loc.y - top - subSize.height * 0.5 + (insSize.height + inventSize.height) * 0.5d)
+                        * cot;
+            } else {
+                x = left
+                        - (loc.y - top + subSize.height * 0.5 + (insSize.height - inventSize.height) * 0.5d)
+                        * cot;
+            }
+        } else {
+            if (direction.equals(ISubDirection.NWR)) {
+                x = right
+                        + (bottom - loc.y + subSize.height * 0.5d + (insSize.height - inventSize.height) * 0.5d)
+                        * cot;
+            } else if (direction.equals(ISubDirection.SWR)) {
+                x = right
+                        - (bottom - loc.y - subSize.height * 0.5d + (insSize.height + inventSize.height) * 0.5d)
+                        * cot;
+            } else if (direction.equals(ISubDirection.NER)) {
+                x = left
+                        - (top - loc.y + subSize.height * 0.5 + (insSize.height - inventSize.height) * 0.5d)
+                        * cot;
+            } else {
+                x = left
+                        + (bottom - loc.y - subSize.height * 0.5 + (insSize.height + inventSize.height) * 0.5d)
+                        * cot;
+            }
+        }
+
+        double y;
+        if (isBeforeOrientation)
+            y = top - (insSize.height) * 0.5d;
+        else
+            y = bottom + (insSize.height) * 0.5d;
+
+        return new Point().getTranslated(x, y);
+    }
+
+    private Point calcRotatedPosition(IBranchPart orientation,
+            ParentSearchKey key, boolean isBeforeOrientation) {
+        double baseY = getBoneLine(orientation.getParentBranch()).getOrigin().y;
+        Dimension inventSize = key.getInvent().getSize();
+        Dimension insSize = key.getFigure().getSize();
+
+        double deltaY = inventSize.width * sin * 0.5d;
+        double y = baseY + (direction.isDownwards() ? deltaY : -deltaY);
+
+        double x;
+        if (isBeforeOrientation) {
+            double offset = calcBeforeOffset(orientation);
+
+            double deltaX = (insSize.height / sin - inventSize.width * cos - inventSize.width) * 0.5d;
+
+            x = offset + (direction.isRightHeaded() ? deltaX : -deltaX);
+        } else {
+            Rectangle pBounds = orientation.getParentBranch().getFigure()
+                    .getBounds();
+
+            x = direction.isRightHeaded() ? pBounds.x
+                    - (inventSize.width * cos + inventSize.width) * 0.5
+                    : pBounds.right()
+                            + (inventSize.width * cos + inventSize.width) * 0.5;
+        }
+
+        return new Point().getTranslated(x, y);
+    }
+
+    private double calcBeforeOffset(IBranchPart branch) {
+        double offset = 0.0d;
+        PrecisionLine boneLine = getBoneLine(branch.getParentBranch());
+
+        double cot = cos / sin;
+
+        List<IBranchPart> callouts = branch.getCalloutBranches();
+        if (callouts == null || callouts.isEmpty()) {
+            IFigure figure = branch.getTopicPart().getFigure();
+            Rectangle bounds = figure.getBounds();
+            double height = ((TopicFigure) figure)
+                    .getNormalPreferredBounds(new Point()).height;
+            double delta = height * cos * cot;
+            offset = direction.isRightHeaded() ? bounds.right() + delta
+                    : bounds.x - delta;
+        } else {
+            double y = boneLine.getOrigin().y;
+            Rectangle bounds = branch.getFigure().getBounds();
+            offset = direction.isRightHeaded() ? bounds.right() : bounds.x;
+
+            for (IBranchPart callout : callouts) {
+                Rectangle calloutBounds = callout.getFigure().getBounds();
+                if (direction.equals(ISubDirection.NE)) {
+                    Point tl = calloutBounds.getTopLeft();
+                    offset = Math.min(offset, tl.x - (y - tl.y) * cot);
+                } else if (direction.equals(ISubDirection.SE)) {
+                    Point bl = calloutBounds.getBottomLeft();
+                    offset = Math.min(offset, bl.x - (bl.y - y) * cot);
+                } else if (direction.equals(ISubDirection.NW)) {
+                    Point tr = calloutBounds.getTopRight();
+                    offset = Math.max(offset, tr.x + (y - tr.y) * cot);
+                } else {
+                    Point br = calloutBounds.getBottomRight();
+                    offset = Math.max(offset, br.x + (br.y - y) * cot);
+                }
+            }
+        }
+
+        return offset;
     }
 }

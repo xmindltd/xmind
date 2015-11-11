@@ -59,8 +59,8 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.viewers.ISliderContentProvider;
 import org.xmind.ui.viewers.SliderViewer;
 
-public class MiniZoomContribution extends ContributionItem implements
-        IPageChangedListener, IZoomListener {
+public class MiniZoomContribution extends ContributionItem
+        implements IPageChangedListener, IZoomListener {
 
     protected static final int SLIDER_WIDTH = 88;
 
@@ -69,10 +69,11 @@ public class MiniZoomContribution extends ContributionItem implements
         private static final double[] directSelectorInput = { 2.0, 1.5, 1.2,
                 1.0, 0.8, 0.5 };
 
-        private static class ZoomSliderContentProvider implements
-                ISliderContentProvider {
+        private static class ZoomSliderContentProvider
+                implements ISliderContentProvider {
 
-            private static final int intervalNum = directSelectorInput.length - 1;
+            private static final int intervalNum = directSelectorInput.length
+                    - 1;
 
             public double getRatio(Object input, Object value) {
                 if (value instanceof Double) {
@@ -209,8 +210,8 @@ public class MiniZoomContribution extends ContributionItem implements
             layout2.verticalSpacing = 0;
             layout2.horizontalSpacing = 0;
             composite2.setLayout(layout2);
-            composite2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    true));
+            composite2.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, true));
 
             fillDirectSelector(composite2);
             fillSlider(composite2);
@@ -220,8 +221,8 @@ public class MiniZoomContribution extends ContributionItem implements
 
         private void fillValueInput(Composite parent) {
             valueInput = new Text(parent, SWT.BORDER | SWT.SINGLE);
-            valueInput.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            valueInput.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
 
             valueInput.addListener(SWT.Modify, new Listener() {
                 public void handleEvent(Event event) {
@@ -243,10 +244,11 @@ public class MiniZoomContribution extends ContributionItem implements
             Listener inputConfirmListener = new Listener() {
                 public void handleEvent(Event event) {
                     if (event.type == SWT.DefaultSelection
-                            || (event.type == SWT.Traverse && event.detail == SWT.TRAVERSE_RETURN)) {
+                            || (event.type == SWT.Traverse
+                                    && event.detail == SWT.TRAVERSE_RETURN)) {
                         try {
-                            int intValue = Integer.parseInt(
-                                    valueInput.getText(), 10);
+                            int intValue = Integer
+                                    .parseInt(valueInput.getText(), 10);
                             confirmValue(intValue / 100.0);
                         } catch (NumberFormatException e) {
                             // ignore
@@ -303,17 +305,19 @@ public class MiniZoomContribution extends ContributionItem implements
                     }
                 }
             });
-            slider.addPostSelectionChangedListener(new ISelectionChangedListener() {
-                public void selectionChanged(SelectionChangedEvent event) {
-                    if (internalModifying)
-                        return;
+            slider.addPostSelectionChangedListener(
+                    new ISelectionChangedListener() {
+                        public void selectionChanged(
+                                SelectionChangedEvent event) {
+                            if (internalModifying)
+                                return;
 
-                    Double value = (Double) slider.getSelectionValue();
-                    if (value != null) {
-                        confirmValue(value.doubleValue());
-                    }
-                }
-            });
+                            Double value = (Double) slider.getSelectionValue();
+                            if (value != null) {
+                                confirmValue(value.doubleValue());
+                            }
+                        }
+                    });
         }
 
         protected Control getFocusControl() {
@@ -358,13 +362,14 @@ public class MiniZoomContribution extends ContributionItem implements
         }
 
         private void updateValueInput(double doubleValue) {
-            valueInput.setText(String.valueOf((int) Math
-                    .round(doubleValue * 100)));
+            valueInput.setText(
+                    String.valueOf((int) Math.round(doubleValue * 100)));
+            valueInput.setSelection(valueInput.getText().length());
         }
 
         private void updateSlider(double doubleValue) {
-            slider.setSelection(new StructuredSelection(Double
-                    .valueOf(doubleValue)));
+            slider.setSelection(
+                    new StructuredSelection(Double.valueOf(doubleValue)));
         }
 
         @SuppressWarnings("unchecked")
@@ -501,8 +506,8 @@ public class MiniZoomContribution extends ContributionItem implements
     private Image createImage(String iconPath, boolean enabled) {
         ImageDescriptor imageDescriptor = MindMapUI.getImages().get(iconPath,
                 enabled);
-        return imageDescriptor == null ? null : imageDescriptor
-                .createImage(false);
+        return imageDescriptor == null ? null
+                : imageDescriptor.createImage(false);
     }
 
     public void update() {
@@ -530,7 +535,8 @@ public class MiniZoomContribution extends ContributionItem implements
         setZoomManager(getZoomManager(event.getSelectedPage()));
     }
 
-    public void scaleChanged(ZoomObject source, double oldValue, double newValue) {
+    public void scaleChanged(ZoomObject source, double oldValue,
+            double newValue) {
         refresh();
     }
 

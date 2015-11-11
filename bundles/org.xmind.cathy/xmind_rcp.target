@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.6"?>
-
-<target name="xmind_rcp" sequenceNumber="82">
-<locations>
-<location path="/Users/frankshaka/MDC/eclipse-3.7.2-deltapack/eclipse" type="Directory"/>
-<location path="/Users/frankshaka/MDC/eclipse-3.7.2-cocoa-64/eclipse" type="Profile"/>
-</locations>
-</target>

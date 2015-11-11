@@ -96,6 +96,14 @@ public class MButton extends Viewer {
 
     private Point imageSize = null;
 
+    private int leftPadding = BORDER;
+
+    private int rightPadding = BORDER;
+
+    private int topPadding = BORDER;
+
+    private int bottomPadding = BORDER;
+
     private List<IOpenListener> openListeners = null;
 
     /*
@@ -141,7 +149,8 @@ public class MButton extends Viewer {
                 if (wHint != SWT.DEFAULT) {
                     width = Math.max(wHint, MARGIN * 2);
                 } else {
-                    width = MARGIN * 2 + imageSize.x + textSize.x + BORDER * 2;
+                    width = MARGIN * 2 + imageSize.x + textSize.x + leftPadding
+                            + rightPadding;
                     if (hasArrows) {
                         width += ARROW_WIDTH + CONTENT_ARROW_SPACING;
                     }
@@ -154,7 +163,7 @@ public class MButton extends Viewer {
                 }
 
                 int minHeight = MARGIN * 2 + Math.max(imageSize.y, textSize.y)
-                        + BORDER * 2;
+                        + topPadding + bottomPadding;
                 if (hasArrows) {
                     minHeight = Math.max(minHeight, ARROW_HEIGHT * 2
                             + ARROWS_SPACING);
@@ -498,14 +507,14 @@ public class MButton extends Viewer {
         bounds.y += MARGIN;
         bounds.width -= MARGIN * 2;
         bounds.height -= MARGIN * 2;
-        int x1 = bounds.x + BORDER;
-        int y1 = bounds.y + BORDER;
-        int w1 = bounds.width - BORDER * 2;
-        int h1 = bounds.height - BORDER * 2;
+        int x1 = bounds.x + leftPadding;
+        int y1 = bounds.y + topPadding;
+        int w1 = bounds.width - (leftPadding + rightPadding);
+        int h1 = bounds.height - (topPadding + bottomPadding);
         boolean hasArrows = hasArrows();
 
         if (hasArrows) {
-            arrowLoc = new Point(x1 + w1 + BORDER / 2 - ARROW_WIDTH, y1
+            arrowLoc = new Point(x1 + w1 + rightPadding / 2 - ARROW_WIDTH, y1
                     + (h1 - ARROW_HEIGHT * 2 - ARROWS_SPACING) / 2 - 1);
         }
         contentArea = new Rectangle(x1, y1, w1
@@ -536,8 +545,8 @@ public class MButton extends Viewer {
                 GC gc = new GC(getControl().getDisplay());
                 try {
                     gc.setFont(getControl().getFont());
-                    appliedText = getSubString(gc, text, maxTextWidth
-                            - gc.stringExtent(ELLIPSIS).x)
+                    appliedText = getSubString(gc, text,
+                            maxTextWidth - gc.stringExtent(ELLIPSIS).x)
                             + ELLIPSIS;
                 } finally {
                     gc.dispose();
@@ -706,6 +715,43 @@ public class MButton extends Viewer {
     }
 
     public void setSelection(ISelection selection, boolean reveal) {
+    }
+
+    public void setPaddings(int leftPadding, int topPadding, int rightPadding,
+            int bottomPadding) {
+        this.leftPadding = leftPadding;
+        this.topPadding = topPadding;
+        this.rightPadding = rightPadding;
+        this.bottomPadding = bottomPadding;
+        refreshControl();
+    }
+
+    public void setHorizontalPaddings(int leftPadding, int rightPadding) {
+        this.leftPadding = leftPadding;
+        this.rightPadding = rightPadding;
+        refreshControl();
+    }
+
+    public void setVerticalPaddings(int topPadding, int bottomPadding) {
+        this.topPadding = topPadding;
+        this.bottomPadding = bottomPadding;
+        refreshControl();
+    }
+
+    public int getLeftPadding() {
+        return leftPadding;
+    }
+
+    public int getTopPadding() {
+        return topPadding;
+    }
+
+    public int getRightPadding() {
+        return rightPadding;
+    }
+
+    public int getBottomPadding() {
+        return bottomPadding;
     }
 
 }

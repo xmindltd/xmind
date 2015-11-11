@@ -95,6 +95,9 @@ public class CommandMessages extends NLS {
     public static String Command_Tile;
     public static String Command_Typing;
     public static String Command_ModifyTheme;
+    public static String Command_ModifyLegendBackgroundColor;
+
+    public static String Command_ShowOrHideInfoItem;
 
     // Labels of Modify Style Commands:
     public static String Command_ModifyBoundaryOpacity;
@@ -115,10 +118,20 @@ public class CommandMessages extends NLS {
     public static String Command_ToggleMultiLineColors;
     public static String Command_ToggleTaperedLines;
     public static String Command_ToggleGradientColor;
+    public static String Command_ShowLabels;
+    public static String Command_ShowNotes;
+    public static String Command_ShowHyperlink;
+    public static String Command_ShowTaskInfo;
+    public static String Command_ModifyYellowBoxBackgroundColor;
 
     public static String Command_TextAlignLeft;
     public static String Command_TextAlignCenter;
     public static String Command_TextAlignRight;
+
+    public static String Command_TextManual;
+    public static String Command_TextUppercase;
+    public static String Command_TextLowercase;
+    public static String Command_TextCapitalize;
 
     public static String Command_SortByTitle;
     public static String Command_SortByPriority;
@@ -128,6 +141,11 @@ public class CommandMessages extends NLS {
 
     public static String Command_TurnOnAutoRevisionSaving;
     public static String Command_TurnOffAutoRevisionSaving;
+    public static String Command_CopySheet;
+    public static String Command_DuplicateSheet;
+
+    public static String Command_ClearMarkers;
+    public static String Command_RemoveMarkerFromAllTopics;
 
     static {
         // initialize resource bundle
@@ -136,5 +154,4 @@ public class CommandMessages extends NLS {
 
     private CommandMessages() {
     }
-
 }

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.internal.spreadsheet.structures;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import org.xmind.ui.branch.IInsertion;
 import org.xmind.ui.branch.IMovableBranchStructureExtension;
 import org.xmind.ui.branch.Insertion;
 import org.xmind.ui.internal.spreadsheet.Spreadsheet;
+import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IBranchRangePart;
 import org.xmind.ui.mindmap.IPlusMinusPart;
@@ -82,8 +84,8 @@ public class RowStructure extends AbstractBranchStructure implements
         return (Row) super.getStructureData(branch);
     }
 
-    protected void doFillPlusMinus(IBranchPart branch,
-            IPlusMinusPart plusMinus, LayoutInfo info) {
+    protected void doFillPlusMinus(IBranchPart branch, IPlusMinusPart plusMinus,
+            LayoutInfo info) {
         Point ref = info.getReference();
         int y = ref.y;
 
@@ -120,8 +122,8 @@ public class RowStructure extends AbstractBranchStructure implements
         int startY = info.getReference().y - row.getPrefCellHeight() / 2;
         int x = area.x + chart.getRowHeadWidth() + cellSpacing + lineWidth;
         List<Column> columns = chart.getColumns();
-        IInsertion colIns = (IInsertion) MindMapUtils.getCache(
-                chart.getTitle(), Spreadsheet.CACHE_COLUMN_INSERTION);
+        IInsertion colIns = (IInsertion) MindMapUtils.getCache(chart.getTitle(),
+                Spreadsheet.CACHE_COLUMN_INSERTION);
         for (int colIndex = 0; colIndex < columns.size(); colIndex++) {
             if (colIns != null && colIns.getIndex() == colIndex) {
                 x += colIns.getSize().width + chart.getMinorSpacing()
@@ -134,8 +136,8 @@ public class RowStructure extends AbstractBranchStructure implements
                     && col.getHead().equals(insHead);
             Cell cell = row.findCellByColumn(col);
             if (cell != null) {
-                info.add(new Rectangle(x, y, col.getPrefCellWidth(), cell
-                        .getContentHeight()));
+                info.add(new Rectangle(x, y, col.getPrefCellWidth(),
+                        cell.getContentHeight()));
                 List<Item> items = cell.getItems();
                 int num = items.size();
                 for (int i = 0; i < num; i++) {
@@ -148,10 +150,47 @@ public class RowStructure extends AbstractBranchStructure implements
                     IBranchPart child = item.getBranch();
                     IFigure childFigure = child.getFigure();
                     Dimension size = childFigure.getPreferredSize();
-                    Rectangle childBounds = new Rectangle(x, y, size.width,
-                            size.height);
+
+                    int bw = 0;
+                    int bh = 0;
+                    List<IBoundaryPart> boundaries = branch.getBoundaries();
+                    if (!boundaries.isEmpty()) {
+                        for (IBoundaryPart boundary : boundaries) {
+                            List<IBranchPart> enclosingBranches = boundary
+                                    .getEnclosingBranches();
+                            if (enclosingBranches.contains(child)) {
+                                bw = boundary.getFigure().getInsets().left - 1;
+                                if (boundary.getTitle() != null && boundary
+                                        .getTitle().getFigure() != null)
+                                    bw += 5;
+                            }
+
+                            if (child.equals(enclosingBranches.get(0))) {
+                                bh = boundary.getFigure().getInsets().top;
+                                if (boundary.getTitle() != null && boundary
+                                        .getTitle().getFigure() != null) {
+                                    Dimension s = boundary.getTitle()
+                                            .getFigure().getPreferredSize();
+                                    bh = Math.max(bh, s.height);
+                                }
+                                y += bh;
+                                bh = 0;
+                            }
+                            if (child.equals(enclosingBranches
+                                    .get(enclosingBranches.size() - 1))) {
+                                bh = boundary.getFigure().getInsets().bottom;
+                            }
+                        }
+
+                    }
+
+                    int headWidth = item.getPrefColumnHead()
+                            .getPrefSize().width;
+                    Rectangle childBounds = new Rectangle(x + bw, y,
+                            (size.width > headWidth ? size.width : headWidth),
+                            size.height + 10);
                     info.put(childFigure, childBounds);
-                    y += size.height + itemSpacing;
+                    y += size.height + itemSpacing + bh;
                 }
                 if (insertionInColumn && insertion.getIndex() == num) {
                     info.add(insertion.createRectangle(x, y));
@@ -330,7 +369,7 @@ public class RowStructure extends AbstractBranchStructure implements
         Dimension insSize = getInsSize(key.getFigure());
         int y = row.getTop() + chart.getMinorSpacing() / 2;
         int insHeight = insSize.height;
-        int spacing = row.getMinorSpacing();//getMinorSpacing(branch);
+        int spacing = row.getMinorSpacing();
         int disabled = 0;
         for (Item item : cell.getItems()) {
             IBranchPart itemBranch = item.getBranch();
@@ -343,6 +382,35 @@ public class RowStructure extends AbstractBranchStructure implements
             if (!itemBranch.getFigure().isEnabled())
                 disabled++;
         }
+        return -1;
+    }
+
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
+            boolean withDisabled) {
+        Row row = getRow(branch);
+        Chart chart = row.getOwnedChart();
+        Point pos = key.getCursorPos();
+        Cell cell = row.findCell(pos);
+        if (cell == null || cell.getItems().isEmpty())
+            return -1;
+
+        Dimension insSize = getInsSize(key.getFigure());
+        int y = row.getTop() + chart.getMinorSpacing() / 2;
+        int insHeight = insSize.height;
+        int spacing = row.getMinorSpacing();
+        int disabled = 0;
+        for (Item item : cell.getItems()) {
+            IBranchPart itemBranch = item.getBranch();
+            Dimension itemSize = itemBranch.getFigure().getSize();
+            int hint = y + (itemSize.height + insHeight) / 2;
+            if (pos.y < hint) {
+                return getOldIndex(branch, itemBranch) - disabled;
+            }
+            y += itemSize.height + spacing;
+            if (!itemBranch.getFigure().isEnabled() && !withDisabled)
+                disabled++;
+        }
+
         return -1;
     }
 
@@ -361,8 +429,8 @@ public class RowStructure extends AbstractBranchStructure implements
 
         Dimension insSize = getInsSize(key.getFigure());
         if (cell.getItems().isEmpty()) {
-            return new CellInsertion(branch, -1, insSize, cell.getOwnedColumn()
-                    .getHead());
+            return new CellInsertion(branch, -1, insSize,
+                    cell.getOwnedColumn().getHead());
         }
         int y = row.getTop() + chart.getMinorSpacing() / 2;
         int insHeight = insSize.height;
@@ -373,8 +441,8 @@ public class RowStructure extends AbstractBranchStructure implements
             Dimension itemSize = itemBranch.getFigure().getSize();
             int hint = y + (itemSize.height + insHeight) / 2;
             if (pos.y < hint) {
-                return new CellInsertion(branch, index, insSize, cell
-                        .getOwnedColumn().getHead());
+                return new CellInsertion(branch, index, insSize,
+                        cell.getOwnedColumn().getHead());
             }
             y += itemSize.height + spacing;
             if (withDisabled || itemBranch.getFigure().isEnabled())
@@ -389,7 +457,8 @@ public class RowStructure extends AbstractBranchStructure implements
     }
 
     public void decorateMoveInRequest(IBranchPart targetParent,
-            ParentSearchKey childKey, IBranchPart sourceParent, Request request) {
+            ParentSearchKey childKey, IBranchPart sourceParent,
+            Request request) {
         ColumnHead colHead = (ColumnHead) MindMapUtils.getCache(targetParent,
                 Spreadsheet.KEY_INSERTION_COLUMN_HEAD);
         if (colHead != null) {
@@ -402,7 +471,8 @@ public class RowStructure extends AbstractBranchStructure implements
     }
 
     public void decorateMoveOutRequest(IBranchPart sourceParent,
-            ParentSearchKey childKey, IBranchPart targetParent, Request request) {
+            ParentSearchKey childKey, IBranchPart targetParent,
+            Request request) {
         request.setParameter(MindMapUI.PARAM_PROPERTY_PREFIX + Core.Labels,
                 null);
     }
@@ -440,5 +510,137 @@ public class RowStructure extends AbstractBranchStructure implements
             }
         }
         return super.getQuickMoveOffset(branch, child, direction);
+    }
+
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        Row row = getRow(branch);
+        Cell cell = row.findCell(key.getCursorPos());
+
+        List<Item> items = cell.getItems();
+
+        Dimension inventSize = key.getInvent().getSize();
+        Dimension insSize = key.getFigure().getSize();
+
+        if (items.isEmpty())
+            return new Point(
+                    cell.getX() + inventSize.width / 2
+                            + row.getOwnedChart().getLineWidth(),
+                    getFigureLocation(branch.getFigure()).y
+                            - (cell.getHeight() - insSize.height > 0
+                                    ? (cell.getHeight() - insSize.height) / 2
+                                    : 0));
+
+        IInsertion insertion = calcInsertion(branch, key);
+        int itemIndex = insertion == null ? -1 : insertion.getIndex();
+
+        IBranchPart sub = itemIndex == items.size()
+                ? items.get(items.size() - 1).getBranch()
+                : items.get(itemIndex).getBranch();
+
+        int deltaY = (insSize.height + sub.getFigure().getSize().height) / 2;
+
+        return getFigureLocation(sub.getFigure())
+                .getTranslated(
+                        (inventSize.width - sub.getTopicPart().getFigure()
+                                .getSize().width) / 2,
+                itemIndex == items.size() ? deltaY : -deltaY);
+    }
+
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        IInsertion insertion = calcInsertion(branch, key);
+        int itemIndex = insertion == null ? -1 : insertion.getIndex();
+        if (disables != null) {
+            if (disables.contains(index)) {
+                oldIndex = index;
+            } else if (disables.contains(index - 1) && itemIndex != 0) {
+                index--;
+                oldIndex = index;
+                itemIndex--;
+            }
+        }
+
+        Row row = getRow(branch);
+        Cell cell = row.findCell(key.getCursorPos());
+        List<Item> items = cell.getItems();
+
+        Dimension inventSize = key.getInvent().getSize();
+        Dimension insSize = key.getFigure().getSize();
+
+        if (items.isEmpty())
+            return new Point(
+                    cell.getX() + inventSize.width / 2
+                            + row.getOwnedChart().getLineWidth(),
+                    getFigureLocation(branch.getFigure()).y
+                            - (cell.getHeight() - insSize.height > 0
+                                    ? (cell.getHeight() - insSize.height) / 2
+                                    : 0));
+
+        if (index == oldIndex || (index == -1 && !items.get(items.size() - 1)
+                .getBranch().getFigure().isEnabled())) {
+            IBranchPart sub = items.get(
+                    itemIndex == items.size() ? items.size() - 1 : itemIndex)
+                    .getBranch();
+            if (cell.equals(row.findCellByItem(sub)))
+                return getFigureLocation(sub.getFigure())
+                        .getTranslated((inventSize.width - sub.getTopicPart()
+                                .getFigure().getSize().width) / 2, 0);
+        }
+
+        return calcInsertPosition(branch, child, key);
+    }
+
+    public boolean isBranchMoved(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        return true;
+    }
+
+    protected int getOldIndex(IBranchPart branch, IBranchPart child) {
+        Row row = getRow(branch);
+
+        if (branch.equals(child.getParentBranch())) {
+            Cell cell = row.findCellByItem(child);
+            int count = 0;
+            for (int i = 0; i < row.getCells().indexOf(cell); i++) {
+                count += row.getCells().get(i).getItems().size();
+            }
+            Item item = row.findItem(child);
+            return count + cell.getItems().indexOf(item);
+        } else {
+            int index = 0;
+            for (Cell cell : row.getCells()) {
+                for (Item item : cell.getItems()) {
+                    if (!item.getBranch().getFigure().isEnabled())
+                        return index;
+                    index++;
+                }
+            }
+        }
+
+        return -1;
+    }
+
+    protected List<Integer> getDisableBranches(IBranchPart branch) {
+        List<Integer> disables = null;
+
+        Row row = getRow(branch);
+        int index = 0;
+        for (Cell cell : row.getCells()) {
+            for (Item item : cell.getItems()) {
+                if (!item.getBranch().getFigure().isEnabled()) {
+                    if (disables == null)
+                        disables = new ArrayList<Integer>();
+                    disables.add(index);
+                }
+                index++;
+            }
+        }
+
+        return disables;
     }
 }

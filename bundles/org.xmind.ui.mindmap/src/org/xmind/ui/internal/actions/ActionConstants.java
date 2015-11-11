@@ -152,11 +152,14 @@ public class ActionConstants {
 
     public static final String INSERT_IMAGE_ID = PREFIX + "insertImage"; //$NON-NLS-1$
 
+    @Deprecated
     public static final String REMOVE_REVISION_ID = PREFIX + "removeRevision"; //$NON-NLS-1$
 
+    @Deprecated
     public static final String REVERT_TO_REVISION_ID = PREFIX
             + "revertToRevision"; //$NON-NLS-1$
 
+    @Deprecated
     public static final String PREVIEW_REVISIONS = PREFIX + "previewRevisions"; //$NON-NLS-1$
 
     public static final String REOPEN_WORKBOOK_MENU_ID = PREFIX
@@ -164,4 +167,7 @@ public class ActionConstants {
 
     public static final String MINI_ZOOM = PREFIX + "minibar.zoom"; //$NON-NLS-1$
 
+    public static final String SAVE_IMAGE_AS_ID = PREFIX + "saveImageAs"; //$NON-NLS-1$
+
+    public static final String SAVE_AUDIO_NOTES_AS_ID = PREFIX + "saveImageAs"; //$NON-NLS-1$
 }

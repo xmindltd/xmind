@@ -19,6 +19,7 @@ import org.xmind.gef.GEF;
 import org.xmind.gef.dnd.IDndSupport;
 import org.xmind.gef.part.IPartFactory;
 import org.xmind.gef.service.IPlaybackProvider;
+import org.xmind.ui.IEditorHistory;
 import org.xmind.ui.branch.IBranchPolicyManager;
 import org.xmind.ui.decorations.IDecorationFactory;
 import org.xmind.ui.decorations.IDecorationManager;
@@ -30,20 +31,39 @@ public class MindMapUI {
 
     public static final String MINDMAP_EDITOR_ID = "org.xmind.ui.MindMapEditor"; //$NON-NLS-1$
 
+    public static final String PERSPECTIVE_ID = "org.xmind.ui.perspective.mindmapping"; //$NON-NLS-1$
+
     public static final String VIEW_MARKER = "org.xmind.ui.MarkerView"; //$NON-NLS-1$
 
     public static final String VIEW_NOTES = "org.xmind.ui.NotesView"; //$NON-NLS-1$
 
-    public static final String VIEW_STYLES = "org.xmind.ui.StylesView"; //$NON-NLS-1$
+    public static final String VIEW_COMMENTS = "org.xmind.ui.CommentsView"; //$NON-NLS-1$
 
     public static final String VIEW_THEMES = "org.xmind.ui.ThemesView"; //$NON-NLS-1$
-
-    public static final String VIEW_BROSWER = "org.xmind.ui.BrowserView"; //$NON-NLS-1$
 
     public static final String VIEW_OVERVIEW = "org.xmind.ui.OverviewView"; //$NON-NLS-1$
 
     public static final String VIEW_REVISIONS = "org.xmind.ui.RevisionsView"; //$NON-NLS-1$
 
+    public static final String VIEW_INSPECTOR = "org.xmind.ui.InspectorView"; //$NON-NLS-1$
+
+    public static final String VIEW_BLACKBOX = "org.xmind.ui.BlackBoxView"; //$NON-NLS-1$
+
+    public static final String VIEW_BROSWER = "org.xmind.ui.BrowserView"; //$NON-NLS-1$
+
+    public static final String VIEW_SPELLING = "org.xmind.ui.SpellingCheckView"; //$NON-NLS-1$
+
+    /**
+     * @deprecated Styles view has been removed since 3.5.
+     */
+    @Deprecated
+    public static final String VIEW_STYLES = "org.xmind.ui.StylesView"; //$NON-NLS-1$
+
+    /**
+     * @deprecated LocalNetworkSharing view is no longer included in
+     *             org.xmind.ui plugin.
+     */
+    @Deprecated
     public static final String VIEW_LOCAL_NETWORK_SHARING = "org.xmind.ui.LocalNetworkSharingView"; //$NON-NLS-1$
 
     public static final String POPUP_DIALOG_SETTINGS_ID = "org.xmind.ui.popupDialog"; //$NON-NLS-1$
@@ -68,67 +88,69 @@ public class MindMapUI {
      * Roles:
      */
     public static final String ROLE_MAP = "map"; //$NON-NLS-1$
+
     /*
      * Request Types:
      */
-    public static final String REQ_CREATE_CHILD = "create child"; //$NON-NLS-1$
-    public static final String REQ_CREATE_BEFORE = "create before"; //$NON-NLS-1$
-    public static final String REQ_CREATE_PARENT = "create parent"; //$NON-NLS-1$
-    public static final String REQ_CREATE_SHEET = "create sheet"; //$NON-NLS-1$
-    public static final String REQ_CREATE_FLOAT = "create floating"; //$NON-NLS-1$
-    public static final String REQ_CREATE_RELATIONSHIP = "create relationship"; //$NON-NLS-1$
-    public static final String REQ_CREATE_BOUNDARY = "create boundary"; //$NON-NLS-1$
-    public static final String REQ_CREATE_SUMMARY = "create summary"; //$NON-NLS-1$
+    public static final String REQ_CREATE_CHILD = "create_child"; //$NON-NLS-1$
+    public static final String REQ_CREATE_BEFORE = "create_before"; //$NON-NLS-1$
+    public static final String REQ_CREATE_PARENT = "create_parent"; //$NON-NLS-1$
+    public static final String REQ_CREATE_SHEET = "create_sheet"; //$NON-NLS-1$
+    public static final String REQ_CREATE_FLOAT = "create_floating"; //$NON-NLS-1$
+    public static final String REQ_CREATE_RELATIONSHIP = "create_relationship"; //$NON-NLS-1$
+    public static final String REQ_CREATE_BOUNDARY = "create_boundary"; //$NON-NLS-1$
+    public static final String REQ_CREATE_SUMMARY = "create_summary"; //$NON-NLS-1$
+    public static final String REQ_CREATE_CALLOUT = "create_callout"; //$NON-NLS-1$
 
     public static final String REQ_DUPLICATE_TOPIC = "duplicate"; //$NON-NLS-1$
 
-    public static final String REQ_SELECT_CENTRAL = "select central"; //$NON-NLS-1$
-    public static final String REQ_SELECT_BROTHERS = "select brothers"; //$NON-NLS-1$
-    public static final String REQ_SELECT_CHILDREN = "select children"; //$NON-NLS-1$
-    public static final String REQ_SELECT_BY_MARKER = "select by marker"; //$NON-NLS-1$
+    public static final String REQ_SELECT_CENTRAL = "select_central"; //$NON-NLS-1$
+    public static final String REQ_SELECT_BROTHERS = "select_brothers"; //$NON-NLS-1$
+    public static final String REQ_SELECT_CHILDREN = "select_children"; //$NON-NLS-1$
+    public static final String REQ_SELECT_BY_MARKER = "select_by_marker"; //$NON-NLS-1$
 
-    public static final String REQ_NAV_SIBLING = "navigate sibling"; //$NON-NLS-1$
-    public static final String REQ_NAV_CHILD = "navigate child"; //$NON-NLS-1$
+    public static final String REQ_NAV_SIBLING = "navigate_sibling"; //$NON-NLS-1$
+    public static final String REQ_NAV_CHILD = "navigate_child"; //$NON-NLS-1$
 
     public static final String REQ_PASTE_ALL = GEF.REQ_PASTE;
-    public static final String REQ_PASTE_CONTENT = "paste content"; //$NON-NLS-1$
-    public static final String REQ_PASTE_FORMAT = "paste format"; //$NON-NLS-1$
-    public static final String REQ_REPLACE_ALL = "replace all"; //$NON-NLS-1$
+    public static final String REQ_PASTE_CONTENT = "paste_content"; //$NON-NLS-1$
+    public static final String REQ_PASTE_FORMAT = "paste_format"; //$NON-NLS-1$
+    public static final String REQ_REPLACE_ALL = "replace_all"; //$NON-NLS-1$
 
-    public static final String REQ_ADD_IMAGE = "add image"; //$NON-NLS-1$
-    public static final String REQ_ADD_MARKER = "add marker"; //$NON-NLS-1$
-    public static final String REQ_ADD_ATTACHMENT = "add attachment"; //$NON-NLS-1$
+    public static final String REQ_ADD_IMAGE = "add_image"; //$NON-NLS-1$
+    public static final String REQ_ADD_MARKER = "add_marker"; //$NON-NLS-1$
+    public static final String REQ_ADD_ATTACHMENT = "add_attachment"; //$NON-NLS-1$
 
-    public static final String REQ_RETARGET_REL = "retarget relationship"; //$NON-NLS-1$
-    public static final String REQ_MOVE_CONTROL_POINT = "move control point"; //$NON-NLS-1$
+    public static final String REQ_RETARGET_REL = "retarget_relationship"; //$NON-NLS-1$
+    public static final String REQ_MOVE_CONTROL_POINT = "move_control_point"; //$NON-NLS-1$
 
-    public static final String REQ_SHOW_LEGEND = "show legend"; //$NON-NLS-1$
-    public static final String REQ_HIDE_LEGEND = "hide legend"; //$NON-NLS-1$
+    public static final String REQ_SHOW_LEGEND = "show_legend"; //$NON-NLS-1$
+    public static final String REQ_HIDE_LEGEND = "hide_legend"; //$NON-NLS-1$
 
-    public static final String REQ_SHOW_NOTES = "show notes"; //$NON-NLS-1$
-    public static final String REQ_EDIT_LABEL = "edit label"; //$NON-NLS-1$
-    public static final String REQ_EDIT_LEGEND_ITEM = "edit legend item"; //$NON-NLS-1$
+    public static final String REQ_SHOW_NOTES = "show_notes"; //$NON-NLS-1$
+    public static final String REQ_EDIT_LABEL = "edit_label"; //$NON-NLS-1$
+    public static final String REQ_EDIT_LEGEND_ITEM = "edit_legend_item"; //$NON-NLS-1$
 
-    public static final String REQ_RESET_POSITION = "reset position"; //$NON-NLS-1$
+    public static final String REQ_RESET_POSITION = "reset_position"; //$NON-NLS-1$
     public static final String REQ_TILE = "tile"; //$NON-NLS-1$
 
-    public static final String REQ_CANCEL = "cancel operation"; //$NON-NLS-1$
+    public static final String REQ_CANCEL = "cancel_operation"; //$NON-NLS-1$
     public static final String REQ_OPEN = "open"; //$NON-NLS-1$
-    public static final String REQ_SAVE_ATT_AS = "save attachment as"; //$NON-NLS-1$
-    public static final String REQ_CANCEL_HYPERLINK = "cancel hyperlink"; //$NON-NLS-1$
+    public static final String REQ_SAVE_ATT_AS = "save_attachment_as"; //$NON-NLS-1$
+    public static final String REQ_CANCEL_HYPERLINK = "cancel_hyperlink"; //$NON-NLS-1$
 
-    public static final String REQ_DRILLDOWN = "drill down"; //$NON-NLS-1$
-    public static final String REQ_DRILLUP = "drill up"; //$NON-NLS-1$
+    public static final String REQ_DRILLDOWN = "drill_down"; //$NON-NLS-1$
+    public static final String REQ_DRILLUP = "drill_up"; //$NON-NLS-1$
 
-    public static final String REQ_MODIFY_STYLE = "modify style"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_TITLE = "modify title"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_NOTES = "modify notes"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_HYPERLINK = "modify hyperlink"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_THEME = "modify theme"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_LABEL = "modify label"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_NUMBERING = "modify numbering"; //$NON-NLS-1$
-    public static final String REQ_MODIFY_RANGE = "modify range"; //$NON-NLS-1$
-    public static final String REQ_REMOVE_ALLSTYLES = "remove all styles"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_STYLE = "modify_style"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_TITLE = "modify_title"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_NOTES = "modify_notes"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_HYPERLINK = "modify_hyperlink"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_THEME = "modify_theme"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_LABEL = "modify_label"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_NUMBERING = "modify_numbering"; //$NON-NLS-1$
+    public static final String REQ_MODIFY_RANGE = "modify_range"; //$NON-NLS-1$
+    public static final String REQ_REMOVE_ALLSTYLES = "remove_all_styles"; //$NON-NLS-1$
 
     /*
      * Tool Types:
@@ -175,6 +197,10 @@ public class MindMapUI {
     public static final String POLICY_DROP_TARGET = "org.xmind.ui.editPolicy.dropTarget"; //$NON-NLS-1$
 
     public static final String POLICY_SORTABLE = "org.xmind.ui.editPolicy.topicSortable"; //$NON-NLS-1$
+
+    public static final String POLICY_INFO = "org.xmind.ui.editPolicy.info"; //$NON-NLS-1$
+
+    public static final String POLICY_MAP_MOVABLE = "org.xmind.ui.editPolicy.mapMovable"; //$NON-NLS-1$
 
     public static final Object LAYER_TITLE = "org.xmind.ui.layer.title"; //$NON-NLS-1$
     public static final Object LAYER_UNDO = "org.xmind.ui.layer.undo"; //$NON-NLS-1$
@@ -293,6 +319,17 @@ public class MindMapUI {
      * </dl>
      */
     public static final String PARAM_NUMBERING_FORMAT = "numbering.format"; //$NON-NLS-1$
+
+    /**
+     * Request parameter: the numbering separator of the 'modify numbering'
+     * request.
+     * 
+     * <dl>
+     * <dt>Values:</dt>
+     * <dd><code>String</code></dd>
+     * </dl>
+     */
+    public static final String PARAM_NUMBERING_SEPARATOR = "numbering.separator"; //$NON-NLS-1$
 
     /**
      * Request parameter: the numbering prefix of the 'modify numbering'
@@ -455,9 +492,10 @@ public class MindMapUI {
     public static final String CATEGORY_SHEET = "org.xmind.ui.sheet"; //$NON-NLS-1$
     public static final String CATEGORY_BOUNDARY = "org.xmind.ui.boundary"; //$NON-NLS-1$
     public static final String CATEGORY_RELATIONSHIP = "org.xmind.ui.relationship"; //$NON-NLS-1$
-//    public static final String CATEGORY_SUMMARY = "org.xmind.ui.summary"; //$NON-NLS-1$
+    public static final String CATEGORY_SUMMARY = "org.xmind.ui.summary"; //$NON-NLS-1$
     public static final String CATEGORY_MARKER = "org.xmind.ui.marker"; //$NON-NLS-1$
     public static final String CATEGORY_IMAGE = "org.xmind.ui.image"; //$NON-NLS-1$
+    public static final String CATEGORY_CALLOUT = "org.xmind.ui.callout"; //$NON-NLS-1$
 
     // ==========================
     //   Branch Types
@@ -468,6 +506,7 @@ public class MindMapUI {
     public static final String BRANCH_FLOATING = "floatingBranch"; //$NON-NLS-1$
     public static final String BRANCH_SUMMARY = "summaryBranch"; //$NON-NLS-1$
     public static final String BRANCH_ALL = "allBranches"; //$NON-NLS-1$
+    public static final String BRANCH_CALLOUT = "calloutBranch"; //$NON-NLS-1$
 
     // ==========================
     //   DND Types
@@ -567,6 +606,8 @@ public class MindMapUI {
     public static final String DEFAULT_NUMBER_FORMAT = "org.xmind.numbering.none"; //$NON-NLS-1$
 
     public static final String PREVIEW_NUMBER_FORMAT = "org.xmind.numbering.arabic"; //$NON-NLS-1$
+
+    public static final String DEFAULT_NUMBER_SEPARATOR = "org.xmind.numbering.separator.dot"; //$NON-NLS-1$
 
     public static final String FILL_COLOR_PRESELECTION = "#80c0d0"; //$NON-NLS-1$
 
@@ -672,6 +713,14 @@ public class MindMapUI {
 
     public static INumberFormatManager getNumberFormatManager() {
         return InternalMindMapUI.getDefault().getNumberFormatManager();
+    }
+
+    public static INumberSeparatorManager getNumberSeparatorManager() {
+        return InternalMindMapUI.getDefault().getNumberSeparatorManager();
+    }
+
+    public static IEditorHistory getEditorHistory() {
+        return InternalMindMapUI.getDefault().getEditorHistory();
     }
 
 }

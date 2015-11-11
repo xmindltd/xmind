@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.core;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +41,11 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
      * @see org.xmind.core.ITopic#getType()
      */
     public static final String ATTACHED = "attached"; //$NON-NLS-1$
+
+    /**
+     * 
+     */
+    public static final String CALLOUT = "callout"; //$NON-NLS-1$
 
     /**
      * Type for topics detached from their parent topics (value='detached').
@@ -118,6 +124,19 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
     List<ITopic> getAllChildren();
 
     /**
+     * Returns an iterator over all children topics of this topic.
+     * <p>
+     * <b>NOTE</b>: This iterator is not supposed to be modifiable and calling
+     * {@link Iterator#remove()} method on the returned iterator will cause an
+     * {@link java.lang.UnsupportedOperationException} to be thrown. Use
+     * {@link #remove(ITopic)} to remove child topic.
+     * </p>
+     * 
+     * @return An iterator over all children topics of this topic.
+     */
+    Iterator<ITopic> getAllChildrenIterator();
+
+    /**
      * Gets this topic's children topics that are of the specified type.
      * <p>
      * If this topic has NO children topics that are of this type, or the type
@@ -131,13 +150,31 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
      * </p>
      * 
      * @param type
-     *            The children's type.
+     *            The children's type
      * @return A list containing this topic's children topics that are of the
      *         specified type
      * 
      * @see #getType()
      */
     List<ITopic> getChildren(String type);
+
+    /**
+     * Returns an iterator over this topic's children topics that are of the
+     * specified type.
+     * 
+     * <p>
+     * <b>NOTE</b>: This iterator is not supposed to be modifiable and calling
+     * {@link Iterator#remove()} method on the returned iterator will cause an
+     * {@link java.lang.UnsupportedOperationException} to be thrown. Use
+     * {@link #remove(ITopic)} to remove child topic.
+     * </p>
+     * 
+     * @param type
+     *            the children topics' type
+     * @return An iterator over this topic's children topics that are of the
+     *         specified type (never be <code>null</code>)
+     */
+    Iterator<ITopic> getChildrenIterator(String type);
 
     /**
      * 
@@ -242,6 +279,8 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
     int getTitleWidth();
 
     void setTitleWidth(int width);
+
+    List<ITopicExtension> getExtensions();
 
     ITopicExtension getExtension(String providerName);
 

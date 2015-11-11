@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.XMLMemento;
 import org.xmind.core.Core;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.IWorkspace;
 import org.xmind.core.internal.InternalCore;
 import org.xmind.core.internal.dom.WorkbookImpl;
 import org.xmind.gef.command.CommandStack;
@@ -142,9 +143,10 @@ public class WorkbookRefManager implements IWorkbookRefManager {
             EditorState state = lastSession.get(source);
             if (state != null) {
                 File file = MME.getFile(source);
-                ref.setWorkbookLoader(new TempWorkbookLoader(ref,
-                        state.tempLocation, file == null ? null : file
-                                .getAbsolutePath(), state.skipRevisions));
+                ref.setWorkbookLoader(
+                        new TempWorkbookLoader(ref, state.tempLocation,
+                                file == null ? null : file.getAbsolutePath(),
+                                state.skipRevisions));
             }
         }
 
@@ -176,7 +178,8 @@ public class WorkbookRefManager implements IWorkbookRefManager {
 
                         // Have to check if there's still other references
                         // relying on this workbook's resources.
-                        boolean noRelatedRef = findRef(ref.getWorkbook()) == null;
+                        boolean noRelatedRef = findRef(
+                                ref.getWorkbook()) == null;
 
                         ref.dispose(noRelatedRef);
 
@@ -298,15 +301,15 @@ public class WorkbookRefManager implements IWorkbookRefManager {
                     try {
                         workbook.saveTemp();
                     } catch (Throwable e) {
-                        Logger.log(
-                                e,
+                        Logger.log(e,
                                 "WorkbookRefManager: Error occurred while saving workbook to a temporary location in background: " //$NON-NLS-1$
                                         + key.toString());
                     }
                     if (InternalCore.DEBUG_WORKBOOK_SAVE)
-                        Logger.log("WorkbookRefManager: Finished saving opened workbook " //$NON-NLS-1$
-                                + ref.getKey().toString()
-                                + " to its temp location."); //$NON-NLS-1$
+                        Logger.log(
+                                "WorkbookRefManager: Finished saving opened workbook " //$NON-NLS-1$
+                                        + ref.getKey().toString()
+                                        + " to its temp location."); //$NON-NLS-1$
                     IMemento editorMem = memento.createChild(TAG_OPENED_EDITOR);
                     if (key instanceof IEditorInput) {
                         saveEditorInput(editorMem, (IEditorInput) key);
@@ -318,8 +321,9 @@ public class WorkbookRefManager implements IWorkbookRefManager {
                 }
             }
             File sf = getSessionFile();
-            Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(sf), "utf-8"), 1024); //$NON-NLS-1$
+            Writer writer = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(sf), "utf-8"), //$NON-NLS-1$
+                    1024);
             try {
                 memento.save(writer);
             } finally {
@@ -333,7 +337,8 @@ public class WorkbookRefManager implements IWorkbookRefManager {
 
     private File getSessionFile() {
         if (sessionFile == null) {
-            sessionFile = new File(Core.getWorkspace().getTempFile(".opened")); //$NON-NLS-1$
+            sessionFile = new File(
+                    Core.getWorkspace().getTempFile(IWorkspace.FILE_OPENED));
         }
         return sessionFile;
     }
@@ -383,11 +388,14 @@ public class WorkbookRefManager implements IWorkbookRefManager {
     }
 
     public List<IEditorInput> loadLastSession() {
-        File file = new File(Core.getWorkspace().getTempFile(".opened")); //$NON-NLS-1$
+        File file = new File(
+                Core.getWorkspace().getTempFile(IWorkspace.FILE_TO_RECOVER));
         if (!file.exists() || !file.isFile() || !file.canRead())
             return null;
         lastSession = null;
-        return loadSessionFromFile(file);
+        List<IEditorInput> session = loadSessionFromFile(file);
+        file.delete();
+        return session;
     }
 
     private List<IEditorInput> loadSessionFromFile(File file) {

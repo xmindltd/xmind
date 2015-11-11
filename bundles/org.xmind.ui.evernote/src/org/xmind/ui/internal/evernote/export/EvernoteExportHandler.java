@@ -15,16 +15,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
-import org.xmind.gef.IGraphicalViewer;
-import org.xmind.gef.ui.editor.IGraphicalEditor;
-import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.gef.IViewer;
 import org.xmind.ui.dialogs.Notification;
 import org.xmind.ui.evernote.EvernotePlugin;
 import org.xmind.ui.evernote.signin.Evernote;
 import org.xmind.ui.evernote.signin.IEvernoteAccount;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.evernote.ErrorStatusDialog;
 import org.xmind.ui.internal.evernote.EvernoteMessages;
+import org.xmind.ui.internal.handlers.MindMapHandlerUtil;
 import org.xmind.ui.mindmap.IMindMapViewer;
 
 import com.evernote.edam.error.EDAMErrorCode;
@@ -37,8 +36,16 @@ public class EvernoteExportHandler extends AbstractHandler {
     private EvernoteExportJob job = null;
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
+        final IEditorPart editor = MindMapHandlerUtil.findContributingEditor(event);
+        if( editor == null)
+            return null;
+        
+        IViewer viewer = MindMapUIPlugin.getAdapter(editor, IViewer.class);
+        if (viewer == null || !(viewer instanceof IMindMapViewer))
+            return null; 
+        
         IEvernoteAccount accountInfo = Evernote.signIn();
-        export(findCurrentViewer(event), accountInfo);
+        export((IMindMapViewer)viewer, accountInfo);
         return null;
     }
 
@@ -104,20 +111,6 @@ public class EvernoteExportHandler extends AbstractHandler {
                     display.sleep();
             }
         }
-    }
-
-    private IMindMapViewer findCurrentViewer(ExecutionEvent event) {
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
-        if (editor != null && editor instanceof IGraphicalEditor) {
-            IGraphicalEditorPage page = ((IGraphicalEditor) editor)
-                    .getActivePageInstance();
-            if (page != null) {
-                IGraphicalViewer viewer = page.getViewer();
-                if (viewer instanceof IMindMapViewer)
-                    return (IMindMapViewer) viewer;
-            }
-        }
-        return null;
     }
 
     private boolean isAuthFailed(int code) {

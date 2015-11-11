@@ -25,6 +25,37 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class Activator extends AbstractUIPlugin {
 
+    /**
+     * The home page for an authenticated user.
+     * 
+     * <pre>
+     * http://www.xmind.net/xmind/account/USER_NAME/TOKEN/
+     * </pre>
+     */
+    public static final String URL_ACCOUNT = "https://www.xmind.net/xmind/account/%s/%s/"; //$NON-NLS-1$
+
+    /**
+     * Sign out XMind.net account.
+     */
+    public static final String URL_SIGNOUT = "https://www.xmind.net/xmind/signout2/"; //$NON-NLS-1$
+
+    /**
+     * Sign up a new XMind.net account.
+     */
+    static final String URL_SIGN_UP = "https://www.xmind.net/xmind/signup/"; //$NON-NLS-1$
+
+    /**
+     * Handle with forgotten password.
+     */
+    public static final String URL_FORGOT_PASSWORD = "https://www.xmind.net/xmind/forgotpassword/"; //$NON-NLS-1$
+
+    /**
+     * System properties that contains account info of the current user.
+     */
+    public static final String PROP_USER = "net.xmind.signin.account.user"; //$NON-NLS-1$
+    public static final String PROP_TOKEN = "net.xmind.signin.account.token"; //$NON-NLS-1$
+    public static final String PROP_EXPIRE_DATE = "net.xmind.signin.account.expireDate"; //$NON-NLS-1$
+
     // The plug-in ID
     public static final String PLUGIN_ID = "net.xmind.signin"; //$NON-NLS-1$
 
@@ -42,9 +73,8 @@ public class Activator extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
+     * BundleContext )
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
@@ -54,9 +84,8 @@ public class Activator extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
+     * BundleContext )
      */
     public void stop(BundleContext context) throws Exception {
         ServiceTracker<DebugOptions, DebugOptions> theDebugTracker = this.debugTracker;
@@ -103,8 +132,8 @@ public class Activator extends AbstractUIPlugin {
     }
 
     public static void log(Throwable e, String message) {
-        getDefault().getLog().log(
-                new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        getDefault().getLog()
+                .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
     }
 
 }

@@ -212,7 +212,15 @@ public class FileHyperlinkPage extends HyperlinkPage implements Listener {
         warningFileNotExists = (file != null && !file.exists());
 //        warningRelative = (relative && basePath == null);
         updateWarningMessage();
+
         super.setValue(computeURI());
+
+        if (getValue() != null) {
+            if (composite != null && !composite.isDisposed()) {
+                composite.setFocus();
+            }
+        }
+
         setCanFinish(getValue() != null);
     }
 

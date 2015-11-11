@@ -357,7 +357,7 @@ public class SocketCommandServer implements ICommandServer {
         return "SocketCommandServerLoop"; //$NON-NLS-1$
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         if (adapter == SocketPool.class)
             return getSocketPool();

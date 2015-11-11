@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Platform;
 import org.xmind.gef.dnd.IDndSupport;
 import org.xmind.gef.part.IPartFactory;
 import org.xmind.gef.service.IPlaybackProvider;
+import org.xmind.ui.IEditorHistory;
 import org.xmind.ui.branch.IBranchPolicyManager;
 import org.xmind.ui.decorations.IDecorationFactory;
 import org.xmind.ui.decorations.IDecorationManager;
@@ -28,6 +29,7 @@ import org.xmind.ui.mindmap.ICategoryManager;
 import org.xmind.ui.mindmap.IEditPolicyManager;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.INumberFormatManager;
+import org.xmind.ui.mindmap.INumberSeparatorManager;
 import org.xmind.ui.mindmap.IProtocolManager;
 import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.IWorkbookRefManager;
@@ -62,6 +64,10 @@ public class InternalMindMapUI {
     private IMindMapImages images;
 
     private INumberFormatManager numberFormatManager;
+
+    private INumberSeparatorManager numberSeparatorManager;
+
+    private IEditorHistory editorHistory;
 
     private InternalMindMapUI() {
     }
@@ -192,6 +198,18 @@ public class InternalMindMapUI {
         if (numberFormatManager == null)
             numberFormatManager = new NumberFormatExtensionManager();
         return numberFormatManager;
+    }
+
+    public INumberSeparatorManager getNumberSeparatorManager() {
+        if (numberSeparatorManager == null)
+            numberSeparatorManager = new NumberSeparatorExtensionManager();
+        return numberSeparatorManager;
+    }
+
+    public synchronized IEditorHistory getEditorHistory() {
+        if (editorHistory == null)
+            editorHistory = new EditorHistory();
+        return editorHistory;
     }
 
     public static InternalMindMapUI getDefault() {

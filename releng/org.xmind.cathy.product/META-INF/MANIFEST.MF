@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XMind Products
+Bundle-SymbolicName: org.xmind.products
+Bundle-Version: 3.6.0.qualifier
+Bundle-Vendor: XMind Ltd.

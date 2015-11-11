@@ -37,17 +37,29 @@ public class UnderlineTopicDecoration extends AbstractTopicDecoration {
     }
 
     private PrecisionPoint getRightAnchor(Rectangle rect, double expansion) {
-        return P.setLocation(rect.x + rect.width + expansion, rect.y
-                + rect.height + 1);
+        return P.setLocation(rect.x + rect.width + expansion,
+                rect.y + rect.height + 1);
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
         if (purpose == OUTLINE) {
             shape.moveTo(getLeftAnchor(box, 0));
             shape.lineTo(getRightAnchor(box, 0));
+        } else if (purpose == CHECK) {
+            int halfLineWidth = getLineWidth() / 2;
+            shape.moveTo(box.x - halfLineWidth, box.y - halfLineWidth);
+            shape.lineTo(box.x - halfLineWidth, box.bottom() + halfLineWidth);
+            shape.lineTo(box.right() + halfLineWidth,
+                    box.bottom() + halfLineWidth);
+            shape.lineTo(box.right() + halfLineWidth, box.y - halfLineWidth);
         } else {
-            shape.addRectangle(box);
+            shape.moveTo(box.getTopLeft());
+            shape.lineTo(box.getBottomLeft());
+            shape.lineTo(box.getBottomRight());
+            shape.lineTo(box.getTopRight());
         }
+        shape.close();
     }
 
     public PrecisionPoint getAnchorLocation(IFigure figure, int orientation,

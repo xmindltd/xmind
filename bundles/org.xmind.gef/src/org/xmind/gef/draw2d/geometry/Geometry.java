@@ -42,6 +42,30 @@ public class Geometry {
 
     public static final double NEG_HALF_PI = -PI / 2;
 
+    public static final int QUADRANT_ONE = 1;
+
+    public static final int QUADRANT_TWO = 2;
+
+    public static final int QUADRANT_THREE = 3;
+
+    public static final int QUADRANT_FOUR = 4;
+
+    public static final int SIDE_ONE = 1;
+
+    public static final int SIDE_TWO = 2;
+
+    public static final int SIDE_THREE = 3;
+
+    public static final int SIDE_FOUR = 4;
+
+    public static final int SIDE_FIVE = 5;
+
+    public static final int SIDE_SIX = 6;
+
+    public static final int SIDE_SEVEN = 7;
+
+    public static final int SIDE_EIGHT = 8;
+
     protected Geometry() {
     }
 
@@ -971,5 +995,125 @@ public class Geometry {
         double y = (p1.y * k - p1.x + p.y * m + p.x) / (k + m);
         double x = (y - p1.y) * k + p1.x;
         return Math.hypot(p.x - x, p.y - y);
+    }
+
+//     *          --------------------------
+//     *          |           |            |
+//     *          |     3     |      4     |
+//     *          ------------------------------>               
+//     *          |           |            |
+//     *          |     2     |      1     |
+//     *          --------------------------
+//     *                     \/
+    public static int getQuadrant(double x, double y, Point center) {
+        if (x <= center.x && y <= center.y) {
+            return QUADRANT_THREE;
+        } else if (x <= center.x && y >= center.y) {
+            return QUADRANT_TWO;
+        } else if (x >= center.x && y <= center.y) {
+            return QUADRANT_FOUR;
+        } else {
+            return QUADRANT_ONE;
+        }
+    }
+
+    /**
+     * Calculate angle of point(x,y)->rectangle center; Angles are interpreted
+     * such that 0 degrees is at the 3 o'clock position. A positive value
+     * indicates a counter-clockwise rotation while a negative value indicates a
+     * clockwise rotation. the returned angle is in the range <i>-pi</i> through
+     * <i>pi</i>.
+     */
+    public static double getAngle(double x, double y, Rectangle r) {
+        double cx = r.x + r.width * 0.5d;
+        double cy = r.y + r.height * 0.5d;
+
+        if (x == cx && y >= cy)
+            return HALF_PI;
+        if (x == cx && y <= cy)
+            return NEG_HALF_PI;
+
+        double angrad = Math.atan((y - cy) / (x - cx));
+        int quadrant = getQuadrant(x, y, r.getCenter());
+
+        if (quadrant == QUADRANT_ONE) {
+            angrad = -angrad;
+        } else if (quadrant == QUADRANT_TWO) {
+            angrad = -PI - angrad;
+        } else if (quadrant == QUADRANT_THREE) {
+            angrad = PI - angrad;
+        } else if (quadrant == QUADRANT_FOUR) {
+            angrad = -angrad;
+        }
+
+        return angrad;
+    }
+
+    /**
+     * Calculate oval angle of point correspondence;Angles are interpreted such
+     * that 0 degrees is at the 3 o'clock position;the returned angle is in the
+     * range <i>-pi</i> through <i>pi</i>.
+     * 
+     * @param x
+     *            x-coordinate of the point on the ellipse
+     * @param y
+     *            y-coordinate of the point on the ellipse
+     * @param r
+     *            oval external rectangle
+     * @return
+     */
+    public static double getOvalAngle(double x, double y, Rectangle r) {
+        double cx = r.x + r.width * 0.5d;
+
+        double k = 2 * (x - cx) / r.width;
+        if (k > 1)
+            k = 1;
+        if (k < -1)
+            k = -1;
+
+        double angrad = Math.acos(k);
+        int quadrant = getQuadrant(x, y, r.getCenter());
+
+        if (quadrant == QUADRANT_ONE || quadrant == QUADRANT_TWO) {
+            angrad = -angrad;
+        }
+        return angrad;
+    }
+
+    /**
+     * Calculate point(x,y) which edge contains.
+     * 
+     * @param x
+     * @param y
+     * @param r
+     * @return
+     */
+    public static int getSide(double x, double y, Rectangle r) {
+        double cx = r.x + r.width * 0.5d;
+        double cy = r.y + r.height * 0.5d;
+
+        if ((x >= r.x && x <= cx) && Math.abs(y - r.y) <= MIN_DISTANCE) {
+            return SIDE_ONE;
+        } else if ((x >= cx && x <= r.x + r.width * 1d)
+                && Math.abs(y - r.y) <= MIN_DISTANCE) {
+            return SIDE_TWO;
+        } else if ((y >= r.y && y <= cy)
+                && Math.abs((x - (r.x + r.width * 1.0d))) <= MIN_DISTANCE) {
+            return SIDE_THREE;
+        } else if ((y >= cy && y <= r.y + r.height * 1d)
+                && Math.abs((x - (r.x + r.width * 1.0d))) <= MIN_DISTANCE) {
+            return SIDE_FOUR;
+        } else if ((x >= cx && x <= r.x + r.width * 1d)
+                && Math.abs((y - (r.y + r.height * 1.0d))) <= MIN_DISTANCE) {
+            return SIDE_FIVE;
+        } else if ((x >= r.x && x <= cx)
+                && Math.abs((y - (r.y + r.height * 1.0d))) <= MIN_DISTANCE) {
+            return SIDE_SIX;
+        } else if ((y >= cy && y <= r.y + r.height * 1.0d)
+                && (Math.abs(x - r.x) <= MIN_DISTANCE)) {
+            return SIDE_SEVEN;
+        } else {
+            return SIDE_EIGHT;
+        }
     }
 }

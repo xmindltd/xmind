@@ -2,15 +2,15 @@ package net.xmind.share.jobs;
 
 import java.io.File;
 
-import net.xmind.share.Info;
-import net.xmind.share.Uploader;
-import net.xmind.share.XmindSharePlugin;
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.internal.XMindNetRequest;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
+
+import net.xmind.share.Info;
+import net.xmind.share.Uploader;
+import net.xmind.share.XmindSharePlugin;
 
 /**
  * The whole process:
@@ -154,7 +154,8 @@ public class UploadSession {
         IDataStore data = request.getData();
 
         debug("[upload][prepare] response code=%s", code); //$NON-NLS-1$
-        debug("[upload][prepare] response text='%s'", request.getResponseText()); //$NON-NLS-1$
+        debug("[upload][prepare] response text='%s'", //$NON-NLS-1$
+                request.getResponseText());
 
         if (code == XMindNetRequest.HTTP_OK && data != null) {
             String sessionId = data.getString("session"); //$NON-NLS-1$

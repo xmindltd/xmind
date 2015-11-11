@@ -78,6 +78,7 @@ import org.xmind.ui.internal.imports.ImporterUtils;
 import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.io.MonitoredInputStream;
 import org.xmind.ui.resources.ColorUtils;
+import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.wizards.MindMapImporter;
@@ -85,11 +86,11 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class MindManagerImporter extends MindMapImporter implements
-        MMConstants, ErrorHandler {
+public class MindManagerImporter extends MindMapImporter
+        implements MMConstants, ErrorHandler {
 
-    private static final Pattern DATE_PATTERN = Pattern
-            .compile("((\\d+)-(\\d{1,2})-(\\d{1,2}))T((\\d{1,2}):(\\d{1,2}):(\\d{1,2}))"); //$NON-NLS-1$
+    private static final Pattern DATE_PATTERN = Pattern.compile(
+            "((\\d+)-(\\d{1,2})-(\\d{1,2}))T((\\d{1,2}):(\\d{1,2}):(\\d{1,2}))"); //$NON-NLS-1$
 
     private static Pattern OID_PATTERN = null;
 
@@ -106,7 +107,8 @@ public class MindManagerImporter extends MindMapImporter implements
             this.content = content;
         }
 
-        public void loadFrom(Element element) throws InterruptedException {
+        public void loadFrom(Element notesGroupEle, Element element)
+                throws InterruptedException {
             checkInterrupted();
             String tagName = DOMUtils.getLocalName(element.getTagName());
 
@@ -117,13 +119,15 @@ public class MindManagerImporter extends MindMapImporter implements
 
             boolean isParagraph = "p".equalsIgnoreCase(tagName) //$NON-NLS-1$
                     || "li".equalsIgnoreCase(tagName); //$NON-NLS-1$
-            IStyle style = pushStyle(element, isParagraph ? IStyle.PARAGRAPH
-                    : IStyle.TEXT);
+            IStyle style = pushStyle(element,
+                    isParagraph ? IStyle.PARAGRAPH : IStyle.TEXT);
 
             if (isParagraph) {
                 addParagraph();
             } else if ("img".equalsIgnoreCase(tagName)) { //$NON-NLS-1$
-                addImage(element);
+
+                addImage(notesGroupEle, element);
+
             }
 
             NodeList nl = element.getChildNodes();
@@ -133,7 +137,7 @@ public class MindManagerImporter extends MindMapImporter implements
                 if (nodeType == Node.TEXT_NODE) {
                     addText(node.getTextContent());
                 } else if (nodeType == Node.ELEMENT_NODE) {
-                    loadFrom((Element) node);
+                    loadFrom(notesGroupEle, (Element) node);
                 }
             }
 
@@ -150,15 +154,27 @@ public class MindManagerImporter extends MindMapImporter implements
             addSpan(content.createTextSpan(text));
         }
 
-        private void addImage(Element imgEle) {
-            String srcUrl = att(imgEle, "src"); //$NON-NLS-1$
-            if (srcUrl != null) {
-                String entryPath = idMap.get(srcUrl);
-                if (entryPath != null) {
-                    addSpan(content.createImageSpan(HyperlinkUtils
-                            .toAttachmentPath(entryPath)));
+        private void addImage(Element notesGroupEle, Element imgEle)
+                throws InterruptedException {
+            Iterator<Element> it = children(notesGroupEle, "ap:NotesData"); //$NON-NLS-1$
+            while (it.hasNext()) {
+                Element notesDataEle = it.next();
+                String imgUri = att(notesDataEle, "ImageUri"); //$NON-NLS-1$
+                String sourceImg = att(imgEle, "src"); //$NON-NLS-1$
+                if (imgUri != null && sourceImg != null
+                        && imgUri.equals(sourceImg)) {
+                    loadImageAtt(imgUri, loadUri(notesDataEle));
+                    String srcUrl = loadUri(notesDataEle);
+                    if (srcUrl != null) {
+                        String entryPath = idMap.get(srcUrl);
+                        if (entryPath != null) {
+                            addSpan(content.createImageSpan(HyperlinkUtils
+                                    .toAttachmentPath(entryPath)));
+                        }
+                    }
                 }
             }
+
         }
 
         private void addSpan(ISpan span) {
@@ -226,9 +242,19 @@ public class MindManagerImporter extends MindMapImporter implements
                 style.setProperty(Styles.TextDecoration,
                         Styles.TEXT_DECORATION_LINE_THROUGH);
             } else if ("font".equalsIgnoreCase(name)) { //$NON-NLS-1$
-                String fontFamily = att(ele, "face"); //$NON-NLS-1$
-                if (fontFamily != null) {
-                    style.setProperty(Styles.FontFamily, fontFamily);
+                String fontName = att(ele, "face"); //$NON-NLS-1$
+                String availableFontName = FontUtils
+                        .getAAvailableFontNameFor(fontName);
+                fontName = availableFontName != null ? availableFontName
+                        : fontName;
+                if (fontName != null) {
+                    style.setProperty(Styles.FontFamily, fontName);
+                }
+            } else if ("span".equalsIgnoreCase(name)) { //$NON-NLS-1$
+                if ("font".equalsIgnoreCase( //$NON-NLS-1$
+                        ((Element) ele.getParentNode()).getTagName())) {
+                    String color = att((Element) ele.getParentNode(), "color"); //$NON-NLS-1$
+                    style.setProperty(Styles.TextColor, color);
                 }
             }
 
@@ -331,8 +357,8 @@ public class MindManagerImporter extends MindMapImporter implements
     public void build() throws InvocationTargetException, InterruptedException {
         getMonitor().beginTask(null, 100);
         try {
-            getMonitor().subTask(
-                    ImportMessages.MindManagerImporter_ReadingContent);
+            getMonitor()
+                    .subTask(ImportMessages.MindManagerImporter_ReadingContent);
 
             tempStorage = createTemporaryStorage();
             extractSourceFileToTemporaryStorage();
@@ -399,13 +425,13 @@ public class MindManagerImporter extends MindMapImporter implements
     private IStorage createTemporaryStorage() throws IOException {
         String id = String.format("%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", //$NON-NLS-1$ 
                 System.currentTimeMillis());
-        File tempDir = FileUtils.ensureDirectory(new File(Core.getWorkspace()
-                .getTempDir("import/mindmanager"), id)); //$NON-NLS-1$
+        File tempDir = FileUtils.ensureDirectory(new File(
+                Core.getWorkspace().getTempDir("import/mindmanager"), id)); //$NON-NLS-1$
         return new DirectoryStorage(tempDir);
     }
 
-    private void extractSourceFileToTemporaryStorage() throws IOException,
-            CoreException {
+    private void extractSourceFileToTemporaryStorage()
+            throws IOException, CoreException {
         FileInputStream fin = new FileInputStream(getSourcePath());
         try {
             ZipInputStream zin = new ZipInputStream(new MonitoredInputStream(
@@ -491,7 +517,8 @@ public class MindManagerImporter extends MindMapImporter implements
         ILegend legend = getTargetSheet().getLegend();
         Element markersSetsEle = child(markersGroupEle, "ap:IconMarkersSets"); //$NON-NLS-1$
         if (markersSetsEle != null) {
-            Iterator<Element> it = children(markersSetsEle, "ap:IconMarkersSet"); //$NON-NLS-1$
+            Iterator<Element> it = children(markersSetsEle,
+                    "ap:IconMarkersSet"); //$NON-NLS-1$
             while (it.hasNext()) {
                 checkInterrupted();
                 Element markersSetEle = it.next();
@@ -529,7 +556,7 @@ public class MindManagerImporter extends MindMapImporter implements
 
     private void loadLegendMarkers(Element markersEle, ILegend legend,
             String markerEleName, String iconEleName, String iconAttrName)
-            throws InterruptedException {
+                    throws InterruptedException {
         checkInterrupted();
         Iterator<Element> it = children(markersEle, markerEleName);
         while (it.hasNext()) {
@@ -578,7 +605,8 @@ public class MindManagerImporter extends MindMapImporter implements
         ISheet sheet = getTargetSheet();
         Element structureEle = child(styleGroupEle, "ap:Structure"); //$NON-NLS-1$
         if (structureEle != null) {
-            Float lineWidth = parseFloat(att(structureEle, "MainTopicLineWidth")); //$NON-NLS-1$
+            Float lineWidth = parseFloat(
+                    att(structureEle, "MainTopicLineWidth")); //$NON-NLS-1$
             if (lineWidth != null && lineWidth.floatValue() > 3.0f) {
                 registerStyle(sheet, Styles.LineTapered, Styles.TAPERED);
             }
@@ -600,8 +628,8 @@ public class MindManagerImporter extends MindMapImporter implements
                 if (entry != null && entry.getSize() > 0) {
                     registerStyle(sheet, Styles.Background,
                             HyperlinkUtils.toAttachmentURL(entry.getPath()));
-                    int transparency = NumberUtils.safeParseInt(
-                            att(bgImgEle, "Transparency"), -1); //$NON-NLS-1$
+                    int transparency = NumberUtils
+                            .safeParseInt(att(bgImgEle, "Transparency"), -1); //$NON-NLS-1$
                     if (transparency >= 0) {
                         double opacity = (100 - transparency) * 1.0 / 100;
                         registerStyle(sheet, Styles.Opacity,
@@ -653,7 +681,8 @@ public class MindManagerImporter extends MindMapImporter implements
     private void loadRelTheme(Element styleGroupEle)
             throws InterruptedException {
         checkInterrupted();
-        Element parentEle = child(styleGroupEle, "ap:RelationshipDefaultsGroup"); //$NON-NLS-1$
+        Element parentEle = child(styleGroupEle,
+                "ap:RelationshipDefaultsGroup"); //$NON-NLS-1$
         if (parentEle == null)
             return;
 
@@ -700,7 +729,7 @@ public class MindManagerImporter extends MindMapImporter implements
 
     private void loadThemeColor(Element parentEle, boolean fill,
             boolean fillAlpha, boolean line, String type, String styleFamily)
-            throws InterruptedException {
+                    throws InterruptedException {
         checkInterrupted();
         Element colorEle = child(parentEle, "ap:DefaultColor"); //$NON-NLS-1$
         if (colorEle == null)
@@ -735,7 +764,8 @@ public class MindManagerImporter extends MindMapImporter implements
 
         int deepestLevel = 0;
         Element realSubEle = null;
-        Iterator<Element> it = children(rootEle, "ap:RootSubTopicDefaultsGroup"); //$NON-NLS-1$
+        Iterator<Element> it = children(rootEle,
+                "ap:RootSubTopicDefaultsGroup"); //$NON-NLS-1$
         while (it.hasNext()) {
             Element subEle = it.next();
             int level = NumberUtils.safeParseInt(att(subEle, "Level"), -1); //$NON-NLS-1$
@@ -753,7 +783,8 @@ public class MindManagerImporter extends MindMapImporter implements
             loadTopicTheme(realSubEle, null, null, Styles.FAMILY_SUB_TOPIC);
         }
 
-        Element floatingEle = child(styleGroupEle, "ap:LabelTopicDefaultsGroup"); //$NON-NLS-1$
+        Element floatingEle = child(styleGroupEle,
+                "ap:LabelTopicDefaultsGroup"); //$NON-NLS-1$
         if (floatingEle != null) {
             loadTopicTheme(floatingEle, "ap:DefaultLabelFloatingTopicShape", //$NON-NLS-1$
                     "LabelFloatingTopicShape", Styles.FAMILY_FLOATING_TOPIC); //$NON-NLS-1$
@@ -762,11 +793,12 @@ public class MindManagerImporter extends MindMapImporter implements
 
     private void loadTopicTheme(Element parentEle, String shapeEleName,
             String shapeAttrName, String styleFamily)
-            throws InterruptedException {
+                    throws InterruptedException {
         checkInterrupted();
         loadThemeColor(parentEle, true, false, true, IStyle.TOPIC, styleFamily);
         loadThemeTextStyle(parentEle, styleFamily);
-        loadThemeTopicShape(parentEle, shapeEleName, shapeAttrName, styleFamily);
+        loadThemeTopicShape(parentEle, shapeEleName, shapeAttrName,
+                styleFamily);
         loadThemeBranchStyle(parentEle, styleFamily);
     }
 
@@ -777,7 +809,8 @@ public class MindManagerImporter extends MindMapImporter implements
         if (ele == null)
             return;
 
-        String branchConn = parseBranchConn(att(ele, "SubTopicsConnectionStyle")); //$NON-NLS-1$
+        String branchConn = parseBranchConn(
+                att(ele, "SubTopicsConnectionStyle")); //$NON-NLS-1$
         registerTheme(IStyle.TOPIC, styleFamily, Styles.LineClass, branchConn);
     }
 
@@ -787,7 +820,7 @@ public class MindManagerImporter extends MindMapImporter implements
 
     private void loadThemeTopicShape(Element parentEle, String shapeEleName,
             String shapeAttrName, String styleFamily)
-            throws InterruptedException {
+                    throws InterruptedException {
         checkInterrupted();
         if (shapeEleName == null)
             shapeEleName = "ap:DefaultSubTopicShape"; //$NON-NLS-1$
@@ -821,8 +854,10 @@ public class MindManagerImporter extends MindMapImporter implements
         String color = parseColor(att(fontEle, "Color")); //$NON-NLS-1$
         registerTheme(type, styleFamily, Styles.TextColor, color);
 
-        String name = att(fontEle, "Name"); //$NON-NLS-1$
-        registerTheme(type, styleFamily, Styles.FontFamily, name);
+        String fontName = att(fontEle, "Name"); //$NON-NLS-1$
+        String availableFontName = FontUtils.getAAvailableFontNameFor(fontName);
+        fontName = availableFontName != null ? availableFontName : fontName;
+        registerTheme(type, styleFamily, Styles.FontFamily, fontName);
 
         String size = att(fontEle, "Size"); //$NON-NLS-1$
         registerTheme(type, styleFamily, Styles.FontSize, size);
@@ -841,8 +876,8 @@ public class MindManagerImporter extends MindMapImporter implements
                 StyleUtils.toTextDecoration(underline, strikeout));
     }
 
-    private void registerTheme(String type, String styleFamily,
-            String styleKey, String styleValue) throws InterruptedException {
+    private void registerTheme(String type, String styleFamily, String styleKey,
+            String styleValue) throws InterruptedException {
         checkInterrupted();
         if (styleFamily == null || styleKey == null || styleValue == null)
             return;
@@ -872,7 +907,8 @@ public class MindManagerImporter extends MindMapImporter implements
         }
     }
 
-    private void loadRelationships(Element relsEle) throws InterruptedException {
+    private void loadRelationships(Element relsEle)
+            throws InterruptedException {
         checkInterrupted();
         Iterator<Element> it = children(relsEle, "ap:Relationship"); //$NON-NLS-1$
         while (it.hasNext()) {
@@ -957,8 +993,8 @@ public class MindManagerImporter extends MindMapImporter implements
 
         Element connStyleEle = child(connGroupEle, "ap:ConnectionStyle"); //$NON-NLS-1$
         if (connStyleEle != null) {
-            String arrowShape = parseConnShape(att(connStyleEle,
-                    "ConnectionShape")); //$NON-NLS-1$
+            String arrowShape = parseConnShape(
+                    att(connStyleEle, "ConnectionShape")); //$NON-NLS-1$
             String styleKey = index == 0 ? Styles.ArrowBeginClass
                     : Styles.ArrowEndClass;
             registerStyle(rel, styleKey, arrowShape);
@@ -969,7 +1005,8 @@ public class MindManagerImporter extends MindMapImporter implements
         return getMapping("arrowShape", shape, null); //$NON-NLS-1$
     }
 
-    private boolean loadAutoRouting(Element relEle) throws InterruptedException {
+    private boolean loadAutoRouting(Element relEle)
+            throws InterruptedException {
         checkInterrupted();
         Element autoRouteEle = child(relEle, "ap:AutoRoute"); //$NON-NLS-1$
         if (autoRouteEle != null) {
@@ -978,7 +1015,8 @@ public class MindManagerImporter extends MindMapImporter implements
         return false;
     }
 
-    private void loadRootTopic(Element oneTopicEle) throws InterruptedException {
+    private void loadRootTopic(Element oneTopicEle)
+            throws InterruptedException {
         checkInterrupted();
         Element topicEle = child(oneTopicEle, "Topic"); //$NON-NLS-1$
         if (topicEle != null) {
@@ -1030,8 +1068,8 @@ public class MindManagerImporter extends MindMapImporter implements
                         name = new File(entry.getPath()).getName();
                     ITopic attTopic = getTargetWorkbook().createTopic();
                     attTopic.setTitleText(name);
-                    attTopic.setHyperlink(HyperlinkUtils.toAttachmentURL(entry
-                            .getPath()));
+                    attTopic.setHyperlink(
+                            HyperlinkUtils.toAttachmentURL(entry.getPath()));
                     topic.add(attTopic, ITopic.ATTACHED);
                 }
             }
@@ -1045,8 +1083,8 @@ public class MindManagerImporter extends MindMapImporter implements
         if (subTopicsShapeEle == null)
             return;
 
-        String line = parseBranchConnection(att(subTopicsShapeEle,
-                "SubTopicsConnectionStyle")); //$NON-NLS-1$
+        String line = parseBranchConnection(
+                att(subTopicsShapeEle, "SubTopicsConnectionStyle")); //$NON-NLS-1$
         registerStyle(topic, Styles.LineClass, line);
 
         String structureClass = parseStructureType(subTopicsShapeEle);
@@ -1194,7 +1232,8 @@ public class MindManagerImporter extends MindMapImporter implements
         if (lineStyleEle == null)
             return;
 
-        String linePattern = parseLinePattern(att(lineStyleEle, "LineDashStyle")); //$NON-NLS-1$
+        String linePattern = parseLinePattern(
+                att(lineStyleEle, "LineDashStyle")); //$NON-NLS-1$
         registerStyle(host, Styles.LinePattern, linePattern);
 
         String width = parseLineWidth(att(lineStyleEle, "LineWidth")); //$NON-NLS-1$
@@ -1230,7 +1269,11 @@ public class MindManagerImporter extends MindMapImporter implements
             while (it.hasNext()) {
                 Element subTopicEle = it.next();
                 ITopic subTopic = getTargetWorkbook().createTopic();
-                topic.add(subTopic, ITopic.DETACHED);
+                Element item = child(subTopicEle, "ap:Offset"); //$NON-NLS-1$
+                if (item != null && item.hasAttribute("OffsetPriority")) //$NON-NLS-1$
+                    topic.add(subTopic, ITopic.DETACHED);
+                else
+                    topic.add(subTopic, ITopic.CALLOUT);
                 loadTopicContent(subTopicEle, subTopic);
             }
         }
@@ -1372,12 +1415,14 @@ public class MindManagerImporter extends MindMapImporter implements
         if (notesGroupEle == null)
             return;
 
-        Iterator<Element> it = children(notesGroupEle, "ap:NotesData"); //$NON-NLS-1$
-        while (it.hasNext()) {
-            Element notesDataEle = it.next();
-            String imgUri = att(notesDataEle, "ImageUri"); //$NON-NLS-1$
-            loadImageAtt(imgUri, loadUri(notesDataEle));
-        }
+//        Iterator<Element> it = children(notesGroupEle, "ap:NotesData"); //$NON-NLS-1$
+//        while (it.hasNext()) {
+//            Element notesDataEle = it.next();
+//            String imgUri = att(notesDataEle, "ImageUri"); //$NON-NLS-1$
+//            String binaryUri = loadUri(notesDataEle);
+//            uriMap.put(imgUri, binaryUri);
+//            loadImageAtt(imgUri, binaryUri);
+//        }
 
         Element notesXhtmlDataEle = child(notesGroupEle, "ap:NotesXhtmlData"); //$NON-NLS-1$
         if (notesXhtmlDataEle != null) {
@@ -1395,17 +1440,18 @@ public class MindManagerImporter extends MindMapImporter implements
             if (htmlEle != null) {
                 IHtmlNotesContent content = (IHtmlNotesContent) getTargetWorkbook()
                         .createNotesContent(INotes.HTML);
-                loadHtmlNotes(htmlEle, content, bookmarks);
+                loadHtmlNotes(notesGroupEle, htmlEle, content, bookmarks);
                 topic.getNotes().setContent(INotes.HTML, content);
             }
         }
     }
 
-    private void loadHtmlNotes(Element htmlEle, IHtmlNotesContent content,
-            String bookmarks) throws InterruptedException {
+    private void loadHtmlNotes(Element notesGroupEle, Element htmlEle,
+            IHtmlNotesContent content, String bookmarks)
+                    throws InterruptedException {
         NotesImporter notesImporter = new NotesImporter(content);
         notesImporter.addText(bookmarks);
-        notesImporter.loadFrom(htmlEle);
+        notesImporter.loadFrom(notesGroupEle, htmlEle);
     }
 
     private void loadImageAtt(String imgUri, String uri)
@@ -1504,7 +1550,8 @@ public class MindManagerImporter extends MindMapImporter implements
                     recordTopicLink(OId, topic);
                 }
                 return;
-            } else if (!url.startsWith("http://") && !url.startsWith("https://")) { //$NON-NLS-1$ //$NON-NLS-2$
+            } else
+                if (!url.startsWith("http://") && !url.startsWith("https://")) { //$NON-NLS-1$ //$NON-NLS-2$
                 String path;
                 if (url.startsWith("\"") && url.endsWith("\"")) { //$NON-NLS-1$ //$NON-NLS-2$
                     path = url.substring(1, url.length() - 1);
@@ -1767,13 +1814,13 @@ public class MindManagerImporter extends MindMapImporter implements
                 }
             }
             if (durationLabel == null) {
-                durationLabel = NLS
-                        .bind(ImportMessages.MindManagerImporter_Hours,
-                                durationHours);
+                durationLabel = NLS.bind(
+                        ImportMessages.MindManagerImporter_Hours,
+                        durationHours);
             }
-            topic.addLabel(NLS.bind(
-                    ImportMessages.MindManagerImporter_DurationLabel,
-                    durationLabel));
+            topic.addLabel(
+                    NLS.bind(ImportMessages.MindManagerImporter_DurationLabel,
+                            durationLabel));
         }
 
         addCheckPoint(ensureTaskContent(topic, taskContent),
@@ -1805,8 +1852,8 @@ public class MindManagerImporter extends MindMapImporter implements
             if (fontEle != null) {
                 loadFont(fontEle, (IStyled) titleOwner);
             }
-            String align = textEle == null ? null : att(textEle,
-                    "TextAlignment"); //$NON-NLS-1$
+            String align = textEle == null ? null
+                    : att(textEle, "TextAlignment"); //$NON-NLS-1$
             if (align != null) {
                 loadTextAlignment(align, (IStyled) titleOwner);
             }
@@ -1826,13 +1873,20 @@ public class MindManagerImporter extends MindMapImporter implements
         checkInterrupted();
         registerStyle(styleOwner, Styles.TextColor,
                 parseColor(att(fontEle, "Color"))); //$NON-NLS-1$
-        registerStyle(styleOwner, Styles.FontFamily, att(fontEle, "Name")); //$NON-NLS-1$
+
+        String fontName = att(fontEle, "Name"); //$NON-NLS-1$
+        String availableFontName = FontUtils.getAAvailableFontNameFor(fontName);
+        fontName = availableFontName != null ? availableFontName : fontName;
+        registerStyle(styleOwner, Styles.FontFamily, fontName);
+
         registerStyle(styleOwner, Styles.FontSize,
                 parseFontSize(att(fontEle, "Size"))); //$NON-NLS-1$
-        registerStyle(styleOwner, Styles.FontWeight, Boolean.parseBoolean(att(
-                fontEle, "Bold")) ? Styles.FONT_WEIGHT_BOLD : null); //$NON-NLS-1$
-        registerStyle(styleOwner, Styles.FontStyle, Boolean.parseBoolean(att(
-                fontEle, "Italic")) ? Styles.FONT_STYLE_ITALIC : null); //$NON-NLS-1$
+        registerStyle(styleOwner, Styles.FontWeight,
+                Boolean.parseBoolean(att(fontEle, "Bold")) //$NON-NLS-1$
+                        ? Styles.FONT_WEIGHT_BOLD : null);
+        registerStyle(styleOwner, Styles.FontStyle,
+                Boolean.parseBoolean(att(fontEle, "Italic")) //$NON-NLS-1$
+                        ? Styles.FONT_STYLE_ITALIC : null);
         String textDecoration = StyleUtils.toTextDecoration(
                 Boolean.parseBoolean(att(fontEle, "Underline")), Boolean //$NON-NLS-1$
                         .parseBoolean(att(fontEle, "Strikethrough"))); //$NON-NLS-1$
@@ -2001,8 +2055,8 @@ public class MindManagerImporter extends MindMapImporter implements
         NamedNodeMap atts = ele.getAttributes();
         for (int i = 0; i < atts.getLength(); i++) {
             Node att = atts.item(i);
-            if (attName.equalsIgnoreCase(DOMUtils.getLocalName(att
-                    .getNodeName()))) {
+            if (attName.equalsIgnoreCase(
+                    DOMUtils.getLocalName(att.getNodeName()))) {
                 return att.getNodeValue();
             }
         }

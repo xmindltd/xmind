@@ -13,14 +13,11 @@
  *******************************************************************************/
 package org.xmind.ui.internal.views;
 
-import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -30,108 +27,17 @@ import org.eclipse.swt.widgets.Display;
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
-import org.xmind.gef.part.GraphicalEditPart;
 import org.xmind.gef.part.IPart;
-import org.xmind.gef.part.IPartFactory;
 import org.xmind.gef.tool.ITool;
 import org.xmind.gef.util.Properties;
-import org.xmind.ui.gallery.FramePart;
 import org.xmind.ui.gallery.GalleryEditTool;
 import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
-import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.texteditor.FloatingTextEditor;
 
 public class ThemesViewer extends GalleryViewer {
-
-    private static class ThemeLabelProvider extends LabelProvider {
-
-        public String getText(Object element) {
-            if (element instanceof IStyle) {
-                IStyle style = (IStyle) element;
-                return style.getName();
-            }
-            return super.getText(element);
-        }
-
-    }
-
-    private static class ThemePart extends GraphicalEditPart {
-
-        public ThemePart(IStyle style) {
-            setModel(style);
-        }
-
-        public IStyle getStyle() {
-            return (IStyle) super.getModel();
-        }
-
-        protected IFigure createFigure() {
-            return new ThemeFigure();
-        }
-
-        protected void updateView() {
-            super.updateView();
-            ((ThemeFigure) getFigure()).setTheme(getStyle());
-            ((ThemeFigure) getFigure()).setDefaultImage(getDefaultImage());
-
-            Properties properties = ((GalleryViewer) getSite().getViewer())
-                    .getProperties();
-            Dimension size = (Dimension) properties
-                    .get(GalleryViewer.FrameContentSize);
-            if (size != null) {
-                getFigure().setPreferredSize(size);
-            }
-        }
-
-        protected void register() {
-            registerModel(getStyle().getId());
-            super.register();
-        }
-
-        @Override
-        protected void unregister() {
-            super.unregister();
-            unregisterModel(getStyle().getId());
-        }
-
-        private Image getDefaultImage() {
-            return ((ThemesViewer) getSite().getViewer())
-                    .getDefaultImage(getStyle());
-        }
-    }
-
-    private static class ThemePartFactory implements IPartFactory {
-
-        private IPartFactory factory;
-
-        public ThemePartFactory(IPartFactory factory) {
-            this.factory = factory;
-        }
-
-        public IPart createPart(IPart context, Object model) {
-            if (context instanceof FramePart && model instanceof IStyle)
-                return new ThemePart((IStyle) model);
-            return factory.createPart(context, model);
-        }
-
-    }
-
-    private static class ThemeSelectTool extends GallerySelectTool {
-        protected boolean isTitleEditable(IPart p) {
-            Object model = p.getModel();
-            if (!(model instanceof IStyle))
-                return false;
-
-            IStyle theme = (IStyle) model;
-            return theme != MindMapUI.getResourceManager().getBlankTheme()
-                    && theme.getOwnedStyleSheet() != MindMapUI
-                            .getResourceManager().getSystemThemeSheet();
-        }
-
-    }
 
     private static class ThemeNameEditTool extends GalleryEditTool {
 
@@ -175,24 +81,40 @@ public class ThemesViewer extends GalleryViewer {
     }
 
     protected void init() {
-        setPartFactory(new ThemePartFactory(getPartFactory()));
+//        setPartFactory(new ThemePartFactory(getPartFactory()));
         setLabelProvider(new ThemeLabelProvider());
 
         EditDomain editDomain = new EditDomain();
-        editDomain.installTool(GEF.TOOL_SELECT, new ThemeSelectTool());
+        editDomain.installTool(GEF.TOOL_SELECT, new GallerySelectTool());
         editDomain.installTool(GEF.TOOL_EDIT, new ThemeNameEditTool());
         setEditDomain(editDomain);
 
         Properties properties = getProperties();
         properties.set(GalleryViewer.Horizontal, Boolean.TRUE);
         properties.set(GalleryViewer.Wrap, Boolean.TRUE);
-        properties.set(GalleryViewer.Layout, new GalleryLayout(
-                GalleryLayout.ALIGN_CENTER, GalleryLayout.ALIGN_FILL, 1, 1,
-                new Insets(5)));
+        properties.set(GalleryViewer.Layout,
+                new GalleryLayout(GalleryLayout.ALIGN_CENTER,
+                        GalleryLayout.ALIGN_FILL, 1, 1, new Insets(5)));
         properties.set(GalleryViewer.FrameContentSize, new Dimension(128, 64));
-        properties.set(GalleryViewer.TitlePlacement, GalleryViewer.TITLE_TOP);
+        properties.set(GalleryViewer.TitlePlacement,
+                GalleryViewer.TITLE_BOTTOM);
         properties.set(GalleryViewer.SingleClickToOpen, Boolean.FALSE);
+        properties.set(GalleryViewer.SolidFrames, true);
         properties.set(GalleryViewer.FlatFrames, true);
+        properties.set(GalleryViewer.ImageConstrained, true);
+//        properties.set(GalleryViewer.ImageStretched, true);
+
+        properties.set(GalleryViewer.CustomContentPaneDecorator, true);
+    }
+
+    protected boolean isTitleEditable(IPart p) {
+        Object model = p.getModel();
+        if (!(model instanceof IStyle))
+            return false;
+
+        IStyle theme = (IStyle) model;
+        return theme.getOwnedStyleSheet() == MindMapUI.getResourceManager()
+                .getUserThemeSheet();
     }
 
     public void setSelection(ISelection selection) {
@@ -211,36 +133,8 @@ public class ThemesViewer extends GalleryViewer {
         updateThemePart(defaultTheme);
     }
 
-    private Image getDefaultImage(IStyle theme) {
-        return (theme == this.defaultTheme) ? getDefaultImage() : null;
-    }
-
-    private Image getDefaultImage() {
-        if (defaultImage == null) {
-            ImageDescriptor desc = MindMapUI.getImages().get(
-                    IMindMapImages.STAR, true);
-            if (desc != null) {
-                try {
-                    defaultImage = desc.createImage(false, getControl()
-                            .getDisplay());
-                } catch (Throwable e) {
-                    //e.printStackTrace();
-                }
-            }
-        }
-        return defaultImage;
-    }
-
     private void updateThemePart(IStyle theme) {
-        ThemePart part = findThemePart(theme);
-        if (part != null)
-            part.update();
-    }
-
-    private ThemePart findThemePart(IStyle style) {
-        if (style == null)
-            return null;
-        return (ThemePart) getPartRegistry().getPartByModel(style.getId());
+        update(new Object[] { theme });
     }
 
     public void startEditing(IStyle theme) {

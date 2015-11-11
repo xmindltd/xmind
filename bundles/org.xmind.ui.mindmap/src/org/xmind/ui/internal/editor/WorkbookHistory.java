@@ -20,9 +20,17 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.ui.IEditorInput;
+import org.xmind.ui.IEditorHistory;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated Use {@link IEditorHistory} instead.
+ */
+@Deprecated
 public class WorkbookHistory {
 
+    @Deprecated
     public static interface IWorkbookHistoryListener {
 
         void workbookHistoryUpdated();
@@ -50,7 +58,8 @@ public class WorkbookHistory {
         listeners.add(listener);
     }
 
-    public void removeWorkbookHistoryListener(IWorkbookHistoryListener listener) {
+    public void removeWorkbookHistoryListener(
+            IWorkbookHistoryListener listener) {
         listeners.remove(listener);
     }
 
@@ -67,10 +76,8 @@ public class WorkbookHistory {
         if (file != null) {
             String uri = WorkbookHistoryItem.toURI(file.getAbsolutePath());
             remove(input, uri);
-            items.add(
-                    0,
-                    new WorkbookHistoryItem(input, uri, System
-                            .currentTimeMillis()));
+            items.add(0, new WorkbookHistoryItem(input, uri,
+                    System.currentTimeMillis()));
             while (items.size() > MAX_SIZE) {
                 items.remove(items.size() - 1);
             }
@@ -85,8 +92,8 @@ public class WorkbookHistory {
         while (it.hasNext()) {
             WorkbookHistoryItem item = it.next();
             if ((uri != null && uri.equals(item.getURI()))
-                    || (item.getExistingEditorInput() != null && item
-                            .getExistingEditorInput().equals(input))) {
+                    || (item.getExistingEditorInput() != null
+                            && item.getExistingEditorInput().equals(input))) {
                 it.remove();
             }
         }
@@ -135,8 +142,8 @@ public class WorkbookHistory {
             return false;
         Properties cache = new Properties();
         try {
-            InputStream stream = new BufferedInputStream(new FileInputStream(
-                    file), 1024);
+            InputStream stream = new BufferedInputStream(
+                    new FileInputStream(file), 1024);
             try {
                 cache.load(stream);
             } finally {
@@ -158,8 +165,8 @@ public class WorkbookHistory {
                     int sepPos = value.indexOf(',');
                     if (sepPos > 0) {
                         try {
-                            long time = Long.parseLong(
-                                    value.substring(0, sepPos), 10);
+                            long time = Long
+                                    .parseLong(value.substring(0, sepPos), 10);
                             String uri = value.substring(sepPos + 1);
                             items.add(new WorkbookHistoryItem(null, uri, time));
                         } catch (NumberFormatException e) {
@@ -211,8 +218,8 @@ public class WorkbookHistory {
         for (int i = 0; i < items.size(); i++) {
             WorkbookHistoryItem item = items.get(i);
             String key = "item." + i; //$NON-NLS-1$
-            String value = Long.toString(item.getTime(), 10)
-                    + "," + item.getURI(); //$NON-NLS-1$
+            String value = Long.toString(item.getTime(), 10) + "," //$NON-NLS-1$
+                    + item.getURI();
             cache.put(key, value);
         }
 
@@ -269,8 +276,8 @@ public class WorkbookHistory {
                 .getApplication())) {
             return new File(workspace, "workbookhistory.properties"); //$NON-NLS-1$
         }
-        return new File(
-                new File(workspace, ".xmind"), "workbookhistory.properties"); //$NON-NLS-1$ //$NON-NLS-2$
+        return new File(new File(workspace, ".xmind"), //$NON-NLS-1$
+                "workbookhistory.properties"); //$NON-NLS-1$
     }
 
     public static WorkbookHistory getInstance() {

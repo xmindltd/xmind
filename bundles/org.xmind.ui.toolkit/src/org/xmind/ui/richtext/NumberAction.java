@@ -30,7 +30,7 @@ public class NumberAction extends Action implements IRichTextAction {
         viewer.getRenderer().numberSelectionParagraph(isChecked());
     }
 
-    public void selctionChanged(IRichTextEditViewer viewer, ISelection selection) {
+    public void selectionChanged(IRichTextEditViewer viewer, ISelection selection) {
         setChecked(viewer.getRenderer().getNumberSelectionParagraph());
     }
 

@@ -36,22 +36,19 @@ public class RoundedRectTopicDecoration extends AbstractTopicDecoration
         super(id);
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
         float c = getAppliedCornerSize();
         if (c == 0) {
             shape.addRectangle(box.x, box.y, box.width, box.height);
         } else {
-            shape.addRoundedRectangle(box, c);
-//            shape.moveTo(box.x, box.y + c / 2);
-//            shape.lineTo(box.x, box.bottom() - c / 2);
-//            shape.addArc(box.x, box.bottom() - c, c, c, 180, 90);
-//            shape.lineTo(box.right() - c / 2, box.bottom());
-//            shape.addArc(box.right() - c, box.bottom() - c, c, c, -90, 90);
-//            shape.lineTo(box.right(), box.y + c / 2);
-//            shape.addArc(box.right() - c, box.y, c, c, 0, 90);
-//            shape.lineTo(box.x + c / 2, box.y);
-//            shape.addArc(box.x, box.y, c, c, 90, 90);
-//            shape.close();
+            if (purpose == CHECK) {
+                shape.addRoundedRectangle(
+                        box.getExpanded(getLineWidth() / 2, getLineWidth() / 2),
+                        c);
+            } else {
+                shape.addRoundedRectangle(box, c);
+            }
         }
     }
 

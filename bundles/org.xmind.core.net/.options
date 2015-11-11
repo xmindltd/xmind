@@ -1,0 +1,4 @@
+org.xmind.core.net/debug=false
+org.xmind.core.net/debug/requests/all=false
+org.xmind.core.net/debug/requests/stdout=false
+org.xmind.core.net/debug/requests/assc=false

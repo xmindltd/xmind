@@ -11,6 +11,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.xmind.core.Core;
 import org.xmind.core.ICloneData;
@@ -19,8 +20,7 @@ import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventSource2;
-import org.xmind.gef.ui.editor.IGraphicalEditor;
-import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -28,22 +28,15 @@ import org.xmind.ui.mindmap.MindMapUI;
 public class SaveSheetAsHandler extends AbstractHandler {
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
-        if (editor instanceof IGraphicalEditor) {
-            IGraphicalEditorPage page = ((IGraphicalEditor) editor)
-                    .getActivePageInstance();
-            if (page != null) {
-                saveSheetAs(page);
-            }
-        }
+        IWorkbenchPart part = HandlerUtil.getActivePartChecked(event);
+        IMindMap mindmap = MindMapUIPlugin.getAdapter(part, IMindMap.class);
+        saveSheetAs(part, mindmap);
+
         return null;
     }
 
-    private void saveSheetAs(final IGraphicalEditorPage page) {
-        if (page == null)
-            return;
-
-        IMindMap mindmap = (IMindMap) page.getAdapter(IMindMap.class);
+    private void saveSheetAs(final IWorkbenchPart part,
+            final IMindMap mindmap) {
         if (mindmap == null)
             return;
 
@@ -59,9 +52,9 @@ public class SaveSheetAsHandler extends AbstractHandler {
         ICloneData clone = newWorkbook.clone(Arrays.asList(sheet));
         ISheet newSheet = (ISheet) clone.get(sheet);
         initSheet(newSheet);
-        ITopic newCentralTopic = newWorkbook.findTopic(clone.getString(
-                ICloneData.WORKBOOK_COMPONENTS, mindmap.getCentralTopic()
-                        .getId()));
+        ITopic newCentralTopic = newWorkbook
+                .findTopic(clone.getString(ICloneData.WORKBOOK_COMPONENTS,
+                        mindmap.getCentralTopic().getId()));
         if (newCentralTopic == null)
             //TODO should we log this?
             return;
@@ -72,10 +65,9 @@ public class SaveSheetAsHandler extends AbstractHandler {
 
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
-                final IEditorPart newEditor = page.getParentEditor().getSite()
-                        .getPage()
+                final IEditorPart newEditor = part.getSite().getPage()
                         .openEditor(MME.createLoadedEditorInput(newWorkbook),
-                        //new WorkbookEditorInput(newWorkbook, null, true),
+                                //new WorkbookEditorInput(newWorkbook, null, true),
                                 MindMapUI.MINDMAP_EDITOR_ID, true);
                 // Forcely make editor saveable:
                 if (newWorkbook instanceof ICoreEventSource2) {

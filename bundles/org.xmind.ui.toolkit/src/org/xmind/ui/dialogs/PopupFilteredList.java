@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IContentProvider;
@@ -188,11 +189,37 @@ public class PopupFilteredList extends PopupDialog {
                 Object element) {
             if (matcher == null)
                 return true;
+
+            if (isMatch(viewer, element))
+                return true;
+
+            return isLeafMatch(viewer, element);
+        }
+
+        private boolean isMatch(Viewer viewer, Object element) {
             String elementName = ((ILabelProvider) ((ContentViewer) viewer)
                     .getLabelProvider()).getText(element);
             if (elementName == null)
                 return false;
+
             return matcher.match(elementName);
+
+        }
+
+        private boolean isLeafMatch(Viewer viewer, Object element) {
+            if (isMatch(viewer, element))
+                return true;
+
+            Object[] children = ((ITreeContentProvider) ((AbstractTreeViewer) viewer)
+                    .getContentProvider()).getChildren(element);
+            if ((children != null) && (children.length > 0)) {
+                for (Object ele : children) {
+                    if (isLeafMatch(viewer, ele))
+                        return true;
+                }
+            }
+
+            return false;
         }
 
     }
@@ -207,20 +234,33 @@ public class PopupFilteredList extends PopupDialog {
         }
 
         public Object[] getChildren(Object parentElement) {
+            if (delegate instanceof ITreeContentProvider) {
+                return ((ITreeContentProvider) delegate)
+                        .getChildren(parentElement);
+            }
             return new Object[0];
         }
 
         public Object getParent(Object element) {
+            if (delegate instanceof ITreeContentProvider) {
+                return ((ITreeContentProvider) delegate).getParent(element);
+            }
             return null;
         }
 
         public boolean hasChildren(Object element) {
+            if (delegate instanceof ITreeContentProvider) {
+                return ((ITreeContentProvider) delegate).hasChildren(element);
+            }
             return false;
         }
 
         public Object[] getElements(Object inputElement) {
             if (delegate instanceof IStructuredContentProvider) {
                 return ((IStructuredContentProvider) delegate)
+                        .getElements(inputElement);
+            } else if (delegate instanceof ITreeContentProvider) {
+                return ((ITreeContentProvider) delegate)
                         .getElements(inputElement);
             }
             return new Object[0];
@@ -394,7 +434,8 @@ public class PopupFilteredList extends PopupDialog {
     }
 
     protected TreeViewer createTreeViewer(Composite parent) {
-        return new TreeViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+        return new TreeViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL
+                | SWT.FULL_SELECTION);
     }
 
     protected void configureTreeViewer(TreeViewer treeViewer) {
@@ -489,6 +530,7 @@ public class PopupFilteredList extends PopupDialog {
         treeViewer.setComparator(getComparator());
         treeViewer.setComparer(getComparer());
         treeViewer.setInput(getInput());
+        treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
         if (defaultSelection != null) {
             treeViewer.setSelection(new StructuredSelection(defaultSelection));
         } else if (tree.getItemCount() > 0) {
@@ -545,6 +587,24 @@ public class PopupFilteredList extends PopupDialog {
     }
 
     protected void fireOpenEvent(final OpenEvent e) {
+//        if (input instanceof List<?>) {
+//            TreeViewer viewer = getViewer();
+//            ISelection selection = viewer.getSelection();
+//            if (selection instanceof StructuredSelection) {
+//                Object element = ((StructuredSelection) selection)
+//                        .getFirstElement();
+//                boolean unAction = FontUtils.LOADED_FONTS.equals(element)
+//                        || FontUtils.RECOMMENDED_FONTS.equals(element)
+//                        || FontUtils.SYSTEM_FONTS.equals(element);
+//                if (unAction) {
+//                    if (viewer.getExpandedState(element))
+//                        viewer.collapseToLevel(element, 2);
+//                    else
+//                        viewer.expandToLevel(element, 2);
+//                    return;
+//                }
+//            }
+//        }
         close();
         if (openListeners == null || openListeners.isEmpty())
             return;
@@ -630,6 +690,13 @@ public class PopupFilteredList extends PopupDialog {
     public void setBoundsReference(Rectangle reference) {
         this.boundsReference = reference;
     }
+
+//    @Override
+//    protected Point getInitialSize() {
+//        Point initialSize = super.getInitialSize();
+//        initialSize.x = initialSize.x + 35;
+//        return initialSize;
+//    }
 
     protected Point getInitialLocation(Point initialSize) {
         Rectangle r = boundsReference;

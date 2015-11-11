@@ -14,8 +14,10 @@
 package org.xmind.ui.internal.protocols;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -79,8 +81,8 @@ public class FilePathParser {
         if (isWindows()) {
             path = path.replaceAll(WIN_NETWORK_PATH_PREFIX, PATH_SEP);
         }
-        return encode(relative ? FILE_PROTOCOL + path : FILE_PROTOCOL
-                + PROTOCOL_SEP + path, true);
+        return encode(relative ? FILE_PROTOCOL + path
+                : FILE_PROTOCOL + PROTOCOL_SEP + path, true);
     }
 
     public static boolean isPathRelative(String path) {
@@ -186,11 +188,11 @@ public class FilePathParser {
                     if (file == null) {
                         file = new File(relativePath.substring(0, sepIndex));
                     } else {
-                        file = new File(file, relativePath.substring(0,
-                                sepIndex));
+                        file = new File(file,
+                                relativePath.substring(0, sepIndex));
                     }
-                    relativePath = relativePath.substring(sepIndex
-                            + SEP.length());
+                    relativePath = relativePath
+                            .substring(sepIndex + SEP.length());
                 }
             }
         }
@@ -438,8 +440,8 @@ public class FilePathParser {
                         .forName("org.eclipse.core.runtime.Platform"); //$NON-NLS-1$
                 String os = (String) platformClass.getDeclaredMethod("getOS") //$NON-NLS-1$
                         .invoke(null);
-                String os_win32 = (String) platformClass.getDeclaredField(
-                        "OS_WIN32").get(null); //$NON-NLS-1$
+                String os_win32 = (String) platformClass
+                        .getDeclaredField("OS_WIN32").get(null); //$NON-NLS-1$
                 if (os_win32 != null && os != null) {
                     IS_WINDOWS = Boolean.valueOf(os_win32.equals(os));
                 }
@@ -449,6 +451,78 @@ public class FilePathParser {
                 IS_WINDOWS = Boolean.FALSE;
         }
         return IS_WINDOWS.booleanValue();
+    }
+
+    private static class PathDisambiguator {
+
+        URI uri;
+
+        String head;
+        String neck;
+        File body;
+
+        public PathDisambiguator(URI uri, File file) {
+            this.uri = uri;
+            this.head = file.getName();
+            this.neck = null;
+            this.body = file.getParentFile();
+        }
+
+        public void increaseDepth() {
+            if (body == null)
+                return;
+            String name = body.getName();
+            body = body.getParentFile();
+            if (neck == null) {
+                neck = name;
+            } else {
+                neck = name + File.separator + neck;
+            }
+        }
+
+        public boolean conflictsWith(PathDisambiguator that) {
+            return that != null && this.head.equals(that.head)
+                    && (this.neck == null || this.neck == that.neck
+                            || (this.neck != null
+                                    && this.neck.equals(that.neck)))
+                    && (this.body != null || that.body != null);
+        }
+
+        @Override
+        public String toString() {
+            return neck == null ? head
+                    : String.format("%2$s [%3$s]", File.separator, head, neck); //$NON-NLS-1$
+        }
+    }
+
+    public static void calculateFileURILabels(URI[] inputURIs,
+            Map<URI, String> labels) {
+        List<PathDisambiguator> paths = new ArrayList<PathDisambiguator>();
+        for (int i = 0; i < inputURIs.length; i++) {
+            URI uri = inputURIs[i];
+            String uriValue = uri.toString();
+            if (FilePathParser.isFileURI(uriValue)) {
+                String path = FilePathParser.toPath(uriValue);
+                if (path != null) {
+                    paths.add(new PathDisambiguator(uri, new File(path)));
+                }
+            }
+        }
+
+        for (int i = 1; i < paths.size(); i++) {
+            PathDisambiguator path1 = paths.get(i);
+            for (int j = 0; j < i; j++) {
+                PathDisambiguator path2 = paths.get(j);
+                while (path1.conflictsWith(path2)) {
+                    path1.increaseDepth();
+                    path2.increaseDepth();
+                }
+            }
+        }
+
+        for (PathDisambiguator path : paths) {
+            labels.put(path.uri, path.toString());
+        }
     }
 
     @SuppressWarnings("nls")

@@ -72,8 +72,8 @@ public class IconTipContributorProxy implements IIconTipContributor {
         this.tooltip = element.getAttribute(RegistryConstants.ATT_TOOLTIP);
         if (RegistryReader.getClassValue(element,
                 RegistryConstants.ATT_CONTRIBUTOR_CLASS) == null) {
-            throw new CoreException(new Status(IStatus.ERROR, element
-                    .getNamespaceIdentifier(), 0,
+            throw new CoreException(new Status(IStatus.ERROR,
+                    element.getNamespaceIdentifier(), 0,
                     "Invalid extension (missing class name): " + id, //$NON-NLS-1$
                     null));
         }
@@ -125,14 +125,13 @@ public class IconTipContributorProxy implements IIconTipContributor {
                 implementation = (IIconTipContributor) element
                         .createExecutableExtension(RegistryConstants.ATT_CONTRIBUTOR_CLASS);
             } catch (CoreException e) {
-                Logger
-                        .log(
-                                e,
-                                "Failed to create icon tip contributor from class: " //$NON-NLS-1$
-                                        + RegistryReader
-                                                .getClassValue(
-                                                        element,
-                                                        RegistryConstants.ATT_CONTRIBUTOR_CLASS));
+                Logger.log(
+                        e,
+                        "Failed to create icon tip contributor from class: " //$NON-NLS-1$
+                                + RegistryReader
+                                        .getClassValue(
+                                                element,
+                                                RegistryConstants.ATT_CONTRIBUTOR_CLASS));
                 implementation = NULL_CONTRIBUTOR;
             }
         }

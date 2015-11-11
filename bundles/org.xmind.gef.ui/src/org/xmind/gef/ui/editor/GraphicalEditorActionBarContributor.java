@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -147,6 +148,10 @@ public abstract class GraphicalEditorActionBarContributor extends
     }
 
     public void contributeToPagePopupMenu(IMenuManager menu) {
+        menu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+    }
+
+    public void contributeToSheetCompositePopupMenu(MenuManager menu) {
         menu.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
     }
 

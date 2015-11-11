@@ -8,6 +8,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+@Deprecated
 public class CheckSpellingAction implements IWorkbenchWindowActionDelegate {
 
     private IWorkbenchWindow window;
@@ -26,8 +27,8 @@ public class CheckSpellingAction implements IWorkbenchWindowActionDelegate {
 
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
-                IViewPart view = window.getActivePage().showView(
-                        SpellingPlugin.SPELLING_CHECK_VIEW_ID);
+                IViewPart view = window.getActivePage()
+                        .showView(SpellingPlugin.SPELLING_CHECK_VIEW_ID);
                 if (view instanceof SpellingCheckView) {
                     ((SpellingCheckView) view).scanWorkbook();
                 }

@@ -29,7 +29,10 @@ import java.util.Set;
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.IAdaptable;
+import org.xmind.core.IEncryptionData;
+import org.xmind.core.IFileEntry;
 import org.xmind.core.IManifest;
+import org.xmind.core.internal.security.Crypto;
 import org.xmind.core.io.ByteArrayStorage;
 import org.xmind.core.io.IInputSource;
 import org.xmind.core.io.IOutputTarget;
@@ -197,10 +200,31 @@ public class TempSaver {
 
     private OutputStream getOutputStream(IOutputTarget target, String entryPath)
             throws IOException, CoreException {
-        if (!target.isEntryAvaialble(entryPath))
-            return null;
+//        if (!target.isEntryAvaialble(entryPath))
+//            return null;
+//
+//        return target.openEntryStream(entryPath);
 
-        return target.openEntryStream(entryPath);
+        OutputStream out = target.openEntryStream(entryPath);
+
+        String password = workbook.getPassword();
+        if (password == null)
+            return out;
+
+        IFileEntry entry = workbook.getManifest().getFileEntry(entryPath);
+        if (entry == null)
+            return out;
+
+        if (ignoresEncryption(entry, entryPath))
+            return out;
+
+        IEncryptionData encData = entry.createEncryptionData();
+        return Crypto.creatOutputStream(out, true, encData, password);
+    }
+
+    private boolean ignoresEncryption(IFileEntry entry, String entryPath) {
+        return MANIFEST_XML.equals(entryPath)
+                || ((FileEntryImpl) entry).isIgnoreEncryption();
     }
 
     private boolean hasBeenSaved(String entryPath) {

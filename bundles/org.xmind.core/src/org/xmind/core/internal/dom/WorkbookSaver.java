@@ -15,6 +15,7 @@ package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_SHEET;
+import static org.xmind.core.internal.zip.ArchiveConstants.COMMENTS_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.CONTENT_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.MANIFEST_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.META_XML;
@@ -54,6 +55,7 @@ import org.xmind.core.IManifest;
 import org.xmind.core.IMeta;
 import org.xmind.core.IRevision;
 import org.xmind.core.IRevisionManager;
+import org.xmind.core.comment.ICommentManager;
 import org.xmind.core.internal.InternalCore;
 import org.xmind.core.internal.security.Crypto;
 import org.xmind.core.internal.zip.ArchiveConstants;
@@ -127,15 +129,19 @@ public class WorkbookSaver {
                                     saveStyleSheet();
                                 } finally {
                                     try {
-                                        if (!workbook
-                                                .isSkipRevisionsWhenSaving()) {
-                                            saveRevisions();
-                                        }
+                                        saveComments();
                                     } finally {
                                         try {
-                                            copyOtherStaff();
+                                            if (!workbook
+                                                    .isSkipRevisionsWhenSaving()) {
+                                                saveRevisions();
+                                            }
                                         } finally {
-                                            saveManifest();
+                                            try {
+                                                copyOtherStaff();
+                                            } finally {
+                                                saveManifest();
+                                            }
                                         }
                                     }
                                 }
@@ -168,6 +174,13 @@ public class WorkbookSaver {
             IMarkerSheet markerSheet = workbook.getMarkerSheet();
             if (!markerSheet.isEmpty()) {
                 saveDOM(markerSheet, target, PATH_MARKER_SHEET);
+            }
+        }
+
+        private void saveComments() throws IOException, CoreException {
+            ICommentManager commentManager = workbook.getCommentManager();
+            if (!commentManager.isEmpty()) {
+                saveDOM(commentManager, target, COMMENTS_XML);
             }
         }
 

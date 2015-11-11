@@ -35,6 +35,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.swt.SWT;
 import org.xmind.core.Core;
 import org.xmind.core.IBoundary;
+import org.xmind.core.ISheet;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
@@ -43,7 +44,12 @@ import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.IAnchor;
+import org.xmind.gef.draw2d.IDecoratedFigure;
+import org.xmind.gef.draw2d.decoration.IConnectionDecoration;
+import org.xmind.gef.draw2d.decoration.ICorneredDecoration;
 import org.xmind.gef.draw2d.decoration.IDecoration;
+import org.xmind.gef.draw2d.decoration.ILineDecoration;
+import org.xmind.gef.draw2d.decoration.IShapeDecoration;
 import org.xmind.gef.graphicalpolicy.IGraphicalPolicy;
 import org.xmind.gef.graphicalpolicy.IStructure;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
@@ -55,11 +61,17 @@ import org.xmind.ui.branch.IBranchStructureExtension;
 import org.xmind.ui.branch.IBranchStyleSelector;
 import org.xmind.ui.decorations.IBranchConnectionDecoration;
 import org.xmind.ui.decorations.IBranchConnections;
+import org.xmind.ui.decorations.IBranchConnections2;
+import org.xmind.ui.decorations.ICalloutTopicDecoration;
+import org.xmind.ui.internal.InfoItemContributorManager;
+import org.xmind.ui.internal.ModelCacheManager;
 import org.xmind.ui.internal.decorations.BranchConnections;
+import org.xmind.ui.internal.decorations.CalloutBranchConnections;
 import org.xmind.ui.internal.figures.BranchFigure;
 import org.xmind.ui.internal.layouts.BranchLayout;
 import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
+import org.xmind.ui.mindmap.IInfoPart;
 import org.xmind.ui.mindmap.ILabelPart;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.INodePart;
@@ -89,7 +101,11 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
 
     private List<IBranchPart> summaryBranches = null;
 
+    private List<IBranchPart> calloutBranches = null;
+
     private ILabelPart label = null;
+
+    private IInfoPart infoPart = null;
 
     private boolean central = false;
 
@@ -100,6 +116,10 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
     private String branchPolicyId = null;
 
     private int level = -1;
+
+    private CalloutBranchConnections calloutConnections;
+
+    private String overrideBranchType = null;
 
     public BranchPart() {
 //        setDecorator(BranchDecorator.getInstanceo());
@@ -151,6 +171,25 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         getSubBranches().remove(subBranch);
     }
 
+    public List<IBranchPart> getCalloutBranches() {
+        if (calloutBranches == null)
+            calloutBranches = new ArrayList<IBranchPart>();
+        return calloutBranches;
+    }
+
+    public void addCalloutBranch(IBranchPart calloutBranch) {
+        getCalloutBranches().add(calloutBranch);
+        sorter.sort(getCalloutBranches());
+        int index = getCalloutBranches().indexOf(calloutBranch);
+        getCalloutConnections().add(getFigure(), index, null);
+    }
+
+    public void removeCalloutBranch(IBranchPart calloutBranch) {
+        int index = getCalloutBranches().indexOf(calloutBranch);
+        getCalloutConnections().remove(getFigure(), index);
+        getCalloutBranches().remove(calloutBranch);
+    }
+
     public List<ISummaryPart> getSummaries() {
         if (summaries == null) {
             summaries = new ArrayList<ISummaryPart>();
@@ -190,9 +229,18 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         this.label = label;
     }
 
+    public IInfoPart getInfoPart() {
+        return infoPart;
+    }
+
+    public void setinfoPart(IInfoPart information) {
+        this.infoPart = information;
+    }
+
     protected IFigure createFigure() {
         BranchFigure branchFigure = new BranchFigure();
         branchFigure.setConnections(getConnections());
+        branchFigure.setCalloutConnections(getCalloutConnections());
         return branchFigure;
     }
 
@@ -200,6 +248,7 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         if (getParent() instanceof BranchPart) {
             BranchPart parentBranch = (BranchPart) getParent();
             parentBranch.removeSubBranch(this);
+            parentBranch.removeCalloutBranch(this);
             parentBranch.removeSummaryBranch(this);
         } else if (getParent() instanceof SheetPart) {
             SheetPart sheet = (SheetPart) getParent();
@@ -208,8 +257,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
                 sheet.setCentralBranch(null);
         }
         super.setParent(parent);
-        central = getTopic().equals(
-                getSite().getViewer().getAdapter(ITopic.class));
+        central = getTopic()
+                .equals(getSite().getViewer().getAdapter(ITopic.class));
         if (getParent() instanceof BranchPart) {
             BranchPart parentBranch = (BranchPart) getParent();
             level = parentBranch.getLevel() + 1;
@@ -217,6 +266,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
                 parentBranch.addSubBranch(this);
             } else if (ITopic.SUMMARY.equals(getTopic().getType())) {
                 parentBranch.addSummaryBranch(this);
+            } else if (ITopic.CALLOUT.equals(getTopic().getType())) {
+                parentBranch.addCalloutBranch(this);
             }
         } else if (getParent() instanceof SheetPart) {
             SheetPart sheet = (SheetPart) getParent();
@@ -234,7 +285,10 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
     public int getBranchIndex() {
         IBranchPart parentBranch = getParentBranch();
         if (parentBranch != null) {
-            return parentBranch.getSubBranches().indexOf(this);
+            if (MindMapUI.BRANCH_CALLOUT.equals(getBranchType())) {
+                return parentBranch.getCalloutBranches().indexOf(this);
+            } else
+                return parentBranch.getSubBranches().indexOf(this);
         }
         return 0;
     }
@@ -268,6 +322,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
     }
 
     public String getBranchType() {
+        if (overrideBranchType != null)
+            return overrideBranchType;
         if (isCentral())
             return MindMapUI.BRANCH_CENTRAL;
         IPart p = getParent();
@@ -278,11 +334,17 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
                 return MindMapUI.BRANCH_MAIN;
             if (parentBranch.getSummaryBranches().contains(this))
                 return MindMapUI.BRANCH_SUMMARY;
+            if (parentBranch.getCalloutBranches().contains(this))
+                return MindMapUI.BRANCH_CALLOUT;
         }
         if (p instanceof ISheetPart
                 && ((ISheetPart) p).getFloatingBranches().contains(this))
             return MindMapUI.BRANCH_FLOATING;
         return MindMapUI.BRANCH_SUB;
+    }
+
+    public void setOverrideBranchType(String overrideBranchType) {
+        this.overrideBranchType = overrideBranchType;
     }
 
     protected LayoutManager createLayoutManager() {
@@ -308,9 +370,9 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
 
         list.add(new ViewerModel(TopicPart.class, topic));
 
-        if (!topic.getLabels().isEmpty()) {
-            list.add(new ViewerModel(LabelPart.class, topic));
-        }
+        if (!(InfoItemContributorManager.getInstance().getContributors()
+                .isEmpty()))
+            list.add(new ViewerModel(InfoPart.class, topic));
 
         if (showsSubTopics) {
             List<ITopic> children = topic.getChildren(ITopic.ATTACHED);
@@ -320,13 +382,18 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
             for (ITopic subtopic : children) {
                 list.add(new ViewerModel(BranchPart.class, subtopic));
             }
+
+            List<ITopic> calloutTopics = topic.getChildren(ITopic.CALLOUT);
+            for (ITopic calloutTopic : calloutTopics) {
+                list.add(new ViewerModel(BranchPart.class, calloutTopic));
+            }
+
             for (ISummary summary : topic.getSummaries()) {
                 ITopic summaryTopic = summary.getTopic();
                 if (summaryTopic != null) {
                     list.add(new SummaryViewerModel(SummaryPart.class, summary,
                             summaryTopic));
                 }
-                //list.add(new ViewerModel(SummaryPart.class, summary));
             }
             for (ITopic summaryTopic : topic.getChildren(ITopic.SUMMARY)) {
                 list.add(new ViewerModel(BranchPart.class, summaryTopic));
@@ -360,12 +427,18 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
 
     protected void reorderChild(IPart child, int index) {
         int oldBranchIndex = getSubBranches().indexOf(child);
+        int oldCallloutBranchIndex = getCalloutBranches().indexOf(child);
         super.reorderChild(child, index);
+        if (oldCallloutBranchIndex >= 0) {
+            sorter.sort(getCalloutBranches());
+            int newCalloutBranchIndex = getCalloutBranches().indexOf(child);
+            getCalloutConnections().move(getFigure(), oldCallloutBranchIndex,
+                    newCalloutBranchIndex);
+        }
         if (oldBranchIndex >= 0) {
             sorter.sort(getSubBranches());
             int newBranchIndex = getSubBranches().indexOf(child);
-            IBranchConnections connections = getConnections();
-            connections.move(getFigure(), oldBranchIndex, newBranchIndex);
+            getConnections().move(getFigure(), oldBranchIndex, newBranchIndex);
         } else if (getBoundaries().contains(child)) {
             sorter.sort(getBoundaries());
         } else if (getSummaries().contains(child)) {
@@ -390,15 +463,27 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         register.register(Core.Style);
         register.register(Core.StructureClass);
         register.register(Core.Labels);
+        register.register(Core.TopicNotes);
+        register.register(Core.TopicHyperlink);
+        ISheet sheet = getTopic().getOwnedSheet();
+        register.setNextSourceFrom(sheet);
+        register.register(Core.Visibility);
     }
 
     public void handleCoreEvent(final CoreEvent event) {
+        Object modelcacheForLayout = ModelCacheManager.getInstance().getCache(
+                getTopic(), ModelCacheManager.MODEL_CACHE_DELAYLAYOUT);
+        if (Boolean.TRUE.equals(modelcacheForLayout)) {
+            return;
+        }
         String type = event.getType();
         if (Core.TopicFolded.equals(type)) {
             treeUpdate(true);
-        } else if (Core.TopicAdd.equals(type) || Core.TopicRemove.equals(type)) {
+        } else
+            if (Core.TopicAdd.equals(type) || Core.TopicRemove.equals(type)) {
             Object topicType = event.getData();
-            if (ITopic.ATTACHED.equals(topicType)) {
+            if (ITopic.ATTACHED.equals(topicType)
+                    || ITopic.CALLOUT.equals(topicType)) {
                 refresh();
             } else if (ITopic.SUMMARY.equals(topicType)) {
                 refresh();
@@ -420,11 +505,14 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         } else if (Core.StructureClass.equals(type)) {
             treeUpdateBranchPolicy();
             sendFakeStyleEvent();
-        } else if (Core.Labels.equals(type)) {
+        } else if (Core.Labels.equals(type) || Core.TopicNotes.equals(type)
+                || Core.TopicHyperlink.equals(type)
+                || Core.Visibility.equals(type)) {
             refresh();
-            if (getLabel() != null) {
-                getLabel().refresh();
-            }
+            if (getInfoPart() != null)
+                getInfoPart().refresh();
+            if (getTopicPart() != null)
+                getTopicPart().refresh();
         } else {
             super.handleCoreEvent(event);
         }
@@ -449,6 +537,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
     public void refreshStyles() {
         treeFlushStyleCaches();
         treeUpdate(true);
+        treeRefresh();
+        floatingRefresh();
     }
 
     private void treeFlushStyleCaches() {
@@ -458,6 +548,9 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         }
         for (IBranchPart subBranch : getSubBranches()) {
             ((BranchPart) subBranch).treeFlushStyleCaches();
+        }
+        for (IBranchPart calloutBranch : getCalloutBranches()) {
+            ((BranchPart) calloutBranch).treeFlushStyleCaches();
         }
         for (IBranchPart summaryBranch : getSummaryBranches()) {
             ((BranchPart) summaryBranch).treeFlushStyleCaches();
@@ -470,6 +563,9 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         refreshChildren();
         for (IBranchPart subBranch : getSubBranches()) {
             ((BranchPart) subBranch).treeUpdateBranchPolicy();
+        }
+        for (IBranchPart calloutBranch : getCalloutBranches()) {
+            ((BranchPart) calloutBranch).treeUpdateBranchPolicy();
         }
         for (IBranchPart summaryBranch : getSummaryBranches()) {
             ((BranchPart) summaryBranch).treeUpdateBranchPolicy();
@@ -570,6 +666,7 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
                 decoration.setVisible(branchFigure, branchFigure.isVisible());
             }
         }
+
     }
 
     private boolean isUnusedSummaryBranch(IBranchPart parent) {
@@ -607,14 +704,27 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
                     branchFigure.setVisible(!parentBranchFigure.isFolded()
                             && parentBranchFigure.isVisible());
                 }
+                if (MindMapUI.BRANCH_CALLOUT.equals(getBranchType())) {
+                    decorateCalloutConnections(parent, parentBranchFigure,
+                            parent.getCalloutConnections(), animating);
+                }
             }
         }
-        if (getTopicPart() != null)
+        if (getTopicPart() != null) {
             getTopicPart().update();
+            getTopicPart().refresh();
+        }
         if (getPlusMinus() != null)
             getPlusMinus().update();
         if (getLabel() != null)
             getLabel().update();
+        if (getInfoPart() != null) {
+            getInfoPart().update();
+            getInfoPart().refresh();
+        }
+//        for (IBranchPart calloutPart : getCalloutBranches()) {
+//            calloutPart.update();
+//        }
         for (IBoundaryPart b : getBoundaries()) {
             b.update();
         }
@@ -623,9 +733,106 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         }
         IStyleSelector ss = getStyleSelector(this);
         decorateConnections(ss, branchFigure, getConnections(), animating);
+
+        decorateCalloutConnections(this, (BranchFigure) getFigure(),
+                getCalloutConnections(), animating);
 //        for (IBranchPart s : getSubBranches()) {
 //            ((BranchPart) s).updateChildren();
 //        }
+    }
+
+    private void decorateCalloutConnections(IBranchPart parent,
+            BranchFigure parentFigure, IBranchConnections2 connections,
+            boolean ignoreVisibility) {
+        connections.setId("org.xmind.ui.calloutbranchconnections"); //$NON-NLS-1$
+        List<IBranchPart> calloutBranches = parent.getCalloutBranches();
+        for (int i = 0; i < calloutBranches.size(); i++) {
+            decorateCalloutConnection(parent, parentFigure, connections, i,
+                    ignoreVisibility);
+        }
+    }
+
+    private void decorateCalloutConnection(IBranchPart parent,
+            BranchFigure parentFigure, IBranchConnections2 connections,
+            int index, boolean ignoreVisibility) {
+        IBranchPart calloutBranch = parent.getCalloutBranches().get(index);
+        IDecoration connection = connections.getDecoration(index);
+        BranchFigure calloutBranchFigure = (BranchFigure) calloutBranch
+                .getFigure();
+
+        IDecoratedFigure topicFigure = (IDecoratedFigure) calloutBranch
+                .getTopicPart().getFigure();
+        IDecoration topicDecoration = topicFigure.getDecoration();
+        if (topicDecoration instanceof ICalloutTopicDecoration) {
+            ICalloutTopicDecoration ctd = (ICalloutTopicDecoration) topicDecoration;
+            String connectionId = ctd.getFromLineClass();
+            if (!isSameDecoration(connection, connectionId)) {
+                connection = createBranchConnection(calloutBranch,
+                        connectionId);
+                ((CalloutBranchConnections) connections)
+                        .putFigureToDecoration(calloutBranchFigure, connection);
+                connections.setDecoration(parentFigure, index, connection);
+            }
+            if (connection instanceof IShapeDecoration) {
+                IShapeDecoration shapedConnection = (IShapeDecoration) connection;
+                shapedConnection.setFillColor(parentFigure,
+                        ctd.getFromFillColor());
+                shapedConnection.setAlpha(parentFigure, 0xff);
+            }
+
+            if (connection instanceof ICorneredDecoration) {
+                ((ICorneredDecoration) connection).setCornerSize(parentFigure,
+                        ctd.getFromLineCorner());
+            }
+
+            if (connection instanceof IConnectionDecoration) {
+                IConnectionDecoration connectedConnection = (IConnectionDecoration) connection;
+                IAnchor sourceAnchor = null;
+                ITopicPart topic = parent.getTopicPart();
+                if (topic instanceof INodePart) {
+                    sourceAnchor = ((INodePart) topic).getSourceAnchor(parent);
+                }
+                connectedConnection.setSourceAnchor(parentFigure, sourceAnchor);
+
+                IAnchor targetAnchor = null;
+                ITopicPart subTopic = calloutBranch.getTopicPart();
+                if (subTopic instanceof INodePart) {
+                    targetAnchor = ((INodePart) subTopic)
+                            .getTargetAnchor(parent);
+                }
+                connectedConnection.setTargetAnchor(calloutBranchFigure,
+                        targetAnchor);
+            }
+
+            if (connection instanceof ILineDecoration) {
+                ILineDecoration linedConnection = (ILineDecoration) connection;
+                linedConnection.setLineColor(parentFigure,
+                        ctd.getFromLineColor());
+                linedConnection.setLineStyle(parentFigure,
+                        ctd.getFromLineStyle());
+                linedConnection.setLineWidth(parentFigure,
+                        ctd.getFromLineWidth());
+            }
+
+            if (connection instanceof IBranchConnectionDecoration) {
+                IBranchConnectionDecoration branchConnection = (IBranchConnectionDecoration) connection;
+                branchConnection.setSourceExpansion(parentFigure, 0);
+                branchConnection.setSourceOrientation(parentFigure,
+                        PositionConstants.NONE);
+
+                branchConnection.setTargetOrientation(calloutBranchFigure,
+                        PositionConstants.NONE);
+                branchConnection.setTargetExpansion(calloutBranchFigure, 0);
+
+                if (!ignoreVisibility) {
+                    branchConnection.setVisible(calloutBranchFigure,
+                            branchConnection.getSourceAnchor() != null
+                                    && branchConnection
+                                            .getTargetAnchor() != null
+                                    && calloutBranchFigure.isVisible());
+                }
+            }
+        }
     }
 
     private void decorateConnections(IStyleSelector ss, BranchFigure figure,
@@ -642,10 +849,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         connections.setSourceAnchor(figure, sourceAnchor);
 
         connections.setAlpha(figure, 0xff);
-        connections.setLineColor(
-                figure,
-                getColor(this, ss, Styles.LineColor, newConnectionId,
-                        Styles.DEF_TOPIC_LINE_COLOR));
+        connections.setLineColor(figure, getColor(this, ss, Styles.LineColor,
+                newConnectionId, Styles.DEF_TOPIC_LINE_COLOR));
         connections.setLineStyle(figure,
                 getLineStyle(this, ss, newConnectionId, SWT.LINE_SOLID));
         connections.setLineWidth(figure,
@@ -722,14 +927,11 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         }
         connection.setTargetOrientation(figure, targetOrientation);
         connection.setTargetExpansion(figure, 0);
-        connection.setLineColor(
-                figure,
-                getBranchConnectionColor(branch, ss, subBranch, subBranchIndex,
-                        connections.getLineColor()));
+        connection.setLineColor(figure, getBranchConnectionColor(branch, ss,
+                subBranch, subBranchIndex, connections.getLineColor()));
 
         if (!ignoreVisibility) {
-            connection.setVisible(
-                    figure,
+            connection.setVisible(figure,
                     connection.getSourceAnchor() != null
                             && connection.getTargetAnchor() != null
                             && figure.isVisible() && !figure.isFolded());
@@ -747,10 +949,44 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         for (IBranchPart subBranch : getSubBranches()) {
             subBranch.treeUpdate(false);
         }
+        for (IBranchPart calloutBranch : getCalloutBranches()) {
+            calloutBranch.treeUpdate(false);
+        }
         for (IBranchPart summaryBranch : getSummaryBranches()) {
             summaryBranch.treeUpdate(false);
         }
         updateChildren();
+    }
+
+    public void treeRefresh() {
+        if (getInfoPart() != null)
+            getInfoPart().refresh();
+        if (getTopicPart() != null)
+            getTopicPart().refresh();
+        for (IBranchPart subBranch : getSubBranches()) {
+            subBranch.treeRefresh();
+        }
+        for (IBranchPart calloutBranch : getCalloutBranches()) {
+            calloutBranch.treeRefresh();
+        }
+        for (IBranchPart summaryBranch : getSummaryBranches()) {
+            summaryBranch.treeRefresh();
+        }
+        updateChildren();
+    }
+
+    private void floatingRefresh() {
+        IPart parent = getParent();
+        if (parent != null && parent instanceof SheetPart) {
+            List<IBranchPart> floatings = ((SheetPart) parent)
+                    .getFloatingBranches();
+            for (IBranchPart floating : floatings) {
+                IInfoPart infoPart = floating.getInfoPart();
+                if (infoPart != null)
+                    infoPart.refresh();
+                floating.treeRefresh();
+            }
+        }
     }
 
     protected void declareEditPolicies(IRequestHandler reqHandler) {
@@ -767,7 +1003,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         return isPropertyModifiable(propertyName, null);
     }
 
-    public boolean isPropertyModifiable(String propertyName, String secondaryKey) {
+    public boolean isPropertyModifiable(String propertyName,
+            String secondaryKey) {
         return getBranchPolicy().isPropertyModifiable(this, propertyName,
                 secondaryKey);
     }
@@ -789,12 +1026,11 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
 
     public boolean canSearchChild() {
         BranchFigure figure = (BranchFigure) getFigure();
-        return !figure.isFolded()
-                && !figure.isMinimized()
-                && figure.isVisible()
+        return !figure.isFolded() && !figure.isMinimized() && figure.isVisible()
                 && figure.isEnabled()
-                && (!getSubBranches().isEmpty() || !getSummaryBranches()
-                        .isEmpty());
+                && (!getSubBranches().isEmpty()
+                        || !getSummaryBranches().isEmpty()
+                        || !getCalloutBranches().isEmpty());
     }
 
     protected boolean isFigureAnimatable() {
@@ -808,6 +1044,12 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         return connections;
     }
 
+    public IBranchConnections2 getCalloutConnections() {
+        if (calloutConnections == null)
+            calloutConnections = new CalloutBranchConnections();
+        return calloutConnections;
+    }
+
     @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter.isAssignableFrom(ITopic.class))
@@ -818,6 +1060,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
             return getPlusMinus();
         if (adapter == ILabelPart.class)
             return getLabel();
+        if (adapter == IInfoPart.class)
+            return getInfoPart();
         return super.getAdapter(adapter);
     }
 

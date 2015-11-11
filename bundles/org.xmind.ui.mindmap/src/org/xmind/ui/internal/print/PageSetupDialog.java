@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.xmind.gef.GEF;
+import org.xmind.gef.IViewer;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.gef.part.IGraphicalPart;
@@ -75,6 +76,34 @@ import org.xmind.ui.util.UnitConvertor;
 import org.xmind.ui.viewers.SWTUtils;
 
 public class PageSetupDialog extends TitleAreaDialog {
+
+    public static enum Entries {
+        PlusMinusVisible(PrintConstants.PLUS_MINUS_VISIBLE,
+                IMindMapViewer.PLUS_MINUS_VISIBLE), //
+                PlusMinusHidden(PrintConstants.PLUS_MINUS_HIDDEN,
+                        IMindMapViewer.PLUS_MINUS_HIDDEN), //
+                        PlusVisibleMinusHidden(
+                                PrintConstants.PLUS_VISIBLE_MINUS_HIDDEN,
+                                IMindMapViewer.PLUS_VISIBLE_MINUS_HIDDEN);
+
+        private String settingsValue;
+
+        private String propertiesValue;
+
+        private Entries(String settingsValue, String propertiesValue) {
+            this.settingsValue = settingsValue;
+            this.propertiesValue = propertiesValue;
+        }
+
+        public static String getPropertiesValue(String settingsValue) {
+            for (Entries entry : values()) {
+                if (entry.settingsValue.equals(settingsValue)) {
+                    return entry.propertiesValue;
+                }
+            }
+            return ""; //$NON-NLS-1$
+        }
+    }
 
     private static final String SECTION_ID = "org.xmind.ui.PageSetupDialog"; //$NON-NLS-1$
 
@@ -98,19 +127,22 @@ public class PageSetupDialog extends TitleAreaDialog {
             this.value = value;
             if (PrintConstants.LEFT.equals(value)) {
                 setText(DialogMessages.PageSetupDialog_AlignLeft_text);
-                setToolTipText(DialogMessages.PageSetupDialog_AlignLeft_toolTip);
-                setImageDescriptor(MindMapUI.getImages().get(
-                        IMindMapImages.ALIGN_LEFT, true));
+                setToolTipText(
+                        DialogMessages.PageSetupDialog_AlignLeft_toolTip);
+                setImageDescriptor(MindMapUI.getImages()
+                        .get(IMindMapImages.ALIGN_LEFT, true));
             } else if (PrintConstants.CENTER.equals(value)) {
                 setText(DialogMessages.PageSetupDialog_AlignCenter_text);
-                setToolTipText(DialogMessages.PageSetupDialog_AlignCenter_toolTip);
-                setImageDescriptor(MindMapUI.getImages().get(
-                        IMindMapImages.ALIGN_CENTER, true));
-            } else /* if (PrintConstants.RIGHT.equals(value)) */{
+                setToolTipText(
+                        DialogMessages.PageSetupDialog_AlignCenter_toolTip);
+                setImageDescriptor(MindMapUI.getImages()
+                        .get(IMindMapImages.ALIGN_CENTER, true));
+            } else /* if (PrintConstants.RIGHT.equals(value)) */ {
                 setText(DialogMessages.PageSetupDialog_AlignRight_text);
-                setToolTipText(DialogMessages.PageSetupDialog_AlignRight_toolTip);
-                setImageDescriptor(MindMapUI.getImages().get(
-                        IMindMapImages.ALIGN_RIGHT, true));
+                setToolTipText(
+                        DialogMessages.PageSetupDialog_AlignRight_toolTip);
+                setImageDescriptor(MindMapUI.getImages()
+                        .get(IMindMapImages.ALIGN_RIGHT, true));
             }
         }
 
@@ -126,8 +158,8 @@ public class PageSetupDialog extends TitleAreaDialog {
             this.key = key;
             setText(DialogMessages.PageSetupDialog_Font_text);
             setToolTipText(DialogMessages.PageSetupDialog_Font_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.FONT,
-                    true));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.FONT, true));
         }
 
         public void run() {
@@ -149,8 +181,8 @@ public class PageSetupDialog extends TitleAreaDialog {
 
     private class PreviewLayout extends AbstractLayout {
 
-        protected Dimension calculatePreferredSize(IFigure container,
-                int wHint, int hHint) {
+        protected Dimension calculatePreferredSize(IFigure container, int wHint,
+                int hHint) {
             return container.getSize();
         }
 
@@ -166,8 +198,8 @@ public class PageSetupDialog extends TitleAreaDialog {
             }
             if (footerFigure != null) {
                 Dimension size = footerFigure.getPreferredSize(area.width, -1);
-                footerFigure.setBounds(new Rectangle(area.x, area.y
-                        + area.height - size.height - 1, area.width,
+                footerFigure.setBounds(new Rectangle(area.x,
+                        area.y + area.height - size.height - 1, area.width,
                         size.height));
             }
         }
@@ -185,6 +217,12 @@ public class PageSetupDialog extends TitleAreaDialog {
     private Button currentMapRadio;
 
     private Button wholeWorkbookRadio;
+
+    private Button showBothRadio;
+
+    private Button hideBothRadio;
+
+    private Button hideMinusShowPlusRadio;
 
     private Button backgroundCheck;
 
@@ -243,8 +281,8 @@ public class PageSetupDialog extends TitleAreaDialog {
     public PageSetupDialog(Shell parentShell, IMindMap sourceMindMap) {
         super(parentShell);
         this.sourceMindMap = sourceMindMap;
-        this.settings = MindMapUIPlugin.getDefault().getDialogSettings(
-                SECTION_ID);
+        this.settings = MindMapUIPlugin.getDefault()
+                .getDialogSettings(SECTION_ID);
     }
 
     protected void configureShell(Shell newShell) {
@@ -255,8 +293,8 @@ public class PageSetupDialog extends TitleAreaDialog {
     public void create() {
         super.create();
         update(null);
-        setTitle(NLS.bind(DialogMessages.PageSetupDialog_title, sourceMindMap
-                .getCentralTopic().getTitleText()));
+        setTitle(NLS.bind(DialogMessages.PageSetupDialog_title,
+                sourceMindMap.getCentralTopic().getTitleText()));
         setMessage(DialogMessages.PageSetupDialog_description);
     }
 
@@ -327,9 +365,34 @@ public class PageSetupDialog extends TitleAreaDialog {
 
         creatContentSection(composite);
         createPageSetupSection(composite);
+        createShowPlusMinusIconsSection(composite);
         createOrientationSection(composite);
         createMarginsSection(composite);
         createHeaderFooterSection(composite);
+    }
+
+    private void createShowPlusMinusIconsSection(Composite parent) {
+        Composite section = createSection(parent,
+                DialogMessages.PageSetupDialog_PlusAndMinusIcons);
+
+        hideBothRadio = new Button(section, SWT.RADIO);
+        hideBothRadio.setText(DialogMessages.PageSetupDialog_HideBoth);
+        hideBothRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        hookWidget(hideBothRadio, SWT.Selection);
+
+        showBothRadio = new Button(section, SWT.RADIO);
+        showBothRadio.setText(DialogMessages.PageSetupDialog_ShowBoth);
+        showBothRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        hookWidget(showBothRadio, SWT.Selection);
+
+        hideMinusShowPlusRadio = new Button(section, SWT.RADIO);
+        hideMinusShowPlusRadio
+                .setText(DialogMessages.PageSetupDialog_HideMinusShowPlus);
+        hideMinusShowPlusRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        hookWidget(hideMinusShowPlusRadio, SWT.Selection);
     }
 
     private void creatContentSection(Composite parent) {
@@ -338,15 +401,15 @@ public class PageSetupDialog extends TitleAreaDialog {
 
         currentMapRadio = new Button(section, SWT.RADIO);
         currentMapRadio.setText(DialogMessages.PageSetupDialog_CurrentMap);
-        currentMapRadio.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        currentMapRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         hookWidget(currentMapRadio, SWT.Selection);
 
         wholeWorkbookRadio = new Button(section, SWT.RADIO);
         wholeWorkbookRadio
                 .setText(DialogMessages.PageSetupDialog_WholeWorkbook);
-        wholeWorkbookRadio.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        wholeWorkbookRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         hookWidget(wholeWorkbookRadio, SWT.Selection);
     }
 
@@ -356,8 +419,8 @@ public class PageSetupDialog extends TitleAreaDialog {
 
         backgroundCheck = new Button(section, SWT.CHECK);
         backgroundCheck.setText(DialogMessages.PageSetupDialog_Background);
-        backgroundCheck.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        backgroundCheck
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         hookWidget(backgroundCheck, SWT.Selection);
 
         borderCheck = new Button(section, SWT.CHECK);
@@ -380,15 +443,15 @@ public class PageSetupDialog extends TitleAreaDialog {
         landscapeRadio = new Button(container, SWT.RADIO);
         landscapeRadio.setData(Integer.valueOf(PrinterData.LANDSCAPE));
         landscapeRadio.setText(DialogMessages.PageSetupDialog_Landscape);
-        landscapeRadio.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        landscapeRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         hookWidget(landscapeRadio, SWT.Selection);
 
         portraitRadio = new Button(container, SWT.RADIO);
         portraitRadio.setData(Integer.valueOf(PrinterData.PORTRAIT));
         portraitRadio.setText(DialogMessages.PageSetupDialog_Portrait);
-        portraitRadio.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        portraitRadio
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         hookWidget(portraitRadio, SWT.Selection);
     }
 
@@ -413,8 +476,8 @@ public class PageSetupDialog extends TitleAreaDialog {
         createMarginInput(container, PrintConstants.BOTTOM_MARGIN,
                 DialogMessages.PageSetupDialog_Bottom);
 
-        unitChooser = new Combo(section, SWT.BORDER | SWT.READ_ONLY
-                | SWT.DROP_DOWN);
+        unitChooser = new Combo(section,
+                SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
         unitChooser.add(DialogMessages.PageSetupDialog_Inch);
         unitChooser.add(DialogMessages.PageSetupDialog_Millimeter);
         GridData unitLayoutData = new GridData(SWT.END, SWT.FILL, true, false);
@@ -515,8 +578,8 @@ public class PageSetupDialog extends TitleAreaDialog {
         alignBar.add(rightAction);
 
         alignBar.createControl(container);
-        alignBar.getControl().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, false, false));
+        alignBar.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
         addActions(alignKey, leftAction, centerAction, rightAction);
         alignBar.getControl().addDisposeListener(new DisposeListener() {
@@ -529,11 +592,12 @@ public class PageSetupDialog extends TitleAreaDialog {
         FontAction fontAction = new FontAction(fontKey);
         fontBar.add(fontAction);
         fontBar.createControl(container);
-        fontBar.getControl().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, false, false));
+        fontBar.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
         Text input = createInputControl(container, textKey, false);
-        GridData inputLayoutData = new GridData(SWT.FILL, SWT.FILL, true, false);
+        GridData inputLayoutData = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
         inputLayoutData.horizontalSpan = 3;
         input.setLayoutData(inputLayoutData);
     }
@@ -593,8 +657,8 @@ public class PageSetupDialog extends TitleAreaDialog {
         Label titleLabel = new Label(composite, SWT.NONE);
         titleLabel.setText(title);
         titleLabel.setFont(FontUtils.getBold(JFaceResources.DEFAULT_FONT));
-        titleLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        titleLabel.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
         Label line = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
         line.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -631,8 +695,8 @@ public class PageSetupDialog extends TitleAreaDialog {
             feedback.add(previewFigure);
 
             borderFigure = new Figure();
-            borderFigure.setBorder(new LineBorder(parent.getDisplay()
-                    .getSystemColor(SWT.COLOR_BLACK), 1));
+            borderFigure.setBorder(new LineBorder(
+                    parent.getDisplay().getSystemColor(SWT.COLOR_BLACK), 1));
             previewFigure.add(borderFigure);
 
             headerFigure = new RotatableWrapLabel(RotatableWrapLabel.NORMAL);
@@ -655,8 +719,8 @@ public class PageSetupDialog extends TitleAreaDialog {
                 .setText(DialogMessages.PageSetupDialog_JustForReference);
         forReferenceLabel.setFont(FontUtils.getNewHeight(
                 JFaceResources.DEFAULT_FONT, Util.isMac() ? 9 : 7));
-        forReferenceLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                true, false));
+        forReferenceLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     }
 
     private void layoutPreviewFigure() {
@@ -716,6 +780,15 @@ public class PageSetupDialog extends TitleAreaDialog {
         return container;
     }
 
+    private void setProperty(IViewer viewer, String key, String value) {
+        getSettings().put(key, value);
+        update(key);
+        if (viewer != null) {
+            Properties properties = viewer.getProperties();
+            properties.set(key, Entries.getPropertiesValue(value));
+        }
+    }
+
     protected void setProperty(String key, String value) {
         getSettings().put(key, value);
         update(key);
@@ -763,8 +836,32 @@ public class PageSetupDialog extends TitleAreaDialog {
                 || PrintConstants.ORIENTATION.equals(key);
         boolean contentChanged = key == null
                 || PrintConstants.CONTENTWHOLE.equals(key);
+        boolean showPlusMinusIconsChanged = key == null
+                || PrintConstants.PLUS_MINUS_VISIBILITY.equals(key);
 
         updating = true;
+
+        if (showPlusMinusIconsChanged) {
+            if (key == null) {
+                String plusMinusVisibility = getSettings()
+                        .get(PrintConstants.PLUS_MINUS_VISIBILITY);
+                if (plusMinusVisibility == null
+                        || "".equals(plusMinusVisibility)) { //$NON-NLS-1$
+                    getSettings().put(PrintConstants.PLUS_MINUS_VISIBILITY,
+                            PrintConstants.DEFAULT_PLUS_MINUS_VISIBILITY_VALUE);
+                }
+            }
+            String plusMinusVisibility = getSettings()
+                    .get(PrintConstants.PLUS_MINUS_VISIBILITY);
+            hideBothRadio.setSelection(PrintConstants.PLUS_MINUS_HIDDEN
+                    .equals(plusMinusVisibility));
+            showBothRadio.setSelection(PrintConstants.PLUS_MINUS_VISIBLE
+                    .equals(plusMinusVisibility));
+            hideMinusShowPlusRadio
+                    .setSelection(PrintConstants.PLUS_VISIBLE_MINUS_HIDDEN
+                            .equals(plusMinusVisibility));
+        }
+
         if (contentChanged) {
             currentMapRadio
                     .setSelection(!getBoolean(PrintConstants.CONTENTWHOLE));
@@ -850,8 +947,8 @@ public class PageSetupDialog extends TitleAreaDialog {
         IAction[] alignActions = getActions(alignKey);
         if (alignActions != null) {
             for (IAction action : alignActions) {
-                action.setChecked(((AlignAction) action).value
-                        .equals(alignValue));
+                action.setChecked(
+                        ((AlignAction) action).value.equals(alignValue));
             }
         }
 
@@ -864,8 +961,8 @@ public class PageSetupDialog extends TitleAreaDialog {
 
         if (textFigure != null) {
             textFigure.setText(text);
-            textFigure.setTextAlignment(PrintConstants.toDraw2DAlignment(
-                    alignValue, defaultDraw2DAlign));
+            textFigure.setTextAlignment(PrintConstants
+                    .toDraw2DAlignment(alignValue, defaultDraw2DAlign));
             String fontValue = getString(fontKey, null);
             Font font = null;
             if (fontValue != null) {
@@ -897,7 +994,7 @@ public class PageSetupDialog extends TitleAreaDialog {
                     pageLayout.marginRight = margin;
                 } else if (PrintConstants.TOP_MARGIN.equals(key)) {
                     pageLayout.marginTop = margin;
-                } else /* if (PrintConstants.BOTTOM_MARKER.equals(key) */{
+                } else /* if (PrintConstants.BOTTOM_MARKER.equals(key) */ {
                     pageLayout.marginBottom = margin;
                 }
             }
@@ -937,8 +1034,8 @@ public class PageSetupDialog extends TitleAreaDialog {
 
     private String getMarginText(String key) {
         double value = getDouble(key, PrintConstants.DEFAULT_MARGIN);
-        if (PrintConstants.MILLIMETER.equals(getString(
-                PrintConstants.MARGIN_UNIT, PrintConstants.INCH))) {
+        if (PrintConstants.MILLIMETER.equals(
+                getString(PrintConstants.MARGIN_UNIT, PrintConstants.INCH))) {
             value = UnitConvertor.inch2mm(value);
         }
         return String.valueOf(value);
@@ -973,7 +1070,6 @@ public class PageSetupDialog extends TitleAreaDialog {
         if (event.widget == currentMapRadio) {
             setProperty(PrintConstants.CONTENTWHOLE,
                     !currentMapRadio.getSelection());
-
         } else if (event.widget == wholeWorkbookRadio) {
             setProperty(PrintConstants.CONTENTWHOLE,
                     wholeWorkbookRadio.getSelection());
@@ -982,6 +1078,15 @@ public class PageSetupDialog extends TitleAreaDialog {
                     !backgroundCheck.getSelection());
         } else if (event.widget == borderCheck) {
             setProperty(PrintConstants.NO_BORDER, !borderCheck.getSelection());
+        } else if (event.widget == hideBothRadio) {
+            setProperty(previewViewer, PrintConstants.PLUS_MINUS_VISIBILITY,
+                    PrintConstants.PLUS_MINUS_HIDDEN);
+        } else if (event.widget == showBothRadio) {
+            setProperty(previewViewer, PrintConstants.PLUS_MINUS_VISIBILITY,
+                    PrintConstants.PLUS_MINUS_VISIBLE);
+        } else if (event.widget == hideMinusShowPlusRadio) {
+            setProperty(previewViewer, PrintConstants.PLUS_MINUS_VISIBILITY,
+                    PrintConstants.PLUS_VISIBLE_MINUS_HIDDEN);
         } else if (event.widget == unitChooser) {
             int index = unitChooser.getSelectionIndex();
             if (index < 0 || index >= PrintConstants.UNITS.size())
@@ -1024,8 +1129,8 @@ public class PageSetupDialog extends TitleAreaDialog {
                     }
                 }
                 modifyingText = false;
-                caretPosition = Math.min(caretPosition, input.getText()
-                        .length());
+                caretPosition = Math.min(caretPosition,
+                        input.getText().length());
                 input.setSelection(caretPosition);
             }
         }
@@ -1050,8 +1155,8 @@ public class PageSetupDialog extends TitleAreaDialog {
     }
 
     public int getStep() {
-        if (PrintConstants.MILLIMETER.equals(getString(
-                PrintConstants.MARGIN_UNIT, PrintConstants.INCH)))
+        if (PrintConstants.MILLIMETER.equals(
+                getString(PrintConstants.MARGIN_UNIT, PrintConstants.INCH)))
             return 500;
         return 100;
     }
@@ -1120,8 +1225,8 @@ public class PageSetupDialog extends TitleAreaDialog {
     }
 
     private void setMargin(String key, double value) {
-        if (PrintConstants.MILLIMETER.equals(getString(
-                PrintConstants.MARGIN_UNIT, PrintConstants.INCH))) {
+        if (PrintConstants.MILLIMETER.equals(
+                getString(PrintConstants.MARGIN_UNIT, PrintConstants.INCH))) {
             value = UnitConvertor.mm2inch(value);
         }
         setProperty(key, value);

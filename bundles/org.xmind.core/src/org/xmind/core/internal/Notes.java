@@ -19,10 +19,7 @@ import org.xmind.core.INotes;
  * @author briansun
  * 
  */
-public abstract class Notes implements INotes {
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class Notes extends AbstractWorkbookComponent
+        implements INotes {
 
 }

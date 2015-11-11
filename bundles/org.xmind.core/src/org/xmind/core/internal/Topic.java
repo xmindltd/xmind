@@ -31,7 +31,8 @@ import org.xmind.core.util.Point;
  * @author briansun
  * 
  */
-public abstract class Topic implements ITopic {
+public abstract class Topic extends AbstractWorkbookComponent
+        implements ITopic {
 
     protected static final List<ITopic> NO_CHILDREN = Collections.emptyList();
 
@@ -134,11 +135,10 @@ public abstract class Topic implements ITopic {
     protected abstract void removePosition();
 
     public Object getAdapter(Class adapter) {
-        if (adapter == IWorkbook.class)
-            return getOwnedWorkbook();
         if (adapter == ISheet.class)
             return getOwnedSheet();
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public String toString() {

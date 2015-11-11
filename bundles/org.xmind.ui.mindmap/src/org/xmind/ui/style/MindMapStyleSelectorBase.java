@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.xmind.ui.style;
 
+import static org.xmind.ui.style.Styles.LAYER_AFTER_ALL_VALUE;
+import static org.xmind.ui.style.Styles.LAYER_BEFORE_DEFAULT_VALUE;
+import static org.xmind.ui.style.Styles.LAYER_BEFORE_THEME_VALUE;
+import static org.xmind.ui.style.Styles.LAYER_BEFORE_USER_VALUE;
+
 import org.xmind.core.ISheet;
 import org.xmind.core.ISheetComponent;
 import org.xmind.core.IWorkbook;
@@ -65,20 +70,33 @@ public abstract class MindMapStyleSelectorBase extends AbstractStyleSelector {
     protected String getDefaultStyleValue(IGraphicalPart part,
             String familyName, String key,
             IStyleValueProvider defaultValueProvider) {
+        String value = getLayeredProperty(part, LAYER_BEFORE_DEFAULT_VALUE,
+                familyName, key);
+        if (isValidValue(part, key, value))
+            return getCheckedValue(value);
+
         IStyle defaultStyle = getDefaultStyle(part, familyName);
         if (defaultStyle != null) {
-            String value = defaultStyle.getProperty(key);
+            value = defaultStyle.getProperty(key);
             if (isValidValue(part, key, value))
                 return value;
         }
+
+        value = getLayeredProperty(part, LAYER_AFTER_ALL_VALUE, familyName,
+                key);
         return null;
     }
 
     protected String getThemeStyleValue(IGraphicalPart part, String familyName,
             String key) {
+        String value = getLayeredProperty(part, LAYER_BEFORE_THEME_VALUE,
+                familyName, key);
+        if (isValidValue(part, key, value))
+            return getCheckedValue(value);
+
         IStyle themeStyle = getThemeStyle(part, familyName);
         if (themeStyle != null) {
-            String value = themeStyle.getProperty(key);
+            value = themeStyle.getProperty(key);
             if (isValidValue(part, key, value))
                 return value;
         }
@@ -99,6 +117,12 @@ public abstract class MindMapStyleSelectorBase extends AbstractStyleSelector {
             }
         }
         return null;
+    }
+
+    protected String getCheckedValue(String value) {
+        if (Styles.NULL.equals(value))
+            return null;
+        return value;
     }
 
     protected ISheet getSheet(IGraphicalPart part) {
@@ -136,6 +160,13 @@ public abstract class MindMapStyleSelectorBase extends AbstractStyleSelector {
     }
 
     public String getUserValue(IGraphicalPart part, String key) {
+        String familyName = getFamilyName(part);
+        if (familyName != null) {
+            String value = getLayeredProperty(part, LAYER_BEFORE_USER_VALUE,
+                    familyName, key);
+            if (value != null)
+                return getCheckedValue(value);
+        }
         IStyle style = getStyle(part);
         return style == null ? null : style.getProperty(key);
     }
@@ -167,7 +198,8 @@ public abstract class MindMapStyleSelectorBase extends AbstractStyleSelector {
         return null;
     }
 
-    protected IWorkbook getOwnedWorkbook(IGraphicalPart part, IStyled styleOwner) {
+    protected IWorkbook getOwnedWorkbook(IGraphicalPart part,
+            IStyled styleOwner) {
         if (styleOwner instanceof IWorkbookComponent) {
             IWorkbook workbook = ((IWorkbookComponent) styleOwner)
                     .getOwnedWorkbook();
@@ -186,6 +218,11 @@ public abstract class MindMapStyleSelectorBase extends AbstractStyleSelector {
         }
         return null;
     }
+
+    protected String getLayeredProperty(IGraphicalPart part, String layerName,
+            String familyName, String key) {
+        return null;
+    };
 
     public abstract String getFamilyName(IGraphicalPart part);
 

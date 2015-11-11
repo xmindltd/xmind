@@ -199,8 +199,8 @@ public class TopicMovablePolicy extends MindMapPolicyBase {
                 Point pos = solver.getSolvedPosition(key);
                 pos = getNewPosition(topicPart, pos);
                 ITopic topic = topicPart.getTopic();
-                commands.add(new ModifyPositionCommand(topic, MindMapUtils
-                        .toModelPosition(pos)));
+                commands.add(new ModifyPositionCommand(topic,
+                        MindMapUtils.toModelPosition(pos)));
             }
         }
         if (commands.isEmpty())
@@ -243,24 +243,36 @@ public class TopicMovablePolicy extends MindMapPolicyBase {
         return pos;
     }
 
+    private boolean hasCallout(List<ITopic> topics) {
+        if (topics == null || topics.isEmpty())
+            return false;
+
+        for (ITopic callout : topics) {
+            if (ITopic.CALLOUT.equals(callout.getType()))
+                return true;
+        }
+
+        return false;
+    }
+
     private void moveOrCopyTopics(Request request) {
         List<IPart> sources = request.getTargets();
-        List<ITopic> topics = MindMapUtils.filterOutDescendents(
-                MindMapUtils.getTopics(sources), null);
+        List<ITopic> topics = MindMapUtils
+                .filterOutDescendents(MindMapUtils.getTopics(sources), null);
         if (topics.isEmpty())
             return;
         Collections.sort(topics, Core.getTopicComparator());
 
         Point targetPosition = (Point) request.getParameter(GEF.PARAM_POSITION);
         ITopicPart parentPart = getTargetParent(request);
-        boolean copy = Boolean.TRUE.equals(request
-                .getParameter(MindMapUI.PARAM_COPY));
+        boolean copy = Boolean.TRUE
+                .equals(request.getParameter(MindMapUI.PARAM_COPY));
 
         if (targetPosition == null && parentPart == null && !copy)
             return;
 
-        boolean relative = Boolean.TRUE.equals(request
-                .getParameter(GEF.PARAM_POSITION_RELATIVE));
+        boolean relative = Boolean.TRUE
+                .equals(request.getParameter(GEF.PARAM_POSITION_RELATIVE));
         int targetIndex = request.getIntParameter(GEF.PARAM_INDEX, -1);
 
         IViewer viewer = request.getTargetViewer();
@@ -268,7 +280,15 @@ public class TopicMovablePolicy extends MindMapPolicyBase {
         String targetType;
         if (parentPart != null) {
             targetParent = parentPart.getTopic();
-            targetType = ITopic.ATTACHED;
+            //can't add itself as child
+            if (topics.contains(targetParent))
+                return;
+
+            if (hasCallout(topics)) {
+                targetType = ITopic.CALLOUT;
+            } else {
+                targetType = ITopic.ATTACHED;
+            }
         } else {
             targetParent = (ITopic) viewer.getAdapter(ITopic.class);
             targetType = ITopic.DETACHED;
@@ -298,8 +318,8 @@ public class TopicMovablePolicy extends MindMapPolicyBase {
                         .equalsIgnoreCase(centralTopicStructure);
 
         if (isUnbalancedStructure) {
-            ITopicExtension extension = centralTopic
-                    .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
+            ITopicExtension extension = centralTopic.createExtension(
+                    UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
             ITopicExtensionElement element = extension.getContent()
                     .getCreatedChild(
                             UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
@@ -324,23 +344,33 @@ public class TopicMovablePolicy extends MindMapPolicyBase {
                     if (parentBranch.isCentral()
                             && targetType != ITopic.DETACHED) {
                         Rectangle bounds = parentPart.getFigure().getBounds();
-                        if (bounds
-                                .getCenter()
-                                .getDifference(
-                                        (Point) request
-                                                .getParameter(GEF.PARAM_POSITION_ABSOLUTE)).width < 0) {
+                        boolean positionRight = bounds.getCenter()
+                                .getDifference((Point) request.getParameter(
+                                        GEF.PARAM_POSITION_ABSOLUTE)).width < 0;
+
+                        org.xmind.core.util.Point position = mainBranch
+                                .getTopic().getPosition();
+//                        boolean topicPosForceRight = position != null && position.x > 0;
+//                        boolean posRight = position == null && positionRight;
+
+                        boolean right = position != null ? position.x > 0
+                                : positionRight;
+
+                        if (right) {
                             postMoveRightNum++;
                         }
                     }
                 }
             }
 
-            ModifyRightNumberOfUnbalancedStructureCommand modifyRightNumberCommand = new ModifyRightNumberOfUnbalancedStructureCommand(
-                    centralTopic, preMoveRightNum, postMoveRightNum);
-            modifyRightNumberCommand
-                    .setLabel(copy ? CommandMessages.Command_CopyTopic
-                            : CommandMessages.Command_MoveTopic);
-            builder.addPendingCommand(modifyRightNumberCommand, true);
+            if (!preMoveRightNum.equals(postMoveRightNum)) {
+                ModifyRightNumberOfUnbalancedStructureCommand modifyRightNumberCommand = new ModifyRightNumberOfUnbalancedStructureCommand(
+                        centralTopic, preMoveRightNum, postMoveRightNum);
+                modifyRightNumberCommand
+                        .setLabel(copy ? CommandMessages.Command_CopyTopic
+                                : CommandMessages.Command_MoveTopic);
+                builder.addPendingCommand(modifyRightNumberCommand, true);
+            }
         }
 
         PropertyCommandBuilder builder2 = new PropertyCommandBuilder(viewer,
@@ -376,11 +406,12 @@ public class TopicMovablePolicy extends MindMapPolicyBase {
         return null;
     }
 
-    private boolean isValidMoveToNewParent(ITopic newParent, List<ITopic> topics) {
+    private boolean isValidMoveToNewParent(ITopic newParent,
+            List<ITopic> topics) {
         if (MindMapUtils.isAncestorInList(newParent, topics))
             return false;
-        Set<ITopicRange> ranges = MindMapUtils.findContainedRanges(topics,
-                true, false);
+        Set<ITopicRange> ranges = MindMapUtils.findContainedRanges(topics, true,
+                false);
         if (!ranges.isEmpty()) {
             for (ITopicRange range : ranges) {
                 ITopic summaryTopic = ((ISummary) range).getTopic();

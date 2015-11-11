@@ -1,6 +1,6 @@
 package net.xmind.workbench.internal.notification;
 
-import net.xmind.signin.IDataStore;
+import org.xmind.core.net.IDataStore;
 
 public class DataStoreSiteEvent implements ISiteEvent {
 

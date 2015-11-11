@@ -86,13 +86,18 @@ public class DialogMessages extends NLS {
     public static String MarkerPackageFilterName;
 
     public static String PageSetupDialog_Content;
+    public static String PageSetupDialog_PlusAndMinusIcons;
     public static String PageSetupDialog_CurrentMap;
     public static String PageSetupDialog_WholeWorkbook;
+    public static String PageSetupDialog_HideBoth;
+    public static String PageSetupDialog_ShowBoth;
+    public static String PageSetupDialog_HideMinusShowPlus;
     public static String PageSetupDialog_windowTitle;
     public static String PageSetupDialog_title;
     public static String PageSetupDialog_description;
     public static String PageSetupDialog_PageSetup;
     public static String PageSetupDialog_Margins;
+
     public static String PageSetupDialog_HeaderFooter;
     public static String PageSetupDialog_Background;
     public static String PageSetupDialog_Border;

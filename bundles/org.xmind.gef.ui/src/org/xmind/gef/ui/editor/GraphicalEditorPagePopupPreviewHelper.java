@@ -179,10 +179,10 @@ public class GraphicalEditorPagePopupPreviewHelper {
         if (origin != null) {
             int x = origin.x - width / 2;
             int y = origin.y - height / 2;
-            bounds.x = Math.max(bounds.x, Math.min(bounds.x + bounds.width
-                    - width, x));
-            bounds.y = Math.max(bounds.y, Math.min(bounds.y + bounds.height
-                    - height, y));
+            bounds.x = Math.max(bounds.x,
+                    Math.min(bounds.x + bounds.width - width, x));
+            bounds.y = Math.max(bounds.y,
+                    Math.min(bounds.y + bounds.height - height, y));
         } else {
             bounds.x = -width / 2;
             bounds.y = -height / 2;
@@ -311,20 +311,31 @@ public class GraphicalEditorPagePopupPreviewHelper {
 
         GC gc = e.gc;
         SWTGraphics swtGraphics = new SWTGraphics(gc);
-        ScaledGraphics scaledGraphics = new ScaledGraphics(swtGraphics);
 
         double horizontalScale = w / bounds.width;
         double verticalScale = h / bounds.height;
         double scale = Math.max(horizontalScale, verticalScale);
 
         swtGraphics.translate(x, y);
-        scaledGraphics.scale(scale);
-        scaledGraphics.translate(-bounds.x, -bounds.y);
+
+        Graphics g = swtGraphics;
+        ScaledGraphics sg = null;
+        if (ScaledGraphics.SCALED_GRAPHICS_ENABLED) {
+            sg = new ScaledGraphics(swtGraphics);
+            sg.scale(scale);
+            g = sg;
+        } else {
+            g.scale(scale);
+        }
+
+        g.translate(-bounds.x, -bounds.y);
 
         try {
-            paintFigure(paintingContents, scaledGraphics);
+            paintFigure(paintingContents, g);
         } finally {
-            scaledGraphics.dispose();
+            if (sg != null) {
+                sg.dispose();
+            }
             swtGraphics.dispose();
         }
 
@@ -335,8 +346,9 @@ public class GraphicalEditorPagePopupPreviewHelper {
             gc.setLineStyle(SWT.LINE_SOLID);
             gc.setClipping(clientArea.x, clientArea.y, clientArea.width,
                     clientArea.height);
-            gc.drawRectangle(clientArea.x + border / 2, clientArea.y + border
-                    / 2, clientArea.width - border, clientArea.height - border);
+            gc.drawRectangle(clientArea.x + border / 2,
+                    clientArea.y + border / 2, clientArea.width - border,
+                    clientArea.height - border);
         }
     }
 

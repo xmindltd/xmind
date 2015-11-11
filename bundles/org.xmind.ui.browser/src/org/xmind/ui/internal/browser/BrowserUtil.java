@@ -49,7 +49,22 @@ public class BrowserUtil {
                 index = url.indexOf(" "); //$NON-NLS-1$
             }
         }
-        return Program.launch(url);
+
+        boolean success = false;
+        try {
+            success = Program.launch(url);
+        } catch (Throwable th) {
+            Program program = Program.findProgram("html"); //$NON-NLS-1$
+            if (program == null) {
+                program = Program.findProgram("htm"); //$NON-NLS-1$
+            }
+            try {
+                if (program != null)
+                    success = program.execute(url);
+            } catch (Throwable t) {
+            }
+        }
+        return success;
     }
 
     /**

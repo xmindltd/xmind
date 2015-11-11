@@ -37,8 +37,8 @@ import org.xmind.gef.policy.NullEditPolicy;
 import org.xmind.gef.status.StatusEvent;
 import org.xmind.gef.util.Properties;
 
-public class FramePart extends GraphicalEditPart implements
-        PropertyChangeListener {
+public class FramePart extends GraphicalEditPart
+        implements PropertyChangeListener {
 
     private static class FrameContentLayout extends AbstractLayout {
 
@@ -69,28 +69,28 @@ public class FramePart extends GraphicalEditPart implements
         }
 
         @Override
-        protected Dimension calculatePreferredSize(IFigure container,
-                int wHint, int hHint) {
+        protected Dimension calculatePreferredSize(IFigure container, int wHint,
+                int hHint) {
             Insets insets = container.getInsets();
             Properties properties = site.getProperties();
             Dimension contentSize = (Dimension) properties
                     .get(GalleryViewer.FrameContentSize);
-            boolean pack = properties.getBoolean(
-                    GalleryViewer.PackFrameContent, false);
+            boolean pack = properties.getBoolean(GalleryViewer.PackFrameContent,
+                    false);
             if (contentSize != null && !pack)
                 return new Dimension(contentSize.width + insets.getWidth(),
                         contentSize.height + insets.getHeight());
 
             int childWHint = contentSize != null ? contentSize.width
-                    : (wHint < 0 ? wHint : Math.max(0,
-                            wHint - insets.getWidth()));
+                    : (wHint < 0 ? wHint
+                            : Math.max(0, wHint - insets.getWidth()));
             int childHHint = contentSize != null ? contentSize.height
-                    : (hHint < 0 ? hHint : Math.max(0,
-                            hHint - insets.getHeight()));
+                    : (hHint < 0 ? hHint
+                            : Math.max(0, hHint - insets.getHeight()));
             int childWidth = 0, childHeight = 0;
             for (Object child : container.getChildren()) {
-                Dimension childSize = ((IFigure) child).getPreferredSize(
-                        childWHint, childHHint);
+                Dimension childSize = ((IFigure) child)
+                        .getPreferredSize(childWHint, childHHint);
                 childWidth = Math.max(childWidth, childSize.width);
                 childHeight = Math.max(childHeight, childSize.height);
             }
@@ -100,8 +100,8 @@ public class FramePart extends GraphicalEditPart implements
                 childHeight = Math.min(childHeight, contentSize.height);
             }
 
-            return new Dimension(childWidth + insets.getWidth(), childHeight
-                    + insets.getHeight());
+            return new Dimension(childWidth + insets.getWidth(),
+                    childHeight + insets.getHeight());
         }
 
     }
@@ -118,10 +118,12 @@ public class FramePart extends GraphicalEditPart implements
 
     protected IFigure createFigure() {
         FrameFigure figure = new FrameFigure();
-        boolean useAdvancedRenderer = getSite().getViewer().getProperties()
+        Properties properties = getSite().getViewer().getProperties();
+        boolean useAdvancedRenderer = properties
                 .getBoolean(IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, false);
-        figure.setTitleRenderStyle(useAdvancedRenderer ? RotatableWrapLabel.ADVANCED
-                : RotatableWrapLabel.NORMAL);
+        figure.setTitleRenderStyle(useAdvancedRenderer
+                ? RotatableWrapLabel.ADVANCED : RotatableWrapLabel.NORMAL);
+
         return figure;
     }
 
@@ -133,8 +135,13 @@ public class FramePart extends GraphicalEditPart implements
         return ((FrameFigure) super.getFigure()).getContentPane();
     }
 
+    /**
+     * Least element has no child.
+     */
     protected Object[] getModelChildren(Object model) {
-        return new Object[] { model };
+        boolean isLeastElement = getSite().getViewer().getProperties()
+                .getBoolean(GalleryViewer.CustomContentPaneDecorator, false);
+        return isLeastElement ? new Object[0] : new Object[] { model };
     }
 
     protected void declareEditPolicies(IRequestHandler reqHandler) {
@@ -182,9 +189,10 @@ public class FramePart extends GraphicalEditPart implements
     }
 
     public Cursor getCursor(Point pos) {
-        if (getContentPane().containsPoint(pos)
-                && !getSite().getProperties().getBoolean(
-                        GalleryViewer.SolidFrames, false))
+        if (getContentPane().containsPoint(pos) && (!getSite().getProperties()
+                .getBoolean(GalleryViewer.SolidFrames, false)
+                || getSite().getProperties()
+                        .getBoolean(GalleryViewer.SingleClickToOpen, false)))
             return Cursors.HAND;
         if (getFigure().getTitle().containsPoint(pos)) {
             EditDomain domain = getSite().getDomain();
@@ -204,27 +212,20 @@ public class FramePart extends GraphicalEditPart implements
 
     protected void onActivated() {
         super.onActivated();
-        getSite()
-                .getViewer()
-                .getProperties()
-                .addPropertyChangeListener(
-                        IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
+        getSite().getViewer().getProperties().addPropertyChangeListener(
+                IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
     }
 
     protected void onDeactivated() {
-        getSite()
-                .getViewer()
-                .getProperties()
-                .removePropertyChangeListener(
-                        IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
+        getSite().getViewer().getProperties().removePropertyChangeListener(
+                IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
         super.onDeactivated();
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
         boolean useAdvancedRenderer = getSite().getViewer().getProperties()
                 .getBoolean(IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, false);
-        getFigure().setTitleRenderStyle(
-                useAdvancedRenderer ? RotatableWrapLabel.ADVANCED
-                        : RotatableWrapLabel.NORMAL);
+        getFigure().setTitleRenderStyle(useAdvancedRenderer
+                ? RotatableWrapLabel.ADVANCED : RotatableWrapLabel.NORMAL);
     }
 }

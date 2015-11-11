@@ -104,4 +104,15 @@ public class ReferencedLayoutData {
         return createInitBounds(reference);
     }
 
+    public ReferencedLayoutData copy() {
+        ReferencedLayoutData cloned = new ReferencedLayoutData();
+        cloned.reference = this.reference == null ? null
+                : new Point(this.reference);
+        cloned.contents = this.contents == null ? null
+                : new HashMap<Object, Rectangle>(this.contents);
+        cloned.clientArea = this.clientArea == null ? null
+                : new Rectangle(this.clientArea);
+        return cloned;
+    }
+
 }

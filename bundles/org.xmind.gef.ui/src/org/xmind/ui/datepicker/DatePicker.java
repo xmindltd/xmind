@@ -268,7 +268,14 @@ public class DatePicker extends Viewer {
         }
 
         @Override
+        public int open() {
+            isPopupEditing = true;
+            return super.open();
+        }
+
+        @Override
         public boolean close() {
+            isPopupEditing = false;
             boolean closed = super.close();
             if (closed) {
                 datePicker = null;
@@ -472,6 +479,8 @@ public class DatePicker extends Viewer {
 
     private IAnimationAdvisor animationAdvisor = new AnimationAdvisor();
 
+    private boolean isPopupEditing = false;
+
     /**
      * Constructs a new instance of this class given its parent and a style
      * value describing its behavior and appearance.
@@ -529,6 +538,14 @@ public class DatePicker extends Viewer {
 
     public Control getControl() {
         return control;
+    }
+
+    public FigureCanvas getDatePicker() {
+        return datePicker;
+    }
+
+    public boolean isPopupEditing() {
+        return isPopupEditing;
     }
 
     public void setBackground(Color color) {

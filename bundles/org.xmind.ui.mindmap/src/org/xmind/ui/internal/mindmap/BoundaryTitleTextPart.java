@@ -16,9 +16,11 @@ package org.xmind.ui.internal.mindmap;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Point;
+import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.internal.decorators.BoundaryTitleTextDecorator;
+import org.xmind.ui.internal.figures.BoundaryTitleFigure;
 import org.xmind.ui.mindmap.IBoundaryPart;
 
 public class BoundaryTitleTextPart extends TitleTextPart {
@@ -28,12 +30,15 @@ public class BoundaryTitleTextPart extends TitleTextPart {
     }
 
     protected IFigure createFigure() {
-        IFigure figure = super.createFigure();
-        RotatableWrapLabel label = (RotatableWrapLabel) figure;
-        label.setAbbreviated(true);
+        boolean useAdvancedRenderer = getSite().getViewer().getProperties()
+                .getBoolean(IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, false);
+        BoundaryTitleFigure label = new BoundaryTitleFigure(useAdvancedRenderer
+                ? RotatableWrapLabel.ADVANCED : RotatableWrapLabel.NORMAL);
+        label.setAbbreviated(false);
         label.setTextAlignment(PositionConstants.LEFT);
-        label.setSingleLine(true);
-        return figure;
+        label.setSingleLine(false);
+        label.setBoundary(getBoundaryPart().getFigure());
+        return label;
     }
 
     public void setParent(IPart parent) {

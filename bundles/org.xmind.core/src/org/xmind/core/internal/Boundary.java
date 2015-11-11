@@ -20,14 +20,11 @@ import org.xmind.core.IBoundary;
 import org.xmind.core.ITopic;
 import org.xmind.core.style.IStyle;
 
-public abstract class Boundary implements IBoundary {
+public abstract class Boundary extends AbstractWorkbookComponent
+        implements IBoundary {
 
     protected static final List<ITopic> NO_ENCLOSING_TOPICS = Collections
             .emptyList();
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
 
     public String getStyleType() {
         return IStyle.BOUNDARY;

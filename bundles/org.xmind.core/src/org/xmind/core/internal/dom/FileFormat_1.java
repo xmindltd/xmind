@@ -20,6 +20,7 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_LINE_TAPERED;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_MULTI_LINE_COLORS;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_FORMAT;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_SEPARATOR;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_SRC;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_STRUCTURE_CLASS;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_STYLE_FAMILY;
@@ -131,7 +132,7 @@ public class FileFormat_1 extends FileFormat {
     private static final String ATTR_TO_POINT = "control-point2"; //$NON-NLS-1$
 
     private static final String VAL_CENTRAL = "central"; //$NON-NLS-1$
-    private static final String VAL_MULTI_LINE_COLORS = "#ac6060 #acac60 #60ac60 #60acac #6060ac #ac60ac"; //$NON-NLS-1$
+    private static final String VAL_MULTI_LINE_COLORS = "#017c98 #00b2a1 #ffdd00 #fc8f00 #ff1500 #00b04c"; //$NON-NLS-1$
 
     private static final String VAL_USER = "User"; //$NON-NLS-1$
     private static final String VAL_ATTACHMENT = "Attachment"; //$NON-NLS-1$
@@ -142,7 +143,8 @@ public class FileFormat_1 extends FileFormat {
 
     private String defaultMarkerGroupId;
 
-    public FileFormat_1(IInputSource source, IXMLLoader loader, IStorage storage) {
+    public FileFormat_1(IInputSource source, IXMLLoader loader,
+            IStorage storage) {
         super(source, loader, storage);
     }
 
@@ -242,7 +244,8 @@ public class FileFormat_1 extends FileFormat {
         return in;
     }
 
-    private OutputStream getOutputStream(IOutputTarget target, String entryPath) {
+    private OutputStream getOutputStream(IOutputTarget target,
+            String entryPath) {
         if (!target.isEntryAvaialble(entryPath))
             return null;
 
@@ -334,9 +337,8 @@ public class FileFormat_1 extends FileFormat {
             if (id != null) {
 //                workbook.getElementRegistry().unregisterByKey(id);
                 Document doc = newElement.getOwnerDocument();
-                workbook.getAdaptableRegistry()
-                        .unregisterById(elementAdaptable,
-                                newElement.getAttribute(ATTR_ID), doc);
+                workbook.getAdaptableRegistry().unregisterById(elementAdaptable,
+                        newElement.getAttribute(ATTR_ID), doc);
                 DOMUtils.replaceId(newElement, id);
 //                workbook.getElementRegistry().registerByKey(id,
 //                        elementAdaptable);
@@ -360,7 +362,8 @@ public class FileFormat_1 extends FileFormat {
         styled.setStyleId(styleId);
     }
 
-    private void loadSheet(ISheet sheet, Element sheetEle, WorkbookImpl workbook) {
+    private void loadSheet(ISheet sheet, Element sheetEle,
+            WorkbookImpl workbook) {
         loadId(sheet, sheetEle, workbook);
         loadTitle(sheet, sheetEle);
         loadSheetStyle(sheet, sheetEle, workbook);
@@ -418,8 +421,8 @@ public class FileFormat_1 extends FileFormat {
                         String path = entry.getPath();
                         IFileEntry fileEntry = workbook.getManifest()
                                 .createAttachmentFromStream(is, path);
-                        return HyperlinkUtils.toAttachmentURL(fileEntry
-                                .getPath());
+                        return HyperlinkUtils
+                                .toAttachmentURL(fileEntry.getPath());
                     } finally {
                         is.close();
                     }
@@ -430,7 +433,8 @@ public class FileFormat_1 extends FileFormat {
         return url;
     }
 
-    private void loadTopic(ITopic topic, Element topicEle, WorkbookImpl workbook) {
+    private void loadTopic(ITopic topic, Element topicEle,
+            WorkbookImpl workbook) {
         loadId(topic, topicEle, workbook);
         loadTitle(topic, topicEle);
         loadStyle(topic, topicEle);
@@ -469,8 +473,8 @@ public class FileFormat_1 extends FileFormat {
         String path = HyperlinkUtils.toAttachmentPath(url);
         if (path.startsWith("#")) //$NON-NLS-1$
             path = path.substring(1);
-        IFileEntry entry = findAttachmentEntry(path, topic.getOwnedWorkbook()
-                .getManifest());
+        IFileEntry entry = findAttachmentEntry(path,
+                topic.getOwnedWorkbook().getManifest());
         if (entry != null) {
             url = HyperlinkUtils.toAttachmentURL(entry.getPath());
         }
@@ -497,8 +501,8 @@ public class FileFormat_1 extends FileFormat {
                 }
             }
             if (x != null || y != null) {
-                Element newPositionEle = DOMUtils.ensureChildElement(
-                        getElement(topic), TAG_POSITION);
+                Element newPositionEle = DOMUtils
+                        .ensureChildElement(getElement(topic), TAG_POSITION);
                 DOMUtils.setAttribute(newPositionEle, ATTR_X, x);
                 DOMUtils.setAttribute(newPositionEle, ATTR_Y, y);
             }
@@ -511,8 +515,8 @@ public class FileFormat_1 extends FileFormat {
                 TAG_BOUNDARIES);
         if (boundariesEle == null)
             return;
-        Iterator<Element> boundaryIter = DOMUtils.childElementIterByTag(
-                boundariesEle, TAG_BOUNDARY);
+        Iterator<Element> boundaryIter = DOMUtils
+                .childElementIterByTag(boundariesEle, TAG_BOUNDARY);
         while (boundaryIter.hasNext()) {
             Element boundaryEle = boundaryIter.next();
             IBoundary boundary = workbook.createBoundary();
@@ -523,8 +527,8 @@ public class FileFormat_1 extends FileFormat {
 
     private void loadBoundary(IBoundary boundary, Element boundaryEle,
             WorkbookImpl workbook) {
-        String startIndex = DOMUtils
-                .getAttribute(boundaryEle, ATTR_START_INDEX);
+        String startIndex = DOMUtils.getAttribute(boundaryEle,
+                ATTR_START_INDEX);
         String endIndex = DOMUtils.getAttribute(boundaryEle, ATTR_END_INDEX);
         Element newBoundaryEle = getElement(boundary);
         DOMUtils.setAttribute(newBoundaryEle, ATTR_START_INDEX, startIndex);
@@ -532,14 +536,14 @@ public class FileFormat_1 extends FileFormat {
         loadStyle(boundary, boundaryEle);
     }
 
-    private void loadSubTopics(ITopic topic, Element topicEle,
-            String topicsTag, String topicType, WorkbookImpl workbook) {
+    private void loadSubTopics(ITopic topic, Element topicEle, String topicsTag,
+            String topicType, WorkbookImpl workbook) {
         Element subTopicsEle = DOMUtils.getFirstChildElementByTag(topicEle,
                 topicsTag);
         if (subTopicsEle == null)
             return;
-        Iterator<Element> subTopicIter = DOMUtils.childElementIterByTag(
-                subTopicsEle, TAG_TOPIC);
+        Iterator<Element> subTopicIter = DOMUtils
+                .childElementIterByTag(subTopicsEle, TAG_TOPIC);
         while (subTopicIter.hasNext()) {
             Element subTopicEle = subTopicIter.next();
             ITopic subTopic = workbook.createTopic();
@@ -556,10 +560,13 @@ public class FileFormat_1 extends FileFormat {
 
         INumbering numbering = topic.getNumbering();
         String format = DOMUtils.getAttribute(numberingEle, ATTR_NUMBER_FORMAT);
+        String separator = DOMUtils.getAttribute(numberingEle,
+                ATTR_NUMBER_SEPARATOR);
         String prefix = DOMUtils.getAttribute(numberingEle, TAG_PREFIX);
         String suffix = DOMUtils.getAttribute(numberingEle, TAG_SUFFIX);
         String inherited = DOMUtils.getAttribute(numberingEle, ATTR_INHERITED);
         numbering.setFormat(format);
+        numbering.setSeparator(separator);
         numbering.setPrefix(prefix);
         numbering.setSuffix(suffix);
 
@@ -568,7 +575,8 @@ public class FileFormat_1 extends FileFormat {
         numbering.setPrependsParentNumbers(prependParentNumbering);
     }
 
-    private void loadNotes(ITopic topic, Element topicEle, WorkbookImpl workbook) {
+    private void loadNotes(ITopic topic, Element topicEle,
+            WorkbookImpl workbook) {
         Element notesEle = DOMUtils.getFirstChildElementByTag(topicEle,
                 TAG_NOTES);
         if (notesEle == null)
@@ -584,8 +592,8 @@ public class FileFormat_1 extends FileFormat {
             notes.setContent(INotes.PLAIN, content);
         }
 
-        Element richEle = DOMUtils
-                .getFirstChildElementByTag(notesEle, TAG_RICH);
+        Element richEle = DOMUtils.getFirstChildElementByTag(notesEle,
+                TAG_RICH);
         if (richEle != null) {
             IHtmlNotesContent content = (IHtmlNotesContent) workbook
                     .createNotesContent(INotes.HTML);
@@ -629,8 +637,8 @@ public class FileFormat_1 extends FileFormat {
                         IHyperlinkSpan hyperlinkSpan = content
                                 .createHyperlinkSpan(href);
                         list.addSpan(hyperlinkSpan);
-                        loadSpanList(topic, topicEle, e, hyperlinkSpan,
-                                content, workbook);
+                        loadSpanList(topic, topicEle, e, hyperlinkSpan, content,
+                                workbook);
                     }
                 } else {
                     ITextSpan span = content.createTextSpan(e.getTextContent());
@@ -647,8 +655,8 @@ public class FileFormat_1 extends FileFormat {
                 TAG_MARKERS);
         if (markersEle == null)
             return;
-        Iterator<Element> markerIter = DOMUtils.childElementIterByTag(
-                markersEle, TAG_MARKER);
+        Iterator<Element> markerIter = DOMUtils
+                .childElementIterByTag(markersEle, TAG_MARKER);
         while (markerIter.hasNext()) {
             Element markerEle = markerIter.next();
             loadMarker(topic, markerEle, workbook);
@@ -710,7 +718,8 @@ public class FileFormat_1 extends FileFormat {
                     marker = markerSheet.createMarker(path);
                     markerSheet.getElementRegistry().unregister(marker);
                     DOMUtils.replaceId(
-                            ((MarkerImpl) marker).getImplementation(), markerId);
+                            ((MarkerImpl) marker).getImplementation(),
+                            markerId);
                     markerSheet.getElementRegistry().register(marker);
                 }
             }
@@ -735,7 +744,8 @@ public class FileFormat_1 extends FileFormat {
         return defaultMarkerGroupId;
     }
 
-    private void loadImage(ITopic topic, Element topicEle, WorkbookImpl workbook) {
+    private void loadImage(ITopic topic, Element topicEle,
+            WorkbookImpl workbook) {
         Element imgEle = DOMUtils.getFirstChildElementByTag(topicEle, TAG_IMG);
         if (imgEle == null)
             return;
@@ -784,8 +794,8 @@ public class FileFormat_1 extends FileFormat {
                 TAG_LABELS);
         while (labelsIter.hasNext()) {
             Element labelsEle = labelsIter.next();
-            Iterator<Element> labelIter = DOMUtils.childElementIterByTag(
-                    labelsEle, TAG_LABEL);
+            Iterator<Element> labelIter = DOMUtils
+                    .childElementIterByTag(labelsEle, TAG_LABEL);
             while (labelIter.hasNext()) {
                 Element labelEle = labelIter.next();
                 String label = labelEle.getTextContent();
@@ -801,8 +811,8 @@ public class FileFormat_1 extends FileFormat {
         if (VAL_CENTRAL.equals(floatingType)) {
             structureClass = "org.xmind.branchPolicy.map.floating"; //$NON-NLS-1$
         } else {
-            structureClass = upgradeStructureClass(DOMUtils.getAttribute(
-                    topicEle, ATTR_STRUCTURE_CLASS));
+            structureClass = upgradeStructureClass(
+                    DOMUtils.getAttribute(topicEle, ATTR_STRUCTURE_CLASS));
         }
         topic.setStructureClass(structureClass);
     }
@@ -812,7 +822,8 @@ public class FileFormat_1 extends FileFormat {
             return null;
         if ("org.xmind.branchPolicy.org-chart.left".equals(structureClass)) { //$NON-NLS-1$
             structureClass = "org.xmind.ui.logic.left"; //$NON-NLS-1$
-        } else if ("org.xmind.branchPolicy.org-chart.right".equals(structureClass)) { //$NON-NLS-1$
+        } else if ("org.xmind.branchPolicy.org-chart.right" //$NON-NLS-1$
+                .equals(structureClass)) {
             structureClass = "org.xmind.ui.logic.right"; //$NON-NLS-1$
         } else if ("org.xmind.branchPolicy.chart2d".equals(structureClass)) { //$NON-NLS-1$
             structureClass = "org.xmind.ui.spreadsheet"; //$NON-NLS-1$

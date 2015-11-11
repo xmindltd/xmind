@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.toolkit;singleton:=true
-Bundle-Version: 3.5.3.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-Activator: org.xmind.ui.internal.ToolkitPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui;visibility:=reexport,
@@ -11,7 +11,13 @@ Require-Bundle: org.eclipse.ui;visibility:=reexport,
  org.eclipse.jface;visibility:=reexport,
  org.eclipse.jface.text;visibility:=reexport,
  org.eclipse.draw2d;visibility:=reexport,
- org.eclipse.ui.forms;visibility:=reexport
+ org.eclipse.ui.forms;visibility:=reexport,
+ org.eclipse.e4.core.di,
+ org.eclipse.e4.core.contexts,
+ org.eclipse.e4.ui.di,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.workbench,
+ org.eclipse.e4.ui.workbench.swt
 Eclipse-LazyStart: true
 Export-Package: org.xmind.ui.animation,
  org.xmind.ui.color,
@@ -19,6 +25,7 @@ Export-Package: org.xmind.ui.animation,
  org.xmind.ui.font,
  org.xmind.ui.forms,
  org.xmind.ui.internal;x-internal:=true,
+ org.xmind.ui.internal.e4handlers;x-internal:=true,
  org.xmind.ui.internal.handlers;x-internal:=true,
  org.xmind.ui.internal.statushandlers;x-internal:=true,
  org.xmind.ui.io,
@@ -28,7 +35,8 @@ Export-Package: org.xmind.ui.animation,
  org.xmind.ui.tabfolder,
  org.xmind.ui.texteditor,
  org.xmind.ui.util,
- org.xmind.ui.viewers
+ org.xmind.ui.viewers,
+ org.xmind.ui.views
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

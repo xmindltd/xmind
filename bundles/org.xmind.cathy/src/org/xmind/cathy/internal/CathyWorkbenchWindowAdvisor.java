@@ -15,17 +15,8 @@ package org.xmind.cathy.internal;
 
 import java.io.File;
 
-import net.xmind.signin.ILicenseInfo;
-import net.xmind.signin.ILicenseListener;
-import net.xmind.signin.XMindNet;
-
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.CoolBarManager;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -40,13 +31,14 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
-import org.eclipse.ui.internal.WorkbenchWindow;
 import org.eclipse.ui.internal.tweaklets.TitlePathUpdater;
 import org.eclipse.ui.internal.tweaklets.Tweaklets;
-import org.xmind.cathy.internal.jobs.CheckOpenFilesJob;
 import org.xmind.ui.internal.editor.MME;
-import org.xmind.ui.internal.editor.NewWorkbookEditor;
 import org.xmind.ui.internal.workbench.Util;
+
+import net.xmind.signin.ILicenseInfo;
+import net.xmind.signin.ILicenseListener;
+import net.xmind.signin.XMindNet;
 
 public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         implements IPartListener2, IPropertyListener, ILicenseListener {
@@ -55,7 +47,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 
     private IWorkbenchPartReference activePartRef = null;
 
-    private boolean checkingNewWorkbookEditor = false;
+//    private boolean checkingNewWorkbookEditor = false;
 
     private TitlePathUpdater titlePathUpdater;
 
@@ -81,33 +73,8 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
     }
 
     public void postWindowOpen() {
-        IWorkbenchWindow window = getWindowConfigurer().getWindow();
+        final IWorkbenchWindow window = getWindowConfigurer().getWindow();
         if (window != null) {
-            final CoolBarManager coolBar = ((WorkbenchWindow) window)
-                    .getCoolBarManager();
-            if (coolBar != null) {
-                MenuManager menuManager = new MenuManager();
-                menuManager
-                        .add(new Action(
-                                WorkbenchMessages.CathyWorkbenchWindowAdvisor_menu_lockAction_text,
-                                IAction.AS_CHECK_BOX) {
-                            @Override
-                            public void run() {
-                                boolean isLocked = isChecked();
-                                coolBar.setLockLayout(isLocked);
-                            }
-                        });
-                menuManager
-                        .add(new Action(
-                                WorkbenchMessages.CathyWorkbenchWindowAdvisor_menu_resetAction_text) {
-                            @Override
-                            public void run() {
-                                coolBar.resetItemOrder();
-                            }
-                        });
-                coolBar.setContextMenuManager(menuManager);
-            }
-
             window.getPartService().addPartListener(this);
 
             Shell shell = window.getShell();
@@ -115,11 +82,13 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 shell.addShellListener(new ShellAdapter() {
                     @Override
                     public void shellActivated(ShellEvent e) {
-                        CheckOpenFilesJob checkOpenFilesJob = new CheckOpenFilesJob(
-                                getWindowConfigurer().getWorkbenchConfigurer()
-                                        .getWorkbench());
-                        checkOpenFilesJob.setRule(Log.get(Log.OPENING));
-                        checkOpenFilesJob.schedule();
+                        new CheckOpenFilesProcess(window.getWorkbench())
+                                .doCheckAndOpenFiles();
+//                        CheckOpenFilesJob checkOpenFilesJob = new CheckOpenFilesJob(
+//                                getWindowConfigurer().getWorkbenchConfigurer()
+//                                        .getWorkbench());
+//                        checkOpenFilesJob.setRule(Log.get(Log.OPENING));
+//                        checkOpenFilesJob.schedule();
                     }
                 });
             }
@@ -134,9 +103,11 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
     public void licenseVerified(ILicenseInfo info) {
         if ((info.getType() & ILicenseInfo.VALID_PRO_LICENSE_KEY) != 0) {
             licenseName = "Pro"; //$NON-NLS-1$
-        } else if ((info.getType() & ILicenseInfo.VALID_PLUS_LICENSE_KEY) != 0) {
+        } else
+            if ((info.getType() & ILicenseInfo.VALID_PLUS_LICENSE_KEY) != 0) {
             licenseName = "Plus"; //$NON-NLS-1$
-        } else if ((info.getType() & ILicenseInfo.VALID_PRO_SUBSCRIPTION) != 0) {
+        } else if ((info.getType()
+                & ILicenseInfo.VALID_PRO_SUBSCRIPTION) != 0) {
             licenseName = "Pro"; //$NON-NLS-1$
         } else {
             licenseName = null;
@@ -164,9 +135,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
             partRef.removePropertyListener(this);
         }
         updateWindowTitle();
-        if (partRef instanceof IEditorReference) {
-            checkNewWorkbookEditor();
-        }
+//        checkNewWorkbookEditor();
     }
 
     public void partDeactivated(IWorkbenchPartReference partRef) {
@@ -181,10 +150,10 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
     }
 
     public void partOpened(IWorkbenchPartReference partRef) {
-        if (partRef instanceof IEditorReference
-                && !NewWorkbookEditor.EDITOR_ID.equals(partRef.getId())) {
-            checkNewWorkbookEditor();
-        }
+//        if (partRef instanceof IEditorReference
+//                && !NewWorkbookEditor.EDITOR_ID.equals(partRef.getId())) {
+//            checkNewWorkbookEditor();
+//        }
     }
 
     public void partVisible(IWorkbenchPartReference partRef) {
@@ -222,7 +191,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 sb.append(" - "); //$NON-NLS-1$
                 String text = editor.getClass().toString()
                         .contains("org.xmind.ui.internal.browser") ? null //$NON-NLS-1$
-                        : editor.getTitleToolTip();
+                                : editor.getTitleToolTip();
                 if (text == null) {
                     text = editor.getTitle();
                 }
@@ -253,44 +222,45 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         updateWindowTitle();
     }
 
-    private void checkNewWorkbookEditor() {
-        if (checkingNewWorkbookEditor)
-            return;
-        checkingNewWorkbookEditor = true;
-        Display.getCurrent().asyncExec(new Runnable() {
-            public void run() {
-                try {
-                    IWorkbenchWindow window = getWindowConfigurer().getWindow();
-                    Shell shell = window.getShell();
-                    if (shell == null || shell.isDisposed())
-                        return;
-
-                    IWorkbenchPage page = window.getActivePage();
-                    if (page == null)
-                        return;
-
-                    int numEditors = 0;
-                    IEditorReference[] editors = page.getEditorReferences();
-                    for (int i = 0; i < editors.length; i++) {
-                        IEditorReference editor = editors[i];
-                        if (!NewWorkbookEditor.EDITOR_ID.equals(editor.getId())) {
-                            numEditors++;
-                        }
-                    }
-
-                    if (numEditors > 0) {
-                        // Has normal editors, hide NewWorkbookEditor:
-                        NewWorkbookEditor.hideFrom(window);
-                    } else {
-                        // No normal editors, show NewWorkbookEditor:
-                        NewWorkbookEditor.showIn(window);
-                    }
-
-                } finally {
-                    checkingNewWorkbookEditor = false;
-                }
-            }
-        });
-    }
+//    private void checkNewWorkbookEditor() {
+//        if (checkingNewWorkbookEditor)
+//            return;
+//        checkingNewWorkbookEditor = true;
+//        Display.getCurrent().asyncExec(new Runnable() {
+//            public void run() {
+//                try {
+//                    IWorkbenchWindow window = getWindowConfigurer().getWindow();
+//                    Shell shell = window.getShell();
+//                    if (shell == null || shell.isDisposed())
+//                        return;
+//
+//                    IWorkbenchPage page = window.getActivePage();
+//                    if (page == null)
+//                        return;
+//
+//                    int numEditors = 0;
+//                    IEditorReference[] editors = page.getEditorReferences();
+//                    for (int i = 0; i < editors.length; i++) {
+//                        IEditorReference editor = editors[i];
+//                        if (!NewWorkbookEditor.EDITOR_ID
+//                                .equals(editor.getId())) {
+//                            numEditors++;
+//                        }
+//                    }
+//
+//                    if (numEditors > 0) {
+//                        // Has normal editors, hide NewWorkbookEditor:
+//                        NewWorkbookEditor.hideFrom(window);
+//                    } else {
+//                        // No normal editors, show NewWorkbookEditor:
+//                        NewWorkbookEditor.showIn(window);
+//                    }
+//
+//                } finally {
+//                    checkingNewWorkbookEditor = false;
+//                }
+//            }
+//        });
+//    }
 
 }

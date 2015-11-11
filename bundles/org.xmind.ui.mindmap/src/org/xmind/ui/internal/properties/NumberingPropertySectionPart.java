@@ -32,6 +32,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -44,6 +45,7 @@ import org.xmind.gef.Request;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.INumberFormatDescriptor;
+import org.xmind.ui.mindmap.INumberSeparatorDescriptor;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.properties.MindMapPropertySectionPartBase;
 import org.xmind.ui.util.MindMapUtils;
@@ -163,6 +165,20 @@ public class NumberingPropertySectionPart extends
         }
     }
 
+    private class NumberSeparatorLabelProvider extends LabelProvider {
+        public String getText(Object element) {
+            if (element instanceof INumberSeparatorDescriptor) {
+                INumberSeparatorDescriptor desc = (INumberSeparatorDescriptor) element;
+                String name = desc.getName();
+                String description = desc.getDescription();
+                if (description == null || "".equals(description)) //$NON-NLS-1$
+                    return name;
+                return NLS.bind("{0} ({1})", name, description); //$NON-NLS-1$
+            }
+            return super.getText(element);
+        }
+    }
+
     private class NumberFormatSelectionChangedListener implements
             ISelectionChangedListener {
 
@@ -175,6 +191,23 @@ public class NumberingPropertySectionPart extends
             if (o instanceof INumberFormatDescriptor) {
                 changeNumberFormat(((INumberFormatDescriptor) o).getId());
             }
+        }
+
+    }
+
+    private class SeparatorFormatSelectionChangedListener implements
+            ISelectionChangedListener {
+
+        public void selectionChanged(SelectionChangedEvent event) {
+            if (isRefreshing())
+                return;
+
+            Object o = ((IStructuredSelection) event.getSelection())
+                    .getFirstElement();
+            if (o instanceof INumberSeparatorDescriptor) {
+                changeNumberSeparator(((INumberSeparatorDescriptor) o).getId());
+            }
+
         }
 
     }
@@ -200,6 +233,12 @@ public class NumberingPropertySectionPart extends
 
     private IAction prependingAction;
 
+    private Label separatorLabel;
+
+    private MComboViewer separatorViewer;
+
+    private Composite line3;
+
     private Text prefixInput;
 
     private Text suffixInput;
@@ -219,6 +258,17 @@ public class NumberingPropertySectionPart extends
         layout1.verticalSpacing = 3;
         line1.setLayout(layout1);
         createLineContent1(line1);
+
+        line3 = new Composite(parent, SWT.NONE);
+        line3.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
+                false));
+        GridLayout layout3 = new GridLayout(2, false);
+        layout3.marginWidth = 0;
+        layout3.marginHeight = 0;
+        layout3.verticalSpacing = 0;
+        layout3.horizontalSpacing = 3;
+        line3.setLayout(layout3);
+        createLineContent3(line3);
 
         line2 = new Composite(parent, SWT.NONE);
         line2.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
@@ -270,6 +320,39 @@ public class NumberingPropertySectionPart extends
         ToolBar barControl = bar.createControl(parent);
         barControl.setLayoutData(new GridData(GridData.END, GridData.CENTER,
                 false, false));
+    }
+
+    private void createLineContent3(Composite parent) {
+        separatorLabel = new Label(parent, SWT.NONE);
+        separatorLabel.setText(PropertyMessages.Separator_label);
+
+        separatorViewer = new MComboViewer(parent, MComboViewer.NORMAL);
+        separatorViewer.getControl().setLayoutData(
+                new GridData(SWT.FILL, SWT.FILL, true, false));
+        separatorViewer.setContentProvider(new ArrayContentProvider());
+        separatorViewer.setLabelProvider(new NumberSeparatorLabelProvider());
+        List<INumberSeparatorDescriptor> descriptions = MindMapUI
+                .getNumberSeparatorManager().getDescriptors();
+        List<Object> list = new ArrayList<Object>(descriptions.size() + 1);
+        Object separator = new Object();
+        INumberSeparatorDescriptor defautDescriptor = MindMapUI
+                .getNumberSeparatorManager().getDescriptor(
+                        MindMapUI.DEFAULT_NUMBER_SEPARATOR);
+        if (defautDescriptor != null) {
+            list.add(defautDescriptor);
+            list.add(separator);
+        }
+        for (INumberSeparatorDescriptor desc : descriptions) {
+            if (desc != null && defautDescriptor != null
+                    && desc != defautDescriptor) {
+                list.add(desc);
+            }
+        }
+        separatorViewer.setSeparatorImitation(separator);
+        separatorViewer.setInput(list);
+        separatorViewer
+                .addSelectionChangedListener(new SeparatorFormatSelectionChangedListener());
+
     }
 
     private void createLineContent2(Composite parent) {
@@ -327,6 +410,9 @@ public class NumberingPropertySectionPart extends
         numberLabel = null;
         suffixInput = null;
         line2 = null;
+        separatorLabel = null;
+        separatorViewer = null;
+        line3 = null;
     }
 
     protected void doRefresh() {
@@ -358,6 +444,18 @@ public class NumberingPropertySectionPart extends
                         .setSelection(descriptor == null ? StructuredSelection.EMPTY
                                 : new StructuredSelection(descriptor));
             }
+            if (separatorViewer != null
+                    && !separatorViewer.getControl().isDisposed()) {
+                String separator = numbering == null ? null : numbering
+                        .getComputedSeparator();
+                if (separator == null)
+                    separator = MindMapUI.DEFAULT_NUMBER_SEPARATOR;
+                INumberSeparatorDescriptor descriptor = MindMapUI
+                        .getNumberSeparatorManager().getDescriptor(separator);
+                separatorViewer
+                        .setSelection(descriptor == null ? StructuredSelection.EMPTY
+                                : new StructuredSelection(descriptor));
+            }
             if (prependingAction != null) {
                 prependingAction.setChecked(numbering != null
                         && numbering.prependsParentNumbers());
@@ -375,7 +473,8 @@ public class NumberingPropertySectionPart extends
             if (numberLabel != null && !numberLabel.isDisposed()) {
                 String number;
                 number = MindMapUtils.getNumberingText(topic, hasFormat ? null
-                        : MindMapUI.PREVIEW_NUMBER_FORMAT);
+                        : MindMapUI.PREVIEW_NUMBER_FORMAT, hasFormat ? null
+                        : MindMapUI.DEFAULT_NUMBER_SEPARATOR);
                 if (number == null || "".equals(number)) { //$NON-NLS-1$
                     numberLabel.setText(" "); //$NON-NLS-1$
                 } else {
@@ -413,6 +512,7 @@ public class NumberingPropertySectionPart extends
             register.register(Core.NumberingPrefix);
             register.register(Core.NumberingSuffix);
             register.register(Core.NumberPrepending);
+            register.register(Core.NumberingSeparator);
         }
     }
 
@@ -440,6 +540,22 @@ public class NumberingPropertySectionPart extends
         }
         sendRequest(fillTargets(new Request(MindMapUI.REQ_MODIFY_NUMBERING))
                 .setParameter(MindMapUI.PARAM_NUMBERING_FORMAT, formatId));
+    }
+
+    private void changeNumberSeparator(String separatorId) {
+        if (separatorId != null) {
+            Object o = ((IStructuredSelection) getCurrentSelection())
+                    .getFirstElement();
+            if (o instanceof ITopic) {
+                ITopic topic = ((ITopic) o).getParent();
+                if (topic == null)
+                    topic = (ITopic) o;
+                if (separatorId.equals(topic.getNumbering().getSeparator()))
+                    separatorId = null;
+            }
+        }
+        sendRequest(fillTargets(new Request(MindMapUI.REQ_MODIFY_NUMBERING))
+                .setParameter(MindMapUI.PARAM_NUMBERING_SEPARATOR, separatorId));
     }
 
     private void changePrepending(boolean prepend) {

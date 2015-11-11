@@ -123,7 +123,7 @@ public class ImageImpl extends Image implements ICoreEventSource {
         checkImageElement();
         String newValue = getAlignment();
         fireValueChange(Core.ImageAlignment, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setHeight(int height) {
@@ -134,7 +134,7 @@ public class ImageImpl extends Image implements ICoreEventSource {
         checkImageElement();
         Integer newValue = getHeightInt();
         fireValueChange(Core.ImageHeight, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setSize(int width, int height) {
@@ -150,7 +150,7 @@ public class ImageImpl extends Image implements ICoreEventSource {
         Integer newHeight = getHeightInt();
         fireValueChange(Core.ImageWidth, oldWidth, newWidth);
         fireValueChange(Core.ImageHeight, oldHeight, newHeight);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setSource(String source) {
@@ -163,7 +163,7 @@ public class ImageImpl extends Image implements ICoreEventSource {
         checkImageElement();
         String newValue = getSource();
         fireValueChange(Core.ImageSource, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     public void setWidth(int width) {
@@ -174,7 +174,7 @@ public class ImageImpl extends Image implements ICoreEventSource {
         checkImageElement();
         Integer newValue = getWidthInt();
         fireValueChange(Core.ImageWidth, oldValue, newValue);
-        ownedTopic.updateModifiedTime();
+        ownedTopic.updateModificationInfo();
     }
 
     private void checkImageElement() {

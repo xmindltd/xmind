@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 
+import org.xmind.core.comment.ICommentManager;
 import org.xmind.core.io.IOutputTarget;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.marker.IMarkerSheet;
@@ -412,5 +413,7 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * @return
      */
     IRevisionRepository getRevisionRepository();
+
+    ICommentManager getCommentManager();
 
 }

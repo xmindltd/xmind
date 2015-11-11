@@ -16,7 +16,9 @@ package org.xmind.ui.branch;
 import static org.xmind.ui.style.StyleUtils.getInteger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
@@ -38,15 +40,22 @@ import org.xmind.gef.graphicalpolicy.IStyleSelector;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.branch.BoundaryLayoutHelper.BoundaryData;
+import org.xmind.ui.decorations.IBranchConnectionDecoration;
+import org.xmind.ui.decorations.IBranchConnections2;
 import org.xmind.ui.decorations.ISummaryDecoration;
+import org.xmind.ui.decorations.ITopicDecoration;
+import org.xmind.ui.internal.figures.BoundaryFigure;
 import org.xmind.ui.internal.figures.BranchFigure;
+import org.xmind.ui.internal.figures.TopicFigure;
 import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IBranchRangePart;
+import org.xmind.ui.mindmap.IInfoPart;
 import org.xmind.ui.mindmap.ILabelPart;
 import org.xmind.ui.mindmap.IPlusMinusPart;
 import org.xmind.ui.mindmap.ISummaryPart;
 import org.xmind.ui.mindmap.ITopicPart;
+import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.tools.ParentSearchKey;
@@ -70,12 +79,15 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
         private Rectangle minArea;
 
+        private boolean hasBoundaryTitles;
+
         public LayoutInfo(ReferencedLayoutData delegate, boolean folded,
                 boolean minimized) {
             this.delegate = delegate;
             this.folded = folded;
             this.minimized = minimized;
             this.minArea = null;
+            this.hasBoundaryTitles = false;
         }
 
         public boolean isFolded() {
@@ -157,15 +169,67 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
     }
 
     protected void fillLayoutInfo(IBranchPart branch, LayoutInfo info) {
+        IStyleSelector styleSelector = branch.getBranchPolicy()
+                .getStyleSelector(branch);
+        if (styleSelector != null) {
+            String hideCallout = styleSelector.getStyleValue(branch,
+                    Styles.HideCallout);
+            if (Boolean.parseBoolean(hideCallout) && MindMapUI.BRANCH_CALLOUT
+                    .equals(branch.getBranchType())) {
+                branch.getFigure().setVisible(false);
+                return;
+            }
+        }
+//        if ("org.xmind.ui.spreadsheet".equals(branch.getBranchPolicyId()) //$NON-NLS-1$
+//                && MindMapUI.BRANCH_CALLOUT.equals(branch.getBranchType())) {
+//            branch.getFigure().setVisible(false);
+//            return;
+//        }
+
         fillTopic(branch, info);
         fillPlusMinus(branch, info);
         fillLabel(branch, info);
+        fillInformation(branch, info);
 
         List<IBranchPart> subBranches = branch.getSubBranches();
-        fillSubBranches(branch, subBranches, info);
-
         List<IBoundaryPart> boundaries = branch.getBoundaries();
+
+        BoundaryLayoutHelper boundaryLayoutHelper = getBoundaryLayoutHelper(
+                branch);
+
+        boundaryLayoutHelper.reset(branch, this, null);
+        info.hasBoundaryTitles = false;
+
+        ReferencedLayoutData fakeDelegate = info.delegate.copy();
+        ReferencedLayoutData realDelegate = info.delegate;
+        info.delegate = fakeDelegate;
+
+        fillSubBranches(branch, subBranches, info);
         fillBoundaries(branch, boundaries, subBranches, info);
+        info.delegate = realDelegate;
+
+        if (info.hasBoundaryTitles) {
+            Map<IFigure, Rectangle> cachedBounds = new HashMap<IFigure, Rectangle>();
+            for (IBoundaryPart boundary : branch.getBoundaries()) {
+                cachedBounds.put(boundary.getFigure(),
+                        fakeDelegate.get(boundary.getFigure()));
+            }
+            boundaryLayoutHelper.reset(branch, this, cachedBounds);
+            fillSubBranches(branch, subBranches, info);
+            fillBoundaries(branch, boundaries, subBranches, info);
+        } else {
+            for (IBranchPart subBranch : branch.getSubBranches()) {
+                info.delegate.put(subBranch.getFigure(),
+                        fakeDelegate.get(subBranch.getFigure()));
+            }
+            for (IBoundaryPart boundary : branch.getBoundaries()) {
+                info.delegate.put(boundary.getFigure(),
+                        fakeDelegate.get(boundary.getFigure()));
+            }
+        }
+
+        List<IBranchPart> calloutBranches = branch.getCalloutBranches();
+        fillCalloutBranches(branch, calloutBranches, info);
 
         List<ISummaryPart> summaries = branch.getSummaries();
         List<IBranchPart> summaryBranches = new ArrayList<IBranchPart>(
@@ -175,8 +239,180 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
         addExtraSpaces(branch, info);
 
-        fillOverallBoundary(branch, boundaries, info);
+        boundaryLayoutHelper.reset(branch, this, null);
+        info.hasBoundaryTitles = false;
 
+        fakeDelegate = info.delegate.copy();
+        realDelegate = info.delegate;
+        info.delegate = fakeDelegate;
+        info.hasBoundaryTitles = false;
+        fillOverallBoundary(branch, boundaries, info);
+        info.delegate = realDelegate;
+        if (info.hasBoundaryTitles) {
+            Map<IFigure, Rectangle> cachedBounds = new HashMap<IFigure, Rectangle>();
+            for (IBoundaryPart boundary : branch.getBoundaries()) {
+                cachedBounds.put(boundary.getFigure(),
+                        fakeDelegate.get(boundary.getFigure()));
+            }
+            boundaryLayoutHelper.setOverallBoundary(null);
+            boundaryLayoutHelper.reset(branch, this, cachedBounds);
+            fillOverallBoundary(branch, boundaries, info);
+        } else {
+            for (IBranchPart subBranch : branch.getSubBranches()) {
+                info.delegate.put(subBranch.getFigure(),
+                        fakeDelegate.get(subBranch.getFigure()));
+            }
+            for (IBoundaryPart boundary : branch.getBoundaries()) {
+                info.delegate.put(boundary.getFigure(),
+                        fakeDelegate.get(boundary.getFigure()));
+            }
+        }
+
+    }
+
+    protected void fillCalloutBranches(IBranchPart branch,
+            List<IBranchPart> calloutBranches, LayoutInfo info) {
+        if (calloutBranches.isEmpty())
+            return;
+
+        IStyleSelector styleSelector = branch.getBranchPolicy()
+                .getStyleSelector(branch);
+        if (styleSelector != null) {
+            String hideCallout = styleSelector.getStyleValue(branch,
+                    Styles.HideCallout);
+            if (Boolean.parseBoolean(hideCallout)) {
+                for (IBranchPart calloutBranch : calloutBranches) {
+                    calloutBranch.getFigure().setVisible(false);
+                }
+                IBranchConnections2 calloutConnections = branch
+                        .getCalloutConnections();
+                for (int index = 0; index < calloutBranches.size(); index++) {
+                    IDecoration decoration = calloutConnections
+                            .getDecoration(index);
+                    if (decoration instanceof IBranchConnectionDecoration) {
+                        ((IBranchConnectionDecoration) decoration)
+                                .setVisible(branch.getFigure(), false);
+                    }
+                }
+                return;
+            }
+        }
+
+        if ((info.isFolded() || info.isMinimized())
+                && minimizesSubBranchesToOnePoint()) {
+            if (info.isFolded() && !info.isMinimized()) {
+                info.setMinArea(info.createInitBounds(calcSubBranchesMinPoint(
+                        branch, calloutBranches, info)));
+            }
+            for (IBranchPart calloutBranch : calloutBranches) {
+                info.putMinArea(calloutBranch.getFigure());
+            }
+        } else {
+            doFillCalloutBranches(branch, calloutBranches, info);
+            for (IBranchPart calloutBranch : calloutBranches) {
+                IFigure calloutBranchFigure = calloutBranch.getFigure();
+                if (info.get(calloutBranchFigure) == null) {
+                    info.putMinArea(calloutBranchFigure);
+                }
+            }
+        }
+    }
+
+    protected void doFillCalloutBranches(IBranchPart branch,
+            List<IBranchPart> calloutBranches, LayoutInfo info) {
+        if (branch.isCentral()) {
+            for (IBranchPart calloutBranch : calloutBranches) {
+                calloutBranch.getFigure().setVisible(false);
+            }
+            IBranchConnections2 calloutConnections = branch
+                    .getCalloutConnections();
+            for (int index = 0; index < calloutBranches.size(); index++) {
+                IDecoration decoration = calloutConnections
+                        .getDecoration(index);
+                if (decoration instanceof IBranchConnectionDecoration) {
+                    ((IBranchConnectionDecoration) decoration)
+                            .setVisible(branch.getFigure(), false);
+                }
+            }
+            return;
+        }
+
+        IBranchPart parentBranch = branch.getParentBranch();
+        int orientation = getChildTargetOrientation(parentBranch, branch);
+        boolean left = PositionConstants.EAST == orientation;
+        boolean right = PositionConstants.WEST == orientation;
+        boolean south = PositionConstants.NORTH == orientation;
+        boolean north = PositionConstants.SOUTH == orientation;
+
+        for (IBranchPart calloutBranch : calloutBranches) {
+            //changed
+            Rectangle parentTopicArea = info
+                    .get(branch.getTopicPart().getFigure());
+            Rectangle parentBranchArea = info.getCheckedClientArea();
+
+            IReferencedFigure calloutBranchFigure = (IReferencedFigure) calloutBranch
+                    .getFigure();
+
+            IFigure calloutFigure = calloutBranch.getTopicPart().getFigure();
+            Dimension calloutSize = calloutFigure.getPreferredSize();
+
+            //over parent topic center
+            org.xmind.core.util.Point position = calloutBranch.getTopic()
+                    .getPosition();
+            if (position == null)
+                position = new org.xmind.core.util.Point();
+            boolean originPosition = position.x == 0 && position.y == 0;
+
+            int offsetX = originPosition ? 0 : position.x;
+            int offsetY = originPosition
+                    ? -calloutSize.height / 2 - parentTopicArea.height / 2 - 10
+                    : position.y;
+
+            boolean upDown = offsetY < 0;
+
+            int dummyCalloutX = parentTopicArea.getCenter().x + offsetX
+                    - calloutSize.width / 2;
+
+            if (left) {
+                //limit left movable boundary
+                int dx = (dummyCalloutX + calloutSize.width)
+                        - (parentTopicArea.x + parentTopicArea.width);
+                offsetX = dx > 0 ? offsetX - dx : offsetX;
+            } else if (right) {
+                //limit right movable boundary
+                int dx = dummyCalloutX - parentTopicArea.x;
+                offsetX = dx < 0 ? offsetX - dx : offsetX;
+            }
+
+            Point reference = info.getReference();
+            Point translated = reference.getTranslated(offsetX, offsetY);
+            Rectangle bounds = calloutBranchFigure
+                    .getPreferredBounds(translated);
+
+            int subRectX = left || south || north ? parentBranchArea.x
+                    : parentBranchArea.x + parentTopicArea.width;
+            int subRectY = left || right || north ? parentBranchArea.y
+                    : parentBranchArea.y + parentTopicArea.height;
+            int subRectWidth = left || right
+                    ? parentBranchArea.width - parentTopicArea.width
+                    : parentBranchArea.width;
+            int subRectHeight = left || right ? parentBranchArea.height
+                    : parentBranchArea.height - parentTopicArea.height;
+            Rectangle subRect = new Rectangle(subRectX, subRectY, subRectWidth,
+                    subRectHeight);
+            boolean touchSub = subRect.touches(bounds);
+            boolean touchParentTopic = bounds.touches(parentTopicArea);
+            if (touchSub) {
+                int y = upDown ? subRect.y - bounds.height - 10
+                        : subRect.bottom() + 10;
+                bounds.setY(y);
+            } else if (touchParentTopic) {
+                int y = upDown ? parentTopicArea.y - bounds.height - 10
+                        : parentTopicArea.bottom() + 10;
+                bounds.setY(y);
+            }
+            info.put(calloutBranchFigure, bounds);
+        }
     }
 
     protected void fillTopic(IBranchPart branch, LayoutInfo info) {
@@ -195,12 +431,13 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         IFigure fig = topicPart.getFigure();
         if (fig instanceof IReferencedFigure) {
             IReferencedFigure refFig = (IReferencedFigure) fig;
-            info.put(refFig, refFig.getPreferredBounds(info.getReference()));
+            Rectangle bounds = refFig.getPreferredBounds(info.getReference());
+            info.put(refFig, bounds);
         } else {
             Dimension size = fig.getPreferredSize();
             Point ref = info.getReference();
-            Rectangle r = new Rectangle(ref.x - size.width / 2, ref.y
-                    - size.height / 2, size.width, size.height);
+            Rectangle r = new Rectangle(ref.x - size.width / 2,
+                    ref.y - size.height / 2, size.width, size.height);
             info.put(fig, r);
         }
     }
@@ -269,6 +506,49 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         info.put(figure, r);
     }
 
+    protected void fillInformation(IBranchPart branch, LayoutInfo info) {
+        IInfoPart information = branch.getInfoPart();
+        if (information != null) {
+            if (info.isMinimized() || !information.getFigure().isVisible()) {
+                info.putMinArea(information.getFigure());
+            } else {
+                doFillInfomation(branch, information, info);
+            }
+        }
+    }
+
+    protected void doFillInfomation(IBranchPart branch, IInfoPart information,
+            LayoutInfo info) {
+        IFigure figure = information.getFigure();
+        ITopicPart topicPart = branch.getTopicPart();
+        Rectangle area;
+        if (topicPart != null) {
+            area = info.get(topicPart.getFigure());
+        } else {
+            area = info.createInitBounds();
+        }
+
+        Dimension size = figure.getPreferredSize();
+
+        TopicFigure tf = (TopicFigure) topicPart.getFigure();
+        ITopicDecoration decoration = tf.getDecoration();
+        String shapeId = decoration.getId();
+        int x;
+        if (Styles.TOPIC_SHAPE_ROUNDEDRECT.equals(shapeId)
+                || Styles.TOPIC_SHAPE_RECT.equals(shapeId)
+                || Styles.TOPIC_SHAPE_UNDERLINE.equals(shapeId))
+            x = area.x;
+        else
+            x = area.x + (area.width - size.width) / 2;
+
+        int y = area.bottom() - 1;
+        if (!Styles.TOPIC_SHAPE_UNDERLINE.equals(shapeId))
+            y -= 1;
+
+        Rectangle r = new Rectangle(x, y, size.width, size.height);
+        info.put(figure, r);
+    }
+
     protected void fillSubBranches(IBranchPart branch,
             List<IBranchPart> subBranches, LayoutInfo info) {
         if (subBranches.isEmpty())
@@ -276,8 +556,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         if ((info.isFolded() || info.isMinimized())
                 && minimizesSubBranchesToOnePoint()) {
             if (info.isFolded() && !info.isMinimized()) {
-                info.setMinArea(info.createInitBounds(calcSubBranchesMinPoint(
-                        branch, subBranches, info)));
+                info.setMinArea(info.createInitBounds(
+                        calcSubBranchesMinPoint(branch, subBranches, info)));
             }
             for (IBranchPart subBranch : subBranches) {
                 info.putMinArea(subBranch.getFigure());
@@ -318,8 +598,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
         if (boundaries.isEmpty())
             return;
-        if (subBranches.isEmpty()
-                || ((info.isFolded() || info.isMinimized()) && minimizesSubBranchesToOnePoint())) {
+        if (subBranches.isEmpty() || ((info.isFolded() || info.isMinimized())
+                && minimizesSubBranchesToOnePoint())) {
             for (IBoundaryPart b : boundaries) {
                 info.putMinArea(b.getFigure());
             }
@@ -339,27 +619,31 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
     protected void doFillBoundary(IBranchPart branch, IBoundaryPart boundary,
             LayoutInfo info) {
         BoundaryLayoutHelper helper = getBoundaryLayoutHelper(branch);
-        BoundaryData d = helper.getBoundaryData(boundary);
+        BoundaryData boundaryData = helper.getBoundaryData(boundary);
 
-        if (d.isOverall()) {
-            if (d != helper.getOverallBoundary()) {
+        if (boundary.getFigure() != null
+                && ((BoundaryFigure) boundary.getFigure()).isTitleVisible()
+                && boundary.getTitle() != null) {
+            info.hasBoundaryTitles = true;
+        }
+
+        if (boundaryData.isOverall()) {
+            if (boundaryData != helper.getOverallBoundary()) {
                 info.putMinArea(boundary.getFigure());
             }
             return;
         }
         Rectangle area = null;
-        for (IBranchPart subBranch : d.getSubBranches()) {
+        for (IBranchPart subBranch : boundaryData.getSubBranches()) {
             Insets ins = helper.getInnerInsets(
-                    helper.getSubBranchData(subBranch), d);
+                    helper.getSubBranchData(subBranch), boundaryData);
             Rectangle r2 = info.get(subBranch.getFigure());
             area = Geometry.union(area, r2.getExpanded(ins));
-        }
-        if (area != null) {
-            area.expand(boundary.getFigure().getInsets());
         }
         if (area == null) {
             info.putMinArea(boundary.getFigure());
         } else {
+            area = boundaryData.expanded(area);
             info.put(boundary.getFigure(), area);
         }
     }
@@ -369,7 +653,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
             List<IBranchPart> subBranches, LayoutInfo info) {
         if (!summaries.isEmpty()) {
             if (subBranches.isEmpty()
-                    || ((info.isFolded() || info.isMinimized()) && minimizesSubBranchesToOnePoint())) {
+                    || ((info.isFolded() || info.isMinimized())
+                            && minimizesSubBranchesToOnePoint())) {
                 for (ISummaryPart s : summaries) {
                     info.putMinArea(s.getFigure());
                 }
@@ -453,8 +738,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         return new Insets(h, w, size.height - h, size.width - w);
     }
 
-    protected Rectangle getSummaryArea(IBranchPart branch,
-            ISummaryPart summary, int direction, ReferencedLayoutData data) {
+    protected Rectangle getSummaryArea(IBranchPart branch, ISummaryPart summary,
+            int direction, ReferencedLayoutData data) {
         Rectangle r = null;
         for (IBranchPart subBranch : summary.getEnclosingBranches()) {
             r = Geometry.union(r, data.get(subBranch.getFigure()));
@@ -507,8 +792,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
                         .getPreferredWidth(figure);
             }
         }
-        return Styles.DEFAULT_SUMMARY_WIDTH + Styles.DEFAULT_SUMMARY_SPACING
-                * 2;
+        return Styles.DEFAULT_SUMMARY_WIDTH
+                + Styles.DEFAULT_SUMMARY_SPACING * 2;
     }
 
     protected void fillUnhandledSummaryBranches(IBranchPart branch,
@@ -520,7 +805,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         }
     }
 
-    protected void addExtraSpaces(IBranchPart branch, ReferencedLayoutData data) {
+    protected void addExtraSpaces(IBranchPart branch,
+            ReferencedLayoutData data) {
         // may be subclassed
     }
 
@@ -532,6 +818,14 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
             List<IBoundaryPart> boundaries, LayoutInfo info) {
         if (boundaries.isEmpty())
             return;
+        IBoundaryPart boundary = branch.getBoundaries()
+                .get(boundaries.size() - 1);
+
+        if (boundary.getFigure() != null
+                && ((BoundaryFigure) boundary.getFigure()).isTitleVisible()
+                && boundary.getTitle() != null) {
+            info.hasBoundaryTitles = true;
+        }
 
         BoundaryLayoutHelper helper = getBoundaryLayoutHelper(branch);
         BoundaryData overallBoundary = helper.getOverallBoundary();
@@ -574,7 +868,7 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         BoundaryLayoutHelper helper = (BoundaryLayoutHelper) MindMapUtils
                 .getCache(branch, CACHE_BOUNDARY_LAYOUT_HELPER);
         if (helper == null) {
-            helper = new BoundaryLayoutHelper(branch, this);
+            helper = new BoundaryLayoutHelper();
             MindMapUtils.setCache(branch, CACHE_BOUNDARY_LAYOUT_HELPER, helper);
         }
         return helper;
@@ -658,7 +952,7 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
      * calcChildIndex(org.xmind.ui.tools.ParentSearchKey)
      */
     public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return -1;
+        return calcInsIndex(branch, key, false);
     }
 
     /*
@@ -757,6 +1051,252 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
     public int getQuickMoveOffset(IBranchPart branch, IBranchPart child,
             int direction) {
         return 0;
+    }
+
+    protected Point getChildRef(IBranchPart branch, Point branchRef,
+            ParentSearchKey key) {
+        return key.getCursorPos();
+    }
+
+    public Point calcInsertionPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        if (child == null)
+            return calcInsertPosition(branch, child, key);
+
+        if (getOldIndex(branch, child) == -1) {
+            return calcInsertPosition(branch, child, key);
+        } else {
+            return calcMovePosition(branch, child, key);
+        }
+    }
+
+    public boolean isBranchMoved(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        int index = calcInsIndex(branch, key, true);
+        List<Integer> disables = getDisableBranches(branch);
+
+        return !(disables != null
+                && (disables.contains(index) || disables.contains(index - 1)));
+    }
+
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
+            boolean withDisabled) {
+        return -1;
+    }
+
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+
+        if (subBranches.isEmpty())
+            return calcFirstChildPosition(branch, key);
+
+        int index = calcInsIndex(branch, key, true);
+
+        int minorSpacing = getMinorSpacing(branch);
+        Dimension insSize = key.getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        List<IBoundaryPart> boundaries = branch.getBoundaries();
+
+        if (index == 0) {
+            IBranchPart sub = subBranches.get(0);
+            Rectangle bounds = sub.getFigure().getBounds();
+            if (!boundaries.isEmpty()) {
+                for (IBoundaryPart boundary : boundaries) {
+                    Rectangle bBounds = boundary.getFigure().getBounds();
+                    List<IBranchPart> enclosingBranches = boundary
+                            .getEnclosingBranches();
+                    if (sub.equals(enclosingBranches.get(0)))
+                        bounds = bBounds.contains(bounds) ? bBounds : bounds;
+                }
+            }
+
+            int x;
+            if (key.getCursorPos().x > 0)
+                x = bounds.x + inventSize.width / 2;
+            else
+                x = bounds.right() - inventSize.width / 2;
+            int y = bounds.y - minorSpacing - insSize.height / 2;
+
+            return new Point(x, y);
+        }
+
+        if (index == subBranches.size()) {
+            IBranchPart sub = subBranches.get(subBranches.size() - 1);
+            Rectangle bounds = sub.getFigure().getBounds();
+            if (!boundaries.isEmpty()) {
+                for (IBoundaryPart boundary : boundaries) {
+                    Rectangle bBounds = boundary.getFigure().getBounds();
+                    List<IBranchPart> enclosingBranches = boundary
+                            .getEnclosingBranches();
+                    if (sub.equals(enclosingBranches
+                            .get(enclosingBranches.size() - 1)))
+                        bounds = bBounds.contains(bounds) ? bBounds : bounds;
+                }
+            }
+
+            int x;
+            if (key.getCursorPos().x > 0)
+                x = bounds.x + inventSize.width / 2;
+            else
+                x = bounds.right() - inventSize.width / 2;
+            int y = bounds.bottom() + minorSpacing + insSize.height / 2;
+
+            return new Point(x, y);
+        }
+        return calcInventPosition(subBranches.get(index - 1),
+                subBranches.get(index), key, key.getCursorPos().x > 0);
+
+    }
+
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        if (disables != null) {
+            if (disables.contains(index - 1)) {
+                index--;
+                oldIndex = index;
+            } else if (disables.contains(index)) {
+                oldIndex = index;
+            }
+        }
+        Dimension inventSize = key.getInvent().getSize();
+
+        if (index == oldIndex) {
+            IBranchPart sub = subBranches.get(index);
+            int delta = getTopicSize(sub).width / 2 - inventSize.width / 2;
+            return getFigureLocation(sub.getFigure()).getTranslated(
+                    key.getCursorPos().x < 0 ? delta : -delta, 0);
+        }
+
+        return calcInsertPosition(branch, child, key);
+    }
+
+    protected Point calcFirstChildPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        int x = getTopicSize(branch).width / 2 + getMajorSpacing(branch)
+                + key.getInvent().getSize().width / 2;
+        return getFigureLocation(branch.getFigure())
+                .getTranslated(key.getCursorPos().x < 0 ? -x : x, 0);
+    }
+
+    protected Point calcInventPosition(IBranchPart orientation,
+            IBranchPart assist, ParentSearchKey key, boolean isRightOrUp) {
+        int minorSpacing = getMinorSpacing(orientation.getParentBranch());
+        Dimension insSize = key.getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        Rectangle oriBounds = orientation.getFigure().getBounds();
+        Rectangle assBounds = assist.getFigure().getBounds();
+
+        Rectangle uBounds = oriBounds;
+        Rectangle dBounds = assBounds;
+
+        List<IBoundaryPart> boundaries = orientation.getParentBranch()
+                .getBoundaries();
+        if (!boundaries.isEmpty()) {
+            for (IBoundaryPart boundary : boundaries) {
+                List<IBranchPart> enclosingBranches = boundary
+                        .getEnclosingBranches();
+                Rectangle bBounds = boundary.getFigure().getBounds();
+
+                if (orientation.equals(
+                        enclosingBranches.get(enclosingBranches.size() - 1)))
+                    uBounds = bBounds.contains(uBounds) ? bBounds : uBounds;
+
+                if (assist.equals(enclosingBranches.get(0)))
+                    dBounds = bBounds.contains(dBounds) ? bBounds : dBounds;
+            }
+        }
+
+        boolean isBefourBounds;
+        Rectangle bounds;
+        if (uBounds.equals(oriBounds)) {
+            bounds = uBounds;
+            isBefourBounds = false;
+        } else if (dBounds.equals(assBounds)) {
+            bounds = dBounds;
+            isBefourBounds = true;
+        } else {
+            if (isRightOrUp) {
+                if (uBounds.x > dBounds.x) {
+                    bounds = uBounds;
+                    isBefourBounds = false;
+                } else {
+                    bounds = dBounds;
+                    isBefourBounds = true;
+                }
+            } else {
+                if (uBounds.right() < dBounds.right()) {
+                    bounds = uBounds;
+                    isBefourBounds = false;
+                } else {
+                    bounds = dBounds;
+                    isBefourBounds = true;
+                }
+            }
+        }
+
+        int x;
+        if (isRightOrUp)
+            x = bounds.x + inventSize.width / 2;
+        else
+            x = bounds.right() - inventSize.width / 2;
+
+        int y;
+        if (isBefourBounds)
+            y = bounds.y - minorSpacing - insSize.height / 2;
+        else
+            y = bounds.bottom() + minorSpacing + insSize.height / 2;
+
+        return new Point(x, y);
+    }
+
+    protected int getOldIndex(IBranchPart branch, IBranchPart child) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+
+        if (branch.equals(child.getParentBranch()))
+            return child.getBranchIndex();
+
+        for (IBranchPart sub : subBranches) {
+            if (!sub.getFigure().isEnabled())
+                return sub.getBranchIndex();
+        }
+
+        return -1;
+    }
+
+    protected Point getFigureLocation(IFigure figure) {
+        if (figure instanceof IReferencedFigure)
+            return ((IReferencedFigure) figure).getReference();
+        else
+            return figure.getBounds().getLocation();
+    }
+
+    protected Dimension getTopicSize(IBranchPart branch) {
+        if (branch == null)
+            return new Dimension();
+        return branch.getTopicPart().getFigure().getSize();
+    }
+
+    protected List<Integer> getDisableBranches(IBranchPart branch) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = null;
+
+        for (int i = 0; i < subBranches.size(); i++) {
+            IBranchPart sub = subBranches.get(i);
+            if (!sub.getFigure().isEnabled()) {
+                if (disables == null)
+                    disables = new ArrayList<Integer>();
+                disables.add(i);
+            }
+        }
+        return disables;
     }
 
 }

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.xmind.core.net;singleton:=true
+Bundle-Version: 3.6.0.qualifier
+Bundle-Activator: org.xmind.core.net.internal.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.json
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Export-Package: org.xmind.core.net,
+ org.xmind.core.net.internal
+Bundle-Vendor: %providerName

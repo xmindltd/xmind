@@ -38,8 +38,7 @@ public class TopicTitleTextPart extends TitleTextPart {
         }
     }
 
-    protected void registerCoreEvents(Object source,
-            ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.TitleWidth);
     }
@@ -47,6 +46,8 @@ public class TopicTitleTextPart extends TitleTextPart {
     public void handleCoreEvent(CoreEvent event) {
         String type = event.getType();
         if (Core.TitleWidth.equals(type)) {
+            update();
+        } else if (Core.TitleText.equals(type)) {
             update();
         } else {
             super.handleCoreEvent(event);

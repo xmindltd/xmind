@@ -40,6 +40,7 @@ public class PrefMessages extends NLS {
     public static String EditorPage_Preview_text;
     public static String EditorPage_EnableAnimation_text;
     public static String EditorPage_EnableShadow_text;
+    public static String EditorPage_Zoom_Scale_text;
 
     public static String EditorPage_UndoRedo_gradientColor;
     public static String EditorPage_UndoRedo_tips;
@@ -57,6 +58,13 @@ public class PrefMessages extends NLS {
     public static String MarkersPage_RemoveMarker_text;
     public static String MarkersPage_RenameMarker_text;
     public static String MarkersPage_DefaultGroupName;
+
+    public static String AuthorInfoPage_Message;
+    public static String AuthorInfoPage_Name_label;
+    public static String AuthorInfoPage_Email_label;
+    public static String AuthorInfoPage_Organization_label;
+
+    public static String PreferencePage_EmptyName_errorMessage;
 
     public static String ThemePrefPage_title;
     public static String ThemePrefPage_Group_text;

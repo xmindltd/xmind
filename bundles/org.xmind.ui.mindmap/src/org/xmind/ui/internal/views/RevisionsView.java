@@ -42,10 +42,11 @@ import org.xmind.ui.mindmap.MindMapUI;
 
 /**
  * @author Frank Shaka
- * 
+ * @deprecated Replaced by {@link org.xmind.ui.views.ContributedContentsView}
  */
-public class RevisionsView extends PageBookView implements
-        IContributedContentsView {
+@Deprecated
+public class RevisionsView extends PageBookView
+        implements IContributedContentsView {
 
     private static class DefaultRevisionsPage extends Page {
         private Control control;
@@ -83,32 +84,32 @@ public class RevisionsView extends PageBookView implements
         RetargetAction removeAction = new RetargetAction(
                 ActionConstants.REMOVE_REVISION_ID,
                 MindMapMessages.RevisionsView_DeleteRevisionsAction_text);
-        removeAction
-                .setToolTipText(MindMapMessages.RevisionsView_DeleteRevisionsAction_toolTip);
-        removeAction.setImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.DELETE, true));
-        removeAction.setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.DELETE, false));
+        removeAction.setToolTipText(
+                MindMapMessages.RevisionsView_DeleteRevisionsAction_toolTip);
+        removeAction.setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        removeAction.setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.DELETE, false));
         registerAction(removeAction);
 
         RetargetAction revertAction = new RetargetAction(
                 ActionConstants.REVERT_TO_REVISION_ID,
                 MindMapMessages.RevisionsView_RevertToRevisionAction_text);
-        revertAction
-                .setToolTipText(MindMapMessages.RevisionsView_RevertToRevisionAction_toolTip);
-        revertAction.setImageDescriptor(MindMapUI.getImages().get(
-                "revisions_revert.gif", true)); //$NON-NLS-1$
+        revertAction.setToolTipText(
+                MindMapMessages.RevisionsView_RevertToRevisionAction_toolTip);
+        revertAction.setImageDescriptor(
+                MindMapUI.getImages().get("revisions_revert.gif", true)); //$NON-NLS-1$
         registerAction(revertAction);
 
         RetargetAction previewAction = new RetargetAction(
                 ActionConstants.PREVIEW_REVISIONS,
                 MindMapMessages.RevisionsView_PreviewAction_text);
-        previewAction
-                .setToolTipText(MindMapMessages.RevisionsView_PreviewAction_toolTip);
-        previewAction.setImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.ZOOMIN, true));
-        previewAction.setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.ZOOMIN, false));
+        previewAction.setToolTipText(
+                MindMapMessages.RevisionsView_PreviewAction_toolTip);
+        previewAction.setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.ZOOMIN, true));
+        previewAction.setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.ZOOMIN, false));
         registerAction(previewAction);
 
         IToolBarManager toolbar = getViewSite().getActionBars()
@@ -156,9 +157,8 @@ public class RevisionsView extends PageBookView implements
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.part.PageBookView#doCreatePage(org.eclipse.ui.IWorkbenchPart
-     * )
+     * @see org.eclipse.ui.part.PageBookView#doCreatePage(org.eclipse.ui.
+     * IWorkbenchPart )
      */
     @Override
     protected PageRec doCreatePage(IWorkbenchPart part) {
@@ -172,9 +172,8 @@ public class RevisionsView extends PageBookView implements
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.part.PageBookView#doDestroyPage(org.eclipse.ui.IWorkbenchPart
-     * , org.eclipse.ui.part.PageBookView.PageRec)
+     * @see org.eclipse.ui.part.PageBookView#doDestroyPage(org.eclipse.ui.
+     * IWorkbenchPart , org.eclipse.ui.part.PageBookView.PageRec)
      */
     @Override
     protected void doDestroyPage(IWorkbenchPart part, PageRec pageRecord) {
@@ -196,9 +195,8 @@ public class RevisionsView extends PageBookView implements
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.part.PageBookView#isImportant(org.eclipse.ui.IWorkbenchPart
-     * )
+     * @see org.eclipse.ui.part.PageBookView#isImportant(org.eclipse.ui.
+     * IWorkbenchPart )
      */
     @Override
     protected boolean isImportant(IWorkbenchPart part) {
@@ -209,6 +207,7 @@ public class RevisionsView extends PageBookView implements
         return getSite().getPage().getActiveEditor();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IContributedContentsView.class) {
             return this;

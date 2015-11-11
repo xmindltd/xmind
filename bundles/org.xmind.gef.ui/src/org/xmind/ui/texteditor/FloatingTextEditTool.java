@@ -44,8 +44,8 @@ public abstract class FloatingTextEditTool extends EditTool {
 
     private static final boolean DEBUG = false;
 
-    private class TextCommandStackDelegate extends CommandStackBase implements
-            ICommandStackDelegate {
+    private class TextCommandStackDelegate extends CommandStackBase
+            implements ICommandStackDelegate {
 
         public boolean canExecute(Command command) {
             return false;
@@ -134,8 +134,8 @@ public abstract class FloatingTextEditTool extends EditTool {
                                 public void run() {
                                     if (display.isDisposed()
                                             || oldShell.isDisposed()
-                                            || !getStatus().isStatus(
-                                                    GEF.ST_ACTIVE))
+                                            || !getStatus()
+                                                    .isStatus(GEF.ST_ACTIVE))
                                         return;
 
                                     Shell newShell = display.getActiveShell();
@@ -164,8 +164,8 @@ public abstract class FloatingTextEditTool extends EditTool {
 
     }
 
-    private class EditorSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class EditorSelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             notifySelectionChange();
@@ -208,12 +208,12 @@ public abstract class FloatingTextEditTool extends EditTool {
     }
 
     public ITextSelection getTextSelection() {
-        ISelection editorSelection = editor == null ? null : editor
-                .getSelection();
+        ISelection editorSelection = editor == null ? null
+                : editor.getSelection();
         if (editorSelection instanceof ITextSelection) {
             ITextSelection s = (ITextSelection) editorSelection;
-            PartTextSelection realSelection = new PartTextSelection(
-                    getSource(), (IDocument) editor.getInput(), s.getOffset(),
+            PartTextSelection realSelection = new PartTextSelection(getSource(),
+                    (IDocument) editor.getInput(), s.getOffset(),
                     s.getLength());
             return realSelection;
         }
@@ -307,7 +307,8 @@ public abstract class FloatingTextEditTool extends EditTool {
         }
     }
 
-    protected boolean openEditor(FloatingTextEditor editor, IDocument document) {
+    protected boolean openEditor(FloatingTextEditor editor,
+            IDocument document) {
         boolean wasOpen = !editor.isClosed();
         editor.setInput(document);
         boolean isOpen = editor.open(false);
@@ -327,8 +328,8 @@ public abstract class FloatingTextEditTool extends EditTool {
         installCommandStackDelegate();
         textViewer.getTextWidget().addListener(SWT.FocusOut,
                 getEditorListener());
-        textViewer.getTextWidget()
-                .addListener(SWT.Dispose, getEditorListener());
+        textViewer.getTextWidget().addListener(SWT.Dispose,
+                getEditorListener());
     }
 
     protected void cancelEditing() {
@@ -379,7 +380,8 @@ public abstract class FloatingTextEditTool extends EditTool {
 
     protected abstract IDocument getTextContents(IPart source);
 
-    protected abstract void handleTextModified(IPart source, IDocument document);
+    protected abstract void handleTextModified(IPart source,
+            IDocument document);
 
     protected FloatingTextEditor createEditor() {
         int style = SWT.BORDER | SWT.V_SCROLL
@@ -389,8 +391,8 @@ public abstract class FloatingTextEditTool extends EditTool {
         } else {
             style |= SWT.H_SCROLL;
         }
-        FloatingTextEditor editor = new FloatingTextEditor(getTargetViewer()
-                .getCanvas(), style);
+        FloatingTextEditor editor = new FloatingTextEditor(
+                getTargetViewer().getCanvas(), style);
         return editor;
     }
 
@@ -402,7 +404,8 @@ public abstract class FloatingTextEditTool extends EditTool {
 
     protected void unhookEditor(FloatingTextEditor editor) {
         if (editorSelectionChangedListener != null)
-            editor.removeSelectionChangedListener(editorSelectionChangedListener);
+            editor.removeSelectionChangedListener(
+                    editorSelectionChangedListener);
         editor.removeFloatingTextEditorListener(getEditorListener());
     }
 
@@ -440,7 +443,8 @@ public abstract class FloatingTextEditTool extends EditTool {
     }
 
     protected void delete() {
-        if (editor != null && editor.canDoOperation(FloatingTextEditor.DELETE)) {
+        if (editor != null
+                && editor.canDoOperation(FloatingTextEditor.DELETE)) {
             editor.doOperation(FloatingTextEditor.DELETE);
         }
     }

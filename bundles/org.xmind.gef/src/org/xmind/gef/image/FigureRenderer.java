@@ -20,8 +20,10 @@ import java.util.Stack;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.SWTGraphics;
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.GC;
+import org.xmind.gef.draw2d.graphics.ScaledGraphics;
 
 /**
  * @author Frank Shaka
@@ -123,6 +125,40 @@ public class FigureRenderer implements IRenderer {
     }
 
     /**
+     * @param gc
+     * @param origin
+     *            The origin of the painted content
+     */
+    public void render(GC gc, Point origin) {
+        if (figures == null)
+            return;
+
+        Stack<Graphics> graphicsStack = new Stack<Graphics>();
+        SWTGraphics baseGraphics = new SWTGraphics(gc);
+        graphicsStack.push(baseGraphics);
+        createGraphics(baseGraphics, graphicsStack);
+        Graphics graphics = graphicsStack.peek();
+        try {
+            graphics.pushState();
+            try {
+                if (origin != null) {
+                    graphics.translate(origin.x, origin.y);
+                }
+                for (int i = 0; i < figures.length; i++) {
+                    IFigure figure = figures[i];
+                    figure.paint(graphics);
+                }
+            } finally {
+                graphics.popState();
+            }
+        } finally {
+            while (!graphicsStack.isEmpty()) {
+                graphicsStack.pop().dispose();
+            }
+        }
+    }
+
+    /**
      * @param graphics
      * @param stack
      */
@@ -131,11 +167,14 @@ public class FigureRenderer implements IRenderer {
             graphics.translate(-bounds.x, -bounds.y);
         }
         if (scale > 0) {
-            graphics.scale(scale);
-//            ScaledGraphics scaledGraphics = new ScaledGraphics(graphics);
-//            scaledGraphics.scale(scale);
-//            stack.push(scaledGraphics);
-//            graphics = scaledGraphics;
+            if (ScaledGraphics.SCALED_GRAPHICS_ENABLED) {
+                ScaledGraphics scaledGraphics = new ScaledGraphics(graphics);
+                scaledGraphics.scale(scale);
+                stack.push(scaledGraphics);
+                graphics = scaledGraphics;
+            } else {
+                graphics.scale(scale);
+            }
         }
     }
 

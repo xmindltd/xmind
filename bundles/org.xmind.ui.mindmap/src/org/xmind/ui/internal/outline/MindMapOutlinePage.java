@@ -16,7 +16,6 @@ package org.xmind.ui.internal.outline;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
@@ -70,10 +69,10 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
             super(MindMapMessages.ShowWorkbook_text, AS_RADIO_BUTTON);
             setId("org.xmind.ui.showWorkbook"); //$NON-NLS-1$
             setToolTipText(MindMapMessages.ShowWorkbook_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.WORKBOOK, true));
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.WORKBOOK, false));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.WORKBOOK, true));
+            setDisabledImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.WORKBOOK, false));
         }
 
         public void run() {
@@ -87,10 +86,10 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
             super(MindMapMessages.ShowSheet_text, AS_RADIO_BUTTON);
             setId("org.xmind.ui.showCurrentSheet"); //$NON-NLS-1$
             setToolTipText(MindMapMessages.ShowSheet_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.SHEET,
-                    true));
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.SHEET, false));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.SHEET, true));
+            setDisabledImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.SHEET, false));
         }
 
         public void run() {
@@ -126,11 +125,11 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
         menu.add(new Separator());
         menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
-        IToolBarManager toolBar = getSite().getActionBars().getToolBarManager();
-        toolBar.add(showWorkbookAction);
-        toolBar.add(showCurrentSheetAction);
-        toolBar.add(new Separator());
-        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+//        IToolBarManager toolBar = getSite().getActionBars().getToolBarManager();
+//        toolBar.add(showWorkbookAction);
+//        toolBar.add(showCurrentSheetAction);
+//        toolBar.add(new Separator());
+//        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 
         showWorkbookAction.setChecked(!isShowCurrentPageViewer());
         showCurrentSheetAction.setChecked(isShowCurrentPageViewer());
@@ -152,7 +151,8 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
         return control;
     }
 
-    protected Object createEditorTreeViewerInput(IGraphicalEditor parentEditor) {
+    protected Object createEditorTreeViewerInput(
+            IGraphicalEditor parentEditor) {
         return parentEditor.getAdapter(IWorkbook.class);
     }
 
@@ -181,12 +181,13 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
         viewer.setRootPart(new TreeRootPart());
     }
 
-    protected void hookViewerControl(final IViewer viewer, final Control control) {
-        final DragSource dragSource = new DragSource(control, DND.DROP_COPY
-                | DND.DROP_MOVE);
-        dragSource.setTransfer(new Transfer[] {
-                MindMapElementTransfer.getInstance(),
-                TextTransfer.getInstance() });
+    protected void hookViewerControl(final IViewer viewer,
+            final Control control) {
+        final DragSource dragSource = new DragSource(control,
+                DND.DROP_COPY | DND.DROP_MOVE);
+        dragSource.setTransfer(
+                new Transfer[] { MindMapElementTransfer.getInstance(),
+                        TextTransfer.getInstance() });
         dragSource.addDragListener(new DragSourceListener() {
 
             Object[] elements;
@@ -221,11 +222,11 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
             }
 
             public void dragSetData(DragSourceEvent event) {
-                if (MindMapElementTransfer.getInstance().isSupportedType(
-                        event.dataType)) {
+                if (MindMapElementTransfer.getInstance()
+                        .isSupportedType(event.dataType)) {
                     event.data = elements;
-                } else if (TextTransfer.getInstance().isSupportedType(
-                        event.dataType)) {
+                } else if (TextTransfer.getInstance()
+                        .isSupportedType(event.dataType)) {
                     event.data = text;
                 }
             }
@@ -356,11 +357,10 @@ public class MindMapOutlinePage extends GraphicalOutlinePage {
         Object o = item.getData();
         if (o instanceof IPart) {
             IPart part = (IPart) o;
-            part.handleRequest(
-                    new Request(GEF.REQ_MODIFY)
-                            .setViewer(part.getSite().getViewer())
-                            .setParameter(GEF.PARAM_TEXT, item.getText())
-                            .setPrimaryTarget(part), GEF.ROLE_MODIFIABLE);
+            part.handleRequest(new Request(GEF.REQ_MODIFY)
+                    .setViewer(part.getSite().getViewer())
+                    .setParameter(GEF.PARAM_TEXT, item.getText())
+                    .setPrimaryTarget(part), GEF.ROLE_MODIFIABLE);
         }
     }
 

@@ -24,10 +24,9 @@ import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
 import org.xmind.gef.draw2d.IRelayerableFigure;
 import org.xmind.gef.draw2d.IRelayeredPane;
-import org.xmind.gef.draw2d.graphics.ScaledGraphics;
 
-public class CoverLayer extends BaseLayer implements IRelayeredPane,
-        FigureListener {
+public class CoverLayer extends BaseLayer
+        implements IRelayeredPane, FigureListener {
 
     private List<IFigure> backgroundLayers = null;
 
@@ -162,10 +161,6 @@ public class CoverLayer extends BaseLayer implements IRelayeredPane,
             layer.paint(graphics);
             graphics.restoreState();
         }
-    }
-
-    protected ScaledGraphics createScaledGraphics(Graphics graphics) {
-        return new ScaledGraphics(graphics);
     }
 
     public void figureMoved(IFigure source) {

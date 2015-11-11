@@ -14,6 +14,11 @@
 package org.xmind.cathy.internal;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -135,6 +140,11 @@ public class CathyPlugin extends AbstractUIPlugin {
      */
     public static final String COMMAND_FILE_EXT = ".xmind-command"; //$NON-NLS-1$
 
+    /**
+     * Online help page.
+     */
+    public static final String ONLINE_HELP_URL = "http://www.xmind.net/xmind/help/"; //$NON-NLS-1$
+
     // The shared instance.
     private static CathyPlugin plugin;
 
@@ -161,6 +171,24 @@ public class CathyPlugin extends AbstractUIPlugin {
         activateNetworkSettings();
 
         activateXMindCore();
+
+        /*
+         * We have to manually activate 'org.xmind.ui' plugin so that command
+         * handler classes contributed by that plugin can be loaded upon
+         * startup. This ensures that IElementUpdater implementations and
+         * enablement updates to behave correctly. For example, the class
+         * org.xmind.ui.internal.handlers.ClearWorkbookHistoryHandler should be
+         * loaded on startup so that its enablement state can be correctly
+         * updated, otherwise the command in menu will be shown as enabled even
+         * when it should not be.
+         */
+        activateMindMapUIContributions();
+
+        hackConstants();
+    }
+
+    private void hackConstants() {
+        ConstantsHacker.hack();
     }
 
     /**
@@ -189,26 +217,38 @@ public class CathyPlugin extends AbstractUIPlugin {
                 networkPlugin
                         .loadClass("org.eclipse.core.internal.net.Activator"); //$NON-NLS-1$
             } catch (ClassNotFoundException e) {
-                getLog().log(
-                        new Status(
-                                IStatus.WARNING,
-                                PLUGIN_ID,
-                                "Failed to activate plugin 'org.eclipse.core.net'.", //$NON-NLS-1$
-                                e));
+                getLog().log(new Status(IStatus.WARNING, PLUGIN_ID,
+                        "Failed to activate plugin 'org.eclipse.core.net'.", //$NON-NLS-1$
+                        e));
             }
         } else {
-            getLog().log(
-                    new Status(IStatus.WARNING, PLUGIN_ID,
-                            "Plugin 'org.eclipse.core.net' not found. Network proxies may not be correct.")); //$NON-NLS-1$
+            getLog().log(new Status(IStatus.WARNING, PLUGIN_ID,
+                    "Plugin 'org.eclipse.core.net' not found. Network proxies may not be correct.")); //$NON-NLS-1$
         }
     }
 
     private void activateXMindCore() throws CoreException {
-        WorkspaceConfigurer
-                .setDefaultWorkspaceLocation(WorkspaceConfigurer.INSTANCE_LOCATION);
+        WorkspaceConfigurer.setDefaultWorkspaceLocation(
+                WorkspaceConfigurer.INSTANCE_LOCATION);
 
-        xmindWorkspaceSession = WorkspaceSession.openSessionIn(new File(Core
-                .getWorkspace().getTempDir()));
+        xmindWorkspaceSession = WorkspaceSession
+                .openSessionIn(new File(Core.getWorkspace().getTempDir()));
+    }
+
+    private void activateMindMapUIContributions() {
+        Bundle uiPlugin = Platform.getBundle("org.xmind.ui"); //$NON-NLS-1$
+        if (uiPlugin != null) {
+            try {
+                uiPlugin.loadClass("org.xmind.ui.internal.XmindUIPlugin"); //$NON-NLS-1$
+            } catch (ClassNotFoundException e) {
+                getLog().log(new Status(IStatus.WARNING, PLUGIN_ID,
+                        "Failed to activate plugin 'org.xmind.ui'.", //$NON-NLS-1$
+                        e));
+            }
+        } else {
+            getLog().log(new Status(IStatus.WARNING, PLUGIN_ID,
+                    "Plugin 'org.xmind.ui' is not found.")); //$NON-NLS-1$
+        }
     }
 
     /**
@@ -249,8 +289,8 @@ public class CathyPlugin extends AbstractUIPlugin {
     public static void log(Throwable e, String message) {
         if (message == null)
             message = ""; //$NON-NLS-1$
-        getDefault().getLog().log(
-                new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        getDefault().getLog()
+                .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
     }
 
     public static void log(String message) {
@@ -273,6 +313,57 @@ public class CathyPlugin extends AbstractUIPlugin {
         DebugOptions debugOptions = getDebugOptions();
         return debugOptions != null && debugOptions.isDebugEnabled()
                 && debugOptions.getBooleanOption(PLUGIN_ID + option, false);
+    }
+
+    public Properties loadNLSProperties(String pathBase) {
+        return doLoadNLSProperties(getBundle(), pathBase);
+    }
+
+    private static Properties doLoadNLSProperties(Bundle bundle,
+            String pathBase) {
+        Properties properties = new Properties();
+
+        String nl = Platform.getNL();
+        String[] nlSegments = nl.split("_"); //$NON-NLS-1$
+        URL entry;
+        for (int i = 0; i <= nlSegments.length; i++) {
+            StringBuilder nlsName = new StringBuilder(pathBase);
+            for (int j = 0; j < i; j++) {
+                nlsName.append('_');
+                nlsName.append(nlSegments[j]);
+            }
+            nlsName.append(".properties"); //$NON-NLS-1$
+            entry = findSingleEntry(bundle, nlsName.toString());
+            if (entry != null) {
+                try {
+                    InputStream stream = entry.openStream();
+                    try {
+                        properties.load(stream);
+                    } finally {
+                        stream.close();
+                    }
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+
+        return properties;
+    }
+
+    private static URL findSingleEntry(Bundle bundle, String path) {
+        int sepIndex = path.lastIndexOf('/');
+        String dir, name;
+        if (sepIndex < 0) {
+            dir = "/"; //$NON-NLS-1$
+            name = path;
+        } else {
+            dir = path.substring(0, sepIndex);
+            name = path.substring(sepIndex + 1);
+        }
+        Enumeration<URL> entries = bundle.findEntries(dir, name, true);
+        return entries != null && entries.hasMoreElements()
+                ? entries.nextElement() : null;
     }
 
 }

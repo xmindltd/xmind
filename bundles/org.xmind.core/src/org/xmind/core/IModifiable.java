@@ -22,4 +22,6 @@ public interface IModifiable {
 
     long getModifiedTime();
 
+    String getModifiedBy();
+
 }

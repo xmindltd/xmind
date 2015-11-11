@@ -117,13 +117,10 @@ public class SimpleRichTextActionBarContributor extends
     }
 
     private void backgroundChanged(SelectionChangedEvent event) {
-        ISelection selection = event.getSelection();
-        if (selection instanceof IColorSelection) {
-            IColorSelection colorSelection = (IColorSelection) selection;
-            Color c = colorSelection.isAutomatic() ? null : ColorUtils
-                    .getColor(colorSelection.getColor());
-            getViewer().getRenderer().setSelectionBackground(c);
-        }
+        IColorSelection selection = (IColorSelection) event.getSelection();
+        Color c = selection.isAutomatic() ? null : ColorUtils
+                .getColor(selection.getColor());
+        getViewer().getRenderer().setSelectionBackground(c);
     }
 
     private void foregroundChanged(SelectionChangedEvent event) {
@@ -191,19 +188,24 @@ public class SimpleRichTextActionBarContributor extends
     }
 
     private void updateColorChoosers(boolean enabled) {
+        foregroundPicker.getAction().setEnabled(enabled);
+        backgroundPicker.getAction().setEnabled(enabled);
+
         IRichTextRenderer renderer = getViewer().getRenderer();
+        if (renderer == null) {
+            return;
+        }
         TextStyle style = (renderer instanceof RichTextRenderer) ? ((RichTextRenderer) renderer)
                 .getSelectionTextStyle() : null;
         int foregroundType = (style == null || style.foreground == null) ? ColorSelection.AUTO
                 : ColorSelection.CUSTOM;
         foregroundPicker.setSelection(new ColorSelection(foregroundType,
                 renderer.getSelectionForeground().getRGB()));
-        foregroundPicker.getAction().setEnabled(enabled);
+        
         int backgroundType = (style == null || style.background == null) ? ColorSelection.AUTO
                 : ColorSelection.CUSTOM;
         backgroundPicker.setSelection(new ColorSelection(backgroundType,
                 renderer.getSelectionBackground().getRGB()));
-        backgroundPicker.getAction().setEnabled(enabled);
     }
 
     public void dispose() {

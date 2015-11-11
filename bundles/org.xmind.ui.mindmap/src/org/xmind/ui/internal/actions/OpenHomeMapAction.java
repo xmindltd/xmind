@@ -23,6 +23,7 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.PrefUtils;
 
+@Deprecated
 public class OpenHomeMapAction extends Action implements IWorkbenchAction {
 
     private IWorkbenchWindow window;
@@ -63,8 +64,7 @@ public class OpenHomeMapAction extends Action implements IWorkbenchAction {
             Display.getCurrent().asyncExec(new Runnable() {
                 public void run() {
                     String dialogMessage = MindMapMessages.OpenHomeMapAction_HomeMapMissingMessage;
-                    String[] dialogButtonLabels = {
-                            IDialogConstants.OK_LABEL,
+                    String[] dialogButtonLabels = { IDialogConstants.OK_LABEL,
                             MindMapMessages.OpenHomeMapAction_LaterOperationButton };
                     int index = new MessageDialog(shell,
                             org.xmind.ui.dialogs.IDialogConstants.COMMON_TITLE,
@@ -81,8 +81,8 @@ public class OpenHomeMapAction extends Action implements IWorkbenchAction {
 
         final boolean opened[] = new boolean[1];
         opened[0] = false;
-        String errMessage = NLS.bind(
-                DialogMessages.FailedToLoadWorkbook_message, path);
+        String errMessage = NLS
+                .bind(DialogMessages.FailedToLoadWorkbook_message, path);
         SafeRunner.run(new SafeRunnable(errMessage) {
             public void run() throws Exception {
                 IEditorInput input = MME.createFileEditorInput(path);

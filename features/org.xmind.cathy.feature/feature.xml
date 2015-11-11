@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.feature"
       label="XMind RCP Application"
-      version="3.5.3.qualifier"
+      version="3.6.0.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -10,7 +10,7 @@
    </description>
 
    <copyright>
-      Copyright(C) 2006-2012, XMind Ltd. and others.
+      Copyright(C) 2006-2015, XMind Ltd. and others.
    </copyright>
 
    <license url="license.html">
@@ -42,6 +42,34 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          install-size="0"
          version="0.0.0"
          fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.cathy.fonts"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.json"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.core.net"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.xmind.signin"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>

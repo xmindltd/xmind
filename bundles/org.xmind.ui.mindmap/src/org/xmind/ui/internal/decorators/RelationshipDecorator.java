@@ -76,12 +76,12 @@ public class RelationshipDecorator extends Decorator {
         if (decoration != null) {
             String decorationId = decoration.getId();
             decoration.setAlpha(figure, 0xff);
-            decoration.setLineColor(figure, getColor(part, ss,
-                    Styles.LineColor, decorationId, Styles.DEF_REL_LINE_COLOR));
-            decoration.setLineStyle(figure, getLineStyle(part, ss,
-                    decorationId, SWT.LINE_DASH));
-            decoration.setLineWidth(figure, getInteger(part, ss,
-                    Styles.LineWidth, decorationId, 3));
+            decoration.setLineColor(figure, getColor(part, ss, Styles.LineColor,
+                    decorationId, Styles.DEF_REL_LINE_COLOR));
+            decoration.setLineStyle(figure,
+                    getLineStyle(part, ss, decorationId, SWT.LINE_DASH));
+            decoration.setLineWidth(figure,
+                    getInteger(part, ss, Styles.LineWidth, decorationId, 3));
 
             decorateAnchors(part, figure, decoration);
 
@@ -93,26 +93,27 @@ public class RelationshipDecorator extends Decorator {
 
             decorateArrows(part, ss, figure, decoration);
 
-            decoration.setVisible(figure, decoration.getSourceAnchor() != null
-                    && decoration.getTargetAnchor() != null
-                    && figure.isVisible());
+            decoration.setVisible(figure,
+                    decoration.getSourceAnchor() != null
+                            && decoration.getTargetAnchor() != null
+                            && figure.isVisible());
 
             decoration.reroute(figure);
             figure.setBounds(decoration.getPreferredBounds(figure));
         }
     }
 
-    private void decorateAnchors(IGraphicalPart part,
-            RelationshipFigure figure, IRelationshipDecoration decoration) {
+    private void decorateAnchors(IGraphicalPart part, RelationshipFigure figure,
+            IRelationshipDecoration decoration) {
         if (part instanceof IRelationshipPart) {
             IRelationshipPart rel = (IRelationshipPart) part;
             INodePart sourceNode = rel.getSourceNode();
-            IAnchor anchor = sourceNode == null ? null : sourceNode
-                    .getSourceAnchor(rel);
+            IAnchor anchor = sourceNode == null ? null
+                    : sourceNode.getSourceAnchor(rel);
             figure.setSourceAnchor(anchor);
             INodePart targetNode = rel.getTargetNode();
-            anchor = targetNode == null ? null : targetNode
-                    .getTargetAnchor(rel);
+            anchor = targetNode == null ? null
+                    : targetNode.getTargetAnchor(rel);
             figure.setTargetAnchor(anchor);
             figure.setVisible(sourceNode != null
                     && sourceNode.getFigure().isShowing() && targetNode != null
@@ -155,18 +156,18 @@ public class RelationshipDecorator extends Decorator {
             RelationshipFigure figure, IRelationshipDecoration decoration) {
         if (r != null) {
             IControlPoint cp0 = r.getControlPoint(0);
-            decoration.setRelativeSourceControlPoint(figure, MindMapUtils
-                    .toGraphicalPosition(cp0.getPosition()));
-//            Double angle = cp0 == null ? null : cp0.getAngle();
-//            Double amount = cp0 == null ? null : cp0.getAmount();
-//            decoration.setSourceControlPointHint(figure, angle, amount);
+            decoration.setRelativeSourceControlPoint(figure,
+                    MindMapUtils.toGraphicalPosition(cp0.getPosition()));
+            Double angle = cp0 == null ? null : cp0.getPolarAngle();
+            Double amount = cp0 == null ? null : cp0.getPolarAmount();
+            decoration.setSourceControlPointHint(figure, angle, amount);
 
             IControlPoint cp1 = r.getControlPoint(1);
-            decoration.setRelativeTargetControlPoint(figure, MindMapUtils
-                    .toGraphicalPosition(cp1.getPosition()));
-//            angle = cp1 == null ? null : cp1.getAngle();
-//            amount = cp1 == null ? null : cp1.getAmount();
-//            decoration.setTargetControlPointHint(figure, angle, amount);
+            decoration.setRelativeTargetControlPoint(figure,
+                    MindMapUtils.toGraphicalPosition(cp1.getPosition()));
+            angle = cp1 == null ? null : cp1.getPolarAngle();
+            amount = cp1 == null ? null : cp1.getPolarAmount();
+            decoration.setTargetControlPointHint(figure, angle, amount);
         }
     }
 

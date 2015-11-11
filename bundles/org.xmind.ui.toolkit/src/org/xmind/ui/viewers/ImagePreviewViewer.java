@@ -639,7 +639,7 @@ public class ImagePreviewViewer {
     }
 
     public void setImage(Image image) {
-        if (image != null) {
+        if (image != null && !image.isDisposed()) {
             Rectangle imgSize = image.getBounds();
             setImage(image, imgSize.x + imgSize.width / 2, imgSize.y
                     + imgSize.height / 2);

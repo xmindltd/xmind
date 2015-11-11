@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.xmind.core.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.xmind.core.IIdentifiable;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
@@ -142,6 +145,27 @@ public class HyperlinkUtils {
             return true;
         }
         return false;
+    }
+
+    @SuppressWarnings("nls")
+    public static boolean isUrlAddress(String text) {
+        final String URL_REGEX = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        Pattern pattern = Pattern.compile(URL_REGEX);
+        Matcher matcher;
+        if (!text.contains("http://") && !text.contains("https://")
+                && !text.contains("file://")) {
+            matcher = pattern.matcher("http://" + text);
+        } else {
+            matcher = pattern.matcher(text);
+        }
+        return matcher.matches() && isLinkToWeb(text);
+    }
+
+    public static boolean isEmailAddress(String text) {
+        final String EMAIL_REGEX = "^([\\w_\\-\\.]+)@((\\[[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.)|(([\\w\\-]+\\.)+))([a-zA-Z]{2,4}|[\\d]{1,3})(\\]?)$"; //$NON-NLS-1$
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(text);
+        return matcher.matches();
     }
 
 }

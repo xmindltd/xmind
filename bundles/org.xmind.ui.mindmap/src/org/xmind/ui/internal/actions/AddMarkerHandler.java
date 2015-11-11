@@ -25,6 +25,13 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.xmind.gef.ui.actions.IActionRegistry;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 
+/**
+ * 
+ * @author frankshaka
+ * @deprecated Use {@link org.xmind.ui.internal.handlers.AddMarkerHandler}
+ *             instead
+ */
+@Deprecated
 public class AddMarkerHandler extends AbstractHandler {
 
     private static final String COMMAND_ID = "org.xmind.ui.command.addMarker"; //$NON-NLS-1$
@@ -112,8 +119,8 @@ public class AddMarkerHandler extends AbstractHandler {
         boolean enabledChanged = oldEnabled != newEnabled;
         boolean handledChanged = oldHandled != newHandled;
         if (enabledChanged || handledChanged) {
-            fireHandlerChanged(new HandlerEvent(this, enabledChanged,
-                    handledChanged));
+            fireHandlerChanged(
+                    new HandlerEvent(this, enabledChanged, handledChanged));
         }
     }
 
@@ -132,8 +139,8 @@ public class AddMarkerHandler extends AbstractHandler {
                         final PropertyChangeEvent propertyChangeEvent) {
                     final String property = propertyChangeEvent.getProperty();
                     fireHandlerChanged(new HandlerEvent(AddMarkerHandler.this,
-                            IAction.ENABLED.equals(property), IAction.HANDLED
-                                    .equals(property)));
+                            IAction.ENABLED.equals(property),
+                            IAction.HANDLED.equals(property)));
                 }
             };
         }

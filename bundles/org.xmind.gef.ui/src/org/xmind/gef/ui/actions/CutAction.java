@@ -22,6 +22,7 @@ public class CutAction extends RequestAction implements ISelectionAction {
 
     public CutAction(IGraphicalEditorPage page) {
         super(ActionFactory.CUT.getId(), page, GEF.REQ_CUT);
+        setActionDefinitionId(ActionFactory.CUT.getCommandId());
     }
 
     public void setSelection(ISelection selection) {

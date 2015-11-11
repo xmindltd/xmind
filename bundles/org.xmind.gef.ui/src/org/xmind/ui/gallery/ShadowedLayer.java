@@ -53,10 +53,10 @@ public class ShadowedLayer extends Layer {
     public void press() {
         if (!isEnabled() || isPressed())
             return;
-        shadowBorder.setHorizontalShadowDepth(-Math.abs(shadowBorder
-                .getHorizontalShadowDepth()));
-        shadowBorder.setVerticalShadowDepth(-Math.abs(shadowBorder
-                .getVerticalShadowDepth()));
+        shadowBorder.setHorizontalShadowDepth(
+                -Math.abs(shadowBorder.getHorizontalShadowDepth()));
+        shadowBorder.setVerticalShadowDepth(
+                -Math.abs(shadowBorder.getVerticalShadowDepth()));
         shadowBorder.hideShadow();
         pressed = true;
         revalidate();
@@ -66,10 +66,10 @@ public class ShadowedLayer extends Layer {
     public void unpress() {
         if (!isEnabled() || !isPressed())
             return;
-        shadowBorder.setHorizontalShadowDepth(Math.abs(shadowBorder
-                .getHorizontalShadowDepth()));
-        shadowBorder.setVerticalShadowDepth(Math.abs(shadowBorder
-                .getVerticalShadowDepth()));
+        shadowBorder.setHorizontalShadowDepth(
+                Math.abs(shadowBorder.getHorizontalShadowDepth()));
+        shadowBorder.setVerticalShadowDepth(
+                Math.abs(shadowBorder.getVerticalShadowDepth()));
         shadowBorder.showShadow();
         pressed = false;
         revalidate();
@@ -177,6 +177,10 @@ public class ShadowedLayer extends Layer {
         return shadowBorder.getShadowAlpha();
     }
 
+    public int getBorderAlpha() {
+        return shadowBorder.getBorderAlpha();
+    }
+
     public Color getShadowColor() {
         return shadowBorder.getShadowColor();
     }
@@ -226,6 +230,11 @@ public class ShadowedLayer extends Layer {
 
     public void setShadowAlpha(int shadowAlpha) {
         shadowBorder.setShadowAlpha(shadowAlpha);
+        repaint();
+    }
+
+    public void setBorderAlpha(int borderAlpha) {
+        shadowBorder.setBorderAlpha(borderAlpha);
         repaint();
     }
 

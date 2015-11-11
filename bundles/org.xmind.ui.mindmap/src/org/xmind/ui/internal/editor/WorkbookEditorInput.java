@@ -135,6 +135,7 @@ public class WorkbookEditorInput implements IEditorInput {
         return getName();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IWorkbook.class)
             return getContents();

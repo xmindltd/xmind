@@ -18,8 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -38,6 +38,7 @@ import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.util.Property;
 import org.xmind.ui.resources.ColorUtils;
+import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.richtext.Hyperlink;
 import org.xmind.ui.richtext.IRichDocument;
 import org.xmind.ui.richtext.ImagePlaceHolder;
@@ -349,14 +350,18 @@ public class HtmlNotesContentBuilder {
             fontName = null;
             size = -1;
         }
+
+        String availableFontName = FontUtils.getAAvailableFontNameFor(fontName);
+        fontName = availableFontName != null ? availableFontName : fontName;
+
         boolean bold = RichTextUtils.isBold(style);
         boolean italic = RichTextUtils.isItalic(style);
         boolean underline = style.underline;
         boolean strikeout = style.strikeout;
-        String foreground = style.foreground == null ? null : ColorUtils
-                .toString(style.foreground);
-        String background = style.background == null ? null : ColorUtils
-                .toString(style.background);
+        String foreground = style.foreground == null ? null
+                : ColorUtils.toString(style.foreground);
+        String background = style.background == null ? null
+                : ColorUtils.toString(style.background);
 
         if (fontName == null && size < 0 && !bold && !italic && !underline
                 && !strikeout && foreground == null && background == null)

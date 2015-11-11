@@ -110,6 +110,8 @@ public abstract class PathShapeDecoration extends AbstractShapeDecoration
             return getNorth(figure, expansion);
         case PositionConstants.EAST:
             return getEast(figure, expansion);
+        case PositionConstants.CENTER:
+            return REF.setLocation(figure.getBounds().getCenter());
         }
         return null;
     }

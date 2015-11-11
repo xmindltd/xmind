@@ -52,6 +52,8 @@ import org.xmind.ui.util.Logger;
 public class BranchPolicyManager extends RegistryReader implements
         IBranchPolicyManager {
 
+    private static final String V_CALLOUT_BRANCHES = "calloutBranches"; //$NON-NLS-1$
+
     private static final String DEFAULT_BRANCH_POLICY_ID = "org.xmind.ui.map.unbalanced"; //$NON-NLS-1$
 
     private static final String V_PARENT_BRANCH = "parentBranch"; //$NON-NLS-1$
@@ -73,6 +75,7 @@ public class BranchPolicyManager extends RegistryReader implements
                 parentBranch == null ? IEvaluationContext.UNDEFINED_VARIABLE
                         : parentBranch);
         context.addVariable(V_SUB_BRANCHES, branch.getSubBranches());
+        context.addVariable(V_CALLOUT_BRANCHES, branch.getCalloutBranches());
         context.addVariable(V_SUMMARY_BRANCHES, branch.getSummaryBranches());
         context.addVariable(V_BOUNDARIES, branch.getBoundaries());
         context.addVariable(V_SUMMARIES, branch.getSummaries());
@@ -208,6 +211,8 @@ public class BranchPolicyManager extends RegistryReader implements
                 return prefferedPolicyId;
         }
         if (parent != null && parent.getSubBranches().contains(branch))
+            return parent.getBranchPolicyId();
+        if (parent != null && parent.getCalloutBranches().contains(branch))
             return parent.getBranchPolicyId();
         return DEFAULT_BRANCH_POLICY_ID;
     }

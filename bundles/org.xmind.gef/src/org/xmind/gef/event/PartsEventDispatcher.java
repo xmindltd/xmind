@@ -22,6 +22,7 @@ import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.LightweightSystem;
 import org.eclipse.draw2d.RangeModel;
+import org.eclipse.draw2d.ToolTipHelper;
 import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -50,6 +51,8 @@ import org.xmind.gef.acc.IAccessible;
 import org.xmind.gef.dnd.DndData;
 import org.xmind.gef.dnd.IDndClient;
 import org.xmind.gef.dnd.IDndSupport;
+import org.xmind.gef.draw2d.KeepVisibleToolTipHelper;
+import org.xmind.gef.part.GraphicalEditPart;
 import org.xmind.gef.part.IGraphicalEditPart;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
@@ -251,6 +254,8 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
 
     private static int LONG_PRESSING_ACTIVATION_TIME = 500;
 
+    private ToolTipHelper toolTipHelper;
+
     private Shell shell = null;
 
     private DropTarget dropTarget = null;
@@ -313,7 +318,20 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
 
     @Override
     public void setControl(Control c) {
-        super.setControl(c);
+        if (c == control)
+            return;
+        if (control != null && !control.isDisposed())
+            throw new RuntimeException(
+                    "Can not set control again once it has been set"); //$NON-NLS-1$
+        if (c != null)
+            c.addDisposeListener(new org.eclipse.swt.events.DisposeListener() {
+                public void widgetDisposed(DisposeEvent e) {
+                    if (toolTipHelper != null)
+                        toolTipHelper.dispose();
+                }
+            });
+        control = c;
+
         createDropTarget(c);
     }
 
@@ -838,6 +856,53 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
             }
         }
         hideToolTip();
+    }
+
+    protected ToolTipHelper getToolTipHelper() {
+        if (toolTipHelper == null) {
+            if (currentMouseEvent != null) {
+                IPart target = currentMouseEvent.target;
+                if (target != null && target instanceof GraphicalEditPart) {
+                    String actionId = ((GraphicalEditPart) target)
+                            .getActionId();
+                    if (actionId != null
+                            && (actionId.equals("org.xmind.ui.editNotes") || actionId //$NON-NLS-1$
+                                    .equals("org.xmind.ui.editComments"))) { //$NON-NLS-1$
+                        toolTipHelper = new KeepVisibleToolTipHelper(control);
+                    } else {
+                        toolTipHelper = new ToolTipHelper(control);
+                    }
+                }
+            }
+        } else {
+            if (currentMouseEvent != null) {
+                IPart target = currentMouseEvent.target;
+                if (target != null && target instanceof GraphicalEditPart) {
+                    String actionId = ((GraphicalEditPart) target)
+                            .getActionId();
+                    if (actionId != null
+                            && (actionId.equals("org.xmind.ui.editNotes") || actionId //$NON-NLS-1$
+                                    .equals("org.xmind.ui.editComments"))) { //$NON-NLS-1$
+                        if (!(toolTipHelper instanceof KeepVisibleToolTipHelper)) {
+                            toolTipHelper.dispose();
+                            toolTipHelper = new KeepVisibleToolTipHelper(
+                                    control);
+                        }
+                    } else {
+                        if (toolTipHelper instanceof KeepVisibleToolTipHelper) {
+                            toolTipHelper.dispose();
+                            toolTipHelper = new ToolTipHelper(control);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (toolTipHelper == null) {
+            toolTipHelper = new ToolTipHelper(control);
+        }
+
+        return toolTipHelper;
     }
 
     /**

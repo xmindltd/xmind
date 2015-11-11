@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.eclipse.osgi.util.NLS;
 import org.xmind.core.ICloneData;
 import org.xmind.core.IRelationship;
 import org.xmind.core.IRelationshipEnd;
@@ -32,7 +31,6 @@ import org.xmind.gef.command.ICommandStack;
 import org.xmind.ui.commands.CommandBuilder;
 import org.xmind.ui.commands.CreateSheetCommand;
 import org.xmind.ui.commands.ModifyTopicHyperlinkCommand;
-import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.style.StyleUtils;
 
@@ -81,8 +79,9 @@ public class CreateSheetFromTopicCommandBuilder extends CommandBuilder {
 
         ICloneData cloneData = createCommand.getCloneData();
 
-        newSheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
-                workbook.getSheets().size()));
+//      newSheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
+//      workbook.getSheets().size()));
+        newSheet.setTitleText(sourceTopic.getTitleText());
 
         String newStructure = newStructure(sourceTopic);
         if (newStructure != null)

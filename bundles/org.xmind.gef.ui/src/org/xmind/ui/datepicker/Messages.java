@@ -46,6 +46,10 @@ public class Messages extends NLS {
     public static String None;
     public static String Illegal;
 
+    public static String TimeCheckInvalid_label;
+    public static String TimeCheckInvalidSmall_message;
+    public static String TimeCheckInvalidBig_message;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

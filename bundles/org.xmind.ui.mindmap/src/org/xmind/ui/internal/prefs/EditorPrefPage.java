@@ -21,6 +21,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
@@ -28,8 +29,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.prefs.PrefConstants;
 
-public class EditorPrefPage extends FieldEditorPreferencePage implements
-        IWorkbenchPreferencePage {
+public class EditorPrefPage extends FieldEditorPreferencePage
+        implements IWorkbenchPreferencePage {
 
 //    private Composite tipsFadeDelayParent;
 //    private IntegerFieldEditor tipsFadeDelayField;
@@ -48,6 +49,7 @@ public class EditorPrefPage extends FieldEditorPreferencePage implements
         addTopicPositioningGroup();
         addAnimationField();
         addShadowField();
+        addZoomField();
 //        addGradientColorField();
     }
 
@@ -59,8 +61,8 @@ public class EditorPrefPage extends FieldEditorPreferencePage implements
                 createFieldContainer(parent)));
 
         Label descriptionLabel = new Label(parent, SWT.WRAP);
-        descriptionLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                false, false));
+        descriptionLabel.setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, false, false));
         ((GridData) descriptionLabel.getLayoutData()).widthHint = 400;
         descriptionLabel.setText(PrefMessages.EditorPage_UndoRedo_description);
 
@@ -77,16 +79,17 @@ public class EditorPrefPage extends FieldEditorPreferencePage implements
     }
 
     private void addTopicPositioningGroup() {
-        Composite parent = createGroup(PrefMessages.EditorPage_TopicPositioning_title);
+        Composite parent = createGroup(
+                PrefMessages.EditorPage_TopicPositioning_title);
         addAllowOverlapsField(createFieldContainer(parent));
         addAllowFreePositionField(createFieldContainer(parent));
 
         Label descriptionLabel = new Label(parent, SWT.WRAP);
-        descriptionLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                false, false));
+        descriptionLabel.setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, false, false));
         ((GridData) descriptionLabel.getLayoutData()).widthHint = 400;
-        descriptionLabel
-                .setText(PrefMessages.EditorPage_TopicPositioning_FreePositioning_description);
+        descriptionLabel.setText(
+                PrefMessages.EditorPage_TopicPositioning_FreePositioning_description);
     }
 
     private void addAnimationField() {
@@ -156,13 +159,30 @@ public class EditorPrefPage extends FieldEditorPreferencePage implements
     // allow  overlap 
     private void addAllowOverlapsField(Composite parent) {
         addField(new BooleanFieldEditor(PrefConstants.OVERLAPS_ALLOWED,
-                PrefMessages.EditorPage_TopicPositioning_AllowOverlaps, parent));
+                PrefMessages.EditorPage_TopicPositioning_AllowOverlaps,
+                parent));
     }
 
     private void addAllowFreePositionField(Composite parent) {
         addField(new BooleanFieldEditor(PrefConstants.FREE_POSITION_ALLOWED,
                 PrefMessages.EditorPage_TopicPositioning_AllowFreePosition,
                 parent));
+    }
+
+    private void addZoomField() {
+        if (getPreferenceStore().getInt(PrefConstants.ZOOM_VALUE) == 0) {
+            int width = Display.getCurrent().getBounds().width;
+            if (width < 1366)
+                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 100);
+            else if (width <= 1920)
+                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 120);
+            else
+                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 150);
+        }
+
+        addField(new IntegerFieldEditor(PrefConstants.ZOOM_VALUE,
+                PrefMessages.EditorPage_Zoom_Scale_text,
+                getFieldEditorParent()));
     }
 
     public void init(IWorkbench workbench) {

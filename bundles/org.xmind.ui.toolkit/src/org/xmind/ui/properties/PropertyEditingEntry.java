@@ -37,8 +37,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.xmind.ui.util.IChained;
 import org.xmind.ui.viewers.ILabelDescriptor;
 
-public class PropertyEditingEntry implements IPropertyEditingEntry,
-        IChained<PropertyEditingEntry> {
+public class PropertyEditingEntry
+        implements IPropertyEditingEntry, IChained<PropertyEditingEntry> {
 
     private static final int MARGIN_V = 5;
     private static final int MARGIN_H = 8;
@@ -110,13 +110,14 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
 
     private PropertyEditingEntry next = null;
 
-    public PropertyEditingEntry(PropertiesEditor parent,
-            IPropertySource source, IPropertyDescriptor descriptor) {
+    public PropertyEditingEntry(PropertiesEditor parent, IPropertySource source,
+            IPropertyDescriptor descriptor) {
         this.parent = parent;
         this.source = source;
         this.descriptor = descriptor;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IPropertySource.class)
             return source;
@@ -155,7 +156,7 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
         valueLayout = new TextLayout(parent.getDisplay());
         valueLayout.setAlignment(SWT.RIGHT);
 
-        canvas = new PropertyEditingCanvas(parent, SWT.NO_REDRAW_RESIZE);
+        canvas = new PropertyEditingCanvas(parent, SWT.NONE);
         canvas.setToolTipText(descriptor.getDescription());
         canvas.setLayout(new Layout() {
             protected void layout(Composite composite, boolean flushCache) {
@@ -298,8 +299,8 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
             gc.setAlpha(192 * oldAlpha / 255);
             gc.setBackground(b1);
             gc.fillRoundRectangle(r.width / 2 + HOVER_SHRINK_H, HOVER_SHRINK_V,
-                    r.width / 2 - HOVER_SHRINK_H - HOVER_SHRINK_H, r.height
-                            - HOVER_SHRINK_V - HOVER_SHRINK_V, HOVER_CORNER,
+                    r.width / 2 - HOVER_SHRINK_H - HOVER_SHRINK_H,
+                    r.height - HOVER_SHRINK_V - HOVER_SHRINK_V, HOVER_CORNER,
                     HOVER_CORNER);
             gc.setAlpha(oldAlpha);
 //            
@@ -386,10 +387,13 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
         if (wHint < 0 || hHint < 0) {
             if (editor != null && editor.getControl() != null
                     && !editor.getControl().isDisposed()) {
-                Point editorSize = editor.getControl().computeSize(
-                        wHint < 0 ? SWT.DEFAULT : Math.max(0,
-                                (wHint - MARGIN_H) / 2 - MARGIN_H - 1), hHint,
-                        true);
+                Point editorSize = editor.getControl()
+                        .computeSize(
+                                wHint < 0 ? SWT.DEFAULT
+                                        : Math.max(0,
+                                                (wHint - MARGIN_H) / 2
+                                                        - MARGIN_H - 1),
+                                hHint, true);
                 if (wHint < 0)
                     wHint = editorSize.x * 2;
                 if (hHint < 0)
@@ -530,8 +534,8 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
             canvas.setForeground(foreground);
             canvas.setFont(font);
             if (editor != null) {
-                editor.setBackground(isSelected() ? selectedBackground : canvas
-                        .getBackground());
+                editor.setBackground(isSelected() ? selectedBackground
+                        : canvas.getBackground());
                 editor.setForeground(foreground);
                 editor.setFont(font);
             }
@@ -542,9 +546,11 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
         Object value = source.getPropertyValue(descriptor.getId());
         if (nameLayout != null && !nameLayout.isDisposed()) {
             nameLayout.setText(descriptor.getDisplayName());
-            nameLayout.setStyle(
-                    new TextStyle(canvas.getFont(), canvas.getForeground(),
-                            null), 0, nameLayout.getText().length());
+            nameLayout
+                    .setStyle(
+                            new TextStyle(canvas.getFont(),
+                                    canvas.getForeground(), null),
+                            0, nameLayout.getText().length());
         }
         ILabelDescriptor labelDescriptor = descriptor.getLabelDescriptor();
         ImageDescriptor image = labelDescriptor == null ? null
@@ -552,35 +558,41 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
         if (valueImage != null) {
             valueImage.dispose();
         }
-        valueImage = image == null ? null : image.createImage(false,
-                Display.getCurrent());
+        valueImage = image == null ? null
+                : image.createImage(false, Display.getCurrent());
 
         ColorDescriptor color = labelDescriptor == null ? null
                 : labelDescriptor.getForeground(value);
         if (valueColor != null) {
             valueColor.dispose();
         }
-        valueColor = color == null ? null : color.createColor(Display
-                .getCurrent());
+        valueColor = color == null ? null
+                : color.createColor(Display.getCurrent());
 
-        FontDescriptor font = labelDescriptor == null ? null : labelDescriptor
-                .getFont(value);
+        FontDescriptor font = labelDescriptor == null ? null
+                : labelDescriptor.getFont(value);
         if (valueFont != null) {
             valueFont.dispose();
         }
         valueFont = font == null ? null : font.createFont(Display.getCurrent());
 
         if (valueLayout != null && !valueLayout.isDisposed()) {
-            String valueText = labelDescriptor == null ? (value == null ? "" //$NON-NLS-1$
-                    : value.toString()) : labelDescriptor.getText(value);
+            String valueText = labelDescriptor == null
+                    ? (value == null ? "" //$NON-NLS-1$
+                            : value.toString())
+                    : labelDescriptor.getText(value);
             if (valueText == null)
                 valueText = ""; //$NON-NLS-1$
             valueLayout.setText(valueText);
-            valueLayout.setStyle(
-                    new TextStyle(valueFont == null ? canvas.getFont()
-                            : valueFont, valueColor == null ? canvas
-                            .getForeground() : valueColor, null), 0, valueText
-                            .length());
+            valueLayout
+                    .setStyle(
+                            new TextStyle(
+                                    valueFont == null ? canvas.getFont()
+                                            : valueFont,
+                                    valueColor == null ? canvas.getForeground()
+                                            : valueColor,
+                                    null),
+                            0, valueText.length());
         }
 //        canvas.layout(true);
         canvas.redraw();
@@ -703,8 +715,8 @@ public class PropertyEditingEntry implements IPropertyEditingEntry,
         this.showingEditorHover = showing;
         if (canvas != null && !canvas.isDisposed()) {
             if (showing) {
-                canvas.setCursor(canvas.getDisplay().getSystemCursor(
-                        SWT.CURSOR_HAND));
+                canvas.setCursor(
+                        canvas.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
             } else {
                 canvas.setCursor(null);
             }

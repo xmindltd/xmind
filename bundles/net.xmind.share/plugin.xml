@@ -11,27 +11,39 @@
       </command>
    </extension>
    <extension
-         point="org.eclipse.ui.commandImages">
-      <image
-            commandId="com.xmindshare.uploader.commands.upload"
-            disabledIcon="icons/d/upload.png"
-            icon="icons/e/upload.png">
-      </image>
-   </extension>
-   <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="net.xmind.share.actions.Uploadhandler"
+            class="net.xmind.share.actions.UploadHandler"
             commandId="com.xmindshare.uploader.commands.upload">
          <activeWhen>
-            <with
-                  variable="activeEditorId">
-               <equals
-                     value="org.xmind.ui.MindMapEditor">
-               </equals>
-            </with>
+               <reference
+                     definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+               </reference>
          </activeWhen>
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:shareMenu?after=group.internet">
+         <command
+               commandId="com.xmindshare.uploader.commands.upload"
+               label="%menu.file.share.net.label"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.xmind.ui.toolbar.export.share.menu?after=group.internet">
+         <command
+               commandId="com.xmindshare.uploader.commands.upload"
+               id="org.xmind.ui.toolbar.export.share.menu.xmindshare"
+               label="%toolbar.share.net.label"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+
 
 </plugin>

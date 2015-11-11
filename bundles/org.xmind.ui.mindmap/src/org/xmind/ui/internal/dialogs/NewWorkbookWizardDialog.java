@@ -32,6 +32,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.xmind.ui.internal.wizards.NewFromTemplateWizard;
 
+@Deprecated
 public class NewWorkbookWizardDialog extends WizardDialog {
 
     private IWorkbenchWindow window;
@@ -68,17 +69,15 @@ public class NewWorkbookWizardDialog extends WizardDialog {
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         if (withOpenButton) {
-            createButton(
-                    parent,
-                    OPEN_ID,
+            createButton(parent, OPEN_ID,
                     DialogMessages.NewWorkbookWizardDialog_OpenExistingFile_text,
                     false);
         }
         super.createButtonsForButtonBar(parent);
         Button finishButton = getButton(IDialogConstants.FINISH_ID);
         if (finishButton != null) {
-            finishButton
-                    .setText(DialogMessages.NewWorkbookWizardDialog_Choose_text);
+            finishButton.setText(
+                    DialogMessages.NewWorkbookWizardDialog_Choose_text);
         }
         if (withOpenButton) {
             GridData data = (GridData) parent.getLayoutData();
@@ -120,11 +119,13 @@ public class NewWorkbookWizardDialog extends WizardDialog {
         }
     }
 
-    public static int openWizard(IWorkbenchWindow window, boolean withOpenButton) {
+    public static int openWizard(IWorkbenchWindow window,
+            boolean withOpenButton) {
         INewWizard wizard = new NewFromTemplateWizard();
         ISelection selection = window.getSelectionService().getSelection();
         if (selection instanceof IStructuredSelection) {
-            wizard.init(window.getWorkbench(), (IStructuredSelection) selection);
+            wizard.init(window.getWorkbench(),
+                    (IStructuredSelection) selection);
         } else {
             wizard.init(window.getWorkbench(), StructuredSelection.EMPTY);
         }

@@ -185,16 +185,7 @@ public class TreeStructure extends AbstractBranchStructure {
         return super.calcChildDistance(branch, key);
     }
 
-    private Point getChildRef(IBranchPart branch, Point branchRef,
-            ParentSearchKey key) {
-        return key.getCursorPos();
-    }
-
-    public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return calcInsIndex(branch, key, false);
-    }
-
-    private int calcInsIndex(IBranchPart branch, ParentSearchKey key,
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
             boolean withDisabled) {
         if (branch.getSubBranches().isEmpty() || branch.isFolded())
             return withDisabled ? 0 : -1;
@@ -272,6 +263,17 @@ public class TreeStructure extends AbstractBranchStructure {
         if (direction == PositionConstants.NORTH)
             return -1;
         return super.getQuickMoveOffset(branch, child, direction);
+    }
+
+    @Override
+    protected Point calcFirstChildPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        int x = getMajorSpacing(branch) + key.getInvent().getSize().width / 2;
+        return getFigureLocation(branch.getFigure()).getTranslated(
+                isLeftwards() ? -x : x,
+                branch.getFigure().getSize().height / 2
+                        + getMajorSpacing(branch)
+                        + key.getFigure().getSize().height / 2);
     }
 
 }

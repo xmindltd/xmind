@@ -133,7 +133,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="identifier" basedOn="org.xmind.ui.branchPolicies/@id"/>
+                  <meta.attribute kind="identifier" basedOn="org.xmind.ui.branchPolicies/branchPolicyCategory/@id"/>
                </appInfo>
             </annotation>
          </attribute>

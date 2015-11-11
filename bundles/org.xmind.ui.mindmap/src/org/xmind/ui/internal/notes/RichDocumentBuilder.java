@@ -138,13 +138,13 @@ public class RichDocumentBuilder {
             deleteLastLineDelimiter();
         }
         result = new RichDocument(totalText.toString());
-        result.setTextStyles(textStyles.toArray(new StyleRange[textStyles
-                .size()]));
-        result.setLineStyles(lineStyles
-                .toArray(new LineStyle[lineStyles.size()]));
+        result.setTextStyles(
+                textStyles.toArray(new StyleRange[textStyles.size()]));
+        result.setLineStyles(
+                lineStyles.toArray(new LineStyle[lineStyles.size()]));
         result.setImages(images.toArray(new ImagePlaceHolder[images.size()]));
-        result.setHyperlinks(hyperlinks
-                .toArray(new Hyperlink[hyperlinks.size()]));
+        result.setHyperlinks(
+                hyperlinks.toArray(new Hyperlink[hyperlinks.size()]));
 
         if (DEBUG) {
             System.out.println(result.get());
@@ -416,6 +416,9 @@ public class RichDocumentBuilder {
             return textStyle;
 
         String name = style.getProperty(Styles.FontFamily);
+        String availableFontName = FontUtils.getAAvailableFontNameFor(name);
+        name = availableFontName != null ? availableFontName : name;
+
         if (Styles.SYSTEM.equals(name)) {
             name = JFaceResources.getDefaultFont().getFontData()[0].getName();
         }
@@ -426,8 +429,8 @@ public class RichDocumentBuilder {
         String background = style.getProperty(Styles.BackgroundColor);
         String decoration = style.getProperty(Styles.TextDecoration);
         if (name == null && height == null && weight == null
-                && fontStyle == null && foreground == null
-                && background == null && decoration == null)
+                && fontStyle == null && foreground == null && background == null
+                && decoration == null)
             return textStyle;
 
         if (name == null)

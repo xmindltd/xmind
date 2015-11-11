@@ -26,6 +26,7 @@ public class ShowPropertiesAction extends Action implements IWorkbenchAction {
 
     public ShowPropertiesAction(IWorkbenchWindow window) {
         setId(ActionFactory.PROPERTIES.getId());
+        setActionDefinitionId(ActionFactory.PROPERTIES.getCommandId());
         this.window = window;
     }
 
@@ -34,8 +35,8 @@ public class ShowPropertiesAction extends Action implements IWorkbenchAction {
             return;
 
         try {
-            window.getActivePage().showView(
-                    "org.eclipse.ui.views.PropertySheet"); //$NON-NLS-1$
+            window.getActivePage()
+                    .showView("org.eclipse.ui.views.PropertySheet"); //$NON-NLS-1$
         } catch (PartInitException e) {
             Logger.log(e);
         }

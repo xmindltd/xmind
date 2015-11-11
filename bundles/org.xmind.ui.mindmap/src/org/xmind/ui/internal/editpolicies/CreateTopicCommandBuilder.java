@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.editpolicies;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
@@ -46,6 +47,8 @@ public class CreateTopicCommandBuilder extends CommandBuilder {
 
     private ITopic sourceTopic;
 
+    private List<ITopic> sources;
+
     private String createType;
 
     private ITopic targetParent;
@@ -70,6 +73,13 @@ public class CreateTopicCommandBuilder extends CommandBuilder {
         init(sourceTopic, createType);
     }
 
+    public CreateTopicCommandBuilder(IViewer viewer,
+            ICommandStack commandStack, ITopic sourceTopic, String createType,
+            List<ITopic> sources) {
+        this(viewer, commandStack, sourceTopic, createType);
+        this.sources = sources;
+    }
+
     private void init(ITopic sourceTopic, String createType) {
         this.sourceTopic = sourceTopic;
         this.createType = createType;
@@ -77,6 +87,10 @@ public class CreateTopicCommandBuilder extends CommandBuilder {
         if (MindMapUI.REQ_CREATE_CHILD.equals(createType)) {
             this.targetParent = sourceTopic;
             this.targetType = ITopic.ATTACHED;
+            this.targetIndex = targetParent.getChildren(targetType).size();
+        } else if (MindMapUI.REQ_CREATE_CALLOUT.equals(createType)) {
+            this.targetParent = sourceTopic;
+            this.targetType = ITopic.CALLOUT;
             this.targetIndex = targetParent.getChildren(targetType).size();
         } else {
             this.targetParent = sourceTopic.getParent();
@@ -167,18 +181,26 @@ public class CreateTopicCommandBuilder extends CommandBuilder {
     private void preAdd() {
         ensureParentUnfolded();
         setNewTitle();
+        if (ITopic.CALLOUT.equals(targetType)) {
+            add(new ModifyPositionCommand(createdTopic,
+                    new org.xmind.core.util.Point(0, 0)), false);
+        }
     }
 
     private void postAdded() {
         if (MindMapUI.REQ_CREATE_PARENT.equals(createType)) {
-            if (ITopic.DETACHED.equals(targetType)) {
-                add(new ModifyPositionCommand(createdTopic,
-                        sourceTopic.getPosition()), false);
-                add(new ModifyPositionCommand(sourceTopic, null), false);
+            if (sources != null) {
+                for (ITopic sourceTopic : sources) {
+                    if (ITopic.DETACHED.equals(targetType)) {
+                        add(new ModifyPositionCommand(createdTopic,
+                                sourceTopic.getPosition()), false);
+                        add(new ModifyPositionCommand(sourceTopic, null), false);
+                    }
+                    add(new DeleteTopicCommand(sourceTopic), false);
+                    add(new AddTopicCommand(sourceTopic, createdTopic), false);
+                    moveOverallBoundaries(sourceTopic, createdTopic);
+                }
             }
-            add(new DeleteTopicCommand(sourceTopic), false);
-            add(new AddTopicCommand(sourceTopic, createdTopic), false);
-            moveOverallBoundaries(sourceTopic, createdTopic);
         } else {
             if (ITopic.ATTACHED.equals(targetType)) {
                 if (GEF.REQ_CREATE.equals(createType)
@@ -246,6 +268,8 @@ public class CreateTopicCommandBuilder extends CommandBuilder {
     private String getNewTitle() {
         if (ITopic.DETACHED.equals(targetType)) {
             return MindMapMessages.TitleText_FloatingTopic;
+        } else if (ITopic.CALLOUT.equals(targetType)) {
+            return MindMapMessages.TitleText_CalloutTopic;
         } else {
             int size = targetParent.getChildren(targetType).size();
             int newNumber = size + 1;

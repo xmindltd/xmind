@@ -17,8 +17,6 @@ package org.xmind.cathy.internal.actions;
 import java.io.IOException;
 import java.net.URL;
 
-import net.xmind.signin.XMindNet;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -29,10 +27,13 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.osgi.framework.Bundle;
 import org.xmind.cathy.internal.WorkbenchMessages;
 
+import net.xmind.signin.XMindNet;
+
 /**
  * @author Frank Shaka
  * 
  */
+@Deprecated
 public class HelpAction extends Action implements IWorkbenchAction {
 
     private static final String ONLINE_HELP_URL = "http://www.xmind.net/xmind/help/"; //$NON-NLS-1$
@@ -68,8 +69,8 @@ public class HelpAction extends Action implements IWorkbenchAction {
     private String findHelpURL() {
         Bundle helpBundle = Platform.getBundle("org.xmind.ui.help"); //$NON-NLS-1$
         if (helpBundle != null) {
-            URL url = FileLocator.find(helpBundle, new Path(
-                    "$nl$/contents/index.html"), null); //$NON-NLS-1$
+            URL url = FileLocator.find(helpBundle,
+                    new Path("$nl$/contents/index.html"), null); //$NON-NLS-1$
             if (url != null) {
                 try {
                     url = FileLocator.toFileURL(url);

@@ -79,8 +79,8 @@ public class ParentSearcher {
 
         IStructure sa = branch.getBranchPolicy().getStructure(branch);
         if (sa instanceof IInsertableBranchStructureExtension) {
-            int distance = ((IInsertableBranchStructureExtension) sa).calcChildDistance(
-                    branch, key);
+            int distance = ((IInsertableBranchStructureExtension) sa)
+                    .calcChildDistance(branch, key);
             if (distance >= 0 && distance < minDistance) {
                 minDistance = distance;
                 targetParent = branch;
@@ -93,6 +93,9 @@ public class ParentSearcher {
             }
             for (IBranchPart summaryBranch : branch.getSummaryBranches()) {
                 searchBranch(summaryBranch, key);
+            }
+            for (IBranchPart callout : branch.getCalloutBranches()) {
+                searchBranch(callout, key);
             }
         }
     }
@@ -107,8 +110,8 @@ public class ParentSearcher {
             IStructure sa = targetParent.getBranchPolicy().getStructure(
                     targetParent);
             if (sa instanceof IInsertableBranchStructureExtension) {
-                return ((IInsertableBranchStructureExtension) sa).calcChildIndex(
-                        targetParent, key);
+                return ((IInsertableBranchStructureExtension) sa)
+                        .calcChildIndex(targetParent, key);
             }
         }
         return -1;

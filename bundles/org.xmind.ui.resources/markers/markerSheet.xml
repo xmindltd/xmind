@@ -38,7 +38,7 @@
 		<marker id="flag-blue" name="%colorBlue" resource="flag_blue.png" />
 		<marker id="flag-green" name="%colorGreen" resource="flag_green.png" />
 		<marker id="flag-purple" name="%colorPurple" resource="flag_purple.png" />
-		<marker id="flag-black" name="%colorGray" resource="flag_gray.png" hidden="true"/>
+		<marker id="flag-gray" name="%colorGray" resource="flag_gray.png"/>
 	</marker-group>
 	<marker-group id="starMakers" name="%starMarkers" singleton="true">
 		<marker id="star-red" name="%colorRed" resource="star_red.png" />
@@ -56,6 +56,7 @@
 		<marker id="people-blue" name="%colorBlue" resource="people_blue.png" />
 		<marker id="people-green" name="%colorGreen" resource="people_green.png" />
 		<marker id="people-purple" name="%colorPurple" resource="people_purple.png" />
+		<marker id="people-gray" name="%colorGray" resource="people_gray.png"/>
 	</marker-group>
 	<marker-group id="arrowMakers" name="%arrowMarkers" singleton="true">
 		<marker id="arrow-up" name="%arrowUp" resource="arrow_up.png" />
@@ -76,6 +77,7 @@
 		<marker id="symbol-info" name="%symbolInfo" resource="symbol_information.png" />
 		<marker id="symbol-wrong" name="%symbolWrong" resource="symbol_wrong.png" />
 		<marker id="symbol-right" name="%symbolRight" resource="symbol_right.png" />
+		<marker id="symbol-pause" name="%symbolPause" resource="symbol_pause.png"/>
 		<marker id="c_simbol-plus" name="%symbolPlus" resource="c_simbol_plus.png" />
 		<marker id="c_simbol-minus" name="%symbolMinus" resource="c_simbol_minus.png" />
 		<marker id="c_simbol-question" name="%symbolQuestion" resource="c_simbol_question.png" />
@@ -83,6 +85,7 @@
 		<marker id="c_simbol-info" name="%symbolInfo" resource="c_simbol_information.png" />
 		<marker id="c_simbol-wrong" name="%symbolWrong" resource="c_simbol_wrong.png" />
 		<marker id="c_simbol-right" name="%symbolRight" resource="c_simbol_right.png" />
+		<marker id="c_simbol-pause" name="%symbolPause" resource="c_simbol_pause.png"/>
 	</marker-group>
 	<marker-group id="monthMakers" name="%monthMarkers" singleton="true">
 		<marker id="month-jan" name="%monthJan" resource="month_jan.png" />

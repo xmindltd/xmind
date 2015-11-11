@@ -33,7 +33,6 @@ import org.xmind.cathy.internal.Log;
 import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.ui.internal.actions.OpenHomeMapAction;
 import org.xmind.ui.internal.editor.MME;
-import org.xmind.ui.internal.editor.NewWorkbookEditor;
 import org.xmind.ui.mindmap.MindMapUI;
 
 //import org.eclipse.core.internal.resources.File;
@@ -59,8 +58,8 @@ public class StartupJob extends Job {
         if (display != null && !display.isDisposed()) {
             display.asyncExec(new Runnable() {
                 public void run() {
-                    System.setProperty(
-                            "org.xmind.cathy.app.status", "workbenchReady"); //$NON-NLS-1$ //$NON-NLS-2$
+                    System.setProperty("org.xmind.cathy.app.status", //$NON-NLS-1$
+                            "workbenchReady"); //$NON-NLS-1$
                 }
             });
         }
@@ -162,28 +161,23 @@ public class StartupJob extends Job {
                     });
             }
 
-            if (!hasOpenedEditors()) {
-                showStartupDialog();
-            }
         }
         monitor.worked(1);
     }
 
     private void openUnclosedMapLastSession(File statusFile,
-            final IWorkbenchPage page) throws FileNotFoundException,
-            UnsupportedEncodingException, WorkbenchException, CoreException,
-            PartInitException {
+            final IWorkbenchPage page)
+                    throws FileNotFoundException, UnsupportedEncodingException,
+                    WorkbenchException, CoreException, PartInitException {
         FileInputStream input = new FileInputStream(statusFile);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input,
-                "utf-8")); //$NON-NLS-1$
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(input, "utf-8")); //$NON-NLS-1$
         IMemento memento = XMLMemento.createReadRoot(reader);
         IMemento childMem = memento.getChild(IWorkbenchConstants.TAG_EDITORS);
-//        ((WorkbenchPage) page).getEditorManager().restoreState(childMem);
         IMemento[] childrenEditor = childMem.getChildren("editor"); //$NON-NLS-1$
         IEditorPart activeEditorPart = null;
         for (IMemento childEditor : childrenEditor) {
-            IMemento childInput = childEditor.getChild("input"); //$NON-NLS-1$
-            String path = childInput.getString("path"); //$NON-NLS-1$
+            String path = childEditor.getString("path"); //$NON-NLS-1$
             if (path != null) {
                 IEditorInput editorInput = MME.createFileEditorInput(path);
                 IEditorPart editorPart = page.openEditor(editorInput,
@@ -198,24 +192,13 @@ public class StartupJob extends Job {
         }
     }
 
-    private void showStartupDialog() {
-        workbench.getDisplay().syncExec(new Runnable() {
-            public void run() {
-                IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-                if (window != null) {
-                    NewWorkbookEditor.showIn(window);
-//                    NewWorkbookWizardDialog.openWizard(window, true);
-                }
-            }
-        });
-    }
-
     private boolean hasOpenedEditors() {
         final boolean[] ret = new boolean[1];
         ret[0] = false;
         workbench.getDisplay().syncExec(new Runnable() {
             public void run() {
-                for (IWorkbenchWindow window : workbench.getWorkbenchWindows()) {
+                for (IWorkbenchWindow window : workbench
+                        .getWorkbenchWindows()) {
                     IWorkbenchPage page = window.getActivePage();
                     if (page != null) {
                         if (page.getEditorReferences().length > 0) {

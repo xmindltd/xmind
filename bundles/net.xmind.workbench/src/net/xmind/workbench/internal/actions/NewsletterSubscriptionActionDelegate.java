@@ -13,16 +13,17 @@
  *******************************************************************************/
 package net.xmind.workbench.internal.actions;
 
-import net.xmind.workbench.internal.NewsletterSubscriptionReminder;
-import net.xmind.workbench.internal.XMindNetWorkbenchServiceCenter;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public class NewsletterSubscriptionActionDelegate implements
-        IWorkbenchWindowActionDelegate {
+import net.xmind.workbench.internal.NewsletterSubscriptionReminder;
+import net.xmind.workbench.internal.XMindNetWorkbenchServiceCenter;
+
+@Deprecated
+public class NewsletterSubscriptionActionDelegate
+        implements IWorkbenchWindowActionDelegate {
 
     private IWorkbenchWindow window = null;
 

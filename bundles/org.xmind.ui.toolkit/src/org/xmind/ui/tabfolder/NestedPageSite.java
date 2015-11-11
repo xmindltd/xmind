@@ -42,12 +42,14 @@ public class NestedPageSite implements IPageSite {
         this.selectionProvider = provider;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == ISelectionProvider.class)
             return getSelectionProvider();
         return parentSite.getAdapter(adapter);
     }
 
+    @SuppressWarnings("unchecked")
     public Object getService(Class api) {
         return parentSite.getService(api);
     }

@@ -23,8 +23,11 @@ import java.util.Set;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Pattern;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
@@ -175,6 +178,8 @@ public class SheetDecorator extends Decorator {
 
     private WallpaperImageRegistry imageRegistry = null;
 
+    private Map<IGraphicalPart, Image> partToWrapImage = new HashMap<IGraphicalPart, Image>();
+
     protected SheetDecorator() {
     }
 
@@ -195,8 +200,7 @@ public class SheetDecorator extends Decorator {
 
     private void decorateBackground(IGraphicalPart part, IStyleSelector ss,
             Layer layer) {
-        layer.setBackgroundColor(StyleUtils.getColor(part, ss,
-                Styles.FillColor, null, Styles.DEF_SHEET_FILL_COLOR));
+        layer.setBackgroundColor(getBackgroundColor(part, ss));
 
         if (layer instanceof BackgroundLayer) {
             BackgroundLayer bgLayer = (BackgroundLayer) layer;
@@ -208,6 +212,11 @@ public class SheetDecorator extends Decorator {
             bgLayer.setWallpaper(newWallpaper);
             bgLayer.setSubAlpha(getWallpaperAlpha(part, ss));
         }
+    }
+
+    private Color getBackgroundColor(IGraphicalPart part, IStyleSelector ss) {
+        return StyleUtils.getColor(part, ss, Styles.FillColor, null,
+                Styles.DEF_SHEET_FILL_COLOR);
     }
 
     private int getWallpaperAlpha(IGraphicalPart part, IStyleSelector ss) {
@@ -224,7 +233,26 @@ public class SheetDecorator extends Decorator {
      */
     private Pattern getWallpaper(IGraphicalPart part, IStyleSelector ss) {
         Image image = getWallpaperImage(part, ss);
-        return image == null ? null : new Pattern(Display.getCurrent(), image);
+        Image wrapImage = partToWrapImage.get(part);
+        if (wrapImage != null) {
+            wrapImage.dispose();
+            wrapImage = null;
+        }
+        if (image != null) {
+            Rectangle b = image.getBounds();
+            wrapImage = new Image(null, b.width, b.height);
+
+            GC gc = new GC(wrapImage);
+            gc.setBackground(getBackgroundColor(part, ss));
+            gc.fillRectangle(b);
+
+            gc.drawImage(image, b.x, b.y);
+            gc.dispose();
+        }
+        partToWrapImage.put(part, wrapImage);
+
+        return wrapImage == null ? null : new Pattern(Display.getCurrent(),
+                wrapImage);
     }
 
     private Image getWallpaperImage(IGraphicalPart part, IStyleSelector ss) {
@@ -242,6 +270,11 @@ public class SheetDecorator extends Decorator {
                 wallpaper.dispose();
             }
             ((BackgroundLayer) layer).setWallpaper(null);
+        }
+        Image wrapImage = partToWrapImage.get(part);
+        if (wrapImage != null) {
+            wrapImage.dispose();
+            wrapImage = null;
         }
         if (imageRegistry != null) {
             imageRegistry.removeHost(part, StyleUtils.getStyleSelector(part));

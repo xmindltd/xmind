@@ -6,17 +6,18 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.xmind.ui.internal.dialogs.ReduceFileSizeDialog;
 
 public class ReduceFileSizeHandler extends AbstractHandler {
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
-        if (editor == null)
+        IWorkbenchPart part = HandlerUtil.getActivePartChecked(event);
+        if (part == null || !(part instanceof IEditorPart))
             return null;
 
-        reduceFileSize(editor);
+        reduceFileSize((IEditorPart) part);
         return null;
     }
 

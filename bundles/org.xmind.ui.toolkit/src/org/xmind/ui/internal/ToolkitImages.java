@@ -67,8 +67,8 @@ public class ToolkitImages {
     public static ImageDescriptor getImageDescriptor(String path) {
         ImageDescriptor img = cache.get(path);
         if (img == null) {
-            img = ToolkitPlugin.imageDescriptorFromPlugin(
-                    ToolkitPlugin.PLUGIN_ID, path);
+            img = ToolkitPlugin
+                    .imageDescriptorFromPlugin(ToolkitPlugin.PLUGIN_ID, path);
             if (img != null)
                 cache.put(path, img);
         }
@@ -80,8 +80,8 @@ public class ToolkitImages {
     }
 
     public static ImageDescriptor get(String iconName, boolean enabled) {
-        return getImageDescriptor((enabled ? PATH_ENABLED : PATH_DISABLED)
-                + iconName);
+        return getImageDescriptor(
+                (enabled ? PATH_ENABLED : PATH_DISABLED) + iconName);
     }
 
 //    public static ImageDescriptor getImageDescriptor(String fileName,

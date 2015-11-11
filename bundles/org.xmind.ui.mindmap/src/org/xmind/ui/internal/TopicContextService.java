@@ -49,6 +49,7 @@ public abstract class TopicContextService extends AbstractViewerService
     protected void deactivate() {
     }
 
+    @SuppressWarnings("unchecked")
     public abstract Object getAdapter(Class adapter);
 
 }

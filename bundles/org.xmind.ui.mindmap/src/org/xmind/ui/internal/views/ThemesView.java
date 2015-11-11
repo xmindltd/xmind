@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.internal.views;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -23,7 +24,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.Dialog;
@@ -74,6 +74,7 @@ import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
+import org.xmind.core.util.FileUtils;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.Request;
@@ -111,10 +112,10 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
         public ToggleLinkEditorAction() {
             super(MindMapMessages.ThemesView_LinkWithEditor_text, AS_CHECK_BOX);
             setToolTipText(MindMapMessages.ThemesView_LinkWithEditor_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.SYNCED,
-                    true));
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.SYNCED, false));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.SYNCED, true));
+            setDisabledImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.SYNCED, false));
             setChecked(isLinkingToEditor());
         }
 
@@ -129,10 +130,10 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
             super(MindMapMessages.DefaultThemeAction_text,
                     IAction.AS_PUSH_BUTTON);
             setToolTipText(MindMapMessages.DefaultThemeAction_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.DEFAULT_THEME, true));
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.DEFAULT_THEME, false));
+            setImageDescriptor(MindMapUI.getImages()
+                    .get(IMindMapImages.DEFAULT_THEME, true));
+            setDisabledImageDescriptor(MindMapUI.getImages()
+                    .get(IMindMapImages.DEFAULT_THEME, false));
             setEnabled(getSelectionStyle() != null);
         }
 
@@ -140,8 +141,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
             IStyle style = getSelectionStyle();
             if (style == null)
                 return;
-            viewer.setDefaultTheme(style);
             MindMapUI.getResourceManager().setDefaultTheme(style.getId());
+            viewer.setDefaultTheme(style);
         }
 
         private IStyle getSelectionStyle() {
@@ -170,8 +171,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
 
             @Override
             protected Control createDialogArea(Composite parent) {
-                Composite composite = (Composite) super
-                        .createDialogArea(parent);
+                Composite composite = (Composite) super.createDialogArea(
+                        parent);
 
                 Label label = new Label(composite, SWT.NONE);
                 label.setText(Messages.ThemesView_Dialog_message);
@@ -190,20 +191,25 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
 
                 rememberCheck = new Button(composite, SWT.CHECK);
                 rememberCheck.setText(Messages.ThemesView_Dialog_Check);
-                rememberCheck.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
-                        true, true));
+                rememberCheck.setLayoutData(
+                        new GridData(SWT.FILL, SWT.BOTTOM, true, true));
             }
 
             protected Control createButtonBar(Composite parent) {
                 Composite composite = new Composite(parent, SWT.NONE);
-                composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                        false));
+                composite.setLayoutData(
+                        new GridData(SWT.FILL, SWT.FILL, true, false));
                 GridLayout gridLayout = new GridLayout(2, false);
-                gridLayout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
-                gridLayout.marginHeight = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-                gridLayout.marginBottom = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-                gridLayout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-                gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+                gridLayout.marginWidth = convertHorizontalDLUsToPixels(
+                        IDialogConstants.HORIZONTAL_MARGIN);
+                gridLayout.marginHeight = convertVerticalDLUsToPixels(
+                        IDialogConstants.VERTICAL_MARGIN);
+                gridLayout.marginBottom = convertVerticalDLUsToPixels(
+                        IDialogConstants.VERTICAL_MARGIN);
+                gridLayout.verticalSpacing = convertVerticalDLUsToPixels(
+                        IDialogConstants.VERTICAL_SPACING);
+                gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                        IDialogConstants.HORIZONTAL_SPACING);
                 composite.setLayout(gridLayout);
 
                 createPrefLink(composite);
@@ -214,11 +220,13 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
                 layout.makeColumnsEqualWidth = false;
                 layout.marginWidth = 0;
                 layout.marginHeight = 0;
-                layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-                layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+                layout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                        IDialogConstants.HORIZONTAL_SPACING);
+                layout.verticalSpacing = convertVerticalDLUsToPixels(
+                        IDialogConstants.VERTICAL_SPACING);
                 buttonBar.setLayout(layout);
-                buttonBar.setLayoutData(new GridData(SWT.END, SWT.CENTER, true,
-                        true));
+                buttonBar.setLayoutData(
+                        new GridData(SWT.END, SWT.CENTER, true, true));
                 buttonBar.setFont(parent.getFont());
 
                 createButtonsForButtonBar(buttonBar);
@@ -229,8 +237,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
                 Hyperlink prefLink = new Hyperlink(parent, SWT.SINGLE);
                 prefLink.setText(Messages.ThemesView_Dialog_PrefLink);
                 prefLink.setUnderlined(true);
-                prefLink.setForeground(parent.getDisplay().getSystemColor(
-                        SWT.COLOR_BLUE));
+                prefLink.setForeground(
+                        parent.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
                 prefLink.addHyperlinkListener(new HyperlinkAdapter() {
                     @Override
@@ -289,8 +297,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
                 return;
 
             String themeApply = pref.getString(PrefConstants.THEME_APPLY);
-            if (isThemeModified()
-                    && (PrefConstants.ASK_USER.equals(themeApply) || IPreferenceStore.STRING_DEFAULT_DEFAULT
+            if (isThemeModified() && (PrefConstants.ASK_USER.equals(themeApply)
+                    || IPreferenceStore.STRING_DEFAULT_DEFAULT
                             .equals(themeApply))) {
                 int code = openCoverDialog();
                 if (IDialogConstants.CANCEL_ID == code)
@@ -317,14 +325,14 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
         }
 
         private boolean isThemeModified() {
-            ISheet sheet = MindMapUtils.getSheet();
+            ISheet sheet = getCurrentSheet();
             if (sheet == null)
                 return false;
 
             if (sheet.getStyleId() != null)
                 return true;
 
-            List<ITopic> topics = MindMapUtils.getAllTopics(sheet);
+            List<ITopic> topics = MindMapUtils.getAllTopics(sheet, true, true);
             for (ITopic topic : topics) {
                 if (topic.getStyleId() != null)
                     return true;
@@ -347,6 +355,20 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
             }
 
             return false;
+        }
+
+        private ISheet getCurrentSheet() {
+            IEditorPart activeEditor = getSite().getPage().getActiveEditor();
+
+            if (activeEditor instanceof IGraphicalEditor) {
+                IGraphicalEditor editor = (IGraphicalEditor) activeEditor;
+                if (editor.getActivePageInstance() != null) {
+                    ISheet sheet = (ISheet) editor.getActivePageInstance()
+                            .getAdapter(ISheet.class);
+                    return sheet;
+                }
+            }
+            return null;
         }
     }
 
@@ -375,8 +397,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
     }
 
     public void createPartControl(Composite parent) {
-        dialogSettings = MindMapUIPlugin.getDefault().getDialogSettings(
-                getClass().getName());
+        dialogSettings = MindMapUIPlugin.getDefault()
+                .getDialogSettings(getClass().getName());
         if (dialogSettings.get(KEY_LINK_TO_EDITOR) == null) {
             dialogSettings.put(KEY_LINK_TO_EDITOR, true);
         }
@@ -418,19 +440,20 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
         contextMenu.add(new Separator(GROUP_GENERATE));
         contextMenu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         contextMenu.add(new Separator(GROUP_PROPERTIES));
-        viewer.getControl().setMenu(
-                contextMenu.createContextMenu(viewer.getControl()));
+        viewer.getControl()
+                .setMenu(contextMenu.createContextMenu(viewer.getControl()));
         getSite().registerContextMenu(contextMenu, viewer);
 
-        IToolBarManager toolBar = getViewSite().getActionBars()
-                .getToolBarManager();
-        toolBar.add(setDefaultThemeAction);
-        toolBar.add(new Separator());
-        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-        toolBar.add(new Separator());
-        toolBar.add(new Separator(GROUP_EDIT));
+//        IToolBarManager toolBar = getViewSite().getActionBars()
+//                .getToolBarManager();
+//        toolBar.add(setDefaultThemeAction);
+//        toolBar.add(new Separator());
+//        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+//        toolBar.add(new Separator());
+//        toolBar.add(new Separator(GROUP_EDIT));
 
         IMenuManager menu = getViewSite().getActionBars().getMenuManager();
+        menu.add(setDefaultThemeAction);
         menu.add(toggleLinkingAction);
         menu.add(new Separator());
         menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
@@ -476,6 +499,7 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
         return getSite().getPage().getActiveEditor();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IContributedContentsView.class) {
             return this;
@@ -509,11 +533,10 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
         Set<IStyle> userThemes = userThemeSheets
                 .getStyles(IStyleSheet.MASTER_STYLES);
 
-        List<IStyle> list = new ArrayList<IStyle>(systemThemes.size()
-                + userThemes.size() + 1);
+        List<IStyle> list = new ArrayList<IStyle>(
+                systemThemes.size() + userThemes.size());
         list.addAll(getReversed(userThemes));
         list.addAll(systemThemes);
-        list.add(resourceManager.getBlankTheme());
         return list;
     }
 
@@ -550,6 +573,10 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
                 .setParameter(MindMapUI.PARAM_RESOURCE, theme)
                 .setParameter(MindMapUI.PARAM_OVERRIDE, apply));
         updateSelection();
+        Control control = viewer.getControl();
+        if (control != null && !control.isDisposed()) {
+            control.forceFocus();
+        }
     }
 
     private void updateSelection() {
@@ -680,12 +707,39 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
                 } else if (Core.Name.equals(event.getType())) {
                     viewer.update(new Object[] { event.getSource() });
                 } else {
+                    clearThemePreview();
                     viewer.setInput(getViewerInput());
                     viewer.setSelection(
                             new StructuredSelection(event.getSource()), true);
                 }
             }
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void clearThemePreview() {
+        Object input = getViewerInput();
+        if (input instanceof List && input != null) {
+            List<IStyle> themes = (List<IStyle>) input;
+
+            File dir = MindMapUIPlugin.getDefault().getStateLocation().toFile();
+            dir = new File(dir, ".themePreview"); //$NON-NLS-1$
+
+            String[] previews = dir.list();
+
+            if (previews != null && previews.length > themes.size() + 10) {
+                List<String> themeIds = new ArrayList<String>();
+                for (IStyle theme : themes)
+                    themeIds.add(theme.getId());
+
+                for (int i = 0; i < previews.length; i++) {
+                    if (!themeIds.contains(previews[i])) {
+                        File previewFile = new File(dir, previews[i]);
+                        FileUtils.delete(previewFile);
+                    }
+                }
+            }
+        }
     }
 
 }

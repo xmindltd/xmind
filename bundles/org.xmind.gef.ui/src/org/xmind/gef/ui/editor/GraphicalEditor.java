@@ -37,6 +37,8 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ToolBar;
@@ -55,6 +57,7 @@ import org.xmind.gef.command.ICommandStackListener;
 import org.xmind.gef.ui.actions.ActionRegistry;
 import org.xmind.gef.ui.actions.IActionRegistry;
 import org.xmind.gef.ui.actions.ICommandStackAction;
+import org.xmind.gef.ui.internal.GEFPlugin;
 import org.xmind.gef.util.EventListenerSupport;
 import org.xmind.gef.util.IEventDispatcher;
 import org.xmind.ui.tabfolder.DelegatedSelectionProvider;
@@ -64,8 +67,8 @@ import org.xmind.ui.tabfolder.IPageClosedListener;
 /**
  * @author Brian Sun
  */
-public abstract class GraphicalEditor extends EditorPart implements
-        IGraphicalEditor, ICommandStackListener {
+public abstract class GraphicalEditor extends EditorPart
+        implements IGraphicalEditor, ICommandStackListener {
 
     protected class PageInputSelectionProvider implements ISelectionProvider {
 
@@ -103,7 +106,8 @@ public abstract class GraphicalEditor extends EditorPart implements
         }
 
         protected void firePageChanged() {
-            fireSelectionChanged(new SelectionChangedEvent(this, getSelection()));
+            fireSelectionChanged(
+                    new SelectionChangedEvent(this, getSelection()));
         }
 
         private void fireSelectionChanged(final SelectionChangedEvent event) {
@@ -118,8 +122,8 @@ public abstract class GraphicalEditor extends EditorPart implements
 
     }
 
-    protected class MultiPageSelectionProvider extends
-            DelegatedSelectionProvider {
+    protected class MultiPageSelectionProvider
+            extends DelegatedSelectionProvider {
         /*
          * (non-Javadoc)
          * 
@@ -169,8 +173,6 @@ public abstract class GraphicalEditor extends EditorPart implements
 
     private IGlobalActionHandlerService globalActionHandlerService = null;
 
-    private boolean showItemsContextMenu;
-
     /*
      * (non-Javadoc)
      * 
@@ -217,8 +219,28 @@ public abstract class GraphicalEditor extends EditorPart implements
     }
 
     protected void createEditorContents() {
-        createMiniBar();
-        createPageContextMenu(getContainer());
+        if (getContainer() instanceof CTabFolder) {
+            createMiniBarComposite((CTabFolder) getContainer());
+            createPageContextMenu((CTabFolder) getContainer());
+        }
+    }
+
+    private void createMiniBarComposite(CTabFolder tabFolder) {
+        final Composite composite = new Composite(getContainer(), SWT.None);
+        GridLayout layout = new GridLayout(2, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 0;
+        composite.setLayout(layout);
+
+        createMiniBar(composite);
+        final ToolBar control = ((ToolBarManager) miniBar.getToolBarManager())
+                .getControl();
+        GridData controlData = new GridData(SWT.FILL, SWT.FILL, false, true);
+        control.setLayoutData(controlData);
+
+        tabFolder.setTopRight(composite, SWT.RIGHT);
     }
 
     protected IPageContainerPresentation createContainerPresentation() {
@@ -270,19 +292,12 @@ public abstract class GraphicalEditor extends EditorPart implements
         editDomain.dispose();
     }
 
-    protected void createPageContextMenu(final Composite container) {
+    protected void createPageContextMenu(Composite container) {
         if (pagePopupMenu == null) {
             pagePopupMenu = createPagePopupMenu();
             String menuId = getSite().getId() + ".page"; //$NON-NLS-1$
             if (isPagePopupMenuDynamic()) {
-                pagePopupMenu.setRemoveAllWhenShown(true);
-                pagePopupMenu.addMenuListener(new IMenuListener() {
-                    public void menuAboutToShow(IMenuManager manager) {
-                        if (showItemsContextMenu) {
-                            contributeToPagePopupMenu(manager);
-                        }
-                    }
-                });
+                setupDynamicPopupMenu(container, pagePopupMenu);
             } else {
                 contributeToPagePopupMenu(pagePopupMenu);
             }
@@ -290,13 +305,26 @@ public abstract class GraphicalEditor extends EditorPart implements
         }
         container.setMenu(pagePopupMenu.createContextMenu(container));
 
-        container.addMenuDetectListener(new MenuDetectListener() {
+    }
 
+    private void setupDynamicPopupMenu(final Composite container,
+            MenuManager popupMenu) {
+        final boolean[] showsItems = new boolean[1];
+        showsItems[0] = false;
+        popupMenu.setRemoveAllWhenShown(true);
+        popupMenu.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager manager) {
+                if (showsItems[0]) {
+                    contributeToPagePopupMenu(manager);
+                }
+            }
+        });
+        container.addMenuDetectListener(new MenuDetectListener() {
             public void menuDetected(MenuDetectEvent e) {
                 CTabFolder folder = (CTabFolder) container;
                 Point p = folder.toControl(e.x, e.y);
-                showItemsContextMenu = !(folder.getClientArea().contains(p) || folder
-                        .getTopRight().getBounds().contains(p));
+                showsItems[0] = !(folder.getClientArea().contains(p)
+                        || folder.getTopRight().getBounds().contains(p));
             }
         });
     }
@@ -380,7 +408,7 @@ public abstract class GraphicalEditor extends EditorPart implements
      * 
      * @see #getContainer()
      */
-    protected final void createMiniBar() {
+    protected final void createMiniBar(Composite parent) {
         if (!(getContainer() instanceof CTabFolder))
             return;
 
@@ -392,7 +420,7 @@ public abstract class GraphicalEditor extends EditorPart implements
         };
         initializeMiniBar(miniBar);
         if (!((MiniBar) miniBar).isEmpty()) {
-            createMiniBarControl(miniBar, (CTabFolder) getContainer());
+            createMiniBarControl(miniBar, (CTabFolder) getContainer(), parent);
         }
     }
 
@@ -421,13 +449,15 @@ public abstract class GraphicalEditor extends EditorPart implements
      * @param miniBar
      * @param tabFolder
      */
-    private void createMiniBarControl(IMiniBar miniBar, CTabFolder tabFolder) {
+    private void createMiniBarControl(IMiniBar miniBar, CTabFolder tabFolder,
+            Composite parent) {
         ToolBar control = ((ToolBarManager) miniBar.getToolBarManager())
-                .createControl(tabFolder);
+                .createControl(parent);
         updateMiniBarControl(tabFolder, control);
     }
 
-    private void updateMiniBarControl(CTabFolder tabFolder, Control barControl) {
+    private void updateMiniBarControl(CTabFolder tabFolder,
+            Control barControl) {
         // Cache the original height of tab headers:
         Integer normalHeight = ((Integer) tabFolder
                 .getData("org.xmind.gef.tabFolder.normalHeight")); //$NON-NLS-1$
@@ -440,7 +470,7 @@ public abstract class GraphicalEditor extends EditorPart implements
         int tabHeight = barControl.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
         tabHeight = Math.max(tabHeight, normalHeight.intValue());
         tabFolder.setTabHeight(tabHeight);
-        tabFolder.setTopRight(barControl, SWT.RIGHT);
+//        tabFolder.setTopRight(barControl, SWT.RIGHT);
     }
 
     public IMiniBarContributor getMiniBarContributor() {
@@ -486,7 +516,8 @@ public abstract class GraphicalEditor extends EditorPart implements
         commandStackChanged(oldCS, commandStack);
     }
 
-    protected void commandStackChanged(ICommandStack oldCS, ICommandStack newCS) {
+    protected void commandStackChanged(ICommandStack oldCS,
+            ICommandStack newCS) {
         if (oldCS != null) {
             unhookCommandStack(oldCS);
         }
@@ -515,31 +546,49 @@ public abstract class GraphicalEditor extends EditorPart implements
         cs.removeCSListener(this);
     }
 
-    public Object getAdapter(Class adapter) {
+    @SuppressWarnings("unchecked")
+    public <T> T getAdapter(Class<T> adapter) {
+        Object activePage = getSelectedPage();
+        if (activePage != null) {
+            T result = GEFPlugin.getAdapter(activePage, adapter);
+            if (result != null)
+                return result;
+        }
+
+        T result = getEditorAdapter(adapter);
+        if (result != null)
+            return result;
+
+        return super.getAdapter(adapter);
+    }
+
+    protected <T> T getEditorAdapter(Class<T> adapter) {
+        if (adapter.isInstance(this))
+            return adapter.cast(this);
         if (adapter == ICommandStack.class)
-            return getCommandStack();
+            return adapter.cast(getCommandStack());
         if (adapter == IActionRegistry.class)
-            return getActionRegistry();
+            return adapter.cast(getActionRegistry());
         if (adapter == IMiniBar.class)
-            return miniBar;
+            return adapter.cast(miniBar);
         if (adapter == IMiniBarContributor.class)
-            return getMiniBarContributor();
+            return adapter.cast(getMiniBarContributor());
         if (adapter == IGlobalActionHandlerService.class) {
             if (globalActionHandlerService == null) {
                 globalActionHandlerService = new GlobalActionHandlerService(
                         this);
             }
-            return globalActionHandlerService;
+            return adapter.cast(globalActionHandlerService);
         }
         if (adapter == IGlobalActionHandlerUpdater.class) {
             IEditorActionBarContributor contributor = getEditorSite()
                     .getActionBarContributor();
             if (contributor instanceof IGlobalActionHandlerUpdater) {
-                return contributor;
+                return adapter.cast(contributor);
             }
             return null;
         }
-        return super.getAdapter(adapter);
+        return null;
     }
 
     public Object getSelectedPage() {
@@ -614,15 +663,15 @@ public abstract class GraphicalEditor extends EditorPart implements
         ISelectionProvider selectionProvider = getSite().getSelectionProvider();
         if (selectionProvider instanceof IDelegatedSelectionProvider) {
             ((IDelegatedSelectionProvider) selectionProvider)
-                    .setDelegate(activePage == null ? null : activePage
-                            .getSelectionProvider());
+                    .setDelegate(activePage == null ? null
+                            : activePage.getSelectionProvider());
         }
         if (getMiniBarContributor() != null) {
             getMiniBarContributor().setActivePage(activePage);
         }
         if (pageInputSelectionProvider != null) {
-            Object pageInput = activePage == null ? null : activePage
-                    .getInput();
+            Object pageInput = activePage == null ? null
+                    : activePage.getInput();
             pageInputSelectionProvider
                     .setSelection(pageInput == null ? StructuredSelection.EMPTY
                             : new StructuredSelection(pageInput));
@@ -642,8 +691,8 @@ public abstract class GraphicalEditor extends EditorPart implements
             if (page != null) {
                 page.setFocus();
             } else {
-                Control control = containerPresentation.getPageControl(
-                        getContainer(), pageIndex);
+                Control control = containerPresentation
+                        .getPageControl(getContainer(), pageIndex);
                 if (control != null && !control.isDisposed()) {
                     control.setFocus();
                 }
@@ -808,5 +857,4 @@ public abstract class GraphicalEditor extends EditorPart implements
             csActions = new ArrayList<ICommandStackAction>();
         csActions.add(action);
     }
-
 }

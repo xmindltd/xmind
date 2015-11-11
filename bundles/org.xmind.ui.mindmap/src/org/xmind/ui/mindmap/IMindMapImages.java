@@ -47,40 +47,41 @@ public interface IMindMapImages {
 
     String XMIND_ICON = PATH + "xmind.16.gif"; //$NON-NLS-1$
 
-    String ACTUAL_SIZE = "actualsize.gif"; //$NON-NLS-1$
-    String ACTUAL_SIZE_SMALL = "actualsize_small.gif"; //$NON-NLS-1$
+    String ACTUAL_SIZE = "actualsize.png"; //$NON-NLS-1$
+    String ACTUAL_SIZE_SMALL = "actualsize_small.png"; //$NON-NLS-1$
     String ADD = "add.gif"; //$NON-NLS-1$
     String ADD_COLUMN = "add_column.gif"; //$NON-NLS-1$
     String ADD_MARKER = "add_marker.gif"; //$NON-NLS-1$
     String ADD_THEME = "add_theme.gif"; //$NON-NLS-1$
     String ATTACHMENT = "attachment.gif"; //$NON-NLS-1$
-    String BOUNDARY = "boundary.gif"; //$NON-NLS-1$
-    String CENTRAL = "central.gif"; //$NON-NLS-1$
+    String BOUNDARY = "boundary.png"; //$NON-NLS-1$
+    String CENTRAL = "central.png"; //$NON-NLS-1$
     String DELETE = "delete_edit.gif"; //$NON-NLS-1$
     String DONE = "step_done.gif"; //$NON-NLS-1$
     String DOWN_TRIANGLE = "down_triangle.gif"; //$NON-NLS-1$
     String DRILL_UP = "drill_up.png"; //$NON-NLS-1$
     String DRILL_DOWN = "drill_down.png"; //$NON-NLS-1$
     String FILTER = "filter.gif"; //$NON-NLS-1$
-    String FIT_SELECTION = "fitselection.gif"; //$NON-NLS-1$
-    String FIT_SIZE = "fitsize.gif"; //$NON-NLS-1$
+    String FIT_SELECTION = "fitselection.png"; //$NON-NLS-1$
+    String FIT_SIZE = "fitsize.png"; //$NON-NLS-1$
     String FLOATING = "floating.gif"; //$NON-NLS-1$
-    String HELP = "linkto_help.gif"; //$NON-NLS-1$
-    String HYPERLINK = "discovery.gif"; //$NON-NLS-1$
-    String INSERT_AFTER = "insertafter.gif"; //$NON-NLS-1$
-    String INSERT_BEFORE = "insertbefore.gif"; //$NON-NLS-1$
-    String INSERT_FLOATING_CENTRAL = "insertfloating_central.gif"; //$NON-NLS-1$
-    String INSERT_FLOATING_MAIN = "insertfloating_main.gif"; //$NON-NLS-1$
-    String INSERT_IMAGE = "insertimage.gif"; //$NON-NLS-1$
-    String INSERT_PARENT = "insertparent.gif"; //$NON-NLS-1$
-    String INSERT_SUB = "insertsub.gif"; //$NON-NLS-1$
+    String HELP = "inspector.png"; //$NON-NLS-1$
+    String HYPERLINK = "hyperlink.png"; //$NON-NLS-1$
+    String INSERT_AFTER = "insertafter.png"; //$NON-NLS-1$
+    String INSERT_BEFORE = "insertbefore.png"; //$NON-NLS-1$
+    String INSERT_FLOATING_CENTRAL = "insertfloating_central.png"; //$NON-NLS-1$
+    String INSERT_FLOATING_MAIN = "insertfloating_main.png"; //$NON-NLS-1$
+    String INSERT_IMAGE = "insertimage.png"; //$NON-NLS-1$
+    String INSERT_PARENT = "insertparent.png"; //$NON-NLS-1$
+    String INSERT_SUB = "insertsub.png"; //$NON-NLS-1$
     String LABEL = "label.gif"; //$NON-NLS-1$
     String LEGEND = "legend.gif"; //$NON-NLS-1$
     String LEGEND_RESET = "legend_reset.gif"; //$NON-NLS-1$
     String LINK = "link.gif"; //$NON-NLS-1$
     String LOCK = "lock.gif"; //$NON-NLS-1$
-    String MAIN = "main.gif"; //$NON-NLS-1$
-    String MAP = "map.gif"; //$NON-NLS-1$
+    String MAIN = "main.png"; //$NON-NLS-1$
+    String CALLOUT = "callout.png"; //$NON-NLS-1$
+    String MAP = "map.png"; //$NON-NLS-1$
     String MARKERS = "markers.gif"; //$NON-NLS-1$
     String MARKER_SHORTCUT = "marker_shortcut.png"; //$NON-NLS-1$
     String NEW = "new.gif"; //$NON-NLS-1$
@@ -88,17 +89,17 @@ public interface IMindMapImages {
     String NEW_SHEET_AS = "new_sheet_as.gif"; //$NON-NLS-1$
     String NEWMAP = "newmap.gif"; //$NON-NLS-1$
     String NEW_SHEET_FROM_TEMPLATE = "new_sheet_from_template.gif"; //$NON-NLS-1$
-    String NEWMAP_DIALOG = "newmap_dialog.gif"; //$NON-NLS-1$
+    String NEWMAP_DIALOG = "newmap_dialog.png"; //$NON-NLS-1$
     String NOTES = "notes.gif"; //$NON-NLS-1$
     String OPEN = "fldr_obj.gif"; //$NON-NLS-1$
 
-    String PROPERTIES = "prop_ps.gif"; //$NON-NLS-1$
-    String REGISTER = "prop_ps.gif"; //$NON-NLS-1$
+//    String PROPERTIES = "prop_ps.gif"; //$NON-NLS-1$
+//    String REGISTER = "prop_ps.gif"; //$NON-NLS-1$
     String REMOVE = "trash.gif"; //$NON-NLS-1$
     String RELATIONSHIP = "relationship.gif"; //$NON-NLS-1$
-    String SHEET = "sheet.gif"; //$NON-NLS-1$
-    String SHOWALL = "showall.gif"; //$NON-NLS-1$
-    String SHOWOTHER = "showother.gif"; //$NON-NLS-1$
+    String SHEET = "sheet.png"; //$NON-NLS-1$
+    String SHOWALL = "showall.png"; //$NON-NLS-1$
+    String SHOWOTHER = "showother.png"; //$NON-NLS-1$
     String SMART_MODE = "smartmode_co.gif"; //$NON-NLS-1$
     String STOP = "nav_stop.gif"; //$NON-NLS-1$
     String STRIKETHROUGH = "strikethrough.gif"; //$NON-NLS-1$
@@ -106,14 +107,14 @@ public interface IMindMapImages {
     String SUMMARY = "summary.gif"; //$NON-NLS-1$
     String SUMMARY_TOPIC = "summary_topic.gif"; //$NON-NLS-1$
     String SYNCED = "synced.gif"; //$NON-NLS-1$
-    String ZOOMOUT = "zoomout.gif"; //$NON-NLS-1$
-    String ZOOMIN = "zoomin.gif"; //$NON-NLS-1$
-    String ZOOMOUT_SMALL = "zoomout_small.gif"; //$NON-NLS-1$
-    String ZOOMIN_SMALL = "zoomin_small.gif"; //$NON-NLS-1$
+    String ZOOMOUT = "zoomout.png"; //$NON-NLS-1$
+    String ZOOMIN = "zoomin.png"; //$NON-NLS-1$
+    String ZOOMOUT_SMALL = "zoomout_small.png"; //$NON-NLS-1$
+    String ZOOMIN_SMALL = "zoomin_small.png"; //$NON-NLS-1$
     String TEMPLATE = "template.gif"; //$NON-NLS-1$
     String THEME = "theme.gif"; //$NON-NLS-1$
-    String TOPIC = "topic.gif"; //$NON-NLS-1$
-    String WORKBOOK = "workbook.gif"; //$NON-NLS-1$
+    String TOPIC = "topic.png"; //$NON-NLS-1$
+    String WORKBOOK = "workbook.png"; //$NON-NLS-1$
     String URL = "link_obj.gif"; //$NON-NLS-1$
 
     String ALPHA = "alpha.gif"; //$NON-NLS-1$
@@ -142,6 +143,8 @@ public interface IMindMapImages {
     String DEFAULT_THEME = "defaultTheme.gif"; //$NON-NLS-1$
 
     String STAR = "star.gif"; //$NON-NLS-1$
+    String PIN = "pin.png"; //$NON-NLS-1$
+    String THUMBNAIL_LOST = "thumbnail.png"; //$NON-NLS-1$
 
 //    String BRAINY = "brainy.16.gif"; //$NON-NLS-1$
 //    String BRAINY_FILE = "xmap_file.gif"; //$NON-NLS-1$
@@ -181,6 +184,14 @@ public interface IMindMapImages {
     String MISSING_IMAGE = PATH + "misc/missing_image.png"; //$NON-NLS-1$
 
     String UNKNOWN_FILE = "unknownfile.gif"; //$NON-NLS-1$
+
+    String TEXT_MANUAL = "text-manual.png"; //$NON-NLS-1$
+    String TEXT_LOWERCASE = "text-lowercase.png"; //$NON-NLS-1$
+    String TEXT_UPPERCASE = "text-uppercase.png"; //$NON-NLS-1$
+    String TEXT_CAPITALIZE = "text-capitalize.png"; //$NON-NLS-1$
+
+    String ITEM = "item.png"; //$NON-NLS-1$
+    String ITEM_2 = "item_2.png"; //$NON-NLS-1$
 
     CursorFactory CURSOR_ADD = new CursorFactory("add") { //$NON-NLS-1$
         public Cursor createCursor(IMindMapImages images) {
@@ -225,15 +236,15 @@ public interface IMindMapImages {
                     h = size.y;
                 }
             }
-            ImageData source = new ImageData(w, h, 16, new PaletteData(
-                    0xff0000, 0xff00, 0xff));
+            ImageData source = new ImageData(w, h, 16,
+                    new PaletteData(0xff0000, 0xff00, 0xff));
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
                     source.setPixel(x, y, 0xffffff);
                 }
             }
-            ImageData mask = new ImageData(w, h, 16, new PaletteData(0xff0000,
-                    0xff00, 0xff));
+            ImageData mask = new ImageData(w, h, 16,
+                    new PaletteData(0xff0000, 0xff00, 0xff));
             return new Cursor(display, source, mask, w / 2, h / 2);
         }
     };

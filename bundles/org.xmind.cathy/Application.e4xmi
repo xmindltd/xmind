@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ASCII"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_ei-mYFkBEeSUmaJC4CQ7tw" elementId="org.xmind.cathy.application" bindingContexts="_Jw4SsDZ3EeWGR43PHpD4Cg">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_gVqE8FkBEeSUmaJC4CQ7tw" elementId="org.xmind.cathy.window.main" label="XMind" width="1024" height="768">
+    <tags>CathyShowDashboard</tags>
+    <trimBars xmi:id="_5YPBEP0iEeSFCalzBJpRhw" elementId="org.eclipse.ui.main.toolbar">
+      <children xsi:type="menu:ToolBar" xmi:id="_KJCk0CSAEeWFGJf3FFZX9w" elementId="org.xmind.ui.toolbar.dashboard">
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_bY638ESPEeW5MZ3VuY9QmQ" elementId="start" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_b8dC0ESPEeW5MZ3VuY9QmQ" elementId="additions" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_e1maMESPEeW5MZ3VuY9QmQ" elementId="end" visible="false"/>
+      </children>
+      <children xsi:type="menu:ToolBar" xmi:id="_co-n0DZ8EeWGR43PHpD4Cg" elementId="org.xmind.ui.toolbar.edit">
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_ioeO4ESPEeW5MZ3VuY9QmQ" elementId="start" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_jo4jAESPEeW5MZ3VuY9QmQ" elementId="additions" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_kqRHgESPEeW5MZ3VuY9QmQ" elementId="end" visible="false"/>
+      </children>
+      <children xsi:type="menu:ToolBar" xmi:id="_hqtqsETSEeWqKcBDsQEnrw" elementId="additions" visible="false">
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_kTRoYETSEeWqKcBDsQEnrw" elementId="additions" visible="false"/>
+      </children>
+      <children xsi:type="menu:ToolControl" xmi:id="_d31aUP3WEeSFCalzBJpRhw" elementId="PerspectiveSpacer" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.renderers.swt/org.eclipse.e4.ui.workbench.renderers.swt.LayoutModifierToolControl">
+        <tags>stretch</tags>
+      </children>
+      <children xsi:type="menu:ToolBar" xmi:id="_Du1b8P04EeSFCalzBJpRhw" elementId="org.xmind.ui.toolbar.export">
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_HJHhUESQEeW5MZ3VuY9QmQ" elementId="start" visible="false"/>
+        <children xsi:type="menu:DirectToolItem" xmi:id="_F-gwwETPEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.share" label="%toolbar.share.label" iconURI="platform:/plugin/org.xmind.cathy/icons/toolbar/e/share.png" tooltip="%toolbar.share.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
+          <menu xmi:id="_SyARYETPEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.share.menu">
+            <children xsi:type="menu:MenuSeparator" xmi:id="_TtfpQETPEeWqKcBDsQEnrw" elementId="start" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_aqrugEV3EeWqKcBDsQEnrw" elementId="group.favorite"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_M76RYEV3EeWqKcBDsQEnrw" elementId="group.intranet"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_M9gM0EV3EeWqKcBDsQEnrw" elementId="group.internet" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_TvE9oETPEeWqKcBDsQEnrw" elementId="additions" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_Tw2fQETPEeWqKcBDsQEnrw" elementId="end" visible="false"/>
+          </menu>
+        </children>
+        <children xsi:type="menu:DirectToolItem" xmi:id="_SPWpkETKEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.export" label="%toolbar.export.label" iconURI="platform:/plugin/org.xmind.cathy/icons/toolbar/e/export.png" tooltip="%toolbar.export.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
+          <menu xmi:id="_ajm-wETKEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.export.menu">
+            <children xsi:type="menu:MenuSeparator" xmi:id="_2eNroETOEeWqKcBDsQEnrw" elementId="start" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_3FOoUETOEeWqKcBDsQEnrw" elementId="additions" visible="false"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_tRjSUETPEeWqKcBDsQEnrw" elementId="group.more"/>
+            <children xsi:type="menu:HandledMenuItem" xmi:id="_YKcVsETPEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.export.menu.more" label="%toolbar.export.more.label" tooltip="%toolbar.export.more.tooltip" command="_yzrJgGNMEeWpPtOEOyjaIw"/>
+            <children xsi:type="menu:MenuSeparator" xmi:id="_3xZx0ETOEeWqKcBDsQEnrw" elementId="end" visible="false"/>
+          </menu>
+        </children>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_HLqfAESQEeW5MZ3VuY9QmQ" elementId="additions" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_HPpnIESQEeW5MZ3VuY9QmQ" elementId="end" visible="false"/>
+      </children>
+      <children xsi:type="menu:ToolBar" xmi:id="_MZgtEP04EeSFCalzBJpRhw" elementId="org.xmind.ui.toolbar.perspective">
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_b8m-YESQEeW5MZ3VuY9QmQ" elementId="start" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_b_ALEESQEeW5MZ3VuY9QmQ" elementId="additions" visible="false"/>
+        <children xsi:type="menu:ToolBarSeparator" xmi:id="_cCgLAESQEeW5MZ3VuY9QmQ" elementId="end" visible="false"/>
+      </children>
+    </trimBars>
+    <trimBars xmi:id="_DLw9wGsBEeSJBerROzMUkg" elementId="org.eclipse.ui.trim.status" side="Bottom">
+      <children xsi:type="menu:ToolControl" xmi:id="_MdG9UGuxEeSh8uGFjDTaww" elementId="org.eclipse.ui.StatusLine" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
+        <tags>stretch</tags>
+      </children>
+      <children xsi:type="menu:ToolControl" xmi:id="_Sh3VEGuxEeSh8uGFjDTaww" elementId="org.eclipse.ui.HeapStatus" toBeRendered="false" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim"/>
+      <children xsi:type="menu:ToolControl" xmi:id="_NW0MgGuxEeSh8uGFjDTaww" elementId="org.eclipse.ui.ProgressBar" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
+        <tags>Draggable</tags>
+      </children>
+      <children xsi:type="menu:ToolControl" xmi:id="_C18bUCUoEeWi46W04S8NKQ" elementId="org.xmind.ui.toolcontrol.autobackup" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.AutoBackupIndicatorToolControl"/>
+      <children xsi:type="menu:ToolControl" xmi:id="_0m1UcCUrEeWi46W04S8NKQ" elementId="org.xmind.ui.toolcontrol.sharingservicestatus" contributionURI="bundleclass://org.xmind.ui.sharing/org.xmind.ui.internal.sharing.SharingServiceStatusToolControl"/>
+    </trimBars>
+  </children>
+  <rootContext xmi:id="_Jw4SsDZ3EeWGR43PHpD4Cg" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="">
+    <children xmi:id="_c78ZYDZ3EeWGR43PHpD4Cg" elementId="org.eclipse.ui.contexts.window" name="">
+      <children xmi:id="_ib-6gDZ3EeWGR43PHpD4Cg" elementId="org.eclipse.ui.textEditorScope"/>
+      <children xmi:id="_qgNlYEJZEeWw4ul6w49T4A" elementId="org.xmind.ui.contexts.dashboard" name="Home UI Is Shown"/>
+    </children>
+    <children xmi:id="_fHXIEDZ3EeWGR43PHpD4Cg" elementId="org.eclipse.ui.contexts.dialog"/>
+  </rootContext>
+  <snippets xsi:type="basic:Part" xmi:id="_vDli0FVFEeWUtqOx7RAtwg" elementId="org.xmind.cathy.part.dashboard" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.dashboard.DashboardPart" label="Home" bindingContexts="_qgNlYEJZEeWw4ul6w49T4A"/>
+  <commands xmi:id="_yzrJgGNMEeWpPtOEOyjaIw" elementId="org.eclipse.ui.file.export"/>
+  <commands xmi:id="_0CfGAGNMEeWpPtOEOyjaIw" elementId="org.eclipse.ui.views.showView"/>
+  <addons xmi:id="_ei-mYVkBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_ei-mYlkBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_ei-mY1kBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_ei-mZFkBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_ei-mZVkBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_ei-mZlkBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+  <addons xmi:id="_ei-mZ1kBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+  <addons xmi:id="_6rjy8GoeEeS4VdCI9jT02A" elementId="DnD Addon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.dndaddon.DnDAddon"/>
+  <addons xmi:id="_NMGV8GofEeS4VdCI9jT02A" elementId="MinMax Addon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.MinMaxAddon"/>
+  <addons xmi:id="_frfacDy6EeWaZuHeFLU7gA" elementId="org.xmind.cathy.addon.dashboardAutomation" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.dashboard.DashboardAutomationAddon"/>
+  <addons xmi:id="_aUwWQECfEeWwKJv-3UIlVw" elementId="org.xmind.cathy.addon.commandLabelUpdater" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.CommandLabelUpdater"/>
+  <addons xmi:id="_ibOB8EJeEeWw4ul6w49T4A" elementId="org.xmind.cathy.addon.saveCommandLabelUpdater" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.SaveCommandLabelUpdater"/>
+</application:Application>

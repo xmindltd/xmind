@@ -8,14 +8,23 @@
             id="org.xmind.ui.structure.spreadsheet">
       </structure>
       <structure
+            class="org.xmind.ui.internal.spreadsheet.structures.SpreadsheetColumnStructure"
+            id="org.xmind.ui.structure.column.spreadsheet">
+      </structure>
+      <structure
             class="org.xmind.ui.internal.spreadsheet.structures.RowStructure"
             id="org.xmind.ui.structure.spreadsheet.row">
       </structure>
+      <structure
+            class="org.xmind.ui.internal.spreadsheet.structures.ColumnStructure"
+            id="org.xmind.ui.structure.spreadsheet.column">
+      </structure>
       <branchPolicy
+            categoryId="org.xmind.ui.structureCategory.spreadsheet"
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/spreadsheet.gif"
+            icon="icons/structure_matrix_label_as_row.png"
             id="org.xmind.ui.spreadsheet"
-            name="%branchPolicy.spreadsheet.name"
+            name="%branchPolicy.spreadsheet.row.name"
             propertyTesterId="org.xmind.ui.spreasheet.propertyTester">
          <additionalStructures>
             <additionalStructure
@@ -85,7 +94,7 @@
          <styleSelector>
             <overridedStyle
                   key="branch-decoration-class"
-                  value="org.xmind.ui.spreadsheet.branchDecoration">
+                  value="org.xmind.ui.spreadsheet.row.branchDecoration">
                <enablement>
                   <test
                         property="org.xmind.ui.branch.structureId"
@@ -209,6 +218,10 @@
                      name="beforeUserValue">
                </layer>
             </overridedStyle>
+            <overridedStyle
+                  key="hide-callout"
+                  value="true">
+            </overridedStyle>
          </styleSelector>
          <advisor
                class="org.xmind.ui.internal.spreadsheet.SpreadsheetPolicyAdvisor">
@@ -228,19 +241,299 @@
                </test>
             </enablement>
          </branchHook>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
+      </branchPolicy>
+      <branchPolicy
+            categoryId="org.xmind.ui.structureCategory.spreadsheet"
+            defaultStructureId="org.xmind.ui.branchStructure.right"
+            icon="icons/structure_matrix_label_as_column.png"
+            id="org.xmind.ui.spreadsheet.column"
+            name="%branchPolicy.spreadsheet.column.name"
+            propertyTesterId="org.xmind.ui.spreasheet.propertyTester">
+         <additionalStructures>
+            <additionalStructure
+                  structureId="org.xmind.ui.structure.column.spreadsheet">
+               <enablement>
+                  <or>
+                     <not>
+                        <with
+                              variable="parentBranch">
+                        </with>
+                     </not>
+                     <and>
+                        <with
+                              variable="topic">
+                           <test
+                                 property="org.xmind.core.topic.structureClass"
+                                 value="org.xmind.ui.spreadsheet.column">
+                           </test>
+                        </with>
+                        <with
+                              variable="parentBranch">
+                           <not>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.structure.column.spreadsheet">
+                              </test>
+                           </not>
+                        </with>
+                     </and>
+                  </or>
+               </enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.structure.spreadsheet.column">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.column.spreadsheet">
+                     </test>
+                  </with>
+               </enablement>
+            </additionalStructure>
+         </additionalStructures>
+         <override>
+            <enablement>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.structure.column.spreadsheet">
+                  </test>
+               </with>
+            </enablement>
+         </override>
+         <unmodifiableProperties>
+            <unmodifiableProperty
+                  primaryKey="topicFolded">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.column.spreadsheet">
+                     </test>
+                  </with>
+               </enablement>
+            </unmodifiableProperty>
+         </unmodifiableProperties>
+         <styleSelector>
+            <overridedStyle
+                  key="branch-decoration-class"
+                  value="org.xmind.ui.spreadsheet.column.branchDecoration">
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.structure.column.spreadsheet">
+                  </test>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.none">
+               <enablement>
+                  <or>
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.column.spreadsheet">
+                     </test>
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.spreadsheet.column">
+                     </test>
+                  </or>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="shape-class"
+                  value="org.xmind.ui.spreadsheet.topicShape.head">
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.structure.column.spreadsheet">
+                  </test>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="shape-class"
+                  value="org.xmind.ui.spreadsheet.topicShape.columnHead">
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.structure.spreadsheet.column">
+                  </test>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="shape-class"
+                  value="org.xmind.topicShape.noBorder">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.spreadsheet.column">
+                     </test>
+                  </with>
+               </enablement>
+            </overridedStyle>
+            <overridedStyle
+                  key="svg:fill"
+                  value="none">
+               <enablement>
+                  <and>
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.spreadsheet.column">
+                     </test>
+                     <test
+                           args="isAlternativeColumn"
+                           property="org.xmind.ui.branch.property">
+                     </test>
+                  </and>
+               </enablement>
+            </overridedStyle>
+            <overridedStyle
+                  key="svg:fill"
+                  value="#e0e8ff">
+               <enablement>
+                  <and>
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.structure.spreadsheet.column">
+                     </test>
+                     <test
+                           args="isAlternativeColumn"
+                           property="org.xmind.ui.branch.property"
+                           value="false">
+                     </test>
+                  </and>
+               </enablement>
+            </overridedStyle>
+            <overridedStyle
+                  key="svg:fill"
+                  value="#ffffff">
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.structure.column.spreadsheet">
+                  </test>
+               </enablement>
+            </overridedStyle>
+            <overridedStyle
+                  key="hide-children-labels"
+                  value="true">
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.structure.spreadsheet.column">
+                  </test>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="hide-callout"
+                  value="true">
+            </overridedStyle>
+         </styleSelector>
+         <advisor
+               class="org.xmind.ui.internal.spreadsheet.SpreadsheetPolicyAdvisor">
+            <enablement>
+               <test
+                     property="org.xmind.ui.branch.structureId"
+                     value="org.xmind.ui.structure.column.spreadsheet">
+               </test>
+            </enablement>
+         </advisor>
+         <branchHook
+               class="org.xmind.ui.internal.spreadsheet.SpreadsheetBranchHook">
+            <enablement>
+               <test
+                     property="org.xmind.ui.branch.structureId"
+                     value="org.xmind.ui.structure.column.spreadsheet">
+               </test>
+            </enablement>
+         </branchHook>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <propertyTester
             class="org.xmind.ui.internal.spreadsheet.SpreadsheetPropertyTester"
             id="org.xmind.ui.spreasheet.propertyTester">
       </propertyTester>
+      <branchPolicyCategory
+            icon="icons/structure_matrix_label_as_row.png"
+            id="org.xmind.ui.structureCategory.spreadsheet"
+            name="%branchPolicyCategory.name">
+      </branchPolicyCategory>
    </extension>
    <extension
          point="org.xmind.ui.decorations">
       <decoration
-            id="org.xmind.ui.spreadsheet.branchDecoration"
+            id="org.xmind.ui.spreadsheet.row.branchDecoration"
             name="%branchDecoration.spreadsheet.name">
          <factory
                class="org.xmind.ui.internal.spreadsheet.decorations.SpreadsheetBranchDecorationFactory">
+         </factory>
+      </decoration>
+      <decoration
+            id="org.xmind.ui.spreadsheet.column.branchDecoration"
+            name="%branchDecoration.spreadsheet.name">
+         <factory
+               class="org.xmind.ui.internal.spreadsheet.decorations.SpreadsheetBranchDecorationFactory2">
          </factory>
       </decoration>
       <decoration
@@ -254,19 +547,16 @@
             id="org.xmind.ui.spreadsheet.topicShape.rowHead"
             name="%topicShape.spreradsheet.row.name">
          <factory
+               class="org.xmind.ui.internal.spreadsheet.decorations.ColumnHeadTopicDecorationFactory">
+         </factory>
+      </decoration>
+      <decoration
+            id="org.xmind.ui.spreadsheet.topicShape.columnHead"
+            name="%topicShape.spreradsheet.column.name">
+         <factory
                class="org.xmind.ui.internal.spreadsheet.decorations.RowHeadTopicDecorationFactory">
          </factory>
       </decoration>
-   </extension>
-   <extension
-         point="org.xmind.ui.iconTips">
-      <iconTip
-            contributorClass="org.xmind.ui.internal.spreadsheet.AddColumnIconTipContributor"
-            icon="icons/add_column.gif"
-            id="org.xmind.ui.spreadsheet.AddColumnIconTip"
-            label="%iconTip.addColumn.label"
-            tooltip="%iconTip.addColumn.tooltip">
-      </iconTip>
    </extension>
    <extension
          point="org.xmind.ui.tools">
@@ -279,6 +569,36 @@
             class="org.xmind.ui.internal.spreadsheet.ColumnMoveTool"
             id="org.xmind.ui.spreadsheet.tool.moveColumn">
       </tool>
+      <tool
+            class="org.xmind.ui.internal.spreadsheet.RowHeadEditTool"
+            contextId="org.xmind.ui.context.mindmap.textEdit"
+            id="org.xmind.ui.spreadsheet.tool.rowHeadEditTool">
+      </tool>
+      <tool
+            class="org.xmind.ui.internal.spreadsheet.RowMoveTool"
+            id="org.xmind.ui.spreadsheet.tool.moveRow">
+      </tool>
+   </extension>
+   <extension
+         point="org.xmind.ui.infoItems">
+      <infoItem
+            availableModes="icon"
+            contributorClass="org.xmind.ui.internal.spreadsheet.AddColumnInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/add_column.png"
+            id="org.xmind.ui.spreadsheet.infoItem.AddColumn"
+            label="%iconTip.addColumn.label"
+            tooltip="%iconTip.addColumn.tooltip">
+      </infoItem>
+      <infoItem
+            availableModes="icon"
+            contributorClass="org.xmind.ui.internal.spreadsheet.AddRowInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/add_row.png"
+            id="org.xmind.ui.spreadsheet.infoItem.AddRow"
+            label="%iconTip.addRow.label"
+            tooltip="%iconTip.addRow.tooltip">
+      </infoItem>
    </extension>
 
 </plugin>

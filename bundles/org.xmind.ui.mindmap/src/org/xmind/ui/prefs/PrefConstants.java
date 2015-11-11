@@ -85,11 +85,57 @@ public class PrefConstants {
 
     public static final String AUTO_BACKUP_ENABLE = "autoBackupEnable"; //$NON-NLS-1$
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public static final String HIDE_PRO_FEATURES = "hideProFeatures"; //$NON-NLS-1$
 
+    /**
+     *
+     */
+    public static final String AUTHOR_INFO_NAME = "org.xmind.ui.mindmap.author.name"; //$NON-NLS-1$
+
+    public static final String AUTHOR_INFO_EMAIL = "org.xmind.ui.mindmap.author.email"; //$NON-NLS-1$
+
+    public static final String AUTHOR_INFO_ORG = "org.xmind.ui.mindmap.author.org"; //$NON-NLS-1$
+
+    /**
+    *
+    */
     public static final String THEME_APPLY = "Theme_Apply"; //$NON-NLS-1$
 
     public static final String THEME_OVERRIDE = "THEME_OVERRIDE"; //$NON-NLS-1$
 
     public static final String THEME_KEEP = "THEME_KEEP"; //$NON-NLS-1$
+
+    /**
+     *
+     */
+    public static final String ZOOM_VALUE = "zoome_value"; //$NON-NLS-1$
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public static final String SHOW_PLUS_MINUS_ICONS_KEY = "showPlusMinusIcons"; //$NON-NLS-1$
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public static final String HIDE_BOTH = "hideBoth"; //$NON-NLS-1$
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public static final String SHOW_BOTH = "showBoth"; //$NON-NLS-1$
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public static final String HIDE_MINUS_SHOW_PLUS = "hideMinusShowPlus"; //$NON-NLS-1$
+
 }

@@ -28,10 +28,14 @@ import java.util.Set;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.internal.UIPlugin;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.xmind.core.IAdaptable;
 import org.xmind.core.IBoundary;
 import org.xmind.core.INumbering;
@@ -46,22 +50,28 @@ import org.xmind.core.ITopicComponent;
 import org.xmind.core.ITopicRange;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.IWorkbookComponent;
+import org.xmind.core.style.IStyled;
+import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.IViewer;
+import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.graphicalpolicy.IStructure;
 import org.xmind.gef.part.IPart;
+import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.branch.IFreeableBranchStructureExtension;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.editor.MindMapEditor;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ICacheManager;
 import org.xmind.ui.mindmap.IIconTipPart;
+import org.xmind.ui.mindmap.IInfoItemPart;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.ISummaryPart;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.IViewerModel;
+import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ImageUtils;
+import org.xmind.ui.style.Styles;
 
 public class MindMapUtils {
 
@@ -122,7 +132,8 @@ public class MindMapUtils {
         return matchesSelection(selection, category, true);
     }
 
-    public static boolean hasSuchElements(ISelection selection, String category) {
+    public static boolean hasSuchElements(ISelection selection,
+            String category) {
         return matchesSelection(selection, category, false);
     }
 
@@ -152,7 +163,48 @@ public class MindMapUtils {
         return MindMapUI.getCategoryManager().belongsToCategory(o, category);
     }
 
-    public static boolean hasCentralTopic(ISelection selection, IViewer viewer) {
+    /**
+     * return true if the given selection is instance of
+     * {@link StructuredSelection} and any of its elements is the given category
+     * type.
+     * 
+     * @param selection
+     * @param category
+     * @return
+     */
+    public static boolean isAllSuchElements(ISelection selection,
+            String category) {
+        if (selection == null || selection.isEmpty()
+                || !(selection instanceof IStructuredSelection)) {
+            return false;
+        }
+
+        IStructuredSelection ss = (IStructuredSelection) selection;
+        for (Object o : ss.toArray()) {
+            if (!isThisCategory(o, category)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static List<Object> getAllSuchElements(ISelection selection,
+            String category) {
+        List<Object> list = new ArrayList<Object>();
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection ss = (IStructuredSelection) selection;
+            for (Object o : ss.toArray()) {
+                if (isThisCategory(o, category)) {
+                    list.add(o);
+                }
+            }
+        }
+        return list;
+    }
+
+    public static boolean hasCentralTopic(ISelection selection,
+            IViewer viewer) {
         if (selection == null || selection.isEmpty() || viewer == null)
             return false;
         if (selection instanceof IStructuredSelection) {
@@ -477,8 +529,8 @@ public class MindMapUtils {
     }
 
     public static String trimFileName(String name) {
-        return name.replaceAll(
-                "\\r\\n|\\n|\\r|\\\\|/|\\||:|\"|>|<|\\*|\\?", " "); //$NON-NLS-1$ //$NON-NLS-2$
+        return name.replaceAll("\\r\\n|\\n|\\r|\\\\|/|\\||:|\"|>|<|\\*|\\?", //$NON-NLS-1$
+                " "); //$NON-NLS-1$
     }
 
     public static String trimSingleLine(String name) {
@@ -537,7 +589,33 @@ public class MindMapUtils {
                 index + 1);
     }
 
-    public static String getNumberingText(ITopic topic, String defaultFormat) {
+    public static String getNumberSeparator(ITopic topic,
+            String defaultSeparator) {
+        if (!ITopic.ATTACHED.equals(topic.getType()))
+            return null;
+        ITopic parent = topic.getParent();
+        if (parent == null)
+            return null;
+
+        String separator = parent.getNumbering().getComputedSeparator();
+        if (MindMapUI.DEFAULT_NUMBER_SEPARATOR.equals(separator)
+                && defaultSeparator != null
+                && !MindMapUI.DEFAULT_NUMBER_SEPARATOR
+                        .equals(defaultSeparator)) {
+            separator = defaultSeparator;
+        }
+        if (separator == null) {
+            if (defaultSeparator == null)
+                return null;
+            separator = defaultSeparator;
+        }
+
+        return MindMapUI.getNumberSeparatorManager()
+                .getSeparatorText(separator);
+    }
+
+    public static String getNumberingText(ITopic topic, String defaultFormat,
+            String defaultSeparator) {
         String number = getNumberText(topic, defaultFormat);
         if (number == null || "".equals(number)) { //$NON-NLS-1$
             return null;
@@ -548,18 +626,23 @@ public class MindMapUtils {
                     && parent.getNumbering().getNumberFormat() != null) {
                 defaultFormat = null;
             }
-            String parentNumber = getNumberingText(parent, defaultFormat);
+            String parentNumber = getNumberingText(parent, defaultFormat,
+                    defaultSeparator);
             if (parentNumber != null) {
-                if (parentNumber.endsWith(NUMBER_SEPARATOR))
+                String separator = getNumberSeparator(topic, defaultSeparator);
+                if (separator == null)
+                    separator = NUMBER_SEPARATOR;
+                if (parentNumber.endsWith(separator))
                     return parentNumber + number;
-                return parentNumber + NUMBER_SEPARATOR + number;
+                return parentNumber + separator + number;
             }
         }
         return number;
     }
 
-    public static String getFullNumberingText(ITopic topic, String defaultFormat) {
-        String text = getNumberingText(topic, defaultFormat);
+    public static String getFullNumberingText(ITopic topic,
+            String defaultFormat, String defaultSeparator) {
+        String text = getNumberingText(topic, defaultFormat, defaultSeparator);
         if (text != null) {
             ITopic parent = topic.getParent();
             if (parent != null) {
@@ -610,7 +693,8 @@ public class MindMapUtils {
         return findSummaryBySummaryTopic(topic, topic.getParent());
     }
 
-    public static ISummary findSummaryBySummaryTopic(ITopic topic, ITopic parent) {
+    public static ISummary findSummaryBySummaryTopic(ITopic topic,
+            ITopic parent) {
         if (topic == null || parent == null)
             return null;
         return findSummaryBySummaryTopic(topic, parent, parent.getSummaries());
@@ -744,58 +828,166 @@ public class MindMapUtils {
                 topics.add((ITopicPart) p);
             else if (p instanceof IIconTipPart) {
                 topics.add(((IIconTipPart) p).getTopicPart());
+            } else if (p instanceof IInfoItemPart) {
+                topics.add(((IInfoItemPart) p).getTopicPart());
             }
         }
         topics.trimToSize();
         return topics;
     }
 
-    public static List<ITopic> getAllTopics(ISheet sheet) {
-        List<ITopic> allTopics = new ArrayList<ITopic>();
-        allTopics.addAll(getSheet(sheet));
-
-        return allTopics;
-    }
-
-    private static List<ITopic> getSheet(ISheet sheet) {
-        List<ITopic> allTopics = new ArrayList<ITopic>();
-        ITopic root = sheet.getRootTopic();
-        if (root != null) {
-            allTopics.add(root);
-            allTopics = getAllTopics(root.getAllChildren(), allTopics);
+    public static List<ITopic> getAllTopics(ISheet sheet,
+            boolean includeFloatingTopic, boolean includeSummary) {
+        List<ITopic> topics = new ArrayList<ITopic>();
+        if (sheet != null && sheet.getRootTopic() != null) {
+            fillTopics(topics, sheet.getRootTopic(), includeFloatingTopic,
+                    includeSummary);
         }
-        return allTopics;
+        return topics;
     }
 
-    private static List<ITopic> getAllTopics(List<ITopic> topics,
-            List<ITopic> allTopics) {
-        if (topics.size() == 0)
-            return allTopics;
+    private static void fillTopics(List<ITopic> topics, ITopic topic,
+            boolean includeFloatingTopic, boolean includeSummary) {
+        if (topics == null || topic == null) {
+            return;
+        }
+        topics.add(topic);
 
-        List<ITopic> subs = new ArrayList<ITopic>();
-        for (ITopic topic : topics) {
-            subs.addAll(topic.getAllChildren());
+        List<ITopic> children = topic.getAllChildren();
+        if (!includeFloatingTopic && !includeSummary) {
+            children.removeAll(topic.getChildren(ITopic.DETACHED));
+            children.removeAll(topic.getChildren(ITopic.SUMMARY));
+        } else if (includeFloatingTopic && !includeSummary) {
+            children.removeAll(topic.getChildren(ITopic.SUMMARY));
+        } else if (!includeFloatingTopic && includeSummary) {
+            children.removeAll(topic.getChildren(ITopic.DETACHED));
+        }
+        if (children == null || children.size() == 0) {
+            return;
         }
 
-        allTopics.addAll(topics);
-        return getAllTopics(subs, allTopics);
+        for (ITopic child : children) {
+            fillTopics(topics, child, includeFloatingTopic, includeSummary);
+        }
     }
 
-    public static ISheet getSheet() {
-        IEditorPart activeEditor = UIPlugin.getDefault().getWorkbench()
-                .getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+    public static List<ITopic> getAllFloatingTopics(ISheet sheet) {
+        if (sheet == null) {
+            return new ArrayList<ITopic>();
+        }
 
-        if (activeEditor instanceof MindMapEditor) {
-            MindMapEditor editor = (MindMapEditor) activeEditor;
-            if (editor.getActivePageInstance() != null) {
-                ISheet sheet = (ISheet) editor.getActivePageInstance()
-                        .getAdapter(ISheet.class);
+        ITopic rootTopic = sheet.getRootTopic();
+        if (rootTopic == null) {
+            return new ArrayList<ITopic>();
+        }
 
-                return sheet;
+        List<ITopic> topics = new ArrayList<ITopic>();
+
+        fillFloatingTopics(topics, rootTopic);
+
+        return topics;
+    }
+
+    private static void fillFloatingTopics(List<ITopic> topics, ITopic topic) {
+        if (topics == null || topic == null) {
+            return;
+        }
+        topics.add(topic);
+
+        List<ITopic> children = null;
+        if (topic.isRoot())
+            children = topic.getChildren(ITopic.DETACHED);
+        else
+            children = topic.getAllChildren();
+
+        if (children == null || children.size() == 0) {
+            return;
+        }
+
+        for (ITopic child : children) {
+            fillFloatingTopics(topics, child);
+        }
+    }
+
+    public static ICommandStack getCommandStack(IWorkbook workbook) {
+        if (workbook != null) {
+            IWorkbookRef workbookRef = MindMapUI.getWorkbookRefManager()
+                    .findRef(workbook);
+            if (workbookRef != null) {
+                return workbookRef.getCommandStack();
             }
         }
 
+        return ICommandStack.NULL;
+    }
+
+    public static ITopicPart getTopicPart(ITopic topic) {
+        IWorkbenchWindow window = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow();
+        if (window == null)
+            return null;
+
+        IWorkbenchPage activePage = window.getActivePage();
+        if (activePage == null)
+            return null;
+
+        IEditorPart activeEditor = activePage.getActiveEditor();
+        if (activeEditor == null)
+            return null;
+
+        IGraphicalViewer viewer = activeEditor
+                .getAdapter(IGraphicalViewer.class);
+        if (viewer == null)
+            return null;
+
+        IPart part = viewer.findPart(topic);
+        if (part instanceof ITopicPart)
+            return (ITopicPart) part;
+
+        return part.getAdapter(ITopicPart.class);
+    }
+
+    public static String getFamily(IStyled styleOwner, IMindMap mindmap) {
+        if (styleOwner instanceof ISheet)
+            return Styles.FAMILY_MAP;
+        if (styleOwner instanceof IBoundary)
+            return Styles.FAMILY_BOUNDARY;
+        if (styleOwner instanceof ISummary)
+            return Styles.FAMILY_SUMMARY;
+        if (styleOwner instanceof IRelationship)
+            return Styles.FAMILY_RELATIONSHIP;
+        if (styleOwner instanceof ITopic) {
+            ITopic topic = (ITopic) styleOwner;
+            if (topic.equals(mindmap.getCentralTopic()))
+                return Styles.FAMILY_CENTRAL_TOPIC;
+            if (mindmap.getCentralTopic().equals(topic.getParent())) {
+                if (topic.isAttached())
+                    return Styles.FAMILY_MAIN_TOPIC;
+                if (ITopic.DETACHED.equals(topic.getType()))
+                    return Styles.FAMILY_FLOATING_TOPIC;
+                if (ITopic.SUMMARY.equals(topic.getType()))
+                    return Styles.FAMILY_SUMMARY_TOPIC;
+            }
+            if (ITopic.CALLOUT.equals(topic.getType()))
+                return Styles.FAMILY_CALLOUT_TOPIC;
+            return Styles.FAMILY_SUB_TOPIC;
+        }
         return null;
+    }
+
+    public static void reveal(IGraphicalEditor sourceEditor, ITopic topic) {
+        if (sourceEditor == null) {
+            return;
+        }
+        sourceEditor.getSite().getPage().activate(sourceEditor);
+
+        if (topic != null) {
+            ISelectionProvider selectionProvider = sourceEditor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider != null) {
+                selectionProvider.setSelection(new StructuredSelection(topic));
+            }
+        }
     }
 
 }

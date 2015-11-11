@@ -149,6 +149,12 @@ public class Rotate90Graphics extends Graphics {
         graphics.clipRect(rotate(r));
     }
 
+    public void clipPath(Path path) {
+        Path p2 = rotate((Path) path);
+        graphics.clipPath(p2);
+        p2.dispose();
+    }
+
     public void dispose() {
         if (lastBgPattern != null) {
             lastBgPattern.dispose();

@@ -15,10 +15,6 @@ package org.xmind.core.internal;
 
 import org.xmind.core.IMeta;
 
-public abstract class Meta implements IMeta {
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class Meta extends AbstractWorkbookComponent implements IMeta {
 
 }

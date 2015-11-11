@@ -15,9 +15,6 @@ package net.xmind.signin.internal;
 
 import java.util.Date;
 
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.ISignInDialogExtension;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -27,6 +24,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.xmind.core.net.IDataStore;
+
+import net.xmind.signin.ISignInDialogExtension;
 
 /**
  * 

@@ -1,0 +1,41 @@
+@import url("platform:/plugin/org.xmind.cathy/css/default.css");
+
+.MPartStack{
+	/*hover tab color */
+	xmind-swt-hover-tab-color:#ffffff;
+}
+
+.MPartStack.active{
+	/*hover tab color */
+	xmind-swt-hover-tab-color:#ffffff;
+	swt-selected-tab-fill:#35a6d9 100%;
+}
+
+#org-eclipse-ui-trim-status,
+#org-eclipse-ui-trim-status *
+{
+	color : #ffffff;
+}
+
+Shell.MTrimmedWindow {
+	background-color:#ffffff #2ca5dc 100%;
+}
+
+.MToolControl.TrimStack {
+	frame-image:  url("./winTSFrame.png");
+	handle-image:  url("./winHandle.png");
+	frame-cuts: 5px 1px 5px 16px;
+}
+
+.MToolControl.Draggable {
+	handle-image:  url("./dragHandle.png");
+}
+
+#org-eclipse-ui-trim-status .MToolBar.Draggable {
+	handle-image:  url("./dragHandle.png");
+}
+
+MTabFolder{
+	xmind-tab-folder-bg:#3ba8db;
+}
+

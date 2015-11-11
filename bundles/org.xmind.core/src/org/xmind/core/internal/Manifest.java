@@ -19,15 +19,9 @@ import java.util.List;
 
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IManifest;
-import org.xmind.core.IWorkbook;
 
-public abstract class Manifest implements IManifest {
-
-    public Object getAdapter(Class adapter) {
-        if (adapter == IWorkbook.class)
-            return getOwnedWorkbook();
-        return null;
-    }
+public abstract class Manifest extends AbstractWorkbookComponent
+        implements IManifest {
 
     public List<IFileEntry> getFileEntries() {
         List<IFileEntry> list = new ArrayList<IFileEntry>();

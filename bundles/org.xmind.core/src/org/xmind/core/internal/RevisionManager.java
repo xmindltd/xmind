@@ -25,16 +25,8 @@ import org.xmind.core.IRevisionManager;
  * @author Frank Shaka
  * 
  */
-public abstract class RevisionManager implements IRevisionManager {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IAdaptable#getAdapter(java.lang.Class)
-     */
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class RevisionManager extends AbstractWorkbookComponent
+        implements IRevisionManager {
 
     public List<IRevision> getRevisions() {
         ArrayList<IRevision> list = new ArrayList<IRevision>();

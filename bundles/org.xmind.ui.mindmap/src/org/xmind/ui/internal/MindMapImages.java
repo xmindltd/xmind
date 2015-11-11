@@ -87,6 +87,9 @@ public class MindMapImages implements IMindMapImages {
         if (ITopic.DETACHED.equals(type)) {
             return get(FLOATING, enabled);
         }
+        if (ITopic.CALLOUT.equals(type)) {
+            return get(CALLOUT, enabled);
+        }
         ITopic parent = topic.getParent();
         if (parent != null && parent.isRoot()) {
             return get(MAIN, enabled);

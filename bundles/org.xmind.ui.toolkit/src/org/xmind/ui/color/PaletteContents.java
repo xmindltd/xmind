@@ -26,66 +26,153 @@ public class PaletteContents {
 
     public static PaletteContents getDefault() {
         if (instance == null) {
-            PaletteContents palette = new PaletteContents(48, 6, 8);
+            PaletteContents palette = new PaletteContents(70, 7, 10);
+//            // row 1
+//            palette.addItem(PaletteItem.Black);
+//            palette.addItem(PaletteItem.Red);
+//            palette.addItem(PaletteItem.Orange);
+//            palette.addItem(PaletteItem.Yellow);
+//            palette.addItem(PaletteItem.Green);
+//            palette.addItem(PaletteItem.Blue);
+//            palette.addItem(PaletteItem.Indigo);
+//            palette.addItem(PaletteItem.Purple);
+//
+//            // row 2
+//            palette.addItem(PaletteItem.White);
+//            palette.addItem(PaletteItem.Red80);
+//            palette.addItem(PaletteItem.Orange80);
+//            palette.addItem(PaletteItem.Yellow80);
+//            palette.addItem(PaletteItem.Green80);
+//            palette.addItem(PaletteItem.Blue80);
+//            palette.addItem(PaletteItem.Indigo80);
+//            palette.addItem(PaletteItem.Purple80);
+//
+//            // row 3
+//            palette.addItem(PaletteItem.Black80);
+//            palette.addItem(PaletteItem.Red60);
+//            palette.addItem(PaletteItem.Orange60);
+//            palette.addItem(PaletteItem.Yellow60);
+//            palette.addItem(PaletteItem.Green60);
+//            palette.addItem(PaletteItem.Blue60);
+//            palette.addItem(PaletteItem.Indigo60);
+//            palette.addItem(PaletteItem.Purple60);
+//
+//            // row 4
+//            palette.addItem(PaletteItem.Black60);
+//            palette.addItem(PaletteItem.Red40);
+//            palette.addItem(PaletteItem.Orange40);
+//            palette.addItem(PaletteItem.Yellow40);
+//            palette.addItem(PaletteItem.Green40);
+//            palette.addItem(PaletteItem.Blue40);
+//            palette.addItem(PaletteItem.Indigo40);
+//            palette.addItem(PaletteItem.Purple40);
+//
+//            // row 5
+//            palette.addItem(PaletteItem.Black40);
+//            palette.addItem(PaletteItem.Red25);
+//            palette.addItem(PaletteItem.Orange25);
+//            palette.addItem(PaletteItem.Yellow25);
+//            palette.addItem(PaletteItem.Green25);
+//            palette.addItem(PaletteItem.Blue25);
+//            palette.addItem(PaletteItem.Indigo25);
+//            palette.addItem(PaletteItem.Purple25);
+//
+//            // row 6
+//            palette.addItem(PaletteItem.Black20);
+//            palette.addItem(PaletteItem.Red50);
+//            palette.addItem(PaletteItem.Orange50);
+//            palette.addItem(PaletteItem.Yellow50);
+//            palette.addItem(PaletteItem.Green50);
+//            palette.addItem(PaletteItem.Blue50);
+//            palette.addItem(PaletteItem.Indigo50);
+//            palette.addItem(PaletteItem.Purple50);
+
             // row 1
-            palette.addItem(PaletteItem.Black);
-            palette.addItem(PaletteItem.Red);
-            palette.addItem(PaletteItem.Orange);
-            palette.addItem(PaletteItem.Yellow);
-            palette.addItem(PaletteItem.Green);
-            palette.addItem(PaletteItem.Blue);
-            palette.addItem(PaletteItem.Indigo);
-            palette.addItem(PaletteItem.Purple);
+            palette.addItem(PaletteItem.Background1);
+            ;
+            palette.addItem(PaletteItem.Text1);
+            palette.addItem(PaletteItem.Background2);
+            palette.addItem(PaletteItem.Text2);
+            palette.addItem(PaletteItem.Accent1);
+            palette.addItem(PaletteItem.Accent2);
+            palette.addItem(PaletteItem.Accent3);
+            palette.addItem(PaletteItem.Accent4);
+            palette.addItem(PaletteItem.Accent5);
+            palette.addItem(PaletteItem.Accent6);
 
             // row 2
-            palette.addItem(PaletteItem.White);
-            palette.addItem(PaletteItem.Red80);
-            palette.addItem(PaletteItem.Orange80);
-            palette.addItem(PaletteItem.Yellow80);
-            palette.addItem(PaletteItem.Green80);
-            palette.addItem(PaletteItem.Blue80);
-            palette.addItem(PaletteItem.Indigo80);
-            palette.addItem(PaletteItem.Purple80);
+            palette.addItem(PaletteItem.Background1_Darker5);
+            ;
+            palette.addItem(PaletteItem.Text1_Lighter50);
+            palette.addItem(PaletteItem.Background2_Darker10);
+            palette.addItem(PaletteItem.Text2_Lighter80);
+            palette.addItem(PaletteItem.Accent1_Lighter80);
+            palette.addItem(PaletteItem.Accent2_Lighter80);
+            palette.addItem(PaletteItem.Accent3_Lighter80);
+            palette.addItem(PaletteItem.Accent4_Lighter80);
+            palette.addItem(PaletteItem.Accent5_Lighter80);
+            palette.addItem(PaletteItem.Accent6_Lighter80);
 
             // row 3
-            palette.addItem(PaletteItem.Black80);
-            palette.addItem(PaletteItem.Red60);
-            palette.addItem(PaletteItem.Orange60);
-            palette.addItem(PaletteItem.Yellow60);
-            palette.addItem(PaletteItem.Green60);
-            palette.addItem(PaletteItem.Blue60);
-            palette.addItem(PaletteItem.Indigo60);
-            palette.addItem(PaletteItem.Purple60);
+            palette.addItem(PaletteItem.Background1_Darker15);
+            palette.addItem(PaletteItem.Text1_Lighter35);
+            palette.addItem(PaletteItem.Background2_Darker25);
+            palette.addItem(PaletteItem.Text2_Lighter60);
+            palette.addItem(PaletteItem.Accent1_Lighter60);
+            palette.addItem(PaletteItem.Accent2_Lighter60);
+            palette.addItem(PaletteItem.Accent3_Lighter60);
+            palette.addItem(PaletteItem.Accent4_Lighter60);
+            palette.addItem(PaletteItem.Accent5_Lighter60);
+            palette.addItem(PaletteItem.Accent6_Lighter60);
 
             // row 4
-            palette.addItem(PaletteItem.Black60);
-            palette.addItem(PaletteItem.Red40);
-            palette.addItem(PaletteItem.Orange40);
-            palette.addItem(PaletteItem.Yellow40);
-            palette.addItem(PaletteItem.Green40);
-            palette.addItem(PaletteItem.Blue40);
-            palette.addItem(PaletteItem.Indigo40);
-            palette.addItem(PaletteItem.Purple40);
+            palette.addItem(PaletteItem.Background1_Darker25);
+            palette.addItem(PaletteItem.Text1_Lighter25);
+            palette.addItem(PaletteItem.Background2_Darker50);
+            palette.addItem(PaletteItem.Text2_Lighter40);
+            palette.addItem(PaletteItem.Accent1_Lighter40);
+            palette.addItem(PaletteItem.Accent2_Lighter40);
+            palette.addItem(PaletteItem.Accent3_Lighter40);
+            palette.addItem(PaletteItem.Accent4_Lighter40);
+            palette.addItem(PaletteItem.Accent5_Lighter40);
+            palette.addItem(PaletteItem.Accent6_Lighter40);
 
             // row 5
-            palette.addItem(PaletteItem.Black40);
-            palette.addItem(PaletteItem.Red25);
-            palette.addItem(PaletteItem.Orange25);
-            palette.addItem(PaletteItem.Yellow25);
-            palette.addItem(PaletteItem.Green25);
-            palette.addItem(PaletteItem.Blue25);
-            palette.addItem(PaletteItem.Indigo25);
-            palette.addItem(PaletteItem.Purple25);
+            palette.addItem(PaletteItem.Background1_Darker35);
+            palette.addItem(PaletteItem.Text1_Lighter15);
+            palette.addItem(PaletteItem.Background2_Darker75);
+            palette.addItem(PaletteItem.Text2_Darker25);
+            palette.addItem(PaletteItem.Accent1_Darker25);
+            palette.addItem(PaletteItem.Accent2_Darker25);
+            palette.addItem(PaletteItem.Accent3_Darker25);
+            palette.addItem(PaletteItem.Accent4_Darker25);
+            palette.addItem(PaletteItem.Accent5_Darker25);
+            palette.addItem(PaletteItem.Accent6_Darker25);
 
             // row 6
-            palette.addItem(PaletteItem.Black20);
-            palette.addItem(PaletteItem.Red50);
-            palette.addItem(PaletteItem.Orange50);
-            palette.addItem(PaletteItem.Yellow50);
-            palette.addItem(PaletteItem.Green50);
-            palette.addItem(PaletteItem.Blue50);
-            palette.addItem(PaletteItem.Indigo50);
-            palette.addItem(PaletteItem.Purple50);
+            palette.addItem(PaletteItem.Background1_Darker50);
+            palette.addItem(PaletteItem.Text1_Lighter5);
+            palette.addItem(PaletteItem.Background2_Darker90);
+            palette.addItem(PaletteItem.Text2_Darker50);
+            palette.addItem(PaletteItem.Accent1_Darker50);
+            palette.addItem(PaletteItem.Accent2_Darker50);
+            palette.addItem(PaletteItem.Accent3_Darker50);
+            palette.addItem(PaletteItem.Accent4_Darker50);
+            palette.addItem(PaletteItem.Accent5_Darker50);
+            palette.addItem(PaletteItem.Accent6_Darker50);
+
+            // standard row
+            palette.addItem(PaletteItem.Standard_Red_Dark);
+            palette.addItem(PaletteItem.Standard_Red);
+            palette.addItem(PaletteItem.Standard_Orange);
+            palette.addItem(PaletteItem.Standard_Yellow);
+            palette.addItem(PaletteItem.Standard_Green_Light);
+            palette.addItem(PaletteItem.Standard_Green);
+            palette.addItem(PaletteItem.Standard_Blue_Light);
+            palette.addItem(PaletteItem.Standard_Blue);
+            palette.addItem(PaletteItem.Standard_Blue_Dark);
+            palette.addItem(PaletteItem.Standard_Purple_Dark);
+
             instance = palette;
         }
         return instance;

@@ -13,11 +13,15 @@
  *******************************************************************************/
 package org.xmind.ui.internal.decorators;
 
+import static org.xmind.ui.style.StyleUtils.getColor;
+import static org.xmind.ui.style.StyleUtils.getStyleSelector;
+
 import org.eclipse.draw2d.IFigure;
 import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.ui.internal.decorations.RoundedRectTopicDecoration;
+import org.xmind.ui.internal.mindmap.LegendPart;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.style.Styles;
 
@@ -29,8 +33,9 @@ public class LegendDecorator extends Decorator {
 
     private static final LegendDecorator instance = new LegendDecorator();
 
-    public void activate(IGraphicalPart part, IFigure figure) {
-        super.activate(part, figure);
+    @Override
+    public void decorate(IGraphicalPart part, IFigure figure) {
+        super.decorate(part, figure);
         if (figure instanceof DecoratedShapeFigure) {
             DecoratedShapeFigure fig = (DecoratedShapeFigure) figure;
             RoundedRectTopicDecoration shape = new RoundedRectTopicDecoration();
@@ -39,13 +44,20 @@ public class LegendDecorator extends Decorator {
             shape.setRightMargin(figure, H_MARGIN);
             shape.setBottomMargin(figure, V_MARGIN);
             shape.setCornerSize(figure, H_MARGIN);
-            shape.setFillColor(figure, ColorUtils
-                    .getColor(Styles.LEGEND_FILL_COLOR));
-            shape.setLineColor(figure, ColorUtils
-                    .getColor(Styles.LEGEND_LINE_COLOR));
+            if (part instanceof LegendPart)
+                shape.setFillColor(
+                        figure,
+                        getColor(((LegendPart) part).getOwnedSheet(),
+                                getStyleSelector(((LegendPart) part)
+                                        .getOwnedSheet()),
+                                Styles.LegendFillColor, shape.getId(),
+                                Styles.LEGEND_FILL_COLOR));
+            shape.setLineColor(figure,
+                    ColorUtils.getColor(Styles.LEGEND_LINE_COLOR));
             shape.setLineWidth(figure, 1);
             fig.setDecoration(shape);
         }
+
     }
 
     public static LegendDecorator getInstance() {

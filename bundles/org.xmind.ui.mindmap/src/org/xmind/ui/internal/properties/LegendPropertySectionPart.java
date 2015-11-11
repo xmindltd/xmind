@@ -13,23 +13,46 @@
  *******************************************************************************/
 package org.xmind.ui.internal.properties;
 
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.xmind.core.Core;
 import org.xmind.core.ILegend;
 import org.xmind.core.ISheet;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.gef.Request;
+import org.xmind.ui.color.ColorPicker;
+import org.xmind.ui.color.IColorSelection;
+import org.xmind.ui.color.PaletteContents;
+import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.properties.MindMapPropertySectionPartBase;
+import org.xmind.ui.properties.StyledPropertySectionPart;
+import org.xmind.ui.style.Styles;
 
-public class LegendPropertySectionPart extends MindMapPropertySectionPartBase {
+public class LegendPropertySectionPart extends StyledPropertySectionPart {
+
+    private class BackgroundColorOpenListener implements IOpenListener {
+
+        public void open(OpenEvent event) {
+            changeBackgroundColor((IColorSelection) event.getSelection());
+        }
+
+    }
 
     private Button visibilityCheck;
+
+    private Control bar;
+
+    private ColorPicker backgroundColorPicker;
 
     protected void createContent(Composite parent) {
         visibilityCheck = new Button(parent, SWT.CHECK);
@@ -42,6 +65,32 @@ public class LegendPropertySectionPart extends MindMapPropertySectionPartBase {
                 changeLegendVisibility(visibilityCheck.getSelection());
             }
         });
+
+        createBackgroundPart(parent);
+    }
+
+    private void createBackgroundPart(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridLayout layout = new GridLayout(22, false);
+        layout.horizontalSpacing = 7;
+        composite.setLayout(layout);
+
+        Label caption = new Label(composite, SWT.NONE);
+        caption.setText(PropertyMessages.BackgroundColor_label);
+        caption.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
+                false, false));
+
+        backgroundColorPicker = new ColorPicker(ColorPicker.AUTO
+                | ColorPicker.CUSTOM, PaletteContents.getDefault());
+        backgroundColorPicker.getAction().setToolTipText(
+                PropertyMessages.LegendBackground_toolTip);
+        backgroundColorPicker
+                .addOpenListener(new BackgroundColorOpenListener());
+        ToolBarManager colorBar = new ToolBarManager(SWT.FLAT);
+        colorBar.add(backgroundColorPicker);
+        bar = colorBar.createControl(composite);
+        bar.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
+                false, false));
     }
 
     protected void registerEventListener(Object source,
@@ -57,6 +106,7 @@ public class LegendPropertySectionPart extends MindMapPropertySectionPartBase {
         if (visibilityCheck != null && !visibilityCheck.isDisposed()) {
             visibilityCheck.setSelection(isLegendVisible());
         }
+        updateColorPicker(backgroundColorPicker, Styles.LegendFillColor, null);
     }
 
     private boolean isLegendVisible() {
@@ -79,12 +129,19 @@ public class LegendPropertySectionPart extends MindMapPropertySectionPartBase {
     public void dispose() {
         super.dispose();
         visibilityCheck = null;
+        bar = null;
+        backgroundColorPicker = null;
     }
 
     protected void changeLegendVisibility(boolean visible) {
         Request request = new Request(visible ? MindMapUI.REQ_SHOW_LEGEND
                 : MindMapUI.REQ_HIDE_LEGEND);
         sendRequest(fillTargets(request));
+    }
+
+    private void changeBackgroundColor(IColorSelection selection) {
+        changeColor(selection, Styles.LegendFillColor,
+                CommandMessages.Command_ModifyLegendBackgroundColor);
     }
 
 }

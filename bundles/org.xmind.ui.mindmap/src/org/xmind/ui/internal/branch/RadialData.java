@@ -16,7 +16,7 @@ package org.xmind.ui.internal.branch;
 import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.sqrt;
-import static org.xmind.ui.internal.branch.RadialStructure.CACHE_NUMBER_RIGHT_BRANCHES;
+import static org.xmind.ui.internal.branch.BaseRadialStructure.CACHE_NUMBER_RIGHT_BRANCHES;
 
 import java.util.HashMap;
 import java.util.List;
@@ -126,22 +126,23 @@ public class RadialData extends BranchStructureData {
             if (!isInSameRangeWithLast(subBranches, index + 1)) {
                 int newRightWeight = rightWeight + blockWeight;
                 if (newRightWeight >= halfWeight) {
-                    if (lastIndex >= 0
-                            && newRightWeight - halfWeight > halfWeight
-                                    - rightWeight) {
+                    if (lastIndex >= 0 && newRightWeight
+                            - halfWeight > halfWeight - rightWeight) {
                         int lastNum = lastIndex + 1;
                         if (index == 1 && lastIndex == 0 //
                                 && (isInSameRangeWithLast(subBranches, index) //
-                                || (isWithinThreshold(0, size) //
-                                && isWithinThreshold(subBranch, size))))
+                                        || (isWithinThreshold(0, size) //
+                                                && isWithinThreshold(subBranch,
+                                                        size))))
                             return 2;
                         return lastNum;
                     }
                     if (index == 0 && isWithinThreshold(subBranch, size)
                             && ((size == 2 //
-                            || (size > 2 //
-                            && !isInSameRangeWithLast(subBranches, 2))) //
-                            && isWithinThreshold(1, size))) {
+                                    || (size > 2 //
+                                            && !isInSameRangeWithLast(
+                                                    subBranches, 2))) //
+                                    && isWithinThreshold(1, size))) {
                         return 2;
                     }
                     return num;
@@ -250,11 +251,16 @@ public class RadialData extends BranchStructureData {
 
     private int calculateChildSpacing(int index, boolean firstOrSecond,
             int addIn) {
-        Insets ins1 = RadialUtils.getRefInsets(getSubBranches().get(index)
-                .getFigure(), firstOrSecond);
-        Insets ins2 = RadialUtils.getRefInsets(getSubBranches().get(index + 1)
-                .getFigure(), firstOrSecond);
-        return ins1.bottom + ins2.top + getMinorSpacing2() * 2 + addIn;
+
+        if (index + 1 < getSubBranches().size()) {
+            Insets ins1 = RadialUtils.getRefInsets(
+                    getSubBranches().get(index).getFigure(), firstOrSecond);
+            Insets ins2 = RadialUtils.getRefInsets(
+                    getSubBranches().get(index + 1).getFigure(), firstOrSecond);
+            return ins1.bottom + ins2.top + getMinorSpacing2() * 2 + addIn;
+        }
+        return addIn;
+
     }
 
     private int getMajorSpacing2() {
@@ -344,8 +350,8 @@ public class RadialData extends BranchStructureData {
 
     private int getAbsX(int y) {
         Dimension oval = getOvalSize();
-        return (int) (oval.width * sqrt(1 - (y * y * 1.0)
-                / (oval.height * oval.height)));
+        return (int) (oval.width
+                * sqrt(1 - (y * y * 1.0) / (oval.height * oval.height)));
     }
 
 //    public int getHalfSumSpacing(boolean firstOrSecond) {

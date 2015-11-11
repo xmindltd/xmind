@@ -46,8 +46,8 @@ import com.swabunga.spell.event.SpellCheckListener;
 import com.swabunga.spell.event.SpellChecker;
 import com.swabunga.spell.event.StringWordTokenizer;
 
-public class SpellingHelper implements ISpellingActivation, Listener,
-        ITextListener {
+public class SpellingHelper
+        implements ISpellingActivation, Listener, ITextListener {
 
     private static final long CHECK_DELAY = 200;
 
@@ -238,8 +238,8 @@ public class SpellingHelper implements ISpellingActivation, Listener,
                 if (!"".equals(context[0])) { //$NON-NLS-1$
                     SpellChecker theSpellChecker = spellChecker;
                     theSpellChecker.addSpellCheckListener(this);
-                    theSpellChecker.checkSpelling(new StringWordTokenizer(
-                            context[0]));
+                    theSpellChecker
+                            .checkSpelling(new StringWordTokenizer(context[0]));
                     theSpellChecker.removeSpellCheckListener(this);
                 }
                 if (monitor.isCanceled() || display.isDisposed() || !isActive())
@@ -364,8 +364,8 @@ public class SpellingHelper implements ISpellingActivation, Listener,
             if (start < 0 || start >= charCount)
                 continue;
 
-            int length = Math.min(range.getInvalidWord().length(), charCount
-                    - start);
+            int length = Math.min(range.getInvalidWord().length(),
+                    charCount - start);
             if (length <= 0)
                 continue;
 
@@ -398,9 +398,8 @@ public class SpellingHelper implements ISpellingActivation, Listener,
             int h = contentAdapter.getLineHeightAtOffset(control, offset + 1);
             p.y = loc.y + h - 1;
             p.x2 = loc.x;
-            p.x1 = p.x2
-                    - gc.stringExtent(contentAdapter.getControlContents(
-                            control, offset, 1)).x;
+            p.x1 = p.x2 - gc.stringExtent(
+                    contentAdapter.getControlContents(control, offset, 1)).x;
             lineCache.put(Integer.valueOf(offset), p);
         }
         return p;
@@ -443,6 +442,7 @@ public class SpellingHelper implements ISpellingActivation, Listener,
                 && !control.isDisposed();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IMenuContributor.class) {
             if (contributor == null)

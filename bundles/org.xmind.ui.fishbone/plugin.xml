@@ -6,7 +6,7 @@
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.fishbone"
             defaultStructureId="org.xmind.ui.fishbone.structure.leftHeaded"
-            icon="icons/fishbone_left.gif"
+            icon="icons/structure_fishbone_left.png"
             id="org.xmind.ui.fishbone.leftHeaded"
             name="%branchPolicy.fishbone.leftHeaded.name"
             propertyTesterId="org.xmind.ui.FishbonePropertyTester">
@@ -43,6 +43,12 @@
                            </test>
                         </and>
                      </or>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                 </enablement>
             </additionalStructure>
             <additionalStructure
@@ -59,6 +65,12 @@
                               value="org.xmind.ui.fishbone.structure.NE.rotated">
                         </test>
                      </with>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                </enablement>
             </additionalStructure>
             <additionalStructure
@@ -71,6 +83,12 @@
                               value="org.xmind.ui.fishbone.leftHeaded">
                         </test>
                      </with>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                      <or>
                         <with
                               variable="parentBranch">
@@ -88,9 +106,9 @@
                               </test>
                            </with>
                            <test
-                                 value="false"
                                  args="upwards"
-                                 property="org.xmind.ui.branch.property">
+                                 property="org.xmind.ui.branch.property"
+                                 value="false">
                            </test>
                         </and>
                      </or></enablement>
@@ -108,7 +126,94 @@
                               property="org.xmind.ui.branch.structureId"
                               value="org.xmind.ui.fishbone.structure.SE.rotated">
                         </test>
-                     </with></enablement>
+                     </with>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not></enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.right">
+               <enablement>
+                  <or>
+                     <and>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                        <with
+                              variable="parentBranch">
+                           <or>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.NE.normal">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.SE.normal">
+                              </test>
+                           </or>
+                        </with>
+                     </and>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.right">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.fishbone.leftHeaded">
+                        </test>
+                     </with>
+                  </or>
+                  <test
+                        property="org.xmind.ui.branch.policyId"
+                        value="org.xmind.ui.fishbone.leftHeaded">
+                  </test></enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.left">
+               <enablement>
+                  <or>
+                     <and>
+                        <with
+                              variable="parentBranch">
+                           <or>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.NE.rotated">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.SE.rotated">
+                              </test>
+                           </or>
+                        </with>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </and>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.left">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.fishbone.leftHeaded">
+                        </test>
+                     </with>
+                  </or>
+                  <test
+                        property="org.xmind.ui.branch.policyId"
+                        value="org.xmind.ui.fishbone.leftHeaded">
+                  </test>
+               </enablement>
             </additionalStructure>
          </additionalStructures>
          <branchHook
@@ -123,6 +228,12 @@
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.NE.rotated">
                      </test>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -136,6 +247,12 @@
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.SE.rotated">
                      </test>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -148,10 +265,18 @@
                      name="beforeDefaultValue">
                </layer>
                <enablement>
+                  <and>
                      <test
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.leftHeaded">
                      </test>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
+                  </and>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -161,12 +286,35 @@
                   key="shape-class"
                   value="org.xmind.topicShape.fishbone">
                <enablement>
-                     <not>
-                        <test
-                              property="org.xmind.ui.branch.structureId"
-                              value="org.xmind.ui.fishbone.structure.leftHeaded">
-                        </test>
-                     </not>
+                     <and>
+                        <not>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.fishbone.structure.leftHeaded">
+                           </test>
+                        </not>
+                        <not>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                        </not>
+                     </and>
+                     <with
+                           variable="parentBranch">
+                        <not>
+                           <or>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.right">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </or>
+                        </not>
+                     </with>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -175,6 +323,24 @@
             <overridedStyle
                   key="line-class"
                   value="org.xmind.branchConnection.fishbone">
+               <enablement>
+                  <not>
+                     <or>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.right">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.left">
+                        </test>
+                     </or>
+                  </not>
+               </enablement>
                <layer
                      name="beforeUserValue">
                </layer>
@@ -187,6 +353,22 @@
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.leftHeaded">
                      </test>
+                     <not>
+                        <or>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.right">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.left">
+                           </test>
+                        </or>
+                     </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -202,6 +384,36 @@
                               value="org.xmind.ui.fishbone.structure.leftHeaded">
                         </test>
                      </not>
+                     <not>
+                        <or>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.right">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.left">
+                           </test>
+                        </or>
+                     </not>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="iconTip-only"
+                  value="true">
+               <enablement>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.structureId">
+                     </test>
+                  </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -223,11 +435,37 @@
                </enablement>
             </overridedStyle -->
          </styleSelector>
+         <enablement>
+            <not>
+               <test
+                     property="org.xmind.ui.branch.type"
+                     value="calloutBranch">
+               </test>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.fishbone"
             defaultStructureId="org.xmind.ui.fishbone.structure.rightHeaded"
-            icon="icons/fishbone_right.gif"
+            icon="icons/structure_fishbone_right.png"
             id="org.xmind.ui.fishbone.rightHeaded"
             name="%branchPolicy.fishbone.rightHeaded.name"
             propertyTesterId="org.xmind.ui.FishbonePropertyTester">
@@ -263,7 +501,13 @@
                                  property="org.xmind.ui.branch.property">
                            </test>
                         </and>
-                     </or></enablement>
+                     </or>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not></enablement>
             </additionalStructure>
             <additionalStructure
                   structureId="org.xmind.ui.fishbone.structure.NW.normal">
@@ -278,7 +522,13 @@
                               property="org.xmind.ui.branch.structureId"
                               value="org.xmind.ui.fishbone.structure.NW.rotated">
                         </test>
-                     </with></enablement>
+                     </with>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not></enablement>
             </additionalStructure>
             <additionalStructure
                   structureId="org.xmind.ui.fishbone.structure.SW.rotated">
@@ -312,7 +562,13 @@
                                  property="org.xmind.ui.branch.property">
                            </test>
                         </and>
-                     </or></enablement>
+                     </or>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not></enablement>
             </additionalStructure>
             <additionalStructure
                   structureId="org.xmind.ui.fishbone.structure.SW.normal">
@@ -327,7 +583,95 @@
                               property="org.xmind.ui.branch.structureId"
                               value="org.xmind.ui.fishbone.structure.SW.rotated">
                         </test>
-                     </with></enablement>
+                     </with>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not></enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.left">
+               <enablement>
+                  <or>
+                     <and>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                        <with
+                              variable="parentBranch">
+                           <or>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.NW.normal">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.SW.normal">
+                              </test>
+                           </or>
+                        </with>
+                     </and>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.left">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.fishbone.rightHeaded">
+                        </test>
+                     </with>
+                  </or>
+                  <test
+                        property="org.xmind.ui.branch.policyId"
+                        value="org.xmind.ui.fishbone.rightHeaded">
+                  </test>
+               </enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.right">
+               <enablement>
+                  <or>
+                     <and>
+                        <with
+                              variable="parentBranch">
+                           <or>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.NW.rotated">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.fishbone.structure.SW.rotated">
+                              </test>
+                           </or>
+                        </with>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </and>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.right">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.fishbone.rightHeaded">
+                        </test>
+                     </with>
+                  </or>
+                  <test
+                        property="org.xmind.ui.branch.policyId"
+                        value="org.xmind.ui.fishbone.rightHeaded">
+                  </test>
+               </enablement>
             </additionalStructure>
          </additionalStructures>
          <branchHook
@@ -342,6 +686,12 @@
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.NW.rotated">
                      </test>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -355,6 +705,12 @@
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.SW.rotated">
                      </test>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -367,10 +723,18 @@
                      name="beforeDefaultValue">
                </layer>
                <enablement>
-                     <test
-                           property="org.xmind.ui.branch.structureId"
-                           value="org.xmind.ui.fishbone.structure.rightHeaded">
-                     </test>
+                     <and>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.fishbone.structure.rightHeaded">
+                        </test>
+                        <not>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                        </not>
+                     </and>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -380,12 +744,35 @@
                   key="shape-class"
                   value="org.xmind.topicShape.fishbone">
                <enablement>
-                     <not>
-                        <test
-                              property="org.xmind.ui.branch.structureId"
-                              value="org.xmind.ui.fishbone.structure.rightHeaded">
-                        </test>
-                     </not>
+                     <and>
+                        <not>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.fishbone.structure.rightHeaded">
+                           </test>
+                        </not>
+                        <not>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                        </not>
+                     </and>
+                     <with
+                           variable="parentBranch">
+                        <not>
+                           <or>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.right">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </or>
+                        </not>
+                     </with>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -394,6 +781,24 @@
             <overridedStyle
                   key="line-class"
                   value="org.xmind.branchConnection.fishbone">
+               <enablement>
+                  <not>
+                     <or>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.right">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.left">
+                        </test>
+                     </or>
+                  </not>
+               </enablement>
                <layer
                      name="beforeUserValue">
                </layer>
@@ -406,6 +811,22 @@
                            property="org.xmind.ui.branch.structureId"
                            value="org.xmind.ui.fishbone.structure.rightHeaded">
                      </test>
+                     <not>
+                        <or>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.right">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.left">
+                           </test>
+                        </or>
+                     </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -421,6 +842,36 @@
                               value="org.xmind.ui.fishbone.structure.rightHeaded">
                         </test>
                      </not>
+                     <not>
+                        <or>
+                           <test
+                                 property="org.xmind.ui.branch.type"
+                                 value="calloutBranch">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.right">
+                           </test>
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.branchStructure.left">
+                           </test>
+                        </or>
+                     </not>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="iconTip-only"
+                  value="true">
+               <enablement>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.structureId">
+                     </test>
+                  </not>
                </enablement>
                <layer
                      name="beforeUserValue">
@@ -442,6 +893,32 @@
                </enablement>
             </overridedStyle -->
          </styleSelector>
+         <enablement>
+            <not>
+               <test
+                     property="org.xmind.ui.branch.type"
+                     value="calloutBranch">
+               </test>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <structure
             class="org.xmind.ui.internal.fishbone.structures.LeftHeadedStructure"
@@ -488,15 +965,14 @@
             id="org.xmind.ui.FishbonePropertyTester">
       </propertyTester>
       <branchPolicyCategory
-            icon="icons/fishbone_left.gif"
+            icon="icons/structure_fishbone_left.png"
             id="org.xmind.ui.structureCategory.fishbone"
-            name="Fishbone Diagram">
+            name="%branchPolicyCategory.name">
       </branchPolicyCategory>
    </extension>
    <extension
          point="org.xmind.ui.decorations">
       <decoration
-            categoryId="org.xmind.ui.topicDecorations"
             icon="icons/shape_fishhead_left.gif"
             id="org.xmind.topicShape.fishhead.left"
             name="%topicShape.fishhead.left.name">
@@ -505,7 +981,6 @@
          </class>
       </decoration>
       <decoration
-            categoryId="org.xmind.ui.topicDecorations"
             icon="icons/shape_fishhead_right.gif"
             id="org.xmind.topicShape.fishhead.right"
             name="%topicShape.fishhead.right.name">

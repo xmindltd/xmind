@@ -5,73 +5,25 @@
          point="org.eclipse.ui.commands">
       <command
             categoryId="net.xmind.ui.commands"
-            description="%command.signIn.description"
-            id="net.xmind.ui.command.signin"
-            name="%command.signIn.name">
-      </command>
-      <command
-            categoryId="net.xmind.ui.commands"
-            description="%command.showAccount.description"
-            id="net.xmind.ui.command.showMyAccount"
-            name="%command.showAccount.name">
-      </command>
-      <command
-            categoryId="net.xmind.ui.commands"
+            defaultHandler="net.xmind.workbench.internal.handlers.CheckForUpdatesHandler"
             description="%command.checkForUpdates.description"
             id="net.xmind.ui.command.checkForUpdates"
             name="%command.checkForUpdates.name">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            id="net.xmind.ui.actions.help"
-            label="%actionSet.xmindnet.label"
-            visible="true">
-         <action
-               class="net.xmind.workbench.internal.actions.ShowAccountActionDelegate"
-               definitionId="net.xmind.ui.command.showMyAccount"
-               id="net.xmind.ui.showMyAccount"
-               label="%action.showAccount.label"
-               menubarPath="help/additions"
-               style="push"
-               tooltip="%action.showAccount.tooltip">
-         </action>
-         <action
-               class="net.xmind.workbench.internal.actions.SignInActionDelegate"
-               definitionId="net.xmind.ui.command.signin"
-               id="net.xmind.ui.signin"
-               label="%action.signIn.label"
-               menubarPath="help/additions"
-               style="push"
-               tooltip="%action.signIn.tooltip">
-         </action>
-         <action
-               class="net.xmind.workbench.internal.actions.NewsletterSubscriptionActionDelegate"
-               id="net.xmind.ui.subscribeNewsletter"
-               label="%action.subscribeToNewsletter.label"
-               menubarPath="help/group.xmind"
-               style="push"
-               tooltip="%action.subscribeToNewsletter.tooltip">
-         </action>
-         <action
-               class="net.xmind.workbench.internal.actions.FeedbackActionDelegate"
-               id="net.xmind.ui.feedback"
-               label="%action.feedback.label"
-               menubarPath="help/group.xmind"
-               style="push"
-               tooltip="%action.feedback.tooltip">
-         </action>
-         <action
-               class="net.xmind.workbench.internal.actions.CheckForUpdatesActionDelegate"
-               definitionId="net.xmind.ui.command.checkForUpdates"
-               id="net.xmind.ui.checkForUpdates"
-               label="%action.checkForUpdates.label"
-               menubarPath="help/group.updates"
-               style="push"
-               tooltip="%action.checkForUpdates.tooltip">
-         </action>
-      </actionSet>
+      <command
+            categoryId="net.xmind.ui.commands"
+            defaultHandler="net.xmind.workbench.internal.handlers.SubscribeNewsletterHandler"
+            description="%command.subscribeNewsLetter.description"
+            id="net.xmind.ui.command.subscribeNewsletter"
+            name="%command.subscribeNewsLetter.name">
+      </command>
+      <command
+            categoryId="net.xmind.ui.commands"
+            defaultHandler="net.xmind.workbench.internal.handlers.SendFeedbackHandler"
+            description="%command.feedback.description"
+            id="net.xmind.ui.command.feedback"
+            name="%command.feedback.name">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.startup">
@@ -87,5 +39,75 @@
             command="^checkForUpdates$">
       </handler>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=group.xmindnet">
+         <command
+               commandId="net.xmind.ui.command.signIn"
+               id="org.xmind.ui.menu.help.signin"
+               label="%menu.help.signin.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <systemTest
+                     property="net.xmind.signin.account.authenticated"
+                     value="false">
+               </systemTest>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="net.xmind.ui.command.signOut"
+               label="%menu.help.signout.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <systemTest
+                     property="net.xmind.signin.account.authenticated"
+                     value="true">
+               </systemTest>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="net.xmind.ui.command.signIn"
+               id="org.xmind.ui.menu.help.showMyAccount"
+               label="%menu.help.account.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <systemTest
+                     property="net.xmind.signin.account.authenticated"
+                     value="true">
+               </systemTest>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?endof=group.assist">
+         <command
+               commandId="net.xmind.ui.command.feedback"
+               id="org.xmind.ui.menu.help.feedback"
+               label="%menu.help.feedback.label"
+               style="push">
+         </command>
+         <command
+               commandId="net.xmind.ui.command.subscribeNewsletter"
+               id="org.xmind.ui.menu.help.subscribeNewsletter"
+               label="%menu.help.newsLetter.label"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:help?after=group.updates">
+         <command
+               commandId="net.xmind.ui.command.checkForUpdates"
+               id="org.xmind.ui.menu.help.checkForUpdates"
+               label="%action.checkForUpdates.label"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
 </plugin>

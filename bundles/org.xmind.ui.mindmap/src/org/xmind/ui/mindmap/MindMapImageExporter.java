@@ -99,13 +99,15 @@ public class MindMapImageExporter {
     }
 
     public void setSourceViewer(IGraphicalViewer viewer) {
-        setSources(new MindMapViewerExportSourceProvider(viewer,
-                MindMapUI.DEFAULT_EXPORT_MARGIN), null, null, null, null);
+        setSources(
+                new MindMapViewerExportSourceProvider(viewer,
+                        MindMapUI.DEFAULT_EXPORT_MARGIN),
+                null, null, null, null);
     }
 
     public void setSourceViewer(IGraphicalViewer viewer, Insets margins) {
-        setSources(new MindMapViewerExportSourceProvider(viewer, margins),
-                null, null, null, null);
+        setSources(new MindMapViewerExportSourceProvider(viewer, margins), null,
+                null, null, null);
     }
 
     public void setSourceViewer(IGraphicalViewer viewer,
@@ -161,7 +163,8 @@ public class MindMapImageExporter {
         setTargets(null, null, workbook, entryPath, ignoreEncryption);
     }
 
-    public void setTargetFileEntry(IWorkbook workbook, boolean ignoreEncryption) {
+    public void setTargetFileEntry(IWorkbook workbook,
+            boolean ignoreEncryption) {
         setTargets(null, null, workbook, null, ignoreEncryption);
     }
 
@@ -261,7 +264,8 @@ public class MindMapImageExporter {
             });
         }
         if (sourceProvider == null)
-            throw new IllegalArgumentException("No source to export image from"); //$NON-NLS-1$
+            throw new IllegalArgumentException(
+                    "No source to export image from"); //$NON-NLS-1$
     }
 
     private void recreateSourceProviderFromInput() {
@@ -363,4 +367,9 @@ public class MindMapImageExporter {
             streamToClose = null;
         }
     }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
 }

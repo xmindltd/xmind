@@ -149,7 +149,7 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         double heightRatio = (double) PREVIEW_IMAGE_HEIGHT
                 / viewer.getImage().getBounds().height;
         double ratio = widthRatio < heightRatio ? widthRatio : heightRatio;
-        viewer.setRatio(ratio);
+        viewer.changeRatio(ratio);
     }
 
     private void createDescriptionArea(Composite parent) {

@@ -23,6 +23,7 @@ import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 
+@Deprecated
 public class NewWorkbookAction extends Action implements IWorkbenchAction {
 
     private IWorkbenchWindow window;
@@ -35,8 +36,8 @@ public class NewWorkbookAction extends Action implements IWorkbenchAction {
         this.window = window;
         setId("org.xmind.ui.newWorkbook"); //$NON-NLS-1$
         setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.NEW, true));
-        setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.NEW, false));
+        setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.NEW, false));
         setToolTipText(MindMapMessages.NewWorkbook_toolTip);
         setActionDefinitionId("org.xmind.ui.command.newWorkbook"); //$NON-NLS-1$
     }

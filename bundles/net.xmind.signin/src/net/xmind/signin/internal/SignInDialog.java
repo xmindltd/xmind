@@ -11,9 +11,6 @@
  */
 package net.xmind.signin.internal;
 
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.ISignInDialogExtension;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.util.Util;
@@ -34,6 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.json.JSONException;
+import org.xmind.core.net.IDataStore;
 import org.xmind.ui.browser.BrowserSupport;
 import org.xmind.ui.browser.IBrowser;
 import org.xmind.ui.browser.IBrowserSupport;
@@ -41,12 +39,14 @@ import org.xmind.ui.internal.browser.InternalBrowser;
 import org.xmind.ui.internal.browser.InternalBrowserEditor;
 import org.xmind.ui.internal.browser.InternalBrowserView;
 
+import net.xmind.signin.ISignInDialogExtension;
+
 /**
  * @author briansun
  * @deprecated {@link SignInDialog3} uses local widgets instead of web page.
  */
-public class SignInDialog extends Dialog implements StatusTextListener,
-        OpenWindowListener {
+public class SignInDialog extends Dialog
+        implements StatusTextListener, OpenWindowListener {
 
     //private static final String SIGN_IN_URL = "http://www.xmind.net/xmind/signin/"; //$NON-NLS-1$
     private static final String SIGN_IN_URL = "http://www.xmind.net/xmind/go?r=http%3A%2F%2Fwww.xmind.net%2Fxmind%2Fsignin2%2F"; //$NON-NLS-1$
@@ -72,8 +72,8 @@ public class SignInDialog extends Dialog implements StatusTextListener,
             ISignInDialogExtension extension) {
         super(parent);
         setBlockOnOpen(true);
-        setShellStyle(SWT.TITLE | SWT.CLOSE | SWT.RESIZE
-                | SWT.APPLICATION_MODAL);
+        setShellStyle(
+                SWT.TITLE | SWT.CLOSE | SWT.RESIZE | SWT.APPLICATION_MODAL);
         this.message = message;
         this.extension = extension;
     }
@@ -170,8 +170,8 @@ public class SignInDialog extends Dialog implements StatusTextListener,
         gridLayout.verticalSpacing = 5;
         gridLayout.horizontalSpacing = 10;
         composite.setLayout(gridLayout);
-        composite.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WHITE));
+        composite.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         createMessageIcon(composite);
         createMessageLabel(composite);
     }
@@ -288,8 +288,8 @@ public class SignInDialog extends Dialog implements StatusTextListener,
     }
 
     public void open(WindowEvent event) {
-        IBrowser browser = BrowserSupport.getInstance().createBrowser(
-                IBrowserSupport.AS_EDITOR);
+        IBrowser browser = BrowserSupport.getInstance()
+                .createBrowser(IBrowserSupport.AS_EDITOR);
         try {
             browser.openURL(""); //$NON-NLS-1$
             if (browser instanceof InternalBrowser) {

@@ -74,4 +74,9 @@ public class ArchiveConstants {
      */
     public static final String REVISIONS_XML = "revisions.xml"; //$NON-NLS-1$
 
+    /**
+     * 
+     */
+    public static final String COMMENTS_XML = "comments.xml"; //$NON-NLS-1$
+
 }

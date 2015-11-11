@@ -26,6 +26,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.xmind.core.internal.ElementRegistry;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.ui.internal.MindMapMessages;
@@ -35,8 +36,6 @@ import org.xmind.ui.mindmap.MindMapUI;
  * @author Frank Shaka
  */
 public class DeleteStyleHandler extends AbstractHandler {
-
-    private boolean enable = true;
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
         deleteSelectedStyles(event);
@@ -50,9 +49,8 @@ public class DeleteStyleHandler extends AbstractHandler {
             return;
 
         IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-        if (window == null)
-            return;
-        if (!confirmDeletingStyles(window.getShell(), deletableStyles))
+        if (window != null
+                && !confirmDeletingStyles(window.getShell(), deletableStyles))
             return;
 
         deleteStyles(deletableStyles);
@@ -64,6 +62,9 @@ public class DeleteStyleHandler extends AbstractHandler {
             if (IStyle.THEME.equals(style.getType()))
                 isTheme = true;
             IStyleSheet sheet = style.getOwnedStyleSheet();
+            ElementRegistry elementRegistry = (ElementRegistry) sheet
+                    .getAdapter(ElementRegistry.class);
+            elementRegistry.unregister(style);
             sheet.removeStyle(style);
         }
         if (isTheme)
@@ -72,7 +73,8 @@ public class DeleteStyleHandler extends AbstractHandler {
             MindMapUI.getResourceManager().saveUserStyleSheet();
     }
 
-    private boolean confirmDeletingStyles(Shell parentShell, List<IStyle> styles) {
+    private boolean confirmDeletingStyles(Shell parentShell,
+            List<IStyle> styles) {
         StringBuilder sb = new StringBuilder(styles.size() * 10);
         boolean isTheme = false;
         for (IStyle style : styles) {
@@ -87,20 +89,13 @@ public class DeleteStyleHandler extends AbstractHandler {
             sb.append('\'');
         }
         String styleNames = sb.toString();
-        return MessageDialog.openConfirm(parentShell, NLS.bind(MindMapMessages.DeleteStyleHandler_MessageDialog_title,
-                isTheme ? MindMapMessages.DeleteStyleHandler_MessageDialog_themes : MindMapMessages.DeleteStyleHandler_MessageDialog_styles), NLS.bind(
-                MindMapMessages.DeleteStyleHandler_MessageDialog_description, styleNames));
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enable;
-    }
-
-    @Override
-    public void setBaseEnabled(boolean state) {
-        enable = state;
-        super.setBaseEnabled(state);
+        return MessageDialog.openConfirm(parentShell,
+                NLS.bind(MindMapMessages.DeleteStyleHandler_MessageDialog_title,
+                        isTheme ? MindMapMessages.DeleteStyleHandler_MessageDialog_themes
+                                : MindMapMessages.DeleteStyleHandler_MessageDialog_styles),
+                NLS.bind(
+                        MindMapMessages.DeleteStyleHandler_MessageDialog_description,
+                        styleNames));
     }
 
 }

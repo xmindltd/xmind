@@ -19,6 +19,8 @@ import org.xmind.core.IIdFactory;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbookBuilder;
 import org.xmind.core.IWorkspace;
+import org.xmind.core.comment.ICommentManagerBuilder;
+import org.xmind.core.internal.dom.CommentManagerBuilderImpl;
 import org.xmind.core.internal.dom.MarkerSheetBuilderImpl;
 import org.xmind.core.internal.dom.StyleSheetBuilderImpl;
 import org.xmind.core.internal.dom.WorkbookBuilderImpl;
@@ -63,6 +65,8 @@ public class InternalCore {
     private IIdFactory idFactory;
 
     private IStyleSheetBuilder styleSheetBuilder;
+
+    private ICommentManagerBuilder commentManagerBuilder;
 
     private ILogger logger;
 
@@ -112,6 +116,13 @@ public class InternalCore {
             styleSheetBuilder = new StyleSheetBuilderImpl();
         }
         return styleSheetBuilder;
+    }
+
+    public synchronized ICommentManagerBuilder getCommentManagerBuilder() {
+        if (commentManagerBuilder == null) {
+            commentManagerBuilder = new CommentManagerBuilderImpl();
+        }
+        return commentManagerBuilder;
     }
 
     public synchronized ILogger getLogger() {

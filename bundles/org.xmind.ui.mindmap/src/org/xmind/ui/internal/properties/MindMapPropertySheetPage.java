@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -32,9 +31,6 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.part.IPageSite;
-import org.xmind.core.IAdaptable;
-import org.xmind.core.INamed;
-import org.xmind.core.ITitled;
 import org.xmind.core.style.IStyled;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -252,40 +248,41 @@ public class MindMapPropertySheetPage extends GraphicalPropertySheetPage {
         if (objects == null || objects.length == 0)
             return null;
         String category = getCategoryName(objects);
-        String names = join(getObjectNames(objects));
-        if ("".equals(names)) //$NON-NLS-1$
-            return category;
-        return NLS.bind("{0} ({1})", category, names); //$NON-NLS-1$
+        return category;
+//        String names = join(getObjectNames(objects));
+//        if ("".equals(names)) //$NON-NLS-1$
+//            return category;
+//        return NLS.bind("{0} ({1})", category, names); //$NON-NLS-1$
     }
 
-    private String[] getObjectNames(Object[] objects) {
-        String[] names = new String[objects.length];
-        for (int i = 0; i < objects.length; i++) {
-            Object obj = objects[i];
-            names[i] = trim(getObjectName(obj));
-        }
-        return names;
-    }
+//    private String[] getObjectNames(Object[] objects) {
+//        String[] names = new String[objects.length];
+//        for (int i = 0; i < objects.length; i++) {
+//            Object obj = objects[i];
+//            names[i] = trim(getObjectName(obj));
+//        }
+//        return names;
+//    }
 
-    private String getObjectName(Object obj) {
-        if (obj instanceof ITitled)
-            return ((ITitled) obj).getTitleText();
-        if (obj instanceof INamed)
-            return ((INamed) obj).getName();
-        if (obj instanceof IAdaptable) {
-            ITitled titled = (ITitled) ((IAdaptable) obj)
-                    .getAdapter(ITitled.class);
-            if (titled != null)
-                return titled.getTitleText();
-            INamed named = (INamed) ((IAdaptable) obj).getAdapter(INamed.class);
-            if (named != null)
-                return named.getName();
-        }
-
-        if (obj != null)
-            return obj.toString();
-        return ""; //$NON-NLS-1$
-    }
+//    private String getObjectName(Object obj) {
+//        if (obj instanceof ITitled)
+//            return ((ITitled) obj).getTitleText();
+//        if (obj instanceof INamed)
+//            return ((INamed) obj).getName();
+//        if (obj instanceof IAdaptable) {
+//            ITitled titled = (ITitled) ((IAdaptable) obj)
+//                    .getAdapter(ITitled.class);
+//            if (titled != null)
+//                return titled.getTitleText();
+//            INamed named = (INamed) ((IAdaptable) obj).getAdapter(INamed.class);
+//            if (named != null)
+//                return named.getName();
+//        }
+//
+//        if (obj != null)
+//            return obj.toString();
+//        return ""; //$NON-NLS-1$
+//    }
 
     private String getCategoryName(Object[] objects) {
         ICategoryManager typeManager = MindMapUI.getCategoryManager();
@@ -293,20 +290,20 @@ public class MindMapPropertySheetPage extends GraphicalPropertySheetPage {
         return typeManager.getCategoryName(result.getMainCategory());
     }
 
-    private static String join(String[] strs) {
-        StringBuilder sb = new StringBuilder(strs.length * 15);
-        for (String s : strs) {
-            if (sb.length() > 0) {
-                sb.append(", "); //$NON-NLS-1$
-            }
-            sb.append(s);
-        }
-        return sb.toString();
-    }
+//    private static String join(String[] strs) {
+//        StringBuilder sb = new StringBuilder(strs.length * 15);
+//        for (String s : strs) {
+//            if (sb.length() > 0) {
+//                sb.append(", "); //$NON-NLS-1$
+//            }
+//            sb.append(s);
+//        }
+//        return sb.toString();
+//    }
 
-    private static String trim(String name) {
-        name = name.replaceAll("\\s+", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
-        return name.length() > 100 ? name.substring(0, 97) + "..." : name; //$NON-NLS-1$
-    }
+//    private static String trim(String name) {
+//        name = name.replaceAll("\\s+", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
+//        return name.length() > 100 ? name.substring(0, 97) + "..." : name; //$NON-NLS-1$
+//    }
 
 }

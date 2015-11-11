@@ -31,7 +31,8 @@ public class MindMapTopicContextService extends TopicContextService {
     /**
      * @param viewer
      */
-    public MindMapTopicContextService(IGraphicalEditorPage page, IViewer viewer) {
+    public MindMapTopicContextService(IGraphicalEditorPage page,
+            IViewer viewer) {
         super(viewer);
         this.page = page;
     }
@@ -42,6 +43,7 @@ public class MindMapTopicContextService extends TopicContextService {
      * @see
      * org.xmind.ui.internal.TopicContextService#getAdapter(java.lang.Class)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Object getAdapter(Class adapter) {
         if (adapter == ISelectionProvider.class) {

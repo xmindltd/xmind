@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.pde.ui.JunitLaunchConfig">
+<booleanAttribute key="append.args" value="true"/>
+<stringAttribute key="application" value="org.eclipse.pde.junit.runtime.coretestapplication"/>
+<booleanAttribute key="askclear" value="false"/>
+<booleanAttribute key="automaticAdd" value="true"/>
+<booleanAttribute key="automaticValidate" value="false"/>
+<stringAttribute key="bad_container_name" value="/org.xmind.core.runtime.tests/XMindCoreRuntimeTestSuite.launch"/>
+<stringAttribute key="bootstrap" value=""/>
+<stringAttribute key="checked" value="[NONE]"/>
+<booleanAttribute key="clearConfig" value="true"/>
+<booleanAttribute key="clearws" value="true"/>
+<booleanAttribute key="clearwslog" value="false"/>
+<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
+<booleanAttribute key="default" value="false"/>
+<stringAttribute key="deselected_workspace_plugins" value="a.test,a.test.rcp,com.apple.dnssd,com.evernote.sdk.java,de.erichseifert.vectorgraphics2d,javazoom.jlayer,net.coobird.thumbnailator,net.sourceforge.jazzy,net.xmind.share,net.xmind.signin,net.xmind.verify,net.xmind.workbench,org.apache.tools.zip,org.freehep.graphicsio,org.json,org.scribe.oauth,org.xmind.cathy,org.xmind.cathy.workingdir,org.xmind.core.audio,org.xmind.core.audio.mp3player,org.xmind.core.command,org.xmind.core.command.remote,org.xmind.core.command.remote.lan,org.xmind.core.io,org.xmind.core.net,org.xmind.core.sharing.localnetwork,org.xmind.gef,org.xmind.gef.ui,org.xmind.hebe,org.xmind.lame.macosx,org.xmind.meggy,org.xmind.neuquant,org.xmind.ui,org.xmind.ui.aspose,org.xmind.ui.audionotes,org.xmind.ui.biggerplate,org.xmind.ui.brainstorm,org.xmind.ui.browser,org.xmind.ui.evernote,org.xmind.ui.exports,org.xmind.ui.exports.outline,org.xmind.ui.exports.vector,org.xmind.ui.fishbone,org.xmind.ui.gallery,org.xmind.ui.gallery.resources,org.xmind.ui.gantt,org.xmind.ui.gantt.exports.vector,org.xmind.ui.help,org.xmind.ui.ideafactory,org.xmind.ui.imports,org.xmind.ui.index,org.xmind.ui.mapshot,org.xmind.ui.menus,org.xmind.ui.menus.pro,org.xmind.ui.mindmap,org.xmind.ui.mindmap.filtering,org.xmind.ui.mindmap.merging,org.xmind.ui.mindmap.styleeditor,org.xmind.ui.presentation,org.xmind.ui.resources,org.xmind.ui.search,org.xmind.ui.sharing,org.xmind.ui.spelling,org.xmind.ui.spreadsheet,org.xmind.ui.taskinfo,org.xmind.ui.toolkit,org.xmind.ui.xmindresource"/>
+<booleanAttribute key="includeOptional" value="true"/>
+<stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/org.xmind.core.runtime.tests/src/org/xmind/core/runtime/test/XMindCoreRuntimeTestSuite.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value=""/>
+<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
+<stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.xmind.core.runtime.test.XMindCoreRuntimeTestSuite"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.xmind.core.runtime.tests"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms256m -Xmx1024m -Xdock:icon=../Resources/Eclipse.icns -XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts"/>
+<stringAttribute key="pde.version" value="3.3"/>
+<stringAttribute key="product" value="a.test.rcp.product"/>
+<booleanAttribute key="run_in_ui_thread" value="true"/>
+<stringAttribute key="selected_target_plugins" value="javax.annotation@default:default,javax.inject@default:default,javax.servlet@default:default,javax.xml@default:default,org.eclipse.core.contenttype@default:default,org.eclipse.core.expressions@default:default,org.eclipse.core.jobs@default:default,org.eclipse.core.runtime.compatibility.registry@default:false,org.eclipse.core.runtime@default:true,org.eclipse.equinox.app@default:default,org.eclipse.equinox.common@2:true,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.osgi.compatibility.state@default:false,org.eclipse.osgi.services@default:default,org.eclipse.osgi@-1:true,org.hamcrest.core@default:default,org.junit@default:default"/>
+<stringAttribute key="selected_workspace_plugins" value="org.bouncycastle@default:default,org.xmind.core.runtime.tests@default:default,org.xmind.core.runtime@default:default,org.xmind.core@default:default"/>
+<booleanAttribute key="show_selected_only" value="false"/>
+<booleanAttribute key="tracing" value="false"/>
+<booleanAttribute key="useCustomFeatures" value="false"/>
+<booleanAttribute key="useDefaultConfig" value="true"/>
+<booleanAttribute key="useDefaultConfigArea" value="false"/>
+<booleanAttribute key="useProduct" value="false"/>
+</launchConfiguration>

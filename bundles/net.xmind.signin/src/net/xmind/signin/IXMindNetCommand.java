@@ -13,6 +13,8 @@
  *******************************************************************************/
 package net.xmind.signin;
 
+import org.xmind.core.net.IDataStore;
+
 public interface IXMindNetCommand {
 
     String get(String key);

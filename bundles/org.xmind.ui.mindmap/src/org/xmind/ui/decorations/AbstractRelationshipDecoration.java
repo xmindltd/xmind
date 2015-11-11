@@ -28,23 +28,23 @@ import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.ui.style.Styles;
 
-public abstract class AbstractRelationshipDecoration extends
-        PathConnectionDecoration implements IRelationshipDecoration,
-        IShadowedDecoration {
+public abstract class AbstractRelationshipDecoration
+        extends PathConnectionDecoration
+        implements IRelationshipDecoration, IShadowedDecoration {
 
     private static final Rectangle CLIP = new Rectangle();
 
-//    private Double sourceCPAngle = null;
-//
-//    private Double sourceCPAmount = null;
-//
-//    private Double targetCPAngle = null;
-//
-//    private Double targetCPAmount = null;
+    protected Double sourceCPAngle = null;
 
-    private Point relativeSourceCP = null;
+    protected Double sourceCPAmount = null;
 
-    private Point relativeTargetCP = null;
+    protected Double targetCPAngle = null;
+
+    protected Double targetCPAmount = null;
+
+    protected Point relativeSourceCP = null;
+
+    protected Point relativeTargetCP = null;
 
     private PrecisionPoint sourceCP = null;
 
@@ -110,8 +110,8 @@ public abstract class AbstractRelationshipDecoration extends
         PrecisionPoint a2 = null;
         if (sa != null) {
             if (relativeSourceCP != null) {
-                sourceCP.setLocation(sa.getReferencePoint()).translate(
-                        relativeSourceCP.x, relativeSourceCP.y);
+                sourceCP.setLocation(sa.getReferencePoint())
+                        .translate(relativeSourceCP.x, relativeSourceCP.y);
                 sourcePos.setLocation(sa.getLocation(sourceCP, 0));
             } else if (ta != null) {
                 if (a1 == null)
@@ -126,8 +126,8 @@ public abstract class AbstractRelationshipDecoration extends
 
         if (ta != null) {
             if (relativeTargetCP != null) {
-                targetCP.setLocation(ta.getReferencePoint()).translate(
-                        relativeTargetCP.x, relativeTargetCP.y);
+                targetCP.setLocation(ta.getReferencePoint())
+                        .translate(relativeTargetCP.x, relativeTargetCP.y);
                 targetPos.setLocation(ta.getLocation(targetCP, 0));
             } else if (sa != null) {
                 if (a2 == null)
@@ -164,6 +164,16 @@ public abstract class AbstractRelationshipDecoration extends
 //
 //        double amount2 = getAmountValue(targetCPAmount);
 //        targetCP.setLocation(targetPos).move(theta2, d * amount2);
+    }
+
+    protected void updatePosAndCp(IAnchor anchor, PrecisionPoint pos,
+            PrecisionPoint cp, double angle) {
+        Point center = anchor.getReferencePoint().toDraw2DPoint();
+        Point rotatedCp = Geometry.getRotatedPoint(
+                new Point(cp.toDraw2DPoint()).translate(-center.x, -center.y),
+                angle);
+        cp.setLocation(rotatedCp.translate(center.x, center.y));
+        pos.setLocation(anchor.getLocation(cp, 0));
     }
 
     protected void calcTitlePosition(IFigure figure, PrecisionPoint titlePos,
@@ -224,43 +234,43 @@ public abstract class AbstractRelationshipDecoration extends
         invalidate();
     }
 
-//    public void setSourceControlPointHint(IFigure figure, Double angle,
-//            Double amount) {
-//        boolean changed = false;
-//        if (angle != this.sourceCPAngle
-//                && (angle == null || !angle.equals(this.sourceCPAngle))) {
-//            changed = true;
-//            this.sourceCPAngle = angle;
-//        }
-//        if (amount != this.sourceCPAmount
-//                && (amount == null || !amount.equals(this.sourceCPAmount))) {
-//            changed = true;
-//            this.sourceCPAmount = amount;
-//        }
-//        if (changed && figure != null) {
-//            figure.revalidate();
-//            repaint(figure);
-//        }
-//    }
-//
-//    public void setTargetControlPointHint(IFigure figure, Double angle,
-//            Double amount) {
-//        boolean changed = false;
-//        if (angle != this.targetCPAngle
-//                && (angle == null || !angle.equals(this.targetCPAngle))) {
-//            changed = true;
-//            this.targetCPAngle = angle;
-//        }
-//        if (amount != this.targetCPAmount
-//                && (amount == null || !amount.equals(this.targetCPAmount))) {
-//            changed = true;
-//            this.targetCPAmount = amount;
-//        }
-//        if (changed && figure != null) {
-//            figure.revalidate();
-//            repaint(figure);
-//        }
-//    }
+    public void setSourceControlPointHint(IFigure figure, Double angle,
+            Double amount) {
+        boolean changed = false;
+        if (angle != this.sourceCPAngle
+                && (angle == null || !angle.equals(this.sourceCPAngle))) {
+            changed = true;
+            this.sourceCPAngle = angle;
+        }
+        if (amount != this.sourceCPAmount
+                && (amount == null || !amount.equals(this.sourceCPAmount))) {
+            changed = true;
+            this.sourceCPAmount = amount;
+        }
+        if (changed && figure != null) {
+            figure.revalidate();
+            repaint(figure);
+        }
+    }
+
+    public void setTargetControlPointHint(IFigure figure, Double angle,
+            Double amount) {
+        boolean changed = false;
+        if (angle != this.targetCPAngle
+                && (angle == null || !angle.equals(this.targetCPAngle))) {
+            changed = true;
+            this.targetCPAngle = angle;
+        }
+        if (amount != this.targetCPAmount
+                && (amount == null || !amount.equals(this.targetCPAmount))) {
+            changed = true;
+            this.targetCPAmount = amount;
+        }
+        if (changed && figure != null) {
+            figure.revalidate();
+            repaint(figure);
+        }
+    }
 
 //    public void setOrthogonalSourceControlPointHint(IFigure figure,
 //            PrecisionPoint pos) {

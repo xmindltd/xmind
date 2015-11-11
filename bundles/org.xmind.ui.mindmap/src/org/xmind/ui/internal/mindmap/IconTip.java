@@ -16,10 +16,13 @@ package org.xmind.ui.internal.mindmap;
 import org.eclipse.jface.action.IAction;
 import org.xmind.core.ITopic;
 import org.xmind.ui.mindmap.IIconTipContributor;
+import org.xmind.ui.mindmap.IInfoItemContributor;
 
 public class IconTip extends ViewerModel {
 
     private IIconTipContributor contributor;
+
+    private IInfoItemContributor infoItemContributor;
 
     private IAction action;
 
@@ -29,8 +32,19 @@ public class IconTip extends ViewerModel {
         this.action = action;
     }
 
+    public IconTip(ITopic topic, IInfoItemContributor contributor,
+            IAction action) {
+        super(IconTipPart.class, topic);
+        this.infoItemContributor = contributor;
+        this.action = action;
+    }
+
     public IIconTipContributor getContributor() {
         return contributor;
+    }
+
+    public IInfoItemContributor getInfoItemContributor() {
+        return infoItemContributor;
     }
 
     public IAction getAction() {
@@ -50,7 +64,8 @@ public class IconTip extends ViewerModel {
             return false;
         IconTip that = (IconTip) obj;
         return super.equals(obj) && that.contributor == this.contributor
-                && that.action == this.action;
+                && that.action == this.action
+                && that.infoItemContributor == this.infoItemContributor;
     }
 
 }

@@ -219,6 +219,7 @@ public class ClockwiseRadialStructure extends BaseRadialStructure {
                 y += childrenSpacings[i];
             else
                 y -= childrenSpacings[i];
+
         }
         return withDisabled ? num : -1;
     }
@@ -233,4 +234,5 @@ public class ClockwiseRadialStructure extends BaseRadialStructure {
         return childRef.x > branchRef.x;
         // if Child on the right of Branch, return true;
     }
+
 }

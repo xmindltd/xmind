@@ -195,14 +195,18 @@ public class FileUtils {
         String path = getFullPath(file);
         String os = Platform.getOS();
         if (Platform.OS_WIN32.equals(os)) {
-            if (launchUsingShell(cwd, "explorer.exe", "/select," + quote(path))) //$NON-NLS-1$ //$NON-NLS-2$
+            if (launchUsingShell(cwd, "explorer.exe", "/select,", quote(path))) //$NON-NLS-1$ //$NON-NLS-2$
                 return true;
         } else if (Platform.OS_MACOSX.equals(os)) {
+            if (launchUsingShell(cwd, "open", "-R", path)) //$NON-NLS-1$//$NON-NLS-2$
+                return true;
             if (showUsingScriptForMacOSX(file))
                 return true;
             if (launchUsingShell(cwd, "open", file.getParent())) //$NON-NLS-1$
                 return true;
         } else if (Platform.OS_LINUX.equals(os)) {
+            if (launchUsingShell(cwd, "nautilus", path)) //$NON-NLS-1$
+                return true;
             if (launchUsingShell(cwd, "xdg-open", file.getParent())) //$NON-NLS-1$
                 return true;
             if (launchUsingShell(cwd, "gnome-open", file.getParent())) //$NON-NLS-1$

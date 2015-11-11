@@ -20,6 +20,7 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_LINE_TAPERED;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_MULTI_LINE_COLORS;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_FORMAT;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_SEPARATOR;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_SRC;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_STRUCTURE_CLASS;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_STYLE_FAMILY;
@@ -132,7 +133,7 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
     private static final String ATTR_TO_POINT = "control-point2"; //$NON-NLS-1$
 
     private static final String VAL_CENTRAL = "central"; //$NON-NLS-1$
-    private static final String VAL_MULTI_LINE_COLORS = "#ac6060 #acac60 #60ac60 #60acac #6060ac #ac60ac"; //$NON-NLS-1$
+    private static final String VAL_MULTI_LINE_COLORS = "#017c98 #00b2a1 #ffdd00 #fc8f00 #ff1500 #00b04c"; //$NON-NLS-1$
 
     private static final String VAL_USER = "User"; //$NON-NLS-1$
     private static final String VAL_ATTACHMENT = "Attachment"; //$NON-NLS-1$
@@ -156,8 +157,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
     public void build() throws InvocationTargetException, InterruptedException {
         try {
             storage = createStorage();
-            sourceWorkbook = Core.getWorkbookBuilder().loadFromPath(
-                    getSourcePath(), storage, null);
+            sourceWorkbook = Core.getWorkbookBuilder()
+                    .loadFromPath(getSourcePath(), storage, null);
             targetWorkbook = getTargetWorkbook();
             readStyles();
             Document contentDoc = parseStyles("content.xml"); //$NON-NLS-1$
@@ -266,9 +267,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
             if (id != null) {
 //                workbook.getElementRegistry().unregisterByKey(id);
                 Document doc = newElement.getOwnerDocument();
-                workbook.getAdaptableRegistry()
-                        .unregisterById(elementAdaptable,
-                                newElement.getAttribute(ATTR_ID), doc);
+                workbook.getAdaptableRegistry().unregisterById(elementAdaptable,
+                        newElement.getAttribute(ATTR_ID), doc);
                 DOMUtils.replaceId(newElement, id);
                 workbook.getAdaptableRegistry().registerById(elementAdaptable,
                         id, doc);
@@ -287,7 +287,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
         styled.setStyleId(styleId);
     }
 
-    private void loadSheet(ISheet sheet, Element sheetEle, WorkbookImpl workbook) {
+    private void loadSheet(ISheet sheet, Element sheetEle,
+            WorkbookImpl workbook) {
         loadId(sheet, sheetEle, workbook);
         loadTitle(sheet, sheetEle);
         loadSheetStyle(sheet, sheetEle);
@@ -329,7 +330,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
         sheet.setStyleId(styleId);
     }
 
-    private void loadTopic(ITopic topic, Element topicEle, WorkbookImpl workbook) {
+    private void loadTopic(ITopic topic, Element topicEle,
+            WorkbookImpl workbook) {
         loadId(topic, topicEle, workbook);
         loadTitle(topic, topicEle);
         loadStyle(topic, topicEle);
@@ -398,8 +400,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
                 }
             }
             if (x != null || y != null) {
-                Element newPositionEle = DOMUtils.ensureChildElement(
-                        getElement(topic), TAG_POSITION);
+                Element newPositionEle = DOMUtils
+                        .ensureChildElement(getElement(topic), TAG_POSITION);
                 DOMUtils.setAttribute(newPositionEle, ATTR_X, x);
                 DOMUtils.setAttribute(newPositionEle, ATTR_Y, y);
             }
@@ -412,8 +414,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
                 TAG_BOUNDARIES);
         if (boundariesEle == null)
             return;
-        Iterator<Element> boundaryIter = DOMUtils.childElementIterByTag(
-                boundariesEle, TAG_BOUNDARY);
+        Iterator<Element> boundaryIter = DOMUtils
+                .childElementIterByTag(boundariesEle, TAG_BOUNDARY);
         while (boundaryIter.hasNext()) {
             Element boundaryEle = boundaryIter.next();
             IBoundary boundary = workbook.createBoundary();
@@ -424,8 +426,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
 
     private void loadBoundary(IBoundary boundary, Element boundaryEle,
             WorkbookImpl workbook) {
-        String startIndex = DOMUtils
-                .getAttribute(boundaryEle, ATTR_START_INDEX);
+        String startIndex = DOMUtils.getAttribute(boundaryEle,
+                ATTR_START_INDEX);
         String endIndex = DOMUtils.getAttribute(boundaryEle, ATTR_END_INDEX);
         Element newBoundaryEle = getElement(boundary);
         DOMUtils.setAttribute(newBoundaryEle, ATTR_START_INDEX, startIndex);
@@ -433,14 +435,14 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
         loadStyle(boundary, boundaryEle);
     }
 
-    private void loadSubTopics(ITopic topic, Element topicEle,
-            String topicsTag, String topicType, WorkbookImpl workbook) {
+    private void loadSubTopics(ITopic topic, Element topicEle, String topicsTag,
+            String topicType, WorkbookImpl workbook) {
         Element subTopicsEle = DOMUtils.getFirstChildElementByTag(topicEle,
                 topicsTag);
         if (subTopicsEle == null)
             return;
-        Iterator<Element> subTopicIter = DOMUtils.childElementIterByTag(
-                subTopicsEle, TAG_TOPIC);
+        Iterator<Element> subTopicIter = DOMUtils
+                .childElementIterByTag(subTopicsEle, TAG_TOPIC);
         while (subTopicIter.hasNext()) {
             Element subTopicEle = subTopicIter.next();
             ITopic subTopic = workbook.createTopic();
@@ -457,10 +459,13 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
 
         INumbering numbering = topic.getNumbering();
         String format = DOMUtils.getAttribute(numberingEle, ATTR_NUMBER_FORMAT);
+        String separator = DOMUtils.getAttribute(numberingEle,
+                ATTR_NUMBER_SEPARATOR);
         String prefix = DOMUtils.getAttribute(numberingEle, TAG_PREFIX);
         String suffix = DOMUtils.getAttribute(numberingEle, TAG_SUFFIX);
         String inherited = DOMUtils.getAttribute(numberingEle, ATTR_INHERITED);
         numbering.setFormat(format);
+        numbering.setSeparator(separator);
         numbering.setPrefix(prefix);
         numbering.setSuffix(suffix);
 
@@ -469,7 +474,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
         numbering.setPrependsParentNumbers(prependParentNumbering);
     }
 
-    private void loadNotes(ITopic topic, Element topicEle, WorkbookImpl workbook) {
+    private void loadNotes(ITopic topic, Element topicEle,
+            WorkbookImpl workbook) {
         Element notesEle = DOMUtils.getFirstChildElementByTag(topicEle,
                 TAG_NOTES);
         if (notesEle == null)
@@ -485,8 +491,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
             notes.setContent(INotes.PLAIN, content);
         }
 
-        Element richEle = DOMUtils
-                .getFirstChildElementByTag(notesEle, TAG_RICH);
+        Element richEle = DOMUtils.getFirstChildElementByTag(notesEle,
+                TAG_RICH);
         if (richEle != null) {
             IHtmlNotesContent content = (IHtmlNotesContent) workbook
                     .createNotesContent(INotes.HTML);
@@ -539,8 +545,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
                 TAG_MARKERS);
         if (markersEle == null)
             return;
-        Iterator<Element> markerIter = DOMUtils.childElementIterByTag(
-                markersEle, TAG_MARKER);
+        Iterator<Element> markerIter = DOMUtils
+                .childElementIterByTag(markersEle, TAG_MARKER);
         while (markerIter.hasNext()) {
             Element markerEle = markerIter.next();
             loadMarker(topic, markerEle, workbook);
@@ -602,7 +608,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
                     marker = markerSheet.createMarker(path);
                     markerSheet.getElementRegistry().unregister(marker);
                     DOMUtils.replaceId(
-                            ((MarkerImpl) marker).getImplementation(), markerId);
+                            ((MarkerImpl) marker).getImplementation(),
+                            markerId);
                     markerSheet.getElementRegistry().register(marker);
                 }
             }
@@ -627,7 +634,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
         return defaultMarkerGroupId;
     }
 
-    private void loadImage(ITopic topic, Element topicEle, WorkbookImpl workbook) {
+    private void loadImage(ITopic topic, Element topicEle,
+            WorkbookImpl workbook) {
         Element imgEle = DOMUtils.getFirstChildElementByTag(topicEle, TAG_IMG);
         if (imgEle == null)
             return;
@@ -665,8 +673,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
                 TAG_LABELS);
         while (labelsIter.hasNext()) {
             Element labelsEle = labelsIter.next();
-            Iterator<Element> labelIter = DOMUtils.childElementIterByTag(
-                    labelsEle, TAG_LABEL);
+            Iterator<Element> labelIter = DOMUtils
+                    .childElementIterByTag(labelsEle, TAG_LABEL);
             while (labelIter.hasNext()) {
                 Element labelEle = labelIter.next();
                 String label = labelEle.getTextContent();
@@ -682,8 +690,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
         if (VAL_CENTRAL.equals(floatingType)) {
             structureClass = "org.xmind.branchPolicy.map.floating"; //$NON-NLS-1$
         } else {
-            structureClass = upgradeStructureClass(DOMUtils.getAttribute(
-                    topicEle, ATTR_STRUCTURE_CLASS));
+            structureClass = upgradeStructureClass(
+                    DOMUtils.getAttribute(topicEle, ATTR_STRUCTURE_CLASS));
         }
         topic.setStructureClass(structureClass);
     }
@@ -693,7 +701,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
             return null;
         if ("org.xmind.branchPolicy.org-chart.left".equals(structureClass)) { //$NON-NLS-1$
             structureClass = "org.xmind.ui.logic.left"; //$NON-NLS-1$
-        } else if ("org.xmind.branchPolicy.org-chart.right".equals(structureClass)) { //$NON-NLS-1$
+        } else if ("org.xmind.branchPolicy.org-chart.right" //$NON-NLS-1$
+                .equals(structureClass)) {
             structureClass = "org.xmind.ui.logic.right"; //$NON-NLS-1$
         } else if ("org.xmind.branchPolicy.chart2d".equals(structureClass)) { //$NON-NLS-1$
             structureClass = "org.xmind.ui.spreadsheet"; //$NON-NLS-1$
@@ -789,8 +798,8 @@ public class XMind2008Importer extends MindMapImporter implements ErrorHandler {
     private IStorage createStorage() {
         String tempFile = Core.getIdFactory().createId()
                 + MindMapUI.FILE_EXT_XMIND_TEMP;
-        String tempLocation = Core.getWorkspace().getTempDir(
-                "workbooks" + "/" + tempFile); //$NON-NLS-1$ //$NON-NLS-2$
+        String tempLocation = Core.getWorkspace()
+                .getTempDir("workbooks" + "/" + tempFile); //$NON-NLS-1$ //$NON-NLS-2$
         File tempDir = new File(tempLocation);
         return new DirectoryStorage(tempDir);
     }

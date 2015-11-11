@@ -22,6 +22,7 @@ import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.TextStyle;
 import org.xmind.core.ITitled;
+import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.IMinimizable;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
@@ -48,6 +49,7 @@ public class TitleTextDecorator extends Decorator {
             textFigure.setVisible(isVisible(part, titled));
             decorateTextFigure(part, textFigure);
             decorateTextAlignment(part, textFigure);
+            decorateTextCase(part, textFigure);
         }
     }
 
@@ -69,6 +71,22 @@ public class TitleTextDecorator extends Decorator {
             textFigure.setTextAlignment(align);
         else
             textFigure.setTextAlignment(PositionConstants.LEFT);
+    }
+
+    private void decorateTextCase(IGraphicalPart part, ITextFigure textFigure) {
+        IGraphicalPart parent = getOwnerPart(part);
+        if (parent != null)
+            part = parent;
+        decorateTextCase(part, StyleUtils.getStyleSelector(part), textFigure);
+    }
+
+    private void decorateTextCase(IGraphicalPart part, IStyleSelector ss,
+            ITextFigure textFigure) {
+        int textCase = StyleUtils.getCaseValue(part, ss, Styles.TextCase);
+        if (textCase != GEF.CASE_EMPTY)
+            textFigure.setTextCase(textCase);
+        else
+            textFigure.setTextCase(GEF.MANUAL);
     }
 
     private ITitled getTitledModel(IGraphicalPart part) {
@@ -115,8 +133,8 @@ public class TitleTextDecorator extends Decorator {
         if (style != null) {
             figure.setStyle(style);
         } else {
-            figure.setFont(getCompositeFont(ownerPart, ss, JFaceResources
-                    .getDefaultFont()));
+            figure.setFont(getCompositeFont(ownerPart, ss,
+                    JFaceResources.getDefaultFont()));
             figure.setForegroundColor(StyleUtils.getColor(ownerPart, ss,
                     Styles.TextColor, null, Styles.DEF_TEXT_COLOR));
         }

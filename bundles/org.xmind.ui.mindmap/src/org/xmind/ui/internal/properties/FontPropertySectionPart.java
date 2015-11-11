@@ -36,6 +36,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
+import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
@@ -56,6 +57,7 @@ import org.xmind.ui.properties.StyledPropertySectionPart;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.richtext.AlignmentGroup;
+import org.xmind.ui.richtext.TextCaseGroup;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.style.TextStyleData;
@@ -68,8 +70,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     }
 
-    private class FontSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class FontSelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             if (isRefreshing())
@@ -87,8 +89,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
     private class ChooseFontAction extends Action {
 
         public ChooseFontAction() {
-            super(null, MindMapUI.getImages().get(IMindMapImages.TEXT_FONT,
-                    true));
+            super(null,
+                    MindMapUI.getImages().get(IMindMapImages.TEXT_FONT, true));
             setToolTipText(PropertyMessages.ChooseFont_toolTip);
         }
 
@@ -96,8 +98,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
             if (currentTextStyle == null)
                 return;
 
-            FontDialog dialog = new FontDialog(getContainer()
-                    .getContainerSite().getShell());
+            FontDialog dialog = new FontDialog(
+                    getContainer().getContainerSite().getShell());
 
             if (currentTextStyle != null) {
                 if (currentTextStyle.name != null)
@@ -135,8 +137,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     }
 
-    private class SizeSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class SizeSelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             if (isRefreshing())
@@ -160,8 +162,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     private class BoldAction extends Action {
         public BoldAction() {
-            super(null, MindMapUI.getImages().get(IMindMapImages.TEXT_BOLD,
-                    true));
+            super(null,
+                    MindMapUI.getImages().get(IMindMapImages.TEXT_BOLD, true));
             setToolTipText(PropertyMessages.Bold_toolTip);
             setChecked(false);
         }
@@ -188,8 +190,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     private class StrikeoutAction extends Action {
         public StrikeoutAction() {
-            super(null, MindMapUI.getImages().get(
-                    IMindMapImages.TEXT_STRIKEOUT, true));
+            super(null, MindMapUI.getImages().get(IMindMapImages.TEXT_STRIKEOUT,
+                    true));
             setToolTipText(PropertyMessages.Strikeout_toolTip);
             setChecked(false);
         }
@@ -202,8 +204,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     private class AlignLeftAction extends Action {
         public AlignLeftAction() {
-            super(PropertyMessages.TextAlignLeft_text, MindMapUI.getImages()
-                    .get(IMindMapImages.ALIGN_LEFT, true));
+            super(PropertyMessages.TextAlignLeft_text,
+                    MindMapUI.getImages().get(IMindMapImages.ALIGN_LEFT, true));
             setToolTipText(PropertyMessages.TextAlignLeft_toolTip);
             setChecked(false);
         }
@@ -247,6 +249,59 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     }
 
+    private class TextManualAction extends Action {
+        public TextManualAction() {
+            super(PropertyMessages.TextManual_text, MindMapUI.getImages()
+                    .get(IMindMapImages.TEXT_MANUAL, true));
+            setToolTipText(PropertyMessages.TextManual_toolTip);
+            setChecked(false);
+        }
+
+        public void run() {
+            changeTextManual();
+        }
+    }
+
+    private class TextUppercaseAction extends Action {
+        public TextUppercaseAction() {
+            super(PropertyMessages.TextUppercase_text, MindMapUI.getImages()
+                    .get(IMindMapImages.TEXT_UPPERCASE, true));
+            setToolTipText(PropertyMessages.TextUppercase_toolTip);
+            setChecked(false);
+        }
+
+        public void run() {
+            changeTextUppercase();
+        }
+    }
+
+    private class TextLowercaseAction extends Action {
+        public TextLowercaseAction() {
+            super(PropertyMessages.TextLowercase_text, MindMapUI.getImages()
+                    .get(IMindMapImages.TEXT_LOWERCASE, true));
+            setToolTipText(PropertyMessages.TextLowercase_toolTip);
+            setChecked(false);
+        }
+
+        public void run() {
+            changeTextLowercase();
+        }
+    }
+
+    private class TextCapitalizeAction extends Action {
+        public TextCapitalizeAction() {
+            super(PropertyMessages.TextCapitalize_text, MindMapUI.getImages()
+                    .get(IMindMapImages.TEXT_CAPITALIZE, true));
+            setToolTipText(PropertyMessages.TextCapitalize_toolTip);
+            setChecked(false);
+        }
+
+        public void run() {
+            changeTextCapitalize();
+        }
+
+    }
+
     private static Set<Integer> FONT_SIZE_LIST = new TreeSet<Integer>();
 
     private IAction boldAction;
@@ -271,10 +326,20 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
     private IAction alignRightAction;
 
+    private TextCaseGroup caseGroup;
+
+    private IAction manualAction;
+
+    private IAction uppercaseAction;
+
+    private IAction lowercaseAction;
+
+    private IAction capitalizeAction;
+
     protected void createContent(Composite parent) {
         Composite line1 = new Composite(parent, SWT.NONE);
-        line1.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
-                false));
+        line1.setLayoutData(
+                new GridData(GridData.FILL, GridData.FILL, true, false));
         GridLayout layout1 = new GridLayout(2, false);
         layout1.marginWidth = 0;
         layout1.marginHeight = 0;
@@ -284,8 +349,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         createLineContent1(line1);
 
         Composite line2 = new Composite(parent, SWT.NONE);
-        line2.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
-                false));
+        line2.setLayoutData(
+                new GridData(GridData.FILL, GridData.FILL, true, false));
         GridLayout layout2 = new GridLayout(2, false);
         layout2.marginWidth = 0;
         layout2.marginHeight = 0;
@@ -299,8 +364,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         fontViewer = new MComboViewer(parent, MComboViewer.FILTERED);
         fontViewer.getControl().setLayoutData(
                 new GridData(GridData.FILL, GridData.FILL, true, false));
-        fontViewer.getControl().setToolTipText(
-                PropertyMessages.FontFamily_toolTip);
+        fontViewer.getControl()
+                .setToolTipText(PropertyMessages.FontFamily_toolTip);
         fontViewer.setContentProvider(new ArrayContentProvider());
         fontViewer.setLabelProvider(new FontLabelProvider());
 //        fontViewer.getControl().setEnabled(false);
@@ -309,8 +374,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         if (ts != null && ts.name != null) {
             fontViewer.setSelection(new StructuredSelection(ts.name));
         }
-        fontViewer
-                .addSelectionChangedListener(new FontSelectionChangedListener());
+        fontViewer.addSelectionChangedListener(
+                new FontSelectionChangedListener());
 //        IFontNameListCallback callback = new IFontNameListCallback() {
 //            public void setAvailableFontNames(List<String> fontNames) {
 //                if (fontViewer == null || fontViewer.getControl().isDisposed())
@@ -330,16 +395,16 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         ToolBarManager fontBar = new ToolBarManager(SWT.FLAT);
         fontBar.add(new ChooseFontAction());
         ToolBar barControl = fontBar.createControl(parent);
-        barControl.setLayoutData(new GridData(GridData.END, GridData.CENTER,
-                false, false));
+        barControl.setLayoutData(
+                new GridData(GridData.END, GridData.CENTER, false, false));
     }
 
     private void createLineContent2(Composite parent) {
         sizeViewer = new MComboViewer(parent, MComboViewer.FILTERED);
         sizeViewer.getControl().setLayoutData(
                 new GridData(GridData.FILL, GridData.FILL, true, false));
-        sizeViewer.getControl().setToolTipText(
-                PropertyMessages.FontSize_toolTip);
+        sizeViewer.getControl()
+                .setToolTipText(PropertyMessages.FontSize_toolTip);
         sizeViewer.setContentProvider(new ArrayContentProvider());
         sizeViewer.setLabelProvider(new SizeLabelProvider());
         sizeViewer.setPermitsUnprovidedElement(true);
@@ -348,19 +413,18 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                     18, 20, 22, 24, 36, 48, 56));
         }
         sizeViewer.setInput(FONT_SIZE_LIST);
-        sizeViewer
-                .addSelectionChangedListener(new SizeSelectionChangedListener());
+        sizeViewer.addSelectionChangedListener(
+                new SizeSelectionChangedListener());
 
         ToolBarManager styleBar = new ToolBarManager(SWT.FLAT);
         styleBar.add(boldAction = new BoldAction());
         styleBar.add(italicAction = new ItalicAction());
         styleBar.add(strikeoutAction = new StrikeoutAction());
 
-        textColorPicker = new ColorPicker(
-                ColorPicker.AUTO | ColorPicker.CUSTOM,
+        textColorPicker = new ColorPicker(ColorPicker.AUTO | ColorPicker.CUSTOM,
                 PaletteContents.getDefault());
-        textColorPicker.getAction().setToolTipText(
-                PropertyMessages.TextColor_toolTip);
+        textColorPicker.getAction()
+                .setToolTipText(PropertyMessages.TextColor_toolTip);
         textColorPicker.addOpenListener(new ColorOpenListener());
         styleBar.add(textColorPicker);
 
@@ -370,9 +434,16 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         alignGroup.add(alignRightAction = new AlignRightAction());
         styleBar.add(alignGroup);
 
+        caseGroup = new TextCaseGroup();
+        caseGroup.add(manualAction = new TextManualAction());
+        caseGroup.add(uppercaseAction = new TextUppercaseAction());
+        caseGroup.add(lowercaseAction = new TextLowercaseAction());
+        caseGroup.add(capitalizeAction = new TextCapitalizeAction());
+        styleBar.add(caseGroup);
+
         ToolBar barControl = styleBar.createControl(parent);
-        barControl.setLayoutData(new GridData(GridData.END, GridData.CENTER,
-                false, false));
+        barControl.setLayoutData(
+                new GridData(GridData.END, GridData.CENTER, false, false));
 
     }
 
@@ -381,15 +452,14 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         currentTextStyle = ts;
         if (fontViewer != null && !fontViewer.getControl().isDisposed()
                 && fontViewer.getControl().isEnabled()) {
-            fontViewer
-                    .setSelection(ts == null || ts.name == null ? StructuredSelection.EMPTY
+            fontViewer.setSelection(
+                    ts == null || ts.name == null ? StructuredSelection.EMPTY
                             : new StructuredSelection(ts.name));
         }
         if (sizeViewer != null && !sizeViewer.getControl().isDisposed()) {
-            sizeViewer
-                    .setSelection(ts == null || ts.height < 0 ? StructuredSelection.EMPTY
-                            : new StructuredSelection(Integer
-                                    .valueOf(ts.height)));
+            sizeViewer.setSelection(ts == null || ts.height < 0
+                    ? StructuredSelection.EMPTY
+                    : new StructuredSelection(Integer.valueOf(ts.height)));
         }
         if (boldAction != null)
             boldAction.setChecked(ts != null && ts.bold);
@@ -414,6 +484,26 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                 alignRightAction.setChecked(ts != null);
             break;
         }
+
+        switch (ts == null ? GEF.MANUAL : ts.textCase) {
+        case GEF.MANUAL:
+            if (manualAction != null)
+                manualAction.setChecked(ts != null);
+            break;
+        case GEF.UPPERCASE:
+            if (uppercaseAction != null)
+                uppercaseAction.setChecked(ts != null);
+            break;
+        case GEF.LOWERCASE:
+            if (lowercaseAction != null)
+                lowercaseAction.setChecked(ts != null);
+            break;
+        case GEF.CAPITALIZE:
+            if (capitalizeAction != null)
+                capitalizeAction.setChecked(ts != null);
+            break;
+        }
+
     }
 
     private void updateColorPicker(ColorPicker picker) {
@@ -468,7 +558,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         return textStyle;
     }
 
-    private TextStyleData mergeStyle(TextStyleData source, TextStyleData target) {
+    private TextStyleData mergeStyle(TextStyleData source,
+            TextStyleData target) {
         if (source == null)
             return new TextStyleData(target);
         if (source.name != null && !source.name.equals(target.name))
@@ -488,10 +579,14 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 
         if (source.align != target.align)
             source.align = SWT.LEFT;
+
+        if (source.textCase != target.textCase)
+            source.textCase = GEF.MANUAL;
         return source;
     }
 
-    private TextStyleData calcTextStyle(IGraphicalPart part, IStyleSelector ss) {
+    private TextStyleData calcTextStyle(IGraphicalPart part,
+            IStyleSelector ss) {
         return StyleUtils.getTextStyleData(part, ss, null);
     }
 
@@ -515,12 +610,17 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         alignLeftAction = null;
         alignCenterAction = null;
         alignRightAction = null;
+
+        manualAction = null;
+        uppercaseAction = null;
+        lowercaseAction = null;
+        capitalizeAction = null;
     }
 
     private void changeFontName(String name) {
-        sendRequest(addStyle(
-                createStyleRequest(CommandMessages.Command_ModifyFont),
-                Styles.FontFamily, name));
+        sendRequest(
+                addStyle(createStyleRequest(CommandMessages.Command_ModifyFont),
+                        Styles.FontFamily, name));
     }
 
     private void changeFont(String fontName, int fontHeight, boolean bold,
@@ -530,10 +630,10 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
             addStyle(req, Styles.FontFamily, fontName);
         if (fontHeight > 0)
             addStyle(req, Styles.FontSize, StyleUtils.addUnitPoint(fontHeight));
-        addStyle(req, Styles.FontWeight, bold ? Styles.FONT_WEIGHT_BOLD
-                : Styles.NORMAL);
-        addStyle(req, Styles.FontStyle, italic ? Styles.FONT_STYLE_ITALIC
-                : Styles.NORMAL);
+        addStyle(req, Styles.FontWeight,
+                bold ? Styles.FONT_WEIGHT_BOLD : Styles.NORMAL);
+        addStyle(req, Styles.FontStyle,
+                italic ? Styles.FONT_STYLE_ITALIC : Styles.NORMAL);
         addStyle(req, Styles.TextDecoration,
                 StyleUtils.toTextDecoration(underline, strikeout));
         addStyle(req, Styles.TextColor,
@@ -542,23 +642,23 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
     }
 
     private void changeFontSize(int fontHeight) {
-        sendRequest(addStyle(
-                createStyleRequest(CommandMessages.Command_ModifyFont),
-                Styles.FontSize, StyleUtils.addUnitPoint(fontHeight)));
+        sendRequest(
+                addStyle(createStyleRequest(CommandMessages.Command_ModifyFont),
+                        Styles.FontSize, StyleUtils.addUnitPoint(fontHeight)));
     }
 
     private void changeBold(boolean bold) {
-        sendRequest(addStyle(
-                createStyleRequest(CommandMessages.Command_ModifyFont),
-                Styles.FontWeight, bold ? Styles.FONT_WEIGHT_BOLD
-                        : Styles.NORMAL));
+        sendRequest(
+                addStyle(createStyleRequest(CommandMessages.Command_ModifyFont),
+                        Styles.FontWeight,
+                        bold ? Styles.FONT_WEIGHT_BOLD : Styles.NORMAL));
     }
 
     private void changeItalic(boolean italic) {
-        sendRequest(addStyle(
-                createStyleRequest(CommandMessages.Command_ModifyFont),
-                Styles.FontStyle, italic ? Styles.FONT_STYLE_ITALIC
-                        : Styles.NORMAL));
+        sendRequest(
+                addStyle(createStyleRequest(CommandMessages.Command_ModifyFont),
+                        Styles.FontStyle,
+                        italic ? Styles.FONT_STYLE_ITALIC : Styles.NORMAL));
     }
 
     private void changeStrikeout(boolean strikeout) {
@@ -572,26 +672,30 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         } else if (strikeout) {
             decoration = decoration + " " + Styles.TEXT_DECORATION_LINE_THROUGH; //$NON-NLS-1$
         }
-        sendRequest(addStyle(
-                createStyleRequest(CommandMessages.Command_ModifyFont),
-                Styles.TextDecoration, decoration));
+        sendRequest(
+                addStyle(createStyleRequest(CommandMessages.Command_ModifyFont),
+                        Styles.TextDecoration, decoration));
     }
 
     private void changeAlignLeft() {
-        Request leftReq = createStyleRequest(CommandMessages.Command_TextAlignLeft);
-        Request request = addStyle(leftReq, Styles.TextAlign, Styles.ALIGN_LEFT);
+        Request leftReq = createStyleRequest(
+                CommandMessages.Command_TextAlignLeft);
+        Request request = addStyle(leftReq, Styles.TextAlign,
+                Styles.ALIGN_LEFT);
         sendRequest(request);
     }
 
     private void changeAlignCenter() {
-        Request centerReq = createStyleRequest(CommandMessages.Command_TextAlignCenter);
+        Request centerReq = createStyleRequest(
+                CommandMessages.Command_TextAlignCenter);
         Request request = addStyle(centerReq, Styles.TextAlign,
                 Styles.ALIGN_CENTER);
         sendRequest(request);
     }
 
     private void changeAlignRight() {
-        Request rightReq = createStyleRequest(CommandMessages.Command_TextAlignRight);
+        Request rightReq = createStyleRequest(
+                CommandMessages.Command_TextAlignRight);
         Request request = addStyle(rightReq, Styles.TextAlign,
                 Styles.ALIGN_RIGHT);
         sendRequest(request);
@@ -600,6 +704,37 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
     private void changeTextColor(IColorSelection selection) {
         changeColor(selection, Styles.TextColor,
                 CommandMessages.Command_ModifyTextColor);
+    }
+
+    private void changeTextManual() {
+        Request manualReq = createStyleRequest(
+                CommandMessages.Command_TextManual);
+        Request request = addStyle(manualReq, Styles.TextCase, Styles.MANUAL);
+        sendRequest(request);
+    }
+
+    private void changeTextUppercase() {
+        Request manualReq = createStyleRequest(
+                CommandMessages.Command_TextUppercase);
+        Request request = addStyle(manualReq, Styles.TextCase,
+                Styles.UPPERCASE);
+        sendRequest(request);
+    }
+
+    private void changeTextLowercase() {
+        Request manualReq = createStyleRequest(
+                CommandMessages.Command_TextLowercase);
+        Request request = addStyle(manualReq, Styles.TextCase,
+                Styles.LOWERCASE);
+        sendRequest(request);
+    }
+
+    private void changeTextCapitalize() {
+        Request manualReq = createStyleRequest(
+                CommandMessages.Command_TextCapitalize);
+        Request request = addStyle(manualReq, Styles.TextCase,
+                Styles.CAPITALIZE);
+        sendRequest(request);
     }
 
     private void showTempFont(IFontChooser source) {
@@ -611,9 +746,10 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         if (source == null) {
             textStyle = null;
         } else {
-            textStyle = new TextStyle(FontUtils.getFont(source.getFontName(),
-                    source.getFontHeight(), source.getBold(),
-                    source.getItalic()),
+            textStyle = new TextStyle(
+                    FontUtils.getFont(source.getFontName(),
+                            source.getFontHeight(), source.getBold(),
+                            source.getItalic()),
                     ColorUtils.getColor(source.getColor()), null);
             textStyle.strikeout = source.getStrikeout();
             textStyle.underline = source.getUnderline();
@@ -621,8 +757,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         for (Object o : getSelectedElements()) {
             IGraphicalPart part = getGraphicalPart(o, viewer);
             if (part != null) {
-                IGraphicalPart p = part instanceof ITopicPart ? ((ITopicPart) part)
-                        .getOwnerBranch() : part;
+                IGraphicalPart p = part instanceof ITopicPart
+                        ? ((ITopicPart) part).getOwnerBranch() : part;
 //                (ITitleTextPart) part
 //                        .getAdapter(ITitleTextPart.class);
                 if (p != null) {

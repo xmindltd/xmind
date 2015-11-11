@@ -19,10 +19,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmind.core.ISpan;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.AbstractWorkbookComponent;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.util.DOMUtils;
 
-public abstract class SpanImplBase implements ISpan {
+public abstract class SpanImplBase extends AbstractWorkbookComponent
+        implements ISpan {
 
     private Node implementation;
 
@@ -55,10 +57,11 @@ public abstract class SpanImplBase implements ISpan {
     }
 
     public Object getAdapter(Class adapter) {
-        if (adapter == Node.class
-                || (adapter == Element.class && implementation instanceof Element))
+        if (adapter == Node.class || (adapter == Element.class
+                && implementation instanceof Element))
             return implementation;
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public Node getImplementation() {

@@ -23,15 +23,15 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 
-public abstract class MultiPagePropertySheetPage extends Page implements
-        IPropertySheetPage, IPropertyPartContainer {
+public abstract class MultiPagePropertySheetPage extends Page
+        implements ISelectionListener, IPropertyPartContainer {
 
     private IGraphicalEditor editor;
 
@@ -55,6 +55,7 @@ public abstract class MultiPagePropertySheetPage extends Page implements
 
     public void init(IPageSite pageSite) {
         super.init(pageSite);
+        pageSite.getPage().addPostSelectionListener(this);
         for (IPropertyPagePart page : pages.values()) {
             page.init(this, getContributedEditor());
         }
@@ -221,6 +222,7 @@ public abstract class MultiPagePropertySheetPage extends Page implements
     protected abstract String getPageId(ISelection selection);
 
     public void dispose() {
+        getSite().getPage().removePostSelectionListener(this);
         for (IPropertyPagePart page : pages.values()) {
             page.dispose();
         }

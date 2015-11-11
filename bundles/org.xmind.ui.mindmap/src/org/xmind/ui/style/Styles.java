@@ -134,6 +134,24 @@ public class Styles {
 
     public static final String BorderLineWidth = DOMConstants.ATTR_BORDER_LINE_WIDTH;
 
+    /**
+     * A property key used to describe the class of a line connecting itself
+     * from its parent.
+     */
+    public static final String CalloutLineClass = DOMConstants.ATTR_CALLOUT_LINE_CLASS;
+
+    public static final String CalloutShapeClass = DOMConstants.ATTR_CALLOUT_SHAPE_CLASS;
+
+    public static final String CalloutLineColor = DOMConstants.ATTR_CALLOUT_LINE_COLOR;
+
+    public static final String CalloutLineWidth = DOMConstants.ATTR_CALLOUT_LINE_WIDTH;
+
+    public static final String CalloutLineCorner = DOMConstants.ATTR_CALLOUT_LINE_CORNER;
+
+    public static final String CalloutFillColor = DOMConstants.ATTR_CALLOUT_FILL_COLOR;
+
+    public static final String CalloutLinePattern = DOMConstants.ATTR_CALLOUT_LINE_PATTERN;
+
     public static final String LeftMargin = DOMConstants.ATTR_MARGIN_LEFT;
 
     public static final String RightMargin = DOMConstants.ATTR_MARGIN_RIGHT;
@@ -162,6 +180,8 @@ public class Styles {
     public static final String TextAlign = DOMConstants.ATTR_TEXT_ALIGN;
 
     public static final String TextBullet = DOMConstants.ATTR_TEXT_BULLET;
+
+    public static final String TextCase = DOMConstants.ATTR_TEXT_TRANSFORM;
 
     /**
      * A property key used to describing the opacity of a object. The value
@@ -204,6 +224,28 @@ public class Styles {
      * </p>
      */
     public static final String HideChildrenLabels = "hide-children-labels"; //$NON-NLS-1$
+
+    /**
+     * A special property key for determining whether or not to hide the figure
+     * representing callout under special branch policy.
+     * <p>
+     * <b>NOTE:</b> This property is only regarded as a UI property and not a
+     * part of the XMIND Core Specification. Graphical policy authors may extend
+     * a style selector to provide their own value associated with this key.
+     * </p>
+     */
+    public static final String HideCallout = "hide-callout"; //$NON-NLS-1$
+
+    /**
+     * A special property key for determining whether or not to icon tip only
+     * under special branch policy.
+     * <p>
+     * <b>NOTE:</b> This property is only regarded as a UI property and not a
+     * part of the XMIND Core Specification. Graphical policy authors may extend
+     * a style selector to provide their own value associated with this key.
+     * </p>
+     */
+    public static final String IconTipOnly = "iconTip-only"; //$NON-NLS-1$
 
     // ===============================
     //   Values:
@@ -319,7 +361,15 @@ public class Styles {
 
     public static final String ALIGN_CENTER = DOMConstants.VAL_CENTER;
 
-    public static final String DEFAULT_MULTI_LINE_COLORS = "#ac6060 #acac60 #60ac60 #60acac #6060ac #ac60ac"; //$NON-NLS-1$
+    public static final String DEFAULT_MULTI_LINE_COLORS = "#017c98 #00b2a1 #ffdd00 #fc8f00 #ff1500 #00b04c"; //$NON-NLS-1$
+
+    public static final String MANUAL = DOMConstants.VAL_MANUAL;
+
+    public static final String UPPERCASE = DOMConstants.VAL_UPPERCASE;
+
+    public static final String LOWERCASE = DOMConstants.VAL_LOWERCASE;
+
+    public static final String CAPITALIZE = DOMConstants.VAL_CAPITALIZE;
 
     // ===============================
     //   Types:
@@ -332,6 +382,8 @@ public class Styles {
     public static final String FAMILY_MAIN_TOPIC = "mainTopic"; //$NON-NLS-1$
 
     public static final String FAMILY_SUB_TOPIC = "subTopic"; //$NON-NLS-1$
+
+    public static final String FAMILY_CALLOUT_TOPIC = "calloutTopic"; //$NON-NLS-1$
 
     public static final String FAMILY_FLOATING_TOPIC = "floatingTopic"; //$NON-NLS-1$
 
@@ -384,6 +436,21 @@ public class Styles {
 
     public static final String TOPIC_SHAPE_NO_BORDER = "org.xmind.topicShape.noBorder"; //$NON-NLS-1$
 
+    public static final String TOPIC_SHAPE_CIRCLE = "org.xmind.topicShape.circle"; //$NON-NLS-1$
+
+    public static final String TOPIC_SHAPE_PARALLELOGRAM = "org.xmind.topicShape.parallelogram"; //$NON-NLS-1$
+
+    public static final String TOPIC_SHAPE_CLOUD = "org.xmind.topicShape.cloud"; //$NON-NLS-1$
+
+    public static final String TOPIC_SHAPE_STROKE_CIRCLE = "org.xmind.topicShape.stroke"; //$NON-NLS-1$
+
+    //Callout Topic Shapes:
+    public static final String CALLOUT_TOPIC_SHAPE_BALLOON_ROUNDEDRECT = "org.xmind.calloutTopicShape.balloon.roundedRect"; //$NON-NLS-1$
+
+    public static final String CALLOUT_TOPIC_SHAPE_BALLOON_ELLIPSE = "org.xmind.calloutTopicShape.balloon.ellipse"; //$NON-NLS-1$
+
+    public static final String CALLOUT_TOPIC_SHAPE_BALLOON_RECTANGLE = "org.xmind.calloutTopicShape.balloon.rectangle"; //$NON-NLS-1$
+
     // Boundary Shapes:
     public static final String BOUNDARY_SHAPE_ROUNDEDRECT = "org.xmind.boundaryShape.roundedRect"; //$NON-NLS-1$
 
@@ -394,6 +461,10 @@ public class Styles {
     public static final String BOUNDARY_SHAPE_WAVES = "org.xmind.boundaryShape.waves"; //$NON-NLS-1$
 
     public static final String BOUNDARY_SHAPE_TENSION = "org.xmind.boundaryShape.tension"; //$NON-NLS-1$
+
+    public static final String BOUNDARY_SHAPE_POLYGON = "org.xmind.boundaryShape.polygon"; //$NON-NLS-1$
+
+    public static final String BOUNDARY_SHAPE_ROUNDEDPOLYGON = "org.xmind.boundaryShape.roundedPolygon"; //$NON-NLS-1$
 
     // Relationship Shapes:
     public static final String REL_SHAPE_CURVED = "org.xmind.relationshipShape.curved"; //$NON-NLS-1$
@@ -455,7 +526,7 @@ public class Styles {
 
     public static final double DEF_CONTROL_POINT_ANGLE = 0;
 
-    public static final double DEF_CONTROL_POINT_AMOUNT = 0.3;
+    public static final double DEF_CONTROL_POINT_AMOUNT = 0.4;
 
     public static final int DEFAULT_SUMMARY_WIDTH = 20;
 
@@ -478,7 +549,13 @@ public class Styles {
 
     public static final String LEGEND_FILL_COLOR = "#ffffd0"; //$NON-NLS-1$
 
-    public static final String LEGEND_LINE_COLOR = "#ffc400"; //$NON-NLS-1$
+    public static final String LEGEND_LINE_COLOR = "#dddddd"; //$NON-NLS-1$
+
+    public static final String DEF_YELLOWBOX_FILL_COLOR = "#edf9cc"; //$NON-NLS-1$
+
+    public static final String YELLOWBOX_TEXT_COLOR = "#333333"; //$NON-NLS-1$
+
+    public static final String YELLOWBOX_LINE_COLOR = "dddddd"; //$NON-NLS-1$
 
     /**
      * The default height of plus-minus figure (value=9).
@@ -497,4 +574,7 @@ public class Styles {
 
     public static final String LAYER_AFTER_ALL_VALUE = "afterAllValue"; //$NON-NLS-1$
 
+    public static final String YellowBoxFillColor = "yellowBoxFillColor"; //$NON-NLS-1$
+
+    public static final String LegendFillColor = "legendFillColor"; //$NON-NLS-1$
 }

@@ -2,8 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.resources;singleton:=true
-Bundle-Version: 3.5.3.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-Vendor: %providerName
 Fragment-Host: org.xmind.ui
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Localization: fragment_resources
+Eclipse-BundleShape: dir

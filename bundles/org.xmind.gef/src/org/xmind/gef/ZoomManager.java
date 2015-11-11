@@ -88,7 +88,10 @@ public class ZoomManager extends ZoomObject {
         int x = (int) Math.round(a * 100);
         int y = (int) Math.round(m * 100);
         int d = x / y;
-        return d * m;
+
+        double tmp = d * m;
+        tmp = ((int) (tmp * 100)) / 100.0;
+        return tmp;
     }
 
     public void actualSize() {

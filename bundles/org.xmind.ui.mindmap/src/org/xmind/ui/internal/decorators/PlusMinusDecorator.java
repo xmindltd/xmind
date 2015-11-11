@@ -16,11 +16,16 @@ package org.xmind.ui.internal.decorators;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.xmind.core.Core;
+import org.xmind.gef.IViewer;
 import org.xmind.gef.draw2d.IMinimizable;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.gef.part.IPart;
+import org.xmind.gef.part.IRootPart;
+import org.xmind.gef.util.Properties;
 import org.xmind.ui.internal.figures.PlusMinusFigure;
 import org.xmind.ui.mindmap.IBranchPart;
+import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.IPlusMinusPart;
 import org.xmind.ui.style.Styles;
 
@@ -49,11 +54,44 @@ public class PlusMinusDecorator extends Decorator {
         IBranchPart branch = pm.getOwnerBranch();
         if (branch != null) {
             figure.setValue(branch.isFolded());
+            figure.setBorderValue(branch.getConnections().getLineColor());
             boolean canFold = branch.isPropertyModifiable(Core.TopicFolded);
-            figure.setVisible(canFold);
+            if (canFold) {
+                Properties properties = getProperties(pm);
+                if (properties != null) {
+                    String plusMinusVisibility = properties.getString(
+                            IMindMapViewer.PLUS_MINUS_VISIBILITY,
+                            IMindMapViewer.PLUS_MINUS_VISIBLE);
+                    boolean isPlus = figure.getValue();
+                    boolean isVisible = (IMindMapViewer.PLUS_MINUS_VISIBLE
+                            .equals(plusMinusVisibility))
+                            || (IMindMapViewer.PLUS_VISIBLE_MINUS_HIDDEN
+                                    .equals(plusMinusVisibility) && isPlus);
+                    figure.setVisible(isVisible);
+                }
+            } else {
+                figure.setVisible(false);
+            }
         } else {
             figure.setValue(false);
         }
+    }
+
+    private Properties getProperties(IPlusMinusPart pm) {
+        if (pm == null) {
+            return null;
+        }
+        IPart parent = pm.getParent();
+        while (parent != null && !(parent instanceof IRootPart)) {
+            parent = parent.getParent();
+        }
+        if (parent != null) {
+            IViewer viewer = ((IRootPart) parent).getViewer();
+            if (viewer != null) {
+                return viewer.getProperties();
+            }
+        }
+        return null;
     }
 
     public static PlusMinusDecorator getInstance() {

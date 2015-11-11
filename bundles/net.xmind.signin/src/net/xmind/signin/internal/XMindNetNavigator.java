@@ -18,6 +18,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.xmind.core.command.Command;
 import org.xmind.core.command.CommandJob;
 import org.xmind.core.command.ICommand;
+import org.xmind.core.net.internal.EncodingUtils;
 import org.xmind.ui.browser.BrowserSupport;
 import org.xmind.ui.browser.IBrowser;
 import org.xmind.ui.browser.IBrowserSupport;

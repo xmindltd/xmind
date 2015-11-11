@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +59,7 @@ import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.draw2d.IMinimizable;
 import org.xmind.gef.draw2d.geometry.Geometry;
 import org.xmind.gef.graphicalpolicy.IStructure;
+import org.xmind.gef.graphicalpolicy.IStyleSelector;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.service.IAnimationService;
@@ -84,6 +87,7 @@ import org.xmind.ui.internal.branch.UnbalancedData;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.style.Styles;
 import org.xmind.ui.util.ImageFormat;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -101,7 +105,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
                 || MindMapUI.REQ_CREATE_SUMMARY.equals(requestType)
                 || MindMapUI.REQ_ADD_IMAGE.equals(requestType)
                 || MindMapUI.REQ_CREATE_SHEET.equals(requestType)
-                || MindMapUI.REQ_DUPLICATE_TOPIC.equals(requestType);
+                || MindMapUI.REQ_DUPLICATE_TOPIC.equals(requestType)
+                || MindMapUI.REQ_CREATE_CALLOUT.equals(requestType);
     }
 
     public void handle(Request request) {
@@ -110,7 +115,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
                 || MindMapUI.REQ_CREATE_CHILD.equals(reqType) //
                 || MindMapUI.REQ_CREATE_BEFORE.equals(reqType) //
                 || MindMapUI.REQ_CREATE_PARENT.equals(reqType)
-                || MindMapUI.REQ_DUPLICATE_TOPIC.equals(reqType)) {
+                || MindMapUI.REQ_DUPLICATE_TOPIC.equals(reqType)
+                || MindMapUI.REQ_CREATE_CALLOUT.equals(reqType)) {
             createTopic(request);
         } else if (MindMapUI.REQ_ADD_ATTACHMENT.equals(reqType)) {
             addAttachments(request);
@@ -203,7 +209,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
                 range.start, true);
         ModifyRangeCommand modifyEnd = new ModifyRangeCommand(createSummary,
                 range.end, false);
-        CreateTopicCommand createSummaryTopic = new CreateTopicCommand(workbook);
+        CreateTopicCommand createSummaryTopic = new CreateTopicCommand(
+                workbook);
         ModifyTitleTextCommand modifyTitle = new ModifyTitleTextCommand(
                 createSummaryTopic, MindMapMessages.TitleText_SummaryTopic);
         ModifySummaryTopicCommand modifySummaryTopic = new ModifySummaryTopicCommand(
@@ -218,8 +225,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         modifySummaryTopic.setSourceCollectable(false);
         addSummary.setSourceCollectable(false);
         return new CompoundCommand(createSummary, modifyStart, modifyEnd,
-                createSummaryTopic, modifyTitle, modifySummaryTopic,
-                addSummary, addSummaryTopic);
+                createSummaryTopic, modifyTitle, modifySummaryTopic, addSummary,
+                addSummaryTopic);
     }
 
     private boolean hasSameSummary(ITopic parent, Range range) {
@@ -254,7 +261,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         Map<ITopic, Collection<ITopic>> map = categorize(topics, false);
         List<Command> cmds = new ArrayList<Command>(map.size() * 2);
         for (ITopic parent : map.keySet()) {
-            Command cmd = createCreateBoundariesCommand(parent, map.get(parent));
+            Command cmd = createCreateBoundariesCommand(parent,
+                    map.get(parent));
             if (cmd != null)
                 cmds.add(cmd);
         }
@@ -305,6 +313,7 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         for (ITopic t : ts) {
             String topicType = t.getType();
             if (ITopic.DETACHED.equals(topicType)
+                    || ITopic.CALLOUT.equals(topicType)
                     || ITopic.SUMMARY.equals(topicType)) {
                 if (r != null)
                     ranges.add(r);
@@ -342,8 +351,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         }
         CreateBoundaryCommand create = new CreateBoundaryCommand(
                 parent.getOwnedWorkbook());
-        ModifyRangeCommand modify1 = new ModifyRangeCommand(create,
-                range.start, true);
+        ModifyRangeCommand modify1 = new ModifyRangeCommand(create, range.start,
+                true);
         ModifyRangeCommand modify2 = new ModifyRangeCommand(create, range.end,
                 false);
         AddBoundaryCommand add = new AddBoundaryCommand(create, parent);
@@ -390,7 +399,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         }
     }
 
-    private Command createAddMarkerCommand(Request request, List<IPart> targets) {
+    private Command createAddMarkerCommand(Request request,
+            List<IPart> targets) {
         String[] markerIds = getMarkerIds(request);
         if (markerIds == null || markerIds.length == 0)
             return null;
@@ -412,8 +422,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         return null;
     }
 
-    private void createAddMarkerCommand(List<IPart> targets,
-            List<Command> cmds, String... markerIds) {
+    private void createAddMarkerCommand(List<IPart> targets, List<Command> cmds,
+            String... markerIds) {
         for (IPart source : targets) {
             Object m = MindMapUtils.getRealModel(source);
             if (m instanceof ITopic) {
@@ -438,10 +448,10 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
                 IMarkerSheet markerSheet = topic.getOwnedWorkbook()
                         .getMarkerSheet();
                 IMarker existingMarker = markerSheet.findMarker(marker.getId());
-                if (existingMarker == null
-                        || !markerSheet.equals(existingMarker.getOwnedSheet())) {
-                    ICloneData cloneData = topic.getOwnedWorkbook().clone(
-                            Arrays.asList(marker));
+                if (existingMarker == null || !markerSheet
+                        .equals(existingMarker.getOwnedSheet())) {
+                    ICloneData cloneData = topic.getOwnedWorkbook()
+                            .clone(Arrays.asList(marker));
                     Object cloned = cloneData.get(marker);
                     if (cloned instanceof IMarker) {
                         marker = (IMarker) cloned;
@@ -513,8 +523,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         final IWorkbook workbook = sheet.getOwnedWorkbook();
         final String path = paths[0];
         final List<Command> cmds = new ArrayList<Command>(paths.length);
-        String errMsg = NLS.bind(
-                "Failed to copy file into this workbook: {0}", path); //$NON-NLS-1$
+        String errMsg = NLS.bind("Failed to copy file into this workbook: {0}", //$NON-NLS-1$
+                path);
         SafeRunner.run(new SafeRunnable(errMsg) {
             public void run() throws Exception {
                 Command cmd = createAddImageCommand(workbook, path, topics);
@@ -530,10 +540,10 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
     private Command createAddImageCommand(IWorkbook workbook, String path,
             List<ITopic> topics) throws Exception {
         Dimension size = getImageSize(path);
-        ImageFormat format = ImageFormat.findByExtension(
-                FileUtils.getExtension(path), ImageFormat.PNG);
-        IFileEntry e = workbook.getManifest().createAttachmentFromFilePath(
-                path, format.getMediaType());
+        ImageFormat format = ImageFormat
+                .findByExtension(FileUtils.getExtension(path), ImageFormat.PNG);
+        IFileEntry e = workbook.getManifest().createAttachmentFromFilePath(path,
+                format.getMediaType());
         if (e == null)
             return null;
 
@@ -609,8 +619,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         final IWorkbook workbook = sheet.getOwnedWorkbook();
         final List<Command> cmds = new ArrayList<Command>(paths.length);
         for (final String path : paths) {
-            String errMsg = NLS.bind(
-                    "Failed to copy file into this workbook: {0}", path); //$NON-NLS-1$
+            String errMsg = NLS
+                    .bind("Failed to copy file into this workbook: {0}", path); //$NON-NLS-1$
             SafeRunner.run(new SafeRunnable(errMsg) {
                 public void run() throws Exception {
                     Command cmd = createAddAttachmentCommand(workbook, path,
@@ -696,13 +706,26 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         }
 
         IViewer viewer = request.getTargetViewer();
-        CreateTopicCommandBuilder builder = new CreateTopicCommandBuilder(
-                viewer, request.getTargetCommandStack(), sourceTopic, reqType);
-        if (!builder.canStart())
-            return;
-
         ITopic centralTopic = (ITopic) viewer.getAdapter(ITopic.class);
         if (centralTopic == null)
+            return;
+
+        CreateTopicCommandBuilder builder = null;
+        List<ITopic> topics = null;
+        if (MindMapUI.REQ_CREATE_PARENT.equals(reqType)) {
+            topics = MindMapUtils.filterOutDescendents(
+                    MindMapUtils.getTopics(request.getTargets()), null);
+            sort(topics);
+
+            builder = new CreateTopicCommandBuilder(viewer,
+                    request.getTargetCommandStack(), sourceTopic, reqType,
+                    topics);
+        } else {
+            builder = new CreateTopicCommandBuilder(viewer,
+                    request.getTargetCommandStack(), sourceTopic, reqType);
+        }
+
+        if (!builder.canStart())
             return;
 
         if (ITopic.ATTACHED.equals(builder.getTargetType())) {
@@ -731,43 +754,68 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
                     boolean isUnbalancedStructure = centralTopicStructure == null
                             || UnbalancedData.STRUCTUREID_UNBALANCED
                                     .equalsIgnoreCase(centralTopicStructure);
-                    if (isUnbalancedStructure
-                            && (!MindMapUI.REQ_CREATE_PARENT.equals(reqType))) {
+                    if (isUnbalancedStructure) {
                         ITopicExtension extension = centralTopic
-                                .createExtension(UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
-                        ITopicExtensionElement element = extension
-                                .getContent()
+                                .createExtension(
+                                        UnbalancedData.EXTENTION_UNBALANCEDSTRUCTURE);
+                        ITopicExtensionElement element = extension.getContent()
                                 .getCreatedChild(
                                         UnbalancedData.EXTENTIONELEMENT_RIGHTNUMBER);
                         String preCreateRightNum = element.getTextContent();
                         if (preCreateRightNum == null)
                             preCreateRightNum = String.valueOf(0);
-                        int postCreateRightNum = Integer.valueOf(
-                                preCreateRightNum).intValue();
+                        int postCreateRightNum = Integer
+                                .valueOf(preCreateRightNum).intValue();
 
                         if (parentBranch.isCentral()) {
+
+                            int deletedRightNum = 0;
+                            if (MindMapUI.REQ_CREATE_PARENT.equals(reqType)) {
+                                if (topics != null && !topics.isEmpty()) {
+                                    for (ITopic rightTopic : topics) {
+                                        if (rightTopic
+                                                .getParent() == centralTopic
+                                                && rightTopic
+                                                        .getIndex() <= postCreateRightNum
+                                                                - 1)
+                                            deletedRightNum++;
+                                    }
+                                }
+                            }
+
                             List<IBranchPart> mainBranches = parentBranch
                                     .getSubBranches();
                             int size = mainBranches.size();
                             if ((((IBranchStructureExtension) structure)
                                     .getChildTargetOrientation(parentBranch,
-                                            sourceBranch) == PositionConstants.WEST && parentBranch != sourceBranch)
+                                            sourceBranch) == PositionConstants.WEST
+                                    && parentBranch != sourceBranch)
                                     || (parentBranch == sourceBranch
-                                            && size <= 2 && postCreateRightNum == size)) {
+                                            && size <= 2
+                                            && postCreateRightNum == size)) {
                                 postCreateRightNum++;
                                 if (size > 2
-                                        && (mainBranches.indexOf(sourceBranch) == size - 1))
+                                        && (mainBranches.indexOf(
+                                                sourceBranch) == size - 1)
+                                        && !MindMapUI.REQ_CREATE_PARENT
+                                                .equals(reqType))
                                     postCreateRightNum--;
+                            }
+
+                            postCreateRightNum = postCreateRightNum
+                                    - deletedRightNum;
+
+                            if (!preCreateRightNum.equals(postCreateRightNum)) {
+                                ModifyRightNumberOfUnbalancedStructureCommand modifyRightNumberCommand = new ModifyRightNumberOfUnbalancedStructureCommand(
+                                        centralTopic, preCreateRightNum,
+                                        postCreateRightNum);
+                                builder.addPendingCommand(
+                                        modifyRightNumberCommand, false);
+                                //if sourceCollectable is true,the operations of create and move topic 
+                                //maybe lead to undo/redo error.
                             }
                         }
 
-                        ModifyRightNumberOfUnbalancedStructureCommand modifyRightNumberCommand = new ModifyRightNumberOfUnbalancedStructureCommand(
-                                centralTopic, preCreateRightNum,
-                                postCreateRightNum);
-                        builder.addPendingCommand(modifyRightNumberCommand,
-                                false);
-                        //if sourceCollectable is true,the operations of create and move topic 
-                        //maybe lead to undo/redo error.
                     }
 
                 }
@@ -806,7 +854,23 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         if (command instanceof ISourceProvider) {
             Object creation = ((ISourceProvider) command).getSource();
             if (creation != null) {
-                select(creation, request.getTargetViewer());
+                boolean needSelect = true;
+                if (creation instanceof ITopic) {
+                    ITopicPart topicPart = MindMapUtils
+                            .getTopicPart((ITopic) creation);
+                    IBranchPart branch = MindMapUtils.findBranch(topicPart);
+                    IStyleSelector styleSelector = branch.getBranchPolicy()
+                            .getStyleSelector(branch);
+                    if (styleSelector != null) {
+                        String hideCallout = styleSelector.getStyleValue(branch,
+                                Styles.HideCallout);
+                        needSelect = !(Boolean.parseBoolean(hideCallout)
+                                && ITopic.CALLOUT
+                                        .equals(((ITopic) creation).getType()));
+                    }
+                }
+                if (needSelect)
+                    select(creation, request.getTargetViewer());
                 if (isAnimationRequired(request))
                     animateCommand(command, request.getTargetViewer());
             }
@@ -1001,6 +1065,19 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
 //        }
 //        return null;
 //    }
+
+    private void sort(List<ITopic> topics) {
+        if (topics == null || topics.size() == 0) {
+            return;
+        }
+
+        Collections.sort(topics, new Comparator<ITopic>() {
+
+            public int compare(ITopic o1, ITopic o2) {
+                return o1.getIndex() - o2.getIndex();
+            }
+        });
+    }
 
     protected void doAnimateCommand(Command cmd, IAnimationService anim,
             IViewer viewer) {

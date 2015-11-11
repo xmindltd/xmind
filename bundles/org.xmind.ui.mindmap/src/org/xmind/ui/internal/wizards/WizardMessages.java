@@ -33,6 +33,9 @@ public class WizardMessages extends NLS {
     public static String ExportPage_UncompatibleFormat_warning;
     public static String ExportPage_OpenFileConfirm_title;
     public static String ExportPage_OpenFileConfirm_message;
+    public static String ExportPage_FindFileFail_title;
+    public static String ExportPage_FindFileFail_close;
+    public static String ExportPage_FindFileFail_message;
     public static String ExportPage_OpenFileConfirm_folder;
     public static String ExportPage_OpenFileConfirm_open;
     public static String ExportPage_OpenFileConfirm_close;
@@ -87,16 +90,22 @@ public class WizardMessages extends NLS {
     public static String DocumentExportPage_AllContents_text;
     public static String DocumentExportPage_Sample_Attachment;
     public static String DocumentExportPage_Sample_CentralTopic;
+    public static String DocumentExportPage_Sample_FloatingTopic;
     public static String DocumentExportPage_Sample_FloatingTopic1;
     public static String DocumentExportPage_Sample_FloatingTopic2;
     public static String DocumentExportPage_Sample_Label1;
     public static String DocumentExportPage_Sample_Label2;
     public static String DocumentExportPage_Sample_MainTopic1;
+    public static String DocumentExportPage_Sample_MainTopic2;
+    public static String DocumentExportPage_Sample_MainTopic3;
     public static String DocumentExportPage_Sample_Relationships;
     public static String DocumentExportPage_Sample_Subtopic1;
     public static String DocumentExportPage_Sample_Subtopic2;
+    public static String DocumentExportPage_Sample_Subtopic3;
+    public static String DocumentExportPage_Sample_Summary;
     public static String DocumentExportPage_Sample_Summary1;
     public static String DocumentExportPage_Sample_Summary2;
+    public static String DocumentExportPage_Sample_Callout;
 
     public static String DocumentExportPage_SettingsGroup_title;
     public static String DocumentExportPage_IncludeOverview;

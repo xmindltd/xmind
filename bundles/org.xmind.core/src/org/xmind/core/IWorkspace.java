@@ -39,6 +39,9 @@ public interface IWorkspace {
      */
     String DIR_TEMP = "temp"; //$NON-NLS-1$
 
+    String FILE_OPENED = ".opened"; //$NON-NLS-1$
+    String FILE_TO_RECOVER = ".toRecover"; //$NON-NLS-1$
+
     /**
      * Returns the root directory of this workspace. XMind Core must be given
      * read-and-write access to this directory and all contents inside it.
@@ -47,10 +50,12 @@ public interface IWorkspace {
      * The result will be searched for in the following order:
      * 
      * <ol>
-     * <li>the path set by invoking <code>setWorkingDirectory(String)</code>;</li>
+     * <li>the path set by invoking <code>setWorkingDirectory(String)</code>;
+     * </li>
      * <li><code>"${org.xmind.core.workspace}"</code> if
      * <code>org.xmind.core.workspace</code> system property exists;</li>
-     * <li><code>".xmind"</code> under the program's current working directory.</li>
+     * <li><code>".xmind"</code> under the program's current working directory.
+     * </li>
      * </ol>
      * </p>
      * 

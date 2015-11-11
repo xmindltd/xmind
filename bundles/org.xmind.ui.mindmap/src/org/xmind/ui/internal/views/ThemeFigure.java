@@ -13,18 +13,198 @@
  *******************************************************************************/
 package org.xmind.ui.internal.views;
 
-import org.eclipse.draw2d.ColorConstants;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.UUID;
+
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.xmind.core.Core;
+import org.xmind.core.IBoundary;
+import org.xmind.core.IControlPoint;
+import org.xmind.core.IRelationship;
+import org.xmind.core.ISheet;
+import org.xmind.core.ITopic;
+import org.xmind.core.IWorkbook;
+import org.xmind.core.io.DirectoryStorage;
+import org.xmind.core.io.IStorage;
 import org.xmind.core.style.IStyle;
+import org.xmind.core.style.IStyleSheet;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
-import org.xmind.ui.style.Styles;
+import org.xmind.gef.image.ImageExportUtils;
+import org.xmind.gef.image.ResizeConstants;
+import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.mindmap.MindMap;
+import org.xmind.ui.mindmap.MindMapImageExporter;
+import org.xmind.ui.util.ImageFormat;
 
 public class ThemeFigure extends Figure {
+
+    private class ThemePreview {
+
+        private IWorkbook previewWorkbook;
+
+        private IStorage previewStorage;
+
+        private File previewFile;
+
+        public ThemePreview(IStyle theme) {
+            initPreviewStorage();
+            initPreview();
+        }
+
+        private void initPreviewStorage() {
+            File root = MindMapUIPlugin.getDefault().getStateLocation()
+                    .toFile();
+            previewFile = new File(root, ".themePreview"); //$NON-NLS-1$
+            File dir = new File(previewFile, UUID.randomUUID().toString());
+            dir.mkdirs();
+            previewStorage = new DirectoryStorage(dir);
+            previewWorkbook = Core.getWorkbookBuilder()
+                    .createWorkbook(previewStorage);
+            previewWorkbook.setTempStorage(previewStorage);
+        }
+
+        private void initPreview() {
+            ISheet sheet = previewWorkbook.getPrimarySheet();
+            createPreviewContents(previewWorkbook, sheet);
+        }
+
+        private void createPreviewContents(IWorkbook workbook, ISheet sheet) {
+            IStyleSheet styleSheet = workbook.getStyleSheet();
+            IStyle importStyle = styleSheet.importStyle(theme);
+
+            if (importStyle != null)
+                sheet.setThemeId(importStyle.getId());
+
+            ITopic rootTopic = sheet.getRootTopic();
+            rootTopic.setTitleText(MindMapMessages.TitleText_CentralTopic);
+            rootTopic.setStructureClass("org.xmind.ui.map.clockwise"); //$NON-NLS-1$
+
+            ITopic mainTopic1 = workbook.createTopic();
+            mainTopic1.setTitleText(
+                    NLS.bind(MindMapMessages.TitleText_MainTopic, 1));
+            rootTopic.add(mainTopic1);
+
+            ITopic subTopic1 = workbook.createTopic();
+            subTopic1.setTitleText(
+                    NLS.bind(MindMapMessages.TitleText_Subtopic, 1));
+            mainTopic1.add(subTopic1);
+
+            ITopic subTopic2 = workbook.createTopic();
+            subTopic2.setTitleText(
+                    NLS.bind(MindMapMessages.TitleText_Subtopic, 2));
+            mainTopic1.add(subTopic2);
+
+            ITopic subTopic3 = workbook.createTopic();
+            subTopic3.setTitleText(
+                    NLS.bind(MindMapMessages.TitleText_Subtopic, 3));
+            mainTopic1.add(subTopic3);
+
+            ITopic floatingTopic = workbook.createTopic();
+            floatingTopic.setTitleText(MindMapMessages.TitleText_FloatingTopic);
+            floatingTopic.setPosition(0, -120);
+            rootTopic.add(floatingTopic, ITopic.DETACHED);
+
+            IBoundary boundary = workbook.createBoundary();
+            boundary.setTitleText(MindMapMessages.TitleText_Boundary);
+            boundary.setStartIndex(0);
+            boundary.setEndIndex(0);
+            rootTopic.addBoundary(boundary);
+
+            IRelationship relationship = workbook.createRelationship();
+            relationship.setTitleText(MindMapMessages.TitleText_Relationship);
+            relationship.setEnd1Id(mainTopic1.getId());
+            relationship.setEnd2Id(floatingTopic.getId());
+            IControlPoint cp1 = relationship.getControlPoint(0);
+            cp1.setPosition(50, -100);
+            IControlPoint cp2 = relationship.getControlPoint(1);
+            cp2.setPosition(100, 0);
+            sheet.addRelationship(relationship);
+        }
+
+        public void createPreviewImage(int wHint, int hHint, String fileName) {
+            MindMapImageExporter exporter = new MindMapImageExporter(
+                    Display.getCurrent());
+            exporter.setSource(new MindMap(previewWorkbook.getPrimarySheet()),
+                    null, null);
+            exporter.setTargetWorkbook(previewWorkbook);
+            Image image = exporter.createImage();
+
+            int width = image.getBounds().width;
+            int height = image.getBounds().height;
+
+            float scale = (height * 1.0f / width * 1.0f)
+                    / (hHint * 1.0f / wHint * 1.0f);
+            if (scale > 1.0) {
+                hHint = (int) (scale * hHint);
+            } else {
+                wHint = (int) (wHint / scale);
+            }
+
+            if (image != null) {
+                image.dispose();
+                image = null;
+            }
+
+            MindMapImageExporter exp = new MindMapImageExporter(
+                    Display.getCurrent());
+            exp.setSource(new MindMap(previewWorkbook.getPrimarySheet()), null,
+                    null);
+            exp.setTargetWorkbook(previewWorkbook);
+            exp.setResize(ResizeConstants.RESIZE_MAXPIXELS, wHint, hHint);
+            image = exp.createImage();
+
+            String id = theme.getId();
+
+            File dir = new File(previewFile, id);
+            dir.mkdirs();
+
+            File preview = new File(dir, fileName);
+
+            OutputStream output = null;
+
+            try {
+                output = new FileOutputStream(preview);
+                ImageExportUtils.saveImage(image, output,
+                        ImageFormat.BMP.getSWTFormat());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } finally {
+                if (image != null) {
+                    image.dispose();
+                    image = null;
+                }
+
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            clear();
+        }
+
+        private void clear() {
+            if (previewStorage != null) {
+                previewStorage.clear();
+                previewStorage = null;
+            }
+
+        }
+
+    }
 
     private static final Rectangle RECT = new Rectangle();
 
@@ -91,92 +271,35 @@ public class ThemeFigure extends Figure {
     }
 
     protected void drawTheme(Graphics graphics, IStyle theme, Rectangle r) {
-        IStyle sheetStyle = theme.getDefaultStyle(Styles.FAMILY_MAP);
-        IStyle centralStyle = theme
-                .getDefaultStyle(Styles.FAMILY_CENTRAL_TOPIC);
-        IStyle mainStyle = theme.getDefaultStyle(Styles.FAMILY_MAIN_TOPIC);
-        Rectangle centralBounds = centralBounds(r);
-        Rectangle mainBounds1 = mainBounds1(r);
-        Rectangle mainBounds2 = mainBounds2(r);
+        Image image = getImageFromSource(theme, r);
 
-        StyleFigureUtils.drawSheetBackground(graphics, r, sheetStyle,
-                StyleFigureUtils.defaultSheetStyle, false);
-        String value = sheetStyle == null ? null : sheetStyle
-                .getProperty(Styles.GradientColor);
-        if (value == null) {
-            value = StyleFigureUtils.defaultSheetStyle == null ? null
-                    : StyleFigureUtils.defaultSheetStyle
-                            .getProperty(Styles.GradientColor);
-        }
-        boolean isGradientColor = Styles.GRADIENT.equals(value);
-
-        boolean tapered = true;
-        Color lineColor1 = StyleFigureUtils.getBranchConnectionColor(mainStyle,
-                StyleFigureUtils.defaultMainStyle, centralStyle,
-                StyleFigureUtils.defaultCentralStyle, 0, ColorConstants.gray);
-        graphics.setForegroundColor(lineColor1);
-        StyleFigureUtils.drawLine(graphics, centralBounds, centralStyle,
-                StyleFigureUtils.defaultCentralStyle, false, mainBounds1,
-                mainStyle, StyleFigureUtils.defaultMainStyle, false, tapered);
-        StyleFigureUtils.drawTopic(graphics, mainBounds1, mainStyle,
-                StyleFigureUtils.defaultMainStyle, false, isGradientColor);
-        StyleFigureUtils.drawtext(graphics, "M", mainBounds1, mainStyle, //$NON-NLS-1$
-                StyleFigureUtils.defaultMainStyle);
-
-        Color lineColor2 = StyleFigureUtils.getBranchConnectionColor(mainStyle,
-                StyleFigureUtils.defaultMainStyle, centralStyle,
-                StyleFigureUtils.defaultCentralStyle, 1, ColorConstants.gray);
-        graphics.setForegroundColor(lineColor2);
-        StyleFigureUtils.drawLine(graphics, centralBounds, centralStyle,
-                StyleFigureUtils.defaultCentralStyle, false, mainBounds2,
-                mainStyle, StyleFigureUtils.defaultMainStyle, false, tapered);
-        StyleFigureUtils.drawTopic(graphics, mainBounds2, mainStyle,
-                StyleFigureUtils.defaultMainStyle, false, isGradientColor);
-        StyleFigureUtils.drawtext(graphics, "M", mainBounds2, mainStyle, //$NON-NLS-1$
-                StyleFigureUtils.defaultMainStyle);
-
-        StyleFigureUtils.drawTopic(graphics, centralBounds, centralStyle,
-                StyleFigureUtils.defaultCentralStyle, false, isGradientColor);
-        StyleFigureUtils.drawtext(graphics, "C", centralBounds, centralStyle, //$NON-NLS-1$
-                StyleFigureUtils.defaultCentralStyle);
+        if (image != null)
+            graphics.drawImage(image, r.x, r.y);
 
         if (defaultImage != null) {
-//            org.eclipse.swt.graphics.Rectangle imgBounds = defaultImage
-//                    .getBounds();
-//            int w = imgBounds.width;
-//            int h = imgBounds.height;
             graphics.drawImage(defaultImage, r.x + 1, r.y + 1);
         }
     }
 
-    public static Rectangle centralBounds(Rectangle r) {
-        int x = r.x + r.width * 3 / 10;
-        int y = r.y + r.height * 5 / 10;
-        int w = r.width * 4 / 10;
-        int h = r.height * 5 / 10;
-        x -= w / 2;
-        y -= h / 2;
-        return new Rectangle(x, y, w, h);
-    }
+    private Image getImageFromSource(IStyle theme, Rectangle r) {
+        File root = MindMapUIPlugin.getDefault().getStateLocation().toFile();
+        root = new File(root, ".themePreview"); //$NON-NLS-1$
 
-    public static Rectangle mainBounds1(Rectangle r) {
-        float x = r.x + r.width * 7.5f / 10;
-        float y = r.y + r.height * 2.5f / 10;
-        float w = r.width * 3.0f / 10;
-        float h = r.height * 2.5f / 10;
-        x -= w / 2;
-        y -= h / 2;
-        return new Rectangle((int) x, (int) y, (int) w, (int) h);
-    }
+        String id = theme.getId();
 
-    public static Rectangle mainBounds2(Rectangle r) {
-        float x = r.x + r.width * 7.5f / 10;
-        float y = r.y + r.height * 7.5f / 10;
-        float w = r.width * 3.0f / 10;
-        float h = r.height * 2.5f / 10;
-        x -= w / 2;
-        y -= h / 2;
-        return new Rectangle((int) x, (int) y, (int) w, (int) h);
+        File dir = new File(root, id);
+
+        String previewName = "preview" + r.width + ".bmp"; //$NON-NLS-1$ //$NON-NLS-2$
+
+        String[] list = dir.list();
+        if (list == null || !Arrays.asList(list).contains(previewName)) {
+            ThemePreview themePreview = new ThemePreview(theme);
+            themePreview.createPreviewImage(r.width, r.height, previewName);
+        }
+
+        File preview = new File(dir, previewName);
+
+        return new Image(Display.getCurrent(), preview.getAbsolutePath());
     }
 
 }

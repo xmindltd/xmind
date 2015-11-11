@@ -40,6 +40,7 @@ import org.xmind.ui.io.MonitoredOutputStream;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.util.Logger;
+import org.xmind.ui.util.MindMapUtils;
 
 public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
 
@@ -114,7 +115,12 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
     public boolean performFinish() {
         if (!hasSource() || !hasTargetPath())
             return false;
-
+        if (!isLegalPath(getTargetPath())) {
+            MessageDialog.openInformation(getShell(),
+                    WizardMessages.ExportPage_FindFileFail_title,
+                    WizardMessages.ExportPage_FindFileFail_message);
+            return false;
+        }
         if (!isExtensionCompatible(getTargetPath(),
                 FileUtils.getExtension(getTargetPath()))) {
             String fileName = new File(getTargetPath()).getName();
@@ -132,6 +138,29 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
                 return false;
         }
         return doExport();
+    }
+
+    private boolean isLegalPath(String targetPath) {
+        boolean isLagel = true;
+        String path = targetPath.substring(0,
+                targetPath.lastIndexOf(File.separator));
+        File directory = new File(path);
+        if (!directory.exists() || !directory.isDirectory()) {
+            isLagel = false;
+            return isLagel;
+        }
+        String fileName = targetPath
+                .substring(targetPath.lastIndexOf(File.separator) + 1);
+        @SuppressWarnings("nls")
+        String[] letters = new String[] { "/", ":", "\\", "*", "?", "\"", "<",
+                ">", "|" };
+        for (int i = 0; i < letters.length; i++) {
+            if (fileName.indexOf(letters[i]) != -1) {
+                isLagel = false;
+                return isLagel;
+            }
+        }
+        return isLagel;
     }
 
     protected boolean doExport() {
@@ -168,9 +197,11 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
             }
             final Throwable ex = e;
             display.asyncExec(new Runnable() {
+
                 public void run() {
                     handleExportException(ex);
                 }
+
             });
         }
         return false;
@@ -196,8 +227,8 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
     }
 
     protected abstract void doExport(IProgressMonitor monitor, Display display,
-            Shell parentShell) throws InvocationTargetException,
-            InterruptedException;
+            Shell parentShell)
+                    throws InvocationTargetException, InterruptedException;
 
     protected OutputStream wrapMonitor(OutputStream realStream,
             IProgressMonitor monitor) {
@@ -251,7 +282,7 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
     @Override
     protected String getSuggestedFileName() {
         String fileName = getSourceMindMap().getCentralTopic().getTitleText();
-        String replacedFileName = fileName.replaceAll("\\r\\n|\\r|\\n", " "); //$NON-NLS-1$//$NON-NLS-2$
+        String replacedFileName = MindMapUtils.trimFileName(fileName);
         return replacedFileName;
     }
 

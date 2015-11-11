@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.tools;
 
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Point;
 import org.xmind.gef.draw2d.IReferencedFigure;
 import org.xmind.gef.part.IGraphicalPart;
@@ -27,6 +28,8 @@ public class ParentSearchKey {
     private IReferencedFigure figure;
 
     private Point cursorPos;
+
+    private IFigure invent;
 
     public ParentSearchKey(IGraphicalPart host, IReferencedFigure figure) {
         this.host = host;
@@ -59,6 +62,14 @@ public class ParentSearchKey {
 
     public void setFeedback(IBranchPart feedback) {
         this.feedback = feedback;
+    }
+
+    public IFigure getInvent() {
+        return invent;
+    }
+
+    public void setInvent(IFigure invent) {
+        this.invent = invent;
     }
 
 }

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<marker-sheet xmlns="urn:xmind:xmap:xmlns:marker:2.0">
+	<marker-group id="priorityMarkers" name="%priorityMarkers" singleton="true">
+		<marker id="priority-1" name="%priority1" resource="priority_1.png" />
+		<marker id="priority-2" name="%priority2" resource="priority_2.png" />
+		<marker id="priority-3" name="%priority3" resource="priority_3.png" />
+		<marker id="priority-4" name="%priority4" resource="priority_4.png" />
+		<marker id="priority-5" name="%priority5" resource="priority_5.png" />
+		<marker id="priority-6" name="%priority6" resource="priority_6.png" />
+		<marker id="priority-7" name="%priority7" resource="priority_7.png" />
+		<marker id="priority-8" name="%priority8" resource="priority_8.png" />
+		<marker id="priority-9" name="%priority9" resource="priority_9.png" />
+	</marker-group>
+	<marker-group id="smileyMarkers" name="%smileyMarkers" singleton="true">
+		<marker id="smiley-smile" name="%smileySmile" resource="emotion_smile.png" />
+		<marker id="smiley-laugh" name="%smileyLaugh" resource="emotion_laugh.png" />
+		<marker id="smiley-angry" name="%smileyAngry" resource="emotion_angry.png" />
+		<marker id="smiley-cry" name="%smileyCry" resource="emotion_cry.png" />
+		<marker id="smiley-surprise" name="%smileySurprise" resource="emotion_surprise.png" />
+		<marker id="smiley-boring" name="%smileyBoring" resource="emotion_boring.png" />
+	</marker-group>
+	<marker-group id="taskMakers" name="%taskMarkers" singleton="true">
+		<marker id="task-start" name="%taskStart" resource="progress_start.png" />
+		<marker id="task-oct" name="%taskOct" resource="progress_1o.png" />
+		<marker id="task-quarter" name="%taskQuarter" resource="progress_1q.png" />
+		<marker id="task-3oct" name="%task3Oct" resource="progress_3o.png" />
+		<marker id="task-half" name="%taskHalf" resource="progress_half.png" />
+		<marker id="task-5oct" name="%task5Oct" resource="progress_5o.png" />
+		<marker id="task-3quar" name="%task3Quarters" resource="progress_3q.png" />
+		<marker id="task-7oct" name="%task7Oct" resource="progress_7o.png" />
+		<marker id="task-done" name="%taskDone" resource="progress_done.png" />
+		<marker id="task-pause" name="%taskPause" resource="progress_pause.png" hidden="true"/>
+	</marker-group>
+	<marker-group id="flagMakers" name="%flagMarkers" singleton="true">
+		<marker id="flag-red" name="%colorRed" resource="flag_red.png" />
+		<marker id="flag-orange" name="%colorOrange" resource="flag_orange.png" />
+		<marker id="flag-yellow" name="%colorYellow" resource="flag_yellow.png" />
+		<marker id="flag-blue" name="%colorBlue" resource="flag_blue.png" />
+		<marker id="flag-green" name="%colorGreen" resource="flag_green.png" />
+		<marker id="flag-purple" name="%colorPurple" resource="flag_purple.png" />
+		<marker id="flag-black" name="%colorGray" resource="flag_gray.png" hidden="true"/>
+	</marker-group>
+	<marker-group id="starMakers" name="%starMarkers" singleton="true">
+		<marker id="star-red" name="%colorRed" resource="star_red.png" />
+		<marker id="star-orange" name="%colorOrange" resource="star_orange.png" />
+		<marker id="star-yellow" name="%colorYellow" resource="star_yellow.png" />
+		<marker id="star-blue" name="%colorBlue" resource="star_blue.png" />
+		<marker id="star-green" name="%colorGreen" resource="star_green.png" />
+		<marker id="star-purple" name="%colorPurple" resource="star_purple.png" />
+		<marker id="star-gray" name="%colorGray" resource="star_gray.png"/>
+	</marker-group>
+	<marker-group id="peopleMakers" name="%peopleMarkers" singleton="true">
+		<marker id="people-red" name="%colorRed" resource="people_red.png" />
+		<marker id="people-orange" name="%colorOrange" resource="people_orange.png" />
+		<marker id="people-yellow" name="%colorYellow" resource="people_yellow.png" />
+		<marker id="people-blue" name="%colorBlue" resource="people_blue.png" />
+		<marker id="people-green" name="%colorGreen" resource="people_green.png" />
+		<marker id="people-purple" name="%colorPurple" resource="people_purple.png" />
+	</marker-group>
+	<marker-group id="arrowMakers" name="%arrowMarkers" singleton="true">
+		<marker id="arrow-up" name="%arrowUp" resource="arrow_up.png" />
+		<marker id="arrow-up-right" name="%arrowUpRight" resource="arrow_up_right.png" />
+		<marker id="arrow-right" name="%arrowRight" resource="arrow_right.png" />
+		<marker id="arrow-down-right" name="%arrowDownRight" resource="arrow_down_right.png" />
+		<marker id="arrow-down" name="%arrowDown" resource="arrow_down.png" />
+		<marker id="arrow-down-left" name="%arrowDownLeft" resource="arrow_down_left.png" />
+		<marker id="arrow-left" name="%arrowLeft" resource="arrow_left.png" />
+		<marker id="arrow-up-left" name="%arrowUpLeft" resource="arrow_up_left.png" />
+		<marker id="arrow-refresh" name="%arrowRefresh" resource="arrow_refresh.png" />
+	</marker-group>
+	<marker-group id="symbolMakers" name="%symbolMarkers" singleton="true">
+		<marker id="symbol-plus" name="%symbolPlus" resource="symbol_plus.png" />
+		<marker id="symbol-minus" name="%symbolMinus" resource="symbol_minus.png" />
+		<marker id="symbol-question" name="%symbolQuestion" resource="symbol_question.png" />
+		<marker id="symbol-exclam" name="%symbolExclam" resource="symbol_exclamation.png" />
+		<marker id="symbol-info" name="%symbolInfo" resource="symbol_information.png" />
+		<marker id="symbol-wrong" name="%symbolWrong" resource="symbol_wrong.png" />
+		<marker id="symbol-right" name="%symbolRight" resource="symbol_right.png" />
+		<marker id="c_simbol-plus" name="%symbolPlus" resource="c_simbol_plus.png" />
+		<marker id="c_simbol-minus" name="%symbolMinus" resource="c_simbol_minus.png" />
+		<marker id="c_simbol-question" name="%symbolQuestion" resource="c_simbol_question.png" />
+		<marker id="c_simbol-exclam" name="%symbolExclam" resource="c_simbol_exclamation.png" />
+		<marker id="c_simbol-info" name="%symbolInfo" resource="c_simbol_information.png" />
+		<marker id="c_simbol-wrong" name="%symbolWrong" resource="c_simbol_wrong.png" />
+		<marker id="c_simbol-right" name="%symbolRight" resource="c_simbol_right.png" />
+	</marker-group>
+	<marker-group id="monthMakers" name="%monthMarkers" singleton="true">
+		<marker id="month-jan" name="%monthJan" resource="month_jan.png" />
+		<marker id="month-feb" name="%monthFeb" resource="month_feb.png" />
+		<marker id="month-mar" name="%monthMar" resource="month_mar.png" />
+		<marker id="month-apr" name="%monthApr" resource="month_apr.png" />
+		<marker id="month-may" name="%monthMay" resource="month_may.png" />
+		<marker id="month-jun" name="%monthJun" resource="month_jun.png" />
+		<marker id="month-jul" name="%monthJul" resource="month_jul.png" />
+		<marker id="month-aug" name="%monthAug" resource="month_aug.png" />
+		<marker id="month-sep" name="%monthSep" resource="month_sep.png" />
+		<marker id="month-oct" name="%monthOct" resource="month_oct.png" />
+		<marker id="month-nov" name="%monthNov" resource="month_nov.png" />
+		<marker id="month-dec" name="%monthDec" resource="month_dec.png" />
+	</marker-group>
+	<marker-group id="weekMakers" name="%weekMarkers" singleton="true">
+		<marker id="week-sun" name="%weekSun" resource="week_sun.png" />
+		<marker id="week-mon" name="%weekMon" resource="week_mon.png" />
+		<marker id="week-tue" name="%weekTue" resource="week_tue.png" />
+		<marker id="week-wed" name="%weekWed" resource="week_wed.png" />
+		<marker id="week-thu" name="%weekThu" resource="week_thu.png" />
+		<marker id="week-fri" name="%weekFri" resource="week_fri.png" />
+		<marker id="week-sat" name="%weekSat" resource="week_sat.png" />
+	</marker-group>
+	<marker-group id="halfStarMarkers" name="%halfStarMarkers" singleton="true" hidden="true">
+		<marker id="half-star-green" name="%colorGreen" resource="star_green_half.png" />
+		<marker id="half-star-red" name="%colorRed" resource="star_red_half.png" />
+		<marker id="half-star-yellow" name="%colorYellow" resource="star_yellow_half.png" />
+		<marker id="half-star-purple" name="%colorPurple" resource="star_purple_half.png" />
+		<marker id="half-star-blue" name="%colorBlue" resource="star_blue_half.png" />
+		<marker id="half-star-gray" name="%colorGray" resource="star_gray_half.png" />
+	</marker-group>
+	<marker-group id="otherMarkers" name="%otherMarkers" hidden="true">
+		<marker id="other-calendar" name="%otherCalendar" resource="other_calendar.png" />
+		<marker id="other-email" name="%otherEmail" resource="other_email.png" />
+		<marker id="other-phone" name="%otherPhone" resource="other_phone.png" />
+		<marker id="other-phone2" name="%otherPhone" resource="other_phone2.png" />
+		<marker id="other-fax" name="%otherFax" resource="other_print.png" />
+		<marker id="other-people" name="%otherPeople" resource="people_green.png" />
+		<marker id="other-people2" name="%otherPeople" resource="people_blue.png" />
+		<marker id="other-clock" name="%otherClock" resource="other_clock.png" />
+		<marker id="other-coffee-cup" name="%otherCoffeeCup" resource="other_coffee.png" />
+		<marker id="other-question" name="%otherQuestion" resource="symbol_question.png" />
+		<marker id="other-exclam" name="%otherExclam" resource="symbol_exclamation.png" />
+		<marker id="other-lightbulb" name="%otherLightBulb" resource="other_buble.png" />
+		<marker id="other-businesscard" name="%otherBusinessCard" resource="other_businesscard.png" />
+		<marker id="other-social" name="%otherSocial" resource="other_social.png" />
+		<marker id="other-chat" name="%otherChat" resource="other_chat.png" />
+		<marker id="other-note" name="%otherNote" resource="other_note.png" />
+		<marker id="other-lock" name="%otherLock" resource="other_lock.png" />
+		<marker id="other-unlock" name="%otherUnlock" resource="other_unlock.png" />
+		<marker id="other-yes" name="%otherYes" resource="symbol_right.png" />
+		<marker id="other-no" name="%otherNo" resource="symbol_wrong.png" />
+		<marker id="other-bomb" name="%otherBomb" resource="other_bomb.png" />
+	</marker-group>
+</marker-sheet>

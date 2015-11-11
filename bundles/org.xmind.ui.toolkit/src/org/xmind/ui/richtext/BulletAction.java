@@ -48,7 +48,7 @@ public class BulletAction extends Action implements IRichTextAction {
         viewer.getRenderer().bulletSelectionParagraph(isChecked());
     }
 
-    public void selctionChanged(IRichTextEditViewer viewer, ISelection selection) {
+    public void selectionChanged(IRichTextEditViewer viewer, ISelection selection) {
         setChecked(viewer.getRenderer().getBulletSelectionParagraph());
     }
 

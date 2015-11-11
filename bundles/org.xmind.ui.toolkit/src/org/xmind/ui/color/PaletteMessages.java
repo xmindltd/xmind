@@ -74,6 +74,83 @@ public class PaletteMessages extends NLS {
     public static String PaletteItem_Yellow_Lighter60;
     public static String PaletteItem_Yellow_Lighter80;
 
+    public static String PaletteItem_Background1;
+    public static String PaletteItem_Background1_Darker5;
+    public static String PaletteItem_Background1_Darker15;
+    public static String PaletteItem_Background1_Darker25;
+    public static String PaletteItem_Background1_Darker35;
+    public static String PaletteItem_Background1_Darker50;
+
+    public static String PaletteItem_Text1;
+    public static String PaletteItem_Text1_Lighter50;
+    public static String PaletteItem_Text1_Lighter35;
+    public static String PaletteItem_Text1_Lighter25;
+    public static String PaletteItem_Text1_Lighter15;
+    public static String PaletteItem_Text1_Lighter5;
+
+    public static String PaletteItem_Background2;
+    public static String PaletteItem_Background2_Darker10;
+    public static String PaletteItem_Background2_Darker25;
+    public static String PaletteItem_Background2_Darker50;
+    public static String PaletteItem_Background2_Darker75;
+    public static String PaletteItem_Background2_Darker90;
+
+    public static String PaletteItem_Text2;
+    public static String PaletteItem_Text2_Lighter80;
+    public static String PaletteItem_Text2_Lighter60;
+    public static String PaletteItem_Text2_Lighter40;
+    public static String PaletteItem_Text2_Darker25;
+    public static String PaletteItem_Text2_Darker50;
+
+    public static String PaletteItem_Accent1;
+    public static String PaletteItem_Accent1_Lighter80;
+    public static String PaletteItem_Accent1_Lighter60;
+    public static String PaletteItem_Accent1_Lighter40;
+    public static String PaletteItem_Accent1_Darker25;
+    public static String PaletteItem_Accent1_Darker50;
+
+    public static String PaletteItem_Accent2;
+    public static String PaletteItem_Accent2_Lighter80;
+    public static String PaletteItem_Accent2_Lighter60;
+    public static String PaletteItem_Accent2_Lighter40;
+    public static String PaletteItem_Accent2_Darker25;
+    public static String PaletteItem_Accent2_Darker50;
+
+    public static String PaletteItem_Accent3;
+    public static String PaletteItem_Accent3_Lighter80;
+    public static String PaletteItem_Accent3_Lighter60;
+    public static String PaletteItem_Accent3_Lighter40;
+    public static String PaletteItem_Accent3_Darker25;
+    public static String PaletteItem_Accent3_Darker50;
+
+    public static String PaletteItem_Accent4;
+    public static String PaletteItem_Accent4_Lighter80;
+    public static String PaletteItem_Accent4_Lighter60;
+    public static String PaletteItem_Accent4_Lighter40;
+    public static String PaletteItem_Accent4_Darker25;
+    public static String PaletteItem_Accent4_Darker50;
+
+    public static String PaletteItem_Accent5;
+    public static String PaletteItem_Accent5_Lighter80;
+    public static String PaletteItem_Accent5_Lighter60;
+    public static String PaletteItem_Accent5_Lighter40;
+    public static String PaletteItem_Accent5_Darker25;
+    public static String PaletteItem_Accent5_Darker50;
+
+    public static String PaletteItem_Accent6;
+    public static String PaletteItem_Accent6_Lighter80;
+    public static String PaletteItem_Accent6_Lighter60;
+    public static String PaletteItem_Accent6_Lighter40;
+    public static String PaletteItem_Accent6_Darker25;
+    public static String PaletteItem_Accent6_Darker50;
+
+    public static String PaletteItem_Standard_label;
+    public static String PaletteItem_Red_Dark;
+    public static String PaletteItem_Green_Light;
+    public static String PaletteItem_Blue_Light;
+    public static String PaletteItem_Blue_Dark;
+    public static String PaletteItem_Purple_Dark;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, PaletteMessages.class);

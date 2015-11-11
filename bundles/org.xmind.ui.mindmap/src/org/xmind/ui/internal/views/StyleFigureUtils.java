@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.xmind.ui.internal.views;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Dimension;
@@ -24,6 +29,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.internal.util.BundleUtility;
 import org.xmind.core.internal.dom.NumberUtils;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
@@ -34,8 +40,11 @@ import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.graphics.GradientPattern;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.gef.draw2d.graphics.Path;
+import org.xmind.ui.internal.svgsupport.SvgFileLoader;
+import org.xmind.ui.internal.svgsupport.SvgPathParser;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
+import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 
@@ -61,6 +70,9 @@ public class StyleFigureUtils {
 
     public static final IStyle defaultMainStyle = findOrCreateDefaultStyle(
             Styles.FAMILY_MAIN_TOPIC, IStyle.TOPIC);
+
+    public static final IStyle defaultRelationshipStyle = findOrCreateDefaultStyle(
+            Styles.FAMILY_RELATIONSHIP, IStyle.RELATIONSHIP);
 
     private StyleFigureUtils() {
     }
@@ -121,11 +133,52 @@ public class StyleFigureUtils {
         return ROUNDED_CORNER * t / ROUNDED_CORNER_ADAPTER;
     }
 
+    public static void circle(Path shape, Rectangle r) {
+        shape.addArc(r, 0, 360);
+    }
+
+    public static void parallelogram(Path shape, Rectangle r) {
+        shape.moveTo(r.x + r.height * 0.5f, r.y);
+        shape.lineTo(r.getBottomLeft());
+        shape.lineTo(r.right() - r.height * 0.5f, r.bottom());
+        shape.lineTo(r.getTopRight());
+        shape.close();
+    }
+
+    public static void cloud(Path path, Rectangle r) {
+        URL url = BundleUtility.find("org.xmind.ui", //$NON-NLS-1$
+                "shapes/topic-shape-cloud.svg"); //$NON-NLS-1$
+
+        SvgFileLoader loader = SvgFileLoader.getInstance();
+        String svgPath = loader.loadSvgFile(url);
+
+        SvgPathParser parser = SvgPathParser.getInstance();
+
+        parser.parseSvgPath(path, r.getCenter().x, r.getCenter().y, r.width,
+                r.height, svgPath);
+    }
+
+    public static void strokeCircle(Path path, Rectangle r) {
+        URL url = BundleUtility.find("org.xmind.ui", //$NON-NLS-1$
+                "shapes/topic-shape-stroke-circle.svg"); //$NON-NLS-1$
+
+        SvgFileLoader loader = SvgFileLoader.getInstance();
+        String svgPath = loader.loadSvgFile(url);
+
+        SvgPathParser parser = SvgPathParser.getInstance();
+
+        parser.parseSvgPath(path, r.getCenter().x, r.getCenter().y, r.width,
+                r.height, svgPath);
+    }
+
     public static void curvedRel(Path shape, Rectangle relBounds, Point c1,
             Point c2) {
-        int dx = -relBounds.width / 10;
-        int dy = relBounds.height / 10;
-        shape.moveTo(relBounds.getBottomLeft());
+//        int dx = -relBounds.width / 10;
+//        int dy = relBounds.height / 10;
+//        shape.moveTo(relBounds.getBottomLeft());
+        int dx = -relBounds.width / 4;
+        int dy = relBounds.height / 4;
+        shape.moveTo(relBounds.getTopLeft());
         Point p1 = relBounds.getTop().translate(-dx, -dy);
         Point p2 = relBounds.getBottom().translate(dx, dy);
         shape.cubicTo(p1, p2, relBounds.getTopRight());
@@ -169,8 +222,8 @@ public class StyleFigureUtils {
             Point head, Point tail, int lineWidth) {
         Path shape = new Path(Display.getCurrent());
         boolean fill = true;
-        double angle = new PrecisionPoint(tail).getAngle(new PrecisionPoint(
-                head));
+        double angle = new PrecisionPoint(tail)
+                .getAngle(new PrecisionPoint(head));
 
         if (Styles.ARROW_SHAPE_DIAMOND.equals(arrowValue)) {
             diamondArrow(shape, head, angle, lineWidth);
@@ -203,28 +256,42 @@ public class StyleFigureUtils {
 
     public static void drawBoundary(Graphics graphics, Rectangle bounds,
             IStyle style, IStyle template) {
+        drawBoundary(graphics, bounds, null, style, template);
+    }
+
+    public static void drawBoundary(Graphics graphics, Rectangle bounds,
+            HashMap<String, String> existedStyle, IStyle style,
+            IStyle template) {
+        Rectangle boundaryBounds = boundaryBounds(bounds);
         Path shape = new Path(Display.getCurrent());
-        String shapeValue = getValue(Styles.ShapeClass, style, template);
+        String shapeValue = getValue(existedStyle, Styles.ShapeClass, style,
+                template);
         if (shapeValue == null
                 || Styles.BOUNDARY_SHAPE_ROUNDEDRECT.equals(shapeValue)) {
-            roundedRect(shape, bounds);
+            roundedRect(shape, boundaryBounds);
         } else if (Styles.BOUNDARY_SHAPE_RECT.equals(shapeValue)) {
-            rectangle(shape, bounds);
+            rectangle(shape, boundaryBounds);
         } else if (Styles.BOUNDARY_SHAPE_SCALLOPS.equals(shapeValue)) {
-            scallops(shape, bounds);
+            scallops(shape, boundaryBounds);
         } else if (Styles.BOUNDARY_SHAPE_TENSION.equals(shapeValue)) {
-            tension(shape, bounds);
+            tension(shape, boundaryBounds);
         } else if (Styles.BOUNDARY_SHAPE_WAVES.equals(shapeValue)) {
-            waves(shape, bounds);
+            waves(shape, boundaryBounds);
+        } else if (Styles.BOUNDARY_SHAPE_POLYGON.equals(shapeValue)) {
+            polygon(shape, boundaryBounds);
+        } else if (Styles.BOUNDARY_SHAPE_ROUNDEDPOLYGON.equals(shapeValue)) {
+            roundedPolygon(shape, boundaryBounds);
         } else {
-            roundedRect(shape, bounds);
+            roundedRect(shape, boundaryBounds);
         }
-        String fillColorValue = getValue(Styles.FillColor, style, template);
+        String fillColorValue = getValue(existedStyle, Styles.FillColor, style,
+                template);
 
         if (fillColorValue != null) {
             Color fillColor = ColorUtils.getColor(fillColorValue);
             if (fillColor != null) {
-                String opacityValue = getValue(Styles.Opacity, style, template);
+                String opacityValue = getValue(existedStyle, Styles.Opacity,
+                        style, template);
                 double opacity = NumberUtils.safeParseDouble(opacityValue, 1);
                 int alpha = (int) (opacity * 0xff);
                 graphics.setAlpha(alpha);
@@ -233,13 +300,16 @@ public class StyleFigureUtils {
             }
         }
 
-        Color lineColor = getLineColor(style, template, ColorConstants.gray);
-        String lineWidthValue = getValue(Styles.LineWidth, style, template);
+        Color lineColor = getLineColor(existedStyle, style, template,
+                ColorConstants.gray);
+        String lineWidthValue = getValue(existedStyle, Styles.LineWidth, style,
+                template);
         lineWidthValue = StyleUtils.trimNumber(lineWidthValue);
         int lineWidth = NumberUtils.safeParseInt(lineWidthValue, 3);
         graphics.setLineWidth(lineWidth);
 
-        String linePatternValue = getValue(Styles.LinePattern, style, template);
+        String linePatternValue = getValue(existedStyle, Styles.LinePattern,
+                style, template);
         int linePattern = StyleUtils.toSWTLineStyle(linePatternValue,
                 SWT.LINE_DASH);
         graphics.setLineStyle(linePattern);
@@ -299,19 +369,28 @@ public class StyleFigureUtils {
 
     public static void drawSheetBackground(Graphics graphics, Rectangle bounds,
             IStyle style, IStyle template) {
-        drawSheetBackground(graphics, bounds, style, template, true);
+        drawSheetBackground(graphics, bounds, null, style, template, true);
     }
 
     public static void drawSheetBackground(Graphics graphics, Rectangle bounds,
             IStyle style, IStyle template, boolean withMainBranches) {
+        drawSheetBackground(graphics, bounds, null, style, template,
+                withMainBranches);
+    }
+
+    public static void drawSheetBackground(Graphics graphics, Rectangle bounds,
+            HashMap<String, String> existedStyle, IStyle style, IStyle template,
+            boolean withMainBranches) {
+        Rectangle sheetBounds = sheetBounds(bounds);
         Color fillColor = null;
-        String fillColorValue = getValue(Styles.FillColor, style, template);
+        String fillColorValue = getValue(existedStyle, Styles.FillColor, style,
+                template);
         if (fillColorValue != null)
             fillColor = ColorUtils.getColor(fillColorValue);
         if (fillColor != null) {
             graphics.setAlpha(0xff);
             graphics.setBackgroundColor(fillColor);
-            graphics.fillRectangle(bounds);
+            graphics.fillRectangle(sheetBounds);
 
         }
 //        if (fillColor == null)
@@ -330,27 +409,39 @@ public class StyleFigureUtils {
 
     public static void drawRelationship(Graphics graphics, Rectangle bounds,
             IStyle style, IStyle template) {
+        drawRelationship(graphics, bounds, null, style, template);
+    }
+
+    public static void drawRelationship(Graphics graphics, Rectangle bounds,
+            HashMap<String, String> existedStyle, IStyle style,
+            IStyle template) {
+        Rectangle relBounds = relBounds(bounds);
         Path shape = new Path(Display.getCurrent());
+
         Point c1 = new Point();
         Point c2 = new Point();
 
-        String shapeValue = getValue(Styles.ShapeClass, style, template);
+        String shapeValue = getValue(existedStyle, Styles.ShapeClass, style,
+                template);
         if (Styles.REL_SHAPE_ANGLED.equals(shapeValue)) {
-            angledRel(shape, bounds, c1, c2);
+            angledRel(shape, relBounds, c1, c2);
         } else if (Styles.REL_SHAPE_STRAIGHT.equals(shapeValue)) {
-            straightRel(shape, bounds, c1, c2);
+            straightRel(shape, relBounds, c1, c2);
         } else {
-            curvedRel(shape, bounds, c1, c2);
+            curvedRel(shape, relBounds, c1, c2);
         }
 
-        Color lineColor = getLineColor(style, template, ColorConstants.gray);
+        Color lineColor = getLineColor(existedStyle, style, template,
+                ColorConstants.gray);
 
-        String lineWidthValue = getValue(Styles.LineWidth, style, template);
+        String lineWidthValue = getValue(existedStyle, Styles.LineWidth, style,
+                template);
         lineWidthValue = StyleUtils.trimNumber(lineWidthValue);
         int lineWidth = NumberUtils.safeParseInt(lineWidthValue, 3);
         graphics.setLineWidth(lineWidth);
 
-        String linePatternValue = getValue(Styles.LinePattern, style, template);
+        String linePatternValue = getValue(existedStyle, Styles.LinePattern,
+                style, template);
         int linePattern = StyleUtils.toSWTLineStyle(linePatternValue,
                 SWT.LINE_DOT);
         graphics.setLineStyle(linePattern);
@@ -360,19 +451,20 @@ public class StyleFigureUtils {
         shape.dispose();
 
         graphics.setLineStyle(SWT.LINE_SOLID);
-        String beginArrowValue = getValue(Styles.ArrowBeginClass, style,
-                template);
+        String beginArrowValue = getValue(existedStyle, Styles.ArrowBeginClass,
+                style, template);
         if (beginArrowValue != null
                 && !Styles.ARROW_SHAPE_NONE.equals(beginArrowValue)) {
-            drawArrow(graphics, beginArrowValue, bounds.getBottomLeft(), c1,
+            drawArrow(graphics, beginArrowValue, relBounds.getBottomLeft(), c1,
                     lineWidth);
         }
 
-        String endArrowValue = getValue(Styles.ArrowEndClass, style, template);
+        String endArrowValue = getValue(existedStyle, Styles.ArrowEndClass,
+                style, template);
         if (endArrowValue == null)
             endArrowValue = Styles.ARROW_SHAPE_NORMAL;
         if (!Styles.ARROW_SHAPE_NONE.equals(endArrowValue)) {
-            drawArrow(graphics, endArrowValue, bounds.getTopRight(), c2,
+            drawArrow(graphics, endArrowValue, relBounds.getTopRight(), c2,
                     lineWidth);
         }
 
@@ -405,8 +497,14 @@ public class StyleFigureUtils {
 
     public static Color getLineColor(IStyle style, IStyle template,
             Color defaultLineColor) {
+        return getLineColor(null, style, template, defaultLineColor);
+    }
+
+    public static Color getLineColor(HashMap<String, String> existedStyle,
+            IStyle style, IStyle template, Color defaultLineColor) {
         Color lineColor = null;
-        String lineColorValue = getValue(Styles.LineColor, style, template);
+        String lineColorValue = getValue(existedStyle, Styles.LineColor, style,
+                template);
         if (lineColorValue != null)
             lineColor = ColorUtils.getColor(lineColorValue);
         if (lineColor == null) {
@@ -416,7 +514,13 @@ public class StyleFigureUtils {
     }
 
     public static String getValue(String key, IStyle style, IStyle template) {
-        String value = style == null ? null : style.getProperty(key);
+        return getValue(null, key, style, template);
+    }
+
+    public static String getValue(HashMap<String, String> existedStyle,
+            String key, IStyle style, IStyle template) {
+        String value = existedStyle == null ? null : existedStyle.get(key);
+        value = style != null ? style.getProperty(key, value) : value;
         if (value == null) {
             value = template == null ? null : template.getProperty(key);
         }
@@ -435,8 +539,8 @@ public class StyleFigureUtils {
         lineWidth = StyleUtils.trimNumber(lineWidth);
         int width = NumberUtils.safeParseInt(lineWidth, 1);
         srcBounds = srcBounds.getExpanded(-width / 2, -width / 2);
-        int tgtWidth = NumberUtils.safeParseInt(StyleUtils.trimNumber(getValue(
-                Styles.LineWidth, tgtStyle, tgtTemplate)), 1);
+        int tgtWidth = NumberUtils.safeParseInt(StyleUtils.trimNumber(
+                getValue(Styles.LineWidth, tgtStyle, tgtTemplate)), 1);
         tgtBounds = tgtBounds.getExpanded(-tgtWidth / 2, -tgtWidth / 2);
 
         String srcShape = getValue(Styles.ShapeClass, srcStyle, srcTemplate);
@@ -516,71 +620,97 @@ public class StyleFigureUtils {
     public static void drawTopic(Graphics graphics, Rectangle bounds,
             IStyle style, IStyle template, boolean centerUnderline,
             boolean isGradientColor) {
+        drawTopic(graphics, bounds, null, style, template, centerUnderline,
+                isGradientColor);
+    }
+
+    public static void drawTopic(Graphics graphics, Rectangle bounds,
+            HashMap<String, String> existedStyle, IStyle style, IStyle template,
+            boolean centerUnderline, boolean isGradientColor) {
+        Rectangle topicBounds = topicBounds(bounds);
         Path shape = new Path(Display.getCurrent());
 
         boolean outline = true;
         boolean fill = true;
 
-        String shapeValue = getValue(Styles.ShapeClass, style, template);
+        String shapeValue = getValue(existedStyle, Styles.ShapeClass, style,
+                template);
         if (shapeValue == null
                 || Styles.TOPIC_SHAPE_ROUNDEDRECT.equals(shapeValue)) {
-            roundedRect(shape, bounds);
+            roundedRect(shape, topicBounds);
         } else if (Styles.TOPIC_SHAPE_ELLIPSE.equals(shapeValue)) {
-            ellipse(shape, bounds);
+            ellipse(shape, topicBounds);
         } else if (Styles.TOPIC_SHAPE_RECT.equals(shapeValue)) {
-            rectangle(shape, bounds);
+            rectangle(shape, topicBounds);
         } else if (Styles.TOPIC_SHAPE_UNDERLINE.equals(shapeValue)) {
-            underline(shape, bounds, centerUnderline);
+            underline(shape, topicBounds, centerUnderline);
             fill = false;
         } else if (Styles.TOPIC_SHAPE_NO_BORDER.equals(shapeValue)) {
-            noBorder(shape, bounds);
+            noBorder(shape, topicBounds);
             outline = false;
         } else if (Styles.TOPIC_SHAPE_DIAMOND.equals(shapeValue)) {
-            diamondTopic(shape, bounds);
+            diamondTopic(shape, topicBounds);
         } else if (Styles.TOPIC_SHAPE_CALLOUT_ELLIPSE.equals(shapeValue)) {
-            calloutEllipse(shape, bounds);
+            calloutEllipse(shape, topicBounds);
         } else if (Styles.TOPIC_SHAPE_CALLOUT_ROUNDEDRECT.equals(shapeValue)) {
-            calloutRoundRect(shape, bounds);
+            calloutRoundRect(shape, topicBounds);
+        } else if (Styles.TOPIC_SHAPE_CIRCLE.equals(shapeValue)) {
+            Rectangle circleTopicBounds = circleTopicBounds(bounds);
+            circle(shape, circleTopicBounds);
+        } else if (Styles.TOPIC_SHAPE_PARALLELOGRAM.equals(shapeValue)) {
+            parallelogram(shape, topicBounds);
+        } else if (Styles.TOPIC_SHAPE_CLOUD.equals(shapeValue)) {
+            cloud(shape, topicBounds);
+        } else if (Styles.TOPIC_SHAPE_STROKE_CIRCLE.equals(shapeValue)) {
+            strokeCircle(shape, topicBounds);
         } else {
-            roundedRect(shape, bounds);
+            roundedRect(shape, topicBounds);
         }
 
-        String fillColorValue = getValue(Styles.FillColor, style, template);
-
+        String fillColorValue = getValue(existedStyle, Styles.FillColor, style,
+                template);
         graphics.setAlpha(0xff);
-        if (fillColorValue != null && fill) {
+        if (fillColorValue != null) {
             Color fillColor = ColorUtils.getColor(fillColorValue);
             if (fillColor != null) {
-                int x = bounds.x;
-                int y1 = bounds.y - bounds.height / 4;
-                int y2 = bounds.y + bounds.height;
+                Path newPath = new Path(Display.getCurrent(),
+                        shape.getPathData());
+                if (!fill) {
+                    rectangle(newPath, topicBounds.expand(0, -1));
+                }
+                int x = topicBounds.x;
+                int y1 = topicBounds.y - topicBounds.height / 4;
+                int y2 = topicBounds.y + topicBounds.height;
                 if (isGradientColor) {
                     GradientPattern bgPattern = new GradientPattern(
                             Display.getCurrent(), x, y1, x, y2,
                             ColorConstants.white, 0xff, fillColor, 0xff);
                     graphics.setBackgroundPattern(bgPattern);
-                    graphics.fillPath(shape);
+                    graphics.fillPath(newPath);
                     bgPattern.dispose();
                 } else {
                     graphics.setBackgroundColor(fillColor);
-                    graphics.fillPath(shape);
+                    graphics.fillPath(newPath);
                 }
+                newPath.dispose();
             }
         }
 
         if (outline) {
-            Color lineColor = getLineColor(style, template, ColorConstants.gray);
-            String lineColorValue = getValue(Styles.BorderLineColor, style,
-                    template);
+            Color lineColor = getLineColor(style, template,
+                    ColorConstants.gray);
+            String lineColorValue = getValue(existedStyle,
+                    Styles.BorderLineColor, style, template);
             if (lineColorValue != null)
                 lineColor = ColorUtils.getColor(lineColorValue);
 
             if (lineColor != null) {
-                String lineWidthValue = getValue(Styles.BorderLineWidth, style,
-                        template);
+                String lineWidthValue = getValue(existedStyle,
+                        Styles.BorderLineWidth, style, template);
                 lineWidthValue = StyleUtils.trimNumber(lineWidthValue);
                 if (lineWidthValue == null)
-                    lineWidthValue = getValue(Styles.LineWidth, style, template);
+                    lineWidthValue = getValue(existedStyle, Styles.LineWidth,
+                            style, template);
                 int lineWidth = NumberUtils.safeParseInt(lineWidthValue, 1);
                 if (lineWidth > 0) {
                     graphics.setLineWidth(lineWidth);
@@ -610,8 +740,8 @@ public class StyleFigureUtils {
             PrecisionPoint _p2 = new PrecisionPoint(p2);
             PrecisionPointPair _cc = Geometry.calculatePositionPair(_c, _p2,
                     0.5);
-            PrecisionPointPair _pp2 = Geometry.calculatePositionPair(_p2, _c,
-                    0.5).swap();
+            PrecisionPointPair _pp2 = Geometry
+                    .calculatePositionPair(_p2, _c, 0.5).swap();
             PrecisionPointPair _pp1 = Geometry.calculatePositionPair(_p1, _c,
                     width);
             double d = (p1.x > p2.x == p1.y > p2.y) ? width * 0.5
@@ -643,14 +773,14 @@ public class StyleFigureUtils {
             PrecisionPoint _p2 = new PrecisionPoint(p2);
             PrecisionPoint _q1 = new PrecisionPoint(q1);
             PrecisionPoint _q2 = new PrecisionPoint(q2);
-            PrecisionPoint _c1 = new PrecisionPoint(_q1.x, _q1.y
-                    + (c.y - _q1.y) * 3 / 4);
-            PrecisionPoint _c2 = new PrecisionPoint(_q2.x + (c.x - _q2.x) * 3
-                    / 4, _q2.y);
-            PrecisionPoint _pc1 = new PrecisionPoint(_p1.x, _p1.y
-                    + (_c1.y - _p1.y) * 2);
-            PrecisionPoint _pc2 = new PrecisionPoint(_p2.x + (_c2.x - _p2.x)
-                    * 2, _p2.y);
+            PrecisionPoint _c1 = new PrecisionPoint(_q1.x,
+                    _q1.y + (c.y - _q1.y) * 3 / 4);
+            PrecisionPoint _c2 = new PrecisionPoint(
+                    _q2.x + (c.x - _q2.x) * 3 / 4, _q2.y);
+            PrecisionPoint _pc1 = new PrecisionPoint(_p1.x,
+                    _p1.y + (_c1.y - _p1.y) * 2);
+            PrecisionPoint _pc2 = new PrecisionPoint(
+                    _p2.x + (_c2.x - _p2.x) * 2, _p2.y);
 
             PrecisionPointPair _pp1 = Geometry.calculatePositionPair(_p1, _c1,
                     width);
@@ -658,12 +788,12 @@ public class StyleFigureUtils {
                     width);
             PrecisionPointPair _cc1 = Geometry.calculatePositionPair(_c1, _pc1,
                     width);
-            PrecisionPointPair _pp2 = Geometry.calculatePositionPair(_p2, _c2,
-                    0.5).swap();
-            PrecisionPointPair _qq2 = Geometry.calculatePositionPair(_q2, _c2,
-                    0.5).swap();
-            PrecisionPointPair _cc2 = Geometry.calculatePositionPair(_c2, _pc2,
-                    0.5).swap();
+            PrecisionPointPair _pp2 = Geometry
+                    .calculatePositionPair(_p2, _c2, 0.5).swap();
+            PrecisionPointPair _qq2 = Geometry
+                    .calculatePositionPair(_q2, _c2, 0.5).swap();
+            PrecisionPointPair _cc2 = Geometry
+                    .calculatePositionPair(_c2, _pc2, 0.5).swap();
             double d = (p1.x > p2.x == p1.y > p2.y) ? width * 0.5
                     : -width * 0.5;
             _qq2.p1().x -= d;
@@ -683,8 +813,8 @@ public class StyleFigureUtils {
         } else {
             shape.moveTo(p1);
             shape.lineTo(q1);
-            shape.cubicTo(q1.x, q1.y + (c.y - q1.y) * 3 / 4, q2.x
-                    + (c.x - q2.x) * 3 / 4, q2.y, q2.x, q2.y);
+            shape.cubicTo(q1.x, q1.y + (c.y - q1.y) * 3 / 4,
+                    q2.x + (c.x - q2.x) * 3 / 4, q2.y, q2.x, q2.y);
             shape.lineTo(p2);
         }
     }
@@ -696,8 +826,8 @@ public class StyleFigureUtils {
             PrecisionPoint _p2 = new PrecisionPoint(p2);
             PrecisionPointPair _pp1 = Geometry.calculatePositionPair(_p1, _p2,
                     width);
-            PrecisionPointPair _pp2 = Geometry.calculatePositionPair(_p2, _p1,
-                    0.5).swap();
+            PrecisionPointPair _pp2 = Geometry
+                    .calculatePositionPair(_p2, _p1, 0.5).swap();
             shape.moveTo(_pp1.p1());
             shape.lineTo(_pp2.p1());
             shape.lineTo(_pp2.p2());
@@ -714,12 +844,12 @@ public class StyleFigureUtils {
         if (tapered) {
             PrecisionPoint _p1 = new PrecisionPoint(p1);
             PrecisionPoint _p2 = new PrecisionPoint(p2);
-            PrecisionPoint _c = new PrecisionPoint(_p1.x + (_p2.x - _p1.x) * 2
-                    / 10, _p2.y);
+            PrecisionPoint _c = new PrecisionPoint(
+                    _p1.x + (_p2.x - _p1.x) * 2 / 10, _p2.y);
             PrecisionPointPair _pp1 = Geometry.calculatePositionPair(_p1, _p2,
                     width);
-            PrecisionPointPair _pp2 = Geometry.calculatePositionPair(_p2, _c,
-                    0.5).swap();
+            PrecisionPointPair _pp2 = Geometry
+                    .calculatePositionPair(_p2, _c, 0.5).swap();
             PrecisionPointPair _cc = Geometry.calculatePositionPair(_c, _p2,
                     0.5);
             double d = (p1.x > p2.x == p1.y > p2.y) ? width * 0.5
@@ -809,23 +939,23 @@ public class StyleFigureUtils {
 
         shape.moveTo(x, y);
         for (int i = 0; i < numX; i++) {
-            shape.cubicTo(x + stepX / 4, y - margin, x + stepX * 3 / 4, y
-                    - margin, x + stepX, y);
+            shape.cubicTo(x + stepX / 4, y - margin, x + stepX * 3 / 4,
+                    y - margin, x + stepX, y);
             x += stepX;
         }
         for (int i = 0; i < numY; i++) {
-            shape.cubicTo(x + margin, y + stepY / 4, x + margin, y + stepY * 3
-                    / 4, x, y + stepY);
+            shape.cubicTo(x + margin, y + stepY / 4, x + margin,
+                    y + stepY * 3 / 4, x, y + stepY);
             y += stepY;
         }
         for (int i = 0; i < numX; i++) {
-            shape.cubicTo(x - stepX / 4, y + margin, x - stepX * 3 / 4, y
-                    + margin, x - stepX, y);
+            shape.cubicTo(x - stepX / 4, y + margin, x - stepX * 3 / 4,
+                    y + margin, x - stepX, y);
             x -= stepX;
         }
         for (int i = 0; i < numY; i++) {
-            shape.cubicTo(x - margin, y - stepY / 4, x - margin, y - stepY * 3
-                    / 4, x, y - stepY);
+            shape.cubicTo(x - margin, y - stepY / 4, x - margin,
+                    y - stepY * 3 / 4, x, y - stepY);
             y -= stepY;
         }
         shape.close();
@@ -890,23 +1020,23 @@ public class StyleFigureUtils {
 
         shape.moveTo(x, y);
         for (int i = 0; i < numX; i++) {
-            shape.cubicTo(x + stepX / 4, y + margin, x + stepX * 3 / 4, y
-                    + margin, x + stepX, y);
+            shape.cubicTo(x + stepX / 4, y + margin, x + stepX * 3 / 4,
+                    y + margin, x + stepX, y);
             x += stepX;
         }
         for (int i = 0; i < numY; i++) {
-            shape.cubicTo(x - margin, y + stepY / 4, x - margin, y + stepY * 3
-                    / 4, x, y + stepY);
+            shape.cubicTo(x - margin, y + stepY / 4, x - margin,
+                    y + stepY * 3 / 4, x, y + stepY);
             y += stepY;
         }
         for (int i = 0; i < numX; i++) {
-            shape.cubicTo(x - stepX / 4, y - margin, x - stepX * 3 / 4, y
-                    - margin, x - stepX, y);
+            shape.cubicTo(x - stepX / 4, y - margin, x - stepX * 3 / 4,
+                    y - margin, x - stepX, y);
             x -= stepX;
         }
         for (int i = 0; i < numY; i++) {
-            shape.cubicTo(x + margin, y - stepY / 4, x + margin, y - stepY * 3
-                    / 4, x, y - stepY);
+            shape.cubicTo(x + margin, y - stepY / 4, x + margin,
+                    y - stepY * 3 / 4, x, y - stepY);
             y -= stepY;
         }
         shape.close();
@@ -956,67 +1086,142 @@ public class StyleFigureUtils {
         float h = ((float) getBoundaryPadding()) / 4;
         shape.moveTo(x, y);
         for (int i = 0; i < numX; i++) {
-            shape.cubicTo(x + stepX / 8, y - h, x + stepX * 3 / 8, y - h, x
-                    + stepX / 2, y);
-            shape.cubicTo(x + stepX * 5 / 8, y + h, x + stepX * 7 / 8, y + h, x
-                    + stepX, y);
+            shape.cubicTo(x + stepX / 8, y - h, x + stepX * 3 / 8, y - h,
+                    x + stepX / 2, y);
+            shape.cubicTo(x + stepX * 5 / 8, y + h, x + stepX * 7 / 8, y + h,
+                    x + stepX, y);
             x += stepX;
         }
         for (int i = 0; i < numY; i++) {
-            shape.cubicTo(x + h, y + stepY / 8, x + h, y + stepY * 3 / 8, x, y
-                    + stepY / 2);
-            shape.cubicTo(x - h, y + stepY * 5 / 8, x - h, y + stepY * 7 / 8,
-                    x, y + stepY);
+            shape.cubicTo(x + h, y + stepY / 8, x + h, y + stepY * 3 / 8, x,
+                    y + stepY / 2);
+            shape.cubicTo(x - h, y + stepY * 5 / 8, x - h, y + stepY * 7 / 8, x,
+                    y + stepY);
             y += stepY;
         }
         for (int i = 0; i < numX; i++) {
-            shape.cubicTo(x - stepX / 8, y + h, x - stepX * 3 / 8, y + h, x
-                    - stepX / 2, y);
-            shape.cubicTo(x - stepX * 5 / 8, y - h, x - stepX * 7 / 8, y - h, x
-                    - stepX, y);
+            shape.cubicTo(x - stepX / 8, y + h, x - stepX * 3 / 8, y + h,
+                    x - stepX / 2, y);
+            shape.cubicTo(x - stepX * 5 / 8, y - h, x - stepX * 7 / 8, y - h,
+                    x - stepX, y);
             x -= stepX;
         }
         for (int i = 0; i < numY; i++) {
-            shape.cubicTo(x - h, y - stepY / 8, x - h, y - stepY * 3 / 8, x, y
-                    - stepY / 2);
-            shape.cubicTo(x + h, y - stepY * 5 / 8, x + h, y - stepY * 7 / 8,
-                    x, y - stepY);
+            shape.cubicTo(x - h, y - stepY / 8, x - h, y - stepY * 3 / 8, x,
+                    y - stepY / 2);
+            shape.cubicTo(x + h, y - stepY * 5 / 8, x + h, y - stepY * 7 / 8, x,
+                    y - stepY);
             y -= stepY;
         }
         shape.close();
     }
 
-    public static void drawtext(Graphics graphics, String text,
-            Rectangle parentRect, IStyle style, IStyle template) {
-        String fontColor = getValue(Styles.TextColor, style, template);
+    public static void polygon(Path shape, Rectangle box) {
+        shape.moveTo(box.x + box.width / 2, box.y);
+        shape.lineTo(box.x, box.y + box.height / 4);
+        shape.lineTo(box.x, box.bottom() - box.height / 4);
+        shape.lineTo(box.x + box.width / 2, box.bottom());
+        shape.lineTo(box.getBottomRight());
+        shape.lineTo(box.getTopRight());
+        shape.close();
+    }
+
+    public static void roundedPolygon(Path shape, Rectangle box) {
+        int corner = 4;
+
+        Point p0 = calcRoundedPoint(box.getTop(), box.getTopRight(), corner);
+        shape.moveTo(p0);
+
+        cubicAndLine(shape, box.getTopRight(), box.getTop(),
+                box.getTopLeft().getTranslated(0, box.height / 4), corner);
+        cubicAndLine(shape, box.getTop(),
+                box.getTopLeft().getTranslated(0, box.height / 4),
+                box.getBottomLeft().getTranslated(0, -box.height / 4), corner);
+        cubicAndLine(shape, box.getTopLeft().getTranslated(0, box.height / 4),
+                box.getBottomLeft().getTranslated(0, -box.height / 4),
+                box.getBottom(), corner);
+        cubicAndLine(shape,
+                box.getBottomLeft().getTranslated(0, -box.height / 4),
+                box.getBottom(), box.getBottomRight(), corner);
+        cubicAndLine(shape, box.getBottom(), box.getBottomRight(),
+                box.getTopRight(), corner);
+        cubicAndLine(shape, box.getBottomRight(), box.getTopRight(),
+                box.getTop(), corner);
+        shape.close();
+    }
+
+    private static void cubicAndLine(Path shape, Point p0, Point p1, Point p2,
+            int corner) {
+        Point p3 = calcRoundedPoint(p1, p0, corner);
+        Point p4 = calcRoundedPoint(p1, p2, corner);
+        Point c1 = calcControlPoint(p3, p1);
+        Point c2 = calcControlPoint(p4, p1);
+
+        shape.cubicTo(c1, c2, p4);
+        shape.lineTo(calcRoundedPoint(p2, p1, corner));
+    }
+
+    private static Point calcRoundedPoint(Point p1, Point p2, int corner) {
+        int dx = p2.x - p1.x;
+        int dy = p2.y - p1.y;
+
+        if (dx == 0) {
+            if (dy > 0)
+                return p1.getTranslated(0, corner);
+            return p1.getTranslated(0, -corner);
+        } else if (dy == 0) {
+            if (dx > 0)
+                return p1.getTranslated(corner, 0);
+            return p1.getTranslated(-corner, 0);
+        } else {
+            double l = p1.getDistance(p2);
+            double x = dx / l * corner;
+            double y = dy / l * corner;
+            return p1.getTranslated(x, y);
+        }
+    }
+
+    private static Point calcControlPoint(Point p1, Point p2) {
+        double dx = p2.x - p1.x;
+        double dy = p2.y - p1.y;
+
+        return p1.getTranslated(dx * 0.447715f, dy * 0.447715f);
+    }
+
+    private static void drawtext(Graphics graphics, String text,
+            Rectangle parentRect, IStyle style, IStyle template, Font font) {
+        drawtext(graphics, text, parentRect, null, style, template, font);
+    }
+
+    private static void drawtext(Graphics graphics, String text,
+            Rectangle parentRect, HashMap<String, String> existedStyle,
+            IStyle style, IStyle template, Font font) {
+        String fontColor = getValue(existedStyle, Styles.TextColor, style,
+                template);
         RGB fontColorRGB = ColorUtils.toRGB(fontColor);
         if (fontColorRGB == null)
             return;
 
         graphics.setForegroundColor(ColorUtils.getColor(fontColorRGB));
 
-        String textAlign = getValue(Styles.TextAlign, style, template);
+        String textAlign = getValue(existedStyle, Styles.TextAlign, style,
+                template);
 
-        String fontName = getValue(Styles.FontFamily, style, template);
-        if (Styles.SYSTEM.equals(fontName)) {
-            fontName = JFaceResources.getDefaultFont().getFontData()[0]
-                    .getName();
+        String textCase = getValue(existedStyle, Styles.TextCase, style,
+                template);
+
+        boolean isStrikedThrough = isStrikeout(existedStyle, style);
+        boolean isUnderlined = isUnderline(existedStyle, style);
+
+        if (Styles.UPPERCASE.equals(textCase)) {
+            text = text.toUpperCase();
+        } else if (Styles.LOWERCASE.equals(textCase)) {
+            text = text.toLowerCase();
+        } else if (Styles.CAPITALIZE.equals(textCase)) {
+            text = capitalize(text);
         }
-
-        boolean isBold = StyleUtils.isBold(style);
-        boolean isItalic = StyleUtils.isItalic(style);
-        boolean isStrikedThrough = StyleUtils.isStrikeout(style);
-        boolean isUnderlined = StyleUtils.isUnderline(style);
-
-        int fontDataStyle = SWT.NORMAL;
-        if (isBold)
-            fontDataStyle |= SWT.BOLD;
-        if (isItalic)
-            fontDataStyle |= SWT.ITALIC;
-        Font font = new Font(null, fontName, 7, fontDataStyle);
-
-        Dimension textSize = GraphicsUtils.getAdvanced()
-                .getTextSize(text, font);
+        Dimension textSize = GraphicsUtils.getAdvanced().getTextSize(text,
+                font);
         graphics.setFont(font);
         int x = parentRect.x + (parentRect.width - textSize.width) / 4;
         int y = parentRect.y + (parentRect.height - textSize.height) / 2;
@@ -1049,4 +1254,144 @@ public class StyleFigureUtils {
         font.dispose();
 
     }
+
+    private static String capitalize(String str) {
+        StringBuffer stringbf = new StringBuffer();
+        Matcher m = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE) //$NON-NLS-1$
+                .matcher(str);
+        while (m.find()) {
+            m.appendReplacement(stringbf,
+                    m.group(1).toUpperCase() + m.group(2).toLowerCase());
+        }
+        return m.appendTail(stringbf).toString();
+    }
+
+    public static void drawThemeText(Graphics graphics, String text,
+            Rectangle parentRect, IStyle style, IStyle template) {
+        String fontName = getFontName(style, template);
+        int fontDataStyle = getFontDataStyle(style);
+        Font font = new Font(null, fontName, 2, fontDataStyle);
+
+        drawtext(graphics, text, parentRect, style, template, font);
+
+        font.dispose();
+    }
+
+    public static void drawStyleText(Graphics graphics, String text,
+            Rectangle bounds, HashMap<String, String> existedStyle,
+            IStyle style, IStyle template) {
+        Rectangle parentRect = topicBounds(bounds);
+        String fontName = getFontName(existedStyle, style, template);
+        int fontDataStyle = getFontDataStyle(style);
+        Font font = new Font(null, fontName, 7, fontDataStyle);
+
+        drawtext(graphics, text, parentRect, existedStyle, style, template,
+                font);
+
+        font.dispose();
+    }
+
+    private static int getFontDataStyle(HashMap<String, String> existedStyle,
+            IStyle style) {
+        boolean isBold = isBold(existedStyle, style);
+        boolean isItalic = isItalic(existedStyle, style);
+
+        int fontDataStyle = SWT.NORMAL;
+        if (isBold)
+            fontDataStyle |= SWT.BOLD;
+        if (isItalic)
+            fontDataStyle |= SWT.ITALIC;
+        return fontDataStyle;
+    }
+
+    private static boolean isBold(HashMap<String, String> existedStyle,
+            IStyle style) {
+        String weight = getValue(existedStyle, Styles.FontWeight, style, null);
+        return weight != null && weight.contains(Styles.FONT_WEIGHT_BOLD);
+    }
+
+    private static boolean isItalic(HashMap<String, String> existedStyle,
+            IStyle style) {
+        String weight = getValue(existedStyle, Styles.FontStyle, style, null);
+        return weight != null && weight.contains(Styles.FONT_STYLE_ITALIC);
+    }
+
+    private static boolean isUnderline(HashMap<String, String> existedStyle,
+            IStyle style) {
+        String weight = getValue(existedStyle, Styles.TextDecoration, style,
+                null);
+        return weight != null
+                && weight.contains(Styles.TEXT_DECORATION_UNDERLINE);
+    }
+
+    private static boolean isStrikeout(HashMap<String, String> existedStyle,
+            IStyle style) {
+        String weight = getValue(existedStyle, Styles.TextDecoration, style,
+                null);
+        return weight != null
+                && weight.contains(Styles.TEXT_DECORATION_LINE_THROUGH);
+    }
+
+    private static int getFontDataStyle(IStyle style) {
+        return getFontDataStyle(null, style);
+    }
+
+    private static String getFontName(IStyle style, IStyle template) {
+        return getFontName(null, style, template);
+    }
+
+    private static String getFontName(HashMap<String, String> existedStyle,
+            IStyle style, IStyle template) {
+        String fontName = getValue(existedStyle, Styles.FontFamily, style,
+                template);
+        String availableFontName = FontUtils.getAAvailableFontNameFor(fontName);
+        fontName = availableFontName != null ? availableFontName : fontName;
+
+        if (Styles.SYSTEM.equals(fontName)) {
+            fontName = JFaceResources.getDefaultFont().getFontData()[0]
+                    .getName();
+        }
+        return fontName;
+    }
+
+    private static Rectangle topicBounds(Rectangle r) {
+        int width = r.width * 7 / 8;
+        int height = width * 9 / 20;
+        int x = r.x + r.width / 2 - width / 2;
+        int y = r.y + r.height / 2 - height / 2;
+        return new Rectangle(x, y, width, height);
+    }
+
+    private static Rectangle circleTopicBounds(Rectangle r) {
+        int width = Math.min(r.width * 6 / 8, r.height * 6 / 8);
+        int height = width;
+        int x = r.x + r.width / 2 - width / 2;
+        int y = r.y + r.height / 2 - height / 2;
+        return new Rectangle(x, y, width, height);
+    }
+
+    private static Rectangle boundaryBounds(Rectangle r) {
+        int width = r.width * 7 / 8;
+        int height = width * 7 / 10;
+        int x = r.x + r.width / 2 - width / 2;
+        int y = r.y + r.height / 2 - height / 2;
+        return new Rectangle(x, y, width, height);
+    }
+
+    private static Rectangle relBounds(Rectangle r) {
+        int width = r.width * 6 / 8;
+        int height = width * 7 / 10;
+        int x = r.x + r.width / 2 - width / 2;
+        int y = r.y + r.height / 2 - height / 2;
+        return new Rectangle(x, y, width, height);
+    }
+
+    private static Rectangle sheetBounds(Rectangle r) {
+        int width = r.width * 7 / 8;
+        int height = width * 7 / 8;
+        int x = r.x + r.width / 2 - width / 2;
+        int y = r.y + r.height / 2 - height / 2;
+        return new Rectangle(x, y, width, height);
+    }
+
 }

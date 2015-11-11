@@ -1,12 +1,13 @@
 package org.xmind.ui.internal.sharing;
 
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.IContributionManager;
-import org.eclipse.jface.action.StatusLineLayoutData;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.util.Util;
@@ -22,9 +23,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IWorkbenchPage;
@@ -50,11 +53,7 @@ public class SharingServiceStatusItem extends
 
     private Composite container = null;
 
-    private ToolBar toolbar = null;
-
     private Display display = null;
-
-    private ToolItem item = null;
 
     private Menu menu = null;
 
@@ -63,6 +62,10 @@ public class SharingServiceStatusItem extends
     private MenuItem onlineItem = null;
 
     private Map<String, Image> icons = null;
+
+    private Label stateTextLabel;
+
+    private Label stateImageLabel;
 
     public SharingServiceStatusItem() {
         super("org.xmind.ui.sharing.localnetwork.serviceStatus"); //$NON-NLS-1$
@@ -85,11 +88,9 @@ public class SharingServiceStatusItem extends
             menu.dispose();
             menu = null;
         }
-        if (toolbar != null) {
-            toolbar.dispose();
-        }
         if (container != null) {
             container.dispose();
+            container=null;
         }
 
         container = new Composite(parent, SWT.NONE);
@@ -99,30 +100,24 @@ public class SharingServiceStatusItem extends
         layout.verticalSpacing = 0;
         layout.horizontalSpacing = 0;
         container.setLayout(layout);
-        container.setLayoutData(new StatusLineLayoutData());
-
-        Label sep = new Label(container, SWT.SEPARATOR | SWT.VERTICAL);
-        sep.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, false, true));
-
-        if (getOrientation() == SWT.VERTICAL) {
-            toolbar = new ToolBar(container, SWT.VERTICAL | SWT.FLAT);
-        } else {
-            toolbar = new ToolBar(container, SWT.HORIZONTAL | SWT.RIGHT
-                    | SWT.FLAT);
-        }
-        toolbar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-        toolbar.setFont(FontUtils.getRelativeHeight(
-                JFaceResources.DEFAULT_FONT, Util.isMac() ? -2 : -1));
-
-        item = new ToolItem(toolbar, SWT.PUSH);
-        item.addListener(SWT.Selection, new Listener() {
+        
+        Listener showMenuListener = new Listener() {
             public void handleEvent(Event event) {
                 showMenu();
             }
-        });
-
+        };
+        stateImageLabel = new Label(container, SWT.RIGHT);
+        stateImageLabel.setLayoutData(new GridData(SWT.FILL));
+        stateImageLabel.addListener(SWT.MouseDown, showMenuListener);
+        
+        stateTextLabel = new Label(container, SWT.CENTER);
+        stateTextLabel.setFont(FontUtils.getRelativeHeight(
+                JFaceResources.DEFAULT_FONT, Util.isMac() ? -2 : -1));
+        stateTextLabel.setLayoutData(new GridData(SWT.FILL));
+        stateTextLabel.addListener(SWT.MouseDown, showMenuListener);
+        
         update(null);
-        return toolbar;
+        return container;
     }
 
     public void update() {
@@ -137,18 +132,23 @@ public class SharingServiceStatusItem extends
         } else {
             ILocalSharedLibrary localLibrary = sharingService.getLocalLibrary();
             int status = sharingService.getStatus();
-
-            if (item != null && !item.isDisposed()) {
-                String localName = localLibrary.getName();
-                item.setText(localName);
-                item.setToolTipText(NLS
+            String localName = localLibrary.getName();
+            
+            if(stateTextLabel != null && !stateTextLabel.isDisposed()){
+                stateTextLabel.setText(localName);
+                stateTextLabel.setToolTipText(NLS
                         .bind(SharingMessages.SharingServiceStatusItem_tooltip_withLocalUserName,
                                 localName));
+            }
+            if(stateImageLabel != null && !stateImageLabel.isDisposed()){
                 if (status == ISharingService.ACTIVE) {
-                    item.setImage(getIcon(ICON_ONLINE));
+                    stateImageLabel.setImage(getIcon(ICON_ONLINE));
                 } else {
-                    item.setImage(getIcon(ICON_OFFLINE));
+                    stateImageLabel.setImage(getIcon(ICON_OFFLINE));
                 }
+                stateImageLabel.setToolTipText(NLS
+                        .bind(SharingMessages.SharingServiceStatusItem_tooltip_withLocalUserName,
+                                localName));
             }
 
             setContributionVisible(LocalNetworkSharingUI.getDefault()
@@ -174,16 +174,63 @@ public class SharingServiceStatusItem extends
     private void updateSize() {
         if (container == null || container.isDisposed())
             return;
-
+        
         Point oldSize = container.getSize();
         container.pack(true);
+        container.layout(true, true);
         Point newSize = container.getSize();
-        if (oldSize.equals(newSize))
+        if(oldSize.equals(newSize))
             return;
-
-        container.getParent().layout(true, true);
+        
+        ToolBar parentToolBar = getParentToolBar(container);
+        if(parentToolBar==null)
+            return;
+        
+        ToolItem[] items = parentToolBar.getItems();
+        if(items.length>0){
+            items[0].setWidth(newSize.x);
+            parentToolBar.setSize(newSize);
+        }
+        
+        Composite parent = parentToolBar.getParent().getParent();
+        if(parent instanceof Shell)
+            return;
+        
+        layoutTrimBar(parent);
     }
 
+    private void layoutTrimBar(Composite trimBar) {
+        Layout layout = trimBar.getLayout();
+        try {
+            Field lines=layout.getClass().getDeclaredField("lines"); //$NON-NLS-1$
+            boolean oldAccessible = lines.isAccessible();
+            lines.setAccessible(true);
+            lines.set(layout, new ArrayList<Object>());
+            lines.setAccessible(oldAccessible);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        trimBar.layout(true, true);
+    }
+    
+    private ToolBar getParentToolBar(Control child) {
+        if(child==null)
+            return null;
+        
+        ToolBar parentToolbar=null;
+        
+        Composite parent = child.getParent();
+        if(parent instanceof ToolBar){
+            parentToolbar=(ToolBar)parent;
+        }else{
+            parent=getParentToolBar(parent);
+        }
+        
+        if(parent instanceof ToolBar)
+            parentToolbar=(ToolBar)parent;
+        return parentToolbar;
+    }
+    
     private void setContributionVisible(boolean newVisible) {
         setVisible(newVisible);
     }
@@ -208,17 +255,11 @@ public class SharingServiceStatusItem extends
         offlineItem = null;
         onlineItem = null;
 
-        if (item != null) {
-            if (!item.isDisposed())
-                item.dispose();
-            item = null;
+        if (container != null) {
+            if (!container.isDisposed())
+                container.dispose();
+            container = null;
         }
-
-//        if (toolbar != null) {
-//            toolbar.dispose();
-//            toolbar = null;
-//        }
-//        parent = null;
 
         if (icons != null) {
             Object[] iconsToDispose = icons.values().toArray();
@@ -233,16 +274,16 @@ public class SharingServiceStatusItem extends
     }
 
     private void showMenu() {
-        if (item == null || item.isDisposed())
-            return;
+        if(stateTextLabel==null||stateTextLabel.isDisposed())
+            return ;
 
         if (menu == null || menu.isDisposed()) {
-            menu = new Menu(item.getParent());
+            menu = new Menu(stateTextLabel);
             fillMenu();
         }
         updateMenu();
-        Rectangle itemBounds = item.getBounds();
-        Point menuLoc = item.getParent().toDisplay(itemBounds.x, itemBounds.y);
+        Rectangle itemBounds = stateTextLabel.getBounds();
+        Point menuLoc = stateTextLabel.getParent().toDisplay(itemBounds.x, itemBounds.y);
         menu.setLocation(menuLoc.x, menuLoc.y);
         menu.setVisible(true);
     }
@@ -303,15 +344,16 @@ public class SharingServiceStatusItem extends
     }
 
     private Image getIcon(String path) {
-        if (item == null || item.isDisposed())
+        if(stateImageLabel==null||stateImageLabel.isDisposed())
             return null;
+        
         if (icons == null)
             icons = new HashMap<String, Image>(2);
         Image icon = icons.get(path);
         if (icon == null || icon.isDisposed()) {
             icon = LocalNetworkSharingUI.imageDescriptorFromPlugin(
                     LocalNetworkSharingUI.PLUGIN_ID, path).createImage(false,
-                    item.getDisplay());
+                            stateImageLabel.getDisplay());
             icons.put(path, icon);
         }
         return icon;

@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.ILegend;
 import org.xmind.core.IRelationship;
+import org.xmind.core.ISheetSetting;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
@@ -61,6 +62,8 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
     private LegendImpl legend = null;
 
     private CoreEventSupport coreEventSupport = null;
+
+    private ISheetSetting setting;
 
     /**
      * @param implementation
@@ -132,7 +135,7 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         DOMUtils.setText(implementation, TAG_TITLE, titleText);
         String newValue = getLocalTitleText();
         fireValueChange(Core.TitleText, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -230,7 +233,7 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
                 implementation.removeChild(rs);
             if (n != null) {
                 fireTargetChange(Core.RelationshipRemove, rel);
-                updateModifiedTime();
+                updateModificationInfo();
             }
         }
     }
@@ -247,7 +250,7 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         increaseThemeRef(workbook);
         String newValue = getThemeId();
         fireValueChange(Core.ThemeId, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public String getStyleId() {
@@ -262,7 +265,7 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
         String newValue = getStyleId();
         fireValueChange(Core.Style, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public void replaceRootTopic(ITopic newRootTopic) {
@@ -277,7 +280,7 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
             r2.addNotify((WorkbookImpl) getParent(), this, null);
         }
         fireValueChange(Core.RootTopic, r1, r2);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public ILegend getLegend() {
@@ -303,8 +306,8 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, true);
         workbook.getAdaptableRegistry().registerById(this, getId(),
                 getImplementation().getOwnerDocument());
-        ((CoreEventSupport) getCoreEventSupport()).setParent(workbook
-                .getCoreEventSupport());
+        ((CoreEventSupport) getCoreEventSupport())
+                .setParent(workbook.getCoreEventSupport());
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
         increaseThemeRef(workbook);
         ((TopicImpl) getRootTopic()).addNotify(workbook, this, null);
@@ -351,11 +354,12 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
                 listener);
     }
 
-    private void fireValueChange(String type, Object oldValue, Object newValue) {
+    private void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         ICoreEventSupport coreEventSupport = getCoreEventSupport();
         if (coreEventSupport != null) {
-            coreEventSupport
-                    .dispatchValueChange(this, type, oldValue, newValue);
+            coreEventSupport.dispatchValueChange(this, type, oldValue,
+                    newValue);
         }
     }
 
@@ -367,25 +371,26 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
     }
 
     public long getModifiedTime() {
-        String time = DOMUtils.getAttribute(implementation,
-                DOMConstants.ATTR_TIMESTAMP);
-        return NumberUtils.safeParseLong(time, 0);
+        return InternalDOMUtils.getModifiedTime(this, implementation);
     }
 
-    public void updateModifiedTime() {
-        setModifiedTime(System.currentTimeMillis());
-        IWorkbook workbook = getParent();
-        if (workbook != null) {
-            ((WorkbookImpl) workbook).updateModifiedTime();
+    public String getModifiedBy() {
+        return InternalDOMUtils.getModifiedBy(this, implementation);
+    }
+
+    protected void updateModificationInfo() {
+        InternalDOMUtils.updateModificationInfo(this);
+
+        IWorkbook parent = getParent();
+        if (parent != null) {
+            ((WorkbookImpl) parent).updateModificationInfo();
         }
     }
 
-    public void setModifiedTime(long time) {
-        long oldTime = getModifiedTime();
-        DOMUtils.setAttribute(implementation, DOMConstants.ATTR_TIMESTAMP,
-                Long.toString(time));
-        long newTime = getModifiedTime();
-        fireValueChange(Core.ModifyTime, oldTime, newTime);
+    public ISheetSetting getSetting() {
+        if (setting == null)
+            setting = new SheetSetting(implementation, this);
+        return setting;
     }
 
 }

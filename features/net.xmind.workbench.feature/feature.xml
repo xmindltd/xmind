@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="net.xmind.workbench.feature"
-      label="XMind.net Workbench Contributions"
-      version="3.5.3.qualifier"
+      label="XMind Online Support"
+      version="3.6.0.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
-      XMind.net Workbench Contributions
+      XMind Online Support
    </description>
 
    <copyright>
-      Copyright(C) 2006-2012, XMind Ltd. and others.
+      Copyright(C) 2006-2015, XMind Ltd. and others.
    </copyright>
 
    <license url="license.html">
@@ -22,7 +22,21 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
    </license>
 
    <plugin
-         id="net.xmind.share"
+         id="org.json"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.core.net"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.xmind.signin"
          download-size="0"
          install-size="0"
          version="0.0.0"

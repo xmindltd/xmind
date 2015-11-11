@@ -55,6 +55,30 @@ public interface ITextFigure extends IFigure {
     public void setTextAlignment(int align);
 
     /**
+     * Gets the case of the text.
+     * 
+     * @return one of the text case value
+     * 
+     * @see org.xmind.gef.GEF#MANUAL
+     * @see org.xmind.gef.GEF#UPPERCASE
+     * @see org.xmind.gef.GEF#LOWERCASE
+     * @see org.xmind.gef.GEF#CAPITALIZE
+     */
+    public int getTextCase();
+
+    /**
+     * Sets the case of the text.
+     * 
+     * @param textCase
+     * 
+     * @see org.xmind.gef.GEF#MANUAL
+     * @see org.xmind.gef.GEF#UPPERCASE
+     * @see org.xmind.gef.GEF#LOWERCASE
+     * @see org.xmind.gef.GEF#CAPITALIZE
+     */
+    public void setTextCase(int textCase);
+
+    /**
      * Returns the currently used line spacing of multiple lines of text.
      * 
      * @return the currently used line spacing of multiple lines of text.

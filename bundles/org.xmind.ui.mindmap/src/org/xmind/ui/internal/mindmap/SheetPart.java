@@ -263,6 +263,7 @@ public class SheetPart extends MindMapPartBase implements ISheetPart,
         } else if (Core.Style.equals(type)) {
             update();
             updateCentralBranchStyle();
+            refreshLegend();
         } else if (Core.RelationshipAdd.equals(type)
                 || Core.RelationshipRemove.equals(type)) {
             refresh();
@@ -280,6 +281,11 @@ public class SheetPart extends MindMapPartBase implements ISheetPart,
         if (b instanceof BranchPart) {
             ((BranchPart) b).refreshStyles();
         }
+    }
+
+    private void refreshLegend() {
+        if (getLegend() != null)
+            getLegend().refresh();
     }
 
     public void refreshTheme() {

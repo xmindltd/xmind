@@ -92,7 +92,9 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
         }
 
         protected boolean isPartSelected(IPart p) {
-            return isSelectable(p) && p.getStatus().isSelected();
+            return p != null && p.getStatus().isActive()
+                    && p.hasRole(GEF.ROLE_SELECTABLE)
+                    && p.getStatus().isSelected();
         }
 
         public void appendSelection(Object element) {
@@ -181,17 +183,22 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
         public void deselectAll(List<?> elements) {
             boolean changed = trimValidParts();
-            changed |= internalDeselectAll(elements, false);
+            changed |= internalDeselectAll(elements, true, false);
             if (changed) {
                 partSelectionChanged(getPartSelection(), true);
                 notifyViewerSelectionChanged();
             }
         }
 
-        protected boolean internalDeselectAll(List<?> elements, boolean force) {
+        protected boolean internalDeselectAll(List<?> elements,
+                boolean toCheckSelectable, boolean force) {
             boolean changed = false;
             for (Object element : elements.toArray()) {
-                changed |= internalDeselect(findSelectablePart(element), force);
+                IPart part = findPart(element);
+                if (toCheckSelectable) {
+                    part = findSelectablePart(element);
+                }
+                changed |= internalDeselect(part, force);
             }
             return changed;
         }
@@ -208,7 +215,7 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
         protected boolean internalDeselectAll(boolean force) {
             if (partSelection == null || partSelection.isEmpty())
                 return false;
-            return internalDeselectAll(partSelection, force);
+            return internalDeselectAll(partSelection, false, force);
         }
 
         public ISelection getModelSelection() {
@@ -337,8 +344,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
         protected boolean internalSetTextSelection(
                 ITextSelection newTextSelection) {
             if (newTextSelection == this.textSelection
-                    || (newTextSelection != null && newTextSelection
-                            .equals(this.textSelection)))
+                    || (newTextSelection != null
+                            && newTextSelection.equals(this.textSelection)))
                 return false;
             this.textSelection = newTextSelection;
             return true;
@@ -441,6 +448,7 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
     protected AbstractViewer() {
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == Control.class || adapter == Widget.class)
             return getControl();
@@ -472,7 +480,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
         return control;
     }
 
-    protected abstract Control internalCreateControl(Composite parent, int style);
+    protected abstract Control internalCreateControl(Composite parent,
+            int style);
 
     protected void hookControl(Control control) {
         control.addDisposeListener(new DisposeListener() {
@@ -557,11 +566,7 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
             }
         }
         super.inputChanged(input, oldInput);
-        IRootPart rootPart = getRootPart();
-        if (rootPart != null) {
-            rootPart.setModel(input);
-            rootPart.setContents(createContents(rootPart, input));
-        }
+        contentsChanged(input, oldInput);
         if (serviceRegistry != null) {
             for (IViewerService service : serviceRegistry.values()) {
                 service.inputChanged(oldInput, input);
@@ -571,12 +576,20 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
             for (IViewerService service : activeServices) {
                 service.setActive(true);
                 if (service instanceof IViewerService2) {
-                    ((IViewerService2) service).restoreData(preservedDataList
-                            .get(service));
+                    ((IViewerService2) service)
+                            .restoreData(preservedDataList.get(service));
                 }
             }
         }
         fireInputChanged(input, oldInput);
+    }
+
+    protected void contentsChanged(Object input, Object oldInput) {
+        IRootPart rootPart = getRootPart();
+        if (rootPart != null) {
+            rootPart.setModel(input);
+            rootPart.setContents(createContents(rootPart, input));
+        }
     }
 
     protected IPart createContents(IRootPart root, Object input) {
@@ -628,8 +641,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
     }
 
     public ViewerFilter[] getFilters() {
-        return filters == null ? new ViewerFilter[0] : filters
-                .toArray(new ViewerFilter[filters.size()]);
+        return filters == null ? new ViewerFilter[0]
+                : filters.toArray(new ViewerFilter[filters.size()]);
     }
 
     public ViewerSorter getSorter() {
@@ -834,8 +847,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     public void removePreSelectionChangedListener(
             ISelectionChangedListener listener) {
-        getListenerSupport()
-                .removeListener(PRE_SELECTION_CHANGED_KEY, listener);
+        getListenerSupport().removeListener(PRE_SELECTION_CHANGED_KEY,
+                listener);
     }
 
     /*
@@ -893,11 +906,11 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
                         AbstractViewer.this, selection);
                 getListenerSupport().fireEvent(POST_SELECTION_CHANGED_KEY,
                         new IEventDispatcher() {
-                            public void dispatch(Object listener) {
-                                ((ISelectionChangedListener) listener)
-                                        .selectionChanged(event);
-                            }
-                        });
+                    public void dispatch(Object listener) {
+                        ((ISelectionChangedListener) listener)
+                                .selectionChanged(event);
+                    }
+                });
                 postSelectionChangedEventScheduled = false;
             }
         });
@@ -910,7 +923,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
      * org.xmind.gef.IViewer#addFocusedChangedListener(org.eclipse.jface.viewers
      * .ISelectionChangedListener)
      */
-    public void addFocusedPartChangedListener(ISelectionChangedListener listener) {
+    public void addFocusedPartChangedListener(
+            ISelectionChangedListener listener) {
         getListenerSupport().addListener(FOCUSED_PART_CHANGED_KEY, listener);
     }
 
@@ -954,7 +968,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
                 listener);
     }
 
-    protected void fireInputChanged(final Object newInput, final Object oldInput) {
+    protected void fireInputChanged(final Object newInput,
+            final Object oldInput) {
         getListenerSupport().fireEvent(IInputChangedListener.class,
                 new IEventDispatcher() {
                     public void dispatch(Object listener) {
@@ -1034,7 +1049,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
         fireFocusedPartChanged();
     }
 
-    public IViewerService getService(Class<? extends IViewerService> serviceType) {
+    public IViewerService getService(
+            Class<? extends IViewerService> serviceType) {
         if (serviceType == null || serviceRegistry == null)
             return null;
         return serviceRegistry.get(serviceType);

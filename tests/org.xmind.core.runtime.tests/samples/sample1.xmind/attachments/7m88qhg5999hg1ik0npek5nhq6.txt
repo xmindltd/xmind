@@ -1,0 +1,6 @@
+Platform Expression Framework
+
+Expressions are declarative or programmatic expressions based on the org.eclipse.core.expressions plugin. They are declared in plugin.xml and evaluated by the Expressions Framework. The advantages of declaring an expression in plugin.xml are:
+
+Lazy loading: Expressions can be evaluated without loading the plug-in
+Flexible and pluggable, users can re-use expressions and provide custom property testers

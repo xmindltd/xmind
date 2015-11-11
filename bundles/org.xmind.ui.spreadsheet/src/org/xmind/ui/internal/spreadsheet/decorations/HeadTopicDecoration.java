@@ -22,10 +22,10 @@ import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.ui.decorations.AbstractTopicDecoration;
 
-public class HeadTopicDecoration extends AbstractTopicDecoration implements
-        ICorneredDecoration {
+public class HeadTopicDecoration extends AbstractTopicDecoration
+        implements ICorneredDecoration {
 
-    private int corner = 0;
+    private int corner = 2;
 
     protected void performPaint(IFigure figure, Graphics g) {
         // do nothing
@@ -35,7 +35,8 @@ public class HeadTopicDecoration extends AbstractTopicDecoration implements
         // do nothing
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
         shape.addRectangle(box);
     }
 
@@ -50,15 +51,15 @@ public class HeadTopicDecoration extends AbstractTopicDecoration implements
     }
 
     public void setCornerSize(IFigure figure, int cornerSize) {
-        if (cornerSize == this.corner)
-            return;
-
-        this.corner = cornerSize;
-        invalidate();
-        if (figure != null) {
-            figure.revalidate();
-            repaint(figure);
-        }
+//        if (cornerSize == this.corner)
+//            return;
+//
+//        this.corner = cornerSize;
+//        invalidate();
+//        if (figure != null) {
+//            figure.revalidate();
+//            repaint(figure);
+//        }
     }
 
     protected void repaint(IFigure figure) {

@@ -258,7 +258,7 @@ public class DefaultCommandServiceDomainDirector implements
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         return null;
     }

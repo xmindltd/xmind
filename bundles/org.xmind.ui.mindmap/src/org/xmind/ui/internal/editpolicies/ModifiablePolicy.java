@@ -32,6 +32,7 @@ import org.xmind.core.ITopic;
 import org.xmind.core.ITopicRange;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyled;
+import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.core.util.Point;
 import org.xmind.gef.GEF;
 import org.xmind.gef.Request;
@@ -43,6 +44,7 @@ import org.xmind.ui.commands.ModifyLabelCommand;
 import org.xmind.ui.commands.ModifyNumberPrependingCommand;
 import org.xmind.ui.commands.ModifyNumberingFormatCommand;
 import org.xmind.ui.commands.ModifyNumberingPrefixCommand;
+import org.xmind.ui.commands.ModifyNumberingSeparatorCommand;
 import org.xmind.ui.commands.ModifyNumberingSuffixCommand;
 import org.xmind.ui.commands.ModifyPositionCommand;
 import org.xmind.ui.commands.ModifyTitleTextCommand;
@@ -111,22 +113,23 @@ public class ModifiablePolicy extends MindMapPolicyBase {
             return;
 
         builder.start();
-        List<IStyled> sources = getAllSources();
+        List<IStyled> sources = getAllSources(request);
         for (IStyled source : sources)
             builder.removeStyle(source);
         builder.end();
     }
 
-    private List<IStyled> getAllSources() {
+    private List<IStyled> getAllSources(Request request) {
         List<IStyled> sources = new ArrayList<IStyled>();
-        ISheet sheet = MindMapUtils.getSheet();
+        ISheet sheet = (ISheet) request.getTargetViewer()
+                .getAdapter(ISheet.class);
         if (sheet == null)
             return sources;
 
         if (sheet.getStyleId() != null)
             sources.add(sheet);
 
-        List<ITopic> topics = MindMapUtils.getAllTopics(sheet);
+        List<ITopic> topics = MindMapUtils.getAllTopics(sheet, true, true);
 
         for (ITopic topic : topics) {
             if (topic.getStyleId() != null)
@@ -177,7 +180,7 @@ public class ModifiablePolicy extends MindMapPolicyBase {
 
         Object override = request.getParameter(MindMapUI.PARAM_OVERRIDE);
         if (PrefConstants.THEME_OVERRIDE.equals(override)) {
-            List<IStyled> sources = getAllSources();
+            List<IStyled> sources = getAllSources(request);
             for (IStyled source : sources)
                 builder.removeStyle(source);
         }
@@ -231,8 +234,8 @@ public class ModifiablePolicy extends MindMapPolicyBase {
         if (positionOwners.isEmpty() && rels.isEmpty())
             return;
 
-        List<Command> commands = new ArrayList<Command>(positionOwners.size()
-                + rels.size() * 2);
+        List<Command> commands = new ArrayList<Command>(
+                positionOwners.size() + rels.size() * 2);
 
         for (IPositioned p : positionOwners) {
             if (!(p instanceof ITopic && !((ITopic) p).isAttached())) {
@@ -278,6 +281,13 @@ public class ModifiablePolicy extends MindMapPolicyBase {
             commands.add(new ModifyNumberingFormatCommand(topics, newFormat));
         }
 
+        if (request.hasParameter(MindMapUI.PARAM_NUMBERING_SEPARATOR)) {
+            String newSeparator = (String) request
+                    .getParameter(MindMapUI.PARAM_NUMBERING_SEPARATOR);
+            commands.add(
+                    new ModifyNumberingSeparatorCommand(topics, newSeparator));
+        }
+
         if (request.hasParameter(MindMapUI.PARAM_NUMBERING_PREFIX)) {
             String newPrefix = (String) request
                     .getParameter(MindMapUI.PARAM_NUMBERING_PREFIX);
@@ -293,8 +303,8 @@ public class ModifiablePolicy extends MindMapPolicyBase {
         if (request.hasParameter(MindMapUI.PARAM_NUMBERING_PREPENDING)) {
             Boolean newPrepending = (Boolean) request
                     .getParameter(MindMapUI.PARAM_NUMBERING_PREPENDING);
-            commands.add(new ModifyNumberPrependingCommand(topics,
-                    newPrepending));
+            commands.add(
+                    new ModifyNumberPrependingCommand(topics, newPrepending));
         }
 
         if (commands.isEmpty())
@@ -540,6 +550,20 @@ public class ModifiablePolicy extends MindMapPolicyBase {
         builder.start();
         builder.add(new ModifyTitleTextCommand(ts, text), true);
         builder.addSourcesFromRequest(false);
+        ITitled titled = ts.get(0);
+        if (titled instanceof ITopic) {
+            ITopic topic = (ITopic) titled;
+            String hyperlink = topic.getHyperlink();
+            if (hyperlink == null || hyperlink.isEmpty()) {
+                if (HyperlinkUtils.isUrlAddress(text)) {
+                    hyperlink = text;
+                } else if (HyperlinkUtils.isEmailAddress(text)) {
+                    hyperlink = "mailto:" + text; //$NON-NLS-1$
+                }
+                builder.add(new ModifyTopicHyperlinkCommand(topic, hyperlink),
+                        true);
+            }
+        }
         builder.end();
     }
 

@@ -2,203 +2,88 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         id="mindmapMenusContributions"
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="menu:org.eclipse.ui.main.menu">
+            locationURI="menu:org.eclipse.ui.main.menu?before=additions">
          <menu
                id="org.xmind.ui.view"
                label="%menu.view.label">
             <separator
-                  name="org.xmind.ui.viewStart"
+                  name="viewStart"
                   visible="false">
             </separator>
             <separator
-                  name="org.xmind.ui.group.presentation"
-                  visible="false">
+                  name="group.advanced"
+                  visible="true">
             </separator>
             <separator
-                  name="org.xmind.ui.group.presentation.separator"
+                  name="group.zoom"
                   visible="true">
             </separator>
             <command
                   commandId="org.xmind.ui.command.actualSize"
+                  id="org.xmind.ui.view.actualSize"
                   label="%menu.command.actualSize.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.zoomOut"
+                  id="org.xmind.ui.view.zoomOut"
                   label="%menu.command.zoomOut.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.zoomIn"
+                  id="org.xmind.ui.view.zoomIn"
                   label="%menu.command.zoomIn.label"
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.menus.zoom.separator"
+                  name="group.zoomToFit"
                   visible="true">
             </separator>
             <command
                   commandId="org.xmind.ui.command.fitMap"
+                  id="org.xmind.ui.view.fitMap"
                   label="%menu.command.fitMap.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.fitSelection"
+                  id="org.xmind.ui.view.fitSelection"
                   label="%menu.command.fitSelection.label"
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.menus.fit.separator"
+                  name="group.drillDown"
                   visible="true">
             </separator>
             <command
                   commandId="org.xmind.ui.command.drillUp"
+                  id="org.xmind.ui.view.drillUp"
                   label="%menu.command.drillUp.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.drillDown"
+                  id="org.xmind.ui.view.drillDown"
                   label="%menu.command.drillDown.label"
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.menus.drill.separator"
+                  name="group.filter"
                   visible="true">
             </separator>
             <separator
-                  name="org.xmind.ui.group.filter"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.group.filter.separator"
+                  name="group.additions"
                   visible="true">
             </separator>
-            <command
-                  commandId="org.eclipse.ui.views.showView"
-                  icon="icons/e/prop_ps.gif"
-                  label="%menu.command.properties.label"
-                  style="push">
-               <parameter
-                     name="org.eclipse.ui.views.showView.viewId"
-                     value="org.eclipse.ui.views.PropertySheet">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.eclipse.ui.views.showView"
-                  icon="icons/e/markers.gif"
-                  id="org.xmind.ui.MarkerView"
-                  label="%menu.command.markers.label"
-                  style="push">
-               <parameter
-                     name="org.eclipse.ui.views.showView.viewId"
-                     value="org.xmind.ui.MarkerView">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.eclipse.ui.views.showView"
-                  icon="icons/e/theme.gif"
-                  label="%menu.command.theme.label"
-                  style="push"
-                  tooltip="%menu.command.theme.tooltip">
-               <parameter
-                     name="org.eclipse.ui.views.showView.viewId"
-                     value="org.xmind.ui.ThemesView">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.eclipse.ui.views.showView"
-                  disabledIcon="icons/d/revisions.png"
-                  icon="icons/e/revisions.png"
-                  id="org.xmind.ui.RevisionsView"
-                  label="%menu.command.editingHistory.label"
-                  style="push">
-               <parameter
-                     name="org.eclipse.ui.views.showView.viewId"
-                     value="org.xmind.ui.RevisionsView">
-               </parameter>
-            </command>
             <separator
-                  name="org.xmind.ui.viewEnd.separator"
+                  name="group.viewList"
                   visible="true">
             </separator>
-            <menu
-                  id="org.xmind.ui.view.more"
-                  label="%menu.view.more.label">
-               <command
-                     commandId="org.eclipse.ui.views.showView"
-                     icon="icons/e/notes.gif"
-                     id="org.xmind.ui.view.more.notes"
-                     label="%menu.command.notes.label"
-                     style="push">
-                  <parameter
-                        name="org.eclipse.ui.views.showView.viewId"
-                        value="org.xmind.ui.NotesView">
-                  </parameter>
-               </command>
-               <command
-                     commandId="org.eclipse.ui.views.showView"
-                     icon="icons/e/outline_co.gif"
-                     label="%menu.command.outline.label"
-                     style="push">
-                  <parameter
-                        name="org.eclipse.ui.views.showView.viewId"
-                        value="org.eclipse.ui.views.ContentOutline">
-                  </parameter>
-               </command>
-               <command
-                     commandId="org.eclipse.ui.views.showView"
-                     icon="icons/e/overview.gif"
-                     label="%menu.comamnd.overview.label"
-                     style="push">
-                  <parameter
-                        name="org.eclipse.ui.views.showView.viewId"
-                        value="org.xmind.ui.OverviewView">
-                  </parameter>
-               </command>
-               <command
-                     commandId="org.eclipse.ui.views.showView"
-                     disabledIcon="icons/d/spell-check-disabled.gif"
-                     icon="icons/e/spell-check.gif"
-                     label="%menu.command.spelling.label"
-                     style="push">
-                  <parameter
-                        name="org.eclipse.ui.views.showView.viewId"
-                        value="org.xmind.ui.SpellingCheckView">
-                  </parameter>
-               </command>
-               <command
-                     commandId="org.eclipse.ui.views.showView"
-                     icon="icons/e/blackboxview.gif"
-                     label="%menu.command.blackbox.label"
-                     style="push">
-                  <parameter
-                        name="org.eclipse.ui.views.showView.viewId"
-                        value="org.xmind.ui.BlackBoxView">
-                  </parameter>
-               </command>
-               <command
-                     commandId="org.eclipse.ui.views.showView"
-                     icon="icons/e/localnetwork.gif"
-                     label="%menu.command.lns.label"
-                     style="push">
-                  <parameter
-                        name="org.eclipse.ui.views.showView.viewId"
-                        value="org.xmind.ui.LocalNetworkSharingView">
-                  </parameter>
-                  <visibleWhen
-                        checkEnabled="false">
-                     <not>
-                        <systemTest
-                              property="osgi.os"
-                              value="linux">
-                        </systemTest>
-                     </not>
-                  </visibleWhen>
-               </command>
-            </menu>
             <separator
                   name="org.xmind.ui.viewEnd"
                   visible="false">
@@ -208,158 +93,155 @@
                id="org.xmind.ui.insert"
                label="%menu.insert.label">
             <separator
-                  name="org.xmind.ui.insertStart"
+                  name="insertStart"
                   visible="false">
             </separator>
             <separator
-                  name="org.xmind.ui.group.insertTopic"
-                  visible="false">
+                  name="group.topic"
+                  visible="true">
             </separator>
             <command
                   commandId="org.xmind.ui.command.insertTopic"
+                  id="org.xmind.ui.insert.topic.after"
                   label="%menu.command.insertTopic.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertSubtopic"
+                  id="org.xmind.ui.insert.topic.child"
                   label="%menu.command.insertSubtopic.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertTopicBefore"
+                  id="org.xmind.ui.insert.topic.before"
                   label="%menu.command.insertTopicBefore.Label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertParentTopic"
+                  id="org.xmind.ui.insert.topic.parent"
                   label="%menu.command.insertParentTopic.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertFloatingTopic"
+                  id="org.xmind.ui.insert.topic.floating"
                   label="%menu.command.insertFloatingTopic.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertFloatingCentralTopic"
+                  id="org.xmind.ui.insert.topic.floatingCentral"
                   label="%menu.command.insertFloatingCentralTopic.label"
                   style="push">
             </command>
+            <command
+                  commandId="org.xmind.ui.command.insertCallout"
+                  id="org.xmind.ui.insert.topic.callout"
+                  label="%menu.command.insertCallout.label"
+                  style="push">
+            </command>
             <separator
-                  name="org.xmind.ui.insertTopic.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.insertTopic.ext.separator"
+                  name="group.misc"
                   visible="true">
             </separator>
-            <separator
-                  name="org.xmind.ui.group.insert"
-                  visible="false">
-            </separator>
             <menu
-                  icon="icons/e/marker_shortcut.png"
-                  id="org.xmind.ui.insert.menu.markers"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/marker_shortcut.png"
+                  id="org.xmind.ui.insert.markerMenu"
                   label="%menu.insert.markers.label">
                <dynamic
-                     class="org.xmind.ui.mindmap/org.xmind.ui.internal.actions.AllMarkersMenu"
-                     id="org.xmind.ui.menus.dynamic.allMarkersMenu">
+                     class="org.xmind.ui.internal.actions.AllMarkersMenu"
+                     id="contents">
                </dynamic>
-               <visibleWhen
-                     checkEnabled="false">
-                  <with
-                        variable="activeEditorId">
-                     <equals
-                           value="org.xmind.ui.MindMapEditor">
-                     </equals>
-                  </with>
-               </visibleWhen>
+               <separator
+                     name="group.additions"
+                     visible="true">
+               </separator>
+               <separator
+                     name="group.more"
+                     visible="true">
+               </separator>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     id="more"
+                     label="%menu.insert.marker.more.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.MarkerView">
+                  </parameter>
+               </command>
             </menu>
             <menu
                   commandId="org.xmind.ui.command.insertImage"
-                  icon="icons/e/insertimage.gif"
-                  id="org.xmind.ui.insert.menu.image"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/insertimage.png"
+                  id="org.xmind.ui.insert.imageMenu"
                   label="%menu.insert.image.label">
                <command
                      commandId="org.xmind.ui.command.insertImage"
+                     id="org.xmind.ui.insert.fromfile"
                      label="%menu.command.insertImage.label"
                      mode="FORCE_TEXT"
-                     style="push"
-                     tooltip="%menu.command.insertIamge.tooltip">
+                     style="push">
                </command>
-               <visibleWhen
-                     checkEnabled="false">
-                  <with
-                        variable="activeEditorId">
-                     <equals
-                           value="org.xmind.ui.MindMapEditor">
-                     </equals>
-                  </with>
-               </visibleWhen>
+               <separator
+                     name="group.additions"
+                     visible="false">
+               </separator>
             </menu>
             <command
                   commandId="org.xmind.ui.command.createRelationship"
+                  id="org.xmind.ui.insert.relationship"
                   label="%menu.command.relationship.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.createBoundary"
+                  id="org.xmind.ui.insert.boundary"
                   label="%menu.command.boundary.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.createSummary"
+                  id="org.xmind.ui.insert.summary"
                   label="%menu.command.summary.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertAttachment"
+                  id="org.xmind.ui.insert.attachment"
                   label="%menu.command.attachment.label"
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.insert.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.insert.ext.separator"
+                  name="group.sheet"
                   visible="true">
-            </separator>
-            <separator
-                  name="org.xmind.ui.group.sheet"
-                  visible="false">
             </separator>
             <command
                   commandId="org.xmind.ui.command.newSheet"
+                  id="org.xmind.ui.insert.sheet"
                   label="%menu.command.newSheet.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertSheetFrom"
+                  id="org.xmind.ui.insert.sheet.fromTopic"
                   label="%menu.command.insertSheetFrom.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.newSheetFromTemplate"
-                  disabledIcon="icons/d/newSheetFromTemplate.png"
-                  icon="icons/e/newSheetFromTemplate.png"
+                  id="org.xmind.ui.insert.sheet.fromTemplate"
                   label="%menu.command.newSheetFromTemplate.label"
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.sheet.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.sheet.ext.separator"
+                  name="group.additions"
                   visible="true">
             </separator>
             <separator
-                  name="additions"
-                  visible="true">
-            </separator>
-            <separator
-                  name="org.xmind.ui.insertEnd"
+                  name="insertEnd"
                   visible="false">
             </separator>
          </menu>
@@ -367,12 +249,12 @@
                id="org.xmind.ui.modify"
                label="%menu.modify.label">
             <separator
-                  name="org.xmind.ui.modifyStart"
+                  name="modifyStart"
                   visible="false">
             </separator>
             <separator
-                  name="org.xmind.ui.group.topic.edit"
-                  visible="false">
+                  name="group.edit"
+                  visible="true">
             </separator>
             <command
                   commandId="org.xmind.ui.command.editTitle"
@@ -389,20 +271,19 @@
                   label="%menu.command.editNotes.label"
                   style="push">
             </command>
+            <command
+                  commandId="org.xmind.ui.command.editComments"
+                  label="%menu.command.editComments.label"
+                  style="push">
+            </command>
             <separator
-                  name="org.xmind.ui.topic.edit.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.topic.edit.ext.separator"
+                  name="group.hyperlink"
                   visible="true">
-            </separator>
-            <separator
-                  name="org.xmind.ui.hyperlink"
-                  visible="false">
             </separator>
             <command
                   commandId="org.xmind.ui.command.hyperlink"
+                  disabledIcon="platform:/plugin/org.xmind.ui/icons/d/hyperlink.png"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/hyperlink.png"
                   label="%menu.command.hyperlink.label"
                   style="push">
             </command>
@@ -417,16 +298,22 @@
                   style="push">
             </command>
             <command
+                  commandId="org.xmind.ui.command.saveImageAs"
+                  label="%menu.modify.saveImageAs.label"
+                  style="push">
+            </command>
+            <command
                   commandId="org.xmind.ui.command.saveAttachmentAs"
                   label="%menu.command.saveAttachmentAs.label"
                   style="push">
             </command>
+            <command
+                  commandId="org.xmind.ui.command.saveAudioNoteAs"
+                  label="%menu.command.saveAudioNoteAs.label"
+                  style="push">
+            </command>
             <separator
-                  name="org.xmind.ui.hyperlink.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.hyperlink.ext.separator"
+                  name="group.visibility"
                   visible="true">
             </separator>
             <command
@@ -450,19 +337,11 @@
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.extend.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.extend.ext.separator"
+                  name="group.position"
                   visible="true">
             </separator>
-            <separator
-                  name="org.xmind.ui.group.position"
-                  visible="false">
-            </separator>
             <dynamic
-                  class="org.xmind.ui.mindmap/org.xmind.ui.internal.actions.AllowOverlapsMenu"
+                  class="org.xmind.ui.internal.actions.AllowOverlapsMenu"
                   id="org.xmind.ui.menus.dynamic.allowOverlapsMenu">
             </dynamic>
             <command
@@ -476,7 +355,7 @@
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.command.resetPosition.separator"
+                  name="group.alignment"
                   visible="true">
             </separator>
             <menu
@@ -541,7 +420,7 @@
                   </parameter>
                </command>
                <separator
-                     name="additions"
+                     name="xadditions"
                      visible="true">
                </separator>
                <separator
@@ -580,7 +459,7 @@
                   </parameter>
                </command>
                <separator
-                     name="additions"
+                     name="xadditions"
                      visible="true">
                </separator>
                <separator
@@ -589,537 +468,383 @@
                </separator>
             </menu>
             <separator
-                  name="org.xmind.ui.group.extend"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.position.ext.before.separator"
+                  name="group.additions"
                   visible="true">
             </separator>
             <separator
-                  name="org.xmind.ui.position.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.position.ext.separator"
-                  visible="true">
-            </separator>
-            <separator
-                  name="additions"
-                  visible="true">
-            </separator>
-            <separator
-                  name="org.xmind.ui.modifyEnd"
-                  visible="false">
+                  name="group.style">
             </separator>
             <command
                   commandId="org.xmind.ui.command.removeAllStyles"
                   label="%menu.command.removeAllStyles "
                   style="push">
             </command>
+            <separator
+                  name="modifyEnd"
+                  visible="false">
+            </separator>
          </menu>
          <menu
                id="org.xmind.ui.tools"
-               label="%menu.tools.label"
-               sibling_order="&lt;command&#x0D;&#x0A;                  commandId=&quot;org.xmind.ui.menus.command4&quot;&#x0D;&#x0A;                  style=&quot;push&quot;&gt;&#x0D;&#x0A;            &lt;/command&gt;">
+               label="%menu.tools.label">
             <separator
-                  name="org.xmind.ui.toolsStart"
+                  name="toolsStart"
                   visible="false">
             </separator>
             <separator
                   name="additions1"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions1.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions2"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions2.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions3"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions3.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions4"
-                  visible="false">
+                  visible="true">
             </separator>
             <command
                   commandId="org.xmind.ui.command.importWorkbook"
                   label="%menu.command.importWorkbook.label"
                   style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <with
-                        variable="activeEditorId">
-                     <equals
-                           value="org.xmind.ui.MindMapEditor">
-                     </equals>
-                  </with>
-               </visibleWhen>
             </command>
             <separator
-                  name="additions4.separator"
-                  visible="true">
-            </separator>
-            <separator
                   name="additions5"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions5.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions6"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions6.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions7"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions7.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions8"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions8.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions9"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions9.separator"
                   visible="true">
             </separator>
             <separator
                   name="additions10"
-                  visible="false">
-            </separator>
-            <command
-                  commandId="org.xmind.ui.command.importXMindResourceBundle"
-                  label="%menu.command.importResourceBundle.label"
-                  style="push">
-            </command>
-            <separator
-                  name="additions10.separator"
                   visible="true">
             </separator>
             <separator
-                  name="additions"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions.separator"
+                  name="group.additions"
                   visible="true">
             </separator>
             <separator
-                  name="org.xmind.ui.toolsEnd"
+                  name="toolsEnd"
                   visible="false">
             </separator>
          </menu>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:edit?before=selectAll">
-         <command
-               commandId="org.xmind.ui.command.goHome"
-               label="%menu.edit.command.goHome.label"
-               style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:edit?after=selectAll">
-         <command
-               commandId="org.xmind.ui.command.selectBrothers"
-               label="%menu.edit.command.selectBrothers.label"
-               style="push">
-         </command>
-         <command
-               commandId="org.xmind.ui.command.selectChildren"
-               label="%menu.edit.command.selectChildren.label"
-               style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:file?after=saveAll">
-         <command
-               commandId="org.xmind.ui.command.saveSheetAs"
-               label="%menu.file.command.saveSheetAs.label"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeEditorId">
-                  <equals
-                        value="org.xmind.ui.MindMapEditor">
-                  </equals>
-               </with>
-            </visibleWhen>
-         </command>
-         <command
-               commandId="org.xmind.ui.command.saveTemplate"
-               label="%menu.file.command.saveTemplateAs.label"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-               <with
-                     variable="activeEditorId">
-                  <equals
-                        value="org.xmind.ui.MindMapEditor">
-                  </equals>
-               </with>
-            </visibleWhen>
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?before=org.xmind.ui.workbench.undo">
-         <toolbar
-               id="org.xmind.ui.toolbar.basic">
-            <command
-                  commandId="org.xmind.ui.command.newWorkbook"
-                  id="org.xmind.ui.toolbar.new"
-                  label="%toolbar.command.newWorkbook.label"
-                  style="pulldown"
-                  tooltip="%toolbar.command.newWorkbook.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.openWorkbook"
-                  style="push"
-                  tooltip="%toolbar.command.openWorkbook.tooltip">
-            </command>
-            <command
-                  commandId="org.eclipse.ui.file.save"
-                  style="push"
-                  tooltip="%toolbar.command.save.label">
-            </command>
-         </toolbar>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=org.xmind.ui.workbench.undo">
-         <toolbar
-               id="org.xmind.ui.toolbar.model"
-               label="%toolbar.model.label">
+         <menu
+               id="org.xmind.ui.window"
+               label="%menu.window.label">
             <separator
-                  name="org.xmind.ui.toolbar.model.start"
+                  name="windowStart"
                   visible="false">
             </separator>
             <command
-                  commandId="org.xmind.ui.command.insertTopic"
-                  id="org.xmind.ui.toolbar.topic"
-                  label="%toolbar.command.insertTopic.label"
-                  style="pulldown"
-                  tooltip="%toolbar.command.insertTopic.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.createBoundary"
-                  style="push"
-                  tooltip="%toolbar.command.boundary.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.createSummary"
-                  style="push"
-                  tooltip="%toolbar.command.summary.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.createRelationship"
-                  style="push"
-                  tooltip="%toolbar.command.relationship.tooltip">
-            </command>
-            <separator
-                  name="org.xmind.ui.toolbar.model.end"
-                  visible="false">
-            </separator>
-         </toolbar>
-         <toolbar
-               id="org.xmind.ui.toolbar.resource"
-               label="%toolbar.resource.label">
-            <separator
-                  name="org.xmind.ui.toolbar.resource.start"
-                  visible="false">
-            </separator>
-            <dynamic
-                  class="org.xmind.ui.mindmap/org.xmind.ui.internal.actions.AllMarkersMenu"
-                  id="org.xmind.ui.toolbar.allMarkersMenu">
-            </dynamic>
-            <command
-                  commandId="org.xmind.ui.command.insertImage"
-                  id="org.xmind.ui.toolbar.insertImage"
-                  label="%toolbar.command.insertImage.label"
-                  style="pulldown"
-                  tooltip="%toolbar.command.insertImage.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.insertAttachment"
-                  style="push"
-                  tooltip="%toolbar.command.attachment.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.editLabel"
-                  style="push"
-                  tooltip="%toolbar.command.editLabel.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.editNotes"
-                  style="push"
-                  tooltip="%toolbar.command.editNotes.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.hyperlink"
-                  style="push"
-                  tooltip="%toolbar.command.hyperlink.tooltip">
-            </command>
-            <separator
-                  name="org.xmind.ui.insert.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="additions"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.toolbar.resource.end"
-                  visible="false">
-            </separator>
-         </toolbar>
-         <toolbar
-               id="org.xmind.ui.toolbar.drillDown"
-               label="%toolbar.drillDown.label">
-            <separator
-                  name="org.xmind.ui.toolbar.drillDown.start"
-                  visible="false">
-            </separator>
-            <command
-                  commandId="org.xmind.ui.command.drillDown"
-                  style="push"
-                  tooltip="%toolbar.command.drillDown.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.drillUp"
-                  style="push"
-                  tooltip="%toolbar.command.drillUp.tooltip">
-            </command>
-            <separator
-                  name="org.xmind.ui.drillDown.ext"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.toolbar.drill.separator"
-                  visible="true">
-            </separator>
-            <separator
-                  name="additions"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.toolbar.drillDown.end"
-                  visible="false">
-            </separator>
-         </toolbar>
-         <toolbar
-               id="org.xmind.ui.toolbar.view">
-            <separator
-                  name="org.xmind.ui.toolbar.view.start"
-                  visible="false">
-            </separator>
-            <command
-                  commandId="org.eclipse.ui.file.properties"
-                  disabledIcon="icons/d/prop_ps.gif"
-                  icon="icons/e/prop_ps.gif"
-                  style="push"
-                  tooltip="%toolbar.command.properties.tooltip">
+                  commandId="org.eclipse.ui.views.showView"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/prop_ps.gif"
+                  id="org.xmind.ui.window.view.properties"
+                  label="%menu.command.properties.label"
+                  style="push">
+               <parameter
+                     name="org.eclipse.ui.views.showView.viewId"
+                     value="org.eclipse.ui.views.PropertySheet">
+               </parameter>
             </command>
             <command
                   commandId="org.eclipse.ui.views.showView"
-                  icon="icons/e/theme.gif"
-                  label="%toolbar.command.theme.label"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/markers.gif"
+                  id="org.xmind.ui.window.view.markers"
+                  label="%menu.command.markers.label"
+                  style="push">
+               <parameter
+                     name="org.eclipse.ui.views.showView.viewId"
+                     value="org.xmind.ui.MarkerView">
+               </parameter>
+            </command>
+            <command
+                  commandId="org.eclipse.ui.views.showView"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/theme.gif"
+                  id="org.xmind.ui.window.view.themes"
+                  label="%menu.command.theme.label"
                   style="push"
-                  tooltip="%toolbar.command.theme.tooltip">
+                  tooltip="%menu.command.theme.tooltip">
                <parameter
                      name="org.eclipse.ui.views.showView.viewId"
                      value="org.xmind.ui.ThemesView">
                </parameter>
             </command>
+            <separator
+                  name="org.xmind.ui.menus.separator.first"
+                  visible="true">
+            </separator>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/menu_window_notes.png"
+                     id="org.xmind.ui.window.view.notes"
+                     label="%menu.command.notes.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.NotesView">
+                  </parameter>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/menu_window_comments.png"
+                     id="org.xmind.ui.window.view.comments"
+                     label="%menu.command.comments.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.CommentsView">
+                  </parameter>
+               </command>
+               <separator
+                     name="org.xmind.ui.menus.separator.secend"
+                     visible="true">
+               </separator>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/outline_co.gif"
+                     id="org.xmind.ui.window.view.outline"
+                     label="%menu.command.outline.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.eclipse.ui.views.ContentOutline">
+                  </parameter>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/overview.png"
+                     id="org.xmind.ui.window.view.overview"
+                     label="%menu.comamnd.overview.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.OverviewView">
+                  </parameter>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     disabledIcon="platform:/plugin/org.xmind.ui/icons/d/inspector.png"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/inspector.png"
+                     id="org.xmind.ui.window.view.inspector"
+                     label="%menu.command.inspector.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.InspectorView">
+                  </parameter>
+               </command>
+               <separator
+                     name="org.xmind.ui.menus.separator.third"
+                     visible="true">
+               </separator>
             <command
                   commandId="org.eclipse.ui.views.showView"
-                  icon="icons/e/revisions.gif"
-                  label="%toolbar.command.editingHistory.label"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/revisions.png"
+                  id="org.xmind.ui.window.view.revisions"
+                  label="%menu.command.editingHistory.label"
                   style="push">
                <parameter
                      name="org.eclipse.ui.views.showView.viewId"
                      value="org.xmind.ui.RevisionsView">
                </parameter>
             </command>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     disabledIcon="platform:/plugin/org.xmind.ui/icons/d/spellcheck.png"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/spellcheck.png"
+                     id="org.xmind.ui.window.view.spelling"
+                     label="%menu.command.spelling.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.SpellingCheckView">
+                  </parameter>
+               </command>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     icon="platform:/plugin/org.xmind.ui/icons/e/blackboxview.gif"
+                     label="%menu.command.blackbox.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.BlackBoxView">
+                  </parameter>
+               </command>
+               <separator
+                     name="xadditions">
+               </separator>
             <separator
-                  name="additions"
+                  name="group.view"
                   visible="false">
             </separator>
             <separator
-                  name="org.xmind.ui.toolbar.view.end"
-                  visible="false">
-            </separator>
-         </toolbar>
-         <toolbar
-               id="org.xmind.ui.toolbar.export"
-               label="%toolbar.export.label">
-            <separator
-                  name="org.xmind.ui.toolbar.export.start"
-                  visible="false">
+                  name="group.perspective"
+                  visible="true">
             </separator>
             <command
-                  commandId="com.xmindshare.uploader.commands.upload"
-                  disabledIcon="icons/d/upload.png"
-                  icon="icons/e/upload.png"
-                  label="%toolbar.command.upload.label"
-                  style="push"
-                  tooltip="%toolbar.command.upload.tooltip">
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.export"
-                  style="push"
-                  tooltip="%toolbar.command.export.tooltip">
+                  commandId="org.eclipse.ui.window.resetPerspective"
+                  label="%menu.window.resetPerspective.label"
+                  style="push">
             </command>
             <separator
-                  name="org.xmind.ui.toolbar.export.separator"
+                  name="group.perspective.end"
                   visible="true">
             </separator>
             <separator
-                  name="org.xmind.ui.toolbar.export.end"
+                  name="windowEnd"
                   visible="false">
             </separator>
-            <separator
-                  name="additions"
-                  visible="false">
-            </separator>
-         </toolbar>
-         <toolbar
-               id="org.xmind.ui.toolbar.preferences"
-               label="%toolbar.preferences.label">
-            <separator
-                  name="org.xmind.ui.toolbar.preferences.start"
-                  visible="false">
-            </separator>
-            <command
-                  commandId="org.eclipse.ui.window.preferences"
-                  disabledIcon="icons/d/preference.gif"
-                  icon="icons/e/preference.gif"
-                  style="push"
-                  tooltip="%toolbar.command.preferences.tooltip">
-            </command>
-            <separator
-                  name="additions"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.toolbar.preferences.end"
-                  visible="false">
-            </separator>
-         </toolbar>
-         <toolbar
-               id="org.xmind.ui.toolbar.upgrade"
-               label="%toolbar.upgrade.label">
-            <command
-                  commandId="net.xmind.ui.command.activatePro"
-                  disabledIcon="icons/d/upgrade.png"
-                  icon="icons/e/upgrade.png"
-                  label="%toolbar.command.upgrade.label"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <reference
-                        definitionId="org.xmind.ui.hideProFeatures">
-                  </reference>
-               </visibleWhen>
-            </command>
-         </toolbar>
+         </menu>
       </menuContribution>
+   </extension>
+   <extension
+       id="fileMenuContributions"
+       point="org.eclipse.ui.menus">
+       <menuContribution
+           allPopups="false"
+           locationURI="menu:file?after=new.ext">
+           <command
+                 commandId="org.xmind.ui.command.newWorkbook"
+                 id="org.xmind.ui.file.newBlankMap"
+                 label="%menu.file.newBlankMap.label"
+                 style="push">
+           </command>
+       </menuContribution>
+       <menuContribution
+             allPopups="false"
+             locationURI="menu:file?after=open.group">
+          <command
+                commandId="org.xmind.ui.command.openWorkbook"
+                id="org.xmind.ui.file.open"
+                label="%menu.file.open.label"
+                style="push">
+          </command>
+          <menu
+                id="org.xmind.ui.file.recentMenu"
+                label="%menu.file.openRecent.label">
+             <dynamic
+                   class="org.xmind.ui.internal.actions.RecentFileListContributionItem"
+                   id="org.xmind.ui.file.recentMenu.contents">
+             </dynamic>
+             <separator
+                   name="group.clear"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="org.xmind.ui.command.clearWorkbookHistory"
+                   id="org.xmind.ui.file.recentMenu.clear"
+                   label="%menu.file.recentMenu.clear.label"
+                   style="push">
+             </command>
+          </menu>
+       </menuContribution>
+       <menuContribution
+           allPopups="false"
+           locationURI="menu:file?endof=save.group">
+           <command
+                 commandId="org.xmind.ui.command.saveTemplate"
+                 id="org.xmind.ui.file.saveTemplateAs"
+                 label="%menu.file.command.saveTemplateAs.label"
+                 style="push">
+           </command>
+       </menuContribution>
+       <menuContribution
+           allPopups="false"
+           locationURI="menu:file?after=save.ext">
+           <command
+                 commandId="org.xmind.ui.command.reduceFileSize"
+                 id="org.xmind.ui.file.reduceFileSize"
+                 label="%menu.file.command.reduceFileSize.label"
+                 style="push">
+           </command>
+       </menuContribution>
+   </extension>
+   <extension
+         id="editMenuContributions"
+         point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="menu:org.xmind.ui.toolbar.new">
+            locationURI="menu:edit?after=select.group">
          <command
-               commandId="org.xmind.ui.command.newWorkbook"
-               label="%toolbar.new.command.newWorkbook.label"
-               style="push">
-         </command>
-         <command
-               commandId="org.xmind.ui.command.newWorkbookWizard"
-               label="%toolbar.new.command.newWorkbookWizard.label"
-               style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:org.xmind.ui.toolbar.topic">
-         <command
-               commandId="org.xmind.ui.command.insertTopic"
-               label="%toolbar.topic.command.insertTopic.label"
-               style="push">
-         </command>
-         <command
-               commandId="org.xmind.ui.command.insertSubtopic"
-               label="%toolbar.topic.command.insertSubtopic.label"
-               style="push">
-         </command>
-         <command
-               commandId="org.xmind.ui.command.insertTopicBefore"
-               label="%toolbar.topic.command.insertTopicBefore.label"
-               style="push">
-         </command>
-         <command
-               commandId="org.xmind.ui.command.insertParentTopic"
-               label="%toolbar.topic.command.insertParentTopic.label"
+               commandId="org.xmind.ui.command.goHome"
+               id="org.xmind.ui.edit.goHome"
+               label="%menu.edit.command.goHome.label"
                style="push">
          </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:org.xmind.ui.toolbar.insertImage">
+            locationURI="menu:edit?endof=select.group">
          <command
-               commandId="org.xmind.ui.command.insertImage"
-               label="%toolbar.image.command.insertImage.label"
-               mode="FORCE_TEXT"
-               style="push"
-               tooltip="%toolbar.image.command.insertImage.tooltip">
+               commandId="org.xmind.ui.command.selectBrothers"
+               id="org.xmind.ui.edit.selectBrothers"
+               label="%menu.edit.command.selectBrothers.label"
+               style="push">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.selectChildren"
+               id="org.xmind.ui.edit.selectChildren"
+               label="%menu.edit.command.selectChildren.label"
+               style="push">
          </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:file?after=additions">
+            locationURI="menu:edit?after=cut.ext">
          <command
-               commandId="com.xmindshare.uploader.commands.upload"
-               label="%menu.file.command.upload.label"
+               commandId="org.xmind.ui.command.duplicate"
+               id="org.xmind.ui.edit.duplicate"
+               label="%menu.edit.command.duplicate.label"
                style="push">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:edit?after=additions">
+         <command
+               commandId="org.xmind.ui.command.checkSpelling"
+               disabledIcon="platform:/plugin/org.xmind.ui/icons/d/spellcheck.png"
+               icon="platform:/plugin/org.xmind.ui/icons/e/spellcheck.png"
+               id="org.xmind.ui.edit.checkSpelling"
+               label="%menu.file.checkSpelling.label"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         id="mindmapPopupMenuContributions"
+         point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
             locationURI="popup:org.xmind.ui.MindMapEditor.content">
+         <separator
+               name="start"
+               visible="false">
+         </separator>
+         <separator
+               name="group.mostImportant"
+               visible="true">
+         </separator>
          <command
                commandId="org.xmind.ui.command.editTitle"
+               id="org.xmind.ui.MindMapEditor.content.title"
                label="%popup.command.editTitle.label"
                style="push">
             <visibleWhen
@@ -1141,12 +866,116 @@
                </with>
             </visibleWhen>
          </command>
+         <command
+               commandId="org.xmind.ui.command.drillDown"
+               id="org.xmind.ui.MindMapEditor.content.drillDown"
+               label="%popup.command.drillDown.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.drillUp"
+               id="org.xmind.ui.MindMapEditor.content.drillUp"
+               label="%popup.command.drillUp.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ISheet">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.insertSheetFrom"
+               label="%popup.insert.command.insertSheetFrom.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
          <separator
-               name="org.xmind.ui.popup.editTitle.separator"
+               name="group.insert"
                visible="true">
          </separator>
          <command
+               commandId="org.xmind.ui.command.insertTopic"
+               id="org.xmind.ui.MindMapEditor.content.topic"
+               label="%popup.command.insertTopic.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.IRelationship">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.insertParentTopic"
+               id="org.xmind.ui.MindMapEditor.content.parentTopic"
+               label="%popup.insert.command.insertParentTopic.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="(1-">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
                commandId="org.xmind.ui.command.insertFloatingTopic"
+               id="org.xmind.ui.MindMapEditor.content.floatingTopic"
                label="%popup.command.insertFloatingTopic.label"
                style="push">
             <visibleWhen
@@ -1165,6 +994,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.insertFloatingCentralTopic"
+               id="org.xmind.ui.MindMapEditor.content.floatingCentralTopic"
                label="%popup.command.insertFloatingCentralTopic.label"
                style="push">
             <visibleWhen
@@ -1183,6 +1013,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.createRelationship"
+               id="org.xmind.ui.MindMapEditor.content.relationship"
                label="%popup.command.relationship.label"
                style="push">
             <visibleWhen
@@ -1206,6 +1037,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.createBoundary"
+               id="org.xmind.ui.MindMapEditor.content.boundary"
                label="%popup.command.boundary.label"
                style="push">
             <visibleWhen
@@ -1240,6 +1072,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.createSummary"
+               id="org.xmind.ui.MindMapEditor.content.summary"
                label="%popup.command.summary.label"
                style="push">
             <visibleWhen
@@ -1272,108 +1105,112 @@
                </with>
             </visibleWhen>
          </command>
-         <separator
-               name="org.xmind.ui.popup.insertModel.separator"
-               visible="true">
-         </separator>
-         <command
-               commandId="org.xmind.ui.command.drillDown"
-               label="%popup.command.drillDown.label"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="selection">
-                  <iterate
-                        ifEmpty="false"
-                        operator="and">
-                     <adapt
-                           type="org.xmind.core.ITopic">
-                     </adapt>
-                  </iterate>
-                  <count
-                        value="1">
-                  </count>
-               </with>
-            </visibleWhen>
-         </command>
-         <separator
-               name="org.xmind.ui.popup.drillDown.separator"
-               visible="true">
-         </separator>
          <menu
-               id="org.xmind.ui.popup.insertImage"
+               id="org.xmind.ui.MindMapEditor.content.insertMenu"
                label="%popup.insert.label">
+            <separator
+                  name="start"
+                  visible="false">
+            </separator>
+            <separator
+                  name="group.topic"
+                  visible="true">
+            </separator>
             <command
                   commandId="org.xmind.ui.command.insertTopic"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.topic.after"
                   label="%popup.insert.command.insertTopic.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertSubtopic"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.topic.child"
                   label="%popup.insert.command.isnertSubtopic.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertTopicBefore"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.topic.before"
                   label="%popup.insert.command.insertTopicBefore.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertParentTopic"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.topic.parent"
                   label="%popup.insert.command.insertParentTopic.label"
                   style="push">
             </command>
+            <command
+                  commandId="org.xmind.ui.command.insertCallout"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.topic.callout"
+                  label="%popup.command.insertCallout.label"
+                  style="push">
+            </command>
             <separator
-                  name="org.xmind.ui.popup.insert.topic.separator"
+                  name="group.misc"
                   visible="true">
             </separator>
             <menu
-                  icon="icons/e/insertimage.gif"
-                  id="org.xmind.ui.popup.insert.image"
+                  icon="platform:/plugin/org.xmind.ui/icons/e/insertimage.png"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.imageMenu"
                   label="%popup.insert.image.label">
+               <separator
+                     name="start"
+                     visible="false">
+               </separator>
                <command
                      commandId="org.xmind.ui.command.insertImage"
+                     id="org.xmind.ui.MindMapEditor.content.insertMenu.imageMenu.fromFile"
                      label="%popup.insert.image.command.insertIamge.label"
-                     mode="FORCE_TEXT"
-                     style="push"
-                     tooltip="%popup.insert.image.command.insertIamge.tooltip">
+                     style="push">
                </command>
+               <separator
+                     name="group.additions"
+                     visible="false">
+               </separator>
+               <separator
+                     name="end"
+                     visible="false">
+               </separator>
             </menu>
             <command
                   commandId="org.xmind.ui.command.createRelationship"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.relationship"
                   label="%popup.insert.command.relationship.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.createBoundary"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.boundary"
                   label="%popup.insert.command.boundary.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.createSummary"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.summary"
                   label="%popup.insert.command.summary.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.insertAttachment"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.attachment"
                   label="%popup.insert.command.attachment.label"
                   style="push">
             </command>
             <command
                   commandId="org.xmind.ui.command.editLabel"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.label"
                   label="%popup.insert.command.editLabel.label"
                   style="push">
             </command>
             <separator
-                  name="org.xmind.ui.popup.insert.end.separator"
+                  name="group.additions"
                   visible="true">
             </separator>
-            <command
-                  commandId="org.xmind.ui.command.insertSheetFrom"
-                  label="%popup.insert.command.insertSheetFrom.label"
-                  style="push">
-            </command>
+            <separator
+                  name="end"
+                  visible="false">
+            </separator>
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -1392,12 +1229,35 @@
             </visibleWhen>
          </menu>
          <menu
-               id="org.xmind.ui.insert.menu.markers"
+               id="org.xmind.ui.MindMapEditor.content.markerMenu"
                label="%popup.markers.label">
             <dynamic
-                  class="org.xmind.ui.mindmap/org.xmind.ui.internal.actions.AllMarkersMenu"
-                  id="org.xmind.ui.menus.dynamic.allMarkersMenu">
+                  class="org.xmind.ui.internal.actions.AllMarkersMenu"
+                  id="contents">
             </dynamic>
+            <separator
+                  name="group.more"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="org.eclipse.ui.views.showView"
+                  id="more"
+                  label="%popup.makersMenu.more.label"
+                  style="push">
+               <parameter
+                     name="org.eclipse.ui.views.showView.viewId"
+                     value="org.xmind.ui.MarkerView">
+               </parameter>
+            </command>
+            <separator
+                  name="group.clear"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="org.xmind.ui.command.clearMarkers"
+                  label="%popup.command.clearmarkers.label"
+                  style="push">
+            </command>
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -1409,18 +1269,16 @@
                            type="org.xmind.core.ITopic">
                      </adapt>
                   </iterate>
-                  <count
-                        value="1">
-                  </count>
                </with>
             </visibleWhen>
          </menu>
          <separator
-               name="org.xmind.ui.popup.markers.separator"
+               name="group.edit"
                visible="true">
          </separator>
          <command
                commandId="org.eclipse.ui.edit.cut"
+               id="org.xmind.ui.MindMapEditor.content.cut"
                label="%popup.command.cut.label"
                style="push">
             <visibleWhen
@@ -1433,6 +1291,12 @@
                      <or>
                         <adapt
                               type="org.xmind.core.ITopic">
+                           <not>
+                              <test
+                                    property="org.xmind.core.topic.type"
+                                    value="root">
+                              </test>
+                           </not>
                         </adapt>
                         <adapt
                               type="org.xmind.core.IBoundary">
@@ -1450,6 +1314,7 @@
          </command>
          <command
                commandId="org.eclipse.ui.edit.copy"
+               id="org.xmind.ui.MindMapEditor.content.copy"
                label="%popup.command.copy.label"
                style="push">
             <visibleWhen
@@ -1479,6 +1344,7 @@
          </command>
          <command
                commandId="org.eclipse.ui.edit.paste"
+               id="org.xmind.ui.MindMapEditor.content.paste"
                label="%popup.command.paste.label"
                style="push">
             <visibleWhen
@@ -1505,8 +1371,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.duplicate"
-               disabledIcon="icons/d/duplicate.png"
-               icon="icons/e/duplicate.png"
+               id="org.xmind.ui.MindMapEditor.content.duplicate"
                label="%popup.command.duplicate.label"
                style="push">
             <visibleWhen
@@ -1518,6 +1383,12 @@
                         operator="and">
                      <adapt
                            type="org.xmind.core.ITopic">
+                        <not>
+                           <test
+                                 property="org.xmind.core.topic.type"
+                                 value="root">
+                           </test>
+                        </not>
                      </adapt>
                   </iterate>
                   <count
@@ -1528,6 +1399,7 @@
          </command>
          <command
                commandId="org.eclipse.ui.edit.delete"
+               id="org.xmind.ui.MindMapEditor.content.delete"
                label="%popup.command.delete.label"
                style="push">
             <visibleWhen
@@ -1537,22 +1409,98 @@
                   <iterate
                         ifEmpty="false"
                         operator="and">
-                     <not>
-                        <adapt
-                              type="org.xmind.core.ISheet">
-                        </adapt>
-                     </not>
+                     <and>
+                        <not>
+                           <adapt
+                                 type="org.xmind.core.ISheet">
+                           </adapt>
+                        </not>
+                        <not>
+		                   <adapt
+                                 type="org.xmind.core.ITopic">
+                              <test
+                                    property="org.xmind.core.topic.type"
+                                    value="root">
+                              </test>
+                           </adapt>
+                        </not>
+                     </and>
                   </iterate>
                </with>
             </visibleWhen>
          </command>
          <separator
-               name="org.xmind.ui.popup.edit.delete.separator"
+               name="group.edit.style"
                visible="true">
          </separator>
          <command
-               commandId="org.xmind.ui.command.insertTopic"
-               label="%popup.command.insertTopic.label"
+               commandId="org.xmind.ui.command.style.copy"
+               id="org.xmind.ui.MindMapEditor.content.copyStyle"
+               label="%popup.command.copyStyle.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.style.IStyled">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.style.paste"
+               id="org.xmind.ui.MindMapEditor.content.pasteStyle"
+               label="%popup.command.pasteStyle.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.style.IStyled">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.style.reset"
+               id="org.xmind.ui.MindMapEditor.content.resetStyle"
+               label="%popup.resetStyle.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.style.IStyled">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         <separator
+               name="group.edit.marker"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.xmind.ui.command.removeMarkerFromAllTopics"
+               id="org.xmind.ui.MindMapEditor.content.removeMarkerFromAllTopics"
+               label="%popup.removeMarker.label"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -1562,18 +1510,26 @@
                         ifEmpty="false"
                         operator="and">
                      <adapt
-                           type="org.xmind.core.IRelationship">
+                           type="org.xmind.core.marker.IMarkerRef">
                      </adapt>
                   </iterate>
+                  <count
+                        value="1">
+                  </count>
                </with>
             </visibleWhen>
          </command>
          <separator
-               name="org.xmind.ui.popup.relationshipTopic.separator"
+               name="group.edit.topic"
+               visible="true">
+         </separator>
+         <separator
+               name="group.edit.topic.visibility"
                visible="true">
          </separator>
          <command
                commandId="org.xmind.ui.command.extendAll"
+               id="org.xmind.ui.MindMapEditor.content.extendAll"
                label="%popup.command.extendAll.label"
                style="push">
             <visibleWhen
@@ -1597,6 +1553,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.collapseAll"
+               id="org.xmind.ui.MindMapEditor.content.collapseAll"
                label="%popup.command.collapseAll.label"
                style="push">
             <visibleWhen
@@ -1619,33 +1576,12 @@
             </visibleWhen>
          </command>
          <separator
-               name="org.xmind.ui.popup.extend.separator"
-               visible="true">
-         </separator>
-         <command
-               commandId="org.xmind.ui.command.drillUp"
-               label="%popup.command.drillUp.label"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="selection">
-                  <iterate
-                        ifEmpty="false"
-                        operator="and">
-                     <adapt
-                           type="org.xmind.core.ISheet">
-                     </adapt>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-         <separator
-               name="org.xmind.ui.popup.drillUp.separator"
+               name="group.edit.topic.position"
                visible="true">
          </separator>
          <command
                commandId="org.xmind.ui.command.tile"
+               id="org.xmind.ui.MindMapEditor.content.tile"
                label="%popup.command.tile.label"
                style="push">
             <visibleWhen
@@ -1663,10 +1599,107 @@
             </visibleWhen>
          </command>
          <menu
-               id="org.xmind.ui.sort"
+               id="org.xmind.ui.MindMapEditor.content.alignmentMenu"
+               label="%popup.command.alignment.label">
+            <separator
+                  name="group.horizontal"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="org.xmind.ui.command.alignment"
+                  id="org.xmind.ui.MindMapEditor.content.alignmentMenu.left"
+                  label="%menu.command.alignmentLeft.label"
+                  style="push">
+               <parameter
+                     name="org.xmind.ui.alignmentParameter"
+                     value="left">
+               </parameter>
+            </command>
+            <command
+                  commandId="org.xmind.ui.command.alignment"
+                  id="org.xmind.ui.MindMapEditor.content.alignmentMenu.center"
+                  label="%menu.command.alignmentCencer.label"
+                  style="push">
+               <parameter
+                     name="org.xmind.ui.alignmentParameter"
+                     value="center">
+               </parameter>
+            </command>
+            <command
+                  commandId="org.xmind.ui.command.alignment"
+                  id="org.xmind.ui.MindMapEditor.content.alignmentMenu.right"
+                  label="%menu.command.alignmentRight.label"
+                  style="push">
+               <parameter
+                     name="org.xmind.ui.alignmentParameter"
+                     value="right">
+               </parameter>
+            </command>
+            <separator
+                  name="group.vertical"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="org.xmind.ui.command.alignment"
+                  id="org.xmind.ui.MindMapEditor.content.alignmentMenu.top"
+                  label="%menu.command.alignmentTop.label"
+                  style="push">
+               <parameter
+                     name="org.xmind.ui.alignmentParameter"
+                     value="top">
+               </parameter>
+            </command>
+            <command
+                  commandId="org.xmind.ui.command.alignment"
+                  id="org.xmind.ui.MindMapEditor.content.alignmentMenu.middle"
+                  label="%menu.command.alignmentMiddle.label"
+                  style="push">
+               <parameter
+                     name="org.xmind.ui.alignmentParameter"
+                     value="middle">
+               </parameter>
+            </command>
+            <command
+                  commandId="org.xmind.ui.command.alignment"
+                  id="org.xmind.ui.MindMapEditor.content.alignmentMenu.bottom"
+                  label="%menu.command.alignmentBottom.label"
+                  style="push">
+               <parameter
+                     name="org.xmind.ui.alignmentParameter"
+                     value="bottom">
+               </parameter>
+            </command>
+            <separator
+                  name="group.additions"
+                  visible="true">
+            </separator>
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="(1-">
+                  </count>
+               </with>
+            </visibleWhen>
+         </menu>
+         <menu
+               id="org.xmind.ui.MindMapEditor.content.sortMenu"
                label="%popup.sort.label">
+            <separator
+                  name="start"
+                  visible="false">
+            </separator>
             <command
                   commandId="org.xmind.ui.command.sort"
+                  id="org.xmind.ui.MindMapEditor.content.sortMenu.byTitle"
                   label="%menu.command.sort.title.label"
                   style="push">
                <parameter
@@ -1676,6 +1709,7 @@
             </command>
             <command
                   commandId="org.xmind.ui.command.sort"
+                  id="org.xmind.ui.MindMapEditor.content.sortMenu.byPriority"
                   label="%menu.command.sort.priority.label"
                   style="push">
                <parameter
@@ -1685,6 +1719,7 @@
             </command>
             <command
                   commandId="org.xmind.ui.command.sort"
+                  id="org.xmind.ui.MindMapEditor.content.sortMenu.byModifiedTime"
                   label="%menu.command.sort.modified.label"
                   style="push">
                <parameter
@@ -1693,11 +1728,11 @@
                </parameter>
             </command>
             <separator
-                  name="additions"
+                  name="group.additions"
                   visible="true">
             </separator>
             <separator
-                  name="org.xmind.ui.sort.ext"
+                  name="end"
                   visible="false">
             </separator>
             <visibleWhen
@@ -1718,11 +1753,12 @@
             </visibleWhen>
          </menu>
          <separator
-               name="org.xmind.ui.popup.sort.separator"
+               name="group.edit.topic.misc"
                visible="true">
          </separator>
          <command
                commandId="org.xmind.ui.command.editNotes"
+               id="org.xmind.ui.MindMapEditor.content.notes"
                label="%popup.command.editNotes.label"
                style="push">
             <visibleWhen
@@ -1743,7 +1779,30 @@
             </visibleWhen>
          </command>
          <command
+               commandId="org.xmind.ui.command.editComments"
+               id="org.xmind.ui.MindMapEditor.content.comments"
+               label="%popup.command.editComments.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
                commandId="org.xmind.ui.command.hyperlink"
+               id="org.xmind.ui.MindMapEditor.content.hyperlink"
                label="%popup.command.hyperlink.label"
                style="push">
             <visibleWhen
@@ -1763,75 +1822,41 @@
                </with>
             </visibleWhen>
          </command>
-         <menu
-               id="org.xmind.ui.popup.alignment"
-               label="%popup.command.alignment.label">
-            <command
-                  commandId="org.xmind.ui.command.alignment"
-                  label="%menu.command.alignmentLeft.label"
-                  style="push">
-               <parameter
-                     name="org.xmind.ui.alignmentParameter"
-                     value="left">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.alignment"
-                  label="%menu.command.alignmentCencer.label"
-                  style="push">
-               <parameter
-                     name="org.xmind.ui.alignmentParameter"
-                     value="center">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.alignment"
-                  label="%menu.command.alignmentRight.label"
-                  style="push">
-               <parameter
-                     name="org.xmind.ui.alignmentParameter"
-                     value="right">
-               </parameter>
-            </command>
-            <separator
-                  name="org.xmind.ui.alignment.separator"
-                  visible="true">
-            </separator>
-            <command
-                  commandId="org.xmind.ui.command.alignment"
-                  label="%menu.command.alignmentTop.label"
-                  style="push">
-               <parameter
-                     name="org.xmind.ui.alignmentParameter"
-                     value="top">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.alignment"
-                  label="%menu.command.alignmentMiddle.label"
-                  style="push">
-               <parameter
-                     name="org.xmind.ui.alignmentParameter"
-                     value="middle">
-               </parameter>
-            </command>
-            <command
-                  commandId="org.xmind.ui.command.alignment"
-                  label="%menu.command.alignmentBottom.label"
-                  style="push">
-               <parameter
-                     name="org.xmind.ui.alignmentParameter"
-                     value="bottom">
-               </parameter>
-            </command>
-            <separator
-                  name="additions"
-                  visible="false">
-            </separator>
-            <separator
-                  name="org.xmind.ui.alignment.end"
-                  visible="true">
-            </separator>
+         <separator
+               name="group.edit.topic.additions"
+               visible="true">
+         </separator>
+         <separator
+               name="group.save"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.xmind.ui.command.saveImageAs"
+               id="org.xmind.ui.MindMapEditor.content.save.image"
+               label="%popup.command.saveImageAs.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.IImage">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.saveAttachmentAs"
+               id="org.xmind.ui.MindMapEditor.content.save.attachment"
+               label="%popup.command.saveAttachmentAs.label"
+               style="push">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -1841,24 +1866,54 @@
                         operator="and">
                      <adapt
                            type="org.xmind.core.ITopic">
+                        <test
+                              property="org.xmind.core.topic.hyperlink"
+                              value="^xap\:.*$">
+                        </test>
                      </adapt>
                   </iterate>
                   <count
-                        value="(1-">
+                        value="1">
                   </count>
                </with>
             </visibleWhen>
-         </menu>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.saveAudioNoteAs"
+               id="org.xmind.ui.MindMapEditor.content.save.audioNotes"
+               label="%popup.command.saveAudioNoteAs.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                        <test
+                              property="org.xmind.core.topic.hyperlink"
+                              value="^xaap\:.*$">
+                        </test>
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </visibleWhen>
+         </command>
          <separator
-               name="org.xmind.ui.popup.alignment.separator"
+               name="group.properties"
                visible="true">
          </separator>
          <menu
-               id="org.xmind.ui.structure"
+               id="org.xmind.ui.MindMapEditor.content.structureMenu"
                label="%popup.command.structure.label">
             <dynamic
-                  class="org.xmind.ui.mindmap/org.xmind.ui.internal.actions.StructureMenuDynamic"
-                  id="org.xmind.ui.menus.dynamic.structure">
+                  class="org.xmind.ui.internal.actions.StructureMenuDynamic"
+                  id="contents">
             </dynamic>
             <visibleWhen
                   checkEnabled="false">
@@ -1867,84 +1922,232 @@
                   <iterate
                         ifEmpty="false"
                         operator="and">
-                     <and>
-                        <adapt
-                              type="org.xmind.core.ITopic">
-                        </adapt>
+                     <adapt
+                           type="org.xmind.core.ITopic">
                         <not>
-                           <test
-                                 property="org.xmind.core.topic.type"
-                                 value="summary">
-                           </test>
+                           <or>
+                              <test
+                                    property="org.xmind.core.topic.type"
+                                    value="summary">
+                              </test>
+                              <test
+                                    property="org.xmind.core.topic.type"
+                                    value="callout">
+                              </test>
+                           </or>
                         </not>
-                     </and>
+                     </adapt>
                   </iterate>
                </with>
             </visibleWhen>
          </menu>
          <command
                commandId="org.eclipse.ui.file.properties"
+               id="org.xmind.ui.MindMapEditor.content.properties"
                label="%popup.command.properties.label"
                style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <not>
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <adapt
+                              type="org.xmind.core.marker.IMarkerRef">
+                        </adapt>
+                     </iterate>
+                  </with>
+               </not>
+            </visibleWhen>
          </command>
          <separator
-               name="org.xmind.ui.popup.insertResource.separator"
+               name="group.additions"
                visible="true">
          </separator>
+         <separator
+               name="end"
+               visible="false">
+         </separator>
+      </menuContribution>
+   </extension>
+   <extension
+         id="org.xmind.ui.menus.workbenchmodel"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            apply="always"
+            uri="fragment.e4xmi">
+      </fragment>
+   </extension>
+   <extension
+         id="mindmapToolbarContributions"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.xmind.ui.toolbar.mindmap?after=org.xmind.ui.toolbar.mindmap.topic">
+         <command
+               commandId="org.xmind.ui.command.insertCallout"
+               disabledIcon="icons/toolbar/d/callout.png"
+               icon="icons/toolbar/e/callout.png"
+               id="org.xmind.ui.toolbar.mindmap.callout"
+               label="%toolbar.mindmap.insertCallout.label"
+               style="push"
+               tooltip="%toolbar.mindmap.insertCallout.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.createRelationship"
+               disabledIcon="icons/toolbar/d/relationship.png"
+               icon="icons/toolbar/e/relationship.png"
+               id="org.xmind.ui.toolbar.mindmap.relationship"
+               label="%toolbar.mindmap.relationship.label"
+               style="push"
+               tooltip="%toolbar.mindmap.relationship.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.createBoundary"
+               disabledIcon="icons/toolbar/d/boundary.png"
+               icon="icons/toolbar/e/boundary.png"
+               id="org.xmind.ui.toolbar.mindmap.boundary"
+               label="%toolbar.mindmap.boundary.label"
+               style="push"
+               tooltip="%toolbar.mindmap.boundary.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.createSummary"
+               disabledIcon="icons/toolbar/d/summary.png"
+               icon="icons/toolbar/e/summary.png"
+               id="org.xmind.ui.toolbar.mindmap.summary"
+               label="%toolbar.mindmap.summary.label"
+               style="push"
+               tooltip="%toolbar.mindmap.summary.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.editComments"
+               disabledIcon="icons/toolbar/d/comment.png"
+               icon="icons/toolbar/e/comment.png"
+               id="org.xmind.ui.toolbar.mindmap.comment"
+               label="%toolbar.mindmap.comment.label"
+               style="push"
+               tooltip="%toolbar.mindmap.comment.tooltip">
+         </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:file?after=import.ext">
+            locationURI="menu:org.xmind.ui.toolbar.mindmap.topic.menu?after=start">
          <command
-               commandId="org.xmind.ui.command.import"
-               label="%menu.file.command.import.label"
+               commandId="org.xmind.ui.command.insertTopic"
+               id="org.xmind.ui.toolbar.mindmap.topic.menu.after"
+               label="%toolbar.topic.command.insertTopic.label"
                style="push">
          </command>
          <command
-               commandId="org.xmind.ui.command.export"
-               label="%menu.file.command.export.label"
+               commandId="org.xmind.ui.command.insertSubtopic"
+               id="org.xmind.ui.toolbar.mindmap.topic.menu.child"
+               label="%toolbar.topic.command.insertSubtopic.label"
                style="push">
          </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:help?after=group.welcome">
          <command
-               commandId="org.xmind.ui.command.welcome"
-               label="%menu.help.command.welcomeToXMind.label"
+               commandId="org.xmind.ui.command.insertTopicBefore"
+               id="org.xmind.ui.toolbar.mindmap.topic.menu.before"
+               label="%toolbar.topic.command.insertTopicBefore.label"
                style="push">
          </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="menu:file?before=save.ext">
          <command
-               commandId="org.eclipse.ui.views.showView"
-               icon="icons/e/revisions.png"
-               label="%menu.file.command.editingHistory.label"
-               style="push">
-            <parameter
-                  name="org.eclipse.ui.views.showView.viewId"
-                  value="org.xmind.ui.RevisionsView">
-            </parameter>
-         </command>
-         <command
-               commandId="org.xmind.ui.command.reduceFileSize"
-               label="%menu.file.command.reduceFileSize.label"
+               commandId="org.xmind.ui.command.insertParentTopic"
+               id="org.xmind.ui.toolbar.mindmap.topic.menu.parent"
+               label="%toolbar.topic.command.insertParentTopic.label"
                style="push">
          </command>
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:edit?after=cut.ext">
+            locationURI="menu:org.xmind.ui.toolbar.mindmap.insert.menu?after=start">
+         <menu
+               icon="platform:/plugin/org.xmind.ui/icons/e/marker_shortcut.png"
+               id="org.xmind.ui.toolbar.mindmap.insert.menu.markerMenu"
+               label="%toolbar.mindmap.insert.markerMenu.marker.label">
+            <dynamic
+                  class="org.xmind.ui.internal.actions.AllMarkersMenu"
+                  id="contents">
+            </dynamic>
+            <separator
+                  name="group.additions"
+                  visible="true">
+            </separator>
+               <separator
+                     name="group.more"
+                     visible="true">
+               </separator>
+               <command
+                     commandId="org.eclipse.ui.views.showView"
+                     id="more"
+                     label="%toolbar.mindmap.insert.markerMenu.more.label"
+                     style="push">
+                  <parameter
+                        name="org.eclipse.ui.views.showView.viewId"
+                        value="org.xmind.ui.MarkerView">
+                  </parameter>
+               </command>
+         </menu>
+         <menu
+               icon="platform:/plugin/org.xmind.ui/icons/e/insertimage.png"
+               id="org.xmind.ui.toolbar.mindmap.insert.menu.imageMenu"
+               label="%toolbar.mindmap.insert.imageMenu.image.label">
+            <command
+                  commandId="org.xmind.ui.command.insertImage"
+                  id="org.xmind.ui.toolbar.mindmap.insert.menu.image.file"
+                  label="%toolbar.mindmap.insert.image.file.label"
+                  style="push">
+            </command>
+            <separator
+                  name="group.additions"
+                  visible="false">
+            </separator>
+         </menu>
          <command
-               commandId="org.xmind.ui.command.duplicate"
-               disabledIcon="icons/d/duplicate.png"
-               icon="icons/e/duplicate.png"
-               label="%menu.edit.command.duplicate.label"
+               commandId="org.xmind.ui.command.editLabel"
+               id="org.xmind.ui.toolbar.mindmap.insert.menu.label"
+               label="%toolbar.mindmap.insert.label.label"
+               style="push">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.editNotes"
+               id="org.xmind.ui.toolbar.mindmap.insert.menu.notes"
+               label="%toolbar.mindmap.insert.notes.label"
+               style="push">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.hyperlink"
+               id="org.xmind.ui.toolbar.mindmap.insert.menu.hyperlink"
+               label="%toolbar.mindmap.insert.hyperlink.label"
+               style="push">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.insertAttachment"
+               id="org.xmind.ui.toolbar.mindmap.insert.menu.attachment"
+               label="%toolbar.mindmap.insert.attachment.label"
                style="push">
          </command>
       </menuContribution>
    </extension>
-
+   <extension
+         id="exportPullDownMenuContributions"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.xmind.ui.toolbar.export.export.menu?after=start">
+         <command
+               commandId="org.eclipse.ui.file.export"
+               icon="platform:/plugin/org.xmind.ui/icons/e/add.gif"
+               id="org.xmind.ui.toolbar.export.export.menu.image"
+               label="%toolbar.export.image.label"
+               style="push">
+            <parameter
+                  name="exportWizardId"
+                  value="org.xmind.ui.ImageExportWizard">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
 </plugin>

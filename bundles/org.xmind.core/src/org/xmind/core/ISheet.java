@@ -85,4 +85,6 @@ public interface ISheet extends IIdentifiable, ITitled, IWorkbookComponent,
      */
     ILegend getLegend();
 
+    ISheetSetting getSetting();
+
 }

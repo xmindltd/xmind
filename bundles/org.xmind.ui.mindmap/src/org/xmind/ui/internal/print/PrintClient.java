@@ -30,6 +30,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
@@ -45,6 +46,7 @@ import org.xmind.gef.image.IExportSourceProvider;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ResizeConstants;
 import org.xmind.gef.util.Properties;
+import org.xmind.ui.internal.print.PageSetupDialog.Entries;
 import org.xmind.ui.mindmap.GhostShellProvider;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
@@ -57,8 +59,8 @@ import org.xmind.ui.util.UnitConvertor;
 
 public class PrintClient extends FigureRenderer {
 
-    private class MindMapViewerPrintSourceProvider extends
-            MindMapViewerExportSourceProvider {
+    private class MindMapViewerPrintSourceProvider
+            extends MindMapViewerExportSourceProvider {
 
         /**
          * @param viewer
@@ -78,9 +80,8 @@ public class PrintClient extends FigureRenderer {
         /*
          * (non-Javadoc)
          * 
-         * @see
-         * org.xmind.ui.mindmap.MindMapViewerExportSourceProvider#collectContents
-         * (java.util.List)
+         * @see org.xmind.ui.mindmap.MindMapViewerExportSourceProvider#
+         * collectContents (java.util.List)
          */
         @Override
         protected void collectContents(List<IFigure> figures) {
@@ -94,7 +95,8 @@ public class PrintClient extends FigureRenderer {
 
     private static final int VIEWER_MARGIN = 15;
 
-    private static final int TEXT_MARGIN = 5;
+//    private static final int TEXT_MARGIN = 5;
+    private static final int TEXT_MARGIN = 0;
 
     private String jobName;
 
@@ -110,8 +112,6 @@ public class PrintClient extends FigureRenderer {
 
     private Rectangle pageClientArea = null;
 
-    private Insets pageMargins = null;
-
     private Point dpi = null;
 
     private boolean needRotate = false;
@@ -125,6 +125,8 @@ public class PrintClient extends FigureRenderer {
     private IExportAreaProvider area = null;
 
     private GhostShellProvider shell = null;
+
+    private Transform transform;
 
     public PrintClient(String jobName, Shell parentShell,
             PrinterData printerData, IDialogSettings settings) {
@@ -150,9 +152,14 @@ public class PrintClient extends FigureRenderer {
         int margin = VIEWER_MARGIN * dpi.x / UnitConvertor.getScreenDpi().x;
 //        properties.set(IMindMapViewer.VIEWER_MARGIN, margin);
         properties.set(IMindMapViewer.VIEWER_GRADIENT, Boolean.FALSE);
+        String plusMinusVisibility = settings
+                .get(PrintConstants.PLUS_MINUS_VISIBILITY);
+        properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
+                Entries.getPropertiesValue(plusMinusVisibility));
         IGraphicalViewer exportViewer = new MindMapExportViewer(shell,
                 sourceMap, properties);
-        this.source = new MindMapViewerPrintSourceProvider(exportViewer, margin);
+        this.source = new MindMapViewerPrintSourceProvider(exportViewer,
+                margin);
         render();
     }
 
@@ -164,7 +171,8 @@ public class PrintClient extends FigureRenderer {
 //        if (map == null
 //                || map.getCentralTopic() == map.getSheet().getRootTopic()) {
         int margin = VIEWER_MARGIN * dpi.x / UnitConvertor.getScreenDpi().x;
-        this.source = new MindMapViewerPrintSourceProvider(sourceViewer, margin);
+        this.source = new MindMapViewerPrintSourceProvider(sourceViewer,
+                margin);
         render();
 //        } else {
 //            printMap(new MindMap(map.getSheet()));
@@ -214,18 +222,24 @@ public class PrintClient extends FigureRenderer {
      */
     @Override
     public void render(GC gc) {
-        gc.setClipping(pageClientArea.x, pageClientArea.y,
-                pageClientArea.width, pageClientArea.height);
-
+        //draw source content
+        gc.setClipping(pageClientArea.x, pageClientArea.y, pageClientArea.width,
+                pageClientArea.height);
+        pushState(gc);
         drawSourceContent(gc);
+        popState(gc);
 
-        gc.setClipping(pageClientArea.x, pageClientArea.y,
-                pageClientArea.width, pageClientArea.height);
-
+        //draw border
+        gc.setClipping(pageClientArea.x, pageClientArea.y, pageClientArea.width,
+                pageClientArea.height);
         if (!settings.getBoolean(PrintConstants.NO_BORDER)) {
             drawBorder(gc);
         }
 
+        //draw header/footer
+        org.eclipse.swt.graphics.Rectangle pageBounds = printer.getClientArea();
+        gc.setClipping(pageBounds.x, pageBounds.y, pageBounds.width,
+                pageBounds.height);
         String headerText = settings.get(PrintConstants.HEADER_TEXT);
         if (headerText != null && !"".equals(headerText)) { //$NON-NLS-1$
             drawHeader(gc, headerText);
@@ -241,6 +255,24 @@ public class PrintClient extends FigureRenderer {
         super.render(gc);
     }
 
+    private void pushState(GC gc) {
+        Transform tempTransform = new Transform(gc.getDevice());
+        gc.getTransform(tempTransform);
+        float[] elements = new float[6];
+        tempTransform.getElements(elements);
+
+        if (transform != null && !transform.isDisposed()) {
+            transform.dispose();
+        }
+
+        transform = new Transform(gc.getDevice(), elements);
+        tempTransform.dispose();
+    }
+
+    private void popState(GC gc) {
+        gc.setTransform(transform);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -251,15 +283,20 @@ public class PrintClient extends FigureRenderer {
     @Override
     protected void createGraphics(Graphics graphics, Stack<Graphics> stack) {
         Rectangle bounds = getBounds();
-        graphics.translate(pageClientArea.x
-                - (needRotate ? (-bounds.y - bounds.height) : bounds.x),
+        graphics.translate(
+                pageClientArea.x
+                        - (needRotate ? (-bounds.y - bounds.height) : bounds.x),
                 pageClientArea.y - (needRotate ? bounds.x : bounds.y));
 
         if (getScale() > 0) {
-            ScaledGraphics scaledGraphics = new ScaledGraphics(graphics);
-            scaledGraphics.scale(getScale());
-            stack.push(scaledGraphics);
-            graphics = scaledGraphics;
+            if (ScaledGraphics.SCALED_GRAPHICS_ENABLED) {
+                ScaledGraphics scaledGraphics = new ScaledGraphics(graphics);
+                scaledGraphics.scale(getScale());
+                stack.push(scaledGraphics);
+                graphics = scaledGraphics;
+            } else {
+                graphics.scale(getScale());
+            }
         }
 
         if (needRotate) {
@@ -272,12 +309,8 @@ public class PrintClient extends FigureRenderer {
     private void drawHeader(GC gc, String text) {
         Font font = getFont(PrintConstants.HEADER_FONT);
         try {
-            drawText(
-                    gc,
-                    text,
-                    font,
-                    getAlign(PrintConstants.HEADER_ALIGN,
-                            PositionConstants.CENTER), true);
+            drawText(gc, text, font, getAlign(PrintConstants.HEADER_ALIGN,
+                    PositionConstants.CENTER), true);
         } finally {
             font.dispose();
         }
@@ -286,12 +319,8 @@ public class PrintClient extends FigureRenderer {
     private void drawFooter(GC gc, String text) {
         Font font = getFont(PrintConstants.FOOTER_FONT);
         try {
-            drawText(
-                    gc,
-                    text,
-                    font,
-                    getAlign(PrintConstants.FOOTER_ALIGN,
-                            PositionConstants.RIGHT), false);
+            drawText(gc, text, font, getAlign(PrintConstants.FOOTER_ALIGN,
+                    PositionConstants.RIGHT), false);
         } finally {
             font.dispose();
         }
@@ -332,10 +361,11 @@ public class PrintClient extends FigureRenderer {
         label.setText(text);
         label.setFont(font);
         label.setTextAlignment(alignment);
-        label.setForegroundColor(parentShell.getDisplay().getSystemColor(
-                SWT.COLOR_BLACK));
+        label.setForegroundColor(
+                parentShell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+
+        Rectangle pageBounds = new Rectangle(printer.getClientArea());
         int width = needRotate ? pageClientArea.height : pageClientArea.width;
-        int height = needRotate ? pageClientArea.width : pageClientArea.height;
         int marginWidth = TEXT_MARGIN * dpi.x / UnitConvertor.getScreenDpi().x;
         int marginHeight = TEXT_MARGIN * dpi.y / UnitConvertor.getScreenDpi().y;
         if (needRotate) {
@@ -344,11 +374,27 @@ public class PrintClient extends FigureRenderer {
             marginHeight = temp;
         }
         width -= marginWidth * 2;
-        height -= marginHeight * 2;
 
         Dimension size = label.getPreferredSize(width, -1);
         int x = -width / 2;
-        int y = top ? -height / 2 : height / 2 - size.height;
+
+        int y;
+        if (top) {
+            y = -pageClientArea.height / 2 - (pageClientArea.y - pageBounds.y)
+                    + Math.max(
+                            (pageClientArea.y - pageBounds.y - size.height) / 2,
+                            marginWidth);
+        } else {
+            y = pageClientArea.height / 2
+                    + (pageBounds.y + pageBounds.height
+                            - (pageClientArea.y + pageClientArea.height))
+                    - size.height
+                    - Math.max((pageBounds.y + pageBounds.height
+                            - (pageClientArea.y + pageClientArea.height)
+                            - size.height) / 2, marginWidth);
+
+        }
+
         label.setBounds(new Rectangle(x, y, width, size.height));
 
         SWTGraphics baseGraphics = new SWTGraphics(gc);
@@ -375,8 +421,8 @@ public class PrintClient extends FigureRenderer {
     }
 
     private void drawBorder(GC gc) {
-        gc.setForeground(parentShell.getDisplay().getSystemColor(
-                SWT.COLOR_BLACK));
+        gc.setForeground(
+                parentShell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
         gc.setLineWidth(1);
         gc.setLineStyle(SWT.LINE_SOLID);
         gc.drawRectangle(pageClientArea.x, pageClientArea.y,
@@ -454,8 +500,8 @@ public class PrintClient extends FigureRenderer {
     private void receivePrinterInfo() {
         dpi = new Point(printer.getDPI());
         pageBounds = new Rectangle(printer.getBounds());
-        Rectangle trim = new Rectangle(printer.computeTrim(0, 0, 0, 0));
-        pageMargins = new Insets(-trim.y, -trim.x, trim.right(), trim.bottom());
+//        Rectangle trim = new Rectangle(printer.computeTrim(0, 0, 0, 0));
+//        pageMargins = new Insets(-trim.y, -trim.x, trim.right(), trim.bottom());
 
         pageClientArea = new Rectangle(printer.getClientArea());
 //        pageClientArea.x = pageBounds.x
@@ -466,7 +512,7 @@ public class PrintClient extends FigureRenderer {
         int rightMargin = getUserMargin(PrintConstants.RIGHT_MARGIN);
         int topMargin = getUserMargin(PrintConstants.TOP_MARGIN);
         int bottomMargin = getUserMargin(PrintConstants.BOTTOM_MARGIN);
-        pageClientArea.expand(pageMargins);
+//        pageClientArea.expand(pageMargins);
         pageClientArea.x += leftMargin;
         pageClientArea.y += topMargin;
         pageClientArea.width -= leftMargin + rightMargin;
@@ -474,6 +520,11 @@ public class PrintClient extends FigureRenderer {
 
 //        needRotate = pageBounds.height > pageBounds.width;
         needRotate = false;
+
+        int headerHeight = PrintUtils.getHeaderHeight(settings, dpi.y);
+        int footerHeight = PrintUtils.getBottomHeight(settings, dpi.y);
+
+        pageClientArea.expand(new Insets(-headerHeight, 0, -footerHeight, 0));
     }
 
     private int getUserMargin(String key) {
@@ -505,6 +556,10 @@ public class PrintClient extends FigureRenderer {
             printer.dispose();
             printer = null;
         }
+        if (transform != null) {
+            transform.dispose();
+            transform = null;
+        }
         jobStarted = false;
 
 //        if (providers != null) {
@@ -514,4 +569,5 @@ public class PrintClient extends FigureRenderer {
 //            providers = null;
 //        }
     }
+
 }

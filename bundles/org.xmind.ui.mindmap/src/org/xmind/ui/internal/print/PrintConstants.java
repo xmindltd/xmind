@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.draw2d.PositionConstants;
+import org.eclipse.swt.printing.PrinterData;
 
 public class PrintConstants {
 
@@ -74,7 +75,46 @@ public class PrintConstants {
 
     public static final String ORIENTATION = "orientation"; //$NON-NLS-1$
 
-    public static int toDraw2DAlignment(String alignValue, int defaultAlignment) {
+    public static final String PLUS_MINUS_VISIBILITY = "plusMinusVisibility"; //$NON-NLS-1$
+
+    public static final String PLUS_MINUS_VISIBLE = "plusMinusVisible"; //$NON-NLS-1$
+
+    public static final String PLUS_MINUS_HIDDEN = "plusMinusHidden"; //$NON-NLS-1$
+
+    public static final String PLUS_VISIBLE_MINUS_HIDDEN = "plusVisibleMinusHidden"; //$NON-NLS-1$
+
+    public static final String DEFAULT_PLUS_MINUS_VISIBILITY_VALUE = PLUS_MINUS_HIDDEN;
+
+    public static final String NO_NUMBER = "noPageNumber"; //$NON-NLS-1$
+
+    public static final String WIDTH_PAGES = "widthPages"; //$NON-NLS-1$
+
+    public static final String HEIGHT_PAGES = "heightPages"; //$NON-NLS-1$
+
+    public static final String FILL_HEIGHT = "fillHeight"; //$NON-NLS-1$
+
+    public static final String ASPECT_RATIO_LOCKED = "aspectRatioLocked"; //$NON-NLS-1$
+
+    public static final int DEFAULT_DPI = 120;
+
+    public static final int PAGE_SHORT = (int) ((210.0 / 25.4) * DEFAULT_DPI);
+
+    public static final int PAGE_LENGTH = (int) ((297.0 / 25.4) * DEFAULT_DPI);
+
+    public static final int DEFAULT_ORIENTATION = PrinterData.LANDSCAPE;
+
+    public static final int DEFAULT_WIDTH_PAGES = 1;
+
+    public static final int DEFAULT_HEIGHT_PAGES = 1;
+
+    public static final int MAX_IMAGE_SIZE = 10000 * 10000;
+
+    public static final String MULTI_PAGES = "multiPages"; //$NON-NLS-1$
+
+    public static final String HIDE_DETAILS = "hideDetails"; //$NON-NLS-1$
+
+    public static int toDraw2DAlignment(String alignValue,
+            int defaultAlignment) {
         if (LEFT.equals(alignValue))
             return PositionConstants.LEFT;
         if (CENTER.equals(alignValue))
@@ -82,6 +122,10 @@ public class PrintConstants {
         if (RIGHT.equals(alignValue))
             return PositionConstants.RIGHT;
         return defaultAlignment;
+    }
+
+    public static int toPixel(double inch) {
+        return (int) (inch * DEFAULT_DPI);
     }
 
 }

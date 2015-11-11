@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.xmind.gef.ui.internal;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -36,9 +40,8 @@ public class GEFPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
+     * BundleContext )
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
@@ -48,9 +51,8 @@ public class GEFPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
+     * BundleContext )
      */
     public void stop(BundleContext context) throws Exception {
         plugin = null;
@@ -66,4 +68,34 @@ public class GEFPlugin extends AbstractUIPlugin {
         return plugin;
     }
 
+    public static <T> T getAdapter(Object sourceObject, Class<T> adapterType) {
+        Assert.isNotNull(adapterType);
+        if (sourceObject == null) {
+            return null;
+        }
+        if (adapterType.isInstance(sourceObject)) {
+            return adapterType.cast(sourceObject);
+        }
+
+        if (sourceObject instanceof IAdaptable) {
+            IAdaptable adaptable = (IAdaptable) sourceObject;
+
+            T result = adaptable.getAdapter(adapterType);
+            if (result != null) {
+                // Sanity-check
+                Assert.isTrue(adapterType.isInstance(result));
+                return result;
+            }
+        }
+
+        if (!(sourceObject instanceof PlatformObject)) {
+            T result = Platform.getAdapterManager().getAdapter(sourceObject,
+                    adapterType);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
 }

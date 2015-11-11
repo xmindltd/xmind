@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product
+      name="XMind"
+      uid="org.xmind.cathy.product"
+      id="org.xmind.cathy.product"
+      application="org.xmind.cathy.application"
+      version="3.6.0.qualifier"
+      useFeatures="true"
+      includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/org.xmind.cathy/icons/about.png"/>
+      <text>
+         %productBlurb
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>--launcher.defaultAction
+openFile</programArgs>
+      <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
+      <vmArgsWin>-Xms128m
+-Xmx1024m
+-XX:MaxPermSize=256m</vmArgsWin>
+   </launcherArgs>
+
+   <windowImages
+      i16="/org.xmind.cathy/icons/xmind.16.png"
+      i32="/org.xmind.cathy/icons/xmind.32.png"
+      i48="/org.xmind.cathy/icons/xmind.48.png"
+      i64="/org.xmind.cathy/icons/xmind.64.png"
+      i128="/org.xmind.cathy/icons/xmind.128.png"/>
+
+   <splash
+      location="org.xmind.cathy" />
+   <launcher name="XMind">
+      <macosx icon="icons/launcher/macosx/xmind.icns"/>
+      <solaris/>
+      <win useIco="true">
+         <ico path="icons/launcher/win32/xmind.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.xmind.cathy.platform.feature"/>
+      <feature id="org.xmind.hebe.feature"/>
+      <feature id="org.xmind.cathy.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+
+      <property name="osgi.instance.area" value="@user.home/.xmind/workspace-cathy"/>
+      <property name="osgi.configuration.area" value="@user.home/.xmind/configuration"/>
+      <property name="osgi.requiredJavaVersion" value="1.5" />
+      <property name="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
+
+      <!-- Specify 'UTF-8' as the default file encoding to prevent
+      exporting pptx using Aspose from encountering with encoding errors. -->
+      <property name="file.encoding" value="UTF-8"/>
+   </configurations>
+
+</product>

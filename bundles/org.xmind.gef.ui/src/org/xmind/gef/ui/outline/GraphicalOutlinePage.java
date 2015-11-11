@@ -24,6 +24,7 @@ import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
@@ -34,7 +35,6 @@ import org.eclipse.ui.IPropertyListener;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.xmind.gef.tree.ITreeViewer;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -42,9 +42,9 @@ import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 /**
  * @author Brian Sun
  */
-public abstract class GraphicalOutlinePage extends Page implements
-        IContentOutlinePage, ISelectionChangedListener, IPageChangedListener,
-        IPropertyListener {
+public abstract class GraphicalOutlinePage extends Page
+        implements ISelectionProvider, ISelectionChangedListener,
+        IPageChangedListener, IPropertyListener {
 
     private List<ISelectionChangedListener> selectionChangedListeners = null;
 
@@ -178,8 +178,8 @@ public abstract class GraphicalOutlinePage extends Page implements
 
     protected abstract ITreeViewer createPageTreeViewer();
 
-    protected abstract Control createEditorTreeViewerControl(
-            ITreeViewer viewer, Composite parent);
+    protected abstract Control createEditorTreeViewerControl(ITreeViewer viewer,
+            Composite parent);
 
     protected abstract Control createPageTreeViewerControl(ITreeViewer viewer,
             Composite parent);
@@ -209,7 +209,8 @@ public abstract class GraphicalOutlinePage extends Page implements
         pageBook.setFocus();
     }
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+    public void addSelectionChangedListener(
+            ISelectionChangedListener listener) {
         if (selectionChangedListeners == null)
             selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
         selectionChangedListeners.add(listener);

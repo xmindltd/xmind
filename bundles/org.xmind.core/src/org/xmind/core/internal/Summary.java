@@ -20,14 +20,11 @@ import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.style.IStyle;
 
-public abstract class Summary implements ISummary {
+public abstract class Summary extends AbstractWorkbookComponent
+        implements ISummary {
 
     protected static final List<ITopic> NO_ENCLOSING_TOPICS = Collections
             .emptyList();
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
 
     public String getStyleType() {
         return IStyle.SUMMARY;

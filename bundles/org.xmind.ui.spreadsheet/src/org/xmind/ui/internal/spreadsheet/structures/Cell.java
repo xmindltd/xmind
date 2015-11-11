@@ -19,10 +19,12 @@ import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.xmind.ui.branch.BranchStructureData;
 import org.xmind.ui.branch.IInsertion;
 import org.xmind.ui.internal.spreadsheet.Spreadsheet;
+import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -88,13 +90,43 @@ public class Cell extends BranchStructureData {
         int minorSpacing = getOwnedRow().getMinorSpacing();
         Iterator<Item> it = items.iterator();
         while (it.hasNext()) {
+            int bw = 0;
+            int bh = 0;
             Item item = it.next();
+            IBranchPart parent = item.getBranch().getParentBranch();
+            if (parent != null) {
+                List<IBoundaryPart> boundaries = parent.getBoundaries();
+                if (!boundaries.isEmpty()) {
+                    for (IBoundaryPart boundary : boundaries) {
+                        if (boundary.getEnclosingBranches()
+                                .contains(item.getBranch())) {
+                            Insets ins = boundary.getFigure().getInsets();
+                            bw = ins.getWidth();
+                            if (boundary.getTitle() != null
+                                    && boundary.getTitle().getFigure() != null)
+                                bw += 5;
+                        }
+
+                        if (item.getBranch().equals(
+                                boundary.getEnclosingBranches().get(0))) {
+                            bh = boundary.getFigure().getInsets().getHeight();
+                            if (boundary.getTitle() != null && boundary
+                                    .getTitle().getFigure() != null) {
+                                Dimension s = boundary.getTitle().getFigure()
+                                        .getPreferredSize();
+                                bh += s.height;
+                            }
+                        }
+                    }
+                }
+            }
             IFigure itemFigure = item.getBranch().getFigure();
             Dimension size = itemFigure.getPreferredSize();
-            w = Math.max(w, size.width);
+            w = Math.max(w, size.width + bw);
+
             h += size.height;
             if (it.hasNext())
-                h += minorSpacing;
+                h += minorSpacing + bh;
         }
         return new Dimension(w, h);
     }
@@ -116,17 +148,38 @@ public class Cell extends BranchStructureData {
                     IInsertion.CACHE_INSERTION);
             if (ins != null
                     && (ins.getIndex() == 0 || ins.getIndex() == items.size())
-                    && getOwnedColumn()
-                            .getHead()
-                            .equals(
-                                    MindMapUtils
-                                            .getCache(
-                                                    getBranch(),
-                                                    Spreadsheet.KEY_INSERTION_COLUMN_HEAD))) {
+                    && getOwnedColumn().getHead()
+                            .equals(MindMapUtils.getCache(getBranch(),
+                                    Spreadsheet.KEY_INSERTION_COLUMN_HEAD))) {
                 height += ins.getSize().height
                         + getOwnedRow().getMinorSpacing();
             }
-            return height;
+
+            int bh = 0;
+            for (Item item : items) {
+                IBranchPart parent = item.getBranch().getParentBranch();
+                if (parent != null) {
+                    List<IBoundaryPart> boundaries = parent.getBoundaries();
+                    if (!boundaries.isEmpty()) {
+                        for (IBoundaryPart boundary : boundaries) {
+                            if (item.getBranch().equals(
+                                    boundary.getEnclosingBranches().get(0))) {
+                                bh = boundary.getFigure().getInsets()
+                                        .getHeight()
+                                        - getOwnedChart().getMinorSpacing();
+                                if (boundary.getTitle() != null && boundary
+                                        .getTitle().getFigure() != null) {
+                                    Dimension s = boundary.getTitle()
+                                            .getFigure().getPreferredSize();
+                                    bh += s.height;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return height + bh;
         }
         return 0;
     }

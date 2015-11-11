@@ -55,8 +55,8 @@ public class SouthEastNormal extends AbstractSubFishboneDirection {
         double sin = r.sin();
         double ctg = r.cos() / r.sin();
 
-        PrecisionPoint joint = origin.getTranslated(hTopicNormal.right,
-                hTopicNormal.bottom);
+        PrecisionPoint joint = origin.getTranslated(
+                h.ti(data.branchRefIns).right, hTopicNormal.bottom);
         ILabelPart label = branch.getLabel();
         if (label != null && label.getFigure().isVisible()) {
             joint.y -= label.getFigure().getPreferredSize().height;
@@ -177,6 +177,104 @@ public class SouthEastNormal extends AbstractSubFishboneDirection {
             }
             joint2.x += dx + spacing;
             joint.x += jdx + spacing;
+        }
+        data.branchRefIns = h.rr(hBranchBounds).getInsets(origin);
+        data.rBranchRefIns = h.rr(rhBranchBounds).getInsets(origin);
+    }
+
+    @Override
+    public void fillFishboneExtraData(IBranchPart branch, FishboneData data,
+            IPrecisionTransformer h, PrecisionRotator r, double spacing,
+            boolean extraBranch) {
+        if (!extraBranch)
+            return;
+        List<IBranchPart> calloutBranches = branch.getCalloutBranches();
+        PrecisionPoint origin = h.getOrigin();
+
+        PrecisionInsets hTopicIns = h.ti(data.topicRefIns);
+        PrecisionRectangle hTopicBounds = hTopicIns.getBounds(origin);
+//        PrecisionRectangle rhTopicBounds = h.ti(data.rTopicRefIns).getBounds(origin);
+
+        PrecisionRectangle hBranchBounds = h.ti(data.branchRefIns).getBounds(
+                origin);
+        PrecisionRectangle rhBranchBounds = h.ti(data.rBranchRefIns).getBounds(
+                origin);
+
+        double tan = r.sin() / r.cos();
+
+        double pBottomLineX = hTopicBounds.x;
+        double pBottomLineY = hTopicBounds.y;
+
+        for (int i = 0; i < calloutBranches.size(); i++) {
+            IBranchPart calloutBranch = calloutBranches.get(i);
+            Dimension calloutTopicSize = calloutBranch.getTopicPart()
+                    .getFigure().getPreferredSize();
+            IReferencedFigure calloutBranchFigure = (IReferencedFigure) calloutBranch
+                    .getFigure();
+
+            PrecisionInsets hChildBranchIns;
+            PrecisionInsets rhChildBranchIns;
+
+            IStructure structure = calloutBranch.getBranchPolicy()
+                    .getStructure(calloutBranch);
+            if (structure instanceof SubFishboneStructure) {
+                FishboneData calloutData = ((SubFishboneStructure) structure)
+                        .getCastedData(calloutBranch).getFishboneData();
+                hChildBranchIns = h.ti(calloutData.branchRefIns);
+                rhChildBranchIns = h.ti(calloutData.rBranchRefIns);
+            } else {
+                PrecisionInsets childBranchNormal = new PrecisionInsets(
+                        calloutBranchFigure.getReferenceDescription());
+                hChildBranchIns = h.ti(childBranchNormal);
+                rhChildBranchIns = r.ti(hChildBranchIns);
+            }
+
+            org.xmind.core.util.Point position = calloutBranch.getTopic()
+                    .getPosition();
+            if (position == null)
+                position = new org.xmind.core.util.Point();
+            boolean originPosition = position.x == 0 && position.y == 0;
+
+            double dx = originPosition ? 0 : position.x;
+            double dy = originPosition ? -10 - calloutTopicSize.height / 2
+                    - hTopicIns.getHeight() : position.y;
+
+            PrecisionPoint hChildRef = origin.getTranslated(h.tp(dx, dy));
+            PrecisionRectangle hChildBounds = hChildBranchIns
+                    .getBounds(hChildRef);
+
+//            double distLimitX = hChildBounds.x - hTopicBounds.x;
+//
+//            if (distLimitX < 0) {
+//                hChildRef = hChildRef.getTranslated(-distLimitX, 0);
+//                hChildBounds = hChildBranchIns.getBounds(hChildRef);
+//            }
+
+            boolean touchParentTopic = hChildBounds.intersects(hTopicBounds);
+            if (touchParentTopic) {
+                hChildRef = origin
+                        .getTranslated(hChildRef.x,
+                                dy > 0 ? hChildBranchIns.top + hTopicIns.bottom
+                                        + 10 : -(hChildBranchIns.bottom
+                                        + hTopicIns.top + 10));
+                hChildBounds = hChildBranchIns.getBounds(hChildRef);
+            }
+
+            double distBottom = (-tan
+                    * (hChildBounds.getBottomLeft().x - pBottomLineX)
+                    + pBottomLineY - hChildBounds.getBottomLeft().y)
+                    / Math.sqrt(tan * tan + 1);
+
+            if (distBottom < 0) {
+                hChildRef = hChildRef.getTranslated(-distBottom / r.sin(), 0);
+                hChildBounds = hChildBranchIns.getBounds(hChildRef);
+            }
+
+            PrecisionPoint rhChildRef = r.tp(hChildRef);
+            data.addChildOffset(calloutBranch, h.rp(hChildRef));
+
+            hBranchBounds.union(hChildBranchIns.getBounds(hChildRef));
+            rhBranchBounds.union(rhChildBranchIns.getBounds(rhChildRef));
         }
         data.branchRefIns = h.rr(hBranchBounds).getInsets(origin);
         data.rBranchRefIns = h.rr(rhBranchBounds).getInsets(origin);

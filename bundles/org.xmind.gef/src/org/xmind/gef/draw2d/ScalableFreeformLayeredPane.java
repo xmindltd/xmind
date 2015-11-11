@@ -16,8 +16,8 @@ package org.xmind.gef.draw2d;
 import org.eclipse.draw2d.Graphics;
 import org.xmind.gef.draw2d.graphics.ScaledGraphics;
 
-public class ScalableFreeformLayeredPane extends
-        org.eclipse.draw2d.ScalableFreeformLayeredPane {
+public class ScalableFreeformLayeredPane
+        extends org.eclipse.draw2d.ScalableFreeformLayeredPane {
 
     protected void paintClientArea(Graphics graphics) {
         if (getChildren().isEmpty())
@@ -25,8 +25,9 @@ public class ScalableFreeformLayeredPane extends
         if (getScale() == 1.0) {
             super.paintClientArea(graphics);
         } else {
-//            ScaledGraphics g = createScaledGraphics(graphics);
-            Graphics g = graphics;
+            ScaledGraphics sg = ScaledGraphics.SCALED_GRAPHICS_ENABLED
+                    ? createScaledGraphics(graphics) : null;
+            Graphics g = sg == null ? graphics : sg;
             boolean optimizeClip = getBorder() == null
                     || getBorder().isOpaque();
             if (!optimizeClip)
@@ -34,8 +35,10 @@ public class ScalableFreeformLayeredPane extends
             g.scale(getScale());
             g.pushState();
             paintChildren(g);
-//            g.dispose();
             g.popState();
+            if (sg != null) {
+                sg.dispose();
+            }
             graphics.restoreState();
         }
     }

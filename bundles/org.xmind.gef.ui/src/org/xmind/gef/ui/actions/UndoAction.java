@@ -24,6 +24,7 @@ public class UndoAction extends CommandStackAction {
     public UndoAction(IGraphicalEditor editor) {
         super(editor);
         setId(ActionFactory.UNDO.getId());
+        setActionDefinitionId(ActionFactory.UNDO.getCommandId());
     }
 
     public void run() {

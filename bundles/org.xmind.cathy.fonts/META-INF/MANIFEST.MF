@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: org.xmind.cathy.fonts
+Bundle-Version: 3.6.0.qualifier
+Bundle-Vendor: %Bundle-Vendor

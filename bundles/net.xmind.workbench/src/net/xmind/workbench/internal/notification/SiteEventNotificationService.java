@@ -24,16 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import net.xmind.signin.IAccountInfo;
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.ILicenseInfo;
-import net.xmind.signin.ILicenseKeyHeader;
-import net.xmind.signin.ILicenseListener;
-import net.xmind.signin.XMindNet;
-import net.xmind.signin.internal.XMindNetRequest;
-import net.xmind.workbench.internal.Messages;
-import net.xmind.workbench.internal.XMindNetWorkbench;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
@@ -50,7 +40,17 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.Bundle;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.dialogs.Notification;
+
+import net.xmind.signin.IAccountInfo;
+import net.xmind.signin.ILicenseInfo;
+import net.xmind.signin.ILicenseKeyHeader;
+import net.xmind.signin.ILicenseListener;
+import net.xmind.signin.XMindNet;
+import net.xmind.workbench.internal.Messages;
+import net.xmind.workbench.internal.XMindNetWorkbench;
 
 public class SiteEventNotificationService implements ILicenseListener {
 
@@ -125,9 +125,9 @@ public class SiteEventNotificationService implements ILicenseListener {
                 request.addParameter("nl", Platform.getNL()); //$NON-NLS-1$
                 request.addParameter("distrib", getDistributionId()); //$NON-NLS-1$
                 request.addParameter("account_type", getAccountType()); //$NON-NLS-1$
-                request.addParameter(
-                        "license_info", //$NON-NLS-1$
-                        licenseKeyHeader == null ? "" : licenseKeyHeader.toEncoded()); //$NON-NLS-1$
+                request.addParameter("license_info", //$NON-NLS-1$
+                        licenseKeyHeader == null ? "" //$NON-NLS-1$
+                                : licenseKeyHeader.toEncoded());
 
                 request.addParameter(FIRST_START_TIMESTAMP,
                         habitData.getProperty(FIRST_START_TIMESTAMP));
@@ -233,9 +233,8 @@ public class SiteEventNotificationService implements ILicenseListener {
         private boolean openExternal;
 
         public URLAction(String text, String url, boolean openExternal) {
-            super(
-                    text == null ? Messages.SiteEventNotificationService_View_text
-                            : text);
+            super(text == null ? Messages.SiteEventNotificationService_View_text
+                    : text);
             this.url = url;
             this.openExternal = openExternal;
         }
@@ -304,8 +303,8 @@ public class SiteEventNotificationService implements ILicenseListener {
         if (!file.exists()) {
             file.getParentFile().mkdirs();
         }
-        localEventStore.save(new OutputStreamWriter(new FileOutputStream(file),
-                "UTF-8")); //$NON-NLS-1$
+        localEventStore.save(
+                new OutputStreamWriter(new FileOutputStream(file), "UTF-8")); //$NON-NLS-1$
     }
 
     private static File getLocalStoreFile() {
@@ -604,15 +603,15 @@ public class SiteEventNotificationService implements ILicenseListener {
 
     private boolean isShowTime(ISiteEvent event) {
         String prompt = event.getPrompt();
-        if (prompt == null || "".equals(prompt) || prompt.contains("every")) //$NON-NLS-1$ //$NON-NLS-2$
+        if (prompt == null || !prompt.contains("every")) //$NON-NLS-1$
             return true;
 
         String id = event.getId();
         if (id == null || "".equals(id)) //$NON-NLS-1$
             return true;
 
-        String lastShowTime = habitData.getProperty(id);
-        if (lastShowTime == null || "".equals(lastShowTime)) //$NON-NLS-1$
+        String lastShowTime = habitData.getProperty(id, ""); //$NON-NLS-1$
+        if ("".equals(lastShowTime)) //$NON-NLS-1$
             return true;
 
         try {
@@ -630,15 +629,9 @@ public class SiteEventNotificationService implements ILicenseListener {
     private long getShowInterval(String prompt) {
         try {
             int day = Integer.valueOf(prompt.replaceAll("every", "")); //$NON-NLS-1$//$NON-NLS-2$
-            return getIntervalMillis(day);
+            return day > 0 ? day * 1000 * 3600 * 24 : 0;
         } catch (Exception e) {
         }
-        return 0;
-    }
-
-    private long getIntervalMillis(int day) {
-        if (day > 0)
-            return day * 1000 * 3600 * 24;
         return 0;
     }
 
@@ -663,8 +656,8 @@ public class SiteEventNotificationService implements ILicenseListener {
         if (!instanceDir.exists())
             return;
 
-        File oldLocalStoreFile = new File(
-                new File(instanceDir, ".xmind"), LOCAL_STORE_FILE_NAME); //$NON-NLS-1$
+        File oldLocalStoreFile = new File(new File(instanceDir, ".xmind"), //$NON-NLS-1$
+                LOCAL_STORE_FILE_NAME);
         if (oldLocalStoreFile.exists()) {
             moveLocalStoreFile(oldLocalStoreFile, newLocalStoreFile);
             return;
@@ -683,13 +676,10 @@ public class SiteEventNotificationService implements ILicenseListener {
         }
         boolean moved = oldFile.renameTo(newFile);
         if (!moved) {
-            XMindNetWorkbench
-                    .getDefault()
-                    .getLog()
-                    .log(new Status(IStatus.WARNING,
-                            XMindNetWorkbench.PLUGIN_ID,
-                            "Failed to migrate old site event local store file: " //$NON-NLS-1$
-                                    + oldFile.getAbsolutePath()));
+            XMindNetWorkbench.getDefault().getLog().log(new Status(
+                    IStatus.WARNING, XMindNetWorkbench.PLUGIN_ID,
+                    "Failed to migrate old site event local store file: " //$NON-NLS-1$
+                            + oldFile.getAbsolutePath()));
         }
     }
 

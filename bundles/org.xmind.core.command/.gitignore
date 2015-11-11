@@ -10,3 +10,6 @@ local.properties
 
 # External tool builders
 .externalToolBuilders/
+
+# Folder containing Maven build results
+target/

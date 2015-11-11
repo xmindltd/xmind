@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.xmind.ui.internal.views;
 
+import java.util.HashMap;
+
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -26,6 +28,8 @@ public class StyleFigure extends Figure {
 
     private IStyle style;
 
+    private HashMap<String, String> existedStyle;
+
     public StyleFigure() {
     }
 
@@ -38,6 +42,11 @@ public class StyleFigure extends Figure {
             return;
 
         this.style = style;
+        repaint();
+    }
+
+    public void setExistedStyle(HashMap<String, String> existedStyle) {
+        this.existedStyle = existedStyle;
         repaint();
     }
 
@@ -65,52 +74,20 @@ public class StyleFigure extends Figure {
     private void drawStyle(Graphics graphics, IStyle style, Rectangle r) {
         String type = style.getType();
         if (IStyle.TOPIC.equalsIgnoreCase(type)) {
-            StyleFigureUtils.drawTopic(graphics, topicBounds(r), style, null,
-                    false);
-            StyleFigureUtils.drawtext(graphics, "Topic", topicBounds(r), style, //$NON-NLS-1$
-                    StyleFigureUtils.defaultMainStyle);
+            StyleFigureUtils.drawTopic(graphics, r, existedStyle, style, null,
+                    false, false);
+            StyleFigureUtils.drawStyleText(graphics, "Topic", r, //$NON-NLS-1$
+                    existedStyle, style, StyleFigureUtils.defaultMainStyle);
         } else if (IStyle.BOUNDARY.equalsIgnoreCase(type)) {
-            StyleFigureUtils.drawBoundary(graphics, boundaryBounds(r), style,
+            StyleFigureUtils.drawBoundary(graphics, r, existedStyle, style,
                     null);
         } else if (IStyle.RELATIONSHIP.equalsIgnoreCase(type)) {
-            StyleFigureUtils.drawRelationship(graphics, relBounds(r), style,
+            StyleFigureUtils.drawRelationship(graphics, r, existedStyle, style,
                     null);
         } else if (IStyle.MAP.equalsIgnoreCase(type)) {
-            StyleFigureUtils.drawSheetBackground(graphics, sheetBounds(r),
-                    style, null);
+            StyleFigureUtils.drawSheetBackground(graphics, r, existedStyle,
+                    style, null, true);
         }
-    }
-
-    public static Rectangle topicBounds(Rectangle r) {
-        int width = r.width * 7 / 8;
-        int height = width * 9 / 20;
-        int x = r.x + r.width / 2 - width / 2;
-        int y = r.y + r.height / 2 - height / 2;
-        return new Rectangle(x, y, width, height);
-    }
-
-    public static Rectangle boundaryBounds(Rectangle r) {
-        int width = r.width * 7 / 8;
-        int height = width * 7 / 10;
-        int x = r.x + r.width / 2 - width / 2;
-        int y = r.y + r.height / 2 - height / 2;
-        return new Rectangle(x, y, width, height);
-    }
-
-    public static Rectangle relBounds(Rectangle r) {
-        int width = r.width * 6 / 8;
-        int height = width * 7 / 10;
-        int x = r.x + r.width / 2 - width / 2;
-        int y = r.y + r.height / 2 - height / 2;
-        return new Rectangle(x, y, width, height);
-    }
-
-    public static Rectangle sheetBounds(Rectangle r) {
-        int width = r.width * 7 / 8;
-        int height = width * 7 / 8;
-        int x = r.x + r.width / 2 - width / 2;
-        int y = r.y + r.height / 2 - height / 2;
-        return new Rectangle(x, y, width, height);
     }
 
 }

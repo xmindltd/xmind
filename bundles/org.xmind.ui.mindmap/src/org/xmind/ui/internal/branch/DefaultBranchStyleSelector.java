@@ -13,84 +13,19 @@
  *******************************************************************************/
 package org.xmind.ui.internal.branch;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.xmind.gef.part.IGraphicalPart;
-import org.xmind.ui.branch.IBranchStyleSelector;
-import org.xmind.ui.mindmap.IBranchPart;
-import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.style.MindMapStyleSelectorBase;
-import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 
-public class DefaultBranchStyleSelector extends MindMapStyleSelectorBase
-        implements IBranchStyleSelector {
+public class DefaultBranchStyleSelector extends AbstractBranchStyleSelector {
 
     private static DefaultBranchStyleSelector instance = null;
 
-    private Set<String> inheritedStyleKeys = null;
-
     protected DefaultBranchStyleSelector() {
-        registerInheritedStyleKey(Styles.LineColor);
-        registerInheritedStyleKey(Styles.LineWidth);
-        registerInheritedStyleKey(Styles.LinePattern);
-    }
-
-    protected void registerInheritedStyleKey(String key) {
-        if (key == null)
-            return;
-        if (inheritedStyleKeys == null)
-            inheritedStyleKeys = new HashSet<String>();
-        inheritedStyleKeys.add(key);
-    }
-
-    protected String getThemeStyleValue(IGraphicalPart part, String familyName,
-            String key) {
-        if ((Styles.LineColor.equals(key) || Styles.LineWidth.equals(key))
-                && (Styles.FAMILY_MAIN_TOPIC.equals(familyName)
-                        || Styles.FAMILY_SUB_TOPIC.equals(familyName) || Styles.FAMILY_SUMMARY_TOPIC
-                            .equals(familyName)) && part instanceof IBranchPart) {
-            if (Styles.LineColor.equals(key)) {
-                String value = StyleUtils
-                        .getIndexedBranchLineColor((IBranchPart) part);
-                if (isValidValue(part, key, value))
-                    return value;
-            }
-
-            String value = super.getThemeStyleValue(part, familyName, key);
-            if (isValidValue(part, key, value))
-                return value;
-        }
-        if (inheritedStyleKeys != null && inheritedStyleKeys.contains(key)) {
-            if (part instanceof IBranchPart) {
-                String value = ParentValueProvider.getValueProvider(
-                        (IBranchPart) part).getParentValue(key);
-                if (value != null)
-                    return value;
-            }
-        }
-        return super.getThemeStyleValue(part, familyName, key);
-    }
-
-    public void flushStyleCaches(IBranchPart branch) {
-        ParentValueProvider.flush(branch);
-    }
-
-    public String getFamilyName(IGraphicalPart part) {
-        if (part instanceof IBranchPart) {
-            IBranchPart branch = (IBranchPart) part;
-            String branchType = branch.getBranchType();
-            if (MindMapUI.BRANCH_CENTRAL.equals(branchType))
-                return Styles.FAMILY_CENTRAL_TOPIC;
-            if (MindMapUI.BRANCH_MAIN.equals(branchType))
-                return Styles.FAMILY_MAIN_TOPIC;
-            if (MindMapUI.BRANCH_FLOATING.equals(branchType))
-                return Styles.FAMILY_FLOATING_TOPIC;
-            if (MindMapUI.BRANCH_SUMMARY.equals(branchType))
-                return Styles.FAMILY_SUMMARY_TOPIC;
-        }
-        return Styles.FAMILY_SUB_TOPIC;
+        registerInheritedStyleKey(Styles.LineColor,
+                Styles.LAYER_BEFORE_DEFAULT_VALUE);
+        registerInheritedStyleKey(Styles.LineWidth,
+                Styles.LAYER_BEFORE_DEFAULT_VALUE);
+        registerInheritedStyleKey(Styles.LinePattern,
+                Styles.LAYER_BEFORE_DEFAULT_VALUE);
     }
 
     public static DefaultBranchStyleSelector getDefault() {

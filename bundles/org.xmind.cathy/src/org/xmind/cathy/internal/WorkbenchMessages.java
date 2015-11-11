@@ -29,6 +29,10 @@ public class WorkbenchMessages extends NLS {
 
     public static String GeneralPrefPage_title;
     public static String RecentFiles_label;
+
+    public static String RecentFileViewer_PinThisMapAction_label;
+
+    public static String RecentFileViewer_UnpinThisMap_label;
     public static String RestoreLastSession_label;
     public static String CathyWorkbenchWindowAdvisor_menu_lockAction_text;
 
@@ -93,6 +97,10 @@ public class WorkbenchMessages extends NLS {
     public static String CheckUpdatesJob_NewUpdate_info_message;
     public static String CheckUpdatesJob_NewUpdate_moreDownloads_text;
 
+    public static String ConfirmDeleteTemplateDialog_message_withTemplateName;
+
+    public static String ConfirmDeleteTemplateDialog_title;
+
     public static String ConfirmToRestart_cancelButton;
 
     public static String ConfirmToRestart_defaultButton;
@@ -100,6 +108,8 @@ public class WorkbenchMessages extends NLS {
     public static String ConfirmToRestart_description;
 
     public static String ConfirmToRestart_title;
+
+    public static String ConstantsHacker_WizardHandler_menuLabel;
 
     public static String StartupJob_jobName;
     public static String StartupJob_OpenBootstrapEditor_name;
@@ -161,7 +171,7 @@ public class WorkbenchMessages extends NLS {
 
     public static String WelcomeToXMindHandler_welcomeToXMind_templatedName;
 
-    public static String WorkbookFilterName;
+    public static String WizardHandler_menuLabel;
 
     public static String BetaVerifier_BetaExpiredPromptDialog_windowTitle;
     public static String BetaVerifier_BetaExpiredPromptDialog_message_withBrandingVersion_andBuildId;
@@ -180,6 +190,37 @@ public class WorkbenchMessages extends NLS {
     public static String LanguagePrefPage_ConfirmToRestart2_description;
 
     public static String LanguagePrefPage_title;
+
+    public static String DashboardHideHome_tooltip;
+    public static String DashboardShowHome_tooltip;
+
+    public static String DashboardBlankPage_name;
+    public static String DashboardTemplatesPage_name;
+    public static String DashboardBlankPage_message;
+    public static String DashboardTemplatesPage_message;
+
+    public static String DashboardRecentFiles_message;
+
+    public static String DashboardThemeChoose_message;
+    public static String DashboardThemeCreate_label;
+
+    public static String NewFileDashboardPage_AddTemplates_tooltip;
+
+    public static String NewFileDashboardPage_AddTemplates_label;
+
+    public static String NewFileDashboardPage_DeleteTemplate_tooltip;
+
+    public static String NewFileDashboardPage_DeleteTemplate_label;
+
+    public static String NewFileDashboardPage_ExitEditMode_tooltip;
+
+    public static String NewFileDashboardPage_ExitEditTemplatesMode_label;
+
+    public static String NewFileDashboardPage_GoIntoTemplatesManagerMode_tooltip;
+
+    public static String NewFileDashboardPage_GoToEditTemplateMode_label;
+
+    public static String NewFileDashboardPage_TemplateFilterName_label;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, WorkbenchMessages.class);

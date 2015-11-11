@@ -32,6 +32,7 @@ public class PartSite implements IPartSite {
         host = part;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IRootPart.class)
             return getRoot();
@@ -108,8 +109,8 @@ public class PartSite implements IPartSite {
 
     public Shell getShell() {
         Control control = getViewerControl();
-        return control == null || control.isDisposed() ? null : control
-                .getShell();
+        return control == null || control.isDisposed() ? null
+                : control.getShell();
     }
 
     public Control getViewerControl() {

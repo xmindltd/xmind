@@ -19,7 +19,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -29,6 +28,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -46,8 +46,8 @@ import org.xmind.ui.internal.browser.actions.CutAction;
 import org.xmind.ui.internal.browser.actions.DeleteAction;
 import org.xmind.ui.internal.browser.actions.PasteAction;
 
-public class InternalBrowserEditor extends EditorPart implements
-        IBrowserViewerContainer {
+public class InternalBrowserEditor extends EditorPart
+        implements IBrowserViewerContainer {
 
     public static final String BROWSER_EDITOR_ID = "org.xmind.ui.browser.editor"; //$NON-NLS-1$
 
@@ -87,19 +87,20 @@ public class InternalBrowserEditor extends EditorPart implements
             if (viewer != null && viewer.getControl() != null
                     && !viewer.getControl().isDisposed()) {
                 viewer.setURL(initialURL);
-                int style = bei.getStyle();
-                if ((style & IBrowserSupport.NO_LOCATION_BAR) != 0
-                        && (style & IBrowserSupport.NO_EXTRA_CONTRIBUTIONS) != 0) {
-                    style |= IBrowserSupport.NO_TOOLBAR;
-                }
-                viewer.changeStyle(style);
-                site.getWorkbenchWindow().getActivePage().activate(this);
-                if (initialURL != null
-                        && ((style & IBrowserSupport.NO_TOOLBAR) == 0 && (style & IBrowserSupport.NO_LOCATION_BAR) == 0)) {
-                    setContentDescription(initialURL);
-                } else {
-                    setContentDescription(""); //$NON-NLS-1$
-                }
+//                int style = bei.getStyle();
+//                if ((style & IBrowserSupport.NO_LOCATION_BAR) != 0 && (style
+//                        & IBrowserSupport.NO_EXTRA_CONTRIBUTIONS) != 0) {
+//                    style |= IBrowserSupport.NO_TOOLBAR;
+//                }
+//                viewer.changeStyle(style);
+//                site.getWorkbenchWindow().getActivePage().activate(this);
+//                if (initialURL != null
+//                        && ((style & IBrowserSupport.NO_TOOLBAR) == 0 && (style
+//                                & IBrowserSupport.NO_LOCATION_BAR) == 0)) {
+//                    setContentDescription(initialURL);
+//                } else {
+//                    setContentDescription(""); //$NON-NLS-1$
+//                }
             }
 
             setPartName(bei.getName());
@@ -114,10 +115,9 @@ public class InternalBrowserEditor extends EditorPart implements
             if (oldImage != null && !oldImage.isDisposed())
                 oldImage.dispose();
         } else
-            throw new PartInitException(
-                    NLS.bind(
-                            BrowserMessages.BrowserEditor_ErrorInvalidEditorInput_message,
-                            input.getName()));
+            throw new PartInitException(NLS.bind(
+                    BrowserMessages.BrowserEditor_ErrorInvalidEditorInput_message,
+                    input.getName()));
 
         setSite(site);
         setInput(input);
@@ -146,10 +146,7 @@ public class InternalBrowserEditor extends EditorPart implements
 
     public void createPartControl(final Composite parent) {
         int style = getBrowserEditorInput().getStyle();
-        boolean noViewerToolBar = ((style & IBrowserSupport.NO_LOCATION_BAR) != 0 && (style & IBrowserSupport.NO_EXTRA_CONTRIBUTIONS) != 0)
-                || ((style & IBrowserSupport.NO_TOOLBAR) != 0);
-        viewer = new BrowserViewer(parent, noViewerToolBar ? style
-                | IBrowserSupport.NO_TOOLBAR : style, this);
+        viewer = new BrowserViewer(parent, style, this);
         viewer.setURL(initialURL);
 
         addAction(new CopyAction(viewer));
@@ -161,34 +158,33 @@ public class InternalBrowserEditor extends EditorPart implements
             public void propertyChange(PropertyChangeEvent event) {
                 if (lockName)
                     return;
-                if (IBrowserViewer.PROPERTY_TITLE.equals(event
-                        .getPropertyName())) {
+                if (IBrowserViewer.PROPERTY_TITLE
+                        .equals(event.getPropertyName())) {
                     if (event.getNewValue() != null)
                         setPartName((String) event.getNewValue());
-                } else if (IBrowserViewer.PROPERTY_LOCATION.equals(event
-                        .getPropertyName())) {
+                } else if (IBrowserViewer.PROPERTY_LOCATION
+                        .equals(event.getPropertyName())) {
                     String location = (String) event.getNewValue();
                     int currentStyle = getBrowserEditorInput().getStyle();
-                    if (location == null
-                            || ((currentStyle & IBrowserSupport.NO_TOOLBAR) == 0 && (currentStyle & IBrowserSupport.NO_LOCATION_BAR) == 0)) {
+                    if (location == null || ((currentStyle
+                            & IBrowserSupport.NO_TOOLBAR) == 0
+                            && (currentStyle
+                                    & IBrowserSupport.NO_LOCATION_BAR) == 0)) {
                         location = ""; //$NON-NLS-1$
                     }
-                    setContentDescription(location);
+                    Label descriptionLabel = viewer.getDescriptionLabel();
+                    if (descriptionLabel != null
+                            && !descriptionLabel.isDisposed()) {
+                        descriptionLabel.setText(location);
+                        descriptionLabel.setToolTipText(location);
+                    }
                 }
             }
         };
         viewer.addPropertyChangeListener(propertyChangeListener);
 
-        if (noViewerToolBar) {
-            IToolBarManager toolBar = getEditorSite().getActionBars()
-                    .getToolBarManager();
-            toolBar.add(viewer.getBackAction());
-            toolBar.add(viewer.getForwardAction());
-            toolBar.add(viewer.getStopRefreshAction());
-
-        }
-        viewer.getBusyIndicator().addSelectionChangedListener(
-                new ISelectionChangedListener() {
+        viewer.getBusyIndicator()
+                .addSelectionChangedListener(new ISelectionChangedListener() {
                     public void selectionChanged(SelectionChangedEvent event) {
                         if (!parent.isDisposed()) {
                             parent.getDisplay().asyncExec(new Runnable() {
@@ -278,8 +274,8 @@ public class InternalBrowserEditor extends EditorPart implements
         final boolean[] result = new boolean[1];
         Display.getDefault().asyncExec(new Runnable() {
             public void run() {
-                result[0] = getEditorSite().getPage().closeEditor(
-                        InternalBrowserEditor.this, false);
+                result[0] = getEditorSite().getPage()
+                        .closeEditor(InternalBrowserEditor.this, false);
             }
         });
         return result[0];
@@ -309,7 +305,8 @@ public class InternalBrowserEditor extends EditorPart implements
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
                 final BrowserEditorInput input = new BrowserEditorInput("", //$NON-NLS-1$
-                        getNewSecondaryId(), getBrowserEditorInput().getStyle());
+                        getNewSecondaryId(),
+                        getBrowserEditorInput().getStyle());
                 IEditorPart editor = getSite().getPage().openEditor(input,
                         BROWSER_EDITOR_ID);
                 if (editor instanceof InternalBrowserEditor) {

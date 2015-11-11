@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="cathy" sequenceNumber="18">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="4.5.1.M20150904-0015"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.5/R-4.5.1-201509040015"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.draw2d.feature.group" version="3.10.1.201508170204"/>
+<repository location="http://download.eclipse.org/tools/gef/updates/releases/3.10.1_gef-maintenance_1205/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="de.erichseifert.vectorgraphics2d" version="0.9.1"/>
+<unit id="org.freehep.graphicsio" version="2.1.1"/>
+<unit id="org.json" version="1.0.0.201510292325"/>
+<unit id="org.scribe.oauth" version="1.3.6"/>
+<unit id="org.apache.tools.zip" version="1.9.6"/>
+<unit id="net.coobird.thumbnailator" version="0.4.8"/>
+<unit id="javazoom.jlayer" version="1.0.1"/>
+<unit id="com.evernote.sdk.java" version="1.25.1"/>
+<unit id="com.apple.dnssd" version="561.1.1"/>
+<unit id="net.sourceforge.jazzy" version="0.5.2"/>
+<unit id="org.bouncycastle" version="1.5.2"/>
+<repository location="http://p2.xmind.net/updates/xmind/3.6.0.R-201511090408/orbit"/>
+</location>
+</locations>
+</target>

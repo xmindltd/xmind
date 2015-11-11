@@ -18,6 +18,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -28,18 +30,17 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
-import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.forms.WidgetFactory;
 
-public abstract class GraphicalPropertySheetPage extends Page implements
-        IPropertySheetPage, IPropertyPartContainer {
+public abstract class GraphicalPropertySheetPage extends Page
+        implements ISelectionChangedListener, IPropertyPartContainer {
 
     protected static class SectionRec {
 
@@ -84,6 +85,25 @@ public abstract class GraphicalPropertySheetPage extends Page implements
         super.init(pageSite);
         for (SectionRec rec : sections) {
             rec.section.init(this, getContributedEditor());
+        }
+        if (editor != null) {
+            editor.getSite().getSelectionProvider()
+                    .addSelectionChangedListener(this);
+
+            ISelection selection = editor.getSite().getSelectionProvider()
+                    .getSelection();
+            if (selection != null && !selection.isEmpty()) {
+                Display.getCurrent().asyncExec(new Runnable() {
+                    public void run() {
+                        ISelection currentSelection = editor.getSite()
+                                .getSelectionProvider().getSelection();
+                        selectionChanged(currentSelection);
+                        for (SectionRec rec : sections) {
+                            rec.section.setSelection(currentSelection);
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -191,7 +211,8 @@ public abstract class GraphicalPropertySheetPage extends Page implements
             moveSectionFirst(rec);
         } else {
             if (rec.control != null && !rec.control.isDisposed()
-                    && lastRec.control != null && !lastRec.control.isDisposed()) {
+                    && lastRec.control != null
+                    && !lastRec.control.isDisposed()) {
                 rec.control.moveBelow(lastRec.control);
                 rec.control.getParent().layout();
             }
@@ -220,6 +241,8 @@ public abstract class GraphicalPropertySheetPage extends Page implements
 
         titleBar = new Label(composite, SWT.NONE);
         titleBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        titleBar.setBackground(
+                composite.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
         titleSeparator = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
         titleSeparator.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -243,8 +266,8 @@ public abstract class GraphicalPropertySheetPage extends Page implements
         Composite internalComposite = new Composite(form.getBody(), SWT.NONE);
         internalComposite.setBackground(form.getBody().getBackground());
         internalComposite.setLayout(new GridLayout(1, false));
-        internalComposite.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM,
-                true, true));
+        internalComposite
+                .setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true));
         createExtendSectionControls(widgetFactory, internalComposite);
         form.reflow(true);
     }
@@ -284,8 +307,8 @@ public abstract class GraphicalPropertySheetPage extends Page implements
     }
 
     private void createSectionControl(Composite parent, SectionRec rec) {
-        rec.control = widgetFactory.createSection(parent, Section.TITLE_BAR
-                | SWT.BORDER);
+        rec.control = widgetFactory.createSection(parent,
+                Section.TITLE_BAR | SWT.BORDER);
         Composite client = widgetFactory.createComposite(rec.control,
                 SWT.NO_FOCUS | SWT.WRAP);
         rec.control.setClient(client);
@@ -339,9 +362,8 @@ public abstract class GraphicalPropertySheetPage extends Page implements
         }
     }
 
-    public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-        if (part != editor)
-            return;
+    public void selectionChanged(SelectionChangedEvent event) {
+        ISelection selection = event.getSelection();
 
         selectionChanged(selection);
 
@@ -413,6 +435,11 @@ public abstract class GraphicalPropertySheetPage extends Page implements
     }
 
     public void dispose() {
+        if (editor != null) {
+            editor.getSite().getSelectionProvider()
+                    .removeSelectionChangedListener(this);
+        }
+
         for (SectionRec rec : sections) {
             rec.section.dispose();
             rec.visible = false;

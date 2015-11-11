@@ -29,7 +29,6 @@ import java.util.Set;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
@@ -79,6 +78,7 @@ import org.xmind.core.marker.IMarkerResource;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.EditDomain;
+import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -100,8 +100,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         public ShowMarkerManagerAction() {
             super(MindMapMessages.ShowMarkerManager_text);
             setToolTipText(MindMapMessages.ShowMarkerManager_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.ADD_MARKER, true));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.ADD_MARKER, true));
         }
 
         public void run() {
@@ -113,14 +113,15 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         public ImportMarkerAction() {
             super(MindMapMessages.ImportMarkers_text);
             setToolTipText(MindMapMessages.ImportMarkers_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.IMPORT,
-                    true));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.IMPORT, true));
         }
 
         public void run() {
             MarkerImportWizard wizard = new MarkerImportWizard(false);
             wizard.init(PlatformUI.getWorkbench(), getCurrentSelection());
-            WizardDialog dialog = new WizardDialog(getSite().getShell(), wizard);
+            WizardDialog dialog = new WizardDialog(getSite().getShell(),
+                    wizard);
             dialog.create();
             dialog.open();
         }
@@ -131,14 +132,15 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         public ExportMarkerAction() {
             super(MindMapMessages.ExportMarkers_text);
             setToolTipText(MindMapMessages.ExportMarkers_toolTip);
-            setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.EXPORT,
-                    true));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.EXPORT, true));
         }
 
         public void run() {
             MarkerExportWizard wizard = new MarkerExportWizard();
             wizard.init(PlatformUI.getWorkbench(), getCurrentSelection());
-            WizardDialog dialog = new WizardDialog(getSite().getShell(), wizard);
+            WizardDialog dialog = new WizardDialog(getSite().getShell(),
+                    wizard);
             dialog.create();
             dialog.open();
         }
@@ -151,8 +153,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         public MarkerAction(IMarker marker) {
             super();
             this.marker = marker;
-            setImageDescriptor(MarkerImageDescriptor.createFromMarker(marker,
-                    24, 24));
+            setImageDescriptor(
+                    MarkerImageDescriptor.createFromMarker(marker, 24, 24));
             setToolTipText(marker.getName());
         }
 
@@ -171,11 +173,17 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                         EditDomain domain = gp.getEditDomain();
                         if (domain != null) {
                             Request req = new Request(REQ_ADD_MARKER)
-                                    .setViewer(gp.getViewer())
-                                    .setDomain(domain)
+                                    .setViewer(gp.getViewer()).setDomain(domain)
                                     .setParameter(MindMapUI.PARAM_MARKER_ID,
                                             marker.getId());
                             domain.handleRequest(req);
+                        }
+                        IViewer viewer = gp.getViewer();
+                        if (viewer != null) {
+                            Control control = viewer.getControl();
+                            if (control != null && !control.isDisposed()) {
+                                control.setFocus();
+                            }
                         }
                     }
                 }
@@ -427,8 +435,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
             if (control == null) {
                 section = createSection(parent, group.getName(), factory);
                 if (toolbar == null) {
-                    toolbar = new ToolBarManager(SWT.RIGHT | SWT.FLAT
-                            | SWT.WRAP);
+                    toolbar = new ToolBarManager(
+                            SWT.RIGHT | SWT.FLAT | SWT.WRAP);
                 }
                 Composite c = factory.createComposite(section, SWT.WRAP);
                 GridLayout layout = new GridLayout(1, true);
@@ -473,9 +481,10 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         }
 
         private void addDragSource(final ToolBar toolbar) {
-            final DragSource dragSource = new DragSource(toolbar, DND.DROP_COPY);
-            dragSource.setTransfer(new Transfer[] { MindMapElementTransfer
-                    .getInstance() });
+            final DragSource dragSource = new DragSource(toolbar,
+                    DND.DROP_COPY);
+            dragSource.setTransfer(
+                    new Transfer[] { MindMapElementTransfer.getInstance() });
             dragSource.addDragListener(new DragSourceListener() {
 
                 ToolItem sourceItem;
@@ -509,8 +518,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         }
 
         private void addDropTarget(final ToolBar toolBar) {
-            final DropTarget dropTarget = new DropTarget(toolBar, DND.DROP_COPY
-                    | DND.DROP_MOVE);
+            final DropTarget dropTarget = new DropTarget(toolBar,
+                    DND.DROP_COPY | DND.DROP_MOVE);
             dropTarget
                     .setTransfer(new Transfer[] { FileTransfer.getInstance() });
             toolBar.addDisposeListener(new DisposeListener() {
@@ -524,8 +533,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                 private Map<String, List<String>> dirToMarkerPaths = new HashMap<String, List<String>>();
 
                 public void dropAccept(DropTargetEvent event) {
-                    if (!FileTransfer.getInstance().isSupportedType(
-                            event.currentDataType)) {
+                    if (!FileTransfer.getInstance()
+                            .isSupportedType(event.currentDataType)) {
                         event.detail = DND.DROP_NONE;
                     } else if (event.detail == DND.DROP_DEFAULT) {
                         if ((event.operations & DND.DROP_COPY) != 0) {
@@ -556,10 +565,10 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                                                 && !markerPaths.isEmpty()) {
                                             IMarkerGroup markerGroup = userMarkerSheet
                                                     .createMarkerGroup(false);
-                                            markerGroup.setName(tempDir
-                                                    .getName());
-                                            userMarkerSheet
-                                                    .addMarkerGroup(markerGroup);
+                                            markerGroup
+                                                    .setName(tempDir.getName());
+                                            userMarkerSheet.addMarkerGroup(
+                                                    markerGroup);
                                             for (String markerPath : markerPaths) {
                                                 if (imageValid(markerPath))
                                                     createMarker(markerGroup,
@@ -574,7 +583,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                                         .getSystemMarkerSheet()) {
                                     IMarkerGroup markerGroup = userMarkerSheet
                                             .createMarkerGroup(false);
-                                    markerGroup.setName(MindMapMessages.MarkerView_UntitledGroup_name);
+                                    markerGroup.setName(
+                                            MindMapMessages.MarkerView_UntitledGroup_name);
                                     userMarkerSheet.addMarkerGroup(markerGroup);
                                     createMarker(markerGroup, path);
                                 } else if (userMarkerSheet == markerSheet) {
@@ -612,8 +622,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                         String sourcePath) {
                     String path = Core.getIdFactory().createId()
                             + FileUtils.getExtension(sourcePath);
-                    IMarker marker = targetGroup.getOwnedSheet().createMarker(
-                            path);
+                    IMarker marker = targetGroup.getOwnedSheet()
+                            .createMarker(path);
                     marker.setName(FileUtils.getFileName(sourcePath));
                     IMarkerResource resource = marker.getResource();
                     if (resource != null) {
@@ -770,15 +780,6 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         menu.add(exportMarkerAction);
         menu.add(new Separator());
         menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-
-        IToolBarManager toolBar = getViewSite().getActionBars()
-                .getToolBarManager();
-        toolBar.add(showMarkerManagerAction);
-        toolBar.add(new Separator());
-        toolBar.add(importMarkerAction);
-        toolBar.add(exportMarkerAction);
-        toolBar.add(new Separator());
-        toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
     }
 
     private ScrolledForm createForm(Composite parent) {
@@ -823,6 +824,7 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         form.reflow(true);
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IContributedContentsView.class) {
             return this;
@@ -833,8 +835,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
     private Control createRecentSection(Composite composite) {
 //        Section section = createSection(composite,
 //                MindMapMessages.MarkerView_RecentlyUsed_label, factory);
-        recentPart = new MarkerGroupPart(MindMapUI.getResourceManager()
-                .getRecentMarkerGroup(), false);
+        recentPart = new MarkerGroupPart(
+                MindMapUI.getResourceManager().getRecentMarkerGroup(), false);
         Control con = recentPart.createControl(composite);
         return con;
 //        section.setClient(recentPart.createControl(section));
@@ -844,8 +846,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
     private Control createSystemSection(Composite composite) {
 //        Section section = createSection(composite,
 //                MindMapMessages.MarkerView_XMindMarkers_label, factory);
-        systemPart = new MarkerSheetPart(MindMapUI.getResourceManager()
-                .getSystemMarkerSheet());
+        systemPart = new MarkerSheetPart(
+                MindMapUI.getResourceManager().getSystemMarkerSheet());
         Control con = systemPart.createControl(composite);
         return con;
 //        section.setClient(systemPart.createControl(section));
@@ -869,8 +871,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
     private Control createUserSection(Composite composite) {
 //        Section section = createSection(composite,
 //                MindMapMessages.MarkerView_UserMarkers_label, factory);
-        userPart = new MarkerSheetPart(MindMapUI.getResourceManager()
-                .getUserMarkerSheet());
+        userPart = new MarkerSheetPart(
+                MindMapUI.getResourceManager().getUserMarkerSheet());
         Control con = userPart.createControl(composite);
         return con;
 //        section.setClient(userPart.createControl(section));
@@ -895,9 +897,9 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
 
     private Section createSection(Composite parent, String title,
             WidgetFactory factory) {
-        Section section = factory.createSection(parent, Section.TITLE_BAR
-                | Section.TWISTIE | Section.EXPANDED | SWT.BORDER
-                | Section.NO_TITLE_FOCUS_BOX);
+        Section section = factory.createSection(parent,
+                Section.TITLE_BAR | Section.TWISTIE | Section.EXPANDED
+                        | SWT.BORDER | Section.NO_TITLE_FOCUS_BOX);
         section.setText(title);
 //        section.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         return section;

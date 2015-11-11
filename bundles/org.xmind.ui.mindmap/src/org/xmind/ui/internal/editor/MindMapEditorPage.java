@@ -16,15 +16,21 @@ package org.xmind.ui.internal.editor;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
@@ -42,6 +48,7 @@ import org.xmind.gef.ISelectionStack;
 import org.xmind.gef.SelectionStack;
 import org.xmind.gef.draw2d.IRelayeredPane;
 import org.xmind.gef.draw2d.ISkylightLayer;
+import org.xmind.gef.part.IPart;
 import org.xmind.gef.service.CenterPreservationService;
 import org.xmind.gef.service.FeedbackService;
 import org.xmind.gef.service.IAnimationService;
@@ -67,20 +74,18 @@ import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.TopicContextService;
 import org.xmind.ui.internal.actions.ActionConstants;
 import org.xmind.ui.internal.actions.ActualSizeAction;
-import org.xmind.ui.internal.actions.AddMarkerAction;
 import org.xmind.ui.internal.actions.AlignmentRequestAction;
 import org.xmind.ui.internal.actions.CancelHyperlinkAction;
 import org.xmind.ui.internal.actions.CollapseAction;
 import org.xmind.ui.internal.actions.CollapseAllAction;
-import org.xmind.ui.internal.actions.CreateBoundaryAction;
 import org.xmind.ui.internal.actions.CreateRelationshipAction;
 import org.xmind.ui.internal.actions.CreateSheetFromTopicAction;
-import org.xmind.ui.internal.actions.CreateSummaryAction;
 import org.xmind.ui.internal.actions.CutAction;
 import org.xmind.ui.internal.actions.DeleteAction;
 import org.xmind.ui.internal.actions.DrillDownAction;
 import org.xmind.ui.internal.actions.DrillUpAction;
 import org.xmind.ui.internal.actions.DuplicateAction;
+import org.xmind.ui.internal.actions.EditCommentsAction;
 import org.xmind.ui.internal.actions.EditLabelAction;
 import org.xmind.ui.internal.actions.EditNotesAction;
 import org.xmind.ui.internal.actions.EditTitleAction;
@@ -99,10 +104,8 @@ import org.xmind.ui.internal.actions.InsertTopicBeforeAction;
 import org.xmind.ui.internal.actions.ModifyHyperlinkAction;
 import org.xmind.ui.internal.actions.NewSheetFromTemplateDialogAction;
 import org.xmind.ui.internal.actions.OpenHyperlinkAction;
-import org.xmind.ui.internal.actions.PrintMapAction;
 import org.xmind.ui.internal.actions.RemoveAllStylesAction;
 import org.xmind.ui.internal.actions.ResetPositionAction;
-import org.xmind.ui.internal.actions.SaveAttachmentAsAction;
 import org.xmind.ui.internal.actions.SelectBrothersAction;
 import org.xmind.ui.internal.actions.SelectChildrenAction;
 import org.xmind.ui.internal.actions.SortRequestAction;
@@ -113,13 +116,17 @@ import org.xmind.ui.internal.actions.ZoomOutAction;
 import org.xmind.ui.internal.layers.SkylightLayer;
 import org.xmind.ui.internal.mindmap.DrillDownTraceService;
 import org.xmind.ui.internal.mindmap.HighlightService;
+import org.xmind.ui.internal.mindmap.InfoItemIconPart;
 import org.xmind.ui.internal.mindmap.MindMapRevealService;
 import org.xmind.ui.internal.mindmap.MindMapTopicContextService;
 import org.xmind.ui.internal.mindmap.MindMapViewer;
 import org.xmind.ui.internal.mindmap.UndoRedoTipsService;
+import org.xmind.ui.internal.print.multipage.PrintMapAction2;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IDrillDownTraceService;
 import org.xmind.ui.mindmap.IHighlightService;
+import org.xmind.ui.mindmap.IIconTipPart;
+import org.xmind.ui.mindmap.IInfoItemPart;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.ISheetPart;
@@ -130,8 +137,8 @@ import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.util.MindMapUtils;
 
 @SuppressWarnings("deprecation")
-public class MindMapEditorPage extends GraphicalEditorPage implements
-        ICoreEventListener, IColorProvider, IEditDomainListener,
+public class MindMapEditorPage extends GraphicalEditorPage
+        implements ICoreEventListener, IColorProvider, IEditDomainListener,
         IPropertyChangeListener, FocusListener {
 
     private ISelectionStack selectionStack = null;
@@ -159,16 +166,80 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         return new MindMapViewer();
     }
 
-    protected void createViewerControl(IGraphicalViewer viewer, Composite parent) {
+    protected void createViewerControl(final IGraphicalViewer viewer,
+            Composite parent) {
         Control control = ((MindMapViewer) viewer).createControl(parent);
         control.addFocusListener(this);
         imeSupport = new IMESupport(this, viewer);
     }
 
+    protected void createContentPopupMenu(final Control control) {
+        super.createContentPopupMenu(control);
+
+        control.addListener(SWT.MenuDetect, new Listener() {
+            private Menu oldPopupMenu;
+            private boolean defaultMenuVisible = true;
+            private Menu defaultMenu;
+
+            public void handleEvent(Event event) {
+                Menu menu = control.getMenu();
+
+                if (menu != null && defaultMenuVisible)
+                    defaultMenu = menu;
+
+                org.eclipse.swt.graphics.Point pos = control.toControl(event.x,
+                        event.y);
+                IPart part = findIconTipAt(pos.x, pos.y);
+
+                if (part != null) {
+
+                    if (oldPopupMenu != null) {
+                        oldPopupMenu.dispose();
+                        oldPopupMenu = null;
+                    }
+
+                    IMenuManager mm = null;
+                    if (part instanceof IIconTipPart) {
+                        mm = ((IIconTipPart) part).getPopupMenu();
+                    } else {
+                        if (part instanceof IInfoItemPart)
+                            mm = ((IInfoItemPart) part).getPopupMenu();
+                    }
+
+                    if (mm != null) {
+                        Menu newPopupMenu = ((MenuManager) mm)
+                                .createContextMenu(control);
+                        oldPopupMenu = newPopupMenu;
+                        control.setMenu(newPopupMenu);
+                        defaultMenuVisible = false;
+                    } else {
+                        if (defaultMenu != null)
+                            control.setMenu(defaultMenu);
+                    }
+                    return;
+                }
+                if (defaultMenu != null) {
+                    control.setMenu(defaultMenu);
+                }
+
+            }
+
+            private IPart findIconTipAt(int x, int y) {
+                IPart part = getViewer().findPart(x, y);
+                if (part instanceof IIconTipPart
+                        || part instanceof InfoItemIconPart) {
+                } else {
+                    part = null;
+                }
+                return (IPart) part;
+            }
+        });
+    }
+
     public void updatePageTitle() {
         ISheet sheet = getCastedInput();
-        String name = sheet.hasTitle() ? sheet.getTitleText() : sheet
-                .getRootTopic().getTitleText();
+        String name = sheet.hasTitle() ? sheet.getTitleText()
+                : sheet.getRootTopic().getTitleText();
         setPageTitle(MindMapUtils.trimSingleLine(name));
     }
 
@@ -216,8 +287,8 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
             if (part != null) {
                 part.treeUpdate(false);
             }
-        } else if (PrefConstants.UNDO_REDO_TIPS_ENABLED.equals(event
-                .getProperty())) {
+        } else if (PrefConstants.UNDO_REDO_TIPS_ENABLED
+                .equals(event.getProperty())) {
             if (undoService != null) {
                 Object value = event.getNewValue();
                 if (value instanceof String)
@@ -227,8 +298,8 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
                 else
                     undoService.setActive(false);
             }
-        } else if (PrefConstants.UNDO_REDO_TIPS_FADE_DELAY.equals(event
-                .getProperty())) {
+        } else if (PrefConstants.UNDO_REDO_TIPS_FADE_DELAY
+                .equals(event.getProperty())) {
             if (undoService != null) {
                 Object value = event.getNewValue();
                 if (value instanceof String) {
@@ -260,8 +331,8 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         Properties properties = viewer.getProperties();
         properties.set(IMindMapViewer.VIEWER_CENTERED, Boolean.TRUE);
         properties.set(IMindMapViewer.VIEWER_CORNERED, Boolean.TRUE);
-        properties.set(IMindMapViewer.VIEWER_ACTIONS, new ActionRegistry(
-                getActionRegistry()));
+        properties.set(IMindMapViewer.VIEWER_ACTIONS,
+                new ActionRegistry(getActionRegistry()));
         properties.set(IMindMapViewer.VIEWER_MARGIN,
                 Integer.valueOf(MindMapUI.SHEET_MARGIN));
 
@@ -332,8 +403,8 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         IDrillDownTraceService traceService = new DrillDownTraceService(viewer);
         viewer.installService(IDrillDownTraceService.class, traceService);
         traceService.setActive(true);
-        IAction action = getActionRegistry().getAction(
-                MindMapActionFactory.DRILL_UP.getId());
+        IAction action = getActionRegistry()
+                .getAction(MindMapActionFactory.DRILL_UP.getId());
         if (action instanceof DrillUpAction) {
             ((DrillUpAction) action).setTraceService(traceService);
         }
@@ -563,12 +634,12 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         DrillUpAction drillUpAction = new DrillUpAction(this);
         actionRegistry.addAction(drillUpAction);
 
-        CreateBoundaryAction createBoundaryAction = new CreateBoundaryAction(
-                this);
-        actionRegistry.addAction(createBoundaryAction);
-
-        CreateSummaryAction createSummaryAction = new CreateSummaryAction(this);
-        actionRegistry.addAction(createSummaryAction);
+//        CreateBoundaryAction createBoundaryAction = new CreateBoundaryAction(
+//                this);
+//        actionRegistry.addAction(createBoundaryAction);
+//
+//        CreateSummaryAction createSummaryAction = new CreateSummaryAction(this);
+//        actionRegistry.addAction(createSummaryAction);
 
 //        SortAsAlphaAction sortAsAlphaAction = new SortAsAlphaAction(this);
 //        actionRegistry.addAction(sortAsAlphaAction);
@@ -596,10 +667,9 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         actionRegistry.addAction(editNotesAction);
         addSelectionAction(editNotesAction);
 
-        AddMarkerAction addMarkerAction = new AddMarkerAction(
-                ActionConstants.ADD_MARKER_ACTION_ID, this);
-        actionRegistry.addAction(addMarkerAction);
-        addSelectionAction(addMarkerAction);
+        EditCommentsAction editCommentsAction = new EditCommentsAction(this);
+        actionRegistry.addAction(editCommentsAction);
+        addSelectionAction(editCommentsAction);
 
         TraverseAction raverseAction = new TraverseAction(this);
         actionRegistry.addAction(raverseAction);
@@ -625,19 +695,20 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         actionRegistry.addAction(removeAllStylesAction);
         addSelectionAction(removeAllStylesAction);
 
-        actionRegistry.addAction(new RequestAction(MindMapActionFactory.MOVE_UP
-                .getId(), this, GEF.REQ_MOVE_UP));
-        actionRegistry
-                .addAction(new RequestAction(MindMapActionFactory.MOVE_DOWN
-                        .getId(), this, GEF.REQ_MOVE_DOWN));
-        actionRegistry
-                .addAction(new RequestAction(MindMapActionFactory.MOVE_LEFT
-                        .getId(), this, GEF.REQ_MOVE_LEFT));
         actionRegistry.addAction(new RequestAction(
-                MindMapActionFactory.MOVE_RIGHT.getId(), this,
-                GEF.REQ_MOVE_RIGHT));
-        actionRegistry.addAction(new RequestAction(MindMapActionFactory.GO_HOME
-                .getId(), this, MindMapUI.REQ_SELECT_CENTRAL));
+                MindMapActionFactory.MOVE_UP.getId(), this, GEF.REQ_MOVE_UP));
+        actionRegistry.addAction(
+                new RequestAction(MindMapActionFactory.MOVE_DOWN.getId(), this,
+                        GEF.REQ_MOVE_DOWN));
+        actionRegistry.addAction(
+                new RequestAction(MindMapActionFactory.MOVE_LEFT.getId(), this,
+                        GEF.REQ_MOVE_LEFT));
+        actionRegistry.addAction(
+                new RequestAction(MindMapActionFactory.MOVE_RIGHT.getId(), this,
+                        GEF.REQ_MOVE_RIGHT));
+        actionRegistry.addAction(
+                new RequestAction(MindMapActionFactory.GO_HOME.getId(), this,
+                        MindMapUI.REQ_SELECT_CENTRAL));
         actionRegistry.addAction(new InsertFloatingTopicAction(
                 MindMapActionFactory.INSERT_FLOATING_TOPIC.getId(), this));
         actionRegistry.addAction(new InsertFloatingTopicAction(
@@ -648,11 +719,6 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
                 this);
         actionRegistry.addAction(cancelHyperlinkAction);
         addSelectionAction(cancelHyperlinkAction);
-
-        SaveAttachmentAsAction saveAttachmentAsAction = new SaveAttachmentAsAction(
-                this);
-        actionRegistry.addAction(saveAttachmentAsAction);
-        addSelectionAction(saveAttachmentAsAction);
 
         NewSheetFromTemplateDialogAction newSheetFromTemplateAction = new NewSheetFromTemplateDialogAction(
                 this);
@@ -669,7 +735,7 @@ public class MindMapEditorPage extends GraphicalEditorPage implements
         addSortAction(ActionConstants.SORT_PRIORITY_ID, actionRegistry);
         addSortAction(ActionConstants.SORT_MODIFIED_ID, actionRegistry);
 
-        PrintMapAction printMapAction = new PrintMapAction(this);
+        PrintMapAction2 printMapAction = new PrintMapAction2(this);
         actionRegistry.addAction(printMapAction);
     }
 

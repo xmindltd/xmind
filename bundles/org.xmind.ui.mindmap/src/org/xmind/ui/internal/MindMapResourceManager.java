@@ -62,7 +62,7 @@ import org.xmind.ui.util.ResourceFinder;
 
 public class MindMapResourceManager implements IResourceManager {
 
-    private static final String DEFAULT_THEME_ID = "xminddefaultthemeid2014"; //$NON-NLS-1$
+    private static final String DEFAULT_THEME_ID = "xminddefaultthemeid"; //$NON-NLS-1$
 
     private static final String PATH_MARKERS = "markers/"; //$NON-NLS-1$
 
@@ -92,8 +92,8 @@ public class MindMapResourceManager implements IResourceManager {
 
     private static final String EXT_PROPERTIES = ".properties"; //$NON-NLS-1$
 
-    private static class SystemMarkerResourceProvider implements
-            IMarkerResourceProvider {
+    private static class SystemMarkerResourceProvider
+            implements IMarkerResourceProvider {
 
         public IMarkerResource getMarkerResource(IMarker marker) {
             return new SystemMarkerResource(marker);
@@ -160,7 +160,8 @@ public class MindMapResourceManager implements IResourceManager {
 
         @Override
         public InputStream getInputStream(IMarkerVariation variation) {
-            return getInputStreamForPath(variation.getVariedPath(getFullPath()));
+            return getInputStreamForPath(
+                    variation.getVariedPath(getFullPath()));
         }
 
         @Override
@@ -178,8 +179,8 @@ public class MindMapResourceManager implements IResourceManager {
         }
     }
 
-    private static class UserMarkerResourceProvider implements
-            IMarkerResourceProvider {
+    private static class UserMarkerResourceProvider
+            implements IMarkerResourceProvider {
 
         public IMarkerResource getMarkerResource(IMarker marker) {
             return new UserMarkerResource(marker);
@@ -240,8 +241,8 @@ public class MindMapResourceManager implements IResourceManager {
 
     }
 
-    protected static class RecentMarkerGroup extends MarkerGroup implements
-            ICoreEventSource {
+    protected static class RecentMarkerGroup extends MarkerGroup
+            implements ICoreEventSource {
 
         public static final RecentMarkerGroup instance = new RecentMarkerGroup();
 
@@ -371,16 +372,16 @@ public class MindMapResourceManager implements IResourceManager {
         URL url = find(PATH_MARKERS, MARKER_SHEET_XML);
         if (url != null) {
             try {
-                IMarkerSheet sheet = Core.getMarkerSheetBuilder().loadFromURL(
-                        url, new SystemMarkerResourceProvider());
+                IMarkerSheet sheet = Core.getMarkerSheetBuilder()
+                        .loadFromURL(url, new SystemMarkerResourceProvider());
                 loadPropertiesFor(sheet, PATH_MARKERS, MARKER_SHEET);
                 return sheet;
             } catch (Exception e) {
                 Logger.log(e, "Failed to load system marker from: " + url); //$NON-NLS-1$
             }
         }
-        return Core.getMarkerSheetBuilder().createMarkerSheet(
-                new SystemMarkerResourceProvider());
+        return Core.getMarkerSheetBuilder()
+                .createMarkerSheet(new SystemMarkerResourceProvider());
     }
 
     /*
@@ -398,8 +399,8 @@ public class MindMapResourceManager implements IResourceManager {
 
     public void saveUserMarkerSheet() {
         if (userMarkerSheet != null) {
-            String path = Core.getWorkspace().getAbsolutePath(
-                    PATH_USER_MARKERS + MARKER_SHEET_XML);
+            String path = Core.getWorkspace()
+                    .getAbsolutePath(PATH_USER_MARKERS + MARKER_SHEET_XML);
             File file = FileUtils.ensureFileParent(new File(path));
             FileOutputStream out = null;
             try {
@@ -423,8 +424,8 @@ public class MindMapResourceManager implements IResourceManager {
     }
 
     private IMarkerSheet createUserMarkerSheet() {
-        String path = Core.getWorkspace().getAbsolutePath(
-                PATH_USER_MARKERS + MARKER_SHEET_XML);
+        String path = Core.getWorkspace()
+                .getAbsolutePath(PATH_USER_MARKERS + MARKER_SHEET_XML);
         if (path != null) {
             File file = new File(path);
             if (file.exists()) {
@@ -436,8 +437,8 @@ public class MindMapResourceManager implements IResourceManager {
                 }
             }
         }
-        return Core.getMarkerSheetBuilder().createMarkerSheet(
-                new UserMarkerResourceProvider());
+        return Core.getMarkerSheetBuilder()
+                .createMarkerSheet(new UserMarkerResourceProvider());
     }
 
     public IMarkerGroup getRecentMarkerGroup() {
@@ -497,8 +498,8 @@ public class MindMapResourceManager implements IResourceManager {
 
     private IWorkbook createUserStylesContainer() {
         IWorkbook stylesContainer = null;
-        String path = Core.getWorkspace().getAbsolutePath(
-                USER_STYLES_TEMP_LOCATION);
+        String path = Core.getWorkspace()
+                .getAbsolutePath(USER_STYLES_TEMP_LOCATION);
         File file = new File(path);
         if (file.exists() && file.isDirectory()
                 && new File(file, ArchiveConstants.CONTENT_XML).exists()) {
@@ -540,13 +541,22 @@ public class MindMapResourceManager implements IResourceManager {
         if (defaultTheme == null) {
             defaultTheme = findDefaultTheme();
         }
-        return defaultTheme;
+        return checkDefaultTheme(defaultTheme);
+    }
+
+    private IStyle checkDefaultTheme(IStyle defaultTheme) {
+        String defaultId = defaultTheme.getId();
+        boolean exist = getSystemThemeSheet().findStyle(defaultId) != null
+                || getUserThemeSheet().findStyle(defaultId) != null
+                || getBlankTheme().getId().equals(defaultId);
+        return exist ? defaultTheme
+                : getSystemThemeSheet().findStyle(DEFAULT_THEME_ID);
+
     }
 
     private IStyle findDefaultTheme() {
         if (Platform.isRunning()) {
-            String defaultId = MindMapUIPlugin.getDefault()
-                    .getPreferenceStore()
+            String defaultId = MindMapUIPlugin.getDefault().getPreferenceStore()
                     .getString(PrefConstants.DEFUALT_THEME);
             if (defaultId != null && !"".equals(defaultId)) { //$NON-NLS-1$
                 IStyle theme = getSystemThemeSheet().findStyle(defaultId);
@@ -620,8 +630,8 @@ public class MindMapResourceManager implements IResourceManager {
 
     private IWorkbook createUserThemeContainer() {
         IWorkbook stylesContainer = null;
-        String path = Core.getWorkspace().getAbsolutePath(
-                USER_THEME_TEMP_LOCATION); //styles/userThemes
+        String path = Core.getWorkspace()
+                .getAbsolutePath(USER_THEME_TEMP_LOCATION); //styles/userThemes
         File file = new File(path);
         IWorkbookBuilder workbookBuilder = Core.getWorkbookBuilder();
         if (file.exists() && file.isDirectory()
@@ -675,8 +685,9 @@ public class MindMapResourceManager implements IResourceManager {
 
         Properties defaultProperties = new Properties();
         URL defaultPropertiesURL = FileLocator.find(
-                Platform.getBundle(MindMapUI.PLUGIN_ID), new Path(mainPath
-                        + propertiesFilePrefix + EXT_PROPERTIES), null);
+                Platform.getBundle(MindMapUI.PLUGIN_ID),
+                new Path(mainPath + propertiesFilePrefix + EXT_PROPERTIES),
+                null);
         if (defaultPropertiesURL != null) {
             try {
                 InputStream stream = defaultPropertiesURL.openStream();
@@ -692,7 +703,8 @@ public class MindMapResourceManager implements IResourceManager {
         }
 
         Properties properties = new Properties(defaultProperties);
-        URL propertiesURL = find(mainPath, propertiesFilePrefix, EXT_PROPERTIES);
+        URL propertiesURL = find(mainPath, propertiesFilePrefix,
+                EXT_PROPERTIES);
         if (propertiesURL != null) {
             try {
                 InputStream stream = propertiesURL.openStream();
@@ -704,8 +716,7 @@ public class MindMapResourceManager implements IResourceManager {
             } catch (IOException e) {
                 Logger.log(e,
                         "Failed to load locale-specific properties file from: " //$NON-NLS-1$
-                                + mainPath
-                                + propertiesFilePrefix
+                                + mainPath + propertiesFilePrefix
                                 + EXT_PROPERTIES);
             }
         }
@@ -751,8 +762,8 @@ public class MindMapResourceManager implements IResourceManager {
                 return markerSheet;
             String groupId = segments[1];
             boolean anyGroup = GROUP_ANY.equals(groupId);
-            IMarkerGroup markerGroup = anyGroup ? null : markerSheet
-                    .findMarkerGroup(groupId);
+            IMarkerGroup markerGroup = anyGroup ? null
+                    : markerSheet.findMarkerGroup(groupId);
             if (segments.length == 2)
                 return markerGroup;
             String markerId = segments[2];

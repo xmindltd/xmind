@@ -30,6 +30,7 @@ public class ShadowBorder extends AbstractBorder {
     private int borderWidth;
     private Color shadowColor = ColorConstants.black;
     private Color borderColor = ColorConstants.black;
+    private int borderAlpha = 0x20;
     private int shadowAlpha = 0x80;
     private boolean hideShadow = false;
 
@@ -53,7 +54,8 @@ public class ShadowBorder extends AbstractBorder {
      * @param horizontalDepth
      * @param verticalDepth
      */
-    public ShadowBorder(int borderWidth, int horizontalDepth, int verticalDepth) {
+    public ShadowBorder(int borderWidth, int horizontalDepth,
+            int verticalDepth) {
         this.borderWidth = borderWidth;
         this.hDepth = horizontalDepth;
         this.vDepth = verticalDepth;
@@ -148,6 +150,10 @@ public class ShadowBorder extends AbstractBorder {
         return shadowAlpha;
     }
 
+    public int getBorderAlpha() {
+        return borderAlpha;
+    }
+
     /**
      * @param borderColor
      *            the borderColor to set
@@ -162,6 +168,10 @@ public class ShadowBorder extends AbstractBorder {
      */
     public void setShadowAlpha(int shadowAlpha) {
         this.shadowAlpha = shadowAlpha;
+    }
+
+    public void setBorderAlpha(int borderAlpha) {
+        this.borderAlpha = borderAlpha;
     }
 
     public void reverseShadow() {
@@ -189,7 +199,7 @@ public class ShadowBorder extends AbstractBorder {
      * @see org.eclipse.draw2d.Border#getInsets(org.eclipse.draw2d.IFigure)
      */
     public Insets getInsets(IFigure figure) {
-        Insets ins = new Insets(getBorderWidth());
+        Insets ins = new Insets();
         int hd = getHorizontalShadowDepth();
         if (hd > 0) {
             ins.right += hd;
@@ -219,39 +229,36 @@ public class ShadowBorder extends AbstractBorder {
         int hd = getHorizontalShadowDepth();
         int vd = getVerticalShadowDepth();
         int bw = getBorderWidth();
-        int height = c.height + bw * 2;
-        int width = c.width + bw * 2;
+        int height = c.height;
+        int width = c.width;
         if (isShadowVisible() && (hd != 0 || vd != 0)) {
-            Rectangle r1 = new Rectangle(left - bw + hd, 0, width
-                    - Math.abs(hd), Math.min(height, Math.abs(vd)));
-            Rectangle r2 = new Rectangle(0, top - bw + vd, Math.min(width,
-                    Math.abs(hd)), height);
+            Rectangle r1 = new Rectangle(left + hd, 0, width - Math.abs(hd),
+                    Math.min(height, Math.abs(vd)));
+            Rectangle r2 = new Rectangle(0, top + vd,
+                    Math.min(width, Math.abs(hd)), height);
             if (hd < 0)
                 r1.x -= hd;
-            r1.y = vd > 0 ? bottom + bw : top - bw + vd;
-            r2.x = hd > 0 ? right + bw : left - bw + hd;
+            r1.y = vd > 0 ? bottom : top + vd;
+            r2.x = hd > 0 ? right : left + hd;
             if (figure.isEnabled())
-                graphics.setBackgroundColor(shadowColor);
+                graphics.setBackgroundColor(getShadowColor());
             else
                 graphics.setBackgroundColor(ColorConstants.buttonLightest);
-            graphics.setAlpha(shadowAlpha);
+            graphics.setAlpha(getShadowAlpha());
             if (!r1.isEmpty())
                 graphics.fillRectangle(r1);
             graphics.fillRectangle(r2);
         }
-        if (bw != 0) {
-            int x = left + bw / 2 - bw;
-            int y = top + bw / 2 - bw;
-            int w = width - Math.max(1, bw);
-            int h = height - Math.max(1, bw);
+        if (bw > 0) {
             if (figure.isEnabled())
-                graphics.setForegroundColor(borderColor);
+                graphics.setForegroundColor(getBorderColor());
             else
                 graphics.setForegroundColor(ColorConstants.buttonDarker);
-            graphics.setAlpha(0xFF);
+            graphics.setAlpha(getBorderAlpha());
             graphics.setLineStyle(SWT.LINE_SOLID);
-            graphics.setLineWidth(borderWidth);
-            graphics.drawRectangle(x, y, w, h);
+            graphics.setLineWidth(bw);
+            graphics.drawRectangle(left + bw / 2, top + bw / 2, width - bw,
+                    height - bw);
         }
     }
 

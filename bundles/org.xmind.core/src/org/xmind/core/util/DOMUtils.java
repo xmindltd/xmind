@@ -116,8 +116,8 @@ public class DOMUtils {
 
     }
 
-    public static class AdaptableIterator<T extends IAdaptable> implements
-            Iterator<T> {
+    public static class AdaptableIterator<T extends IAdaptable>
+            implements Iterator<T> {
 
         private Node node;
 
@@ -134,8 +134,8 @@ public class DOMUtils {
             this.tagName = tagName;
             this.provider = provider;
             this.reversed = reversed;
-            this.node = reversed ? parent.getLastChild() : parent
-                    .getFirstChild();
+            this.node = reversed ? parent.getLastChild()
+                    : parent.getFirstChild();
             this.next = findNext();
         }
 
@@ -148,8 +148,8 @@ public class DOMUtils {
                 } else {
                     obj = null;
                 }
-                node = reversed ? node.getPreviousSibling() : node
-                        .getNextSibling();
+                node = reversed ? node.getPreviousSibling()
+                        : node.getNextSibling();
                 if (obj != null)
                     return (T) obj;
             }
@@ -194,7 +194,8 @@ public class DOMUtils {
         public void warning(SAXParseException exception) throws SAXException {
         }
 
-        public void fatalError(SAXParseException exception) throws SAXException {
+        public void fatalError(SAXParseException exception)
+                throws SAXException {
         }
 
         public void error(SAXParseException exception) throws SAXException {
@@ -227,7 +228,8 @@ public class DOMUtils {
         factory.setXIncludeAware(false);
         factory.setExpandEntityReferences(false);
         factory.setFeature(
-                "http://xml.org/sax/features/external-parameter-entities", false); //$NON-NLS-1$
+                "http://xml.org/sax/features/external-parameter-entities", //$NON-NLS-1$
+                false);
         factory.setFeature(
                 "http://xml.org/sax/features/external-general-entities", false); //$NON-NLS-1$
         factory.setNamespaceAware(true);
@@ -354,8 +356,8 @@ public class DOMUtils {
      * @return
      */
     public static Element createElement(Node parent, String tag) {
-        Document doc = parent.getNodeType() == Node.DOCUMENT_NODE ? (Document) parent
-                : parent.getOwnerDocument();
+        Document doc = parent.getNodeType() == Node.DOCUMENT_NODE
+                ? (Document) parent : parent.getOwnerDocument();
         Element e = doc.createElement(tag);
         parent.appendChild(e);
         return e;
@@ -459,7 +461,8 @@ public class DOMUtils {
         return childElementIterByTag(parent, tagName).hasNext();
     }
 
-    public static int getElementIndex(Node parent, String tagName, Element child) {
+    public static int getElementIndex(Node parent, String tagName,
+            Element child) {
         Iterator<Element> it = childElementIterByTag(parent, tagName);
         for (int i = 0; it.hasNext(); i++) {
             if (it.next() == child)
@@ -501,8 +504,8 @@ public class DOMUtils {
      * @return
      */
     public static Element[] getChildElementsByTag(Node parent, String tag) {
-        List<Element> list = new ArrayList<Element>(parent.getChildNodes()
-                .getLength());
+        List<Element> list = new ArrayList<Element>(
+                parent.getChildNodes().getLength());
         Iterator<Element> it = childElementIterByTag(parent, tag);
         while (it.hasNext()) {
             list.add(it.next());
@@ -511,8 +514,8 @@ public class DOMUtils {
     }
 
     public static Element[] getChildElements(Node parent) {
-        List<Element> list = new ArrayList<Element>(parent.getChildNodes()
-                .getLength());
+        List<Element> list = new ArrayList<Element>(
+                parent.getChildNodes().getLength());
         Iterator<Element> it = childElementIter(parent);
         while (it.hasNext()) {
             list.add(it.next());
@@ -553,6 +556,41 @@ public class DOMUtils {
         return unmodifiableSet(list);
     }
 
+    public static <T extends IAdaptable> Iterator<T> getChildIterator(
+            Element element, String childTag,
+            final INodeAdaptableProvider finder, final Class<T> childClass) {
+        final Iterator<Element> it = childElementIterByTag(element, childTag);
+        return new Iterator<T>() {
+
+            T next = findNext();
+
+            private T findNext() {
+                while (it.hasNext()) {
+                    Element e = it.next();
+                    IAdaptable a = finder.getAdaptable(e);
+                    if (a != null && childClass.isInstance(a)) {
+                        return childClass.cast(a);
+                    }
+                }
+                return null;
+            }
+
+            public boolean hasNext() {
+                return next != null;
+            }
+
+            public T next() {
+                T n = next;
+                next = findNext();
+                return n;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
     public static <T> Iterator<T> emptyIter() {
         return new Iterator<T>() {
 
@@ -573,8 +611,8 @@ public class DOMUtils {
     @SuppressWarnings("unchecked")
     public static <T extends IAdaptable> List<T> getChildren(Element element,
             String childTag, INodeAdaptableProvider finder) {
-        ArrayList<T> list = new ArrayList<T>(element.getChildNodes()
-                .getLength());
+        ArrayList<T> list = new ArrayList<T>(
+                element.getChildNodes().getLength());
         Iterator<Element> it = childElementIterByTag(element, childTag);
         while (it.hasNext()) {
             Element child = it.next();
@@ -659,7 +697,8 @@ public class DOMUtils {
                 createText(parent, tag, text);
         } else {
             setText(titleElement, text);
-            if (!titleElement.hasChildNodes() && !titleElement.hasAttributes()) {
+            if (!titleElement.hasChildNodes()
+                    && !titleElement.hasAttributes()) {
                 parent.removeChild(titleElement);
             }
         }

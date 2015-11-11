@@ -16,19 +16,19 @@ package net.xmind.signin.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.xmind.signin.IAccountInfo;
-import net.xmind.signin.IAuthenticationListener;
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.ISignInDialogExtension;
-import net.xmind.signin.IXMindNetCommand;
-import net.xmind.signin.IXMindNetCommandHandler;
-import net.xmind.signin.XMindNet;
-
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.widgets.Display;
+import org.xmind.core.net.IDataStore;
+
+import net.xmind.signin.IAccountInfo;
+import net.xmind.signin.IAuthenticationListener;
+import net.xmind.signin.ISignInDialogExtension;
+import net.xmind.signin.IXMindNetCommand;
+import net.xmind.signin.IXMindNetCommandHandler;
+import net.xmind.signin.XMindNet;
 
 public class XMindNetAuthenticator implements IXMindNetCommandHandler {
 
@@ -43,7 +43,8 @@ public class XMindNetAuthenticator implements IXMindNetCommandHandler {
         XMindNet.addXMindNetCommandHandler("200", this); //$NON-NLS-1$
     }
 
-    public IAccountInfo signIn(String message, ISignInDialogExtension extension) {
+    public IAccountInfo signIn(String message,
+            ISignInDialogExtension extension) {
         signIn(null, true, message, extension);
         return XMindNet.getAccountInfo();
     }
@@ -108,8 +109,8 @@ public class XMindNetAuthenticator implements IXMindNetCommandHandler {
                 && authToken != null && !"".equals(authToken)) { //$NON-NLS-1$
             long expireDate = System.currentTimeMillis() + TOKEN_LIFE_TIME;
             notifyCallbacks(new AccountInfo(user, authToken, expireDate));
-            InternalXMindNet.getInstance().getAccount()
-                    .signedIn(user, authToken, expireDate, true);
+            InternalXMindNet.getInstance().getAccount().signedIn(user,
+                    authToken, expireDate, true);
 //                    data.getBoolean(SignInJob.REMEMBER));
         } else {
             notifyCallbacks(null);

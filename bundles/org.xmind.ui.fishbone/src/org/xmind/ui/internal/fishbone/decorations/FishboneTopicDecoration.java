@@ -22,12 +22,12 @@ import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.IRotatableReferencedFigure;
 import org.xmind.gef.draw2d.geometry.PrecisionLine;
+import org.xmind.gef.draw2d.geometry.PrecisionLine.LineType;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.geometry.PrecisionPointList;
 import org.xmind.gef.draw2d.geometry.PrecisionPolygon;
 import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.geometry.PrecisionRotator;
-import org.xmind.gef.draw2d.geometry.PrecisionLine.LineType;
 import org.xmind.gef.draw2d.graphics.GradientPattern;
 import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.ui.decorations.AbstractTopicDecoration;
@@ -73,9 +73,12 @@ public class FishboneTopicDecoration extends AbstractTopicDecoration {
         return polygon;
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
         double cx = box.x + box.width * 0.5d;
         double cy = box.y + box.height * 0.5d;
+        if (points == null)
+            points = calcPoints(figure);
         PrecisionPoint p = points.getPoint(0);
         shape.moveTo((float) (cx + p.x), (float) (cy + p.y));
         for (int i = 1; i < 4; i++) {
@@ -128,29 +131,29 @@ public class FishboneTopicDecoration extends AbstractTopicDecoration {
     }
 
     protected PrecisionPoint getEast(IFigure figure, double expansion) {
-        PrecisionPoint center = new PrecisionPoint(figure.getBounds()
-                .getCenter());
+        PrecisionPoint center = new PrecisionPoint(
+                figure.getBounds().getCenter());
         return center.translate(points.getPoint(2));
     }
 
     protected PrecisionPoint getWest(IFigure figure, double expansion) {
-        PrecisionPoint center = new PrecisionPoint(figure.getBounds()
-                .getCenter());
+        PrecisionPoint center = new PrecisionPoint(
+                figure.getBounds().getCenter());
         return center.translate(points.getPoint(3));
     }
 
     protected PrecisionPoint getNorth(IFigure figure, double expansion) {
-        PrecisionPoint center = new PrecisionPoint(figure.getBounds()
-                .getCenter());
-        return center.translate(points.getPoint(0)
-                .getCenter(points.getPoint(1)));
+        PrecisionPoint center = new PrecisionPoint(
+                figure.getBounds().getCenter());
+        return center
+                .translate(points.getPoint(0).getCenter(points.getPoint(1)));
     }
 
     protected PrecisionPoint getSouth(IFigure figure, double expansion) {
-        PrecisionPoint center = new PrecisionPoint(figure.getBounds()
-                .getCenter());
-        return center.translate(points.getPoint(3)
-                .getCenter(points.getPoint(2)));
+        PrecisionPoint center = new PrecisionPoint(
+                figure.getBounds().getCenter());
+        return center
+                .translate(points.getPoint(3).getCenter(points.getPoint(2)));
     }
 
     public PrecisionPoint getAnchorLocation(IFigure figure, double refX,

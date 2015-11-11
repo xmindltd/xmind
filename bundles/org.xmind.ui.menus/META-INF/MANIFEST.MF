@@ -1,10 +1,18 @@
 Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Menus
-Bundle-SymbolicName: org.xmind.ui.menus;singleton:=true
-Bundle-Version: 3.5.3.qualifier
-Bundle-Activator: org.xmind.ui.menus.MenusPlugins
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.workbench,
+ org.xmind.core;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.ui;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.ui.spelling;bundle-version="[3.6.0,3.7.0)"
 Bundle-ActivationPolicy: lazy
+Bundle-Version: 3.6.0.qualifier
+Bundle-Name: %Bundle-Name
+Bundle-Activator: org.xmind.ui.menus.MenusPlugin
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.xmind.ui.menus;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: %Bundle-Vendor
+

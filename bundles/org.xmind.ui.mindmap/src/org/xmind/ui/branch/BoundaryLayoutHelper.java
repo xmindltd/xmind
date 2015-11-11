@@ -24,8 +24,10 @@ import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
 import org.xmind.gef.draw2d.ReferencedLayoutData;
 import org.xmind.gef.draw2d.geometry.Geometry;
+import org.xmind.ui.internal.figures.BoundaryFigure;
 import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
 
@@ -57,10 +59,25 @@ public class BoundaryLayoutHelper {
 
         private boolean overall;
 
-        public BoundaryData(IBoundaryPart boundary, int direction) {
+        public BoundaryData(IBoundaryPart boundary, int direction,
+                Rectangle prefBoundaryBounds) {
             this.boundary = boundary;
             this.boundaryFigure = boundary.getFigure();
             this.prefInsets = boundaryFigure.getInsets();
+
+            if (prefBoundaryBounds != null
+                    && ((BoundaryFigure) boundary.getFigure()).isTitleVisible()
+                    && boundary.getTitle() != null
+                    && boundary.getTitle().getFigure() != null) {
+                Dimension s = boundary.getTitle().getFigure().getPreferredSize(
+                        prefBoundaryBounds.width, SWT.DEFAULT);
+                this.prefInsets = new Insets(this.prefInsets);
+                this.prefInsets.top = Math.max(s.height, this.prefInsets.top);
+
+                this.prefInsets.left += 5;
+            }
+//            System.out.println("PrefInsets: " + this.prefInsets);
+
 //            if (boundaryFigure instanceof ITitledFigure) {
 //                ITextFigure title = ((ITitledFigure) boundaryFigure).getTitle();
 //                if (boundary.getBoundary().hasTitle()) {
@@ -180,7 +197,8 @@ public class BoundaryLayoutHelper {
 
         private Insets insets = null;
 
-        public SubBranchData(IBranchPart subBranch, BoundaryData[] allBoundaries) {
+        public SubBranchData(IBranchPart subBranch,
+                BoundaryData[] allBoundaries) {
             this.subBranch = subBranch;
             for (BoundaryData b : allBoundaries) {
                 if (b.contains(subBranch)) {
@@ -236,22 +254,36 @@ public class BoundaryLayoutHelper {
 
     private BoundaryData overallBoundary = null;
 
-    public BoundaryLayoutHelper(IBranchPart branch,
-            IBranchStructureExtension algorithm) {
+    public BoundaryLayoutHelper() {
+    }
+
+    public void reset(IBranchPart branch, IBranchStructureExtension algorithm,
+            Map<IFigure, Rectangle> prefBounds) {
+        boundaries.clear();
+        subBranches.clear();
+
         for (IBoundaryPart boundary : branch.getBoundaries()) {
-            BoundaryData boundaryData = new BoundaryData(boundary, algorithm
-                    .getRangeGrowthDirection(branch, boundary));
+            BoundaryData boundaryData = new BoundaryData(boundary,
+                    algorithm.getRangeGrowthDirection(branch, boundary),
+                    prefBounds == null ? null
+                            : prefBounds.get(boundary.getFigure()));
             boundaries.put(boundary, boundaryData);
-            if (boundaryData.isOverall() && overallBoundary == null) {
-                overallBoundary = boundaryData;
+//            if (boundaryData.isOverall()
+//                    && (overallBoundary == null || MindMapUI.BRANCH_FLOATING
+//                            .equals(branch.getBranchType()))) {
+//                overallBoundary = boundaryData;
+//            }
+            if (boundaryData.isOverall() && getOverallBoundary() == null) {
+                setOverallBoundary(boundaryData);
             }
         }
         if (!isEmpty()) {
-            BoundaryData[] allBoundaries = boundaries.values().toArray(
-                    new BoundaryData[0]);
+            BoundaryData[] allBoundaries = boundaries.values()
+                    .toArray(new BoundaryData[0]);
             Arrays.sort(allBoundaries);
             for (IBranchPart subBranch : branch.getSubBranches()) {
-                SubBranchData data = new SubBranchData(subBranch, allBoundaries);
+                SubBranchData data = new SubBranchData(subBranch,
+                        allBoundaries);
                 if (!data.isEmpty()) {
                     subBranches.put(subBranch, data);
                 }
@@ -308,6 +340,7 @@ public class BoundaryLayoutHelper {
             }
             break;
         }
+
         return ins;
     }
 
@@ -345,15 +378,21 @@ public class BoundaryLayoutHelper {
         return getBorderedSize(subBranch, -1, -1);
     }
 
-    public Dimension getBorderedSize(IBranchPart subBranch, int wHint, int hHint) {
+    public Dimension getBorderedSize(IBranchPart subBranch, int wHint,
+            int hHint) {
         Dimension s = subBranch.getFigure().getPreferredSize(wHint, hHint);
         Insets ins = getInsets(subBranch);
         s = new Dimension(s.width + ins.getWidth(), s.height + ins.getHeight());
         return s;
     }
 
-    public Insets getInnerInsets(SubBranchData subBranch, BoundaryData boundary) {
+    public Insets getInnerInsets(SubBranchData subBranch,
+            BoundaryData boundary) {
         return subBranch.calcInnerInsets(boundary);
+    }
+
+    public void setOverallBoundary(BoundaryData overallBoundary) {
+        this.overallBoundary = overallBoundary;
     }
 
 }

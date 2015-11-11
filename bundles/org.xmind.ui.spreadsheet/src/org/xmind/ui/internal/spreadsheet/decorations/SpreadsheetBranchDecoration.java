@@ -52,8 +52,8 @@ import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.util.MindMapUtils;
 
-public class SpreadsheetBranchDecoration extends AbstractDecoration implements
-        IBranchDecoration {
+public class SpreadsheetBranchDecoration extends AbstractDecoration
+        implements IBranchDecoration {
 
     private static final Rectangle CLIP_RECT = new Rectangle();
 
@@ -92,8 +92,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
             IStyleSelector ss = StyleUtils.getStyleSelector(part);
             String decorationId = StyleUtils.getString(part, ss,
                     Styles.ShapeClass, null);
-            return StyleUtils.getColor(part, ss, Styles.FillColor,
-                    decorationId, null);
+            return StyleUtils.getColor(part, ss, Styles.FillColor, decorationId,
+                    null);
         }
     }
 
@@ -107,7 +107,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
 
         Point textLocation;
 
-        public Text(PrecisionRectangle bounds, String text, Point textLocation) {
+        public Text(PrecisionRectangle bounds, String text,
+                Point textLocation) {
             this.bounds = bounds;
             this.text = text;
             this.textLocation = textLocation;
@@ -154,8 +155,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
 
         double halfLineWidth1 = lineWidth / 2.0;
         double halfLineWidth2 = lineWidth - halfLineWidth1;
-        bounds = new PrecisionRectangle(branch.getFigure().getBounds()).shrink(
-                lineWidth, lineWidth);
+        bounds = new PrecisionRectangle(branch.getFigure().getBounds())
+                .shrink(lineWidth, lineWidth);
 
         double left = bounds.x;
         double right = bounds.right();
@@ -178,8 +179,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
             }
             IInsertion ins = ((IInsertion) MindMapUtils.getCache(branch,
                     IInsertion.CACHE_INSERTION));
-            int insHeight = ins == null ? 0 : ins.getSize().height
-                    + chart.getMajorSpacing();
+            int insHeight = ins == null ? 0
+                    : ins.getSize().height + chart.getMajorSpacing();
 
             int numRows = chart.getNumRows();
             int numCols = numRows > 0 ? chart.getNumColumns() : 0;
@@ -258,8 +259,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
 
                 if (ins != null && ins.getIndex() == numRows) {
                     addHorizontalLine(left, right, y + halfLineWidth1);
-                    Block block = addBlock(null, new PrecisionRectangle(left,
-                            y, right - left, (int) Math.ceil(bottom - y)));
+                    Block block = addBlock(null, new PrecisionRectangle(left, y,
+                            right - left, (int) Math.ceil(bottom - y)));
                     block.alpha = INSERTION_ALPHA;
                 }
 
@@ -272,9 +273,9 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
                     if (colIns != null && colIns.getIndex() == i) {
                         int colInsWidth = colIns.getSize().width
                                 + chart.getMinorSpacing() + lineWidth;
-                        Block block = addBlock(null, new PrecisionRectangle(x
-                                + halfLineWidth1, top, colInsWidth, bottom
-                                - top));
+                        Block block = addBlock(null,
+                                new PrecisionRectangle(x + halfLineWidth1, top,
+                                        colInsWidth, bottom - top));
                         block.alpha = INSERTION_ALPHA;
                         addVerticalLine(x + halfLineWidth1, top, bottom);
                         x += colInsWidth;
@@ -289,8 +290,9 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
                     }
                     addVerticalLine(x + halfLineWidth1, top, bottom);
                     double columnWidth = col.getWidth();//getPrefCellWidth() + minorSpacing;
-                    PrecisionRectangle colHeadBounds = new PrecisionRectangle(x
-                            + lineWidth, colHeadTop, columnWidth, colHeadHeight);
+                    PrecisionRectangle colHeadBounds = new PrecisionRectangle(
+                            x + lineWidth, colHeadTop, columnWidth,
+                            colHeadHeight);
                     String text = colHead.toString();
                     Dimension size = colHead.getPrefSize();
                     Text colHeadText = addColumnHeadText(colHeadBounds, text,
@@ -313,8 +315,9 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
                     addVerticalLine(x + halfLineWidth1, top, bottom);
                     int colInsWidth = colIns.getSize().width
                             + chart.getMinorSpacing() + lineWidth;
-                    Block block = addBlock(null, new PrecisionRectangle(x
-                            + halfLineWidth1, top, colInsWidth, bottom - top));
+                    Block block = addBlock(null,
+                            new PrecisionRectangle(x + halfLineWidth1, top,
+                                    colInsWidth, bottom - top));
                     block.alpha = INSERTION_ALPHA;
                 }
             }
@@ -357,8 +360,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
     }
 
     protected int getMinorSpacing() {
-        return StyleUtils.getInteger(branch, StyleUtils
-                .getStyleSelector(branch), Styles.MinorSpacing, 5);
+        return StyleUtils.getInteger(branch,
+                StyleUtils.getStyleSelector(branch), Styles.MinorSpacing, 5);
     }
 
     protected int getMajorSpacing() {
@@ -439,8 +442,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
                 }
                 if (blocks != null && !blocks.isEmpty()) {
                     for (Block block : blocks) {
-                        block.paint(graphics, path, alpha, graphics
-                                .getClip(CLIP_RECT));
+                        block.paint(graphics, path, alpha,
+                                graphics.getClip(CLIP_RECT));
                     }
                 }
                 if (columnHeads != null && !columnHeads.isEmpty()) {
@@ -493,7 +496,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
         int lineAlpha = topicDecoration.getLineAlpha();
         int lineWidth = topicDecoration.getLineWidth();
         int lineStyle = topicDecoration.getLineStyle();
-        int corner = getCornerSize(topicDecoration);
+//        int corner = getCornerSize(topicDecoration);
+        int corner = 2;
 
         graphics.setAntialias(SWT.ON);
 
@@ -520,8 +524,8 @@ public class SpreadsheetBranchDecoration extends AbstractDecoration implements
             if (insertedCellBounds != null) {
                 graphics.setAlpha(0x80);
                 graphics.setLineWidth(lineWidth + 2);
-                graphics.setForegroundColor(ColorUtils
-                        .getColor(MindMapUI.COLOR_WARNING));
+                graphics.setForegroundColor(
+                        ColorUtils.getColor(MindMapUI.COLOR_WARNING));
                 path = new Path(Display.getCurrent());
                 path.addRectangle(insertedCellBounds);
                 graphics.drawPath(path);

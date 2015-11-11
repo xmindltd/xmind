@@ -29,9 +29,11 @@ import org.xmind.core.IEncryptionData;
 import org.xmind.core.IEncryptionHandler;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IManifest;
+import org.xmind.core.IMeta;
 import org.xmind.core.IRevision;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.comment.ICommentManager;
 import org.xmind.core.internal.compatibility.Compatibility;
 import org.xmind.core.internal.security.Crypto;
 import org.xmind.core.internal.zip.ArchiveConstants;
@@ -106,7 +108,7 @@ public class WorkbookLoader extends XMLLoader {
      */
     public WorkbookLoader(WorkbookBuilderImpl builder, IInputSource source,
             IStorage storage, IEncryptionHandler encryptionHandler)
-            throws CoreException {
+                    throws CoreException {
         super();
         this.builder = builder;
         if (source == null && storage != null) {
@@ -149,6 +151,7 @@ public class WorkbookLoader extends XMLLoader {
         loadMeta();
         loadStyleSheet();
         loadMarkerSheet();
+        loadComments();
 
         copyOtherStaff();
 
@@ -179,7 +182,12 @@ public class WorkbookLoader extends XMLLoader {
 
     private void loadMeta() throws IOException, CoreException {
         Document doc = forceLoadXML(ArchiveConstants.META_XML);
-        workbook.setMeta(new MetaImpl(doc));
+        MetaImpl meta = new MetaImpl(doc);
+        workbook.setMeta(meta);
+        if (meta.getValue(IMeta.CREATED_TIME) == null)
+            meta.setValue(IMeta.CREATED_TIME,
+                    NumberUtils.formatDate(System.currentTimeMillis()));
+
         workbook.setCreator(builder.creatorName, builder.creatorversion);
     }
 
@@ -201,8 +209,22 @@ public class WorkbookLoader extends XMLLoader {
         try {
             IMarkerSheet markerSheet = ((MarkerSheetBuilderImpl) Core
                     .getMarkerSheetBuilder()).loadFromInputSource(source, this,
-                    new WorkbookMarkerResourceProvider(workbook));
+                            new WorkbookMarkerResourceProvider(workbook));
             workbook.setMarkerSheet((MarkerSheetImpl) markerSheet);
+        } catch (IOException e) {
+            throw e;
+        } catch (CoreException e) {
+            if (e.getType() != Core.ERROR_NO_SUCH_ENTRY)
+                throw e;
+        }
+    }
+
+    private void loadComments() throws IOException, CoreException {
+        try {
+            ICommentManager commentManager = ((CommentManagerBuilderImpl) Core
+                    .getCommentManagerBuilder()).loadFromInputSource(source,
+                            this);
+            workbook.setCommentManager((CommentManagerImpl) commentManager);
         } catch (IOException e) {
             throw e;
         } catch (CoreException e) {
@@ -309,8 +331,8 @@ public class WorkbookLoader extends XMLLoader {
         }
     }
 
-    private Document forceLoadXML(String entryPath) throws IOException,
-            CoreException {
+    private Document forceLoadXML(String entryPath)
+            throws IOException, CoreException {
         try {
             return loadXMLFile(source, entryPath);
         } catch (Throwable e) {

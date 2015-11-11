@@ -106,7 +106,7 @@ public class MetaImpl extends Meta implements ICoreEventSource {
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
-        return ownedWorkbook != null;
+        return ownedWorkbook == null;
     }
 
     private String[] getKeys(String keyPath) {

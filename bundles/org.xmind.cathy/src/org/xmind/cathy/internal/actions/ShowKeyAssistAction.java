@@ -17,6 +17,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.internal.handlers.ShowKeyAssistHandler;
 import org.xmind.cathy.internal.WorkbenchMessages;
 
+@Deprecated
 public class ShowKeyAssistAction extends Action {
 
     private ShowKeyAssistHandler handler;

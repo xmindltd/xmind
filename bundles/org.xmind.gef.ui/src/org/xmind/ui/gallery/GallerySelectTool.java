@@ -13,8 +13,10 @@
  *******************************************************************************/
 package org.xmind.ui.gallery;
 
+import org.eclipse.swt.SWT;
 import org.xmind.gef.GEF;
 import org.xmind.gef.Request;
+import org.xmind.gef.event.KeyEvent;
 import org.xmind.gef.event.MouseEvent;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.tool.ITool;
@@ -24,39 +26,43 @@ public class GallerySelectTool extends SelectTool {
 
     private FramePart sourceFrame = null;
 
+    private FramePart trackedFrame = null;
+
     protected boolean isFrameAsButton() {
-        return !getTargetViewer().getProperties().getBoolean(
-                GalleryViewer.SolidFrames, false);
+        return !getTargetViewer().getProperties()
+                .getBoolean(GalleryViewer.SolidFrames, false);
     }
 
     protected boolean isSingleClickToOpen() {
-        return getTargetViewer().getProperties().getBoolean(
-                GalleryViewer.SingleClickToOpen, false);
+        return getTargetViewer().getProperties()
+                .getBoolean(GalleryViewer.SingleClickToOpen, false);
     }
 
     protected boolean isCursorInTitle(IPart p) {
-        return p instanceof FramePart
-                && ((FramePart) p).getFigure().getTitle()
-                        .containsPoint(getCursorPosition());
+        return p instanceof FramePart && ((FramePart) p).getFigure().getTitle()
+                .containsPoint(getCursorPosition());
     }
 
     protected boolean isTitleEditable(IPart p) {
+        if (getTargetViewer() instanceof GalleryViewer) {
+            return ((GalleryViewer) getTargetViewer()).isTitleEditable(p);
+        }
         return false;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.xmind.gef.tool.SelectTool#handleMouseDown(org.xmind.gef.event.MouseEvent
-     * )
+     * @see org.xmind.gef.tool.SelectTool#handleMouseDown(org.xmind.gef.event.
+     * MouseEvent )
      */
     protected boolean handleMouseDown(MouseEvent me) {
+        FramePart targetFrame = findFrame(me.target);
         if (isFrameAsButton()) {
-            if (me.target instanceof FramePart) {
-                FramePart frame = (FramePart) me.target;
-                if (frame.getContentPane().containsPoint(me.cursorLocation)) {
-                    sourceFrame = frame;
+            if (targetFrame != null) {
+                if (targetFrame.getContentPane()
+                        .containsPoint(me.cursorLocation)) {
+                    sourceFrame = targetFrame;
                     sourceFrame.getFigure().press();
                 }
             }
@@ -72,11 +78,21 @@ public class GallerySelectTool extends SelectTool {
             if (et != null && et == getDomain().getActiveTool()) {
                 me.consume();
             }
-        } else if (isSingleClickToOpen()) {
-            performOpen();
-            me.consume();
+        } else if (isSingleClickToOpen() && me.leftOrRight) {
+            if (targetFrame != null) {
+                trackedFrame = targetFrame;
+            }
         }
         return ret;
+    }
+
+    private FramePart findFrame(IPart part) {
+        while (part != null) {
+            if (part instanceof FramePart)
+                return (FramePart) part;
+            part = part.getParent();
+        }
+        return null;
     }
 
     protected boolean handleSelectionOnMouseDown(MouseEvent me) {
@@ -86,16 +102,27 @@ public class GallerySelectTool extends SelectTool {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.xmind.gef.tool.SelectTool#handleMouseUp(org.xmind.gef.event.MouseEvent
-     * )
+     * @see org.xmind.gef.tool.SelectTool#handleMouseUp(org.xmind.gef.event.
+     * MouseEvent )
      */
     public boolean handleMouseUp(MouseEvent me) {
+        FramePart targetFrame = findFrame(me.target);
+
         if (sourceFrame != null) {
             sourceFrame.getFigure().unpress();
             sourceFrame = null;
         }
-        return super.handleMouseUp(me);
+        boolean handled = super.handleMouseUp(me);
+
+        if (trackedFrame != null && isSingleClickToOpen() && me.leftOrRight) {
+            if (targetFrame == trackedFrame) {
+                performOpen();
+            }
+            me.consume();
+        }
+        trackedFrame = null;
+
+        return handled;
     }
 
     /*
@@ -107,8 +134,8 @@ public class GallerySelectTool extends SelectTool {
      */
     protected boolean handleMouseDoubleClick(MouseEvent me) {
         if (me.target instanceof FramePart) {
-            if (!isSingleClickToOpen()
-                    && (!isCursorInTitle(me.target) || !isTitleEditable(me.target))) {
+            if (!isSingleClickToOpen() && (!isCursorInTitle(me.target)
+                    || !isTitleEditable(me.target))) {
                 performOpen();
                 me.consume();
                 return true;
@@ -118,8 +145,20 @@ public class GallerySelectTool extends SelectTool {
     }
 
     protected void performOpen() {
+        if (!(getTargetViewer() instanceof GalleryViewer))
+            return;
         GalleryViewer viewer = (GalleryViewer) getTargetViewer();
         viewer.fireOpen();
+    }
+
+    @Override
+    protected boolean handleKeyTraversed(KeyEvent ke) {
+        if (ke.traverse == SWT.TRAVERSE_RETURN) {
+            performOpen();
+            ke.consume();
+            return false;
+        }
+        return super.handleKeyTraversed(ke);
     }
 
 }

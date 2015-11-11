@@ -17,13 +17,6 @@
             properties="type"
             type="org.xmind.core.style.IStyleSheet">
       </propertyTester>
-      <propertyTester
-            class="org.xmind.ui.internal.PreferencePropertyTester"
-            id="org.xmind.ui.propertyTester.preference"
-            namespace="org.xmind.ui.preference"
-            properties="key"
-            type="java.lang.Object">
-      </propertyTester>
    </extension>
 
    <extension
@@ -48,5 +41,20 @@
                type="org.eclipse.ui.IActionFilter">
          </adapter>
       </factory>
+      <factory
+            adaptableType="org.xmind.core.ITopic"
+            class="org.xmind.ui.internal.TopicBranchAdapterFactory">
+         <adapter
+               type="org.xmind.ui.mindmap.IBranchPart">
+         </adapter>
+      </factory>
+   </extension>
+   <extension
+         point="org.xmind.ui.toolkit.contributedContentsViews">
+      <pageFactory
+            editorId="org.xmind.ui.MindMapEditor"
+            class="org.xmind.ui.internal.MindMapContributedContentPageFactory"
+            types="outline,properties,org.xmind.ui.views.overview,org.xmind.ui.views.revisions,org.xmind.ui.views.metadata">
+      </pageFactory>
    </extension>
 </plugin>

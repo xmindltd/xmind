@@ -22,6 +22,7 @@ public class PasteAction extends RequestAction implements ISelectionAction {
 
     public PasteAction(IGraphicalEditorPage page) {
         super(ActionFactory.PASTE.getId(), page, GEF.REQ_PASTE);
+        setActionDefinitionId(ActionFactory.PASTE.getCommandId());
     }
 
     public void setSelection(ISelection selection) {

@@ -19,6 +19,7 @@ import org.xmind.core.ITopic;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.ui.branch.IBranchPolicy;
 import org.xmind.ui.decorations.IBranchConnections;
+import org.xmind.ui.decorations.IBranchConnections2;
 
 /**
  * 
@@ -86,6 +87,8 @@ public interface IBranchPart extends IGraphicalPart {
 
     ILabelPart getLabel();
 
+    IInfoPart getInfoPart();
+
     String getBranchType();
 
     boolean isFolded();
@@ -111,5 +114,11 @@ public interface IBranchPart extends IGraphicalPart {
     boolean isPropertyModifiable(String propertyName, String secondaryKey);
 
     void treeUpdate(boolean updateParent);
+
+    void treeRefresh();
+
+    List<IBranchPart> getCalloutBranches();
+
+    IBranchConnections2 getCalloutConnections();
 
 }

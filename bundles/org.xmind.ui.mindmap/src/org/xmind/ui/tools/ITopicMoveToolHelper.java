@@ -19,6 +19,9 @@ public interface ITopicMoveToolHelper extends IToolHelper {
 
     void update(IBranchPart targetParent, ParentSearchKey key);
 
+    void update(IBranchPart targetParent, boolean moved, ParentSearchKey key,
+            int specialIndex);
+
 //    Request getAdaptedRequest(IBranchPart targetParent, ParentSearchKey key,
 //            Request sourceRequest);
 

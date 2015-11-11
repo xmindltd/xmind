@@ -36,4 +36,11 @@ public class NorthWestRotated extends AbstractSubFishboneDirection {
         NER.fillFishboneData(branch, data, h, r, spacing, subbranches);
     }
 
+    @Override
+    public void fillFishboneExtraData(IBranchPart branch, FishboneData data,
+            IPrecisionTransformer h, PrecisionRotator r, double spacing,
+            boolean extraBranch) {
+        NER.fillFishboneExtraData(branch, data, h, r, spacing, extraBranch);
+    }
+
 }

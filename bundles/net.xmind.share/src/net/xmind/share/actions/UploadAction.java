@@ -13,8 +13,6 @@
  *******************************************************************************/
 package net.xmind.share.actions;
 
-import net.xmind.share.Uploader;
-
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.util.SafeRunnable;
@@ -24,10 +22,13 @@ import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 import org.xmind.ui.mindmap.IMindMapViewer;
 
+import net.xmind.share.Uploader;
+
 /**
  * @author briansun
  *
  */
+@Deprecated
 public class UploadAction implements IEditorActionDelegate {
 
     private IEditorPart editor;

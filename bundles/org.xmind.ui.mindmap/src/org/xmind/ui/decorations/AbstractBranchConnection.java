@@ -17,10 +17,17 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
+import org.eclipse.draw2d.geometry.Insets;
+import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.IAnchor;
 import org.xmind.gef.draw2d.decoration.IShadowedDecoration;
 import org.xmind.gef.draw2d.decoration.PathConnectionDecoration;
+import org.xmind.gef.draw2d.geometry.PrecisionLine;
+import org.xmind.gef.draw2d.geometry.PrecisionLine.LineType;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
+import org.xmind.gef.draw2d.graphics.Path;
+import org.xmind.ui.internal.figures.TopicFigure;
 
 public abstract class AbstractBranchConnection extends PathConnectionDecoration
         implements IBranchConnectionDecoration, IShadowedDecoration {
@@ -75,20 +82,20 @@ public abstract class AbstractBranchConnection extends PathConnectionDecoration
         if (so == PositionConstants.NONE && to == PositionConstants.NONE) {
             if (sa != null) {
                 if (ta != null) {
-                    sourcePos.setLocation(sa.getLocation(
-                            ta.getReferencePoint(), getSourceExpansion()));
-                } else {
-                    sourcePos.setLocation(sa.getLocation(0, 0,
+                    sourcePos.setLocation(sa.getLocation(ta.getReferencePoint(),
                             getSourceExpansion()));
+                } else {
+                    sourcePos.setLocation(
+                            sa.getLocation(0, 0, getSourceExpansion()));
                 }
             }
             if (ta != null) {
                 if (sa != null) {
-                    targetPos.setLocation(ta.getLocation(
-                            sa.getReferencePoint(), getTargetExpansion()));
-                } else {
-                    targetPos.setLocation(ta.getLocation(0, 0,
+                    targetPos.setLocation(ta.getLocation(sa.getReferencePoint(),
                             getTargetExpansion()));
+                } else {
+                    targetPos.setLocation(
+                            ta.getLocation(0, 0, getTargetExpansion()));
                 }
             }
         } else if (so == PositionConstants.NONE) {
@@ -96,16 +103,17 @@ public abstract class AbstractBranchConnection extends PathConnectionDecoration
                 targetPos.setLocation(ta.getLocation(to, getTargetExpansion()));
             }
             if (sa != null) {
-                sourcePos.setLocation(sa.getLocation(targetPos,
-                        getSourceExpansion()));
+                sourcePos.setLocation(
+                        sa.getLocation(targetPos, getSourceExpansion()));
+//                sourcePos.setLocation(sa.getOwner().getBounds().getCenter());
             }
         } else if (to == PositionConstants.NONE) {
             if (sa != null) {
                 sourcePos.setLocation(sa.getLocation(so, getSourceExpansion()));
             }
             if (ta != null) {
-                targetPos.setLocation(ta.getLocation(sourcePos,
-                        getTargetExpansion()));
+                targetPos.setLocation(
+                        ta.getLocation(sourcePos, getTargetExpansion()));
             }
         } else {
             if (sa != null) {
@@ -115,6 +123,17 @@ public abstract class AbstractBranchConnection extends PathConnectionDecoration
                 targetPos.setLocation(ta.getLocation(to, getTargetExpansion()));
             }
         }
+    }
+
+    protected void calculateSourceControlPoints(PrecisionPoint c,
+            PrecisionPoint s1, PrecisionPoint s2, PrecisionPoint c2) {
+        PrecisionLine line = new PrecisionLine(c, s1, LineType.Ray);
+        double length = s1.getDistance(s2);
+        double angle = line.getAngle();
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
+        c2.setLocation(
+                s1.getTranslated(length * cos * 0.5f, length * sin * 0.5f));
     }
 
     public int getSourceOrientation() {
@@ -256,4 +275,44 @@ public abstract class AbstractBranchConnection extends PathConnectionDecoration
 //    public int getMinimumMajorSpacing(IFigure figure) {
 //        return 0;
 //    }
+
+    protected void paintPath(IFigure figure, Graphics graphics, Path path,
+            boolean fill) {
+        TopicFigure tf = getTopicFigure(figure);
+        if (tf != null && (tf.getDecoration().getLineWidth() > 0
+                || tf.getDecoration().getFillColor() != null)) {
+            Rectangle bounds = figure.getBounds();
+            Path shape = new Path(Display.getCurrent());
+            ITopicDecoration decoration = tf.getDecoration();
+
+            Rectangle rectangleClip = graphics.getClip(new Rectangle());
+            //When get clip from the graphics, there will be a conversion from float to int, with lossing of accuracy.
+            //So expand 1 pixel first.
+            rectangleClip.expand(new Insets(1));
+
+            shape.addRectangle(new Rectangle(bounds).intersect(rectangleClip));
+            shape.addPath(decoration.createClippingPath(tf));
+
+            graphics.pushState();
+            try {
+                graphics.setClip(shape);
+                super.paintPath(figure, graphics, path, fill);
+                graphics.restoreState();
+            } finally {
+                graphics.popState();
+                shape.close();
+            }
+            return;
+        }
+        super.paintPath(figure, graphics, path, fill);
+    };
+
+    private TopicFigure getTopicFigure(IFigure parent) {
+        for (Object obj : parent.getChildren()) {
+            if (obj instanceof TopicFigure)
+                return (TopicFigure) obj;
+        }
+        return null;
+    }
+
 }

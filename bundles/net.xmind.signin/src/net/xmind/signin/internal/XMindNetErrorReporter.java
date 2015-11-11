@@ -30,6 +30,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.swt.widgets.Display;
+import org.xmind.core.net.internal.IRequestStatusChangeListener;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.internal.statushandlers.IErrorReporter;
 import org.xmind.ui.internal.statushandlers.StatusDetails;
 
@@ -41,8 +43,8 @@ public class XMindNetErrorReporter implements IErrorReporter {
 
     private static final String PREF_REPORTER_EMAIL = "net.xmind.signin.errorReporter.reporterEmail"; //$NON-NLS-1$
 
-    private static class ReportErrorJob extends Job implements
-            IRequestStatusChangeListener {
+    private static class ReportErrorJob extends Job
+            implements IRequestStatusChangeListener {
 
         private final StatusDetails error;
 
@@ -86,7 +88,8 @@ public class XMindNetErrorReporter implements IErrorReporter {
                     return Status.CANCEL_STATUS;
 
                 monitor.worked(10);
-                monitor.subTask(Messages.ReportErrorJob_SendingErrorReport_taskTitle);
+                monitor.subTask(
+                        Messages.ReportErrorJob_SendingErrorReport_taskTitle);
 
                 req.post();
                 if (monitor.isCanceled())
@@ -117,8 +120,8 @@ public class XMindNetErrorReporter implements IErrorReporter {
             }
         }
 
-        public void requestStatusChanged(XMindNetRequest request,
-                int oldStatus, int newStatus) {
+        public void requestStatusChanged(XMindNetRequest request, int oldStatus,
+                int newStatus) {
             IProgressMonitor monitor = this.monitor;
             if (monitor == null || monitor.isCanceled())
                 return;
@@ -147,8 +150,7 @@ public class XMindNetErrorReporter implements IErrorReporter {
         String reporterEmail = Activator.getDefault().getPreferenceStore()
                 .getString(PREF_REPORTER_EMAIL);
         if (display != null) {
-            InputDialog inputDialog = new InputDialog(
-                    display.getActiveShell(),
+            InputDialog inputDialog = new InputDialog(display.getActiveShell(),
                     Messages.XMindNetErrorReporter_ReporterEmailInputDialog_windowTitle,
                     Messages.XMindNetErrorReporter_ReporterEmailInputDialog_message,
                     reporterEmail, null);
@@ -195,8 +197,8 @@ public class XMindNetErrorReporter implements IErrorReporter {
         if (logFile == null)
             return null;
 
-        IPath tempDirPath = Platform.getStateLocation(Activator.getDefault()
-                .getBundle());
+        IPath tempDirPath = Platform
+                .getStateLocation(Activator.getDefault().getBundle());
         if (tempDirPath == null)
             return null;
 
@@ -218,14 +220,14 @@ public class XMindNetErrorReporter implements IErrorReporter {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(logFile));
             try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(
-                        tempFile));
+                BufferedWriter writer = new BufferedWriter(
+                        new FileWriter(tempFile));
                 try {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         if (userName != null)
-                            line = line
-                                    .replace(userName, USER_NAME_REPLACEMENT);
+                            line = line.replace(userName,
+                                    USER_NAME_REPLACEMENT);
                         writer.write(line);
                         writer.newLine();
                     }

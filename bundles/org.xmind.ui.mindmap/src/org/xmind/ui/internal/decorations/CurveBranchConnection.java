@@ -18,8 +18,8 @@ import java.util.List;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.xmind.gef.draw2d.geometry.PrecisionLine;
-import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.geometry.PrecisionLine.LineType;
+import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.ui.decorations.AbstractBranchConnection;
 
@@ -43,6 +43,10 @@ public class CurveBranchConnection extends AbstractBranchConnection {
 
     private PrecisionPoint c4 = new PrecisionPoint();
 
+    private PrecisionPoint c5 = new PrecisionPoint();
+
+    private PrecisionPoint c6 = new PrecisionPoint();
+
     private PrecisionPoint control = null;
 
     public CurveBranchConnection() {
@@ -61,6 +65,7 @@ public class CurveBranchConnection extends AbstractBranchConnection {
             shape.quadTo(c1, t1);
             shape.lineTo(t2);
             shape.quadTo(c2, s2);
+            shape.cubicTo(c6, c5, s1);
             shape.close();
         } else {
             shape.moveTo(sourcePos);
@@ -91,6 +96,9 @@ public class CurveBranchConnection extends AbstractBranchConnection {
             if (!ps.isEmpty() && ps.size() == 1) {
                 c2.setLocation(ps.get(0));
             }
+
+            calculateSourceControlPoints(c1, s1, s2, c5);
+            calculateSourceControlPoints(c2, s2, s1, c6);
         }
     }
 
@@ -114,11 +122,15 @@ public class CurveBranchConnection extends AbstractBranchConnection {
     protected PrecisionPoint calcControlPoint(PrecisionPoint source,
             PrecisionPoint target, boolean targetHorizontal,
             PrecisionPoint result) {
-        return result.setLocation(//
-                targetHorizontal ? target.x * getControlPointRatio() + source.x
-                        * (1 - getControlPointRatio()) : target.x, //
-                targetHorizontal ? target.y : target.y * getControlPointRatio()
-                        + source.y * (1 - getControlPointRatio()));
+        return result
+                .setLocation(//
+                        targetHorizontal
+                                ? target.x * getControlPointRatio() + source.x
+                                        * (1 - getControlPointRatio())
+                                : target.x, //
+                        targetHorizontal ? target.y
+                                : target.y * getControlPointRatio() + source.y
+                                        * (1 - getControlPointRatio()));
     }
 
 }

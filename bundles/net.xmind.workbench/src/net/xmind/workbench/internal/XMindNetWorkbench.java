@@ -1,7 +1,5 @@
 package net.xmind.workbench.internal;
 
-import net.xmind.workbench.internal.notification.SiteEventNotificationService;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -9,6 +7,8 @@ import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+
+import net.xmind.workbench.internal.notification.SiteEventNotificationService;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -72,6 +72,13 @@ public class XMindNetWorkbench extends AbstractUIPlugin {
      */
     public static final String URL_ACCOUNT = "https://www.xmind.net/xmind/account/%s/%s/"; //$NON-NLS-1$
 
+    /**
+     * System properties to control UI contributions.
+     */
+    public static final String PROP_AUTHENTICATED = "net.xmind.signin.account.authenticated"; //$NON-NLS-1$
+    public static final String VALUE_AUTHENTICATED = "true"; //$NON-NLS-1$
+    public static final String VALUE_UNAUTHENTICATED = "false"; //$NON-NLS-1$
+
     // The shared instance
     private static XMindNetWorkbench plugin;
 
@@ -86,9 +93,8 @@ public class XMindNetWorkbench extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
+     * BundleContext )
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
@@ -100,9 +106,8 @@ public class XMindNetWorkbench extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
+     * BundleContext )
      */
     public void stop(BundleContext context) throws Exception {
         if (debugTracker != null) {
@@ -133,8 +138,8 @@ public class XMindNetWorkbench extends AbstractUIPlugin {
     }
 
     public static void log(Throwable e, String message) {
-        getDefault().getLog().log(
-                new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        getDefault().getLog()
+                .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
     }
 
     /**

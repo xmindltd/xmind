@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.editpolicies;
 
 import org.eclipse.draw2d.geometry.Point;
+import org.xmind.core.IControlPoint;
 import org.xmind.core.IRelationship;
 import org.xmind.core.IRelationshipEnd;
 import org.xmind.core.ISheet;
@@ -57,14 +58,14 @@ public class RelationshipCreateCommandBuilder extends CommandBuilder {
     }
 
     public void create(Point targetPosition) {
-        CreateTopicCommand createTopic = new CreateTopicCommand(parent
-                .getOwnedWorkbook());
+        CreateTopicCommand createTopic = new CreateTopicCommand(
+                parent.getOwnedWorkbook());
         add(createTopic, true);
         ITopic end2 = (ITopic) createTopic.getSource();
         add(new ModifyTitleTextCommand(end2,
                 MindMapMessages.TitleText_FloatingTopic), false);
-        add(new ModifyPositionCommand(end2, MindMapUtils
-                .toModelPosition(targetPosition)), false);
+        add(new ModifyPositionCommand(end2,
+                MindMapUtils.toModelPosition(targetPosition)), false);
         ITopic rootTopic = (ITopic) getViewer().getAdapter(ITopic.class);
         if (rootTopic == null)
             rootTopic = parent.getRootTopic();
@@ -79,9 +80,20 @@ public class RelationshipCreateCommandBuilder extends CommandBuilder {
                 workbook);
         add(create, relationshipCollectalbe);
         IRelationship rel = (IRelationship) create.getSource();
+
+        IControlPoint cp1 = rel.getControlPoint(0);
+        IControlPoint cp2 = rel.getControlPoint(1);
+
+        cp1.setPolarAngle(Math.PI / 12);
+        cp1.setPolarAmount(0.3);
+
+        cp2.setPolarAngle(Math.PI / 12);
+        cp2.setPolarAmount(0.3);
+
         add(new ModifyRelationshipEndCommand(rel, end1.getId(), true), false);
         add(new ModifyRelationshipEndCommand(rel, end2.getId(), false), false);
         add(new AddRelationshipCommand(rel, parent), false);
+
     }
 
 }

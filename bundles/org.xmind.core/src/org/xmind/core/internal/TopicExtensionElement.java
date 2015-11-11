@@ -17,11 +17,8 @@ import java.util.List;
 
 import org.xmind.core.ITopicExtensionElement;
 
-public abstract class TopicExtensionElement implements ITopicExtensionElement {
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class TopicExtensionElement extends AbstractWorkbookComponent
+        implements ITopicExtensionElement {
 
     public ITopicExtensionElement getCreatedChild(String elementName) {
         List<ITopicExtensionElement> children = getChildren(elementName);

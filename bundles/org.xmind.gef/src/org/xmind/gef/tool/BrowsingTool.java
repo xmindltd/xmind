@@ -33,9 +33,11 @@ public class BrowsingTool extends DraggingTool {
 
     private Point startScrollPosition = null;
 
-    private Menu preservedMenu = null;
+    private boolean hidePopupMenu = false;
 
-    private Control menuOwner = null;
+//    private Menu preservedMenu = null;
+//
+//    private Control menuOwner = null;
 
     protected void start() {
         startScrollPosition = new Point(getTargetViewer().getScrollPosition());
@@ -56,28 +58,30 @@ public class BrowsingTool extends DraggingTool {
     public void mouseDrag(MouseDragEvent me, IViewer viewer) {
         super.mouseDrag(me, viewer);
         if (!me.leftOrRight) {
-            if (menuOwner == null) {
-                Control control = viewer.getControl();
-                if (control != null && !control.isDisposed()) {
-                    menuOwner = control;
-                    if (preservedMenu == null) {
-                        preservedMenu = menuOwner.getMenu();
-                        if (preservedMenu != null)
-                            menuOwner.setMenu(null);
-                    }
-                }
-            }
+            if (!hidePopupMenu)
+                hidePopupMenu = true;
         }
     }
 
     public void mouseUp(MouseEvent me, IViewer viewer) {
         super.mouseUp(me, viewer);
-        if (preservedMenu != null && !preservedMenu.isDisposed()
-                && menuOwner != null && !menuOwner.isDisposed()) {
-            menuOwner.setMenu(preservedMenu);
+        if (hidePopupMenu) {
+            Control control = viewer.getControl();
+            if (control != null && !control.isDisposed()) {
+                Menu menu = control.getMenu();
+                if (menu != null && !menu.isDisposed()) {
+                    menu.setVisible(false);
+                }
+            }
         }
-        menuOwner = null;
-        preservedMenu = null;
+        hidePopupMenu = false;
+//        if (preservedMenu != null && !preservedMenu.isDisposed()
+//                && menuOwner != null && !menuOwner.isDisposed()) {
+//            menuOwner.getMenu().setVisible(false);
+//            menuOwner.setMenu(preservedMenu);
+//        }
+//        menuOwner = null;
+//        preservedMenu = null;
 //        if (!me.leftOrRight && preservedMenu != null && menuOwner != null) {
 //            Display.getCurrent().asyncExec(new Runnable() {
 //                public void run() {

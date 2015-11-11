@@ -34,7 +34,7 @@ public class ExportUtils {
     }
 
     public static String getNumberingText(ITopic topic, ITopic centralTopic) {
-        return MindMapUtils.getFullNumberingText(topic, null);
+        return MindMapUtils.getFullNumberingText(topic, null, null);
 //        if (topic == null || topic.equals(centralTopic)
 //                || (centralTopic == null && topic.isRoot())) {
 //            return null;

@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Menu;
@@ -93,6 +94,37 @@ public class GroupMarkers extends ContributionItem {
         }
     }
 
+    private class DeleteMarkerAction extends Action {
+
+        private ITopic topic;
+
+        private String sourceMarkerId;
+
+        public DeleteMarkerAction(ITopic topic, String sourceMarkerId) {
+            this.topic = topic;
+            this.sourceMarkerId = sourceMarkerId;
+            setText(CommandMessages.Command_Delete);
+        }
+
+        @Override
+        public void run() {
+            IWorkbookRef wr = MindMapUI.getWorkbookRefManager().findRef(
+                    topic.getOwnedWorkbook());
+            if (wr != null) {
+                ICommandStack cs = wr.getCommandStack();
+                if (cs != null) {
+                    Command cmd = createRemoveMarkerCommand();
+                    cs.execute(cmd);
+                }
+            }
+        }
+
+        private Command createRemoveMarkerCommand() {
+            return new CompoundCommand(CommandMessages.Command_DeleteMarker,
+                    new DeleteMarkerCommand(topic, sourceMarkerId));
+        }
+    }
+
     private ISelectionProvider selectionProvider;
 
     private IMarkerRef sourceMarkerRef;
@@ -127,7 +159,7 @@ public class GroupMarkers extends ContributionItem {
                 .findMarker(sourceMarkerId);
         if (sourceMarker != null) {
             IMarkerGroup group = sourceMarker.getParent();
-            if (!group.isHidden() && group != null) {
+            if (group != null && !group.isHidden()) {
                 for (IMarker marker : group.getMarkers()) {
                     if (!marker.isHidden()) {
                         String targetMarkerId = marker.getId();
@@ -136,8 +168,10 @@ public class GroupMarkers extends ContributionItem {
                                 menu, index++);
                     }
                 }
+                new Separator().fill(menu, index++);
+                new ActionContributionItem(new DeleteMarkerAction(topic,
+                        sourceMarkerId)).fill(menu, index++);
             }
         }
     }
-
 }

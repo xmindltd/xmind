@@ -2,11 +2,12 @@ package net.xmind.signin.internal;
 
 import java.util.Properties;
 
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.IXMindNetCommand;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.JSONStore;
+
+import net.xmind.signin.IXMindNetCommand;
 
 public class XMindNetCommand implements IXMindNetCommand {
 

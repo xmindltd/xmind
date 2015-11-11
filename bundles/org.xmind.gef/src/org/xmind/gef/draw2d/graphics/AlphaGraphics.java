@@ -130,6 +130,10 @@ public class AlphaGraphics extends Graphics implements IUseTransparency {
         delegate.clipRect(r);
     }
 
+    public void clipPath(Path path) {
+        delegate.clipPath(path);
+    }
+
     public void drawArc(int x, int y, int w, int h, int offset, int length) {
         delegate.drawArc(x, y, w, h, offset, length);
     }

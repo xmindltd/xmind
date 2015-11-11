@@ -17,9 +17,6 @@ package net.xmind.workbench.internal.actions;
 import java.io.IOException;
 import java.net.URL;
 
-import net.xmind.signin.XMindNet;
-import net.xmind.workbench.internal.XMindNetWorkbench;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -29,9 +26,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.osgi.framework.Bundle;
 
+import net.xmind.signin.XMindNet;
+import net.xmind.workbench.internal.XMindNetWorkbench;
+
 /**
  * @author Frank Shaka
- * 
+ * @deprecated Use command 'org.eclipse.ui.help.helpContents'
  */
 public class HelpActionDelegate implements IWorkbenchWindowActionDelegate {
 
@@ -71,8 +71,8 @@ public class HelpActionDelegate implements IWorkbenchWindowActionDelegate {
     private String findHelpURL() {
         Bundle helpBundle = Platform.getBundle("org.xmind.ui.help"); //$NON-NLS-1$
         if (helpBundle != null) {
-            URL url = FileLocator.find(helpBundle, new Path(
-                    "$nl$/contents/index.html"), null); //$NON-NLS-1$
+            URL url = FileLocator.find(helpBundle,
+                    new Path("$nl$/contents/index.html"), null); //$NON-NLS-1$
             if (url != null) {
                 try {
                     url = FileLocator.toFileURL(url);

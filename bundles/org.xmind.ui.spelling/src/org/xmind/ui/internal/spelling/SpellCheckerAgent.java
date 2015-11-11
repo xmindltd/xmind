@@ -16,12 +16,12 @@ package org.xmind.ui.internal.spelling;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
-
-import net.sourceforge.jazzy.Activator;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,8 +31,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.osgi.framework.Bundle;
 
 import com.swabunga.spell.engine.Configuration;
+import com.swabunga.spell.engine.SpellDictionary;
 import com.swabunga.spell.engine.SpellDictionaryHashMap;
 import com.swabunga.spell.event.SpellChecker;
 
@@ -62,7 +64,8 @@ public class SpellCheckerAgent {
         getInstance().doMigrateUserDictFile();
     }
 
-    private synchronized void doVisitSpellChecker(ISpellCheckerVisitor visitor) {
+    private synchronized void doVisitSpellChecker(
+            ISpellCheckerVisitor visitor) {
         if (spellChecker != null) {
             visitor.handleWith(spellChecker);
             return;
@@ -84,29 +87,29 @@ public class SpellCheckerAgent {
     }
 
     private IStatus loadSpellChecker(IProgressMonitor monitor) {
-        monitor.beginTask(null, 5);
+        monitor.beginTask(null, 4);
 
         monitor.subTask(Messages.creatingSpellCheckerInstance);
-        SpellChecker spellChecker = Activator.createSpellChecker();
-        if (!SpellingPlugin.getDefault().getPreferenceStore()
-                .getBoolean(SpellingPlugin.DEFAULT_SPELLING_CHECKER_DISABLED)) {
-            Activator.addDefaultDictionaries(spellChecker);
-        }
+        SpellChecker spellChecker = new SpellChecker();
         monitor.worked(1);
 
+        // Load system dictionaries
         monitor.subTask(Messages.addingSystemDictionary);
-        addSystemDictionary(spellChecker);
+        addSystemDictionaries(spellChecker);
         monitor.worked(1);
 
+        // Load user dictionaries and words
         monitor.subTask(Messages.addingUserDictionary);
-        addUserDictionary(spellChecker);
+        addUserDictionaries(spellChecker);
         monitor.worked(1);
 
+        // Load configurations
         monitor.subTask(Messages.initializingSpellingSettings);
         setConfigurations(spellChecker);
         monitor.worked(1);
 
         this.spellChecker = spellChecker;
+
         monitor.subTask(Messages.notifyingSpellingVisitors);
         notifyVisitors();
         monitor.done();
@@ -132,7 +135,7 @@ public class SpellCheckerAgent {
         doSetConfigurations(SpellingPlugin.getDefault().getPreferenceStore());
     }
 
-    private void addUserDictionary(SpellChecker spellChecker) {
+    private void addUserDictionaries(SpellChecker spellChecker) {
         for (ISpellCheckerDescriptor descriptor : SpellCheckerRegistry
                 .getInstance().getDescriptors()) {
             try {
@@ -156,20 +159,63 @@ public class SpellCheckerAgent {
             }
         }
         try {
-            spellChecker.setUserDictionary(new SpellDictionaryHashMap(
-                    userDictFile));
+            spellChecker.setUserDictionary(
+                    new SpellDictionaryHashMap(userDictFile));
         } catch (IOException e) {
             SpellingPlugin.log(e);
         }
     }
 
-    private void addSystemDictionary(SpellChecker spellChecker) {
+    private void addSystemDictionaries(SpellChecker spellChecker) {
+        if (!SpellingPlugin.getDefault().getPreferenceStore()
+                .getBoolean(SpellingPlugin.DEFAULT_SPELLING_CHECKER_DISABLED)) {
+            loadDictionariesFromBundle(spellChecker, "net.sourceforge.jazzy", //$NON-NLS-1$
+                    "dict/"); //$NON-NLS-1$
+        }
+
+        loadDictionariesFromBundle(spellChecker, SpellingPlugin.PLUGIN_ID,
+                "dict/"); //$NON-NLS-1$
+    }
+
+    private void loadDictionariesFromBundle(SpellChecker spellChecker,
+            String pluginId, String dirPath) {
+        Bundle bundle = Platform.getBundle(pluginId);
+        if (bundle != null) {
+            Enumeration<String> dicts = bundle.getEntryPaths(dirPath);
+            while (dicts.hasMoreElements()) {
+                String path = dicts.nextElement();
+                if (path.endsWith(".dic") || path.endsWith(".dict")) { //$NON-NLS-1$ //$NON-NLS-2$
+                    URL uri = bundle.getEntry(path);
+                    if (uri != null) {
+                        try {
+                            loadDictionaryFromURL(spellChecker, uri);
+                        } catch (IOException e) {
+                            SpellingPlugin.log(e,
+                                    "Failed to load dictionary from platform://" //$NON-NLS-1$
+                                            + bundle.getSymbolicName() + "/" //$NON-NLS-1$
+                                            + path);
+                        }
+                    }
+                } else if (path.endsWith("/")) { //$NON-NLS-1$
+                    loadDictionariesFromBundle(spellChecker, pluginId, path);
+                }
+            }
+        }
+    }
+
+    private void loadDictionaryFromURL(SpellChecker spellChecker, URL uri)
+            throws IOException {
+        InputStream dictStream = uri.openStream();
         try {
-            spellChecker.addDictionary(new SpellDictionaryHashMap(
-                    new InputStreamReader(SpellCheckerAgent.class
-                            .getResourceAsStream("xmind.dict")))); //$NON-NLS-1$
-        } catch (IOException e) {
-            SpellingPlugin.log(e);
+            InputStreamReader dictReader = new InputStreamReader(dictStream);
+            try {
+                SpellDictionary dict = new SpellDictionaryHashMap(dictReader);
+                spellChecker.addDictionary(dict);
+            } finally {
+                dictReader.close();
+            }
+        } finally {
+            dictStream.close();
         }
     }
 
@@ -183,10 +229,9 @@ public class SpellCheckerAgent {
                 ps.getBoolean(Configuration.SPELL_IGNOREINTERNETADDRESSES));
         configuration.setBoolean(Configuration.SPELL_IGNOREMIXEDCASE,
                 ps.getBoolean(Configuration.SPELL_IGNOREMIXEDCASE));
-        configuration
-                .setBoolean(
-                        Configuration.SPELL_IGNORESENTENCECAPITALIZATION,
-                        ps.getBoolean(Configuration.SPELL_IGNORESENTENCECAPITALIZATION));
+        configuration.setBoolean(
+                Configuration.SPELL_IGNORESENTENCECAPITALIZATION, ps.getBoolean(
+                        Configuration.SPELL_IGNORESENTENCECAPITALIZATION));
         configuration.setBoolean(Configuration.SPELL_IGNOREUPPERCASE,
                 ps.getBoolean(Configuration.SPELL_IGNOREUPPERCASE));
     }
@@ -232,9 +277,7 @@ public class SpellCheckerAgent {
         }
         boolean moved = oldFile.renameTo(newFile);
         if (!moved) {
-            SpellingPlugin
-                    .getDefault()
-                    .getLog()
+            SpellingPlugin.getDefault().getLog()
                     .log(new Status(IStatus.WARNING, SpellingPlugin.PLUGIN_ID,
                             "Failed to migrate old user dict file: " //$NON-NLS-1$
                                     + oldFile.getAbsolutePath()));

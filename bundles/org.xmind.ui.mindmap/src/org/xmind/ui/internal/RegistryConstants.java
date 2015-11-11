@@ -71,6 +71,8 @@ public class RegistryConstants implements IWorkbenchRegistryConstants {
     //public static final String EXT_GLOBAL_CORE_EVENT_HANDLERS = "globalCoreEventHandlers"; //$NON-NLS-1$
     public static final String EXT_ICONTIPS = "iconTips"; //$NON-NLS-1$
     public static final String EXT_NUMBER_FORMATS = "numberFormats"; //$NON-NLS-1$
+    public static final String EXT_NUMBER_SEPARATORS = "numberSeparators"; //$NON-NLS-1$
+    public static final String EXT_INFOITMES = "infoItems"; //$NON-NLS-1$
 
 //    public static final String TAG_ELEMENT_TYPE = "elementType"; //$NON-NLS-1$
     public static final String TAG_DND_CLIENT = "dndClient"; //$NON-NLS-1$
@@ -80,6 +82,12 @@ public class RegistryConstants implements IWorkbenchRegistryConstants {
     public static final String TAG_EDIT_POLICY = "editPolicy"; //$NON-NLS-1$
     public static final String TAG_ICONTIP = "iconTip"; //$NON-NLS-1$
     public static final String TAG_FORMAT = "format"; //$NON-NLS-1$
+    public static final String TAG_SEPARATOR = "separator"; //$NON-NLS-1$
+    public static final String TAG_INFOITEM = "infoItem"; //$NON-NLS-1$
+
+    public static final String ATT_MODE = "defaultMode"; //$NON-NLS-1$
+    public static final String ATT_AVAILABLEMODES = "availableModes"; //$NON-NLS-1$
+    public static final String ATT_CARD_LABEL = "cardLabel"; //$NON-NLS-1$
 
 //    public static final String TAG_HANDLER = "handler"; //$NON-NLS-1$
 //    public static final String TAG_HANDLER_BINDING = "handlerBinding"; //$NON-NLS-1$

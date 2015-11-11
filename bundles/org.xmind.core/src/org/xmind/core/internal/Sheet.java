@@ -23,7 +23,8 @@ import org.xmind.core.style.IStyleSheet;
  * @author briansun
  * 
  */
-public abstract class Sheet implements ISheet {
+public abstract class Sheet extends AbstractWorkbookComponent
+        implements ISheet {
 
     public String getStyleType() {
         return IStyle.MAP;
@@ -60,11 +61,10 @@ public abstract class Sheet implements ISheet {
     }
 
     public Object getAdapter(Class adapter) {
-        if (adapter == IWorkbook.class)
-            return getOwnedWorkbook();
         if (adapter == ITopic.class)
             return getRootTopic();
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public IStyle getTheme() {

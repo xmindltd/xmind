@@ -145,15 +145,19 @@ public class Row extends BranchStructureData {
                     .valueOf(prev.getTop() + prev.getHeight() + lineWidth);
         } else {
             int intY = getOwnedChart().getTitle().getTopicPart().getFigure()
-                    .getBounds().bottom()
-                    + lineWidth;
+                    .getBounds().bottom() + lineWidth;
+            if (getOwnedChart().getTitle().getInfoPart() != null) {
+                intY += getOwnedChart().getTitle().getInfoPart().getFigure()
+                        .getBounds().height;
+            }
             if (getOwnedChart().hasColumns()) {
                 intY += getOwnedChart().getColumnHeadHeight() + lineWidth
                         + getOwnedChart().getMajorSpacing();
             }
             this.y = Integer.valueOf(intY);
         }
-        int headHeight = getBranch().getTopicPart().getFigure().getBounds().height;
+        int headHeight = getBranch().getTopicPart().getFigure()
+                .getBounds().height;
         int cellHeight = 0;
         for (Cell cell : cells) {
             cellHeight = Math.max(cellHeight, cell.getContentHeight());

@@ -1,0 +1,361 @@
+package org.xmind.cathy.internal.dashboard;
+
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.osgi.framework.Bundle;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xmind.cathy.internal.CathyPlugin;
+import org.xmind.ui.tabfolder.MTabFolder;
+import org.xmind.ui.tabfolder.MTabItem;
+
+public class DashboardContent {
+
+    private static final String CONTENT_URI = "platform:/plugin/org.xmind.cathy/dashboard/dashboard.xml"; //$NON-NLS-1$
+    private static final String NLS_PATH_BASE = "dashboard/dashboard"; //$NON-NLS-1$
+
+    private static final String TAG_DASHBOARD = "dashboard"; //$NON-NLS-1$
+    private static final String TAG_PAGE = "page"; //$NON-NLS-1$
+    private static final String TAG_SPACE = "space"; //$NON-NLS-1$
+    private static final String TAG_COMMAND = "command"; //$NON-NLS-1$
+    private static final String TAG_PARAMETER = "parameter"; //$NON-NLS-1$
+    private static final String TAG_ITEM = "item"; //$NON-NLS-1$
+    private static final String ATTR_ID = "id"; //$NON-NLS-1$
+    private static final String ATTR_LABEL = "label"; //$NON-NLS-1$
+    private static final String ATTR_ICON_URI = "iconURI"; //$NON-NLS-1$
+    private static final String ATTR_CONTRIBUTION_URI = "contributionURI"; //$NON-NLS-1$
+    private static final String ATTR_COMMAND_ID = "commandId"; //$NON-NLS-1$
+    private static final String ATTR_NAME = "name"; //$NON-NLS-1$
+    private static final String ATTR_VALUE = "value"; //$NON-NLS-1$
+    private static final String ATTR_WIDTH = "width"; //$NON-NLS-1$
+
+    private static final String VAL_FILL = "fill"; //$NON-NLS-1$
+
+    private static final String DATA_ID = "org.xmind.ui.dashboard.itemId"; //$NON-NLS-1$
+    private static final String DATA_PARAMETERS = "org.xmind.ui.dashboard.commandParameters"; //$NON-NLS-1$
+
+    private final DashboardPart part;
+
+    private final MTabFolder tabFolder;
+
+    private Properties nlsProperties = new Properties();
+
+    public DashboardContent(DashboardPart part, MTabFolder tabFolder) {
+        this.part = part;
+        this.tabFolder = tabFolder;
+    }
+
+    public void loadFromDefaultLocation() {
+        // load NLS properties
+        nlsProperties = CathyPlugin.getDefault()
+                .loadNLSProperties(NLS_PATH_BASE);
+
+        // load content xml
+        try {
+            URL docURL = new URL(CONTENT_URI);
+            loadFromURL(docURL);
+        } catch (Exception e) {
+            CathyPlugin.log(e,
+                    "Failed to load dashboard content from " + CONTENT_URI); //$NON-NLS-1$
+        }
+
+        // set primary selection
+        tabFolder.setSelection(findPrimarySelection());
+    }
+
+    private void loadFromURL(URL docURL) throws Exception {
+        InputStream docStream = docURL.openStream();
+        try {
+            Document doc = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder().parse(docStream);
+
+            Element rootElement = doc.getDocumentElement();
+            if (rootElement == null
+                    || !TAG_DASHBOARD.equals(rootElement.getNodeName()))
+                throw new IllegalArgumentException(
+                        "No 'dashboard' element in " + CONTENT_URI); //$NON-NLS-1$
+
+            readElement(rootElement, tabFolder);
+        } finally {
+            docStream.close();
+        }
+    }
+
+    private void readElement(Element element, Object parent) throws Exception {
+        String tagName = element.getTagName();
+        Object item = parent;
+        if (parent instanceof MTabFolder) {
+            if (TAG_PAGE.equals(tagName)) {
+                item = readPage(element, (MTabFolder) parent);
+            } else if (TAG_COMMAND.equals(tagName)) {
+                item = readCommand(element, (MTabFolder) parent);
+            } else if (TAG_SPACE.equals(tagName)) {
+                item = readSeparator(element, (MTabFolder) parent);
+            } else if (TAG_ITEM.equals(tagName)) {
+                item = readSimpleItem(element, (MTabFolder) parent);
+            }
+        } else if (parent instanceof MTabItem) {
+            if (TAG_PARAMETER.equals(tagName)) {
+                readCommandParameter(element, (MTabItem) parent);
+            }
+        }
+
+        readChildren(element.getChildNodes(), item);
+    }
+
+    private void readChildren(NodeList children, Object parent)
+            throws Exception {
+        int length = children.getLength();
+        for (int i = 0; i < length; i++) {
+            Node childNode = children.item(i);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                readElement((Element) childNode, parent);
+            }
+        }
+    }
+
+    private MTabItem readPage(Element element, MTabFolder tabFolder)
+            throws Exception {
+        String id = element.getAttribute(ATTR_ID);
+        if (id == null || "".equals(id)) //$NON-NLS-1$
+            throw new IllegalArgumentException("No id for page."); //$NON-NLS-1$
+
+        String contributionURI = element.getAttribute(ATTR_CONTRIBUTION_URI);
+        if (contributionURI == null
+                || !contributionURI.startsWith("bundleclass://")) //$NON-NLS-1$
+            throw new IllegalArgumentException(
+                    "Invalid contributionURI: " + contributionURI); //$NON-NLS-1$
+        String[] contributionPaths = contributionURI.substring(14).split("/"); //$NON-NLS-1$
+        if (contributionPaths.length != 2)
+            throw new IllegalArgumentException(
+                    "Invalid contributionURI: " + contributionURI); //$NON-NLS-1$
+        String bundleId = contributionPaths[0];
+        String className = contributionPaths[1];
+        Class<?> cls;
+        try {
+            Bundle bundle = Platform.getBundle(bundleId);
+            if (bundle == null)
+                throw new ClassNotFoundException();
+            cls = bundle.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            // ignore errors caused contribution not found
+            return null;
+        }
+        Object contribution = cls.newInstance();
+        if (!(contribution instanceof IDashboardPage))
+            throw new IllegalArgumentException(
+                    "Invalid contribution type: " + contribution); //$NON-NLS-1$
+
+        final IDashboardPage page = (IDashboardPage) contribution;
+
+        page.setContainer(part);
+
+        String label = readLabel(element);
+        page.setTitle(label);
+
+        ImageDescriptor icon = readIcon(element);
+        page.setImageDescriptor(icon);
+
+        // add side-bar tab
+        MTabItem item = new MTabItem(tabFolder, SWT.RADIO);
+
+        item.setText(page.getTitle());
+        item.setImage(page.getImage());
+
+        page.createControl(this.tabFolder.getBody());
+        item.setControl(page.getControl());
+
+        item.addDisposeListener(new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+                Control pageControl = page.getControl();
+                if (pageControl != null) {
+                    pageControl.dispose();
+                }
+                page.dispose();
+            }
+        });
+
+        item.setData(page);
+        item.setData(DATA_ID, id);
+
+        return item;
+    }
+
+    private MTabItem readCommand(Element element, MTabFolder tabFolder)
+            throws Exception {
+        String id = element.getAttribute(ATTR_ID);
+        if (id == null || "".equals(id)) //$NON-NLS-1$
+            throw new IllegalArgumentException("No id for command."); //$NON-NLS-1$
+        final String commandId = element.getAttribute(ATTR_COMMAND_ID);
+        if (commandId == null || "".equals(commandId)) //$NON-NLS-1$
+            throw new IllegalArgumentException(
+                    "No command id found for command"); //$NON-NLS-1$
+
+        String label = readLabel(element);
+        ImageDescriptor icon = readIcon(element);
+
+        MTabItem item = new MTabItem(tabFolder, SWT.PUSH);
+
+        item.setText(label);
+
+        final Image iconImage = icon == null ? null : icon.createImage();
+        item.addDisposeListener(new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+                iconImage.dispose();
+            }
+        });
+        item.setImage(iconImage);
+
+        item.setData(DATA_ID, id);
+        item.setData(DATA_PARAMETERS, new Properties());
+
+        item.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event event) {
+                Map<String, Object> parameters = new HashMap<String, Object>();
+                Properties commandParameters = (Properties) event.widget
+                        .getData(DATA_PARAMETERS);
+                if (commandParameters != null) {
+                    for (Entry<Object, Object> en : commandParameters
+                            .entrySet()) {
+                        parameters.put((String) en.getKey(), en.getValue());
+                    }
+                }
+                part.executeCommand(commandId, parameters);
+            }
+        });
+        return item;
+    }
+
+    private MTabItem readSimpleItem(Element element, MTabFolder tabFolder)
+            throws Exception {
+        String id = element.getAttribute(ATTR_ID);
+        if (id == null || "".equals(id)) //$NON-NLS-1$
+            throw new IllegalArgumentException("No id for page."); //$NON-NLS-1$
+
+        String label = readLabel(element);
+        ImageDescriptor icon = readIcon(element);
+
+        MTabItem item = new MTabItem(tabFolder, SWT.SIMPLE);
+        item.setText(label);
+        final Image iconImage = icon.createImage();
+        item.addDisposeListener(new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+                iconImage.dispose();
+            }
+        });
+        item.setImage(iconImage);
+
+        item.setData(DATA_ID, id);
+
+        return item;
+    }
+
+    private MTabItem readSeparator(Element element, MTabFolder tabFolder)
+            throws Exception {
+        String id = element.getAttribute(ATTR_ID);
+        if (id == null || "".equals(id)) //$NON-NLS-1$
+            throw new IllegalArgumentException("No id for page."); //$NON-NLS-1$
+
+        MTabItem item = new MTabItem(tabFolder, SWT.SEPARATOR);
+
+        item.setData(DATA_ID, id);
+
+        String width = element.getAttribute(ATTR_WIDTH);
+        if (VAL_FILL.equals(width)) {
+            item.setWidth(SWT.SEPARATOR_FILL);
+        } else if (width != null && !"".equals(width)) { //$NON-NLS-1$
+            try {
+                int widthValue = Integer.parseInt(width, 10);
+                item.setWidth(widthValue);
+            } catch (NumberFormatException e) {
+            }
+        }
+
+        return item;
+    }
+
+    private void readCommandParameter(Element element, MTabItem item) {
+        String name = element.getAttribute(ATTR_NAME);
+        String value = element.getAttribute(ATTR_VALUE);
+        if (name == null || "".equals(name) //$NON-NLS-1$
+                || value == null || "".equals(value)) //$NON-NLS-1$
+            return;
+
+        Properties parameters = (Properties) item.getData(DATA_PARAMETERS);
+        if (parameters == null)
+            return;
+
+        parameters.put(name, value);
+    }
+
+    private ImageDescriptor readIcon(Element element)
+            throws MalformedURLException {
+        String iconURI = element.getAttribute(ATTR_ICON_URI);
+        ImageDescriptor icon = (iconURI == null || "".equals(iconURI)) //$NON-NLS-1$
+                ? null : ImageDescriptor.createFromURL(new URL(iconURI));
+        return icon;
+    }
+
+    private String readLabel(Element element) {
+        String label = element.getAttribute(ATTR_LABEL);
+        if (label.startsWith("%")) { //$NON-NLS-1$
+            String nativeLabel = nlsProperties.getProperty(label.substring(1));
+            if (nativeLabel != null) {
+                label = nativeLabel;
+            }
+        }
+        return label;
+    }
+
+    private MTabItem findPrimarySelection() {
+        int itemCount = tabFolder.getItemCount();
+        for (int i = 0; i < itemCount; i++) {
+            MTabItem item = tabFolder.getItem(i);
+            if ((item.getStyle() & SWT.RADIO) != 0) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public MTabItem getItemById(String pageId) {
+        if (pageId == null)
+            return null;
+        int itemCount = tabFolder.getItemCount();
+        for (int i = 0; i < itemCount; i++) {
+            MTabItem item = tabFolder.getItem(i);
+            if (pageId.equals(item.getData(DATA_ID)))
+                return item;
+        }
+        return null;
+    }
+
+    public String getItemId(MTabItem item) {
+        return (String) item.getData(DATA_ID);
+    }
+
+    public IDashboardPage getDashboardPage(MTabItem item) {
+        Object data = item.getData();
+        return data instanceof IDashboardPage ? (IDashboardPage) data : null;
+    }
+
+}

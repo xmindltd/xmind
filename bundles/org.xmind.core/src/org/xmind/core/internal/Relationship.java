@@ -23,7 +23,8 @@ import org.xmind.core.style.IStyle;
  * @author briansun
  * 
  */
-public abstract class Relationship implements IRelationship {
+public abstract class Relationship extends AbstractWorkbookComponent
+        implements IRelationship {
 
     public String getStyleType() {
         return IStyle.RELATIONSHIP;
@@ -88,11 +89,10 @@ public abstract class Relationship implements IRelationship {
     protected abstract String getLocalTitleText();
 
     public Object getAdapter(Class adapter) {
-        if (adapter == IWorkbook.class)
-            return getOwnedWorkbook();
         if (adapter == ISheet.class)
             return getOwnedSheet();
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
 //    /**

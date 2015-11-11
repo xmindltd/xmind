@@ -22,9 +22,11 @@ import org.xmind.core.INotes;
 import org.xmind.core.INotesContent;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.AbstractWorkbookComponent;
 import org.xmind.core.util.DOMUtils;
 
-public abstract class BaseNotesContentImpl implements INotesContent {
+public abstract class BaseNotesContentImpl extends AbstractWorkbookComponent
+        implements INotesContent {
 
     private Element implementation;
 
@@ -39,7 +41,8 @@ public abstract class BaseNotesContentImpl implements INotesContent {
     public Object getAdapter(Class adapter) {
         if (adapter == Node.class || adapter == Element.class)
             return implementation;
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public boolean equals(Object obj) {
@@ -116,7 +119,7 @@ public abstract class BaseNotesContentImpl implements INotesContent {
     protected void updateModifiedTime() {
         TopicImpl topic = getTopic();
         if (topic != null) {
-            topic.updateModifiedTime();
+            topic.updateModificationInfo();
         }
     }
 

@@ -16,6 +16,7 @@ package org.xmind.ui.internal.figures;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
+import org.eclipse.swt.SWT;
 import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.draw2d.IMinimizable;
 import org.xmind.gef.draw2d.IShadowedFigure;
@@ -24,8 +25,8 @@ import org.xmind.gef.draw2d.ITitledFigure;
 import org.xmind.gef.draw2d.decoration.IShadowedDecoration;
 import org.xmind.ui.decorations.IBoundaryDecoration;
 
-public class BoundaryFigure extends DecoratedShapeFigure implements
-        ITitledFigure, IMinimizable, IShadowedFigure {
+public class BoundaryFigure extends DecoratedShapeFigure
+        implements ITitledFigure, IMinimizable, IShadowedFigure {
 
     protected static final int FLAG_MINIMIZED = MAX_FLAG << 1;
 
@@ -75,19 +76,20 @@ public class BoundaryFigure extends DecoratedShapeFigure implements
         if (isMinimized())
             return NO_INSETS;
         Insets ins = super.calculatePreferredInsets();
-        if (isTitleVisible() && title != null) {
-            Dimension s = title.getPreferredSize();
-            ins = new Insets(ins);
-            ins.top = Math.max(s.height, ins.top);
-            ins.left += 5;
-        }
+//        if (isTitleVisible() && title != null) {
+//            Dimension s = title.getPreferredSize();
+//            ins = new Insets(ins);
+//            ins.top = Math.max(s.height, ins.top);
+//            ins.left += 5;
+//        }
         return ins;
     }
 
     protected void layout() {
         super.layout();
         if (title != null && title.getParent() == this) {
-            Dimension size = title.getPreferredSize();
+            Dimension size = title.getPreferredSize(getBounds().width,
+                    SWT.DEFAULT);
             if (size.width > getBounds().width) {
                 size = new Dimension(getBounds().width, size.height);
             }
@@ -118,7 +120,7 @@ public class BoundaryFigure extends DecoratedShapeFigure implements
 
     public String toString() {
         if (title != null)
-            return title.getText();
+            return "BoundaryFigure(" + title.getText() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
         return super.toString();
     }
 

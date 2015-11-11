@@ -25,6 +25,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IOpenListener;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
@@ -40,7 +41,8 @@ import org.xmind.gef.part.GraphicalRootEditPart;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
 
-public class GalleryViewer extends GraphicalViewer {
+public class GalleryViewer extends GraphicalViewer
+        implements IDecorationContext {
 
     /**
      * Viewer property key indicating whether frames are laid out horizontally
@@ -110,6 +112,25 @@ public class GalleryViewer extends GraphicalViewer {
     public static final String SingleClickToOpen = "org.xmind.ui.gallery.singleClickToOpen"; //$NON-NLS-1$
 
     /**
+     * <p>
+     * Determines whether this viewer allows empty selection to be set. This
+     * property does not work when the input contains no elements because the
+     * selection will always be empty in this case.
+     * </p>
+     * 
+     * Values: true, false
+     */
+    public static final String EmptySelectionIgnored = "org.xmind.ui.gallery.emptySelectionIgnored"; //$NON-NLS-1$
+
+    /**
+     * <p>
+     * Determines whether this viewer takes use of custom decorator to draw
+     * content pane.
+     * </p>
+     */
+    public static final String CustomContentPaneDecorator = "org.xmind.ui.gallery.customDecorateContentPane"; //$NON-NLS-1$
+
+    /**
      * Value for title placement 'top'.
      */
     public static final Integer TITLE_TOP = new Integer(PositionConstants.TOP);
@@ -123,7 +144,8 @@ public class GalleryViewer extends GraphicalViewer {
     /**
      * Value for title placement 'left'.
      */
-    public static final Integer TITLE_LEFT = new Integer(PositionConstants.LEFT);
+    public static final Integer TITLE_LEFT = new Integer(
+            PositionConstants.LEFT);
 
     /**
      * Value for title placement 'right'.
@@ -133,8 +155,8 @@ public class GalleryViewer extends GraphicalViewer {
 
     public static final String POLICY_NAVIGABLE = "org.xmind.ui.gallery.editPolicy.navigable"; //$NON-NLS-1$
 
-    private class GalleryLabelProviderListener implements
-            ILabelProviderListener {
+    private class GalleryLabelProviderListener
+            implements ILabelProviderListener {
         public void labelProviderChanged(LabelProviderChangedEvent event) {
             update(event.getElements());
         }
@@ -163,8 +185,8 @@ public class GalleryViewer extends GraphicalViewer {
 
     protected Control internalCreateControl(Composite parent, int style) {
         Control control = super.internalCreateControl(parent, style);
-        control.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND));
+        control.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         return control;
     }
 
@@ -236,6 +258,15 @@ public class GalleryViewer extends GraphicalViewer {
         }
     }
 
+    @Override
+    protected void contentsChanged(Object input, Object oldInput) {
+        IStructuredContentProvider content = getContentProvider();
+        if (content != null) {
+            content.inputChanged(this, oldInput, input);
+        }
+        super.contentsChanged(input, oldInput);
+    }
+
     protected void handleDispose(DisposeEvent e) {
         if (contentProvider != null) {
             contentProvider.inputChanged(this, getInput(), null);
@@ -255,8 +286,8 @@ public class GalleryViewer extends GraphicalViewer {
         if (fc.isDisposed())
             return;
         RangeModel horizontal = fc.getViewport().getHorizontalRangeModel();
-        int h = (horizontal.getMaximum() - horizontal.getExtent() + horizontal
-                .getMinimum()) / 2;
+        int h = (horizontal.getMaximum() - horizontal.getExtent()
+                + horizontal.getMinimum()) / 2;
         fc.scrollToX(h);
     }
 
@@ -316,4 +347,21 @@ public class GalleryViewer extends GraphicalViewer {
             });
         }
     }
+
+    @Override
+    public void setSelection(ISelection selection, boolean reveal) {
+        if (getProperties().getBoolean(EmptySelectionIgnored, false)
+                && selection.isEmpty())
+            return;
+        super.setSelection(selection, reveal);
+    }
+
+    protected boolean isTitleEditable(IPart p) {
+        return false;
+    }
+
+    public Object getProperty(String key, Object defaultValue) {
+        return getProperties().get(key, defaultValue);
+    }
+
 }

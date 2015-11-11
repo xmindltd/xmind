@@ -16,11 +16,8 @@ package org.xmind.core.internal;
 import org.xmind.core.INumbering;
 import org.xmind.core.ITopic;
 
-public abstract class Numbering implements INumbering {
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class Numbering extends AbstractWorkbookComponent
+        implements INumbering {
 
     public String getParentFormat() {
         ITopic topic = getParent();
@@ -41,4 +38,25 @@ public abstract class Numbering implements INumbering {
             return null;
         return getParentFormat();
     }
+
+    public String getParentSeparator() {
+        ITopic topic = getParent();
+        if (topic != null) {
+            ITopic parent = topic.getParent();
+            if (parent != null)
+                return parent.getNumbering().getComputedSeparator();
+        }
+        return null;
+    }
+
+    public String getComputedSeparator() {
+        String separator = getSeparator();
+        if (separator != null)
+            return separator;
+        ITopic topic = getParent();
+        if (!ITopic.ATTACHED.equals(topic.getType()))
+            return null;
+        return getParentSeparator();
+    }
+
 }

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -29,6 +30,7 @@ import org.xmind.ui.internal.MarkerImpExpUtils;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dialogs.DialogMessages;
 import org.xmind.ui.internal.prefs.MarkerManagerPrefPage;
+import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.PrefUtils;
 
@@ -198,11 +200,21 @@ public class MME {
             return (IEditorInput) input;
         } catch (Throwable e) {
             IStatus status = new Status(IStatus.ERROR,
-                    MindMapUIPlugin.PLUGIN_ID, NLS.bind(
-                            "Failed to create IDE's FileEditorInput: {0}", file //$NON-NLS-1$
-                                    .getFullPath()));
+                    MindMapUIPlugin.PLUGIN_ID,
+                    NLS.bind("Failed to create IDE's FileEditorInput: {0}", file //$NON-NLS-1$
+                            .getFullPath()));
             throw new CoreException(status);
         }
+    }
+
+    public static IEditorInput createEditorInputFromURI(String uri) {
+        if (FilePathParser.isFileURI(uri)) {
+            String filePath = FilePathParser.toPath(uri);
+            if (filePath != null) {
+                return new FileEditorInput(new File(filePath));
+            }
+        }
+        return null;
     }
 
     public static File getFile(Object input) {
@@ -236,6 +248,21 @@ public class MME {
         return fileStore;
     }
 
+    public static URI getURIFromEditorInput(IEditorInput input) {
+        if (input instanceof FileEditorInput) {
+            File file = ((FileEditorInput) input).getFile();
+            String uriString = FilePathParser.toURI(file.getAbsolutePath(),
+                    false);
+            try {
+                return new URI(uriString);
+            } catch (URISyntaxException e) {
+                // should not happen
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
     static Object getAdapter(Object adaptable, Class adapterType) {
         if (adapterType.isInstance(adaptable))
             return adaptable;
@@ -273,7 +300,8 @@ public class MME {
         return hasInterface(interfaces, interfaceName);
     }
 
-    private static boolean hasInterface(Class[] interfaces, String interfaceName) {
+    private static boolean hasInterface(Class[] interfaces,
+            String interfaceName) {
         if (interfaces.length == 0)
             return false;
         for (Class c : interfaces) {
@@ -303,13 +331,10 @@ public class MME {
         File file = new File(path);
         if (!file.exists()) {
             if (Display.getCurrent() != null) {
-                if (!MessageDialog
-                        .openConfirm(
-                                window.getShell(),
-                                DialogMessages.InfoFileNotExists_title,
-                                NLS.bind(
-                                        DialogMessages.InfoFileNotExists_message,
-                                        path))) {
+                if (!MessageDialog.openConfirm(window.getShell(),
+                        DialogMessages.InfoFileNotExists_title,
+                        NLS.bind(DialogMessages.InfoFileNotExists_message,
+                                path))) {
                     return;
                 }
             }
@@ -325,8 +350,8 @@ public class MME {
                 if (openMindMap(window, path, fileName))
                     return;
             }
-        } else if (MindMapUI.FILE_EXT_MARKER_PACKAGE
-                .equalsIgnoreCase(extension)) {
+        } else
+            if (MindMapUI.FILE_EXT_MARKER_PACKAGE.equalsIgnoreCase(extension)) {
             if (importMarkers(path))
                 return;
         }
@@ -349,8 +374,8 @@ public class MME {
      */
     private static boolean openMindMap(final IWorkbenchWindow window,
             final String path, final String fileName) {
-        String errMessage = NLS.bind(
-                DialogMessages.FailedToLoadWorkbook_message, path);
+        String errMessage = NLS
+                .bind(DialogMessages.FailedToLoadWorkbook_message, path);
         final boolean[] ret = new boolean[1];
         SafeRunner.run(new SafeRunnable(errMessage) {
             public void run() throws Exception {
@@ -374,8 +399,8 @@ public class MME {
             if (display != null) {
                 display.asyncExec(new Runnable() {
                     public void run() {
-                        PrefUtils
-                                .openPrefDialog(null, MarkerManagerPrefPage.ID);
+                        PrefUtils.openPrefDialog(null,
+                                MarkerManagerPrefPage.ID);
                     }
                 });
             }
@@ -384,4 +409,5 @@ public class MME {
         }
         return false;
     }
+
 }

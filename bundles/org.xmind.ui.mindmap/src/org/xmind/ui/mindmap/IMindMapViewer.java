@@ -102,6 +102,14 @@ public interface IMindMapViewer extends IGraphicalViewer {
      */
     String VIEWER_SELECT_CENTRALTOPIC = "selectCentralTopic"; //$NON-NLS-1$
 
+    String PLUS_MINUS_VISIBILITY = "plusMinusVisibility"; //$NON-NLS-1$
+
+    String PLUS_MINUS_VISIBLE = "plusMinusVisible"; //$NON-NLS-1$
+
+    String PLUS_MINUS_HIDDEN = "plusMinusHidden"; //$NON-NLS-1$
+
+    String PLUS_VISIBLE_MINUS_HIDDEN = "plusVisibleMinusHidden"; //$NON-NLS-1$
+
     IMindMap getMindMap();
 
     void setMindMap(IMindMap mindMap);

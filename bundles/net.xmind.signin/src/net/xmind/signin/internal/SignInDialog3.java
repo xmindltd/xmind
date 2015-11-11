@@ -9,12 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import net.xmind.signin.IButtonCreator;
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.ISignInDialogExtension;
-import net.xmind.signin.ISignInDialogExtension2;
-import net.xmind.signin.XMindNet;
-
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -41,10 +35,17 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.resources.FontUtils;
 
-public class SignInDialog3 extends TitleAreaDialog implements
-        IJobChangeListener, IButtonCreator {
+import net.xmind.signin.IButtonCreator;
+import net.xmind.signin.ISignInDialogExtension;
+import net.xmind.signin.ISignInDialogExtension2;
+import net.xmind.signin.XMindNet;
+
+public class SignInDialog3 extends TitleAreaDialog
+        implements IJobChangeListener, IButtonCreator {
 
     private static class InternalSignInJob extends Job {
 
@@ -236,8 +237,8 @@ public class SignInDialog3 extends TitleAreaDialog implements
 
         // Row 3:
         Label emptyPlaceholder = new Label(form, SWT.NONE);
-        emptyPlaceholder.setLayoutData(new GridData(SWT.END, SWT.CENTER, false,
-                false));
+        emptyPlaceholder
+                .setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
         Control forgotButton = createForgotPasswordButton(form);
         ((GridData) forgotButton.getLayoutData()).verticalIndent = -10;
@@ -273,10 +274,10 @@ public class SignInDialog3 extends TitleAreaDialog implements
     private Control createSignUpButton(Composite parent) {
         Hyperlink signupLink = new Hyperlink(parent, SWT.NONE);
 
-        signupLink.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
-        signupLink.setForeground(signupLink.getDisplay().getSystemColor(
-                SWT.COLOR_BLUE));
+        signupLink.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+        signupLink.setForeground(
+                signupLink.getDisplay().getSystemColor(SWT.COLOR_BLUE));
         signupLink.setUnderlined(true);
 
         signupLink.setText(Messages.SignInDialog_NotMember_text);
@@ -284,7 +285,7 @@ public class SignInDialog3 extends TitleAreaDialog implements
         signupLink.addHyperlinkListener(new HyperlinkAdapter() {
             @Override
             public void linkActivated(HyperlinkEvent e) {
-                XMindNet.gotoURL(true, "https://www.xmind.net/xmind/signup/"); //$NON-NLS-1$
+                XMindNet.gotoURL(true, Activator.URL_SIGN_UP);
             }
         });
 
@@ -299,9 +300,10 @@ public class SignInDialog3 extends TitleAreaDialog implements
     }
 
     private void createPasswordField(Composite parent) {
-        passwordField = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.PASSWORD);
-        passwordField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                false));
+        passwordField = new Text(parent,
+                SWT.BORDER | SWT.SINGLE | SWT.PASSWORD);
+        passwordField
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         ((GridData) passwordField.getLayoutData()).widthHint = 160;
         passwordField.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
@@ -319,18 +321,17 @@ public class SignInDialog3 extends TitleAreaDialog implements
     private Control createForgotPasswordButton(Composite parent) {
         Hyperlink signupLink = new Hyperlink(parent, SWT.NONE);
 
-        signupLink.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
-        signupLink.setForeground(signupLink.getDisplay().getSystemColor(
-                SWT.COLOR_BLUE));
+        signupLink.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+        signupLink.setForeground(
+                signupLink.getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
         signupLink.setText(Messages.SignInDialog_ForgotPassword_text);
 
         signupLink.addHyperlinkListener(new HyperlinkAdapter() {
             @Override
             public void linkActivated(HyperlinkEvent e) {
-                XMindNet.gotoURL(true,
-                        "https://www.xmind.net/xmind/forgotpassword/"); //$NON-NLS-1$
+                XMindNet.gotoURL(true, Activator.URL_FORGOT_PASSWORD);
             }
         });
 
@@ -340,13 +341,17 @@ public class SignInDialog3 extends TitleAreaDialog implements
     protected Control createButtonBar(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        GridLayout gridLayout = new GridLayout(hasButtonBarContributor() ? 1
-                : 2, false);
-        gridLayout.marginWidth = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_MARGIN);
+        GridLayout gridLayout = new GridLayout(
+                hasButtonBarContributor() ? 1 : 2, false);
+        gridLayout.marginWidth = convertHorizontalDLUsToPixels(
+                IDialogConstants.HORIZONTAL_MARGIN);
         gridLayout.marginHeight = 0;
-        gridLayout.marginBottom = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-        gridLayout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-        gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+        gridLayout.marginBottom = convertVerticalDLUsToPixels(
+                IDialogConstants.VERTICAL_MARGIN);
+        gridLayout.verticalSpacing = convertVerticalDLUsToPixels(
+                IDialogConstants.VERTICAL_SPACING);
+        gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                IDialogConstants.HORIZONTAL_SPACING);
         composite.setLayout(gridLayout);
 
         createExpandedArea(composite);
@@ -359,8 +364,10 @@ public class SignInDialog3 extends TitleAreaDialog implements
         layout.makeColumnsEqualWidth = false;
         layout.marginWidth = 0;
         layout.marginHeight = 0;
-        layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-        layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+        layout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                IDialogConstants.HORIZONTAL_SPACING);
+        layout.verticalSpacing = convertVerticalDLUsToPixels(
+                IDialogConstants.VERTICAL_SPACING);
         buttonBar.setLayout(layout);
         buttonBar.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, true));
         buttonBar.setFont(parent.getFont());
@@ -377,8 +384,10 @@ public class SignInDialog3 extends TitleAreaDialog implements
         GridLayout gridLayout = new GridLayout(1, false);
         gridLayout.marginWidth = 0;
         gridLayout.marginHeight = 0;
-        gridLayout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-        gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+        gridLayout.verticalSpacing = convertVerticalDLUsToPixels(
+                IDialogConstants.VERTICAL_SPACING);
+        gridLayout.horizontalSpacing = convertHorizontalDLUsToPixels(
+                IDialogConstants.HORIZONTAL_SPACING);
         composite.setLayout(gridLayout);
 
         createSignUpButton(composite);

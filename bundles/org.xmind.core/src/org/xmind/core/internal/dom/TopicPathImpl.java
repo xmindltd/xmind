@@ -49,9 +49,13 @@ public class TopicPathImpl extends TopicPath {
         entries.add(0, t);
         if (t != null && t.isRoot()) {
             ISheet sheet = t.getOwnedSheet();
-            entries.add(0, sheet);
-            IWorkbook workbook = sheet.getParent();
-            entries.add(0, workbook);
+            if (sheet != null) {
+                entries.add(0, sheet);
+                IWorkbook workbook = sheet.getParent();
+                if (workbook != null) {
+                    entries.add(0, workbook);
+                }
+            }
         }
         return entries;
     }

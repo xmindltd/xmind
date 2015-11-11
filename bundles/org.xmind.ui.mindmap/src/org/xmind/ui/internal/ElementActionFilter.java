@@ -6,6 +6,11 @@ import org.xmind.core.ITitled;
 import org.xmind.core.ITopic;
 import org.xmind.core.util.HyperlinkUtils;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated
+ */
 public class ElementActionFilter implements IActionFilter {
 
     private static final ElementActionFilter instance = new ElementActionFilter();

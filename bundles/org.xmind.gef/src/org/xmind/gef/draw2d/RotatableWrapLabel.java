@@ -15,6 +15,8 @@ package org.xmind.gef.draw2d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.draw2d.AbstractBackground;
 import org.eclipse.draw2d.Figure;
@@ -29,6 +31,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
+import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.geometry.PrecisionDimension;
 import org.xmind.gef.draw2d.geometry.PrecisionInsets;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
@@ -74,6 +77,8 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     private TextStyle style = null;
 
     private int align = PositionConstants.LEFT;
+
+    private int textCase = GEF.MANUAL;
 
     private int renderStyle = NORMAL;
 
@@ -200,6 +205,13 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     }
 
     /**
+     * @see org.xmind.gef.draw2d.ITextFigure#getTextCase()
+     */
+    public int getTextCase() {
+        return textCase;
+    }
+
+    /**
      * Gets the angle in degrees by which the label is rotated.
      * 
      * @return the rotateAngle
@@ -307,6 +319,14 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
         if (this.align == align)
             return;
         this.align = align;
+        repaint();
+    }
+
+    public void setTextCase(int textCase) {
+        if (this.textCase == textCase)
+            return;
+        this.textCase = textCase;
+        revalidate();
         repaint();
     }
 
@@ -511,8 +531,35 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     private Dimension getSubTextSize(String s, int start, int end, Font f) {
         String t = trim(s.substring(start, end));
+        t = getShowText(t, getTextCase());
         Dimension size = getLooseTextSize(t, f);
         return size;
+    }
+
+    private String getShowText(String t, int textCase) {
+        switch (textCase) {
+        case GEF.MANUAL:
+            return t;
+        case GEF.UPPERCASE:
+            return t.toUpperCase();
+        case GEF.LOWERCASE:
+            return t.toLowerCase();
+        case GEF.CAPITALIZE:
+            return capitalize(t);
+        }
+        return t;
+    }
+
+    private String capitalize(String str) {
+        StringBuffer stringbf = new StringBuffer();
+        Matcher m = Pattern
+                .compile("([^\\s])([^\\s]*)", Pattern.CASE_INSENSITIVE) //$NON-NLS-1$
+                .matcher(str);
+        while (m.find()) {
+            m.appendReplacement(stringbf,
+                    m.group(1).toUpperCase() + m.group(2).toLowerCase());
+        }
+        return m.appendTail(stringbf).toString();
     }
 
     private static String trim(String s) {
@@ -596,8 +643,10 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
         String theText = getAppliedText(wHint);
         String[] split = forceSplit(theText);
         PrecisionDimension size = D.setSize(0, 0);
+        final int textCase = getTextCase();
         for (String s : split) {
-            Dimension d = getLooseTextSize(s, f);
+            String t = getShowText(s, textCase);
+            Dimension d = getLooseTextSize(t, f);
             if (size.height > 0)
                 size.height += getLineSpacing();
             size.height += d.height;
@@ -731,15 +780,16 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      * Paints the text area of this label using the given Graphics object.<br>
      * <br>
      * <b>IMPORTANT</b>: Subclasses should never use any method that might
-     * access clipping in the given Graphics, such as <hi> <li>
-     * {@link Graphics#getClip(Rectangle)},</li> <li>
-     * {@link Graphics#setClip(Rectangle)},</li> <li>
-     * {@link Graphics#setClip(org.eclipse.swt.graphics.Path)},</li> <li>
-     * {@link Graphics#clipRect(Rectangle)},</li> <li>
-     * {@link Graphics#translate(int, int)},</li> <li>
-     * {@link Graphics#translate(float, float)},</li> <li>
-     * {@link Graphics#translate(Point)},</li> <li>{@link Graphics#pushState()},
-     * </li> <li>{@link Graphics#restoreState()},</li> </hi><br>
+     * access clipping in the given Graphics, such as <hi>
+     * <li>{@link Graphics#getClip(Rectangle)},</li>
+     * <li>{@link Graphics#setClip(Rectangle)},</li>
+     * <li>{@link Graphics#setClip(org.eclipse.swt.graphics.Path)},</li>
+     * <li>{@link Graphics#clipRect(Rectangle)},</li>
+     * <li>{@link Graphics#translate(int, int)},</li>
+     * <li>{@link Graphics#translate(float, float)},</li>
+     * <li>{@link Graphics#translate(Point)},</li>
+     * <li>{@link Graphics#pushState()},</li>
+     * <li>{@link Graphics#restoreState()},</li> </hi><br>
      * <br>
      * for the given Graphics' coordinates may have been rotated and clipping is
      * no longer preserved.<br>
@@ -749,7 +799,8 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      * @param textArea
      * @see Graphics#rotate(float)
      */
-    protected void paintTextArea(Graphics graphics, PrecisionRectangle textArea) {
+    protected void paintTextArea(Graphics graphics,
+            PrecisionRectangle textArea) {
         if (isOpaque() && getLocalBackgroundColor() != null) {
             int oldAlpha = graphics.getAlpha();
             graphics.setAlpha(getSubAlpha());
@@ -768,15 +819,16 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     /**
      * <b>IMPORTANT</b>: Subclasses should never use any method that might
-     * access clipping in the given Graphics, such as <hi> <li>
-     * {@link Graphics#getClip(Rectangle)},</li> <li>
-     * {@link Graphics#setClip(Rectangle)},</li> <li>
-     * {@link Graphics#setClip(org.eclipse.swt.graphics.Path)},</li> <li>
-     * {@link Graphics#clipRect(Rectangle)},</li> <li>
-     * {@link Graphics#translate(int, int)},</li> <li>
-     * {@link Graphics#translate(float, float)},</li> <li>
-     * {@link Graphics#translate(Point)},</li> <li>{@link Graphics#pushState()},
-     * </li> <li>{@link Graphics#restoreState()},</li> </hi><br>
+     * access clipping in the given Graphics, such as <hi>
+     * <li>{@link Graphics#getClip(Rectangle)},</li>
+     * <li>{@link Graphics#setClip(Rectangle)},</li>
+     * <li>{@link Graphics#setClip(org.eclipse.swt.graphics.Path)},</li>
+     * <li>{@link Graphics#clipRect(Rectangle)},</li>
+     * <li>{@link Graphics#translate(int, int)},</li>
+     * <li>{@link Graphics#translate(float, float)},</li>
+     * <li>{@link Graphics#translate(Point)},</li>
+     * <li>{@link Graphics#pushState()},</li>
+     * <li>{@link Graphics#restoreState()},</li> </hi><br>
      * <br>
      * for the given Graphics' coordinates may have been rotated and clipping is
      * no longer preserved.<br>
@@ -793,6 +845,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
         float y = (float) textArea.y + PADDING;
         float vSpacing = getLineSpacing();
         final int wrapAlignment = getTextAlignment();
+        final int textCase = getTextCase();
         boolean isUnderlined = isTextUnderlined();
         boolean isStrikedThrough = isTextStrikedThrough();
 
@@ -800,7 +853,8 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
         for (String token : tokens) {
             float x = (float) textArea.x + PADDING;
-            Dimension tokenSize = getLooseTextSize(token, f);
+            String t = getShowText(token, textCase);
+            Dimension tokenSize = getLooseTextSize(t, f);
             float tokenWidth = tokenSize.width;
             float tokenHeight = tokenSize.height;
             float tokenHeightHalf = tokenHeight / 2;
@@ -814,7 +868,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
                 break;
             }
 
-            paintText(graphics, token, x, y, tokenWidth, tokenHeight, f);
+            paintText(graphics, t, x, y, tokenWidth, tokenHeight, f);
 
             y += tokenHeight;
 
@@ -840,7 +894,9 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     protected void paintText(Graphics graphics, String token, float x, float y,
             float width, float height, Font f) {
         if (isNormalRenderStyle()) {
-            graphics.drawText(token, (int) x, (int) (y - 1.0d));
+            graphics.translate(x, y);
+            graphics.drawText(token, 0, 0);
+            graphics.translate(-x, -y);
             return;
         }
         Path shape = new Path(Display.getCurrent());

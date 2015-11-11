@@ -13,7 +13,12 @@
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.jface.viewers.ISelection;
+import org.xmind.core.ITopic;
 import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -41,6 +46,77 @@ public class InsertParentTopicAction extends RequestAction implements
     public void setSelection(ISelection selection) {
         setEnabled(MindMapUtils.isSingleTopic(selection)
                 && !MindMapUtils.hasCentralTopic(selection, getViewer()));
+        if (MindMapUtils.isSingleTopic(selection)) {
+            setEnabled(!MindMapUtils.hasCentralTopic(selection, getViewer()));
+        } else if (MindMapUtils.isAllSuchElements(selection,
+                MindMapUI.CATEGORY_TOPIC)) {
+            List<ITopic> topics = getAllTopics(selection);
+            if (topics == null || topics.size() == 0
+                    || containsCentralTopic(topics)) {
+                setEnabled(false);
+            } else {
+                setEnabled(isAllBrothers(MindMapUtils.filterOutDescendents(
+                        topics, null)));
+            }
+        }
+    }
+
+    private List<ITopic> getAllTopics(ISelection selection) {
+        List<Object> topics = MindMapUtils.getAllSuchElements(selection,
+                MindMapUI.CATEGORY_TOPIC);
+        if (topics == null) {
+            return null;
+        } else {
+            List<ITopic> list = new ArrayList<ITopic>();
+            Collections.addAll(list, topics.toArray(new ITopic[0]));
+            return list;
+        }
+    }
+
+    private boolean isAllBrothers(List<ITopic> topics) {
+        if (topics == null || topics.size() == 0) {
+            return false;
+        }
+        if (topics.size() == 1) {
+            return true;
+        }
+        for (int i = 0; i < topics.size() - 1; i++) {
+            if (!isBrothers(topics.get(i), topics.get(i + 1))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isBrothers(ITopic t1, ITopic t2) {
+        if (t1 == null || t2 == null) {
+            return false;
+        }
+
+        return t1.getParent() == t2.getParent();
+    }
+
+    public boolean containsCentralTopic(List<ITopic> topics) {
+        if (topics == null || topics.size() == 0) {
+            return false;
+        }
+
+        for (ITopic t : topics) {
+            if (isCentralTopic(t)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isCentralTopic(ITopic topic) {
+        if (topic == null) {
+            return false;
+        }
+
+        return topic.getOwnedSheet().getRootTopic() == topic;
     }
 
 }

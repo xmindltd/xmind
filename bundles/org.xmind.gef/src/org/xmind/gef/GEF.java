@@ -27,17 +27,17 @@ public class GEF {
     public static final String REQ_DEBUG = "debug"; //$NON-NLS-1$
 
     public static final String REQ_SELECT = "select"; //$NON-NLS-1$
-    public static final String REQ_SELECT_NONE = "select none"; //$NON-NLS-1$
-    public static final String REQ_SELECT_SINGLE = "select single"; //$NON-NLS-1$
-    public static final String REQ_SELECT_MULTI = "select multi"; //$NON-NLS-1$
-    public static final String REQ_SELECT_ALL = "select all"; //$NON-NLS-1$
+    public static final String REQ_SELECT_NONE = "select_none"; //$NON-NLS-1$
+    public static final String REQ_SELECT_SINGLE = "select_single"; //$NON-NLS-1$
+    public static final String REQ_SELECT_MULTI = "select_multi"; //$NON-NLS-1$
+    public static final String REQ_SELECT_ALL = "select_all"; //$NON-NLS-1$
 
     public static final String REQ_ZOOM = "zoom"; //$NON-NLS-1$
-    public static final String REQ_ZOOMIN = "zoom in"; //$NON-NLS-1$
-    public static final String REQ_ZOOMOUT = "zoom out"; //$NON-NLS-1$
-    public static final String REQ_ACTUALSIZE = "actual size"; //$NON-NLS-1$
-    public static final String REQ_FITSIZE = "fit size"; //$NON-NLS-1$
-    public static final String REQ_FITSELECTION = "fit selection"; //$NON-NLS-1$
+    public static final String REQ_ZOOMIN = "zoom_in"; //$NON-NLS-1$
+    public static final String REQ_ZOOMOUT = "zoom_out"; //$NON-NLS-1$
+    public static final String REQ_ACTUALSIZE = "actual_size"; //$NON-NLS-1$
+    public static final String REQ_FITSIZE = "fit_size"; //$NON-NLS-1$
+    public static final String REQ_FITSELECTION = "fit_selection"; //$NON-NLS-1$
 
     public static final String REQ_COPY = "copy"; //$NON-NLS-1$
     public static final String REQ_CUT = "cut"; //$NON-NLS-1$
@@ -59,38 +59,38 @@ public class GEF {
     public static final String REQ_MOVETO = "move to"; //$NON-NLS-1$
     public static final String REQ_COPYTO = "copy to"; //$NON-NLS-1$
 
-    public static final String REQ_MOVE_UP = "move up"; //$NON-NLS-1$
-    public static final String REQ_MOVE_DOWN = "move down"; //$NON-NLS-1$
-    public static final String REQ_MOVE_LEFT = "move left"; //$NON-NLS-1$
-    public static final String REQ_MOVE_RIGHT = "move right"; //$NON-NLS-1$
+    public static final String REQ_MOVE_UP = "move_up"; //$NON-NLS-1$
+    public static final String REQ_MOVE_DOWN = "move_down"; //$NON-NLS-1$
+    public static final String REQ_MOVE_LEFT = "move_left"; //$NON-NLS-1$
+    public static final String REQ_MOVE_RIGHT = "move_right"; //$NON-NLS-1$
 
-    public static final String REQ_NAV_UP = "navigate up"; //$NON-NLS-1$
-    public static final String REQ_NAV_DOWN = "navigate down"; //$NON-NLS-1$
-    public static final String REQ_NAV_LEFT = "navigate left"; //$NON-NLS-1$
-    public static final String REQ_NAV_RIGHT = "navigate right"; //$NON-NLS-1$
-    public static final String REQ_NAV_BEGINNING = "navigate beginning"; //$NON-NLS-1$
-    public static final String REQ_NAV_END = "navigate end"; //$NON-NLS-1$
-    public static final String REQ_NAV_BACK = "navigate backward"; //$NON-NLS-1$
-    public static final String REQ_NAV_FORWARD = "navigate forward"; //$NON-NLS-1$
-    public static final String REQ_NAV_NEXT = "navigate next"; //$NON-NLS-1$
-    public static final String REQ_NAV_PREV = "navigate previous"; //$NON-NLS-1$
-    public static final String REQ_MOVE_PREV = "move previous"; //$NON-NLS-1$
-    public static final String REQ_MOVE_NEXT = "move next"; //$NON-NLS-1$
+    public static final String REQ_NAV_UP = "navigate_up"; //$NON-NLS-1$
+    public static final String REQ_NAV_DOWN = "navigate_down"; //$NON-NLS-1$
+    public static final String REQ_NAV_LEFT = "navigate_left"; //$NON-NLS-1$
+    public static final String REQ_NAV_RIGHT = "navigate_right"; //$NON-NLS-1$
+    public static final String REQ_NAV_BEGINNING = "navigate_beginning"; //$NON-NLS-1$
+    public static final String REQ_NAV_END = "navigate_end"; //$NON-NLS-1$
+    public static final String REQ_NAV_BACK = "navigate_backward"; //$NON-NLS-1$
+    public static final String REQ_NAV_FORWARD = "navigate_forward"; //$NON-NLS-1$
+    public static final String REQ_NAV_NEXT = "navigate_next"; //$NON-NLS-1$
+    public static final String REQ_NAV_PREV = "navigate_previous"; //$NON-NLS-1$
+    public static final String REQ_MOVE_PREV = "move_previous"; //$NON-NLS-1$
+    public static final String REQ_MOVE_NEXT = "move_next"; //$NON-NLS-1$
 
     public static final String REQ_TRAVERSE = "traverse"; //$NON-NLS-1$
-    public static final String REQ_GET_TRAVERSABLES = "get traversables"; //$NON-NLS-1$
+    public static final String REQ_GET_TRAVERSABLES = "get_traversables"; //$NON-NLS-1$
 
     public static final String REQ_EXTEND = "extend"; //$NON-NLS-1$
     public static final String REQ_COLLAPSE = "collapse"; //$NON-NLS-1$
-    public static final String REQ_EXTEND_ALL = "extend all"; //$NON-NLS-1$
-    public static final String REQ_COLLAPSE_ALL = "collapse all"; //$NON-NLS-1$
+    public static final String REQ_EXTEND_ALL = "extend_all"; //$NON-NLS-1$
+    public static final String REQ_COLLAPSE_ALL = "collapse_all"; //$NON-NLS-1$
 
     public static final String REQ_SHOW = "show"; //$NON-NLS-1$
     public static final String REQ_HIDE = "hide"; //$NON-NLS-1$
-    public static final String REQ_SHOW_ALL = "show all"; //$NON-NLS-1$
-    public static final String REQ_HIDE_ALL = "hide all"; //$NON-NLS-1$
-    public static final String REQ_SHOW_OTHER = "show other"; //$NON-NLS-1$
-    public static final String REQ_SHOW_ONLY = "show only"; //$NON-NLS-1$
+    public static final String REQ_SHOW_ALL = "show_all"; //$NON-NLS-1$
+    public static final String REQ_HIDE_ALL = "hide_all"; //$NON-NLS-1$
+    public static final String REQ_SHOW_OTHER = "show_other"; //$NON-NLS-1$
+    public static final String REQ_SHOW_ONLY = "show_only"; //$NON-NLS-1$
 
     public static final String REQ_ALIGN = "align"; //$NON-NLS-1$
     public static final String REQ_SORT = "sort"; //$NON-NLS-1$
@@ -147,6 +147,7 @@ public class GEF {
     public static final String ROLE_FILTERABLE = "filterable role"; //$NON-NLS-1$
     public static final String ROLE_CONNECTABLE = "connectable role"; //$NON-NLS-1$
     public static final String ROLE_DROP_TARGET = "drop target role"; //$NON-NLS-1$
+    public static final String ROLE_MAP_MOVABLE = "map movable role"; //$NON-NLS-1$
 
     public static final String ROLE_SORTABLE = "sortable role"; //$NON-NLS-1$
 
@@ -210,6 +211,15 @@ public class GEF {
     public static final int SEL_SINGLE = 1 << 1;
     public static final int SEL_MULTI = 1 << 2;
     public static final int SEL_DEFAULT = SEL_EMPTY | SEL_SINGLE | SEL_MULTI;
+
+    /**
+     * Font case
+     */
+    public static final int CASE_EMPTY = 0;
+    public static final int MANUAL = 1;
+    public static final int UPPERCASE = 1 << 1;
+    public static final int LOWERCASE = 1 << 2;
+    public static final int CAPITALIZE = 1 << 3;
 
     /**
      * Request parameter: the source part from which the request is sent,
@@ -385,7 +395,8 @@ public class GEF {
      * 
      * <dl>
      * <dt>Values:</dt>
-     * <dd>an array of parts (<code>{@link org.xmind.gef.part.IPart}[]</code>)</dd>
+     * <dd>an array of parts (<code>{@link org.xmind.gef.part.IPart}[]</code>)
+     * </dd>
      * </dl>
      */
     public static final String RESULT_TRAVERSE = "traverseResult"; //$NON-NLS-1$
@@ -396,7 +407,8 @@ public class GEF {
      * 
      * <dl>
      * <dt>Values:</dt>
-     * <dd>an array of parts (<code>{@link org.xmind.gef.part.IPart}[]</code>)</dd>
+     * <dd>an array of parts (<code>{@link org.xmind.gef.part.IPart}[]</code>)
+     * </dd>
      * </dl>
      */
     public static final String RESULT_NAVIGATION = "navigationResult"; //$NON-NLS-1$

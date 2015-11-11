@@ -29,9 +29,9 @@ public abstract class AbstractBoundaryDecoration extends PathShapeDecoration
 
     private static final Rectangle CLIP = new Rectangle();
 
-    private static final int MARGIN_WIDTH = 10;
+    protected static final int MARGIN_WIDTH = 10;
 
-    private static final int MARGIN_HEIGHT = 10;
+    protected static final int MARGIN_HEIGHT = 10;
 
     protected static final int TITLE_MARGIN = 5;
 

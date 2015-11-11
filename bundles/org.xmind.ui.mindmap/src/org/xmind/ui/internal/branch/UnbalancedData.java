@@ -25,8 +25,8 @@ public class UnbalancedData extends RadialData {
         if (num != null)
             return num.intValue();
         int superRightNum = super.getNumRight();
-        ITopicExtension extension = branch.getTopic().createExtension(
-                EXTENTION_UNBALANCEDSTRUCTURE);
+        ITopicExtension extension = branch.getTopic()
+                .createExtension(EXTENTION_UNBALANCEDSTRUCTURE);
         ITopicExtensionElement element = extension.getContent()
                 .getCreatedChild(EXTENTIONELEMENT_RIGHTNUMBER);
         String rightNum = element.getTextContent();
@@ -38,8 +38,8 @@ public class UnbalancedData extends RadialData {
             }
             return value;
         } else {
-            element.setTextContent(String.valueOf(0));
-            return 0;
+            element.setTextContent(String.valueOf(superRightNum));
+            return superRightNum;
         }
     }
 

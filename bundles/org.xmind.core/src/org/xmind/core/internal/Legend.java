@@ -19,13 +19,10 @@ import java.util.Set;
 import org.xmind.core.ILegend;
 import org.xmind.core.util.Point;
 
-public abstract class Legend implements ILegend {
+public abstract class Legend extends AbstractWorkbookComponent
+        implements ILegend {
 
     protected static final Set<String> NO_MARKER_IDS = Collections.emptySet();
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
 
     /**
      * @see org.xmind.core.ITopic#setPosition(org.xmind.core.util.Point)

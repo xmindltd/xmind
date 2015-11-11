@@ -28,9 +28,9 @@ public interface IRelationshipDecoration extends IConnectionDecorationEx {
 
     void setRelativeTargetControlPoint(IFigure figure, Point point);
 
-//    void setSourceControlPointHint(IFigure figure, Double angle, Double amount);
-//
-//    void setTargetControlPointHint(IFigure figure, Double angle, Double amount);
+    void setSourceControlPointHint(IFigure figure, Double angle, Double amount);
+
+    void setTargetControlPointHint(IFigure figure, Double angle, Double amount);
 
     IArrowDecoration getArrow1(); //sourceArrow
 

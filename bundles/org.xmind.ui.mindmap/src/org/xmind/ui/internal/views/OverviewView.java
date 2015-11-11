@@ -20,8 +20,14 @@ import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 
-public class OverviewView extends PageBookView implements
-        IContributedContentsView {
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated Replaced by {@link org.xmind.ui.views.ContributedContentsView}
+ */
+@Deprecated
+public class OverviewView extends PageBookView
+        implements IContributedContentsView {
 
     @Override
     protected IPage createDefaultPage(PageBook book) {
@@ -61,6 +67,7 @@ public class OverviewView extends PageBookView implements
         return getSite().getPage().getActiveEditor();
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IContributedContentsView.class) {
             return this;

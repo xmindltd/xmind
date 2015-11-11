@@ -10,6 +10,30 @@ public class Messages extends NLS {
     public static String BlackBoxView_OpenVersion;
     public static String BlackBoxView_Versions;
 
+    // Inspector
+    public static String AuthorInfoInspectorSection_title;
+    public static String AuthorInfoInspectorSection_Name;
+    public static String AuthorInfoInspectorSection_Email;
+    public static String AuthorInfoInspectorSection_Organization;
+    public static String AuthorInfoInspectorSection_Enter_Name;
+    public static String AuthorInfoInspectorSection_Enter_Email;
+    public static String AuthorInfoInspectorSection_Enter_Organization;
+    public static String AttachmentsInspectorSection_title;
+    public static String ExternalFilesInspectorSection_title;
+    public static String HyperlinkInspectorSection_title;
+    public static String ImageInspectorSection_title;
+    public static String FileInfoInspectorSection_title;
+    public static String NoContent_message;
+    public static String FileInfoEstimateSize_label;
+    public static String FileInfoWords_label;
+    public static String FileInfoTopics_label;
+    public static String FileInfoRevisions_label;
+    public static String FileInfoModifiedTime_label;
+    public static String FileInfoModifiedBy_label;
+    public static String FileInfoCreatedTime_label;
+    public static String RemoveAllRevisionsDialog_title;
+    public static String RemoveAllRevisionsDialog_message;
+
     public static String ThemesView_Dialog_title;
     public static String ThemesView_Dialog_message;
     public static String ThemesView_Dialog_Check;

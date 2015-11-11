@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.xmind.ui.internal.fishbone.structures;
 
+import org.xmind.gef.draw2d.geometry.IPrecisionTransformer;
+import org.xmind.gef.draw2d.geometry.PrecisionRotator;
+import org.xmind.ui.mindmap.IBranchPart;
+
 public abstract class AbstractSubFishboneDirection implements ISubDirection {
 
     private boolean rotated;
@@ -89,5 +93,9 @@ public abstract class AbstractSubFishboneDirection implements ISubDirection {
 //    public String getChildNavigationType() {
 //        return childNavType;
 //    }
+    public void fillFishboneExtraData(IBranchPart branch, FishboneData data,
+            IPrecisionTransformer h, PrecisionRotator r, double spacing,
+            boolean extraBranch) {
+    }
 
 }

@@ -20,30 +20,53 @@
       <view
             category="org.eclipse.ui"
             class="org.xmind.ui.internal.spelling.SpellingCheckView"
-            icon="icons/spell-check.gif"
+            icon="platform:/plugin/org.xmind.ui/icons/e/spellcheck.png"
             id="org.xmind.ui.SpellingCheckView"
             name="%view.spellingCheck.name"
             restorable="true">
       </view>
    </extension>
    <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            description="%actionSet.spellingCheck.description"
-            id="org.xmind.ui.actionSet.spelling"
-            label="%actionSet.spellingCheck.label"
-            visible="true">
-         <action
-               class="org.xmind.ui.internal.spelling.CheckSpellingAction"
-               disabledIcon="icons/spell-check-disabled.gif"
-               icon="icons/spell-check.gif"
-               id="org.xmind.ui.action.CheckSpelling"
-               label="%checkSpelling.text"
-               menubarPath="edit/additions"
-               style="push"
-               tooltip="%checkSpelling.toolTip">
-         </action>
-      </actionSet>
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.checkSpelling.description"
+            id="org.xmind.ui.command.checkSpelling"
+            name="%command.checkSpelling.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.checkSpellingAllEditors.description"
+            id="org.xmind.ui.command.checkSpelling.allEditors"
+            name="%command.checkSpellingAllEditors.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.ui.internal.handlers.CheckSpellingHandler"
+            commandId="org.xmind.ui.command.checkSpelling">
+         <activeWhen>
+            <with
+                  variable="activePart">
+               <adapt
+                     type="org.xmind.ui.IWordContextProvider">
+               </adapt>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.CheckSpellingForAllHandler"
+            commandId="org.xmind.ui.command.checkSpelling.allEditors">
+         <activeWhen>
+            <with
+                  variable="activeWorkbenchWindow">
+               <instanceof
+                     value="org.eclipse.ui.IWorkbenchWindow">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
 
 </plugin>

@@ -56,13 +56,14 @@ public class OverridedStyle {
 
     public OverridedStyle(BranchPolicyManager manager,
             IConfigurationElement element) throws CoreException {
+        this.manager = manager;
         this.element = element;
         this.key = element.getAttribute(ATT_KEY);
         if (key == null)
-            throw new CoreException(new Status(IStatus.ERROR, element
-                    .getNamespaceIdentifier(), 0,
-                    "Invalid extension (missing style key)", //$NON-NLS-1$
-                    null));
+            throw new CoreException(
+                    new Status(IStatus.ERROR, element.getNamespaceIdentifier(),
+                            0, "Invalid extension (missing style key)", //$NON-NLS-1$
+                            null));
         this.value = element.getAttribute(ATT_VALUE);
         initializeLayers();
         initializeEnablement();
@@ -119,8 +120,8 @@ public class OverridedStyle {
     public boolean isApplicableTo(IBranchPart branch) {
         if (condition == null)
             return true;
-        return isApplicableTo(BranchPolicyManager
-                .createBranchEvaluationContext(branch));
+        return isApplicableTo(
+                BranchPolicyManager.createBranchEvaluationContext(branch));
     }
 
     boolean isApplicableTo(IEvaluationContext context) {

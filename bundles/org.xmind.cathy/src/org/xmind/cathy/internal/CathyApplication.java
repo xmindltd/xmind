@@ -14,20 +14,29 @@
 package org.xmind.cathy.internal;
 
 import java.io.File;
-
-import net.xmind.signin.internal.XMindNetErrorReporter;
-import net.xmind.signin.internal.XMindUpdater;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.IPreferenceConstants;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.osgi.framework.Bundle;
 import org.xmind.core.Core;
+import org.xmind.core.IWorkspace;
+import org.xmind.core.internal.dom.DOMConstants;
+import org.xmind.core.util.FileUtils;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.statushandlers.IErrorReporter;
+import org.xmind.ui.prefs.PrefConstants;
+
+import net.xmind.signin.internal.XMindNetErrorReporter;
+import net.xmind.signin.internal.XMindUpdater;
 
 /**
  * This class controls all aspects of the application's execution
@@ -65,11 +74,31 @@ public class CathyApplication implements IApplication {
         System.setProperty("org.xmind.product.about.homepage", //$NON-NLS-1$
                 WorkbenchMessages.About_Homepage);
 
+        IPreferenceStore pref = MindMapUIPlugin.getDefault()
+                .getPreferenceStore();
+
+        String name = pref.getString(PrefConstants.AUTHOR_INFO_NAME);
+
+        if (name == null)
+            name = System.getProperty("user.name"); //$NON-NLS-1$
+        if (name != null)
+            System.setProperty(DOMConstants.AUTHOR_NAME, name);
+
+        if (pref.getString(PrefConstants.AUTHOR_INFO_EMAIL) != null)
+            System.setProperty(DOMConstants.AUTHOR_EMAIL,
+                    pref.getString(PrefConstants.AUTHOR_INFO_EMAIL));
+
+        if (pref.getString(PrefConstants.AUTHOR_INFO_ORG) != null)
+            System.setProperty(DOMConstants.AUTHOR_ORG,
+                    pref.getString(PrefConstants.AUTHOR_INFO_ORG));
+
         // Configure the default error reporter.
         IErrorReporter.Default.setDelegate(new XMindNetErrorReporter());
 
         // Set Cathy product as the workbook creator.
         Core.getWorkbookBuilder().setCreator("XMind", buildId); //$NON-NLS-1$
+
+        preHandleLastOpenedFiles();
 
         // Check if there's already a running XMind instance:
         if (shouldExitEarly()) {
@@ -81,6 +110,7 @@ public class CathyApplication implements IApplication {
 
         // Create the default display instance.
         Display display = PlatformUI.createDisplay();
+
         try {
             // Check if we are in beta and should quit due to beta expiry.
             if (new BetaVerifier(display).shouldExitAfterBetaExpired())
@@ -104,6 +134,11 @@ public class CathyApplication implements IApplication {
             // to recognize the environment:
             initializeInternalBrowserCookies();
 
+            //Close model's auto-save to avoid repeated model elements 
+            //which application exits non-normally:
+            WorkbenchPlugin.getDefault().getPreferenceStore()
+                    .setValue(IPreferenceConstants.WORKBENCH_SAVE_INTERVAL, 0);
+
             // Launch workbench and get return code:
             int returnCode = PlatformUI.createAndRunWorkbench(display,
                     new CathyWorkbenchAdvisor());
@@ -117,6 +152,20 @@ public class CathyApplication implements IApplication {
             return EXIT_OK;
         } finally {
             display.dispose();
+        }
+    }
+
+    private void preHandleLastOpenedFiles() throws IOException {
+        IWorkspace workspace = Core.getWorkspace();
+        String opened = workspace.getTempFile(IWorkspace.FILE_OPENED);
+        String recovery = workspace.getTempFile(IWorkspace.FILE_TO_RECOVER);
+        File recoveryFile = new File(recovery);
+        if (recoveryFile.exists() && recoveryFile.isFile())
+            recoveryFile.delete();
+
+        File openedFile = new File(opened);
+        if (openedFile.exists()) {
+            FileUtils.copy(opened, recovery);
         }
     }
 
@@ -143,8 +192,9 @@ public class CathyApplication implements IApplication {
 
     private void initializeInternalBrowserCookies() {
         String appVersion = System.getProperty(SYS_VERSION);
-        Browser.setCookie("_env=xmind_" + appVersion //$NON-NLS-1$
-                + "; path=/; domain=.xmind.net", //$NON-NLS-1$
+        Browser.setCookie(
+                "_env=xmind_" + appVersion //$NON-NLS-1$
+                        + "; path=/; domain=.xmind.net", //$NON-NLS-1$
                 "http://www.xmind.net/"); //$NON-NLS-1$
     }
 
@@ -158,8 +208,8 @@ public class CathyApplication implements IApplication {
             if ("-p".equals(arg)) {//$NON-NLS-1$
                 // The "-p" argument is used to start Presentation Mode
                 // immediately on startup:
-                System.setProperty(
-                        "org.xmind.cathy.startup.presentation", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+                System.setProperty("org.xmind.cathy.startup.presentation", //$NON-NLS-1$
+                        "true"); //$NON-NLS-1$
             } else if (arg.startsWith("xmind:") || new File(arg).exists()) { //$NON-NLS-1$
                 // Add xmind command or existing file path to '.opening' log:
                 openingLog.append(arg);

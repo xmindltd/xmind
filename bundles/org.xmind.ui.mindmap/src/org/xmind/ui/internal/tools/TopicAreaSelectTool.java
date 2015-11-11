@@ -57,6 +57,9 @@ public class TopicAreaSelectTool extends FeedbackAreaSelectTool implements
                 for (IBranchPart subBranch : branch.getSubBranches()) {
                     areaSelect(subBranch, area);
                 }
+                for (IBranchPart calloutBranch : branch.getCalloutBranches()) {
+                    areaSelect(calloutBranch, area);
+                }
                 for (IBranchPart summaryBranch : branch.getSummaryBranches()) {
                     areaSelect(summaryBranch, area);
                 }

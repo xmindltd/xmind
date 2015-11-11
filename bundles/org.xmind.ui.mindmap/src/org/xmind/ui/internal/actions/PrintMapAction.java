@@ -33,6 +33,7 @@ public class PrintMapAction extends PageAction {
 
     public PrintMapAction(IGraphicalEditorPage page) {
         super(ActionFactory.PRINT.getId(), page);
+        setActionDefinitionId(ActionFactory.PRINT.getCommandId());
     }
 
     private IMindMap findMindMap(IGraphicalEditorPage page) {
@@ -132,7 +133,7 @@ public class PrintMapAction extends PageAction {
     }
 
     private String getJobName(IMindMap map) {
-        return map.getCentralTopic().getTitleText()
-                .replaceAll("\r\n|\r|\n", " "); //$NON-NLS-1$ //$NON-NLS-2$
+        return map.getCentralTopic().getTitleText().replaceAll("\r\n|\r|\n", //$NON-NLS-1$
+                " "); //$NON-NLS-1$
     }
 }

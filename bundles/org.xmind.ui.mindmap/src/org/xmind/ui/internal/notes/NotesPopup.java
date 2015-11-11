@@ -134,8 +134,8 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
         }
     }
 
-    private class NotesPopupActionBarContributor extends
-            SimpleRichTextActionBarContributor {
+    private class NotesPopupActionBarContributor
+            extends SimpleRichTextActionBarContributor {
 
         private Map<String, TextAction> textActions = new HashMap<String, TextAction>(
                 10);
@@ -149,10 +149,10 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
             public GotoNotesViewAction() {
                 super(MindMapMessages.EditInNotesView_text);
                 setToolTipText(MindMapMessages.EditInNotesView_toolTip);
-                setImageDescriptor(MindMapUI.getImages().get(
-                        IMindMapImages.NOTES, true));
-                setDisabledImageDescriptor(MindMapUI.getImages().get(
-                        IMindMapImages.NOTES, false));
+                setImageDescriptor(
+                        MindMapUI.getImages().get(IMindMapImages.NOTES, true));
+                setDisabledImageDescriptor(
+                        MindMapUI.getImages().get(IMindMapImages.NOTES, false));
             }
 
             public void run() {
@@ -194,8 +194,8 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
             textAction.setToolTipText(action.getToolTipText());
             textAction.setDescription(action.getDescription());
             textAction.setImageDescriptor(action.getImageDescriptor());
-            textAction.setDisabledImageDescriptor(action
-                    .getDisabledImageDescriptor());
+            textAction.setDisabledImageDescriptor(
+                    action.getDisabledImageDescriptor());
             textAction
                     .setHoverImageDescriptor(action.getHoverImageDescriptor());
             action.dispose();
@@ -406,7 +406,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
 
     private ITopicPart topicPart;
 
-    private NotesViewer notesViewer;
+    private TopicNotesViewer notesViewer;
 
     private NotesPopupActionBarContributor contributor;
 
@@ -441,7 +441,8 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
         this.editable = editable;
     }
 
-    public NotesPopup(Shell parentShell, ITopicPart topicPart, boolean editable) {
+    public NotesPopup(Shell parentShell, ITopicPart topicPart,
+            boolean editable) {
         super(parentShell, SWT.Resize, true, true, true, false, false, null,
                 null);
         this.topicPart = topicPart;
@@ -452,10 +453,10 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
 
     protected Control createDialogArea(Composite parent) {
         Composite composite = (Composite) super.createDialogArea(parent);
-        notesViewer = new NotesViewer();
+        notesViewer = new TopicNotesViewer();
         if (editable) {
-            notesViewer
-                    .setContributor(contributor = new NotesPopupActionBarContributor());
+            notesViewer.setContributor(
+                    contributor = new NotesPopupActionBarContributor());
         }
         int style = IRichTextEditViewer.DEFAULT_CONTROL_STYLE;
         if (!editable) {
@@ -485,8 +486,8 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
         notesViewer.getImplementation().getDocument().addDocumentListener(this);
         notesViewer.getImplementation().getDocument()
                 .addRichDocumentListener(this);
-        new PopupKeyboardListener().hook(notesViewer.getImplementation()
-                .getFocusControl());
+        new PopupKeyboardListener()
+                .hook(notesViewer.getImplementation().getFocusControl());
         update();
         addSpellCheck();
         return composite;
@@ -497,7 +498,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
                 notesViewer.getImplementation().getTextViewer());
     }
 
-    public NotesViewer getNotesViewer() {
+    public TopicNotesViewer getNotesViewer() {
         return notesViewer;
     }
 
@@ -520,14 +521,16 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
         return calcInitialLocation((IGraphicalViewer) viewer, bounds);
     }
 
-    private Point calcInitialLocation(IGraphicalViewer viewer, Rectangle bounds) {
+    private Point calcInitialLocation(IGraphicalViewer viewer,
+            Rectangle bounds) {
         ZoomManager zoom = viewer.getZoomManager();
         bounds = bounds.scale(zoom.getScale()).expand(1, 1)
                 .translate(viewer.getScrollPosition().getNegated());
-        return viewer.getControl()
-                .toDisplay(bounds.x, bounds.y + bounds.height);
+        return viewer.getControl().toDisplay(bounds.x,
+                bounds.y + bounds.height);
     }
 
+    @SuppressWarnings("unchecked")
     protected List getBackgroundColorExclusions() {
         List list = super.getBackgroundColorExclusions();
         collectBackgroundColorExclusions(notesViewer.getControl(), list);
@@ -545,8 +548,8 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
     }
 
     protected IDialogSettings getDialogSettings() {
-        return MindMapUIPlugin.getDefault().getDialogSettings(
-                MindMapUI.POPUP_DIALOG_SETTINGS_ID);
+        return MindMapUIPlugin.getDefault()
+                .getDialogSettings(MindMapUI.POPUP_DIALOG_SETTINGS_ID);
     }
 
     public int open() {
@@ -596,9 +599,9 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
         if (showGotoNotesView) {
             TriggerSequence key = registerCommand(CMD_GOTO_NOTES_VIEW);
             if (key != null) {
-                setInfoText(NLS.bind(
-                        DialogMessages.NotesPopup_GotoNotesView_text,
-                        key.format()));
+                setInfoText(
+                        NLS.bind(DialogMessages.NotesPopup_GotoNotesView_text,
+                                key.format()));
             }
         }
         registerCommand(CMD_COMMIT_NOTES);
@@ -634,12 +637,12 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
             }
             return true;
         } else if (CMD_COMMIT_NOTES.equals(commandId)) {
-            Display.getCurrent().asyncExec(new Runnable() {
-                public void run() {
-                    setReturnCode(OK);
-                    close();
-                }
-            });
+//            Display.getCurrent().asyncExec(new Runnable() {
+//                public void run() {
+            setReturnCode(OK);
+            close();
+//                }
+//            });
             return true;
         } else if (IWorkbenchCommandConstants.FILE_SAVE.equals(commandId)) {
             saveNotes();

@@ -38,12 +38,13 @@ public class WorkbookFactory {
         return createEmptyWorkbook(initialPath, null);
     }
 
-    public static IWorkbook createEmptyWorkbook(String initialPath, IStyle theme) {
-        IWorkbook workbook = Core.getWorkbookBuilder().createWorkbook(
-                initialPath);
+    public static IWorkbook createEmptyWorkbook(String initialPath,
+            IStyle theme) {
+        IWorkbook workbook = Core.getWorkbookBuilder()
+                .createWorkbook(initialPath);
         ISheet sheet = workbook.getPrimarySheet();
-        sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet, workbook
-                .getSheets().size()));
+        sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
+                workbook.getSheets().size()));
         ITopic rootTopic = sheet.getRootTopic();
         rootTopic.setTitleText(MindMapMessages.TitleText_CentralTopic);
         rootTopic.setStructureClass("org.xmind.ui.map.unbalanced"); //$NON-NLS-1$
@@ -63,6 +64,10 @@ public class WorkbookFactory {
     public static InputStream createEmptyWorkbookStream(String initialPath,
             IStyle theme) {
         IWorkbook workbook = createEmptyWorkbook(initialPath, theme);
+        return new ByteArrayInputStream(getWorkbookContent(workbook));
+    }
+
+    public static byte[] getWorkbookContent(IWorkbook workbook) {
         ByteArrayOutputStream out = new ByteArrayOutputStream(4096);
         try {
             workbook.save(out);
@@ -74,7 +79,7 @@ public class WorkbookFactory {
             } catch (IOException e) {
             }
         }
-        return new ByteArrayInputStream(out.toByteArray());
+        return out.toByteArray();
     }
 
 }

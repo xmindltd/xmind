@@ -21,6 +21,8 @@ public interface INumbering extends IAdaptable, ITopicComponent {
 
     String getSuffix();
 
+    String getSeparator();
+
     boolean prependsParentNumbers();
 
     void setFormat(String format);
@@ -29,10 +31,16 @@ public interface INumbering extends IAdaptable, ITopicComponent {
 
     void setSuffix(String suffix);
 
+    void setSeparator(String separator);
+
     void setPrependsParentNumbers(boolean prepend);
 
     String getParentFormat();
 
     String getComputedFormat();
+
+    String getParentSeparator();
+
+    String getComputedSeparator();
 
 }

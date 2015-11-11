@@ -14,8 +14,8 @@
 package org.xmind.ui.mindmap;
 
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Menu;
 import org.xmind.core.ITopic;
 import org.xmind.gef.part.IGraphicalPart;
 
@@ -29,6 +29,6 @@ public interface IIconTipPart extends IGraphicalPart {
 
     IAction getAction();
 
-    Menu getPopupMenu();
+    IMenuManager getPopupMenu();
 
 }

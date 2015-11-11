@@ -234,4 +234,7 @@ public abstract class GraphicalEditPart extends EditPart implements
         return null;
     }
 
+    public String getActionId() {
+        return null;
+    }
 }

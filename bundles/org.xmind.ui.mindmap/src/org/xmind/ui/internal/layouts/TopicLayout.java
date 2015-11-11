@@ -37,8 +37,8 @@ import org.xmind.ui.mindmap.INumberingPart;
 import org.xmind.ui.mindmap.ITitleTextPart;
 import org.xmind.ui.mindmap.ITopicPart;
 
-public class TopicLayout extends MindMapLayoutBase implements
-        IRotatableReferenceDescriptor, IRotatableReferencedLayout {
+public class TopicLayout extends MindMapLayoutBase
+        implements IRotatableReferenceDescriptor, IRotatableReferencedLayout {
 
     private int spacing = 2;
 
@@ -72,7 +72,8 @@ public class TopicLayout extends MindMapLayoutBase implements
         this.spacing = spacing;
     }
 
-    protected void fillLayoutData(IFigure container, ReferencedLayoutData data) {
+    protected void fillLayoutData(IFigure container,
+            ReferencedLayoutData data) {
         boolean minimized = isMinimized(container);
         ITopicPart topic = getTopic();
 
@@ -91,7 +92,6 @@ public class TopicLayout extends MindMapLayoutBase implements
 
         List<IMarkerPart> markers = topic.getMarkers();
         if (!markers.isEmpty()) {
-            data.translate(5, 0);
             for (int i = markers.size() - 1; i >= 0; i--) {
                 IMarkerPart marker = markers.get(i);
                 fillMarker(marker, data);
@@ -133,10 +133,10 @@ public class TopicLayout extends MindMapLayoutBase implements
         IImage imageModel = image.getImageModel();
         String alignment = imageModel.getAlignment();
         IFigure imageFigure = image.getFigure();
-        PrecisionDimension size = r().rd(
-                new PrecisionDimension(imageFigure.getPreferredSize()));
-        PrecisionDimension size2 = r().td(
-                new PrecisionDimension(imageFigure.getPreferredSize()));
+        PrecisionDimension size = r()
+                .rd(new PrecisionDimension(imageFigure.getPreferredSize()));
+        PrecisionDimension size2 = r()
+                .td(new PrecisionDimension(imageFigure.getPreferredSize()));
         Point ref = data.getReference();
         Rectangle r;
         Rectangle area = data.getClientArea();
@@ -146,39 +146,43 @@ public class TopicLayout extends MindMapLayoutBase implements
             if (IImage.LEFT.equals(alignment)) {
                 data.translate((int) ((size2.width + spacing) / 2), 0);
                 area = data.getClientArea();
-                r = new PrecisionRectangle(area.x - size2.width / 2
-                        - size.width / 2 - spacing, ref.y - size.height / 2,
-                        size.width, size.height).toDraw2DRectangle();
+                r = new PrecisionRectangle(
+                        area.x - size2.width / 2 - size.width / 2 - spacing,
+                        ref.y - size.height / 2, size.width, size.height)
+                                .toDraw2DRectangle();
                 data.add(new PrecisionRectangle(area.x - size2.width - spacing,
                         ref.y - size2.height / 2, size2.width, size2.height)
-                        .toDraw2DRectangle());
+                                .toDraw2DRectangle());
             } else if (IImage.RIGHT.equals(alignment)) {
                 data.translate((int) (-(size2.width + spacing) / 2), 0);
                 area = data.getClientArea();
-                r = new PrecisionRectangle(area.x + area.width + spacing
-                        + size2.width / 2 - size.width / 2, ref.y - size.height
-                        / 2, size.width, size.height).toDraw2DRectangle();
+                r = new PrecisionRectangle(
+                        area.x + area.width + spacing + size2.width / 2
+                                - size.width / 2,
+                        ref.y - size.height / 2, size.width, size.height)
+                                .toDraw2DRectangle();
                 data.add(new PrecisionRectangle(area.x + area.width + spacing,
                         ref.y - size2.height / 2, size2.width, size2.height)
-                        .toDraw2DRectangle());
+                                .toDraw2DRectangle());
             } else if (IImage.BOTTOM.equals(alignment)) {
                 data.translate(0, -(int) ((size2.height + spacing) / 2));
                 area = data.getClientArea();
-                r = new PrecisionRectangle(ref.x - size.width / 2, area.y
-                        + area.height + size2.height / 2 - size.height / 2
-                        + spacing, size.width, size.height).toDraw2DRectangle();
-                data.add(new PrecisionRectangle(ref.x - size2.width / 2, area.y
-                        + area.height + spacing, size2.width, size2.height)
-                        .toDraw2DRectangle());
-            } else /* if (IImage.TOP.equals(alignment) */{
+                r = new PrecisionRectangle(ref.x - size.width / 2,
+                        area.y + area.height + size2.height / 2
+                                - size.height / 2 + spacing,
+                        size.width, size.height).toDraw2DRectangle();
+                data.add(new PrecisionRectangle(ref.x - size2.width / 2,
+                        area.y + area.height + spacing, size2.width,
+                        size2.height).toDraw2DRectangle());
+            } else /* if (IImage.TOP.equals(alignment) */ {
                 data.translate(0, (int) ((size2.height + spacing) / 2));
                 area = data.getClientArea();
-                r = new PrecisionRectangle(ref.x - size.width / 2, area.y
-                        - size2.height / 2 - size.height / 2 - spacing,
+                r = new PrecisionRectangle(ref.x - size.width / 2,
+                        area.y - size2.height / 2 - size.height / 2 - spacing,
                         size.width, size.height).toDraw2DRectangle();
-                data.add(new PrecisionRectangle(ref.x - size2.width / 2, area.y
-                        - size2.height - spacing, size2.width, size2.height)
-                        .toDraw2DRectangle());
+                data.add(new PrecisionRectangle(ref.x - size2.width / 2,
+                        area.y - size2.height - spacing, size2.width,
+                        size2.height).toDraw2DRectangle());
             }
         }
         data.put(imageFigure, r);
@@ -196,8 +200,8 @@ public class TopicLayout extends MindMapLayoutBase implements
             int dx = (size.width + spacing) / 2;
             data.translate(dx, 0);
             area = data.getClientArea();
-            r = new Rectangle(area.x - size.width - spacing, ref.y
-                    - size.height / 2, size.width, size.height);
+            r = new Rectangle(area.x - size.width - spacing,
+                    ref.y - size.height / 2, size.width, size.height);
         }
         data.put(fig, r);
     }
@@ -233,8 +237,8 @@ public class TopicLayout extends MindMapLayoutBase implements
             int dx = (size.width + spacing) / 2;
             data.translate(dx, 0);
             area = data.getClientArea();
-            r = new Rectangle(area.x - size.width - spacing, ref.y
-                    - size.height / 2, size.width, size.height);
+            r = new Rectangle(area.x - size.width - spacing,
+                    ref.y - size.height / 2, size.width, size.height);
         }
         data.put(fig, r);
     }
@@ -338,8 +342,8 @@ public class TopicLayout extends MindMapLayoutBase implements
 
     public PrecisionRectangle getNormalPreferredClientArea(IFigure container) {
         if (normalClientArea == null) {
-            normalClientArea = new PrecisionRectangle(super
-                    .getPreferredClientArea(container));
+            normalClientArea = new PrecisionRectangle(
+                    super.getPreferredClientArea(container));
         }
         return normalClientArea;
     }

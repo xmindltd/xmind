@@ -12,6 +12,8 @@ public class Messages extends NLS {
 
     public static String ZoomIn_toolTip;
 
+    public static String ContentsView_NoContent;
+
     static {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }

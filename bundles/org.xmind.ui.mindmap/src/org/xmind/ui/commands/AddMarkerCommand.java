@@ -18,11 +18,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.xmind.core.ITopic;
-import org.xmind.core.marker.IMarker;
-import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.gef.ISourceProvider;
 import org.xmind.gef.command.SourceCommand;
-import org.xmind.ui.mindmap.MindMapUI;
 
 public class AddMarkerCommand extends SourceCommand {
 
@@ -41,7 +38,8 @@ public class AddMarkerCommand extends SourceCommand {
         this.markerId = newMarkerId;
     }
 
-    public AddMarkerCommand(ISourceProvider sourceProvider, String newMarkerId) {
+    public AddMarkerCommand(ISourceProvider sourceProvider,
+            String newMarkerId) {
         super(sourceProvider);
         Assert.isNotNull(newMarkerId);
         this.markerId = newMarkerId;
@@ -53,36 +51,6 @@ public class AddMarkerCommand extends SourceCommand {
             if (source instanceof ITopic) {
                 ITopic t = (ITopic) source;
                 t.addMarker(markerId);
-                IMarker systemMarker = MindMapUI.getResourceManager()
-                        .getSystemMarkerSheet().findMarker(markerId);
-                if (systemMarker != null) {
-                    IMarkerGroup group = systemMarker.getParent();
-                    if (group != null) {
-                        if (group.getParent() != null
-                                && group.getParent().equals(
-                                        MindMapUI.getResourceManager()
-                                                .getSystemMarkerSheet()))
-                            MindMapUI.getResourceManager()
-                                    .getRecentMarkerGroup()
-                                    .addMarker(systemMarker);
-                    }
-                }
-                IMarker userMarker = MindMapUI.getResourceManager()
-                        .getUserMarkerSheet().findMarker(markerId);
-                if (userMarker != null) {
-                    IMarkerGroup group = userMarker.getParent();
-                    if (group != null) {
-                        if (group.getParent() != null
-                                && group.getParent().equals(
-                                        MindMapUI.getResourceManager()
-                                                .getUserMarkerSheet())) {
-
-                            MindMapUI.getResourceManager()
-                                    .getRecentMarkerGroup()
-                                    .addMarker(userMarker);
-                        }
-                    }
-                }
             }
         }
         super.redo();

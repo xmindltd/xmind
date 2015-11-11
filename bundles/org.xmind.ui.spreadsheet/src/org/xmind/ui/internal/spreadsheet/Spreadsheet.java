@@ -17,19 +17,28 @@ public class Spreadsheet {
 
     public static final String SPREADSHEET_POLICY_ID = "org.xmind.ui.spreadsheet"; //$NON-NLS-1$
 
-    public static final String SPREADSHEET_STRUCTURE_ID = "org.xmind.ui.structure.spreadsheet"; //$NON-NLS-1$
+    public static final String SPREADSHEET_STRUCTURE_ROW_ID = "org.xmind.ui.structure.spreadsheet"; //$NON-NLS-1$
+
+    public static final String SPREADSHEET_STRUCTURE_COLUMN_ID = "org.xmind.ui.structure.column.spreadsheet"; //$NON-NLS-1$
 
     public static final String P_IS_ALTERNATIVE_ROW = "isAlternativeRow"; //$NON-NLS-1$
 
+    public static final String P_IS_ALTERNATIVE_Colunm = "isAlternativeColumn"; //$NON-NLS-1$
+
     public static final String P_USER_STRUCTURE_CLASS = "userStructureClass"; //$NON-NLS-1$
 
+    public static final String CACHE_INVALIDATING = "org.xmind.ui.spreadsheet.cache.invalidating"; //$NON-NLS-1$
+
+    public static final String PARAM_CHART = "chart"; //$NON-NLS-1$
+
+    /*
+     * Column
+     */
     public static final String KEY_INSERTION_COLUMN_HEAD = "org.xmind.ui.spreadsheet.cache.insertionColumnHead"; //$NON-NLS-1$
 
     public static final String TOOL_EDIT_COLUMN_HEAD = "org.xmind.ui.spreadsheet.tool.columnHeadEditTool"; //$NON-NLS-1$
 
     public static final String TOOL_MOVE_COLUMN = "org.xmind.ui.spreadsheet.tool.moveColumn"; //$NON-NLS-1$
-
-    public static final String CACHE_INVALIDATING = "org.xmind.ui.spreadsheet.cache.invalidating"; //$NON-NLS-1$
 
     public static final String CACHE_MOVE_SOURCE_COLUMN_HEAD = "org.xmind.ui.spreadsheet.cache.moveSourceColumnHead"; //$NON-NLS-1$
 
@@ -41,9 +50,31 @@ public class Spreadsheet {
 
     public static final String EVENT_MODIFY_COLUMN_ORDER = "org.xmind.ui.spreadsheet.coreEvent.modifyColumnOrder"; //$NON-NLS-1$
 
-    public static final String PARAM_CHART = "chart"; //$NON-NLS-1$
-
     public static final String PARAM_COLUMN = "column"; //$NON-NLS-1$
 
     public static final String PARAM_COLUMN_HEAD = "columnHead"; //$NON-NLS-1$
+
+    /*
+     * Row
+     */
+    public static final String KEY_INSERTION_ROW_HEAD = "org.xmind.ui.spreadsheet.cache.insertionRowHead"; //$NON-NLS-1$
+
+    public static final String TOOL_EDIT_ROW_HEAD = "org.xmind.ui.spreadsheet.tool.rowHeadEditTool"; //$NON-NLS-1$
+
+    public static final String TOOL_MOVE_ROW = "org.xmind.ui.spreadsheet.tool.moveRow"; //$NON-NLS-1$
+
+    public static final String CACHE_MOVE_SOURCE_ROW_HEAD = "org.xmind.ui.spreadsheet.cache.moveSourceRowHead"; //$NON-NLS-1$
+
+    public static final String CACHE_ROW_INSERTION = "org.xmind.ui.spreadsheet.cache.rowInsertion"; //$NON-NLS-1$
+
+    public static final String PARAM_ROW = "row"; //$NON-NLS-1$
+
+    public static final String PARAM_ROW_HEAD = "rowHead"; //$NON-NLS-1$
+
+    public static final String EVENT_MODIFY_ROW_ORDER = "org.xmind.ui.spreadsheet.coreEvent.modifyRowOrder"; //$NON-NLS-1$
+
+    public static final String TAG_ROWS = "rows"; //$NON-NLS-1$
+
+    public static final String TAG_ROW = "row"; //$NON-NLS-1$
+
 }

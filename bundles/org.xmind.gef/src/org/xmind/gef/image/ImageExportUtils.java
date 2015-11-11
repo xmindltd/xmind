@@ -35,8 +35,8 @@ public class ImageExportUtils {
 
     public static IExportAreaProvider createExportAreaProvider(
             Rectangle sourceArea) {
-        return createExportAreaProvider(sourceArea,
-                ResizeConstants.RESIZE_NONE, -1, -1, null);
+        return createExportAreaProvider(sourceArea, ResizeConstants.RESIZE_NONE,
+                -1, -1, null);
     }
 
     public static IExportAreaProvider createExportAreaProvider(
@@ -59,23 +59,24 @@ public class ImageExportUtils {
 
     public static IExportAreaProvider createExportAreaProvider(
             Rectangle sourceArea, Insets margins) {
-        return createExportAreaProvider(sourceArea,
-                ResizeConstants.RESIZE_NONE, -1, -1, margins);
+        return createExportAreaProvider(sourceArea, ResizeConstants.RESIZE_NONE,
+                -1, -1, margins);
     }
 
     public static IExportAreaProvider createExportAreaProvider(
             Rectangle sourceArea, int resizeStrategy, int wHint, int hHint,
             Insets margins) {
-        if (resizeStrategy == ResizeConstants.RESIZE_STRETCH) {
+        switch (resizeStrategy) {
+        case ResizeConstants.RESIZE_STRETCH:
             return new StretchedExportAreaProvider(sourceArea, wHint, hHint,
                     margins);
-        } else if (resizeStrategy == ResizeConstants.RESIZE_FIT) {
+        case ResizeConstants.RESIZE_FIT:
             return new FittedExportAreaProvider(sourceArea, wHint, hHint,
                     margins);
-        } else if (resizeStrategy == ResizeConstants.RESIZE_CONSTRAIN) {
+        case ResizeConstants.RESIZE_CONSTRAIN:
             return new ConstrainedExportAreaProvider(sourceArea, wHint, hHint,
                     margins);
-        } else if (resizeStrategy == ResizeConstants.RESIZE_MAXPIXELS) {
+        case ResizeConstants.RESIZE_MAXPIXELS:
             return new MaxPixelsExportAreaProvider(sourceArea, wHint, hHint,
                     margins);
         }
@@ -115,9 +116,8 @@ public class ImageExportUtils {
         return figure.getBounds();
     }
 
-    public static Image createImage(Device device,
-            IExportSourceProvider source, int resizeStrategy, int wHint,
-            int hHint) {
+    public static Image createImage(Device device, IExportSourceProvider source,
+            int resizeStrategy, int wHint, int hHint) {
         IExportAreaProvider area = createExportAreaProvider(
                 source.getSourceArea(), resizeStrategy, wHint, hHint,
                 source.getMargins());

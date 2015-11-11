@@ -22,6 +22,11 @@ import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated Use command and handlers
+ */
 public class AddMarkerAction extends PageAction implements ISelectionAction {
 
     private String markerId;
@@ -30,7 +35,8 @@ public class AddMarkerAction extends PageAction implements ISelectionAction {
         this(id, page, null);
     }
 
-    public AddMarkerAction(String id, IGraphicalEditorPage page, String markerId) {
+    public AddMarkerAction(String id, IGraphicalEditorPage page,
+            String markerId) {
         super(id, page);
         this.markerId = markerId;
     }

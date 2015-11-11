@@ -19,6 +19,8 @@ public class MindMapMessages extends NLS {
 
     private static final String BUNDLE_NAME = "org.xmind.ui.internal.messages"; //$NON-NLS-1$
 
+    public static String TitleText_CalloutTopic;
+
     public static String TitleText_CentralTopic;
     public static String TitleText_MainTopic;
     public static String TitleText_Subtopic;
@@ -32,6 +34,8 @@ public class MindMapMessages extends NLS {
     public static String ViewMenu;
 
     public static String InsertMenu;
+    public static String ModifyComment_label;
+
     public static String ModifyMenu;
     public static String ToolsMenu;
     public static String SortMenu;
@@ -78,12 +82,43 @@ public class MindMapMessages extends NLS {
     public static String ActualSize_text;
     public static String ActualSize_toolTip;
 
+    public static String AddComment_text;
+    public static String AddComment_tooltip;
+
+    public static String AddCommentLink_text;
+    public static String AddCommentLink_tooltip;
+
+    public static String ModifyComment_text;
+    public static String ModifyComment_tooltip;
+
     public static String CancelHyperlink_text;
     public static String CancelHyperlink_toolTip;
+
+    public static String Category_Callout;
+
+    public static String Category_Summary;
     public static String Collapse_text;
     public static String Collapse_toolTip;
     public static String CollapseAll_text;
     public static String CollapseAll_toolTip;
+
+    public static String Comment_Delete_label;
+    public static String Comment_Edit_label;
+    public static String Comment_Reply_label;
+    public static String Comment_Cancel_text;
+    public static String Comment_Cancel_tooltip;
+    public static String Comment_JustNow_text;
+    public static String Comment_NoComments_text;
+    public static String Comment_FirstAdd_text;
+    public static String Comment_SHEET_text;
+    public static String Comment_Add_text;
+    public static String Comment_TOPIC_text;
+
+    public static String Comments_FirstAdd_text;
+
+    public static String Comments_lable;
+
+    public static String Comments_NoComments_text;
 
     public static String Command_InsertImage;
     public static String DeleteSheet_text;
@@ -105,7 +140,15 @@ public class MindMapMessages extends NLS {
     public static String Delete_OtherSheets_text;
     public static String Delete_OtherSheets_toolTip;
 
+    public static String DeleteComment_label;
+    public static String DeleteComment_text;
+    public static String DeleteComment_tooltip;
+
     public static String DeleteMultipleRevisionsCommand_label;
+    public static String DeleteNotes_label;
+    public static String DeleteNotes_text;
+    public static String DeleteNotes_tooltip;
+    public static String DeleteMarker_label;
     public static String DrillDown_text;
     public static String DrillDown_toolTip;
     public static String DrillUp_text;
@@ -116,6 +159,8 @@ public class MindMapMessages extends NLS {
     public static String EditNotes_toolTip;
     public static String Edit_text;
     public static String Edit_toolTip;
+
+    public static String EditComments_text;
     public static String EditTitle_text;
     public static String EditTitle_toolTip;
     public static String Extend_text;
@@ -184,20 +229,17 @@ public class MindMapMessages extends NLS {
     public static String LoadWorkbookJob_errorDialog_GoToBackup_message;
 
     public static String LoadWorkbookJob_errorDialog_title;
-    public static String LoadWorkbookJob_errorDialog_message;
 
     public static String LoadWorkbookJob_errorDialog_Pre_message;
+    public static String MindMapEditor_CompatibilityWarning_dialogTitle;
+
+    public static String MindMapEditor_CompatibilityWarning_Overwrite_button;
+
+    public static String MindMapEditor_CompatibilityWarning_OverwritingHigherVersion_message;
+
+    public static String MindMapEditor_CompatibilityWarning_SaveAs_button;
+
     public static String MindMapEditor_partInitException_message;
-
-    public static String MindMapEditor_ReportLabel;
-
-    public static String MindMapEditor_ReportProblem;
-
-    public static String MindMapEditor_SaveAsLabel;
-
-    public static String MindMapEditor_SaveWorkbookErrorMessage;
-
-    public static String MindMapEditor_SaveWorkbookErrorMessageAndReport;
 
     public static String MindMapPropertySheetPage_ResetStyle_text;
 
@@ -223,6 +265,7 @@ public class MindMapMessages extends NLS {
     public static String OpenWorkbook_toolTip;
     public static String OpenHomeMap_text;
     public static String OpenHomeMap_toolTip;
+    public static String OpenHomeMap_Error_message;
 
     public static String OpenHomeMapAction_HomeMapMissingMessage;
 
@@ -245,6 +288,14 @@ public class MindMapMessages extends NLS {
     public static String SaveAsTemplate_toolTip;
     public static String SaveSheetAs_text;
     public static String SaveSheetAs_toolTip;
+    public static String ShowAllComments_text;
+
+    public static String ShowAllComments_tooltip;
+
+    public static String ShowAllNotes_text;
+
+    public static String ShowAllNotes_tooltip;
+
     public static String ShowWorkbook_text;
     public static String ShowWorkbook_toolTip;
     public static String ShowSheet_text;
@@ -270,6 +321,14 @@ public class MindMapMessages extends NLS {
     public static String MoveRight_toolTip;
     public static String ShowMarkerManager_text;
     public static String ShowMarkerManager_toolTip;
+
+    public static String ShowNextTopicComments_text;
+
+    public static String ShowNextTopicComments_tooltip;
+
+    public static String ShowPreTopicComments_text;
+
+    public static String ShowPreTopicComments_tooltip;
 
     public static String SortByTitle_text;
     public static String SortByTitle_toolTip;
@@ -339,6 +398,8 @@ public class MindMapMessages extends NLS {
     public static String DefaultThemeAction_text;
     public static String DefaultThemeAction_toolTip;
 
+    public static String ThemeLabel_LoadTheme;
+
     public static String DefaultTheme_title;
 
     public static String Legend;
@@ -364,6 +425,8 @@ public class MindMapMessages extends NLS {
     public static String RevisionsView_RevertToRevisionAction_toolTip;
 
     public static String RevisionsView_TimeColumn_text;
+
+    public static String RevisionPage_ShowDetails_message;
 
     public static String DefaultOverviewPage_message;
     public static String DefaultRevisionsPage_message;
@@ -407,6 +470,10 @@ public class MindMapMessages extends NLS {
 
     public static String FileStoreWorkbookAdapter_FailedToSaveWorkbook_error;
 
+    public static String EditInCommentsView_text;
+
+    public static String EditInCommentsView_tooltip;
+
     public static String EditInNotesView_text;
     public static String EditInNotesView_toolTip;
 
@@ -432,10 +499,9 @@ public class MindMapMessages extends NLS {
     public static String ReopenWorkbookMenu_ClearListAction_text;
 
     public static String SaveNewRevision_text;
+    public static String SaveNewRevision_tooltip;
 
     public static String WorkbookRevisionsPage_AutoSaveRevisionsCheck_text;
-
-    public static String Topic_Count;
 
     public static String DuplicateSheet_text;
     public static String DuplicateSheet_toolTip;
@@ -444,6 +510,41 @@ public class MindMapMessages extends NLS {
 
     public static String RemoveAllStyles_text;
     public static String RemoveAllStyles_tooltip;
+
+    public static String InfoItem_Modify_text;
+    public static String InfoItem_Delete_text;
+    public static String InfoItem_SaveAttachment_text;
+
+    public static String Notes_Edit_text;
+    public static String Notes_Delete_text;
+
+    public static String MultipagePrint_Printing;
+    public static String MultipagePrint_InvalidMargin_title;
+    public static String MultipagePrint_InvalidMargin_message;
+
+    public static String MultipageSetupDialog_GeneratePreview;
+    public static String MultipageSetupDialog_GeneratingPreview;
+    public static String MultipageSetupDialog_GeneratedPreview;
+    public static String MultipageSetupDialog_FaildGenerate;
+    public static String MultipageSetupDialog_PrintDirectly;
+    public static String MultipageSetupDialog_ImageTooLarge;
+    public static String MultipageSetupDialog_Content;
+    public static String MultipageSetupDialog_PageSetup;
+    public static String MultipageSetupDialog_Collapse_Expand;
+    public static String MultipageSetupDialog_Orientation;
+    public static String MultipageSetupDialog_Margin;
+    public static String MultipageSetupDialog_Header;
+    public static String MultipageSetupDialog_Footer;
+    public static String MultipageSetupDialog_Pages;
+    public static String MultipageSetupDialog_SinglePage;
+    public static String MultipageSetupDialog_MultiplePages;
+    public static String MultipageSetupDialog_OptimalPagingEffect;
+    public static String MultipageSetupDialog_Horizontal;
+    public static String MultipageSetupDialog_Vertical;
+    public static String MultipageSetupDialog_ShowDetails;
+    public static String MultipageSetupDialog_HideDetails;
+
+    public static String WorkbookMetadata_ModifyAuthorInfo;
 
     static {
         // initialize resource bundle

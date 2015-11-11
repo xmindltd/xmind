@@ -136,7 +136,7 @@ public class NullDomainService implements IDomainServiceFactory,
         return singleton;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         return null;
     }

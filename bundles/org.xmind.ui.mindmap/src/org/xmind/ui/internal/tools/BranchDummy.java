@@ -192,7 +192,10 @@ public class BranchDummy {
             PartRegistry partRegistry = viewer.getPartRegistry();
             if (viewer instanceof AbstractViewer)
                 ((AbstractViewer) viewer).setPartRegistry(null);
-            branch = new BranchPart();
+            BranchPart branchPart = new BranchPart();
+            if (sourceBranch != null)
+                branchPart.setOverrideBranchType(sourceBranch.getBranchType());
+            branch = branchPart;
             branch.setModel(topic);
             branch.setParent(viewer.getRootPart());
             addBranchView();

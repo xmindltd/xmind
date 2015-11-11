@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.internal.mindmap;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.draw2d.FigureCanvas;
@@ -23,15 +24,22 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.xmind.core.IRelationship;
+import org.xmind.core.IRelationshipEnd;
 import org.xmind.core.ISheet;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
+import org.xmind.core.ITopicComponent;
 import org.xmind.core.IWorkbook;
 import org.xmind.gef.GraphicalViewer;
 import org.xmind.gef.ISelectionSupport;
+import org.xmind.gef.command.Command;
+import org.xmind.gef.command.CompoundCommand;
+import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.part.IRootPart;
 import org.xmind.gef.service.IRevealService;
+import org.xmind.ui.commands.ModifyFoldedCommand;
 import org.xmind.ui.internal.figures.BranchFigure;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IMindMap;
@@ -140,7 +148,8 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
     protected void revealParts(List<? extends IPart> parts) {
         super.revealParts(parts);
         if (getFocusedPart() != null && parts.contains(getFocusedPart())) {
-            IRevealService revealService = (IRevealService) getService(IRevealService.class);
+            IRevealService revealService = (IRevealService) getService(
+                    IRevealService.class);
             if (revealService != null) {
                 revealService.reveal(new StructuredSelection(getFocusedPart()));
             }
@@ -156,7 +165,8 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
     protected void fireFocusedPartChanged() {
         super.fireFocusedPartChanged();
         if (getFocusedPart() != null) {
-            IRevealService revealService = (IRevealService) getService(IRevealService.class);
+            IRevealService revealService = (IRevealService) getService(
+                    IRevealService.class);
             if (revealService != null) {
                 revealService.reveal(new StructuredSelection(getFocusedPart()));
             }
@@ -164,10 +174,54 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
     }
 
     public void setSelection(ISelection selection) {
+        if (selection instanceof IStructuredSelection) {
+            for (Object element : ((IStructuredSelection) selection).toList()) {
+                if (element instanceof ITopicComponent) {
+                    setSelectionAndUnfold(element);
+                } else if (element instanceof IRelationship) {
+                    IRelationship r = (IRelationship) element;
+                    IRelationshipEnd e1 = r.getEnd1();
+                    IRelationshipEnd e2 = r.getEnd2();
+                    if (e1 instanceof ITopicComponent) {
+                        setSelectionAndUnfold(e1);
+                    }
+                    if (e2 instanceof ITopicComponent) {
+                        setSelectionAndUnfold(e2);
+
+                    }
+                }
+            }
+        }
+
         super.setSelection(selection, true);
     }
 
-    protected void ensureVisible(Rectangle box, Rectangle clientArea, int margin) {
+    private void setSelectionAndUnfold(Object element) {
+        List<Command> showElementsCommands = new ArrayList<Command>(1);
+        ITopic parent = ((ITopicComponent) element).getParent();
+        while (parent != null) {
+            if (parent.isFolded()) {
+                showElementsCommands
+                        .add(new ModifyFoldedCommand(parent, false));
+            }
+            parent = parent.getParent();
+        }
+        if (!showElementsCommands.isEmpty()) {
+            Command command = new CompoundCommand(
+                    showElementsCommands.get(0).getLabel(),
+                    showElementsCommands);
+            saveAndRun(command);
+        }
+    }
+
+    protected void saveAndRun(Command command) {
+        ICommandStack cs = getEditDomain().getCommandStack();
+        if (cs != null)
+            cs.execute(command);
+    }
+
+    protected void ensureVisible(Rectangle box, Rectangle clientArea,
+            int margin) {
         super.ensureVisible(box, clientArea, 10);
     }
 
@@ -234,8 +288,8 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
 
     public ITopicPart getCentralTopicPart() {
         IBranchPart centralBranchPart = getCentralBranchPart();
-        return centralBranchPart == null ? null : centralBranchPart
-                .getTopicPart();
+        return centralBranchPart == null ? null
+                : centralBranchPart.getTopicPart();
     }
 
     public ISheet getSheet() {

@@ -23,7 +23,7 @@
             class="org.xmind.core.internal.TopicPropertyTester"
             id="org.xmind.core.propertyTester.topic"
             namespace="org.xmind.core.topic"
-            properties="type,structureClass"
+            properties="eval,type,title,structureClass,folded,hyperlink,imageSource"
             type="org.xmind.core.ITopic">
       </propertyTester>
       <propertyTester

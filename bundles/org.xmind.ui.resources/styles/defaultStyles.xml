@@ -27,6 +27,19 @@
 			line-width="1pt" spacing-major="8pt" spacing-minor="1pt"
 			fo:text-align="left"/>
 		</style>
+		<style type="topic" id="calloutTopic" name="Callout (Default)">
+			<topic-properties fo:font-weight="normal" fo:color="#000000"
+			fo:font-family="Verdana" fo:font-style="normal"
+			fo:font-size="13pt" fo:text-decoration="none"
+			callout-shape-class="org.xmind.calloutTopicShape.balloon.roundedRect"
+			border-line-color="b8860b"
+			shape-corner="5pt" svg:fill="#ffe866" fo:margin-left="6pt"
+			fo:margin-right="6pt" fo:margin-top="6pt" fo:margin-bottom="6pt"
+			line-class="org.xmind.branchConnection.roundedElbow" 
+			line-color="#808080" multi-line-colors="none" line-corner="4pt"
+			line-width="1pt" spacing-major="8pt" spacing-minor="1pt"
+			fo:text-align="left"/>
+		</style>
 		<style type="topic" id="subTopic" name="Subtopic (Default)">
 			<topic-properties fo:font-weight="normal" fo:color="#000000"
 			fo:font-family="$system$" fo:font-style="normal"

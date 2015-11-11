@@ -1,9 +1,5 @@
 package net.xmind.workbench.internal.actions;
 
-import net.xmind.signin.XMindNet;
-import net.xmind.signin.internal.Messages;
-import net.xmind.workbench.internal.XMindNetWorkbench;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Event;
@@ -11,8 +7,13 @@ import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public class UpgradeActionDelegate implements IWorkbenchWindowActionDelegate,
-        IActionDelegate2 {
+import net.xmind.signin.XMindNet;
+import net.xmind.signin.internal.Messages;
+import net.xmind.workbench.internal.XMindNetWorkbench;
+
+@Deprecated
+public class UpgradeActionDelegate
+        implements IWorkbenchWindowActionDelegate, IActionDelegate2 {
 
     private IWorkbenchWindow window;
 

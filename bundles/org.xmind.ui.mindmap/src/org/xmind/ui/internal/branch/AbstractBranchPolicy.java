@@ -151,6 +151,9 @@ public abstract class AbstractBranchPolicy extends AbstractGraphicalPolicy
         for (IBranchPart child : branch.getSubBranches()) {
             flushChildStructureCache(child);
         }
+        for (IBranchPart child : branch.getCalloutBranches()) {
+            flushChildStructureCache(child);
+        }
         for (IBranchPart child : branch.getSummaryBranches()) {
             flushChildStructureCache(child);
         }

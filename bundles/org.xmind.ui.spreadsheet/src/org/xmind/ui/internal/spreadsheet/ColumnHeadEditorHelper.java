@@ -96,9 +96,11 @@ public class ColumnHeadEditorHelper extends FloatingTextEditorHelperBase {
         int width = column.getWidth();
         int height = chart.getColumnHeadHeight() + chart.getMajorSpacing();
         int x = column.getLeft() + (width - size.width) / 2;
-        int y = chart.getTitle().getTopicPart().getFigure().getBounds()
-                .bottom()
+        int y = chart.getTitle().getTopicPart().getFigure().getBounds().bottom()
                 + chart.getLineWidth() + (height - size.height) / 2;
+        if (chart.getTitle().getInfoPart() != null) {
+            y += chart.getTitle().getInfoPart().getFigure().getBounds().height;
+        }
         return new Rectangle(x, y, size.width, size.height);
     }
 

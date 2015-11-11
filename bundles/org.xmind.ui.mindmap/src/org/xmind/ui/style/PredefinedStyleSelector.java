@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import org.xmind.gef.part.IGraphicalPart;
 
+@Deprecated
 public abstract class PredefinedStyleSelector extends LayeredStyleSelector {
 
     private Map<String, Map<String, Properties>> predefinedProperties = null;

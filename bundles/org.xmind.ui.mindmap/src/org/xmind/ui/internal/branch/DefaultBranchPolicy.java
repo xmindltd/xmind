@@ -78,6 +78,12 @@ public class DefaultBranchPolicy extends AbstractBranchPolicy {
                 return id == null ? getDefaultStructureId() : id;
             }
 
+            if (MindMapUI.BRANCH_CALLOUT.equals(branchType)) {
+                String id = (String) MindMapUtils.getCache(parent,
+                        CACHE_STRUCTURE_ID);
+                return id == null ? getDefaultStructureId() : id;
+            }
+
             if (MindMapUI.BRANCH_MAIN.equals(branchType)) {
                 IStructure sa = parent.getBranchPolicy().getStructure(parent);
                 if (sa instanceof RadialStructure) {

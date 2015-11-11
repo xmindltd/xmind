@@ -30,6 +30,10 @@ public interface IDecorationManager {
 
     String CATEGORY_ARROW_SHAPE = "org.xmind.ui.arrowDecorations"; //$NON-NLS-1$
 
+    String CATEGORY_CALLOUT_SHAPE = "org.xmind.ui.calloutTopicDecorations"; //$NON-NLS-1$
+
+    String CATEGORY_CALLOUT_BRANCH_CONNECTIONS = "org.xmind.ui.calloutConnections"; //$NON-NLS-1$
+
     IDecorationDescriptor getDecorationDescriptor(String decorationId);
 
     List<IDecorationDescriptor> getDescriptors(String categoryId);

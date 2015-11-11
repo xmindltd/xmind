@@ -13,6 +13,7 @@ public class DuplicateAction extends RequestAction implements ISelectionAction {
     public DuplicateAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.DUPLICATE.getId(), page,
                 MindMapUI.REQ_DUPLICATE_TOPIC);
+        setActionDefinitionId(MindMapActionFactory.DUPLICATE.getCommandId());
     }
 
     public void setSelection(ISelection selection) {

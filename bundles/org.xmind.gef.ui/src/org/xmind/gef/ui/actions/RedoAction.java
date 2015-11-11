@@ -24,6 +24,7 @@ public class RedoAction extends CommandStackAction {
     public RedoAction(IGraphicalEditor editor) {
         super(editor);
         setId(ActionFactory.REDO.getId());
+        setActionDefinitionId(ActionFactory.REDO.getCommandId());
     }
 
     public void run() {

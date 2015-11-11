@@ -30,6 +30,7 @@ import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
+import org.xmind.gef.GEF;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.draw2d.decoration.IDecoration;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
@@ -72,8 +73,8 @@ public class StyleUtils {
         return (IStyleSelector) part.getAdapter(IStyleSelector.class);
     }
 
-    public static RGB getRGB(IGraphicalPart part, IStyleSelector ss,
-            String key, String decorationId) {
+    public static RGB getRGB(IGraphicalPart part, IStyleSelector ss, String key,
+            String decorationId) {
         if (part != null && ss != null) {
             String value = ss.getStyleValue(part, key);
             return convertRGB(key, value);
@@ -126,13 +127,13 @@ public class StyleUtils {
 
     public static Color getSystemColor(String key, Color defaultValue) {
         if (Styles.FillColor.equals(key)) {
-            return Display.getCurrent().getSystemColor(
-                    SWT.COLOR_WIDGET_BACKGROUND);
+            return Display.getCurrent()
+                    .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
         } else if (Styles.LineColor.equals(key)) {
             return Display.getCurrent().getSystemColor(SWT.COLOR_WIDGET_BORDER);
         } else if (Styles.TextColor.equals(key)) {
-            return Display.getCurrent().getSystemColor(
-                    SWT.COLOR_WIDGET_FOREGROUND);
+            return Display.getCurrent()
+                    .getSystemColor(SWT.COLOR_WIDGET_FOREGROUND);
         }
         return defaultValue;
     }
@@ -219,6 +220,9 @@ public class StyleUtils {
         }
 
         String name = getString(part, ss, Styles.FontFamily, defaultData.name);
+        String availableFontName = FontUtils.getAAvailableFontNameFor(name);
+        name = availableFontName != null ? availableFontName : name;
+
         if (Styles.SYSTEM.equals(name)) {
             name = JFaceResources.getDefaultFont().getFontData()[0].getName();
         }
@@ -251,6 +255,8 @@ public class StyleUtils {
 
         int align = getAlignValue(part, ss, Styles.TextAlign);
         data.align = align;
+        int textCase = getCaseValue(part, ss, Styles.TextCase);
+        data.textCase = textCase;
         return data;
     }
 
@@ -274,12 +280,28 @@ public class StyleUtils {
         return PositionConstants.LEFT;
     }
 
+    public static int getCaseValue(IGraphicalPart part, IStyleSelector ss,
+            String key) {
+        if (part != null && ss != null) {
+            String value = ss.getStyleValue(part, key);
+            if (Styles.MANUAL.equals(value))
+                return GEF.MANUAL;
+            else if (Styles.UPPERCASE.equals(value))
+                return GEF.UPPERCASE;
+            else if (Styles.LOWERCASE.equals(value))
+                return GEF.LOWERCASE;
+            else if (Styles.CAPITALIZE.equals(value))
+                return GEF.CAPITALIZE;
+        }
+        return GEF.MANUAL;
+    }
+
     public static FontData getCompositeFontData(IGraphicalPart part,
             IStyleSelector ss, FontData defaultFontData) {
         if (defaultFontData == null)
             defaultFontData = JFaceResources.getDefaultFont().getFontData()[0];
-        TextStyleData data = getTextStyleData(part, ss, new TextStyleData(
-                defaultFontData));
+        TextStyleData data = getTextStyleData(part, ss,
+                new TextStyleData(defaultFontData));
         return data.createFontData();
     }
 
@@ -287,12 +309,13 @@ public class StyleUtils {
             Font defaultFont) {
         if (defaultFont == null)
             defaultFont = JFaceResources.getDefaultFont();
-        TextStyleData data = getTextStyleData(part, ss, new TextStyleData(
-                defaultFont.getFontData()[0]));
+        TextStyleData data = getTextStyleData(part, ss,
+                new TextStyleData(defaultFont.getFontData()[0]));
         return data.createFont();
     }
 
-    public static TextStyle getTextStyle(IGraphicalPart part, IStyleSelector ss) {
+    public static TextStyle getTextStyle(IGraphicalPart part,
+            IStyleSelector ss) {
         Object cache = MindMapUtils.getCache(part, MindMapUI.CACHE_TEXT_STYLE);
         if (cache instanceof TextStyle)
             return (TextStyle) cache;
@@ -486,16 +509,53 @@ public class StyleUtils {
         return false;
     }
 
+    private static String[] getAncestorMultiLineColor(IBranchPart branch) {
+        if (branch == null)
+            return null;
+
+        IBranchPart parentBranch = branch.getParentBranch();
+        if (parentBranch == null)
+            return null;
+
+        IStyleSelector ss = getStyleSelector(parentBranch);
+        if (ss == null)
+            return null;
+
+        String value = ss.getStyleValue(parentBranch, Styles.MultiLineColors);
+        if (value != null && !Styles.NONE.equals(value)) {
+            int index = parentBranch.getSubBranches().indexOf(branch);
+            return new String[] { String.valueOf(index), value };
+        }
+
+        return getAncestorMultiLineColor(parentBranch);
+    }
+
+    private static int getMultiColorsIndex(IBranchPart branch) {
+        IBranchPart parentBranch = branch.getParentBranch();
+        if (parentBranch == null)
+            return -1;
+
+        if (MindMapUI.BRANCH_CENTRAL.equals(parentBranch.getBranchType())) {
+            return parentBranch.getSubBranches().indexOf(branch);
+        } else {
+            return getMultiColorsIndex(parentBranch);
+        }
+    }
+
     public static String getIndexedBranchLineColor(IBranchPart branch) {
         IBranchPart parent = branch.getParentBranch();
         if (parent != null) {
             int index = parent.getSubBranches().indexOf(branch);
             if (index >= 0) {
-                IStyleSelector parentSS = StyleUtils.getStyleSelector(parent);
-                String value = parentSS.getUserValue(parent,
-                        Styles.MultiLineColors);
+                String value = null;
+
+                String[] indexAndValue = getAncestorMultiLineColor(branch);
+                if (indexAndValue != null && indexAndValue.length == 2) {
+                    index = Integer.parseInt(indexAndValue[0]);
+                    value = indexAndValue[1];
+                }
                 ISheetPart sheet = null;
-                if (value == null) {
+                if (value == null || Styles.NONE.equals(value)) {
                     // compatible with former versions:
                     IViewer viewer = parent.getSite().getViewer();
                     if (viewer != null) {
@@ -505,22 +565,13 @@ public class StyleUtils {
                             value = StyleUtils.getStyleSelector(sheet)
                                     .getStyleValue(sheet,
                                             Styles.MultiLineColors);
-                            if (value != null
-                                    && branch.getBranchType() == "subBranch") //$NON-NLS-1$
-                                return parentSS.getStyleValue(parent,
-                                        Styles.LineColor);
+                            if (value != null) {
+                                index = getMultiColorsIndex(branch);
+                            }
                         }
                     }
                 }
-                if (value == null) {
-                    value = parentSS.getStyleValue(parent,
-                            Styles.MultiLineColors);
-                }
-//                if (value == null && sheet != null) {
-//                    value = StyleUtils.getStyleSelector(sheet).getStyleValue(
-//                            sheet, Styles.MultiLineColors);
-//                }
-                if (value != null) {
+                if (index >= 0 && value != null) {
                     if (!Styles.NONE.equals(value)) {
                         value = value.trim();
                         // split by whitespaces
@@ -544,8 +595,8 @@ public class StyleUtils {
         if (child != null) {
             IStyleSelector childSS = getStyleSelector(child);
             String shapeId = getString(child, childSS, Styles.LineClass, null);
-            String defaultValue = defaultColor == null ? null : ColorUtils
-                    .toString(defaultColor);
+            String defaultValue = defaultColor == null ? null
+                    : ColorUtils.toString(defaultColor);
             return getColor(child, childSS, Styles.LineColor, shapeId,
                     defaultValue);
         }
@@ -576,7 +627,8 @@ public class StyleUtils {
         return null;
     }
 
-    public static String toTextDecoration(boolean underline, boolean strikeout) {
+    public static String toTextDecoration(boolean underline,
+            boolean strikeout) {
         if (underline || strikeout) {
             if (!underline)
                 return Styles.TEXT_DECORATION_LINE_THROUGH;

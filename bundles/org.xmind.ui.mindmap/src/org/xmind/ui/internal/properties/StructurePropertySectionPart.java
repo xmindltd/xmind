@@ -28,10 +28,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.xmind.core.Core;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.ICoreEventRegister;
@@ -52,6 +49,8 @@ public class StructurePropertySectionPart extends
     private static final List<IBranchPolicyDescriptor> NO_BRANCH_POLICY = Collections
             .emptyList();
 
+    private static final String FOLLOW = "org.xmind.ui.properties.structure.follow"; //$NON-NLS-1$
+
     private static class BranchPolicyLabelProvider extends
             ImageCachedLabelProvider {
 
@@ -70,6 +69,10 @@ public class StructurePropertySectionPart extends
                 IBranchPolicyDescriptor desc = (IBranchPolicyDescriptor) element;
                 return desc.getName();
             }
+            if (element instanceof String) {
+                return PropertyMessages.FollowParentStructure_text;
+            }
+
             return super.getText(element);
         }
     }
@@ -84,6 +87,8 @@ public class StructurePropertySectionPart extends
                     .getFirstElement();
             if (o instanceof IBranchPolicyDescriptor) {
                 changeStructure((IBranchPolicyDescriptor) o);
+            } else {
+                doFollowParentStructure();
             }
         }
 
@@ -91,7 +96,7 @@ public class StructurePropertySectionPart extends
 
     private MComboViewer structureViewer;
 
-    private Button followParentStructureCheck;
+//    private Button followParentStructureCheck;
 
     protected GridLayout createLayout(Composite parent) {
         GridLayout layout = super.createLayout(parent);
@@ -109,19 +114,6 @@ public class StructurePropertySectionPart extends
         structureViewer.setLabelProvider(new BranchPolicyLabelProvider());
         structureViewer
                 .addSelectionChangedListener(new BranchPolicySelectionChangedListener());
-
-        followParentStructureCheck = new Button(parent, SWT.CHECK);
-        followParentStructureCheck
-                .setText(PropertyMessages.FollowParentStructure_text);
-        followParentStructureCheck
-                .setToolTipText(PropertyMessages.FollowParentStructure_toolTip);
-        followParentStructureCheck.setLayoutData(new GridData(GridData.FILL,
-                GridData.CENTER, true, false));
-        followParentStructureCheck.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event event) {
-                doFollowParentStructure();
-            }
-        });
     }
 
     public void setFocus() {
@@ -134,16 +126,18 @@ public class StructurePropertySectionPart extends
         if (structureViewer != null
                 && !structureViewer.getControl().isDisposed()) {
             List<IBranchPolicyDescriptor> enableds = getCurrentStructures();
-            structureViewer.setInput(enableds);
+            if (getCurrentFollowParentStructure())
+                structureViewer.setInput(enableds);
+            else {
+                List<Object> list = new ArrayList<Object>(enableds);
+                Object separator = new Object();
+                list.add(separator);
+                list.add(FOLLOW);
+                structureViewer.setSeparatorImitation(separator);
+                structureViewer.setInput(list);
+            }
             structureViewer.setSelection(getCurrentStructure());
             structureViewer.getControl().setEnabled(!enableds.isEmpty());
-        }
-        if (followParentStructureCheck != null
-                && !followParentStructureCheck.isDisposed()) {
-            boolean follow = getCurrentFollowParentStructure();
-            followParentStructureCheck.setSelection(follow);
-            followParentStructureCheck.setEnabled(!follow);
-            followParentStructureCheck.setVisible(!follow);
         }
     }
 
@@ -267,7 +261,6 @@ public class StructurePropertySectionPart extends
     public void dispose() {
         super.dispose();
         structureViewer = null;
-        followParentStructureCheck = null;
     }
 
 }

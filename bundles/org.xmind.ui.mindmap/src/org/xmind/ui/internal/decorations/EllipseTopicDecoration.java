@@ -41,8 +41,14 @@ public class EllipseTopicDecoration extends AbstractTopicDecoration {
         super(id);
     }
 
-    protected void sketch(IFigure figure, Path shape, Rectangle box, int purpose) {
-        shape.addArc(box.x, box.y, box.width, box.height, 0, 360);
+    protected void sketch(IFigure figure, Path shape, Rectangle box,
+            int purpose) {
+        if (purpose == CHECK) {
+            int halfLineWidth = getLineWidth() / 2;
+            shape.addArc(box.getExpanded(halfLineWidth, halfLineWidth), 0, 360);
+        } else {
+            shape.addArc(box, 0, 360);
+        }
         shape.close();
     }
 

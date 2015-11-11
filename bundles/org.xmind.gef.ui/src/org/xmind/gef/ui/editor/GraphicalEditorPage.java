@@ -29,6 +29,7 @@ import org.eclipse.ui.IEditorActionBarContributor;
 import org.xmind.gef.Disposable;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.IGraphicalViewer;
+import org.xmind.gef.IViewer;
 import org.xmind.gef.ui.actions.ActionRegistry;
 import org.xmind.gef.ui.actions.IActionRegistry;
 import org.xmind.gef.ui.actions.ISelectionAction;
@@ -36,8 +37,8 @@ import org.xmind.gef.ui.actions.ISelectionAction;
 /**
  * @author Brian Sun
  */
-public abstract class GraphicalEditorPage extends Disposable implements
-        IGraphicalEditorPage, ISelectionChangedListener {
+public abstract class GraphicalEditorPage extends Disposable
+        implements IGraphicalEditorPage, ISelectionChangedListener {
 
     private IGraphicalEditor parent = null;
 
@@ -228,11 +229,10 @@ public abstract class GraphicalEditorPage extends Disposable implements
         return control;
     }
 
-    private void createContentPopupMenu(Control control) {
+    protected void createContentPopupMenu(Control control) {
         if (contentPopupMenu == null) {
             contentPopupMenu = createContentPopupMenu();
             String menuId = getParentEditor().getSite().getId() + ".content"; //$NON-NLS-1$
-//                    + "-" + hashCode() + ".content"; //$NON-NLS-1$ //$NON-NLS-2$
             initContentPopupMenu(contentPopupMenu);
             registerContentPopupMenu(menuId, contentPopupMenu);
         }
@@ -334,10 +334,11 @@ public abstract class GraphicalEditorPage extends Disposable implements
         return viewer;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == IActionRegistry.class)
             return getActionRegistry();
-        if (adapter == IGraphicalViewer.class)
+        if (adapter == IGraphicalViewer.class || adapter == IViewer.class)
             return getViewer();
         if (adapter == EditDomain.class)
             return getEditDomain();

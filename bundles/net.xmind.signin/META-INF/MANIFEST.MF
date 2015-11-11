@@ -2,16 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: net.xmind.signin;singleton:=true
-Bundle-Version: 3.5.3.qualifier
+Bundle-Version: 3.6.0.qualifier
 Bundle-Activator: net.xmind.signin.internal.Activator
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.apache.commons.codec,
  org.json,
- org.xmind.ui.toolkit;bundle-version="[3.5.0,3.6.0)",
- org.xmind.ui.browser;bundle-version="[3.5.0,3.6.0)",
- org.xmind.core.command;bundle-version="[3.5.0,3.6.0)"
+ org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.ui.browser;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.core.command;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.core.net;bundle-version="[3.6.0,3.7.0)";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: net.xmind.signin,

@@ -13,16 +13,17 @@
  *******************************************************************************/
 package net.xmind.workbench.internal.actions;
 
-import net.xmind.workbench.internal.CheckForUpdatesJob;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public class CheckForUpdatesActionDelegate implements
-        IWorkbenchWindowActionDelegate {
+import net.xmind.workbench.internal.CheckForUpdatesJob;
+
+@Deprecated
+public class CheckForUpdatesActionDelegate
+        implements IWorkbenchWindowActionDelegate {
 
     private IWorkbenchWindow window = null;
 

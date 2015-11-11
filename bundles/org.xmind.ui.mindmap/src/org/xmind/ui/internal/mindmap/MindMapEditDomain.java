@@ -24,6 +24,7 @@ import static org.xmind.ui.mindmap.MindMapUI.REQ_ADD_IMAGE;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_ADD_MARKER;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_CREATE_BEFORE;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_CREATE_BOUNDARY;
+import static org.xmind.ui.mindmap.MindMapUI.REQ_CREATE_CALLOUT;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_CREATE_CHILD;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_CREATE_FLOAT;
 import static org.xmind.ui.mindmap.MindMapUI.REQ_CREATE_PARENT;
@@ -95,6 +96,8 @@ import org.xmind.ui.tools.TitleEditTool;
 public class MindMapEditDomain extends EditDomain {
 
     public MindMapEditDomain() {
+        getPartRoles().setRole(REQ_CREATE_CALLOUT, GEF.ROLE_CREATABLE);
+
         getPartRoles().setRole(REQ_CREATE_CHILD, GEF.ROLE_CREATABLE);
         getPartRoles().setRole(REQ_CREATE_BEFORE, GEF.ROLE_CREATABLE);
         getPartRoles().setRole(REQ_CREATE_PARENT, GEF.ROLE_CREATABLE);

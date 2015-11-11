@@ -39,60 +39,23 @@ import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.ICommandStack;
-import org.xmind.gef.command.ModifyCommand;
 import org.xmind.gef.ui.actions.IActionRegistry;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.commands.CommandMessages;
+import org.xmind.ui.commands.ModifyMetadataCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.tabfolder.PageBookPage;
 
-public class WorkbookRevisionsPage extends PageBookPage implements
-        ICoreEventListener, Listener, IPropertyListener {
+public class WorkbookRevisionsPage extends PageBookPage
+        implements ICoreEventListener, Listener, IPropertyListener {
 
     private static final String K_AUTO_SAVE = IMeta.CONFIG_AUTO_REVISION_GENERATION;
 
     private static final String V_YES = IMeta.V_YES;
 
     private static final String V_NO = IMeta.V_NO;
-
-    private static class ModifyAutoSaveRevisionCommand extends ModifyCommand {
-
-        /**
-         * @param sources
-         * @param newValue
-         */
-        protected ModifyAutoSaveRevisionCommand(IWorkbook workbook,
-                boolean autoSave) {
-            super(workbook, autoSave ? V_YES : V_NO);
-            setLabel(autoSave ? CommandMessages.Command_TurnOnAutoRevisionSaving
-                    : CommandMessages.Command_TurnOffAutoRevisionSaving);
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.xmind.gef.command.ModifyCommand#getValue(java.lang.Object)
-         */
-        @Override
-        protected Object getValue(Object source) {
-            return ((IWorkbook) source).getMeta().getValue(K_AUTO_SAVE);
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.xmind.gef.command.ModifyCommand#setValue(java.lang.Object,
-         * java.lang.Object)
-         */
-        @Override
-        protected void setValue(Object source, Object value) {
-            ((IWorkbook) source).getMeta()
-                    .setValue(K_AUTO_SAVE, (String) value);
-        }
-
-    }
 
     private Button autoSaveOption = null;
 
@@ -194,12 +157,12 @@ public class WorkbookRevisionsPage extends PageBookPage implements
 //        titleLabel.setLayoutData(layoutData);
 
         autoSaveOption = new Button(parent, SWT.CHECK | SWT.WRAP);
-        autoSaveOption.setFont(FontUtils.getNewHeight(
-                JFaceResources.DEFAULT_FONT, -1));
+        autoSaveOption.setFont(
+                FontUtils.getNewHeight(JFaceResources.DEFAULT_FONT, -1));
+        autoSaveOption.setText(
+                MindMapMessages.WorkbookRevisionsPage_AutoSaveRevisionsCheck_text);
         autoSaveOption
-                .setText(MindMapMessages.WorkbookRevisionsPage_AutoSaveRevisionsCheck_text);
-        autoSaveOption.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
     }
 
     /*
@@ -235,8 +198,8 @@ public class WorkbookRevisionsPage extends PageBookPage implements
         super.refreshGlobalActionHandlers();
 
         // Set new actions from editor.
-        IActionRegistry registry = (IActionRegistry) getEditor().getAdapter(
-                IActionRegistry.class);
+        IActionRegistry registry = (IActionRegistry) getEditor()
+                .getAdapter(IActionRegistry.class);
         if (registry != null) {
             initGlobalActionHandlers(getSite().getActionBars(), registry);
         }
@@ -301,8 +264,12 @@ public class WorkbookRevisionsPage extends PageBookPage implements
      */
     public void handleEvent(Event event) {
         if (event.type == SWT.Selection) {
-            Command command = new ModifyAutoSaveRevisionCommand(workbook,
-                    ((Button) event.widget).getSelection());
+            boolean selection = ((Button) event.widget).getSelection();
+            Command command = new ModifyMetadataCommand(workbook, K_AUTO_SAVE,
+                    selection ? V_YES : V_NO);
+            command.setLabel(selection
+                    ? CommandMessages.Command_TurnOnAutoRevisionSaving
+                    : CommandMessages.Command_TurnOffAutoRevisionSaving);
             ICommandStack commandStack = getEditor().getCommandStack();
             if (commandStack != null) {
                 commandStack.execute(command);

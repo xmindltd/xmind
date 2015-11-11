@@ -22,12 +22,19 @@ import org.eclipse.swt.widgets.Display;
 import org.xmind.ui.internal.ITemplateDescriptor;
 import org.xmind.ui.viewers.ImageCachedLabelProvider;
 
-public class TemplateLabelProvider extends ImageCachedLabelProvider implements
-        PropertyChangeListener {
+public class TemplateLabelProvider extends ImageCachedLabelProvider {
 
     private static TemplateImageLoader imageLoader;
 
     private Display display;
+
+    private PropertyChangeListener templatePropertyListener = new PropertyChangeListener() {
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (ITemplateDescriptor.PROP_IMAGE.equals(evt.getPropertyName())) {
+                handleImageChange(evt);
+            }
+        }
+    };
 
     public TemplateLabelProvider() {
         this.display = Display.getCurrent();
@@ -41,7 +48,7 @@ public class TemplateLabelProvider extends ImageCachedLabelProvider implements
                 return template.getImage().createImage(display);
 
             template.getPropertyChangeSupport().addPropertyChangeListener(
-                    ITemplateDescriptor.PROP_IMAGE, this);
+                    ITemplateDescriptor.PROP_IMAGE, templatePropertyListener);
             if (imageLoader == null || imageLoader.getResult() != null) {
                 imageLoader = new TemplateImageLoader(display);
             }
@@ -59,10 +66,10 @@ public class TemplateLabelProvider extends ImageCachedLabelProvider implements
         return super.getText(element);
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    private void handleImageChange(PropertyChangeEvent evt) {
         ITemplateDescriptor template = (ITemplateDescriptor) evt.getSource();
         template.getPropertyChangeSupport().removePropertyChangeListener(
-                ITemplateDescriptor.PROP_IMAGE, this);
+                ITemplateDescriptor.PROP_IMAGE, templatePropertyListener);
         final LabelProviderChangedEvent imageChangedEvent = new LabelProviderChangedEvent(
                 this, template);
         if (display != null && !display.isDisposed()) {
@@ -73,4 +80,5 @@ public class TemplateLabelProvider extends ImageCachedLabelProvider implements
             });
         }
     }
+
 }

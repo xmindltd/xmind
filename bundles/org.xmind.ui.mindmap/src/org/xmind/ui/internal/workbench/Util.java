@@ -26,14 +26,14 @@ public class Util {
     public static Point getInitialWindowSize() {
         Display display = Display.getCurrent();
         Rectangle clientArea = getClientArea(display);
-        return new Point(Math.min(clientArea.width, 1280), Math.min(
-                clientArea.height, 768));
+        return new Point(Math.min(clientArea.width, 1300),
+                Math.min(clientArea.height, 800));
     }
 
     public static Rectangle getClientArea(Display display) {
-        Monitor[] monitors = display.getMonitors();
-        if (monitors != null && monitors.length > 0) {
-            return monitors[0].getClientArea();
+        Monitor monitor = display.getPrimaryMonitor();
+        if (monitor != null) {
+            return monitor.getClientArea();
         }
         return display.getClientArea();
     }

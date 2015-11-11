@@ -43,8 +43,7 @@ public class TitleTextPart extends MindMapPartBase implements ITitleTextPart,
         return (ITextFigure) super.getFigure();
     }
 
-    protected void registerCoreEvents(Object source,
-            ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.TitleText);
     }

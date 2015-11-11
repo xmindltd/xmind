@@ -21,6 +21,7 @@ public class SelectAllAction extends RequestAction {
 
     public SelectAllAction(IGraphicalEditorPage page) {
         super(ActionFactory.SELECT_ALL.getId(), page, GEF.REQ_SELECT_ALL);
+        setActionDefinitionId(ActionFactory.SELECT_ALL.getCommandId());
     }
 
 }

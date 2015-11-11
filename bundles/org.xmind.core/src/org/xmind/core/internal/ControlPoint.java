@@ -15,9 +15,6 @@ package org.xmind.core.internal;
 
 import org.xmind.core.IControlPoint;
 
-public abstract class ControlPoint implements IControlPoint {
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class ControlPoint extends AbstractWorkbookComponent
+        implements IControlPoint {
 }

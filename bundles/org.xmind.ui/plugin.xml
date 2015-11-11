@@ -4,10 +4,8 @@
    <extension-point id="branchPolicies" name="%extension-point.branchPolicy.name" schema="schema/branchPolicies.exsd"/>
    <extension-point id="dndClients" name="%extension-point.DNDClient.name" schema="schema/dndClients.exsd"/>
    <extension-point id="decorations" name="%extension-point.decorations.name" schema="schema/decorations.exsd"/>
-   <!-- extension-point id="elementTypes" name="Element Types" schema="schema/elementTypes.exsd"/ -->
    <extension-point id="propertySections" name="%extension-point.propertyPages.name" schema="schema/propertySections.exsd"/>
    <extension-point id="editPolicies" name="%extension-point.editPolicies.name" schema="schema/editPolicies.exsd"/>
-   <!-- extension-point id="globalCoreEventHandlers" name="Global Core Event Handlers" schema="schema/globalCoreEventHandlers.exsd"/ -->
    <extension-point id="iconTips" name="%extension-point.iconTips.name" schema="schema/iconTips.exsd"/>
    <extension-point id="numberFormats" name="%extension-point.numberFormats.name" schema="schema/numberFormats.exsd"/>
    <extension-point id="mindMapEditorConfigurer" name="%extension-point.mindmapEditorConfigurer.name" schema="schema/mindMapEditorConfigurer.exsd"/>
@@ -15,6 +13,8 @@
    <extension-point id="imageActions" name="%extension-point.imageActions.name" schema="schema/imageActions.exsd"/>
    <extension-point id="protocols" name="%extension-point.protocols.name" schema="schema/protocols.exsd"/>
    <extension-point id="hyperlinkPages" name="%extension-point.hyperlinkPages.name" schema="schema/hyperlinkPages.exsd"/>
+   <extension-point id="numberSeparators" name="%extension-point.numberSeparators.name" schema="schema/numberSeparators.exsd"/>
+   <extension-point id="infoItems" name="%extension-point.infoItems.name" schema="schema/infoItems.exsd"/>
 
    <extension
          point="org.eclipse.ui.editors">
@@ -22,7 +22,7 @@
             class="org.xmind.ui.internal.editor.MindMapEditor"
             contributorClass="org.xmind.ui.internal.editor.MindMapContributor"
             extensions="xmind"
-            icon="icons/xmind.16.gif"
+            icon="icons/xmind.16.png"
             id="org.xmind.ui.MindMapEditor"
             name="%editor.mindMapEditor.name">
          <contentTypeBinding
@@ -35,20 +35,14 @@
                contentTypeId="org.xmind.contenttypes.xmt">
          </contentTypeBinding>
       </editor>
-      <editor
-            class="org.xmind.ui.internal.editor.NewWorkbookEditor"
-            default="false"
-            icon="icons/e/new_wiz.gif"
-            id="org.xmind.ui.NewWorkbookChooser"
-            name="%editor.newWorkbook.name">
-      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            name="%perspective.mindmapping.name"
             class="org.xmind.ui.internal.workbench.Perspective"
-            id="org.xmind.ui.perspective.mindmapping">
+            icon="icons/xmind.16.png"
+            id="org.xmind.ui.perspective.mindmapping"
+            name="%perspective.mindmapping.name">
       </perspective>
    </extension>
    <extension
@@ -154,6 +148,18 @@
       </command>
       <command
             categoryId="org.xmind.ui.category.mindmap"
+            description="%command.editComments.description"
+            id="org.xmind.ui.command.editComments"
+            name="%command.editComments.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.commitComments.description"
+            id="org.xmind.ui.command.commitComments"
+            name="%command.commitComments.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
             description="%command.commitNotes.description"
             id="org.xmind.ui.command.commitNotes"
             name="%command.commitNotes.name">
@@ -163,6 +169,12 @@
             description="%command.editInNotesView.description"
             id="org.xmind.ui.command.gotoNotesView"
             name="%command.editInNotesView.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.gotoCommentsView.description"
+            id="org.xmind.ui.command.gotoCommentsView"
+            name="%command.gotoCommentsView.name">
       </command>
       <command
             categoryId="org.xmind.ui.category.mindmap"
@@ -249,6 +261,12 @@
             name="%command.openHyperlink.name">
       </command>
       <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.saveAttachmentAs.description"
+            id="org.xmind.ui.command.saveAttachmentAs"
+            name="%command.saveAttachmentAs.name">
+      </command>
+      <command
             categoryId="org.xmind.ui.category.view"
             description="%command.drillDown.description"
             id="org.xmind.ui.command.drillDown"
@@ -299,12 +317,19 @@
       <command
             categoryId="org.xmind.ui.category.mindmap"
             description="%command.openWorkbook.description"
+            defaultHandler="org.xmind.ui.internal.handlers.OpenWorkbooksHandler"
             id="org.xmind.ui.command.openWorkbook"
             name="%command.openWorkbook.name">
+         <commandParameter
+               id="org.xmind.ui.command.openWorkbook.uri"
+               name="%commandParameter.openWorkbook.uri.name"
+               optional="true">
+         </commandParameter>
       </command>
       <command
             categoryId="org.xmind.ui.category.mindmap"
             description="%command.openHomeMap.description"
+            defaultHandler="org.xmind.ui.internal.handlers.OpenHomeMapHandler"
             id="org.xmind.ui.command.openHomeMap"
             name="%command.openHomeMap.name">
       </command>
@@ -348,6 +373,7 @@
             categoryId="org.eclipse.ui.category.window"
             description="%command.newWorkbook.description"
             id="org.xmind.ui.command.newWorkbook"
+            defaultHandler="org.xmind.ui.internal.handlers.NewDefaultWorkbookHandler"
             name="%command.newWorkbook.name">
       </command>
       <command
@@ -430,12 +456,6 @@
       </command>
       <command
             categoryId="org.xmind.ui.category.mindmap"
-            description="%command.newWorkbookDialog.description"
-            id="org.xmind.ui.command.newWorkbookWizard"
-            name="%command.newWorkbookDialog.name">
-      </command>
-      <command
-            categoryId="org.xmind.ui.category.mindmap"
             description="%command.applySelectedStyle.description"
             id="org.xmind.ui.command.style.apply"
             name="%command.applySelectedStyle.name">
@@ -446,6 +466,7 @@
          </commandParameter>
       </command>
       <command
+            categoryId="org.xmind.ui.category.mindmap"
             id="org.xmind.ui.command.style.reset"
             name="%command.resetStyle.name">
       </command>
@@ -462,6 +483,7 @@
             name="%command.newSheetFromTemplate.name">
       </command>
       <command
+            categoryId="org.xmind.ui.category.mindmap"
             id="org.xmind.ui.command.alignment"
             name="%command.alignment.name">
          <commandParameter
@@ -471,6 +493,7 @@
          </commandParameter>
       </command>
       <command
+            categoryId="org.xmind.ui.category.mindmap"
             id="org.xmind.ui.command.sort"
             name="%command.sort.name">
          <commandParameter
@@ -480,40 +503,98 @@
          </commandParameter>
       </command>
       <command
+            categoryId="org.eclipse.ui.category.file"
+            defaultHandler="org.xmind.ui.internal.handlers.ImportFromWorkbookHandler"
             id="org.xmind.ui.command.importWorkbook"
             name="%command.importWorkbook.name">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.file"
             id="org.xmind.ui.command.saveSheetAs"
             name="%command.saveSheetAs.name">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.file"
             id="org.xmind.ui.command.saveTemplate"
             name="%command.saveAsTemplate.name">
       </command>
       <command
-            id="org.xmind.ui.command.export"
-            name="%command.export.name">
-      </command>
-      <command
-            defaultHandler="org.xmind.cathy/org.xmind.cathy.internal.WelcomeToXMindHandler"
-            id="org.xmind.ui.command.welcome"
-            name="%command.welcome.name">
-      </command>
-      <command
-            defaultHandler="org.xmind.ui.internal.handlers.ReduceFileSizeHandler"
+            categoryId="org.eclipse.ui.category.file"
             id="org.xmind.ui.command.reduceFileSize"
             name="%reduceFileSizeAction.label">
       </command>
       <command
-            id="org.xmind.ui.command.import"
-            name="%command.import.name">
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.saveImageAs.description"
+            id="org.xmind.ui.command.saveImageAs"
+            name="%command.saveImageAs.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.saveAudioNoteAs.description"
+            id="org.xmind.ui.command.saveAudioNoteAs"
+            name="%command.saveAudioNoteAs.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.duplicateSheet.description"
+            id="org.xmind.ui.command.duplicateSheet"
+            name="%command.duplicateSheet.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.copySheet.description"
+            id="org.xmind.ui.command.copySheet"
+            name="%command.copySheet.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.pasteSheet.description"
+            id="org.xmind.ui.command.pasteSheet"
+            name="%command.pasteSheet.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.clearMarkers.description"
+            id="org.xmind.ui.command.clearMarkers"
+            name="%command.clearMarkers.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.copyStyle.description"
+            id="org.xmind.ui.command.style.copy"
+            name="%command.copyStyle.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.pasteStyle.description"
+            id="org.xmind.ui.command.style.paste"
+            name="%command.pasteStyle.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.removeMarker.description"
+            id="org.xmind.ui.command.removeMarkerFromAllTopics"
+            name="%command.removeMarker.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.insertCallout.description"
+            id="org.xmind.ui.command.insertCallout"
+            name="%command.insertCallout.name">
       </command>
       <command
             categoryId="org.xmind.ui.category.mindmap"
             description="%command.style.removeAll.description"
             id="org.xmind.ui.command.removeAllStyles"
             name="%commnad.removeAllStyles.name">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.file"
+            defaultHandler="org.xmind.ui.internal.handlers.ClearWorkbookHistoryHandler"
+            description="%command.clearWorkbookHistory.description"
+            id="org.xmind.ui.command.clearWorkbookHistory"
+            name="%command.clearWorkbookHistory.name">
       </command>
    </extension>
    <extension
@@ -561,9 +642,15 @@
             parentId="org.xmind.ui.context.mindmap">
       </context>
       <context
-            description="%context.newWorkbookTab.description"
-            id="org.xmind.ui.context.home"
-            name="%context.newWorkbookTab.name"
+            description="%context.inCommentsDialog.description"
+            id="org.xmind.ui.context.commentsPopup"
+            name="%context.inCommentsDialog.name"
+            parentId="org.eclipse.ui.contexts.dialog">
+      </context>
+      <context
+            description="%context.inCommentsView.description"
+            id="org.xmind.ui.context.comments.edit"
+            name="%context.inCommentsView.name"
             parentId="org.eclipse.ui.contexts.window">
       </context>
    </extension>
@@ -572,13 +659,6 @@
       <key
             commandId="org.eclipse.ui.edit.delete"
             contextId="org.xmind.ui.context.mindmap.edit"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            platform="cocoa"
-            sequence="BS">
-      </key>
-      <key
-            commandId="org.eclipse.ui.edit.delete"
-            contextId="org.xmind.ui.context.home"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             platform="cocoa"
             sequence="BS">
@@ -737,6 +817,12 @@
       <key
             commandId="org.xmind.ui.command.commitNotes"
             contextId="org.xmind.ui.context.notesPopup"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+CR">
+      </key>
+      <key
+            commandId="org.xmind.ui.command.commitComments"
+            contextId="org.xmind.ui.context.commentsPopup"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+CR">
       </key>
@@ -980,6 +1066,22 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+CR">
       </key>
+      <key
+            commandId="org.xmind.ui.command.commitComments"
+            contextId="org.xmind.ui.context.comments.edit"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+CR">
+      </key>
+      <key
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+CR">
+      </key>
+      <key
+            commandId="org.xmind.ui.command.insertCallout"
+            contextId="org.xmind.ui.context.mindmap.edit"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+CR">
+      </key>
    </extension>
    <extension
          point="org.xmind.ui.dndClients">
@@ -1011,62 +1113,111 @@
    </extension>
    <extension
          point="org.xmind.ui.branchPolicies">
+      <branchPolicyCategory
+            icon="icons/prop/structure_map.png"
+            id="org.xmind.ui.structureCategory.balancedMap"
+            name="%branchPolicyCategory.balancedMap.name">
+      </branchPolicyCategory>
+      <branchPolicyCategory
+            icon="icons/prop/structure_org_down.png"
+            id="org.xmind.ui.structureCategory.orgChart"
+            name="%branchPolicyCategory.orgChart.name">
+      </branchPolicyCategory>
+      <branchPolicyCategory
+            icon="icons/prop/structure_tree_right.png"
+            id="org.xmind.ui.structureCategory.treeChart"
+            name="%branchPolicyCategory.treeChart.name">
+      </branchPolicyCategory>
+      <branchPolicyCategory
+            icon="icons/prop/structure_org_right.png"
+            id="org.xmind.ui.structureCategory.logicChart"
+            name="%branchPolicyCategory.logicChart.name">
+      </branchPolicyCategory>
+      <branchPolicyCategory
+            icon="icons/prop/structure_timeline_horizontal.png"
+            id="org.xmind.ui.structureCategory.timeline"
+            name="%branchPolicyCategory.timeline.name">
+      </branchPolicyCategory>
       <structure
             class="org.xmind.ui.internal.branch.DownStructure"
-            icon="icons/prop/structure_org_down.gif"
+            icon="icons/prop/structure_org_down.png"
             id="org.xmind.ui.branchStructure.down">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.UpStructure"
-            icon="icons/prop/structure_org_up.gif"
+            icon="icons/prop/structure_org_up.png"
             id="org.xmind.ui.branchStructure.up">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.LeftStructure"
-            icon="icons/prop/structure_org_left.gif"
+            icon="icons/prop/structure_org_left.png"
             id="org.xmind.ui.branchStructure.left">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.RightStructure"
-            icon="icons/prop/structure_org_right.gif"
+            icon="icons/prop/structure_org_right.png"
             id="org.xmind.ui.branchStructure.right">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.RadialStructure"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.branchStructure.radial">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.ClockwiseRadialStructure"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.structure.radial.clockwise">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.LeftTreeStructure"
-            icon="icons/prop/structure_tree_left.gif"
+            icon="icons/prop/structure_tree_left.png"
             id="org.xmind.ui.branchStructure.tree.left">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.AntiClockwiseRadialStructure"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.structure.radial.antiClockwise">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.RightTreeStructure"
-            icon="icons/prop/structure_tree_right.gif"
+            icon="icons/prop/structure_tree_right.png"
             id="org.xmind.ui.branchStructure.tree.right">
       </structure>
       <structure
             class="org.xmind.ui.internal.branch.UnbalancedStructure"
             id="org.xmind.ui.branchStructure.unbalanced">
       </structure>
+      <structure
+            class="org.xmind.ui.internal.branch.TimelineHorizontalHeadStructure"
+            id="org.xmind.ui.timeline.structure.horizontalHead">
+      </structure>
+      <structure
+            class="org.xmind.ui.internal.branch.TimelineHorizontalUpStructure"
+            id="org.xmind.ui.timeline.structure.horizontal.up">
+      </structure>
+      <structure
+            class="org.xmind.ui.internal.branch.TimelineHorizontalDownStructure"
+            id="org.xmind.ui.timeline.structure.horizontal.down">
+      </structure>
+      <structure
+            class="org.xmind.ui.internal.branch.TimelineVerticalHeadStructure"
+            id="org.xmind.ui.timeline.structure.verticalHead">
+      </structure>
       <propertyTester
             class="org.xmind.ui.internal.branch.MapBranchPropertyTester"
             id="org.xmind.ui.MapBranchPropertyTester">
       </propertyTester>
+      <propertyTester
+            class="org.xmind.ui.internal.branch.TimelineHorizontalPropertyTester"
+            id="org.xmind.ui.TimelineHorizontalPropertyTester">
+      </propertyTester>
+      <propertyTester
+            class="org.xmind.ui.internal.branch.TimelineVerticalPropertyTester"
+            id="org.xmind.ui.TimelineVerticalPropertyTester">
+      </propertyTester>
       <branchPolicy
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.map.unbalanced"
             name="%branchPolicy.unbalancedMap.name"
             propertyTesterId="org.xmind.ui.MapBranchPropertyTester">
@@ -1136,6 +1287,19 @@
                                  </test>
                               </with>
                            </and>
+                           <and>
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
+                              </test>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.structureId"
+                                       value="org.xmind.ui.branchStructure.left">
+                                 </test>
+                              </with>
+                           </and>
                         </or>
                      </and>
                   </or>
@@ -1149,7 +1313,7 @@
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.balancedMap"
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/prop/structure_map.png"
+            icon="icons/prop/structure_up_to_down.png"
             id="org.xmind.ui.map"
             name="%branchPolicy.mapUpToDown.name"
             propertyTesterId="org.xmind.ui.MapBranchPropertyTester">
@@ -1209,6 +1373,19 @@
                               <test
                                     property="org.xmind.ui.branch.type"
                                     value="subBranch">
+                              </test>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.structureId"
+                                       value="org.xmind.ui.branchStructure.left">
+                                 </test>
+                              </with>
+                           </and>
+                           <and>
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
                               </test>
                               <with
                                     variable="parentBranch">
@@ -1293,6 +1470,19 @@
                               <test
                                     property="org.xmind.ui.branch.type"
                                     value="subBranch">
+                              </test>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.structureId"
+                                       value="org.xmind.ui.branchStructure.left">
+                                 </test>
+                              </with>
+                           </and>
+                           <and>
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
                               </test>
                               <with
                                     variable="parentBranch">
@@ -1387,6 +1577,19 @@
                                  </test>
                               </with>
                            </and>
+                           <and>
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
+                              </test>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.structureId"
+                                       value="org.xmind.ui.branchStructure.left">
+                                 </test>
+                              </with>
+                           </and>
                         </or>
                      </and>
                   </or>
@@ -1400,7 +1603,7 @@
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.balancedMap"
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.map.floating"
             name="%branchPolicy.floatingMapUpToDown.name"
             propertyTesterId="org.xmind.ui.MapBranchPropertyTester">
@@ -1425,45 +1628,75 @@
          <additionalStructure
                structureId="org.xmind.ui.branchStructure.left">
             <enablement>
-                  <and>
-                     <test
-                           property="org.xmind.ui.branch.type"
-                           value="subBranch">
-                     </test>
-                     <with
-                           variable="parentBranch">
+                  <or>
+                     <and>
                         <test
-                              property="org.xmind.ui.branch.policyId"
-                              value="org.xmind.ui.map.floating">
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
                         </test>
-                     </with>
-                     <or>
                         <with
                               variable="parentBranch">
-                           <test
-                                 property="org.xmind.ui.branch.type"
-                                 value="subBranch">
-                           </test>
                            <test
                                  property="org.xmind.ui.branch.structureId"
                                  value="org.xmind.ui.branchStructure.left">
                            </test>
                         </with>
-                        <and>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.map.floating">
+                        </test>
+                     </and>
+                     <and>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="subBranch">
+                        </test>
+                        <with
+                              variable="parentBranch">
+                           <test
+                                 property="org.xmind.ui.branch.policyId"
+                                 value="org.xmind.ui.map.floating">
+                           </test>
+                        </with>
+                        <or>
                            <with
                                  variable="parentBranch">
                               <test
                                     property="org.xmind.ui.branch.type"
-                                    value="floatingBranch">
+                                    value="subBranch">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
                               </test>
                            </with>
-                           <test
-                                 args="left"
-                                 property="org.xmind.ui.branch.property">
-                           </test>
-                        </and>
-                     </or>
-                  </and>
+                           <and>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.type"
+                                       value="floatingBranch">
+                                 </test>
+                              </with>
+                              <test
+                                    args="left"
+                                    property="org.xmind.ui.branch.property">
+                              </test>
+                           </and>
+                           <with
+                                 variable="parentBranch">
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </with>
+                        </or>
+                     </and>
+                  </or>
                </enablement>
          </additionalStructure>
          </additionalStructures>
@@ -1507,7 +1740,7 @@
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.balancedMap"
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.map.floating.clockwise"
             name="%branchPolicy.floatingMapClockwise.name"
             propertyTesterId="org.xmind.ui.MapBranchPropertyTester">
@@ -1534,45 +1767,75 @@
             <additionalStructure
                   structureId="org.xmind.ui.branchStructure.left">
                <enablement>
-                  <and>
-                     <test
-                           property="org.xmind.ui.branch.type"
-                           value="subBranch">
-                     </test>
-                     <with
-                           variable="parentBranch">
+                  <or>
+                     <and>
                         <test
-                              property="org.xmind.ui.branch.policyId"
-                              value="org.xmind.ui.map.floating.clockwise">
+                              property="org.xmind.ui.branch.type"
+                              value="subBranch">
                         </test>
-                     </with>
-                     <or>
                         <with
                               variable="parentBranch">
                            <test
-                                 property="org.xmind.ui.branch.type"
-                                 value="subBranch">
+                                 property="org.xmind.ui.branch.policyId"
+                                 value="org.xmind.ui.map.floating.clockwise">
                            </test>
+                        </with>
+                        <or>
+                           <with
+                                 variable="parentBranch">
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="subBranch">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </with>
+                           <and>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.type"
+                                       value="floatingBranch">
+                                 </test>
+                              </with>
+                              <test
+                                    args="left"
+                                    property="org.xmind.ui.branch.property">
+                              </test>
+                           </and>
+                           <with
+                                 variable="parentBranch">
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </with>
+                        </or>
+                     </and>
+                     <and>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                        <with
+                              variable="parentBranch">
                            <test
                                  property="org.xmind.ui.branch.structureId"
                                  value="org.xmind.ui.branchStructure.left">
                            </test>
                         </with>
-                        <and>
-                           <with
-                                 variable="parentBranch">
-                              <test
-                                    property="org.xmind.ui.branch.type"
-                                    value="floatingBranch">
-                              </test>
-                           </with>
-                           <test
-                                 args="left"
-                                 property="org.xmind.ui.branch.property">
-                           </test>
-                        </and>
-                     </or>
-                  </and>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.map.floating.clockwise">
+                        </test>
+                     </and>
+                  </or>
                </enablement>
             </additionalStructure>
          </additionalStructures>
@@ -1616,7 +1879,7 @@
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.balancedMap"
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/prop/structure_map.gif"
+            icon="icons/prop/structure_map.png"
             id="org.xmind.ui.map.floating.anticlockwise"
             name="%branchPolicy.floatingMapAnticlockwise.name"
             propertyTesterId="org.xmind.ui.MapBranchPropertyTester">
@@ -1643,45 +1906,75 @@
             <additionalStructure
                   structureId="org.xmind.ui.branchStructure.left">
                <enablement>
-                  <and>
-                     <test
-                           property="org.xmind.ui.branch.type"
-                           value="subBranch">
-                     </test>
-                     <with
-                           variable="parentBranch">
+                  <or>
+                     <and>
                         <test
-                              property="org.xmind.ui.branch.policyId"
-                              value="org.xmind.ui.map.floating.AntiClockwise">
+                              property="org.xmind.ui.branch.type"
+                              value="subBranch">
                         </test>
-                     </with>
-                     <or>
                         <with
                               variable="parentBranch">
                            <test
-                                 property="org.xmind.ui.branch.type"
-                                 value="subBranch">
+                                 property="org.xmind.ui.branch.policyId"
+                                 value="org.xmind.ui.map.floating.anticlockwise">
                            </test>
+                        </with>
+                        <or>
+                           <with
+                                 variable="parentBranch">
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="subBranch">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </with>
+                           <and>
+                              <with
+                                    variable="parentBranch">
+                                 <test
+                                       property="org.xmind.ui.branch.type"
+                                       value="floatingBranch">
+                                 </test>
+                              </with>
+                              <test
+                                    args="left"
+                                    property="org.xmind.ui.branch.property">
+                              </test>
+                           </and>
+                           <with
+                                 variable="parentBranch">
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="calloutBranch">
+                              </test>
+                              <test
+                                    property="org.xmind.ui.branch.structureId"
+                                    value="org.xmind.ui.branchStructure.left">
+                              </test>
+                           </with>
+                        </or>
+                     </and>
+                     <and>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.policyId"
+                              value="org.xmind.ui.map.floating.anticlockwise">
+                        </test>
+                        <with
+                              variable="parentBranch">
                            <test
                                  property="org.xmind.ui.branch.structureId"
                                  value="org.xmind.ui.branchStructure.left">
                            </test>
                         </with>
-                        <and>
-                           <with
-                                 variable="parentBranch">
-                              <test
-                                    property="org.xmind.ui.branch.type"
-                                    value="floatingBranch">
-                              </test>
-                           </with>
-                           <test
-                                 args="left"
-                                 property="org.xmind.ui.branch.property">
-                           </test>
-                        </and>
-                     </or>
-                  </and>
+                     </and>
+                  </or>
                </enablement>
             </additionalStructure>
          </additionalStructures>
@@ -1725,117 +2018,757 @@
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.orgChart"
             defaultStructureId="org.xmind.ui.branchStructure.down"
-            icon="icons/prop/structure_org_down.gif"
+            icon="icons/prop/structure_org_down.png"
             id="org.xmind.ui.org-chart.down"
             name="%branchPolicy.orgChartUpToDown.name">
          <styleSelector>
             <overridedStyle
                   key="shape-class"
                   value="org.xmind.topicShape.rect">
+               <enablement>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.type"
+                           value="calloutBranch">
+                     </test>
+                  </not>
+               </enablement>
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="centralBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
             <overridedStyle
                   key="line-class"
                   value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
          </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.orgChart"
             defaultStructureId="org.xmind.ui.branchStructure.up"
-            icon="icons/prop/structure_org_up.gif"
+            icon="icons/prop/structure_org_up.png"
             id="org.xmind.ui.org-chart.up"
             name="%branchPolicy.orgChartDownToUp.name">
          <styleSelector>
             <overridedStyle
                   key="shape-class"
                   value="org.xmind.topicShape.rect">
+               <enablement>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.type"
+                           value="calloutBranch">
+                     </test>
+                  </not>
+               </enablement>
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="centralBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
             <overridedStyle
                   key="line-class"
                   value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
          </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.treeChart"
             defaultStructureId="org.xmind.ui.branchStructure.tree.right"
-            icon="icons/prop/structure_tree_right.gif"
+            icon="icons/prop/structure_tree_right.png"
             id="org.xmind.ui.tree.right"
             name="%branchPolicy.treeChartRight.name">
          <styleSelector>
             <overridedStyle
                   key="shape-class"
                   value="org.xmind.topicShape.rect">
+               <enablement>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.type"
+                           value="calloutBranch">
+                     </test>
+                  </not>
+               </enablement>
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="centralBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
             <overridedStyle
                   key="line-class"
                   value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
          </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.treeChart"
             defaultStructureId="org.xmind.ui.branchStructure.tree.left"
-            icon="icons/prop/structure_tree_left.gif"
+            icon="icons/prop/structure_tree_left.png"
             id="org.xmind.ui.tree.left"
             name="%branchPolicy.treeChartLeft.name">
          <styleSelector>
             <overridedStyle
                   key="shape-class"
                   value="org.xmind.topicShape.rect">
+               <enablement>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.type"
+                           value="calloutBranch">
+                     </test>
+                  </not>
+               </enablement>
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="centralBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
             <overridedStyle
                   key="line-class"
                   value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
          </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.logicChart"
             defaultStructureId="org.xmind.ui.branchStructure.right"
-            icon="icons/prop/structure_org_right.gif"
+            icon="icons/prop/structure_org_right.png"
             id="org.xmind.ui.logic.right"
             name="%branchPolicy.logicChartRight.name">
          <styleSelector>
             <overridedStyle
                   key="line-class"
-                  value="org.xmind.branchConnection.curve">
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="centralBranch">
+                  </test>
+               </enablement>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
          </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
       <branchPolicy
             categoryId="org.xmind.ui.structureCategory.logicChart"
             defaultStructureId="org.xmind.ui.branchStructure.left"
-            icon="icons/prop/structure_org_left.gif"
+            icon="icons/prop/structure_org_left.png"
             id="org.xmind.ui.logic.left"
             name="%branchPolicy.logicChartLeft.name">
          <styleSelector>
             <overridedStyle
                   key="line-class"
-                  value="org.xmind.branchConnection.curve">
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="centralBranch">
+                  </test>
+               </enablement>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
             </overridedStyle>
          </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
       </branchPolicy>
-      <branchPolicyCategory
-            icon="icons/prop/structure_map.gif"
-            id="org.xmind.ui.structureCategory.balancedMap"
-            name="%branchPolicyCategory.balancedMap.name">
-      </branchPolicyCategory>
-      <branchPolicyCategory
-            icon="icons/prop/structure_org_down.gif"
-            id="org.xmind.ui.structureCategory.orgChart"
-            name="%branchPolicyCategory.orgChart.name">
-      </branchPolicyCategory>
-      <branchPolicyCategory
-            icon="icons/prop/structure_tree_right.gif"
-            id="org.xmind.ui.structureCategory.treeChart"
-            name="%branchPolicyCategory.treeChart.name">
-      </branchPolicyCategory>
-      <branchPolicyCategory
-            icon="icons/prop/structure_org_right.gif"
-            id="org.xmind.ui.structureCategory.logicChart"
-            name="%branchPolicyCategory.logicChart.name">
-      </branchPolicyCategory>
+      <branchPolicy
+            categoryId="org.xmind.ui.structureCategory.timeline"
+            defaultStructureId="org.xmind.ui.timeline.structure.horizontalHead"
+            icon="icons/prop/structure_timeline_horizontal.png"
+            id="org.xmind.ui.timeline.horizontal"
+            name="%branchPolicy.timelineHorizontal.name"
+            propertyTesterId="org.xmind.ui.TimelineHorizontalPropertyTester">
+         <additionalStructures>
+            <additionalStructure
+                  structureId="org.xmind.ui.timeline.structure.horizontal.up">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.policyId"
+                           value="org.xmind.ui.timeline.horizontal">
+                     </test>
+                  </with>
+                  <and>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontalHead">
+                        </test>
+                     </with>
+                     <test
+                           args="upwards"
+                           property="org.xmind.ui.branch.property">
+                     </test>
+                  </and>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.type"
+                           value="calloutBranch">
+                     </test>
+                  </not>
+               </enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.timeline.structure.horizontal.down">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.policyId"
+                           value="org.xmind.ui.timeline.horizontal">
+                     </test>
+                     <and>
+                        <with
+                              variable="parentBranch">
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.timeline.structure.horizontalHead">
+                           </test>
+                        </with>
+                        <test
+                              args="upwards"
+                              property="org.xmind.ui.branch.property"
+                              value="false">
+                        </test>
+                     </and>
+                  </with>
+                  <not>
+                     <test
+                           property="org.xmind.ui.branch.type"
+                           value="calloutBranch">
+                     </test>
+                  </not>
+               </enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.right">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.policyId"
+                           value="org.xmind.ui.timeline.horizontal">
+                     </test>
+                  </with>
+                  <or>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontal.up">
+                        </test>
+                     </with>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontal.down">
+                        </test>
+                     </with>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.right">
+                        </test>
+                     </with>
+                  </or>
+               </enablement>
+            </additionalStructure>
+         </additionalStructures>
+         <branchHook
+               class="org.xmind.ui.internal.branch.TimelineBranchHook">
+         </branchHook>
+         <styleSelector>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.timeline.horizontal">
+               <enablement>
+                  <and>
+                     <test
+                           property="org.xmind.ui.branch.structureId"
+                           value="org.xmind.ui.timeline.structure.horizontalHead">
+                     </test>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
+                  </and>
+               </enablement>
+               <layer
+                     name="beforeUserValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.elbow">
+               <enablement>
+                  <and>
+                     <or>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontal.up">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontal.down">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.right">
+                        </test>
+                     </or>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
+                  </and>
+               </enablement>
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <layer
+                     name="beforeParentValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="shape-class"
+                  value="org.xmind.topicShape.roundedRect">
+               <enablement>
+                  <and>
+                     <or>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontal.up">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontal.down">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.horizontalHead">
+                        </test>
+                     </or>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
+                  </and></enablement>
+               <layer
+                     name="beforeDefaultValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.elbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
+            </overridedStyle>
+         </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.verticalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
+      </branchPolicy>
+      <branchPolicy
+            categoryId="org.xmind.ui.structureCategory.timeline"
+            defaultStructureId="org.xmind.ui.timeline.structure.verticalHead"
+            icon="icons/prop/structure_timeline_vertical.png"
+            id="org.xmind.ui.timeline.vertical"
+            name="%branchPolycy.timelineVertical.name"
+            propertyTesterId="org.xmind.ui.TimelineVerticalPropertyTester">
+         <additionalStructures>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.tree.left">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.policyId"
+                           value="org.xmind.ui.timeline.vertical">
+                     </test>
+                  </with>
+                  <or>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.tree.left">
+                        </test>
+                     </with>
+                     <and>
+                        <with
+                              variable="parentBranch">
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.timeline.structure.verticalHead">
+                           </test>
+                        </with>
+                        <test
+                              args="leftwards"
+                              property="org.xmind.ui.branch.property">
+                        </test>
+                     </and>
+                  </or>
+               </enablement>
+            </additionalStructure>
+            <additionalStructure
+                  structureId="org.xmind.ui.branchStructure.tree.right">
+               <enablement>
+                  <with
+                        variable="parentBranch">
+                     <test
+                           property="org.xmind.ui.branch.policyId"
+                           value="org.xmind.ui.timeline.vertical">
+                     </test>
+                  </with>
+                  <or>
+                     <with
+                           variable="parentBranch">
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.tree.right">
+                        </test>
+                     </with>
+                     <and>
+                        <with
+                              variable="parentBranch">
+                           <test
+                                 property="org.xmind.ui.branch.structureId"
+                                 value="org.xmind.ui.timeline.structure.verticalHead">
+                           </test>
+                        </with>
+                        <test
+                              args="leftwards"
+                              property="org.xmind.ui.branch.property"
+                              value="false">
+                        </test>
+                     </and>
+                  </or>
+               </enablement>
+            </additionalStructure>
+         </additionalStructures>
+         <branchHook
+               class="org.xmind.ui.internal.branch.TimelineBranchHook">
+         </branchHook>
+         <styleSelector>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.roundedElbow">
+               <enablement>
+                  <and>
+                     <or>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.timeline.structure.verticalHead">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.tree.left">
+                        </test>
+                        <test
+                              property="org.xmind.ui.branch.structureId"
+                              value="org.xmind.ui.branchStructure.tree.right">
+                        </test>
+                     </or>
+                     <not>
+                        <test
+                              property="org.xmind.ui.branch.type"
+                              value="calloutBranch">
+                        </test>
+                     </not>
+                  </and>
+               </enablement>
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <layer
+                     name="beforeParentValue">
+               </layer>
+            </overridedStyle>
+            <overridedStyle
+                  key="line-class"
+                  value="org.xmind.branchConnection.roundedElbow">
+               <layer
+                     name="beforeThemeValue">
+               </layer>
+               <enablement>
+                  <test
+                        property="org.xmind.ui.branch.type"
+                        value="mainBranch">
+                  </test>
+               </enablement>
+            </overridedStyle>
+         </styleSelector>
+         <enablement>
+            <not>
+               <with
+                     variable="parentBranch">
+                  <test
+                        property="org.xmind.ui.branch.structureId"
+                        value="org.xmind.ui.timeline.structure.horizontalHead">
+                  </test>
+               </with>
+            </not>
+         </enablement>
+      </branchPolicy>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -1853,14 +2786,14 @@
       <view
             category="org.xmind.ui.views.mindmap"
             class="org.xmind.ui.internal.views.NotesView"
-            icon="icons/e/notes.gif"
+            icon="icons/e/menu_window_notes.png"
             id="org.xmind.ui.NotesView"
             name="%view.notes.name">
       </view>
       <view
             category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.internal.views.OverviewView"
-            icon="icons/e/overview.gif"
+            class="org.xmind.ui.views.ContributedContentsView:org.xmind.ui.views.overview"
+            icon="icons/e/overview.png"
             id="org.xmind.ui.OverviewView"
             name="%view.overview.name">
       </view>
@@ -1888,7 +2821,7 @@
       </category>
       <view
             category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.internal.views.RevisionsView"
+            class="org.xmind.ui.views.ContributedContentsView:org.xmind.ui.views.revisions"
             icon="icons/e/revisions.gif"
             id="org.xmind.ui.RevisionsView"
             name="%view.revisions.name"
@@ -1900,6 +2833,21 @@
             icon="icons/e/blackboxview.gif"
             id="org.xmind.ui.BlackBoxView"
             name="%view.blackbox.name"
+            restorable="true">
+      </view>
+      <view
+            category="org.xmind.ui.views.mindmap"
+            class="org.xmind.ui.internal.views.CommentsView"
+            icon="icons/e/menu_window_comments.png"
+            id="org.xmind.ui.CommentsView"
+            name="%view.comments.name">
+      </view>
+      <view
+            category="org.xmind.ui.views.mindmap"      
+            class="org.xmind.ui.views.ContributedContentsView:org.xmind.ui.views.metadata"
+            icon="icons/e/inspector.png"
+            id="org.xmind.ui.InspectorView"
+            name="%view.inspector.name"
             restorable="true">
       </view>
    </extension>
@@ -1943,7 +2891,7 @@
       </category>
       <decoration
             categoryId="org.xmind.ui.topicDecorations"
-            icon="icons/prop/topic_roundrect.gif"
+            icon="icons/prop/topic_roundrect.png"
             id="org.xmind.topicShape.roundedRect"
             name="%topicShape.roundedRect.name">
          <class
@@ -1952,7 +2900,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.topicDecorations"
-            icon="icons/prop/topic_rect.gif"
+            icon="icons/prop/topic_rect.png"
             id="org.xmind.topicShape.rect"
             name="%topicShape.rect.name">
          <class
@@ -1961,7 +2909,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.topicDecorations"
-            icon="icons/prop/topic_ellipse.gif"
+            icon="icons/prop/topic_ellipse.png"
             id="org.xmind.topicShape.ellipse"
             name="%topicShape.ellipse.name">
          <class
@@ -1970,7 +2918,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.topicDecorations"
-            icon="icons/prop/topic_diamond.gif"
+            icon="icons/prop/topic_diamond.png"
             id="org.xmind.topicShape.diamond"
             name="%topicShape.diamond.name">
          <class
@@ -1979,7 +2927,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.topicDecorations"
-            icon="icons/prop/topic_underline.gif"
+            icon="icons/prop/topic_underline.png"
             id="org.xmind.topicShape.underline"
             name="%topicShape.underline.name">
          <class
@@ -2003,7 +2951,6 @@
          </defaultValue>
       </decoration>
       <decoration
-            categoryId="org.xmind.ui.topicDecorations"
             icon="icons/prop/topic_callout_ellipse.gif"
             id="org.xmind.topicShape.callout.ellipse"
             name="%topicShape.callout.ellipse.name">
@@ -2012,13 +2959,85 @@
          </class>
       </decoration>
       <decoration
-            categoryId="org.xmind.ui.topicDecorations"
             icon="icons/prop/topic_callout_rect.gif"
             id="org.xmind.topicShape.callout.roundedRect"
             name="%topicShape.callout.roundedRect.name">
          <class
                class="org.xmind.ui.internal.decorations.RoundedRectCalloutTopicDecoration">
          </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.topicDecorations"
+            icon="icons/prop/topic_circle.png"
+            id="org.xmind.topicShape.circle"
+            name="%topicShape.circle.name">
+         <class
+               class="org.xmind.ui.internal.decorations.CircleTopicDecoration">
+         </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.topicDecorations"
+            icon="icons/prop/topic_parallelogram.png"
+            id="org.xmind.topicShape.parallelogram"
+            name="%topicShape.parallelogram.name">
+         <class
+               class="org.xmind.ui.internal.decorations.ParallelogramTopicDecoration">
+         </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.topicDecorations"
+            icon="icons/prop/topic_cloud.png"
+            id="org.xmind.topicShape.cloud"
+            name="%topicShape.cloud.name">
+         <factory
+               class="org.xmind.ui.internal.decorations.CloudDecorationFactory:org.xmind.ui/shapes/topic-shape-cloud.svg">
+         </factory>
+      </decoration>
+   </extension>
+   <extension
+         point="org.xmind.ui.decorations">
+      <category
+            id="org.xmind.ui.calloutTopicDecorations"
+            name="%category.calloutShape.name">
+      </category>
+      <decoration
+            categoryId="org.xmind.ui.calloutTopicDecorations"
+            icon="icons/prop/callout_ellipse_balloon.png"
+            id="org.xmind.calloutTopicShape.balloon.ellipse"
+            name="%decoration.ellipse.name">
+         <defaultValue
+               key="callout-line-class"
+               value="org.xmind.ui.calloutBranchConnection.balloon.ellipse">
+         </defaultValue>
+         <class
+               class="org.xmind.ui.internal.decorations.CalloutEllipseBalloonDecoration">
+         </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.calloutTopicDecorations"
+            icon="icons/prop/callout_rectangle_balloon.png"
+            id="org.xmind.calloutTopicShape.balloon.rectangle"
+            name="%decoration.rectangle.name">
+         <class
+               class="org.xmind.ui.internal.decorations.CalloutRectangleDecoration">
+         </class>
+         <defaultValue
+               key="callout-line-class"
+               value="org.xmind.ui.calloutBranchConnection.balloon.rectangle">
+         </defaultValue>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.calloutTopicDecorations"
+            icon="icons/prop/callout_rounded_rectangle_balloon.png"
+            id="org.xmind.calloutTopicShape.balloon.roundedRect"
+            name="%decoration.roundedRect.name">
+         <class
+               class="org.xmind.ui.internal.decorations.CalloutRoundedRectDecoration">
+         </class>
+         <defaultValue
+               key="callout-line-class"
+               value="org.xmind.ui.calloutBranchConnection.balloon.roundedRect">
+         </defaultValue>
       </decoration>
    </extension>
    <extension
@@ -2077,11 +3096,49 @@
          </class>
       </decoration>
       <decoration
+            id="org.xmind.branchConnection.timeline.horizontal"
+            name="%decoration.timelineHorizontalConnection.name">
+         <factory
+               class="org.xmind.ui.internal.decorations.TimelineHorizontalConnectionFactory">
+         </factory>
+      </decoration>
+      <decoration
             categoryId="org.xmind.ui.branchConnections"
             id="org.xmind.branchConnection.none"
             name="%branchConnection.none.name">
          <class
                class="org.xmind.ui.internal.decorations.NoneBranchConnection">
+         </class>
+      </decoration>
+   </extension>
+   <extension
+         point="org.xmind.ui.decorations">
+      <category
+            id="org.xmind.ui.calloutConnections"
+            name="%category.calloutConnection.name">
+      </category>
+      <decoration
+            categoryId="org.xmind.ui.calloutConnections"
+            id="org.xmind.ui.calloutBranchConnection.balloon.ellipse"
+            name="%decoration.ellipseCalloutConnection.name">
+         <class
+               class="org.xmind.ui.internal.decorations.EllipseBalloonCalloutBranchConnection">
+         </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.calloutConnections"
+            id="org.xmind.ui.calloutBranchConnection.balloon.rectangle"
+            name="%decoration.rectangleCalloutConnection.name">
+         <class
+               class="org.xmind.ui.internal.decorations.RectangleBalloonCalloutBranchConnection">
+         </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.calloutConnections"
+            id="org.xmind.ui.calloutBranchConnection.balloon.roundedRect"
+            name="%decoration.roundedRectCalloutConnection.name">
+         <class
+               class="org.xmind.ui.internal.decorations.RoundedRectBalloonCalloutBranchConnection">
          </class>
       </decoration>
    </extension>
@@ -2136,7 +3193,7 @@
       </category>
       <decoration
             categoryId="org.xmind.ui.boundaryDecorations"
-            icon="icons/prop/boundary_rect.gif"
+            icon="icons/prop/boundary_rect.png"
             id="org.xmind.boundaryShape.rect"
             name="%boundaryShape.rect.name">
          <class
@@ -2145,7 +3202,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.boundaryDecorations"
-            icon="icons/prop/boundary_roundrect.gif"
+            icon="icons/prop/boundary_roundrect.png"
             id="org.xmind.boundaryShape.roundedRect"
             name="%boundaryShape.roundedRect.name">
          <class
@@ -2154,7 +3211,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.boundaryDecorations"
-            icon="icons/prop/boundary_scallops.gif"
+            icon="icons/prop/boundary_scallops.png"
             id="org.xmind.boundaryShape.scallops"
             name="%boundaryShape.scallops.name">
          <class
@@ -2163,7 +3220,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.boundaryDecorations"
-            icon="icons/prop/boundary_waves.gif"
+            icon="icons/prop/boundary_waves.png"
             id="org.xmind.boundaryShape.waves"
             name="%boundaryShape.waves.name">
          <class
@@ -2172,12 +3229,30 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.boundaryDecorations"
-            icon="icons/prop/boundary_tension.gif"
+            icon="icons/prop/boundary_tension.png"
             id="org.xmind.boundaryShape.tension"
             name="%boundaryShape.tension.name">
          <class
                class="org.xmind.ui.internal.decorations.TensionBoundaryDecoration">
          </class>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.boundaryDecorations"
+            icon="icons/prop/boundary_polygon.png"
+            id="org.xmind.boundaryShape.polygon"
+            name="%boundaryShape.polygon.name">
+         <factory
+               class="org.xmind.ui.internal.decorations.PolygonBoundaryDecorationFactory">
+         </factory>
+      </decoration>
+      <decoration
+            categoryId="org.xmind.ui.boundaryDecorations"
+            icon="icons/prop/boundary_roundpoly.png"
+            id="org.xmind.boundaryShape.roundedPolygon"
+            name="%boundaryShape.roundedPolygon.name">
+         <factory
+               class="org.xmind.ui.internal.decorations.RoundedPolygonBoundaryDecorationFactory">
+         </factory>
       </decoration>
    </extension>
    <extension
@@ -2303,6 +3378,22 @@
       </decoration>
    </extension>
    <extension
+         point="org.xmind.ui.decorations">
+      <category
+            id="org.xmind.ui.infoDecorations"
+            name="%decorationCategory.infoShape.name">
+      </category>
+      <decoration
+            categoryId="org.xmind.ui.infoDecorations"
+            icon="icons/prop/topic_rect.png"
+            id="org.xmind.infoShape.rect"
+            name="%infoShape.rect.name">
+         <class
+               class="org.xmind.ui.internal.decorations.RectangleInfoDecration">
+         </class>
+      </decoration>
+   </extension>
+   <extension
          point="org.xmind.ui.propertySections">
       <section
             class="org.xmind.ui.internal.properties.SummaryLinePropertySectionPart"
@@ -2330,26 +3421,40 @@
                       value="org.xmind.core.ITopic">
                 </instanceof>
                 <not>
-                   <test
-                         property="org.xmind.core.topic.type"
-                         value="summary">
-                   </test>
+                   <or>
+                      <test
+                            property="org.xmind.core.topic.type"
+                            value="summary">
+                      </test>
+                      <test
+                            property="org.xmind.core.topic.type"
+                            value="callout">
+                      </test>
+                   </or>
                 </not>
              </and>
           </enabledWhen>
       </section>
       <section
-            class="org.xmind.ui.internal.properties.StylePropertySectionPart"
+            class="org.xmind.ui.internal.properties.StylesPropertySectionPart"
             id="org.xmind.ui.topicStyleProperties"
             name="%section.topicSavedStyles.name">
          <enabledWhen>
-            <instanceof
-                  value="org.xmind.core.ITopic">
-            </instanceof>
+            <and>
+               <instanceof
+                     value="org.xmind.core.ITopic">
+               </instanceof>
+               <not>
+                  <test
+                        property="org.xmind.core.topic.type"
+                        value="callout">
+                  </test>
+               </not>
+            </and>
          </enabledWhen>
       </section>
       <section
-            class="org.xmind.ui.internal.properties.StylePropertySectionPart"
+            class="org.xmind.ui.internal.properties.StylesPropertySectionPart"
             id="org.xmind.ui.boundaryStyleProperties"
             name="%section.boundarySavedStyles.name">
          <enabledWhen>
@@ -2359,7 +3464,7 @@
          </enabledWhen>
       </section>
       <section
-            class="org.xmind.ui.internal.properties.StylePropertySectionPart"
+            class="org.xmind.ui.internal.properties.StylesPropertySectionPart"
             id="org.xmind.ui.relationshipStyleProperties"
             name="%section.relationshipSavedStyles.name">
          <enabledWhen>
@@ -2393,9 +3498,11 @@
             id="org.xmind.ui.topicShapeProperties"
             name="%propSection.topicShape.name">
          <enabledWhen>
-            <instanceof
-                  value="org.xmind.core.ITopic">
-            </instanceof>
+            <and>
+               <instanceof
+                     value="org.xmind.core.ITopic">
+               </instanceof>
+            </and>
          </enabledWhen>
       </section>
       <section
@@ -2415,16 +3522,6 @@
          <enabledWhen>
             <instanceof
                   value="org.xmind.core.IRelationship">
-            </instanceof>
-         </enabledWhen>
-      </section>
-      <section
-            class="org.xmind.ui.internal.properties.TopicBorderPropertySectionPart"
-            id="org.xmind.ui.topicBorderProperties"
-            name="%propSection.topicBorder.name">
-         <enabledWhen>
-            <instanceof
-                  value="org.xmind.core.ITopic">
             </instanceof>
          </enabledWhen>
       </section>
@@ -2503,6 +3600,16 @@
             class="org.xmind.ui.internal.properties.SheetAdvancedStylePropertySectionPart"
             id="org.xmind.ui.sheetAdvancedProperties"
             name="%propSection.mapAdvanced.name">
+         <enabledWhen>
+            <instanceof
+                  value="org.xmind.core.ISheet">
+            </instanceof>
+         </enabledWhen>
+      </section>
+      <section
+            class="org.xmind.ui.internal.properties.SheetInfoCardPropertySectionPart"
+            id="org.xmind.ui.sheetInformationCard"
+            name="%propSection.informationCard.name">
          <enabledWhen>
             <instanceof
                   value="org.xmind.core.ISheet">
@@ -2602,37 +3709,6 @@
             class="org.xmind.ui.internal.editpolicies.TopicSortablePolicy"
             id="org.xmind.ui.editPolicy.topicSortable">
       </editPolicy>
-   </extension>
-   <extension
-         point="org.xmind.ui.iconTips">
-      <iconTip
-            contributorClass="org.xmind.ui.internal.mindmap.HyperlinkIconTipContributor"
-            icon="icons/e/discovery.gif"
-            id="org.xmind.ui.iconTip.hyperlink"
-            label="%iconTip.hyperlink.label"
-            tooltip="%iconTip.hyperlink.tooltip">
-      </iconTip>
-      <iconTip
-            contributorClass="org.xmind.ui.internal.mindmap.DrillUpIconTipContributor"
-            icon="icons/e/drill_up.png"
-            id="org.xmind.ui.iconTip.drillUp"
-            label="%iconTip.drillUp.label"
-            tooltip="%iconTip.drillUp.tooltip">
-      </iconTip>
-      <iconTip
-            contributorClass="org.xmind.ui.internal.mindmap.DrillDownIconTipContributor"
-            icon="icons/e/drill_down.png"
-            id="org.xmind.ui.iconTip.drillDown"
-            label="%iconTip.drillDown.label"
-            tooltip="%iconTip.drillDown.tooltip">
-      </iconTip>
-      <iconTip
-            contributorClass="org.xmind.ui.internal.notes.NotesIconTipContributor"
-            icon="icons/e/notes.gif"
-            id="org.xmind.ui.iconTip.notes"
-            label="%iconTip.notes.label"
-            tooltip="%iconTip.notes.tooltip">
-      </iconTip>
    </extension>
    <extension
          point="org.eclipse.ui.exportWizards">
@@ -2783,6 +3859,11 @@
             name="%prefPage.DnD.name">
       </page>
       <page
+            class="org.xmind.ui.internal.prefs.AuthorInfoPrefPage"
+            id="org.xmind.ui.AuthorInfoPrefPage"
+            name="%prefPage.authorInfo.name">
+      </page>
+      <page
             class="org.xmind.ui.internal.prefs.ThemeApplyPrefPage"
             id="org.xmind.ui.ThemePrefPage"
             name="%prefPage.Theme.name">
@@ -2876,6 +3957,24 @@
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
+            id="org.xmind.ui.expression.isActiveEditorMindMapEditor">
+         <with
+               variable="activeEditorId">
+            <equals
+                  value="org.xmind.ui.MindMapEditor">
+            </equals>
+         </with>
+      </definition>
+      <definition
+            id="org.xmind.ui.expression.isActivePartMindMapEditor">
+         <with
+               variable="activePartId">
+            <equals
+                  value="org.xmind.ui.MindMapEditor">
+            </equals>
+         </with>
+      </definition>
+      <definition
             id="org.xmind.ui.expression.isModifiableStyle">
          <adapt
                type="org.xmind.core.style.IStyle">
@@ -2894,12 +3993,30 @@
                variable="selection">
             <iterate
                   ifEmpty="false"
-                  operator="or">
+                  operator="and">
                <reference
                      definitionId="org.xmind.ui.expression.isModifiableStyle">
                </reference>
             </iterate>
          </with>
+      </definition>
+      <definition
+            id="org.xmind.ui.expression.isMindMapEditorContributingContents">
+         <or>
+            <with
+                  variable="activePartId">
+               <equals
+                     value="org.xmind.ui.MindMapEditor">
+               </equals>
+            </with>
+            <with
+                  variable="activePart">
+               <test
+                     property="org.xmind.ui.contributedContentsView.contributingPartId"
+                     value="org.xmind.ui.MindMapEditor">
+               </test>
+            </with>
+         </or>
       </definition>
    </extension>
    <extension
@@ -2908,68 +4025,179 @@
             class="org.xmind.ui.internal.handlers.ApplyStyleHandler"
             commandId="org.xmind.ui.command.style.apply">
          <activeWhen>
-            <with
-                  variable="activeEditorId">
-               <equals
-                     value="org.xmind.ui.MindMapEditor">
-               </equals>
-            </with>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.style.IStyle">
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
          </activeWhen>
       </handler>
       <handler
             class="org.xmind.ui.internal.handlers.DeleteStyleHandler"
             commandId="org.eclipse.ui.edit.delete">
          <activeWhen>
-            <reference
-                  definitionId="org.xmind.ui.expression.selectionContainsModifiableStyles">
-            </reference>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <and>
+                     <adapt
+                           type="org.xmind.core.style.IStyle">
+                        <reference
+                              definitionId="org.xmind.ui.expression.isModifiableStyle">
+                        </reference>
+                     </adapt>
+                  </and>
+               </iterate>
+            </with>
          </activeWhen>
-         <enabledWhen>
-            <reference
-                  definitionId="org.xmind.ui.expression.selectionContainsModifiableStyles">
-            </reference>
-         </enabledWhen>
       </handler>
       <handler
             class="org.xmind.ui.internal.handlers.ResetStyleHandler"
             commandId="org.xmind.ui.command.style.reset">
          <activeWhen>
-            <with
-                  variable="activeEditorId">
-               <equals
-                     value="org.xmind.ui.MindMapEditor">
-               </equals>
-            </with>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.style.IStyled">
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
          </activeWhen>
       </handler>
       <handler
             class="org.xmind.ui.internal.handlers.AlignmentHandler"
             commandId="org.xmind.ui.command.alignment">
          <activeWhen>
-            <with
-                  variable="selection">
-               <count
-                     value="(1-">
-               </count>
-               <iterate>
-                  <adapt
-                        type="org.xmind.core.ITopic">
-                  </adapt>
-               </iterate>
-            </with>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <count
+                        value="(1-">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
          </activeWhen>
       </handler>
       <handler
             class="org.xmind.ui.internal.handlers.SortHandler"
             commandId="org.xmind.ui.command.sort">
          <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SaveSheetAsHandler"
+            commandId="org.xmind.ui.command.saveSheetAs">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SaveAsTemplateHandler"
+            commandId="org.xmind.ui.command.saveTemplate">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.ReduceFileSizeHandler"
+            commandId="org.xmind.ui.command.reduceFileSize">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SaveImageAsHandler"
+            commandId="org.xmind.ui.command.saveImageAs">
+         <activeWhen>
+         	<with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <or>
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                        <test
+                              property="org.xmind.core.topic.eval"
+                              value="count(image[@source])&gt;0">
+                        </test>
+                     </adapt>
+                     <adapt
+                           type="org.xmind.core.IImage">
+                     </adapt>
+                  </or>
+               </iterate>
+               <count
+                     value="1">
+               </count>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SaveAttachmentAsHandler"
+            commandId="org.xmind.ui.command.saveAttachmentAs">
+         <activeWhen>
             <with
                   variable="selection">
                <iterate
                      ifEmpty="false"
-                     operator="or">
+                     operator="and">
                   <adapt
                         type="org.xmind.core.ITopic">
+                     <test
+                           property="org.xmind.core.topic.hyperlink"
+                           value="^xap\:.*$">
+                     </test>
                   </adapt>
                </iterate>
                <count
@@ -2979,97 +4207,214 @@
          </activeWhen>
       </handler>
       <handler
-            class="org.xmind.ui.internal.handlers.ImportFromWorkbookHandler"
-            commandId="org.xmind.ui.command.importWorkbook">
-      </handler>
-      <handler
-            class="org.xmind.ui.internal.handlers.SaveSheetAsHandler"
-            commandId="org.xmind.ui.command.saveSheetAs">
-      </handler>
-      <handler
-            class="org.xmind.ui.internal.handlers.SaveAsTemplateHandler"
-            commandId="org.xmind.ui.command.saveTemplate">
-      </handler>
-      <handler
-            class="org.xmind.ui.wizards.WizardHandler$Export"
-            commandId="org.xmind.ui.command.export">
+            class="org.xmind.ui.internal.handlers.SaveAudioNoteAsHandler"
+            commandId="org.xmind.ui.command.saveAudioNoteAs">
          <activeWhen>
-            <with
-                  variable="activeEditorId">
-               <equals
-                     value="org.xmind.ui.MindMapEditor">
-               </equals>
+         	<with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <adapt
+                        type="org.xmind.core.ITopic">
+                     <test
+                           property="org.xmind.core.topic.eval"
+                           value="count(extension[@provider=&apos;org.xmind.ui.audionotes&apos;])&gt;0">
+                     </test>
+                  </adapt>
+               </iterate>
+               <count
+                     value="1">
+               </count>
             </with>
          </activeWhen>
       </handler>
       <handler
-            class="org.xmind.ui.wizards.WizardHandler$Import"
-            commandId="org.xmind.ui.command.import">
+            class="org.xmind.ui.internal.handlers.ClearMarkersHandler"
+            commandId="org.xmind.ui.command.clearMarkers">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                           <test
+                                 property="org.xmind.core.topic.eval"
+                                 value="count(marker)&gt;0">
+                           </test>
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
       </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.xmind.ui.StylesView?after=group.file">
-         <command
-               commandId="org.xmind.ui.command.style.apply"
-               id="org.xmind.ui.popup.StylesView.apply"
-               style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:org.xmind.ui.StylesView?after=group.edit">
-         <command
-               commandId="org.xmind.ui.command.style.rename"
-               id="org.xmind.ui.popup.StylesView.rename"
-               label="%command.renameSelectedStyle.inStylesViewPopupMenu.name"
-               style="push">
-         </command>
-         <command
-               commandId="org.eclipse.ui.edit.delete"
-               id="org.xmind.ui.popup.StylesView.delete"
-               style="push">
-         </command>
-      </menuContribution>
+      <handler
+            class="org.xmind.ui.internal.handlers.CopyStyleHandler"
+            commandId="org.xmind.ui.command.style.copy">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <and>
+                        <instanceof
+                              value="org.xmind.core.IWorkbookComponent">
+                        </instanceof>
+                        <instanceof
+                              value="org.xmind.core.style.IStyled">
+                        </instanceof>
+                     </and>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.PasteStyleHandler"
+            commandId="org.xmind.ui.command.style.paste">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <and>
+                        <instanceof
+                              value="org.xmind.core.IWorkbookComponent">
+                        </instanceof>
+                        <instanceof
+                              value="org.xmind.core.style.IStyled">
+                        </instanceof>
+                     </and>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.EditCommentsHandler"
+            commandId="org.xmind.ui.command.editComments">
+         <activeWhen>
+         	<and>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                    <adapt
+                          type="org.xmind.core.ITopic">
+                    </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+               <with
+                     variable="activePartId">
+                  <equals
+                        value="org.xmind.ui.MindMapEditor">
+                  </equals>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.RemoveMarkerFromAllTopicsHandler"
+            commandId="org.xmind.ui.command.removeMarkerFromAllTopics">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.marker.IMarkerRef">
+                     </adapt>
+                  </iterate>
+                  <count
+                        value="1">
+                  </count>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.AddMarkerHandler"
+            commandId="org.xmind.ui.command.addMarker">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
       <image
             commandId="org.xmind.ui.command.insertTopic"
-            disabledIcon="icons/d/insertafter.gif"
-            icon="icons/e/insertafter.gif">
+            disabledIcon="icons/d/insertafter.png"
+            icon="icons/e/insertafter.png">
       </image>
       <image
             commandId="org.xmind.ui.command.insertSubtopic"
-            disabledIcon="icons/d/insertsub.gif"
-            icon="icons/e/insertsub.gif">
+            disabledIcon="icons/d/insertsub.png"
+            icon="icons/e/insertsub.png">
       </image>
       <image
             commandId="org.xmind.ui.command.insertTopicBefore"
-            disabledIcon="icons/d/insertbefore.gif"
-            icon="icons/e/insertbefore.gif">
+            disabledIcon="icons/d/insertbefore.png"
+            icon="icons/e/insertbefore.png">
       </image>
       <image
             commandId="org.xmind.ui.command.insertParentTopic"
-            disabledIcon="icons/d/insertparent.gif"
-            icon="icons/e/insertparent.gif">
+            disabledIcon="icons/d/insertparent.png"
+            icon="icons/e/insertparent.png">
       </image>
       <image
             commandId="org.xmind.ui.command.insertFloatingTopic"
-            disabledIcon="icons/d/insertfloating_main.gif"
-            icon="icons/e/insertfloating_main.gif">
+            disabledIcon="icons/d/insertfloating_main.png"
+            icon="icons/e/insertfloating_main.png">
       </image>
       <image
             commandId="org.xmind.ui.command.insertFloatingCentralTopic"
-            disabledIcon="icons/d/insertfloating_central.gif"
-            icon="icons/e/insertfloating_central.gif">
+            disabledIcon="icons/d/insertfloating_central.png"
+            icon="icons/e/insertfloating_central.png">
       </image>
       <image
             commandId="org.xmind.ui.command.insertImage"
-            disabledIcon="icons/d/insertimage.gif"
-            icon="icons/e/insertimage.gif">
+            disabledIcon="icons/d/insertimage.png"
+            icon="icons/e/insertimage.png">
       </image>
       <image
             commandId="org.xmind.ui.command.createRelationship"
@@ -3078,17 +4423,15 @@
       </image>
       <image
             commandId="org.xmind.ui.command.createBoundary"
-            disabledIcon="icons/d/boundary.gif"
-            icon="icons/e/boundary.gif">
+            disabledIcon="icons/d/boundary.png"
+            icon="icons/e/boundary.png">
       </image>
       <image
             commandId="org.xmind.ui.command.createSummary"
-            disabledIcon="icons/d/summary.gif"
             icon="icons/e/summary.gif">
       </image>
       <image
             commandId="org.xmind.ui.command.insertAttachment"
-            disabledIcon="icons/d/attachment.gif"
             icon="icons/e/attachment.gif">
       </image>
       <image
@@ -3102,6 +4445,11 @@
             icon="icons/e/new_sheet_as.gif">
       </image>
       <image
+            commandId="org.xmind.ui.command.newSheetFromTemplate"
+            disabledIcon="icons/d/new_sheet_from_template.png"
+            icon="icons/e/new_sheet_from_template.png">
+      </image>
+      <image
             commandId="org.xmind.ui.command.editLabel"
             icon="icons/e/label.gif">
       </image>
@@ -3111,19 +4459,12 @@
             icon="icons/e/notes.gif">
       </image>
       <image
+            commandId="org.xmind.ui.command.editComments"
+            icon="icons/e/menu_modify_comment.png">
+      </image>
+      <image
             commandId="org.xmind.ui.command.hyperlink"
-            disabledIcon="icons/d/discovery.gif"
-            icon="icons/e/discovery.gif">
-      </image>
-      <image
-            commandId="org.xmind.ui.command.newWorkbook"
-            disabledIcon="icons/d/new.gif"
-            icon="icons/e/new.gif">
-      </image>
-      <image
-            commandId="org.xmind.ui.command.newWorkbookWizard"
-            disabledIcon="icons/d/new_wiz.gif"
-            icon="icons/e/new_wiz.gif">
+            icon="icons/e/hyperlink.png">
       </image>
       <image
             commandId="org.xmind.ui.command.drillDown"
@@ -3137,32 +4478,28 @@
       </image>
       <image
             commandId="org.xmind.ui.command.zoomIn"
-            disabledIcon="icons/d/zoomin.gif"
-            icon="icons/e/zoomin.gif">
+            disabledIcon="icons/d/zoomin.png"
+            icon="icons/e/zoomin.png">
       </image>
       <image
             commandId="org.xmind.ui.command.fitMap"
-            disabledIcon="icons/d/fitsize.gif"
-            icon="icons/e/fitsize.gif">
+            disabledIcon="icons/d/fitsize.png"
+            icon="icons/e/fitsize.png">
       </image>
       <image
             commandId="org.xmind.ui.command.fitSelection"
-            disabledIcon="icons/d/fitselection.gif"
-            icon="icons/e/fitselection.gif">
+            disabledIcon="icons/d/fitselection.png"
+            icon="icons/e/fitselection.png">
       </image>
       <image
             commandId="org.xmind.ui.command.actualSize"
-            disabledIcon="icons/d/actualsize.gif"
-            icon="icons/e/actualsize.gif">
+            disabledIcon="icons/d/actualsize.png"
+            icon="icons/e/actualsize.png">
       </image>
       <image
             commandId="org.xmind.ui.command.zoomOut"
-            disabledIcon="icons/d/zoomout.gif"
-            icon="icons/e/zoomout.gif">
-      </image>
-      <image
-            commandId="org.xmind.ui.command.export"
-            icon="icons/e/export_wiz.gif">
+            disabledIcon="icons/d/zoomout.png"
+            icon="icons/e/zoomout.png">
       </image>
       <image
             commandId="org.xmind.ui.command.openWorkbook"
@@ -3170,9 +4507,367 @@
             icon="icons/e/fldr_obj.gif">
       </image>
       <image
-            commandId="org.xmind.ui.command.import"
-            disabledIcon="icons/d/import_wiz.gif"
-            icon="icons/e/import_wiz.gif">
+            commandId="org.xmind.ui.command.insertCallout"
+            disabledIcon="icons/d/insertcallout.png"
+            icon="icons/e/insertcallout.png">
       </image>
+      <image
+            commandId="org.xmind.ui.command.duplicate"
+            disabledIcon="icons/d/duplicate.png"
+            icon="icons/e/duplicate.png">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToActivePart:create_callout"
+            commandId="org.xmind.ui.command.insertCallout">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                        <adapt
+                              type="org.xmind.ui.mindmap.IBranchPart">
+                           <not>
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="centralBranch">
+                              </test>
+                           </not>
+                        </adapt>
+                     </adapt>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToActivePart:create_boundary"
+            commandId="org.xmind.ui.command.createBoundary">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <or>
+                        <adapt
+                              type="org.xmind.core.ITopic">
+                           <adapt
+                                 type="org.xmind.ui.mindmap.IBranchPart">
+                              <not>
+                                 <test
+                                       property="org.xmind.ui.branch.type"
+                                       value="centralBranch">
+                                 </test>
+                              </not>
+                           </adapt>
+                        </adapt>
+                        <adapt
+                              type="org.xmind.core.ISheet">
+                        </adapt>
+                     </or>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToActivePart:create_summary"
+            commandId="org.xmind.ui.command.createSummary">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <or>
+                     <adapt
+                           type="org.xmind.core.ITopic">
+                        <adapt
+                           type="org.xmind.ui.mindmap.IBranchPart">
+                           <not>
+                              <test
+                                    property="org.xmind.ui.branch.type"
+                                    value="centralBranch">
+                              </test>
+                           </not>
+                        </adapt>
+                     </adapt>
+                     <adapt
+                           type="org.xmind.core.ISheet">
+                     </adapt>
+                     </or>
+                  </iterate>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToContributingEditor:zoom_in"
+            commandId="org.xmind.ui.command.zoomIn">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToContributingEditor:zoom_out"
+            commandId="org.xmind.ui.command.zoomOut">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToContributingEditor:actual_size"
+            commandId="org.xmind.ui.command.actualSize">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToContributingEditor:fit_size"
+            commandId="org.xmind.ui.command.fitMap">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToContributingEditor:fit_selection"
+            commandId="org.xmind.ui.command.fitSelection">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.xmind.ui.numberSeparators">
+      <separator
+            class="org.xmind.ui.internal.mindmap.CommaNumberSeparator"
+            id="org.xmind.numbering.separator.comma"
+            name="%numberingSeparator.comma.name">
+      </separator>
+      <separator
+            class="org.xmind.ui.internal.mindmap.DotNumberSeparator"
+            id="org.xmind.numbering.separator.dot"
+            name="%numberingSeparator.dot.name">
+      </separator>
+      <separator
+            class="org.xmind.ui.internal.mindmap.HyphenNumberSeparator"
+            id="org.xmind.numbering.separator.hyphen"
+            name="%numberingSeparator.hyphen.name">
+      </separator>
+      <separator
+            class="org.xmind.ui.internal.mindmap.DashNumberSeparator"
+            id="org.xmind.numbering.separator.dash"
+            name="%numberingSeparator.dash.name">
+      </separator>
+      <separator
+            class="org.xmind.ui.internal.mindmap.ObliqueNumberSeparator"
+            id="org.xmind.numbering.separator.oblique"
+            name="%numberingSeparator.oblique.name">
+      </separator>
+   </extension>
+   <extension
+         point="org.xmind.ui.infoItems">
+      <infoItem
+            availableModes="icon,card"
+            cardLabel="%infoItem.label.cardLabel"
+            contributorClass="org.xmind.ui.internal.mindmap.LabelInfoItemContributor"
+            defaultMode="card"
+            icon="icons/e/label.gif"
+            id="org.xmind.ui.infoItem.label"
+            label="%infoItem.label.label"
+            tooltip="%infoItem.label.tooltip">
+      </infoItem>
+      <infoItem
+            availableModes="icon,card"
+            cardLabel="%infoItem.notes.cardLabel"
+            contributorClass="org.xmind.ui.internal.notes.NotesInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/e/notes.gif"
+            id="org.xmind.ui.infoItem.notes"
+            label="%infoItem.notes.label"
+            tooltip="%infoItem.notes.tooltip">
+      </infoItem>
+      <infoItem
+            availableModes="icon,card"
+            cardLabel="%infoItem.hyperlink.cardLabel"
+            contributorClass="org.xmind.ui.internal.mindmap.HyperlinkInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/e/hyperlink.png"
+            id="org.xmind.ui.infoItem.hyperlink"
+            label="%infoItem.hyperlink.label"
+            tooltip="%infoItem.hyperlink.tooltip">
+      </infoItem>
+      <infoItem
+            availableModes="icon"
+            contributorClass="org.xmind.ui.internal.mindmap.DrillUpInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/e/drill_up.png"
+            id="org.xmind.ui.infoItem.drillUp"
+            label="%iconTip.drillUp.label"
+            tooltip="%iconTip.drillUp.tooltip">
+      </infoItem>
+      <infoItem
+            availableModes="icon"
+            contributorClass="org.xmind.ui.internal.mindmap.DrillDownInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/e/drill_down.png"
+            id="org.xmind.ui.infoItem5"
+            label="%iconTip.drillDown.label"
+            tooltip="%iconTip.drillDown.tooltip">
+      </infoItem>
+      <infoItem
+            availableModes="icon"
+            contributorClass="org.xmind.ui.internal.comments.CommentsInfoItemContributor"
+            defaultMode="icon"
+            icon="icons/e/menu_modify_comment.png"
+            id="org.xmind.ui.infoItem.comments"
+            label="%iconTip.comments.label"
+            tooltip="%iconTip.comments.tooltip">
+      </infoItem>
+   </extension>
+   <extension
+         id="overviewViewMenuContributions"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.xmind.ui.OverviewView">
+         <command
+               commandId="org.xmind.ui.command.zoomIn"
+               label="%menu.overview.zoomIn.label"
+               style="push"
+               tooltip="%menu.overview.zoomIn.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.zoomOut"
+               label="%menu.overview.zoomOut.label"
+               style="push"
+               tooltip="%menu.overview.zoomOut.tooltip">
+         </command>
+         <separator
+               name="org.xmind.ui.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.xmind.ui.command.actualSize"
+               label="%menu.overview.actualSize.label"
+               style="push"
+               tooltip="%menu.overview.actualSize.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.fitMap"
+               label="%menu.overview.fitMap.label"
+               style="push"
+               tooltip="%menu.overview.fitMap.tooltip">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.revertRevision..description"
+            id="org.xmind.ui.command.revertToRevision"
+            name="%command.revertRevision.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.ui.internal.handlers.DeleteRevisionHandler"
+            commandId="org.eclipse.ui.edit.delete">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <adapt
+                        type="org.xmind.core.IRevision">
+                  </adapt>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.RevertToRevisionHandler"
+            commandId="org.xmind.ui.command.revertToRevision">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <adapt
+                        type="org.xmind.core.IRevision">
+                  </adapt>
+               </iterate>
+               <count
+                     value="1">
+               </count>
+            </with>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         id="revisionsViewMenuContributions"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.xmind.ui.RevisionsView?after=start">
+         <separator
+               name="group.revisions"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.xmind.ui.command.revertToRevision"
+               id="org.xmind.ui.RevisionsView.popup.revert"
+               label="%popup.revisionview.revertRevision.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <separator
+               name="group.edit"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               id="org.xmind.ui.RevisionsView.popup.delete"
+               label="%popup.revisionview.delete.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
 </plugin>

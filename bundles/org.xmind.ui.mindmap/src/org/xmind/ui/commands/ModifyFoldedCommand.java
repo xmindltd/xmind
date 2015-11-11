@@ -13,11 +13,14 @@
  *******************************************************************************/
 package org.xmind.ui.commands;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.xmind.core.ITopic;
 import org.xmind.gef.ISourceProvider;
 import org.xmind.gef.command.ModifyCommand;
+import org.xmind.ui.internal.ModelCacheManager;
 
 public class ModifyFoldedCommand extends ModifyCommand {
 
@@ -30,7 +33,8 @@ public class ModifyFoldedCommand extends ModifyCommand {
         super(sources, Boolean.valueOf(newFolded));
     }
 
-    public ModifyFoldedCommand(ISourceProvider sourceProvider, boolean newFolded) {
+    public ModifyFoldedCommand(ISourceProvider sourceProvider,
+            boolean newFolded) {
         super(sourceProvider, Boolean.valueOf(newFolded));
     }
 
@@ -47,4 +51,64 @@ public class ModifyFoldedCommand extends ModifyCommand {
         }
     }
 
+    @Override
+    protected void setNewValues() {
+        List<Object> rootParents = filterRootParents(getSources());
+        for (Object source : getSources()) {
+            if (!rootParents.contains(source)) {
+                ModelCacheManager.getInstance().setCache(source,
+                        ModelCacheManager.MODEL_CACHE_DELAYLAYOUT,
+                        Boolean.TRUE);
+                setValue(source, getNewValue());
+                ModelCacheManager.getInstance().flush(source,
+                        ModelCacheManager.MODEL_CACHE_DELAYLAYOUT);
+            }
+        }
+
+        for (Object rootParent : rootParents) {
+            setValue(rootParent, getNewValue());
+        }
+    }
+
+    @Override
+    protected void setOldValues() {
+        List<Object> rootParents = filterRootParents(getSources());
+        for (Object source : getSources()) {
+            if (!rootParents.contains(source)) {
+                ModelCacheManager.getInstance().setCache(source,
+                        ModelCacheManager.MODEL_CACHE_DELAYLAYOUT,
+                        Boolean.TRUE);
+                setValue(source, getOldValue(source));
+                ModelCacheManager.getInstance().flush(source,
+                        ModelCacheManager.MODEL_CACHE_DELAYLAYOUT);
+            }
+        }
+
+        for (Object rootParent : rootParents) {
+            setValue(rootParent, getOldValue(rootParent));
+        }
+    }
+
+    private List<Object> filterRootParents(List<Object> topics) {
+        ArrayList<Object> result = new ArrayList<Object>(topics.size());
+        for (Object topic : topics) {
+            if (topic instanceof ITopic
+                    && !branchContains((ITopic) topic, topics)) {
+                result.add(topic);
+            }
+        }
+        return result;
+    }
+
+    private boolean branchContains(ITopic topic, List<Object> topics) {
+        boolean contains = false;
+        ITopic parent = topic.getParent();
+        if (parent != null) {
+            contains = topics.contains(parent);
+            if (!contains) {
+                contains = branchContains(parent, topics);
+            }
+        }
+        return contains;
+    }
 }

@@ -16,17 +16,17 @@ package net.xmind.signin.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.xmind.signin.IAccountInfo;
-import net.xmind.signin.IAuthenticationListener;
-import net.xmind.signin.IAuthorizationListener;
-import net.xmind.signin.IPreauthorizationListener;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.SafeRunnable;
+
+import net.xmind.signin.IAccountInfo;
+import net.xmind.signin.IAuthenticationListener;
+import net.xmind.signin.IAuthorizationListener;
+import net.xmind.signin.IPreauthorizationListener;
 
 @SuppressWarnings("deprecation")
 public class XMindNetAccount {
@@ -82,7 +82,8 @@ public class XMindNetAccount {
     }
 
     @Deprecated
-    public void addPreauthorizationListener(IPreauthorizationListener listener) {
+    public void addPreauthorizationListener(
+            IPreauthorizationListener listener) {
         if (preauthorized)
             listener.preauthorized();
         else if (preauthorizationListeners != null)
@@ -129,16 +130,15 @@ public class XMindNetAccount {
 
     private void saveToSystemProperties(String user, String authToken,
             long expireDate) {
-        System.setProperty("net.xmind.signin.account.user", user); //$NON-NLS-1$
-        System.setProperty("net.xmind.signin.account.token", authToken); //$NON-NLS-1$
-        System.setProperty(
-                "net.xmind.signin.account.expireDate", String.valueOf(expireDate)); //$NON-NLS-1$
+        System.setProperty(Activator.PROP_USER, user);
+        System.setProperty(Activator.PROP_TOKEN, authToken);
+        System.setProperty(Activator.PROP_EXPIRE_DATE, String.valueOf(expireDate));
     }
 
     private void clearSystemProperties() {
-        System.setProperty("net.xmind.signin.account.user", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        System.setProperty("net.xmind.signin.account.token", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        System.setProperty("net.xmind.signin.account.expireDate", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty(Activator.PROP_USER, ""); //$NON-NLS-1$
+        System.setProperty(Activator.PROP_TOKEN, ""); //$NON-NLS-1$
+        System.setProperty(Activator.PROP_EXPIRE_DATE, ""); //$NON-NLS-1$
     }
 
     @Deprecated
@@ -264,7 +264,8 @@ public class XMindNetAccount {
         String authToken = localStore.getString(TOKEN);
         long expireDate = localStore.getLong(EXPIRE_DATE);
         if (user != null && !"".equals(user) //$NON-NLS-1$
-                && authToken != null && !"".equals(authToken) && expireDate > 0) { //$NON-NLS-1$
+                && authToken != null && !"".equals(authToken) //$NON-NLS-1$
+                && expireDate > 0) {
             this.accountInfo = new AccountInfo(user, authToken, expireDate);
             saveToSystemProperties(user, authToken, expireDate);
         }

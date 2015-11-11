@@ -111,6 +111,6 @@ public class PreferenceConstants {
     public static final String IMAGE_SEARCH_GOOGLE = "Google"; //value //$NON-NLS-1$
     public static final String IMAGE_SEARCH_YAHOO = "Yahoo"; //value //$NON-NLS-1$
 
-//    public static final String DEFAULT_SEARCH_ENGINE = "$org.xmind.searchPlugin.baiDu$"  ; //value    
+//    public static final String DEFAULT_SEARCH_ENGINE = "$org.xmind.searchPlugin.baiDu$"  ; //value  
 
 }

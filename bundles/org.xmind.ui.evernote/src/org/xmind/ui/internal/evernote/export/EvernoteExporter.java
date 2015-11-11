@@ -300,7 +300,7 @@ public class EvernoteExporter {
 
         private String getNumbering() {
             String numbering = MindMapUtils.getFullNumberingText(topic,
-                    MindMapUI.PREVIEW_NUMBER_FORMAT);
+                    MindMapUI.PREVIEW_NUMBER_FORMAT, MindMapUI.DEFAULT_NUMBER_SEPARATOR);
 
             if (numbering != null) {
                 numbering += " "; //$NON-NLS-1$

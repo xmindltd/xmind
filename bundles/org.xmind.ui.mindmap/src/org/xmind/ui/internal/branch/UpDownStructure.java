@@ -31,6 +31,7 @@ import org.xmind.ui.branch.AbstractBranchStructure;
 import org.xmind.ui.branch.BoundaryLayoutHelper;
 import org.xmind.ui.branch.IInsertion;
 import org.xmind.ui.branch.Insertion;
+import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IBranchRangePart;
 import org.xmind.ui.mindmap.IPlusMinusPart;
@@ -214,16 +215,7 @@ public class UpDownStructure extends AbstractBranchStructure {
         return super.calcChildDistance(branch, key);
     }
 
-    private Point getChildRef(IBranchPart branch, Point branchRef,
-            ParentSearchKey key) {
-        return key.getCursorPos();
-    }
-
-    public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return calcInsIndex(branch, key, false);
-    }
-
-    private int calcInsIndex(IBranchPart branch, ParentSearchKey key,
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
             boolean withDisabled) {
         if (branch.getSubBranches().isEmpty() || branch.isFolded())
             return withDisabled ? 0 : -1;
@@ -315,5 +307,179 @@ public class UpDownStructure extends AbstractBranchStructure {
         if (direction == PositionConstants.WEST)
             return -1;
         return super.getQuickMoveOffset(branch, child, direction);
+    }
+
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        if (subBranches.isEmpty())
+            return calcFirstChildPosition(branch, key);
+
+        int minorSpacing = getMinorSpacing(branch);
+        int index = calcInsIndex(branch, key, true);
+        Dimension insSize = key.getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        List<IBoundaryPart> boundaries = branch.getBoundaries();
+
+        if (index == 0) {
+            IBranchPart sub = subBranches.get(0);
+            Rectangle bounds = sub.getFigure().getBounds();
+            if (!boundaries.isEmpty()) {
+                for (IBoundaryPart boundary : boundaries) {
+                    Rectangle bBounds = boundary.getFigure().getBounds();
+                    List<IBranchPart> enclosingBranches = boundary
+                            .getEnclosingBranches();
+                    if (sub.equals(enclosingBranches.get(0)))
+                        bounds = bBounds.contains(bounds) ? bBounds : bounds;
+                }
+            }
+
+            int x = bounds.x - minorSpacing - insSize.width / 2;
+            int y;
+            if (isUpwards())
+                y = bounds.bottom() - inventSize.width / 2;
+            else
+                y = bounds.y + inventSize.width / 2;
+
+            return new Point(x, y);
+        }
+
+        if (index == subBranches.size()) {
+            IBranchPart sub = subBranches.get(subBranches.size() - 1);
+            Rectangle bounds = sub.getFigure().getBounds();
+            if (!boundaries.isEmpty()) {
+                for (IBoundaryPart boundary : boundaries) {
+                    Rectangle bBounds = boundary.getFigure().getBounds();
+                    List<IBranchPart> enclosingBranches = boundary
+                            .getEnclosingBranches();
+                    if (sub.equals(enclosingBranches.get(enclosingBranches
+                            .size() - 1)))
+                        bounds = bBounds.contains(bounds) ? bBounds : bounds;
+                }
+            }
+
+            int x = bounds.right() + minorSpacing + insSize.width / 2;
+            int y;
+            if (isUpwards())
+                y = bounds.bottom() - inventSize.width / 2;
+            else
+                y = bounds.y + inventSize.width / 2;
+
+            return new Point(x, y);
+        }
+        return calcInventPosition(subBranches.get(index - 1),
+                subBranches.get(index), key, isUpwards());
+    }
+
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        if (disables != null) {
+            if (disables.contains(index - 1)) {
+                index--;
+                oldIndex = index;
+            } else if (disables.contains(index)) {
+                oldIndex = index;
+            }
+        }
+        Dimension inventSize = key.getInvent().getSize();
+
+        if (index == oldIndex) {
+            IBranchPart sub = subBranches.get(index);
+            int delta = sub.getTopicPart().getFigure().getSize().height / 2
+                    - inventSize.height / 2;
+            return getFigureLocation(sub.getFigure()).getTranslated(0,
+                    isUpwards() ? delta : -delta);
+        }
+
+        return calcInsertPosition(branch, child, key);
+    }
+
+    @Override
+    protected Point calcFirstChildPosition(IBranchPart branch,
+            ParentSearchKey key) {
+        int y = branch.getFigure().getSize().height / 2
+                + getMajorSpacing(branch) + key.getInvent().getSize().height
+                / 2;
+        return getFigureLocation(branch.getFigure()).getTranslated(0,
+                isUpwards() ? -y : y);
+    }
+
+    @Override
+    protected Point calcInventPosition(IBranchPart orientation,
+            IBranchPart assist, ParentSearchKey key, boolean isRightOrUp) {
+        int minorSpacing = getMinorSpacing(orientation.getParentBranch());
+        Dimension insSize = key.getFigure().getSize();
+        Dimension inventSize = key.getInvent().getSize();
+
+        Rectangle oriBounds = orientation.getFigure().getBounds();
+        Rectangle assBounds = assist.getFigure().getBounds();
+
+        Rectangle lBounds = oriBounds;
+        Rectangle rBounds = assBounds;
+
+        List<IBoundaryPart> boundaries = orientation.getParentBranch()
+                .getBoundaries();
+        if (!boundaries.isEmpty()) {
+            for (IBoundaryPart boundary : boundaries) {
+                List<IBranchPart> enclosingBranches = boundary
+                        .getEnclosingBranches();
+                Rectangle bBounds = boundary.getFigure().getBounds();
+
+                if (orientation.equals(enclosingBranches.get(enclosingBranches
+                        .size() - 1)))
+                    lBounds = bBounds.contains(lBounds) ? bBounds : lBounds;
+
+                if (assist.equals(enclosingBranches.get(0)))
+                    rBounds = bBounds.contains(rBounds) ? bBounds : rBounds;
+            }
+        }
+
+        boolean isBefourBounds;
+        Rectangle bounds;
+        if (lBounds.equals(oriBounds)) {
+            bounds = lBounds;
+            isBefourBounds = false;
+        } else if (rBounds.equals(assBounds)) {
+            bounds = rBounds;
+            isBefourBounds = true;
+        } else {
+            if (isRightOrUp) {
+                if (lBounds.bottom() < rBounds.bottom()) {
+                    bounds = lBounds;
+                    isBefourBounds = false;
+                } else {
+                    bounds = rBounds;
+                    isBefourBounds = true;
+                }
+            } else {
+                if (lBounds.y > rBounds.y) {
+                    bounds = lBounds;
+                    isBefourBounds = false;
+                } else {
+                    bounds = rBounds;
+                    isBefourBounds = true;
+                }
+            }
+        }
+
+        int x;
+        if (isBefourBounds)
+            x = bounds.x - minorSpacing - insSize.width / 2;
+        else
+            x = bounds.right() + minorSpacing + insSize.width / 2;
+
+        int y;
+        if (isRightOrUp)
+            y = bounds.bottom() - inventSize.height / 2;
+        else
+            y = bounds.y + inventSize.height / 2;
+
+        return new Point(x, y);
     }
 }

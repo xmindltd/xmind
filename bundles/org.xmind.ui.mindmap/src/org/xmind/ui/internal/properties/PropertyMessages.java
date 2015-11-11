@@ -51,6 +51,7 @@ public class PropertyMessages extends NLS {
     public static String PrependNumbering_toolTip;
     public static String Prefix_toolTip;
     public static String Suffix_toolTip;
+    public static String Separator_label;
     public static String RelationshipShape_toolTip;
     public static String BeginArrowShape_toolTip;
     public static String EndArrowShape_toolTip;
@@ -67,6 +68,8 @@ public class PropertyMessages extends NLS {
     public static String WallpaperOpacity_pattern;
     public static String WallpaperOpacity_toolTip;
     public static String WallpaperDialog_title;
+    public static String PatternCategory_title;
+    public static String WallpaperCategory_title;
     public static String ImageWidth_label;
     public static String ImageHeight_label;
     public static String ResetImageSize_text;
@@ -79,6 +82,23 @@ public class PropertyMessages extends NLS {
     public static String TextAlignCenter_toolTip;
     public static String TextAlignRight_text;
     public static String TextAlignRight_toolTip;
+
+    public static String TextManual_text;
+    public static String TextManual_toolTip;
+    public static String TextUppercase_text;
+    public static String TextUppercase_toolTip;
+    public static String TextLowercase_text;
+    public static String TextLowercase_toolTip;
+    public static String TextCapitalize_text;
+    public static String TextCapitalize_toolTip;
+
+    public static String ShowTaskInfo_text;
+    public static String ShowLabel_text;
+    public static String ShowNotes_text;
+    public static String ShowHyperlink_text;
+    public static String InfoCardBackground_toolTip;
+
+    public static String LegendBackground_toolTip;
 
     static {
         // initialize resource bundle

@@ -170,7 +170,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         DOMUtils.setText(implementation, TAG_TITLE, titleText);
         String newValue = getLocalTitleText();
         fireValueChange(Core.TitleText, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -190,7 +190,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         DOMUtils.setAttribute(implementation, ATTR_BRANCH, value);
         Boolean newValue = isFolded();
         fireValueChange(Core.TopicFolded, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -211,7 +211,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         increaseStyleRef(workbook);
         String newValue = getStyleId();
         fireValueChange(Core.Style, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public boolean hasPosition() {
@@ -247,7 +247,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         DOMUtils.setAttribute(e, ATTR_Y, Integer.toString(y));
         Point newValue = getPosition();
         fireValueChange(Core.Position, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -262,7 +262,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             implementation.removeChild(e);
         Point newValue = getPosition();
         fireValueChange(Core.Position, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public String getType() {
@@ -291,6 +291,70 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         if (ts != null)
             return DOMUtils.hasChildElementByTag(ts, TAG_TOPIC);
         return false;
+    }
+
+    public Iterator<ITopic> getChildrenIterator(String type) {
+        if (type == null)
+            return NO_CHILDREN.iterator();
+        Element ts = findSubtopicsElement(implementation, type);
+        if (ts != null) {
+            return DOMUtils.getChildIterator(ts, TAG_TOPIC,
+                    ownedWorkbook.getAdaptableRegistry(), ITopic.class);
+        }
+        return NO_CHILDREN.iterator();
+    }
+
+    public Iterator<ITopic> getAllChildrenIterator() {
+        Element c = DOMUtils.getFirstChildElementByTag(implementation,
+                TAG_CHILDREN);
+        if (c == null)
+            return NO_CHILDREN.iterator();
+
+        final Iterator<Element> tsIter = DOMUtils.childElementIterByTag(c,
+                TAG_TOPICS);
+        return new Iterator<ITopic>() {
+
+            Iterator<ITopic> childTopicIter = null;
+
+            ITopic next = findNextChildTopic();
+
+            private ITopic findNextChildTopic() {
+                if (childTopicIter == null || !childTopicIter.hasNext()) {
+                    childTopicIter = nextChildTopicIter();
+                }
+                if (childTopicIter == null)
+                    return null;
+
+                return childTopicIter.next();
+            }
+
+            private Iterator<ITopic> nextChildTopicIter() {
+                while (tsIter.hasNext()) {
+                    Element ts = tsIter.next();
+                    if (ts != null) {
+                        return DOMUtils.getChildIterator(ts, TAG_TOPIC,
+                                ownedWorkbook.getAdaptableRegistry(),
+                                ITopic.class);
+                    }
+                }
+                return null;
+
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+
+            public ITopic next() {
+                ITopic n = next;
+                next = findNextChildTopic();
+                return n;
+            }
+
+            public boolean hasNext() {
+                return next != null;
+            }
+        };
     }
 
     protected static Element findSubtopicsElement(Element topicElement,
@@ -329,7 +393,8 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         if (c == null)
             return NO_TYPES;
 
-        List<String> list = new ArrayList<String>(c.getChildNodes().getLength());
+        List<String> list = new ArrayList<String>(
+                c.getChildNodes().getLength());
         Iterator<Element> it = DOMUtils.childElementIterByTag(c, TAG_TOPICS);
         while (it.hasNext()) {
             Element ts = it.next();
@@ -363,7 +428,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             }
             fireIndexedTargetChange(Core.TopicAdd, child, child.getIndex(),
                     type);
-            updateModifiedTime();
+            updateModificationInfo();
         }
     }
 
@@ -401,7 +466,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                     if (n != null) {
                         fireIndexedTargetChange(Core.TopicRemove, child, index,
                                 type);
-                        updateModifiedTime();
+                        updateModificationInfo();
                     }
                 }
             }
@@ -492,11 +557,11 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         WorkbookImpl workbook = getRealizedWorkbook();
         InternalHyperlinkUtils.deactivateHyperlink(workbook, oldValue, this);
         DOMUtils.setAttribute(implementation, ATTR_HREF, hyperlink);
-        InternalHyperlinkUtils
-                .activateHyperlink(workbook, getHyperlink(), this);
+        InternalHyperlinkUtils.activateHyperlink(workbook, getHyperlink(),
+                this);
         String newValue = getHyperlink();
         fireValueChange(Core.TopicHyperlink, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     /**
@@ -537,7 +602,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         if (sheet != null) {
             sheet.getMarkerRefCounter().increaseRef(markerId);
         }
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public void removeMarker(String markerId) {
@@ -566,7 +631,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             if (sheet != null) {
                 sheet.getMarkerRefCounter().decreaseRef(markerId);
             }
-            updateModifiedTime();
+            updateModificationInfo();
         }
     }
 
@@ -621,16 +686,16 @@ public class TopicImpl extends Topic implements ICoreEventSource {
 
     public void addBoundary(IBoundary boundary) {
         Element b = ((BoundaryImpl) boundary).getImplementation();
-        Element bs = DOMUtils
-                .ensureChildElement(implementation, TAG_BOUNDARIES);
+        Element bs = DOMUtils.ensureChildElement(implementation,
+                TAG_BOUNDARIES);
         Node n = bs.appendChild(b);
         if (n != null) {
             if (!isOrphan()) {
-                ((BoundaryImpl) boundary)
-                        .addNotify(getRealizedWorkbook(), this);
+                ((BoundaryImpl) boundary).addNotify(getRealizedWorkbook(),
+                        this);
             }
             fireTargetChange(Core.BoundaryAdd, boundary);
-            updateModifiedTime();
+            updateModificationInfo();
         }
     }
 
@@ -648,7 +713,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 implementation.removeChild(bs);
             if (n != null) {
                 fireTargetChange(Core.BoundaryRemove, boundary);
-                updateModifiedTime();
+                updateModificationInfo();
             }
         }
     }
@@ -671,7 +736,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 ((SummaryImpl) summary).addNotify(getRealizedWorkbook(), this);
             }
             fireTargetChange(Core.SummaryAdd, summary);
-            updateModifiedTime();
+            updateModificationInfo();
         }
     }
 
@@ -689,7 +754,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 implementation.removeChild(ss);
             if (n != null) {
                 fireTargetChange(Core.SummaryRemove, summary);
-                updateModifiedTime();
+                updateModificationInfo();
             }
         }
     }
@@ -713,7 +778,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 structureClass);
         String newValue = getStructureClass();
         fireValueChange(Core.StructureClass, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public Set<String> getLabels() {
@@ -769,7 +834,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         if (sheet != null) {
             sheet.getLabelRefCounter().increaseRef(label);
         }
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public void removeLabel(String label) {
@@ -797,7 +862,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             if (sheet != null) {
                 sheet.getLabelRefCounter().decreaseRef(label);
             }
-            updateModifiedTime();
+            updateModificationInfo();
         }
     }
 
@@ -832,7 +897,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 counter.decreaseRef(decreased);
             }
         }
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public void removeAllLabels() {
@@ -857,8 +922,9 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     public int getTitleWidth() {
         Element t = DOMUtils.getFirstChildElementByTag(implementation,
                 TAG_TITLE);
-        return t == null ? UNSPECIFIED : NumberUtils.safeParseInt(
-                DOMUtils.getAttribute(t, ATTR_WIDTH), UNSPECIFIED);
+        return t == null ? UNSPECIFIED
+                : NumberUtils.safeParseInt(DOMUtils.getAttribute(t, ATTR_WIDTH),
+                        UNSPECIFIED);
     }
 
     public void setTitleWidth(int width) {
@@ -878,7 +944,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         }
         Integer newValue = getTitleWidthValue();
         fireValueChange(Core.TitleWidth, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     private Integer getTitleWidthValue() {
@@ -892,11 +958,12 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         return iterExtensions(!isOrphan());
     }
 
-    private Iterator<TopicExtensionImpl> iterExtensions(final boolean realized) {
+    private Iterator<TopicExtensionImpl> iterExtensions(
+            final boolean realized) {
         Element es = DOMUtils.getFirstChildElementByTag(implementation,
                 TAG_EXTENSIONS);
-        final Iterator<Element> it = es == null ? null : DOMUtils
-                .childElementIterByTag(es, TAG_EXTENSION);
+        final Iterator<Element> it = es == null ? null
+                : DOMUtils.childElementIterByTag(es, TAG_EXTENSION);
         return new Iterator<TopicExtensionImpl>() {
 
             TopicExtensionImpl next = findNext();
@@ -947,6 +1014,15 @@ public class TopicImpl extends Topic implements ICoreEventSource {
 //        return ext;
 //    }
 
+    public List<ITopicExtension> getExtensions() {
+        List<ITopicExtension> extensions = new ArrayList<ITopicExtension>();
+        Iterator<TopicExtensionImpl> it = iterExtensions();
+        while (it.hasNext()) {
+            extensions.add(it.next());
+        }
+        return extensions;
+    }
+
     public ITopicExtension getExtension(String providerName) {
         Iterator<TopicExtensionImpl> it = iterExtensions();
         while (it.hasNext()) {
@@ -970,7 +1046,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             if (!isOrphan()) {
                 ((TopicExtensionImpl) ext).addNotify(ownedWorkbook);
             }
-            updateModifiedTime();
+            updateModificationInfo();
         }
         return ext;
 //        Element e = findExtensionElement(es, providerName);
@@ -980,8 +1056,8 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     }
 
     private Element findExtensionElement(Element es, String providerName) {
-        Iterator<Element> it = DOMUtils
-                .childElementIterByTag(es, TAG_EXTENSION);
+        Iterator<Element> it = DOMUtils.childElementIterByTag(es,
+                TAG_EXTENSION);
         while (it.hasNext()) {
             Element e = it.next();
             if (providerName.equals(e.getAttribute(ATTR_PROVIDER))) {
@@ -1000,7 +1076,7 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 es.removeChild(e);
                 if (!es.hasChildNodes())
                     implementation.removeChild(es);
-                updateModifiedTime();
+                updateModificationInfo();
             }
         }
     }
@@ -1011,11 +1087,12 @@ public class TopicImpl extends Topic implements ICoreEventSource {
                 listener);
     }
 
-    protected void fireValueChange(String type, Object oldValue, Object newValue) {
+    protected void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         ICoreEventSupport coreEventSupport = getCoreEventSupport();
         if (coreEventSupport != null) {
-            coreEventSupport
-                    .dispatchValueChange(this, type, oldValue, newValue);
+            coreEventSupport.dispatchValueChange(this, type, oldValue,
+                    newValue);
         }
     }
 
@@ -1169,8 +1246,8 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     }
 
     protected void increaseMarkerRefs(WorkbookImpl workbook, SheetImpl sheet) {
-        IMarkerRefCounter counter = sheet == null ? null : sheet
-                .getMarkerRefCounter();
+        IMarkerRefCounter counter = sheet == null ? null
+                : sheet.getMarkerRefCounter();
         if (workbook == null && counter == null)
             return;
 
@@ -1192,8 +1269,8 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     }
 
     protected void decreaseMarkerRefs(WorkbookImpl workbook, SheetImpl sheet) {
-        IMarkerRefCounter counter = sheet == null ? null : sheet
-                .getMarkerRefCounter();
+        IMarkerRefCounter counter = sheet == null ? null
+                : sheet.getMarkerRefCounter();
         if (workbook == null && counter == null)
             return;
 
@@ -1250,8 +1327,8 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     }
 
     protected void activateHyperlinks(WorkbookImpl workbook) {
-        InternalHyperlinkUtils
-                .activateHyperlink(workbook, getHyperlink(), this);
+        InternalHyperlinkUtils.activateHyperlink(workbook, getHyperlink(),
+                this);
         ((ImageImpl) getImage()).activateHyperlink(workbook);
     }
 
@@ -1262,41 +1339,20 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     }
 
     public long getModifiedTime() {
-        String time = DOMUtils.getAttribute(implementation,
-                DOMConstants.ATTR_TIMESTAMP);
-        return NumberUtils.safeParseLong(time, 0);
+        return InternalDOMUtils.getModifiedTime(this, implementation);
     }
 
-    public void updateModifiedTime() {
-        setModifiedTime(System.currentTimeMillis());
+    public String getModifiedBy() {
+        return InternalDOMUtils.getModifiedBy(this, implementation);
+    }
+
+    protected void updateModificationInfo() {
+        InternalDOMUtils.updateModificationInfo(this);
+
         ISheet sheet = getOwnedSheet();
         if (sheet != null) {
-            ((SheetImpl) sheet).updateModifiedTime();
+            ((SheetImpl) sheet).updateModificationInfo();
         }
     }
-
-    public void setModifiedTime(long time) {
-//        updatingTimestamp = true;
-        long oldTime = getModifiedTime();
-        DOMUtils.setAttribute(implementation, DOMConstants.ATTR_TIMESTAMP,
-                Long.toString(time));
-        long newTime = getModifiedTime();
-//        updatingTimestamp = false;
-        fireValueChange(Core.ModifyTime, oldTime, newTime);
-    }
-
-//    private void installTimestampUpdater(Element implementation) {
-//        if (implementation instanceof EventTarget) {
-//            EventListener updater = new EventListener() {
-//                public void handleEvent(Event evt) {
-//                    evt.stopPropagation();
-//                    if (!updatingTimestamp)
-//                        setModifiedTime(evt.getTimeStamp());
-//                }
-//            };
-//            ((EventTarget) implementation).addEventListener(
-//                    "DOMSubtreeModified", updater, false); //$NON-NLS-1$
-//        }
-//    }
 
 }

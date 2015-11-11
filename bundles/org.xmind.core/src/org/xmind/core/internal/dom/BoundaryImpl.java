@@ -92,7 +92,7 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         DOMUtils.setText(implementation, TAG_TITLE, titleText);
         String newText = getLocalTitleText();
         fireValueChange(Core.TitleText, oldText, newText);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public String getStyleId() {
@@ -107,7 +107,7 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
         String newValue = getStyleId();
         fireValueChange(Core.Style, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public ISheet getOwnedSheet() {
@@ -167,14 +167,14 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
     }
 
     public int getEndIndex() {
-        return InternalDOMUtils.getEndIndex(DOMUtils.getAttribute(
-                implementation, ATTR_RANGE));
+        return InternalDOMUtils
+                .getEndIndex(DOMUtils.getAttribute(implementation, ATTR_RANGE));
 //        return safeParseInt(getAttribute(implementation, ATTR_END_INDEX), -1);
     }
 
     public int getStartIndex() {
-        return InternalDOMUtils.getStartIndex(DOMUtils.getAttribute(
-                implementation, ATTR_RANGE));
+        return InternalDOMUtils.getStartIndex(
+                DOMUtils.getAttribute(implementation, ATTR_RANGE));
 //        return safeParseInt(getAttribute(implementation, ATTR_START_INDEX), -1);
     }
 
@@ -202,7 +202,7 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         String newValue = DOMUtils.getAttribute(implementation, ATTR_RANGE);
         fireValueChange(Core.EndIndex, oldIndexValue, newIndexValue);
         fireValueChange(Core.Range, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public void setStartIndex(int index) {
@@ -214,12 +214,12 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         String newValue = DOMUtils.getAttribute(implementation, ATTR_RANGE);
         fireValueChange(Core.StartIndex, oldIndexValue, newIndexValue);
         fireValueChange(Core.Range, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     public boolean isMasterBoundary() {
-        return DOMConstants.VAL_MASTER.equals(DOMUtils.getAttribute(
-                implementation, ATTR_RANGE));
+        return DOMConstants.VAL_MASTER
+                .equals(DOMUtils.getAttribute(implementation, ATTR_RANGE));
     }
 
     public void setMasterBoundary(boolean overall) {
@@ -228,7 +228,7 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         DOMUtils.setAttribute(implementation, ATTR_RANGE, value);
         String newValue = DOMUtils.getAttribute(implementation, ATTR_RANGE);
         fireValueChange(Core.Range, oldValue, newValue);
-        updateModifiedTime();
+        updateModificationInfo();
     }
 
     protected WorkbookImpl getRealizedWorkbook() {
@@ -271,31 +271,27 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         return NullCoreEventSupport.getInstance();
     }
 
-    private void fireValueChange(String type, Object oldValue, Object newValue) {
+    private void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         getCoreEventSupport().dispatchValueChange(this, type, oldValue,
                 newValue);
     }
 
     public long getModifiedTime() {
-        String time = DOMUtils.getAttribute(implementation,
-                DOMConstants.ATTR_TIMESTAMP);
-        return NumberUtils.safeParseLong(time, 0);
+        return InternalDOMUtils.getModifiedTime(this, implementation);
     }
 
-    public void updateModifiedTime() {
-        setModifiedTime(System.currentTimeMillis());
+    public String getModifiedBy() {
+        return InternalDOMUtils.getModifiedBy(this, implementation);
+    }
+
+    protected void updateModificationInfo() {
+        InternalDOMUtils.updateModificationInfo(this);
+
         ITopic parent = getParent();
         if (parent != null) {
-            ((TopicImpl) parent).updateModifiedTime();
+            ((TopicImpl) parent).updateModificationInfo();
         }
-    }
-
-    public void setModifiedTime(long time) {
-        long oldTime = getModifiedTime();
-        DOMUtils.setAttribute(implementation, DOMConstants.ATTR_TIMESTAMP,
-                Long.toString(time));
-        long newTime = getModifiedTime();
-        fireValueChange(Core.ModifyTime, oldTime, newTime);
     }
 
 }

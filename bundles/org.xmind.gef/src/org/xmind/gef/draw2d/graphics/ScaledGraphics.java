@@ -39,6 +39,14 @@ import org.eclipse.swt.widgets.Display;
 
 public class ScaledGraphics extends Graphics {
 
+    /**
+     * For Debugging: Once ScaledGraphics is proven to be replaceable by
+     * {@link Graphics#scale(double)} on all supported platforms, we will turn
+     * this switch off. Clients should check this value before creating
+     * ScaledGraphics instances.
+     */
+    public static boolean SCALED_GRAPHICS_ENABLED = false;
+
     private static class PatternKey {
 
         GradientPattern pattern;
@@ -92,7 +100,8 @@ public class ScaledGraphics extends Graphics {
         }
 
         public boolean equals(Object obj) {
-            return (((FontKey) obj).font.equals(font) && ((FontKey) obj).height == height);
+            return (((FontKey) obj).font.equals(font)
+                    && ((FontKey) obj).height == height);
         }
 
         public int hashCode() {
@@ -226,7 +235,9 @@ public class ScaledGraphics extends Graphics {
         localLineWidth = g.getLineWidth();
     }
 
-    /** @see Graphics#clipRect(Rectangle) */
+    /**
+     * @see Graphics#clipRect(Rectangle)
+     */
     public void clipRect(Rectangle r) {
         graphics.clipRect(zoomClipRect(r));
     }
@@ -235,7 +246,9 @@ public class ScaledGraphics extends Graphics {
         return new Font(Display.getCurrent(), data);
     }
 
-    /** @see Graphics#dispose() */
+    /**
+     * @see Graphics#dispose()
+     */
     public void dispose() {
         //Remove all states from the stack
         while (stackPointer > 0) {
@@ -254,7 +267,9 @@ public class ScaledGraphics extends Graphics {
         //   Resource manager handles fonts 
     }
 
-    /** @see Graphics#drawArc(int, int, int, int, int, int) */
+    /**
+     * @see Graphics#drawArc(int, int, int, int, int, int)
+     */
     public void drawArc(int x, int y, int w, int h, int offset, int sweep) {
         Rectangle z = zoomRect(x, y, w, h);
         if (z.isEmpty() || sweep == 0)
@@ -262,22 +277,28 @@ public class ScaledGraphics extends Graphics {
         graphics.drawArc(z, offset, sweep);
     }
 
-    /** @see Graphics#drawFocus(int, int, int, int) */
+    /**
+     * @see Graphics#drawFocus(int, int, int, int)
+     */
     public void drawFocus(int x, int y, int w, int h) {
         graphics.drawFocus(zoomRect(x, y, w, h));
     }
 
-    /** @see Graphics#drawImage(Image, int, int) */
+    /**
+     * @see Graphics#drawImage(Image, int, int)
+     */
     public void drawImage(Image srcImage, int x, int y) {
         org.eclipse.swt.graphics.Rectangle size = srcImage.getBounds();
-        graphics.drawImage(srcImage, 0, 0, size.width, size.height, (int) (Math
-                .floor((x * zoom + fractionalX))), (int) (Math
-                .floor((y * zoom + fractionalY))), (int) (Math
-                .floor((size.width * zoom + fractionalX))), (int) (Math
-                .floor((size.height * zoom + fractionalY))));
+        graphics.drawImage(srcImage, 0, 0, size.width, size.height,
+                (int) (Math.floor((x * zoom + fractionalX))),
+                (int) (Math.floor((y * zoom + fractionalY))),
+                (int) (Math.floor((size.width * zoom + fractionalX))),
+                (int) (Math.floor((size.height * zoom + fractionalY))));
     }
 
-    /** @see Graphics#drawImage(Image, int, int, int, int, int, int, int, int) */
+    /**
+     * @see Graphics#drawImage(Image, int, int, int, int, int, int, int, int)
+     */
     public void drawImage(Image srcImage, int sx, int sy, int sw, int sh,
             int tx, int ty, int tw, int th) {
         //"t" == target rectangle, "s" = source
@@ -288,23 +309,29 @@ public class ScaledGraphics extends Graphics {
                     t.height);
     }
 
-    /** @see Graphics#drawLine(int, int, int, int) */
+    /**
+     * @see Graphics#drawLine(int, int, int, int)
+     */
     public void drawLine(int x1, int y1, int x2, int y2) {
         graphics.drawLine((int) (Math.floor((x1 * zoom + fractionalX))),
-                (int) (Math.floor((y1 * zoom + fractionalY))), (int) (Math
-                        .floor((x2 * zoom + fractionalX))), (int) (Math
-                        .floor((y2 * zoom + fractionalY))));
+                (int) (Math.floor((y1 * zoom + fractionalY))),
+                (int) (Math.floor((x2 * zoom + fractionalX))),
+                (int) (Math.floor((y2 * zoom + fractionalY))));
     }
 
-    /** @see Graphics#drawOval(int, int, int, int) */
+    /**
+     * @see Graphics#drawOval(int, int, int, int)
+     */
     public void drawOval(int x, int y, int w, int h) {
         graphics.drawOval(zoomRect(x, y, w, h));
     }
 
-    /** @see Graphics#drawPoint(int, int) */
+    /**
+     * @see Graphics#drawPoint(int, int)
+     */
     public void drawPoint(int x, int y) {
-        graphics.drawPoint((int) Math.floor(x * zoom + fractionalX), (int) Math
-                .floor(y * zoom + fractionalY));
+        graphics.drawPoint((int) Math.floor(x * zoom + fractionalX),
+                (int) Math.floor(y * zoom + fractionalY));
     }
 
     /**
@@ -314,7 +341,9 @@ public class ScaledGraphics extends Graphics {
         graphics.drawPolygon(zoomPointList(points));
     }
 
-    /** @see Graphics#drawPolygon(PointList) */
+    /**
+     * @see Graphics#drawPolygon(PointList)
+     */
     public void drawPolygon(PointList points) {
         graphics.drawPolygon(zoomPointList(points.toIntArray()));
     }
@@ -326,29 +355,39 @@ public class ScaledGraphics extends Graphics {
         graphics.drawPolyline(zoomPointList(points));
     }
 
-    /** @see Graphics#drawPolyline(PointList) */
+    /**
+     * @see Graphics#drawPolyline(PointList)
+     */
     public void drawPolyline(PointList points) {
         graphics.drawPolyline(zoomPointList(points.toIntArray()));
     }
 
-    /** @see Graphics#drawRectangle(int, int, int, int) */
+    /**
+     * @see Graphics#drawRectangle(int, int, int, int)
+     */
     public void drawRectangle(int x, int y, int w, int h) {
         graphics.drawRectangle(zoomRect(x, y, w, h));
     }
 
-    /** @see Graphics#drawRoundRectangle(Rectangle, int, int) */
+    /**
+     * @see Graphics#drawRoundRectangle(Rectangle, int, int)
+     */
     public void drawRoundRectangle(Rectangle r, int arcWidth, int arcHeight) {
         graphics.drawRoundRectangle(zoomRect(r.x, r.y, r.width, r.height),
                 (int) (arcWidth * zoom), (int) (arcHeight * zoom));
     }
 
-    /** @see Graphics#drawString(String, int, int) */
+    /**
+     * @see Graphics#drawString(String, int, int)
+     */
     public void drawString(String s, int x, int y) {
         if (allowText)
             graphics.drawString(s, zoomTextPoint(x, y));
     }
 
-    /** @see Graphics#drawText(String, int, int) */
+    /**
+     * @see Graphics#drawText(String, int, int)
+     */
     public void drawText(String s, int x, int y) {
         if (allowText)
             graphics.drawText(s, zoomTextPoint(x, y));
@@ -370,14 +409,16 @@ public class ScaledGraphics extends Graphics {
             int selectionStart, int selectionEnd, Color selectionForeground,
             Color selectionBackground) {
         TextLayout scaled = zoomTextLayout(layout);
-        graphics.drawTextLayout(scaled, (int) Math
-                .floor(x * zoom + fractionalX), (int) Math.floor(y * zoom
-                + fractionalY), selectionStart, selectionEnd,
-                selectionBackground, selectionForeground);
+        graphics.drawTextLayout(scaled,
+                (int) Math.floor(x * zoom + fractionalX),
+                (int) Math.floor(y * zoom + fractionalY), selectionStart,
+                selectionEnd, selectionBackground, selectionForeground);
         scaled.dispose();
     }
 
-    /** @see Graphics#fillArc(int, int, int, int, int, int) */
+    /**
+     * @see Graphics#fillArc(int, int, int, int, int, int)
+     */
     public void fillArc(int x, int y, int w, int h, int offset, int sweep) {
         Rectangle z = zoomFillRect(x, y, w, h);
         if (z.isEmpty() || sweep == 0)
@@ -385,12 +426,16 @@ public class ScaledGraphics extends Graphics {
         graphics.fillArc(z, offset, sweep);
     }
 
-    /** @see Graphics#fillGradient(int, int, int, int, boolean) */
+    /**
+     * @see Graphics#fillGradient(int, int, int, int, boolean)
+     */
     public void fillGradient(int x, int y, int w, int h, boolean vertical) {
         graphics.fillGradient(zoomFillRect(x, y, w, h), vertical);
     }
 
-    /** @see Graphics#fillOval(int, int, int, int) */
+    /**
+     * @see Graphics#fillOval(int, int, int, int)
+     */
     public void fillOval(int x, int y, int w, int h) {
         graphics.fillOval(zoomFillRect(x, y, w, h));
     }
@@ -402,29 +447,39 @@ public class ScaledGraphics extends Graphics {
         graphics.fillPolygon(zoomPointList(points));
     }
 
-    /** @see Graphics#fillPolygon(PointList) */
+    /**
+     * @see Graphics#fillPolygon(PointList)
+     */
     public void fillPolygon(PointList points) {
         graphics.fillPolygon(zoomPointList(points.toIntArray()));
     }
 
-    /** @see Graphics#fillRectangle(int, int, int, int) */
+    /**
+     * @see Graphics#fillRectangle(int, int, int, int)
+     */
     public void fillRectangle(int x, int y, int w, int h) {
         graphics.fillRectangle(zoomFillRect(x, y, w, h));
     }
 
-    /** @see Graphics#fillRoundRectangle(Rectangle, int, int) */
+    /**
+     * @see Graphics#fillRoundRectangle(Rectangle, int, int)
+     */
     public void fillRoundRectangle(Rectangle r, int arcWidth, int arcHeight) {
         graphics.fillRoundRectangle(zoomFillRect(r.x, r.y, r.width, r.height),
                 (int) (arcWidth * zoom), (int) (arcHeight * zoom));
     }
 
-    /** @see Graphics#fillString(String, int, int) */
+    /**
+     * @see Graphics#fillString(String, int, int)
+     */
     public void fillString(String s, int x, int y) {
         if (allowText)
             graphics.fillString(s, zoomTextPoint(x, y));
     }
 
-    /** @see Graphics#fillText(String, int, int) */
+    /**
+     * @see Graphics#fillText(String, int, int)
+     */
     public void fillText(String s, int x, int y) {
         if (allowText)
             graphics.fillText(s, zoomTextPoint(x, y));
@@ -451,7 +506,9 @@ public class ScaledGraphics extends Graphics {
         return graphics.getAntialias();
     }
 
-    /** @see Graphics#getBackgroundColor() */
+    /**
+     * @see Graphics#getBackgroundColor()
+     */
     public Color getBackgroundColor() {
         return graphics.getBackgroundColor();
     }
@@ -502,7 +559,9 @@ public class ScaledGraphics extends Graphics {
                 p1.alpha2);
     }
 
-    /** @see Graphics#getClip(Rectangle) */
+    /**
+     * @see Graphics#getClip(Rectangle)
+     */
     public Rectangle getClip(Rectangle rect) {
         graphics.getClip(rect);
         int x = (int) (rect.x / zoom);
@@ -528,17 +587,23 @@ public class ScaledGraphics extends Graphics {
         return graphics.getFillRule();
     }
 
-    /** @see Graphics#getFont() */
+    /**
+     * @see Graphics#getFont()
+     */
     public Font getFont() {
         return getLocalFont();
     }
 
-    /** @see Graphics#getFontMetrics() */
+    /**
+     * @see Graphics#getFontMetrics()
+     */
     public FontMetrics getFontMetrics() {
         return FigureUtilities.getFontMetrics(localFont);
     }
 
-    /** @see Graphics#getForegroundColor() */
+    /**
+     * @see Graphics#getForegroundColor()
+     */
     public Color getForegroundColor() {
         return graphics.getForegroundColor();
     }
@@ -564,12 +629,16 @@ public class ScaledGraphics extends Graphics {
         return graphics.getLineJoin();
     }
 
-    /** @see Graphics#getLineStyle() */
+    /**
+     * @see Graphics#getLineStyle()
+     */
     public int getLineStyle() {
         return graphics.getLineStyle();
     }
 
-    /** @see Graphics#getLineWidth() */
+    /**
+     * @see Graphics#getLineWidth()
+     */
     public int getLineWidth() {
         return (int) getLocalLineWidth();
     }
@@ -593,12 +662,16 @@ public class ScaledGraphics extends Graphics {
         return graphics.getTextAntialias();
     }
 
-    /** @see Graphics#getXORMode() */
+    /**
+     * @see Graphics#getXORMode()
+     */
     public boolean getXORMode() {
         return graphics.getXORMode();
     }
 
-    /** @see Graphics#popState() */
+    /**
+     * @see Graphics#popState()
+     */
     public void popState() {
         graphics.popState();
         stackPointer--;
@@ -609,7 +682,9 @@ public class ScaledGraphics extends Graphics {
         }
     }
 
-    /** @see Graphics#pushState() */
+    /**
+     * @see Graphics#pushState()
+     */
     public void pushState() {
         if (stack.size() > stackPointer) {
             State s = stack.get(stackPointer);
@@ -637,13 +712,17 @@ public class ScaledGraphics extends Graphics {
         setLocalForegroundPattern(state.foreground);
     }
 
-    /** @see Graphics#restoreState() */
+    /**
+     * @see Graphics#restoreState()
+     */
     public void restoreState() {
         graphics.restoreState();
         restoreLocalState(stack.get(stackPointer - 1));
     }
 
-    /** @see Graphics#scale(double) */
+    /**
+     * @see Graphics#scale(double)
+     */
     public void scale(double amount) {
         setScale(zoom * amount);
     }
@@ -670,12 +749,16 @@ public class ScaledGraphics extends Graphics {
         graphics.setAntialias(value);
     }
 
-    /** @see Graphics#setBackgroundColor(Color) */
+    /**
+     * @see Graphics#setBackgroundColor(Color)
+     */
     public void setBackgroundColor(Color rgb) {
         graphics.setBackgroundColor(rgb);
     }
 
-    /** @see Graphics#setClip(Rectangle) */
+    /**
+     * @see Graphics#setClip(Rectangle)
+     */
     public void setClip(Rectangle r) {
         graphics.setClip(zoomClipRect(r));
     }
@@ -687,12 +770,16 @@ public class ScaledGraphics extends Graphics {
         graphics.setFillRule(rule);
     }
 
-    /** @see Graphics#setFont(Font) */
+    /**
+     * @see Graphics#setFont(Font)
+     */
     public void setFont(Font f) {
         setLocalFont(f);
     }
 
-    /** @see Graphics#setForegroundColor(Color) */
+    /**
+     * @see Graphics#setForegroundColor(Color)
+     */
     public void setForegroundColor(Color rgb) {
         graphics.setForegroundColor(rgb);
     }
@@ -735,12 +822,16 @@ public class ScaledGraphics extends Graphics {
         graphics.setLineJoin(join);
     }
 
-    /** @see Graphics#setLineStyle(int) */
+    /**
+     * @see Graphics#setLineStyle(int)
+     */
     public void setLineStyle(int style) {
         graphics.setLineStyle(style);
     }
 
-    /** @see Graphics#setLineWidth(int) */
+    /**
+     * @see Graphics#setLineWidth(int)
+     */
     public void setLineWidth(int width) {
         setLineWidthFloat(width);
     }
@@ -784,12 +875,16 @@ public class ScaledGraphics extends Graphics {
         graphics.setTextAntialias(value);
     }
 
-    /** @see Graphics#setXORMode(boolean) */
+    /**
+     * @see Graphics#setXORMode(boolean)
+     */
     public void setXORMode(boolean b) {
         graphics.setXORMode(b);
     }
 
-    /** @see Graphics#translate(int, int) */
+    /**
+     * @see Graphics#translate(int, int)
+     */
     public void translate(int dx, int dy) {
         // fractionalX/Y is the fractional part left over from previous 
         // translates that gets lost in the integer approximation.
@@ -797,19 +892,17 @@ public class ScaledGraphics extends Graphics {
         double dyFloat = dy * zoom + fractionalY;
         fractionalX = dxFloat - Math.floor(dxFloat);
         fractionalY = dyFloat - Math.floor(dyFloat);
-        graphics
-                .translate((int) Math.floor(dxFloat), (int) Math.floor(dyFloat));
+        graphics.translate((int) Math.floor(dxFloat),
+                (int) Math.floor(dyFloat));
     }
 
     private Rectangle zoomClipRect(Rectangle r) {
         tempRECT.x = (int) (Math.floor(r.x * zoom + fractionalX));
         tempRECT.y = (int) (Math.floor(r.y * zoom + fractionalY));
         tempRECT.width = (int) (Math
-                .ceil(((r.x + r.width) * zoom + fractionalX)))
-                - tempRECT.x;
+                .ceil(((r.x + r.width) * zoom + fractionalX))) - tempRECT.x;
         tempRECT.height = (int) (Math
-                .ceil(((r.y + r.height) * zoom + fractionalY)))
-                - tempRECT.y;
+                .ceil(((r.y + r.height) * zoom + fractionalY))) - tempRECT.y;
         return tempRECT;
     }
 
@@ -1087,6 +1180,63 @@ public class ScaledGraphics extends Graphics {
         if (p != path) {
             lastClipPath = p;
         }
+    }
+
+    /**
+     * @see org.eclipse.draw2d.Graphics#clipPath(org.eclipse.swt.graphics.Path)
+     */
+    public void clipPath(Path path) {
+        Path scaledPath = createScaledPath(path);
+        try {
+            graphics.clipPath(scaledPath);
+        } finally {
+            scaledPath.dispose();
+        }
+    }
+
+    /**
+     * Scales given path by zoom factor
+     * 
+     * @param path
+     *            Path to be scaled
+     * @return Scaled path
+     */
+    private Path createScaledPath(Path path) {
+        PathData p = path.getPathData();
+        for (int i = 0; i < p.points.length; i += 2) {
+            p.points[i] = (float) (p.points[i] * zoom + fractionalX);
+            p.points[i + 1] = (float) (p.points[i + 1] * zoom + fractionalY);
+        }
+        Path scaledPath = new Path(path.getDevice());
+        int index = 0;
+        for (int i = 0; i < p.types.length; i++) {
+            byte type = p.types[i];
+            switch (type) {
+            case SWT.PATH_MOVE_TO:
+                scaledPath.moveTo(p.points[index], p.points[index + 1]);
+                index += 2;
+                break;
+            case SWT.PATH_LINE_TO:
+                scaledPath.lineTo(p.points[index], p.points[index + 1]);
+                index += 2;
+                break;
+            case SWT.PATH_CUBIC_TO:
+                scaledPath.cubicTo(p.points[index], p.points[index + 1],
+                        p.points[index + 2], p.points[index + 3],
+                        p.points[index + 4], p.points[index + 5]);
+                index += 6;
+                break;
+            case SWT.PATH_QUAD_TO:
+                scaledPath.quadTo(p.points[index], p.points[index + 1],
+                        p.points[index + 2], p.points[index + 3]);
+                index += 4;
+                break;
+            case SWT.PATH_CLOSE:
+                scaledPath.close();
+                break;
+            }
+        }
+        return scaledPath;
     }
 
     // ==========================================================

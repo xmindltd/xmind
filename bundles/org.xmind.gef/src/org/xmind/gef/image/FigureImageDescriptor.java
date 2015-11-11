@@ -28,8 +28,8 @@ public class FigureImageDescriptor extends ImageDescriptor {
 
     public static ImageDescriptor createFromFigure(IFigure figure) {
         return new FigureImageDescriptor(new IFigure[] { figure },
-                ImageExportUtils.createExportAreaProvider(ImageExportUtils
-                        .getBounds(figure)));
+                ImageExportUtils.createExportAreaProvider(
+                        ImageExportUtils.getBounds(figure)));
     }
 
     public static ImageDescriptor createFromFigure(IFigure figure,
@@ -70,12 +70,17 @@ public class FigureImageDescriptor extends ImageDescriptor {
         GC gc = new GC(image);
         SWTGraphics baseGraphcis = new SWTGraphics(gc);
         baseGraphcis.translate(-exportArea.x, -exportArea.y);
+
         Graphics graphics = baseGraphcis;
         ScaledGraphics scaledGraphics = null;
-        if (scale > 0) {
-            scaledGraphics = new ScaledGraphics(graphics);
-            scaledGraphics.scale(scale);
-            graphics = scaledGraphics;
+        if (scale > 0 && scale != 1) {
+            if (ScaledGraphics.SCALED_GRAPHICS_ENABLED) {
+                scaledGraphics = new ScaledGraphics(graphics);
+                scaledGraphics.scale(scale);
+                graphics = scaledGraphics;
+            } else {
+                graphics.scale(scale);
+            }
         }
         try {
             graphics.pushState();

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.xmind.hebe.feature"
-      label="XMind for Eclipse"
-      version="3.5.3.qualifier"
+      label="XMind Map Editor"
+      version="3.6.0.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
-      XMind for Eclipse
+      XMind Map Editor
    </description>
 
    <copyright>
-      Copyright(C) 2006-2012, XMind Ltd. and others.
+      Copyright(C) 2006-2015, XMind Ltd. and others.
    </copyright>
 
    <license url="license.html">
@@ -22,14 +22,21 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
    </license>
 
    <plugin
-         id="org.json"
+         id="org.xmind.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.xmind.core"
+         id="org.bouncycastle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.core.runtime"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -92,21 +99,15 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.xmind.hebe"
+         id="org.xmind.ui.resources"
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
+         fragment="true"
+         unpack="true"/>
 
    <plugin
-         id="org.xmind.core.runtime"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.ui.imports"
+         id="org.xmind.ui.browser"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -120,31 +121,11 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.xmind.ui.browser"
+         id="org.xmind.ui.imports"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.xmind.ui.resources"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
-         id="net.xmind.signin"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.ui.help"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="net.sourceforge.jazzy"
@@ -161,94 +142,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.bouncycastle"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.xmind.core.command"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.core.sharing.localnetwork"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.coobird.thumbnailator"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.ui.sharing"
-         os="macosx,win32"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.core.command.remote"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.apple.dnssd.macosx"
-         os="macosx"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.apple.dnssd.win32"
-         os="win32"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.core.command.remote.lan"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.evernote.sdk.java"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.scribe.oauth"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.xmind.ui.evernote"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.freehep.graphicsio"
          download-size="0"
          install-size="0"
          version="0.0.0"

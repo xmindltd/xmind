@@ -13,10 +13,6 @@
  *******************************************************************************/
 package org.xmind.cathy.internal.jobs;
 
-import net.xmind.signin.IDataStore;
-import net.xmind.signin.XMindNet;
-import net.xmind.signin.internal.XMindNetRequest;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -44,8 +40,12 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.cathy.internal.WorkbenchMessages;
+import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.internal.XMindNetRequest;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.viewers.FileUtils;
+
+import net.xmind.signin.XMindNet;
 
 /**
  * 
@@ -90,8 +90,8 @@ public class CheckUpdatesJob extends Job {
 
         private void createImage(Composite parent) {
             Label label = new Label(parent, SWT.NONE);
-            label.setLayoutData(new GridData(SWT.BEGINNING, SWT.TOP, false,
-                    false));
+            label.setLayoutData(
+                    new GridData(SWT.BEGINNING, SWT.TOP, false, false));
             ImageDescriptor imgDesc = AbstractUIPlugin
                     .imageDescriptorFromPlugin("org.xmind.cathy", //$NON-NLS-1$
                             "icons/xmind.48.png"); //$NON-NLS-1$
@@ -104,8 +104,8 @@ public class CheckUpdatesJob extends Job {
                     }
                 });
             } else {
-                label.setImage(parent.getDisplay().getSystemImage(
-                        SWT.ICON_INFORMATION));
+                label.setImage(parent.getDisplay()
+                        .getSystemImage(SWT.ICON_INFORMATION));
             }
         }
 
@@ -131,8 +131,8 @@ public class CheckUpdatesJob extends Job {
             Label label = new Label(parent, SWT.WRAP);
             label.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
             label.setText(WorkbenchMessages.CheckUpdatesJob_NewUpdate_message);
-            label.setFont(FontUtils.getBoldRelative(
-                    JFaceResources.DEFAULT_FONT, 1));
+            label.setFont(
+                    FontUtils.getBoldRelative(JFaceResources.DEFAULT_FONT, 1));
         }
 
         private void createInfoArea(Composite parent) {
@@ -145,12 +145,14 @@ public class CheckUpdatesJob extends Job {
 
         private void createMoreDownloadsArea(Composite parent) {
             Label label = new Label(parent, SWT.NONE);
-            label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-            label.setText(WorkbenchMessages.CheckUpdatesJob_NewUpdate_moreDownloads_text);
-            label.setForeground(parent.getDisplay().getSystemColor(
-                    SWT.COLOR_BLUE));
-            label.setCursor(parent.getDisplay()
-                    .getSystemCursor(SWT.CURSOR_HAND));
+            label.setLayoutData(
+                    new GridData(SWT.FILL, SWT.CENTER, true, false));
+            label.setText(
+                    WorkbenchMessages.CheckUpdatesJob_NewUpdate_moreDownloads_text);
+            label.setForeground(
+                    parent.getDisplay().getSystemColor(SWT.COLOR_BLUE));
+            label.setCursor(
+                    parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
             label.addListener(SWT.MouseUp, new Listener() {
                 public void handleEvent(Event event) {
                     openAllDownloadsUrl();
@@ -227,8 +229,8 @@ public class CheckUpdatesJob extends Job {
             return Status.CANCEL_STATUS;
 
         if (request.getError() != null)
-            return errorStatus(request.getError(), request.getError()
-                    .getLocalizedMessage());
+            return errorStatus(request.getError(),
+                    request.getError().getLocalizedMessage());
 
         monitor.done();
 
@@ -253,11 +255,9 @@ public class CheckUpdatesJob extends Job {
         } else if (code == XMindNetRequest.HTTP_NOT_FOUND) {
             return showNoUpdate(monitor);
         } else {
-            return errorStatus(
-                    null,
-                    NLS.bind(
-                            "Failed to check for new updates due to unexpected error ({0}).", //$NON-NLS-1$
-                            code));
+            return errorStatus(null, NLS.bind(
+                    "Failed to check for new updates due to unexpected error ({0}).", //$NON-NLS-1$
+                    code));
         }
     }
 

@@ -8,6 +8,10 @@
 			<accessrule kind="accessible" pattern="org/xmind/core/internal/**"/>
 			<accessrule kind="accessible" pattern="net/xmind/signin/internal/**"/>
 			<accessrule kind="accessible" pattern="org/eclipse/core/internal/**"/>
+			<accessrule kind="accessible" pattern="org/eclipse/e4/ui/workbench/renderers/swt/**"/>
+			<accessrule kind="accessible" pattern="org/eclipse/e4/ui/internal/**"/>
+			<accessrule kind="accessible" pattern="org/eclipse/e4/core/di/extensions/**"/>
+			<accessrule kind="accessible" pattern="org/eclipse/e4/core/commands/**"/>
 		</accessrules>
 	</classpathentry>
 	<classpathentry excluding="**/.svn" kind="src" path="src"/>

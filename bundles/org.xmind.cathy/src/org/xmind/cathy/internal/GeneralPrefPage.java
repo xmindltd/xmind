@@ -13,28 +13,21 @@
  *******************************************************************************/
 package org.xmind.cathy.internal;
 
-import java.io.File;
-
-import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.StringButtonFieldEditor;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -44,107 +37,106 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.xmind.ui.internal.MindMapUIPlugin;
-import org.xmind.ui.internal.dialogs.DialogMessages;
-import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.NumberUtils;
 
-public class GeneralPrefPage extends FieldEditorPreferencePage implements
-        IWorkbenchPreferencePage, Listener {
+public class GeneralPrefPage extends FieldEditorPreferencePage
+        implements IWorkbenchPreferencePage, Listener {
 
-    private static class SoftCheckFileFieldEditor extends
-            StringButtonFieldEditor {
-
-        private String[] extensions = null;
-
-        private String[] extensionNames = null;
-
-        public SoftCheckFileFieldEditor(String name, String labelText,
-                Composite parent) {
-            init(name, labelText);
-            setChangeButtonText(JFaceResources.getString("openBrowse"));//$NON-NLS-1$
-            createControl(parent);
-        }
-
-        @Override
-        public void setEmptyStringAllowed(boolean b) {
-            super.setEmptyStringAllowed(b);
-            refreshValidState();
-        }
-
-        @Override
-        protected boolean checkState() {
-            Text text = getTextControl();
-            if (text == null)
-                return false;
-            boolean validFile;
-            String path = text.getText();
-            if ("".equals(path)) { //$NON-NLS-1$
-                validFile = isEmptyStringAllowed();
-            } else {
-                validFile = new File(path).isFile();
-            }
-            if (validFile) {
-                getPage().setMessage(null);
-            } else {
-                getPage().setMessage(getErrorMessage(),
-                        IMessageProvider.WARNING);
-            }
-            return validFile;
-        }
-
-        @Override
-        protected String changePressed() {
-            File f = new File(getTextControl().getText());
-            if (!f.exists()) {
-                f = null;
-            }
-            File d = getFile(f);
-            if (d == null) {
-                return null;
-            }
-            return d.getAbsolutePath();
-        }
-
-        /**
-         * Helper to open the file chooser dialog.
-         * 
-         * @param startingDirectory
-         *            the directory to open the dialog on.
-         * @return File The File the user selected or <code>null</code> if they
-         *         do not.
-         */
-        private File getFile(File startingDirectory) {
-            FileDialog dialog = new FileDialog(getShell(), SWT.OPEN | SWT.SHEET);
-            if (extensions != null) {
-                dialog.setFilterExtensions(extensions);
-                if (extensionNames != null) {
-                    dialog.setFilterNames(extensionNames);
-                }
-            }
-            if (startingDirectory != null) {
-                dialog.setFileName(startingDirectory.getPath());
-            }
-            String file = dialog.open();
-            if (file != null) {
-                file = file.trim();
-                if (file.length() > 0) {
-                    return new File(file);
-                }
-            }
-
-            return null;
-        }
-
-        public void setExtensions(String[] extensions) {
-            this.extensions = extensions;
-        }
-
-        public void setExtensionNames(String[] extensionNames) {
-            this.extensionNames = extensionNames;
-        }
-
-    }
+//    private static class SoftCheckFileFieldEditor
+//            extends StringButtonFieldEditor {
+//
+//        private String[] extensions = null;
+//
+//        private String[] extensionNames = null;
+//
+//        public SoftCheckFileFieldEditor(String name, String labelText,
+//                Composite parent) {
+//            init(name, labelText);
+//            setChangeButtonText(JFaceResources.getString("openBrowse"));//$NON-NLS-1$
+//            createControl(parent);
+//        }
+//
+//        @Override
+//        public void setEmptyStringAllowed(boolean b) {
+//            super.setEmptyStringAllowed(b);
+//            refreshValidState();
+//        }
+//
+//        @Override
+//        protected boolean checkState() {
+//            Text text = getTextControl();
+//            if (text == null)
+//                return false;
+//            boolean validFile;
+//            String path = text.getText();
+//            if ("".equals(path)) { //$NON-NLS-1$
+//                validFile = isEmptyStringAllowed();
+//            } else {
+//                validFile = new File(path).isFile();
+//            }
+//            if (validFile) {
+//                getPage().setMessage(null);
+//            } else {
+//                getPage().setMessage(getErrorMessage(),
+//                        IMessageProvider.WARNING);
+//            }
+//            return validFile;
+//        }
+//
+//        @Override
+//        protected String changePressed() {
+//            File f = new File(getTextControl().getText());
+//            if (!f.exists()) {
+//                f = null;
+//            }
+//            File d = getFile(f);
+//            if (d == null) {
+//                return null;
+//            }
+//            return d.getAbsolutePath();
+//        }
+//
+//        /**
+//         * Helper to open the file chooser dialog.
+//         * 
+//         * @param startingDirectory
+//         *            the directory to open the dialog on.
+//         * @return File The File the user selected or <code>null</code> if they
+//         *         do not.
+//         */
+//        private File getFile(File startingDirectory) {
+//            FileDialog dialog = new FileDialog(getShell(),
+//                    SWT.OPEN | SWT.SHEET);
+//            if (extensions != null) {
+//                dialog.setFilterExtensions(extensions);
+//                if (extensionNames != null) {
+//                    dialog.setFilterNames(extensionNames);
+//                }
+//            }
+//            if (startingDirectory != null) {
+//                dialog.setFileName(startingDirectory.getPath());
+//            }
+//            String file = dialog.open();
+//            if (file != null) {
+//                file = file.trim();
+//                if (file.length() > 0) {
+//                    return new File(file);
+//                }
+//            }
+//
+//            return null;
+//        }
+//
+//        public void setExtensions(String[] extensions) {
+//            this.extensions = extensions;
+//        }
+//
+//        public void setExtensionNames(String[] extensionNames) {
+//            this.extensionNames = extensionNames;
+//        }
+//
+//    }
 
 //    private IntegerFieldEditor autoSaveIntervalsField;
 //
@@ -158,13 +150,15 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
 
     private IntegerFieldEditor recentFilesField;
 
-    private Combo startupActionCombo;
-
-    private SoftCheckFileFieldEditor homeMapField;
-
-    private Control homeMapControl;
+//    private Combo startupActionCombo;
+//
+//    private SoftCheckFileFieldEditor homeMapField;
+//
+//    private Control homeMapControl;
 
     private Control recentFilesControl;
+
+    private Button startupActionButton;
 
     public GeneralPrefPage() {
         super(WorkbenchMessages.GeneralPrefPage_title, FLAT);
@@ -172,13 +166,9 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
 
     @Override
     public void applyData(Object data) {
-        if (PrefConstants.HOME_MAP_LOCATION.equals(data)) {
-            if (homeMapControl != null && !homeMapControl.isDisposed()) {
-                homeMapControl.setFocus();
-                highlight(homeMapControl.getParent());
-            }
-        } else if (IPreferenceConstants.RECENT_FILES.equals(data)) {
-            if (recentFilesControl != null && !recentFilesControl.isDisposed()) {
+        if (IPreferenceConstants.RECENT_FILES.equals(data)) {
+            if (recentFilesControl != null
+                    && !recentFilesControl.isDisposed()) {
                 recentFilesControl.setFocus();
                 highlight(recentFilesControl.getParent());
             }
@@ -188,8 +178,9 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
     private void highlight(final Control control) {
         final Display display = control.getDisplay();
         final Color oldBackground = control.getBackground();
-        final Color c1 = oldBackground == null ? display
-                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND) : oldBackground;
+        final Color c1 = oldBackground == null
+                ? display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND)
+                : oldBackground;
         final int r1 = c1.getRed(), g1 = c1.getGreen(), b1 = c1.getBlue();
         final int r0 = 255, g0 = 240, b0 = 180;
         final int total = 30;
@@ -249,62 +240,66 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
     private void addStartupGroup() {
         Composite parent = createGroup(WorkbenchMessages.Startup_title);
         addStartupActionField(parent);
-        addHomeMapField(parent);
         addCheckUpdatesField(parent);
     }
 
     private void addStartupActionField(Composite parent) {
-        Composite line = new Composite(parent, SWT.NONE);
-        line.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        GridLayout layout = new GridLayout(2, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        line.setLayout(layout);
-        fillStartupActionFields(line);
+        startupActionButton = new Button(parent, SWT.CHECK);
+        startupActionButton.setText(WorkbenchMessages.RestoreLastSession_label);
+//        addField(new BooleanFieldEditor(CathyPlugin.RESTORE_LAST_SESSION,
+//                WorkbenchMessages.StartupAction_LastSession,
+//                createFieldContainer(parent, false)));
+//        Composite line = new Composite(parent, SWT.NONE);
+//        line.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//        GridLayout layout = new GridLayout(2, false);
+//        layout.marginHeight = 0;
+//        layout.marginWidth = 0;
+//        line.setLayout(layout);
+//        fillStartupActionFields(line);
     }
 
-    private void fillStartupActionFields(Composite parent) {
-        Label label = new Label(parent, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true));
-        label.setText(WorkbenchMessages.StartupAction_label);
+//    private void fillStartupActionFields(Composite parent) {
+//        Label label = new Label(parent, SWT.NONE);
+//        label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true));
+//        label.setText(WorkbenchMessages.StartupAction_label);
+//
+//        startupActionCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
+//        startupActionCombo
+//                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+//        startupActionCombo.add(WorkbenchMessages.StartupAction_OpenDialog);
+//        startupActionCombo.add(WorkbenchMessages.StartupAction_BlankMap);
+//        startupActionCombo.add(WorkbenchMessages.StartupAction_HomeMap);
+//        startupActionCombo.add(WorkbenchMessages.StartupAction_LastSession);
+//        startupActionCombo.addListener(SWT.Selection, this);
+//    }
 
-        startupActionCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
-        startupActionCombo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
-        startupActionCombo.add(WorkbenchMessages.StartupAction_OpenDialog);
-        startupActionCombo.add(WorkbenchMessages.StartupAction_BlankMap);
-        startupActionCombo.add(WorkbenchMessages.StartupAction_HomeMap);
-        startupActionCombo.add(WorkbenchMessages.StartupAction_LastSession);
-        startupActionCombo.addListener(SWT.Selection, this);
-    }
+//    private void addHomeMapField(Composite parent) {
+//        Composite line = new Composite(parent, SWT.NONE);
+//        line.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+//        GridLayout layout = new GridLayout(2, false);
+//        layout.marginHeight = 0;
+//        layout.marginWidth = 0;
+//        line.setLayout(layout);
+//        fillHomeMapFields(line);
+//    }
 
-    private void addHomeMapField(Composite parent) {
-        Composite line = new Composite(parent, SWT.NONE);
-        line.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        GridLayout layout = new GridLayout(2, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        line.setLayout(layout);
-        fillHomeMapFields(line);
-    }
-
-    private void fillHomeMapFields(Composite parent) {
-        Composite container = createFieldContainer(parent, true);
-        addField(homeMapField = new SoftCheckFileFieldEditor(
-                PrefConstants.HOME_MAP_LOCATION,
-                WorkbenchMessages.HomeMap_label, container));
-        homeMapControl = homeMapField.getTextControl(container);
-        homeMapField.setErrorMessage(WorkbenchMessages.HomeMap_NotFound_error);
-        String xmindExt = "*" + MindMapUI.FILE_EXT_XMIND; //$NON-NLS-1$
-        homeMapField.setExtensions(new String[] { xmindExt });
-        homeMapField.setExtensionNames(new String[] { NLS.bind("{0} ({1})", //$NON-NLS-1$
-                DialogMessages.WorkbookFilterName, xmindExt) });
-    }
+//    private void fillHomeMapFields(Composite parent) {
+//        Composite container = createFieldContainer(parent, true);
+//        addField(homeMapField = new SoftCheckFileFieldEditor(
+//                PrefConstants.HOME_MAP_LOCATION,
+//                WorkbenchMessages.HomeMap_label, container));
+//        homeMapControl = homeMapField.getTextControl(container);
+//        homeMapField.setErrorMessage(WorkbenchMessages.HomeMap_NotFound_error);
+//        String xmindExt = "*" + MindMapUI.FILE_EXT_XMIND; //$NON-NLS-1$
+//        homeMapField.setExtensions(new String[] { xmindExt });
+//        homeMapField.setExtensionNames(new String[] { NLS.bind("{0} ({1})", //$NON-NLS-1$
+//                DialogMessages.WorkbookFilterName, xmindExt) });
+//    }
 
     private void addCheckUpdatesField(Composite parent) {
         addField(new BooleanFieldEditor(CathyPlugin.CHECK_UPDATES_ON_STARTUP,
-                WorkbenchMessages.CheckUpdates_label, createFieldContainer(
-                        parent, true)));
+                WorkbenchMessages.CheckUpdates_label,
+                createFieldContainer(parent, true)));
     }
 
     private void addRecentFileCountField() {
@@ -359,23 +354,24 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
 //                ((GridData) composite.getLayoutData()).horizontalIndent = 10;
 
         Composite booleanParent = new Composite(parent, SWT.NONE);
-        booleanParent.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
-                true));
+        booleanParent
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true));
         addField(new BooleanFieldEditor(CathyPlugin.AUTO_SAVE_ENABLED, label1,
                 booleanParent));
 
-        autoSaveIntervalsInput = new Text(parent, SWT.SINGLE | SWT.BORDER
-                | SWT.CENTER);
-        autoSaveIntervalsInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                false, true));
+        autoSaveIntervalsInput = new Text(parent,
+                SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+        autoSaveIntervalsInput
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true));
         ((GridData) autoSaveIntervalsInput.getLayoutData()).widthHint = 40;
-        autoSaveIntervalsInput.setEnabled(getPreferenceStore().getBoolean(
-                CathyPlugin.AUTO_SAVE_ENABLED));
+        autoSaveIntervalsInput.setEnabled(
+                getPreferenceStore().getBoolean(CathyPlugin.AUTO_SAVE_ENABLED));
 
         if (label2 != null) {
             Label label = new Label(parent, SWT.NONE);
             label.setText(label2);
-            label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true));
+            label.setLayoutData(
+                    new GridData(SWT.FILL, SWT.CENTER, false, true));
         }
     }
 
@@ -428,15 +424,15 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
         parent.setLayout(gridLayout);
         addField(autoBackupField = new BooleanFieldEditor(
                 PrefConstants.AUTO_BACKUP_ENABLE,
-                WorkbenchMessages.AutoBackup_label, createFieldContainer(
-                        parent, true)));
+                WorkbenchMessages.AutoBackup_label,
+                createFieldContainer(parent, true)));
     }
 
     private Composite createFieldContainer(Composite parent,
             boolean grabHorizontal) {
         Composite composite = new Composite(parent, SWT.NONE);
-        composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-                grabHorizontal, true));
+        composite.setLayoutData(
+                new GridData(SWT.FILL, SWT.FILL, grabHorizontal, true));
         composite.setLayout(new GridLayout(1, false));
         return composite;
     }
@@ -457,26 +453,29 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
         return group;
     }
 
+    @Override
     protected void initialize() {
         super.initialize();
-        int startupAction = getPreferenceStore().getInt(
-                CathyPlugin.STARTUP_ACTION);
-        startupActionCombo.select(startupAction);
+        int startupAction = getPreferenceStore()
+                .getInt(CathyPlugin.STARTUP_ACTION);
+        startupActionButton
+                .setSelection(startupAction == CathyPlugin.STARTUP_ACTION_LAST);
+//        startupActionCombo.select(startupAction);
 
-        homeMapField.setPreferenceStore(MindMapUIPlugin.getDefault()
-                .getPreferenceStore());
-        homeMapField
-                .setEmptyStringAllowed(startupAction != CathyPlugin.STARTUP_ACTION_HOME);
-        homeMapField.load();
+//        homeMapField.setPreferenceStore(
+//                MindMapUIPlugin.getDefault().getPreferenceStore());
+//        homeMapField.setEmptyStringAllowed(
+//                startupAction != CathyPlugin.STARTUP_ACTION_HOME);
+//        homeMapField.load();
 
-        recentFilesField.setPreferenceStore(WorkbenchPlugin.getDefault()
-                .getPreferenceStore());
+        recentFilesField.setPreferenceStore(
+                WorkbenchPlugin.getDefault().getPreferenceStore());
         recentFilesField.load();
 
-        autoSaveIntervalsInput.setText(String.valueOf(getPreferenceStore()
-                .getInt(CathyPlugin.AUTO_SAVE_INTERVALS)));
-        autoBackupField.setPreferenceStore(MindMapUIPlugin.getDefault()
-                .getPreferenceStore());
+        autoSaveIntervalsInput.setText(String.valueOf(
+                getPreferenceStore().getInt(CathyPlugin.AUTO_SAVE_INTERVALS)));
+        autoBackupField.setPreferenceStore(
+                MindMapUIPlugin.getDefault().getPreferenceStore());
         autoBackupField.load();
     }
 
@@ -488,12 +487,16 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
         if (!super.performOk())
             return false;
 
-        int startupAction = startupActionCombo.getSelectionIndex();
-        getPreferenceStore()
-                .setValue(CathyPlugin.STARTUP_ACTION, startupAction);
+        if (startupActionButton.getSelection()) {
+            getPreferenceStore().setValue(CathyPlugin.STARTUP_ACTION,
+                    CathyPlugin.STARTUP_ACTION_LAST);
+        } else {
+            getPreferenceStore().setValue(CathyPlugin.STARTUP_ACTION,
+                    CathyPlugin.STARTUP_ACTION_WIZARD);
+        }
 
-        int autoSaveIntervals = NumberUtils.safeParseInt(
-                autoSaveIntervalsInput.getText(), 0);
+        int autoSaveIntervals = NumberUtils
+                .safeParseInt(autoSaveIntervalsInput.getText(), 0);
         getPreferenceStore().setValue(CathyPlugin.AUTO_SAVE_INTERVALS,
                 autoSaveIntervals);
         MindMapUIPlugin.getDefault().getPreferenceStore()
@@ -508,8 +511,8 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
             if (event.getProperty().equals(FieldEditor.VALUE)) {
                 String prefName = fe.getPreferenceName();
                 if (CathyPlugin.AUTO_SAVE_ENABLED.equals(prefName)) {
-                    autoSaveIntervalsInput.setEnabled(((Boolean) event
-                            .getNewValue()).booleanValue());
+                    autoSaveIntervalsInput.setEnabled(
+                            ((Boolean) event.getNewValue()).booleanValue());
 //                    autoSaveIntervalsField.setEnabled(
 //                            (Boolean) event.getNewValue(),
 //                            autoSaveIntervalsParent);
@@ -521,11 +524,11 @@ public class GeneralPrefPage extends FieldEditorPreferencePage implements
     }
 
     public void handleEvent(Event event) {
-        if (event.widget == startupActionCombo) {
-            int startupAction = startupActionCombo.getSelectionIndex();
-            homeMapField
-                    .setEmptyStringAllowed(startupAction != CathyPlugin.STARTUP_ACTION_HOME);
-            checkState();
-        }
+//        if (event.widget == startupActionCombo) {
+//            int startupAction = startupActionCombo.getSelectionIndex();
+//            homeMapField.setEmptyStringAllowed(
+//                    startupAction != CathyPlugin.STARTUP_ACTION_HOME);
+//            checkState();
+//        }
     }
 }

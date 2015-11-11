@@ -36,4 +36,11 @@ public class SouthWestRotated extends AbstractSubFishboneDirection {
         SER.fillFishboneData(branch, data, h, r, spacing, subbranches);
     }
 
+    @Override
+    public void fillFishboneExtraData(IBranchPart branch, FishboneData data,
+            IPrecisionTransformer h, PrecisionRotator r, double spacing,
+            boolean extraBranch) {
+        SER.fillFishboneExtraData(branch, data, h, r, spacing, extraBranch);
+    }
+
 }

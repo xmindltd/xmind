@@ -14,8 +14,10 @@
 package org.xmind.ui.properties;
 
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
@@ -177,6 +179,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     private Menu popupMenu = null;
 
     private IPropertyTransfer transfer = null;
+
+    private List<String> filtedDescriptorIds = new ArrayList<String>();
 
     public PropertiesEditor() {
         super();
@@ -412,6 +416,10 @@ public class PropertiesEditor implements IInputSelectionProvider {
         return Chainability.iterate(firstSection, lastSection);
     }
 
+    public void setFilter(List<String> filtedDescriptorIds) {
+        this.filtedDescriptorIds = filtedDescriptorIds;
+    }
+
     public void refresh() {
         if (container == null || container.isDisposed())
             return;
@@ -437,6 +445,9 @@ public class PropertiesEditor implements IInputSelectionProvider {
                 IPropertyDescriptor[] descs = source.getPropertyDescriptors();
                 for (int i = 0; i < descs.length; i++) {
                     IPropertyDescriptor descriptor = descs[i];
+                    if (filtedDescriptorIds != null
+                            && filtedDescriptorIds.contains(descriptor.getId()))
+                        continue;
                     addEditingEntry(descriptor);
                 }
             }

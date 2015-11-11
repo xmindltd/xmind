@@ -1,0 +1,189 @@
+.MPartStack{
+	swt-tab-renderer:url("bundleclass://org.xmind.cathy/org.xmind.cathy.internal.css.CathyCTabFolderRendering");
+	/*outer border */
+	xmind-swt-outer-border-visible:true;
+	swt-outer-keyline-color:#9f9f9f;
+
+	/*inner border */
+	xmind-swt-inner-border-visible:true;
+	swt-inner-keyline-color:#9f9f9f;
+
+	/*shadow */
+	swt-shadow-visible:false;
+
+	/*corner radius */
+	swt-corner-radius:8px;
+
+	/*selected tab color */
+	swt-selected-tab-fill:#ffffff 100%;
+
+	/*selected tab area color */
+	xmind-swt-selected-tab-area-color:#ffffff 100%;
+
+	/*unselected tab color */
+	xmind-swt-unselected-tabs-color:#35a6b9 100%;
+
+	/*hover tab color */
+	xmind-swt-hover-tab-color:#ffffff;
+
+	xmind-swt-image-visible:false;
+
+	xmind-swt-minimize-visible:true;
+	xmind-swt-maximize-visible:false;
+
+	/*visibility of unselected tabs bg */
+	xmind-swt-unselected-tabs-bg-visible:false;
+	/*
+	 * xswt-chevron-visible:false;
+	 *
+	 */
+
+	/*custom maximize image */
+	/*xmind-swt-maximize-image:url("platform:/plugin/org.xmind.ui.menus/icons/export.png");*/
+
+	xmind-swt-minimize-image:url("platform:/plugin/org.xmind.cathy/icons/views/view_minimize.png");
+
+	/*tab height */
+	swt-tab-height:25px;
+}
+
+.MPartStack.active{
+	swt-tab-renderer:url("bundleclass://org.xmind.cathy/org.xmind.cathy.internal.css.CathyCTabFolderRendering");
+	xmind-swt-outer-border-visible:true;
+	swt-outer-keyline-color:#35a6d9;
+
+	xmind-swt-inner-border-visible:true;
+	swt-inner-keyline-color:#35a6d9;
+
+	swt-shadow-visible:false;
+	swt-corner-radius:8px;
+	/*swt-selected-tab-fill:#35a6d9 100%;*/
+	xmind-swt-selected-tab-area-color:#35a6d9 100%;
+	xmind-swt-unselected-tabs-color:#35a6d9 #35a6d9 100%;
+	xmind-swt-hover-tab-color:#ffffff;
+	xmind-swt-image-visible:false;
+
+	xmind-swt-minimize-visible:true;
+	xmind-swt-maximize-visible:false;
+
+	xmind-swt-minimize-image:url("platform:/plugin/org.xmind.cathy/icons/views/view_minimize.png");
+
+	xmind-swt-unselected-tabs-bg-visible:false;
+	/*
+	 * xswt-chevron-visible:false;
+	 */
+
+	 swt-tab-height:25px;
+}
+
+.MPartStack>CTabItem {
+	/* unselected tab text */
+	color: #2c3e50;
+	xmind-swt-show-close:false;
+}
+
+.MPartStack>CTabItem:selected {
+	/* selected tab text */
+	color: #2c3e50;
+	xmind-swt-show-close:false;
+}
+
+.MPartStack.active>CTabItem:selected {
+	/* text color of active and selected tab */
+	color: #ffffff;
+	xmind-swt-show-close:false;
+}
+
+#org-eclipse-ui-editorss .MPartStack>CTabItem {
+	xmind-swt-show-close:true;
+}
+
+#org-eclipse-ui-editorss .MPartStack>CTabItem:selected {
+	xmind-swt-show-close:true;
+}
+
+#org-eclipse-ui-editorss .MPartStack{
+	xmind-swt-minimize-visible:false;
+	xmind-swt-maximize-visible:true;
+}
+
+#org-eclipse-ui-editorss .MPartStack.active{
+	xmind-swt-minimize-visible:false;
+	xmind-swt-maximize-visible:true;
+}
+
+#org-eclipse-ui-editorss .MArea{
+	swt-tab-renderer:url("bundleclass://org.xmind.cathy/org.xmind.cathy.internal.css.CathyCTabFolderRendering");
+	/*xmind-swt-minimize-visible:false;
+	xmind-swt-maximize-visible:false;*/
+	swt-tab-height:0px;
+	xmind-ctabfolder-render-none:true;
+}
+
+#org-eclipse-ui-editorss .MArea.active{
+	swt-tab-renderer:url("bundleclass://org.xmind.cathy/org.xmind.cathy.internal.css.CathyCTabFolderRendering");
+	/*xmind-swt-minimize-visible:false;
+	xmind-swt-maximize-visible:false;*/
+	swt-tab-height:0px;
+	xmind-ctabfolder-render-none:true;
+}
+
+.MPartStack .MPart>Composite{
+	background-color: #ffffff;
+}
+
+ToolBar{
+	xmind-swt-view-menu-image:url("platform:/plugin/org.xmind.cathy/images/viewmenu.png");
+}
+
+/**************************************************
+ * Window
+ **************************************************/
+Shell.MTrimmedWindow {
+	margin-top: 2px;
+	margin-right: 3px;
+	margin-bottom: 3px;
+	margin-left: 4px;
+}
+
+.MPartSashContainer {
+	xmind-sash-width : 5px;
+}
+
+/**************************************************
+ * Main ToolBar
+ **************************************************/
+#org-eclipse-ui-main-toolbar {
+	xmind-margin-top:4pt;
+	xmind-margin-bottom:4pt;
+}
+
+/**
+ * Status Bar
+ */
+#org-eclipse-ui-trim-status,
+#org-eclipse-ui-trim-status *
+{
+	color : #ffffff;
+}
+
+/**
+ * Form
+ */
+.MPart Form {
+	text-background-color: #ecf0f1 #ecf0f1 100%;
+	color : #000000;
+	h-bottom-keyline-1-color: #ffffff;
+	h-bottom-keyline-2-color: #b1d1f3;
+}
+.MPart Section {
+	background-color-titlebar:  #ffffff;
+	border-color-titlebar:  #ffffff;
+	xmind-title-bar-text-color :  #216592;
+	xmind-title-bar-active-text-color :  #7b8fa5;
+}
+.MPart FormText {
+	xmind-hyperlink-color: #1949d9;
+	xmind-active-hyperlink-color: #11149b;
+}
+

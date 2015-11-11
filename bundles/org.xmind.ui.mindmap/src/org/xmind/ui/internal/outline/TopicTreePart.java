@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.xmind.ui.internal.outline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.xmind.core.Core;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
@@ -29,7 +32,17 @@ public class TopicTreePart extends MindMapTreePartBase {
     }
 
     protected Object[] getModelChildren(Object model) {
-        return getTopic().getAllChildren().toArray();
+        List<ITopic> allChildren = getTopic().getAllChildren();
+
+        ArrayList<ITopic> fixedChildren = new ArrayList<ITopic>();
+        for (ITopic child : allChildren) {
+            if (ITopic.CALLOUT.equals(child.getType())) {
+                fixedChildren.add(child);
+            }
+        }
+        allChildren.removeAll(fixedChildren);
+        allChildren.addAll(fixedChildren);
+        return allChildren.toArray();
     }
 
     protected void registerCoreEvents(Object source, ICoreEventRegister register) {

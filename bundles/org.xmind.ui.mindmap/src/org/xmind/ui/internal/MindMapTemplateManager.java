@@ -15,16 +15,17 @@
 package org.xmind.ui.internal;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -33,6 +34,8 @@ import org.osgi.framework.Bundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xmind.core.Core;
+import org.xmind.core.CoreException;
+import org.xmind.core.IWorkbook;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.util.DOMUtils;
@@ -69,7 +72,8 @@ public class MindMapTemplateManager {
         listeners.add(listener);
     }
 
-    public void removeTemplateManagerListener(ITemplateManagerListener listener) {
+    public void removeTemplateManagerListener(
+            ITemplateManagerListener listener) {
         listeners.remove(listener);
     }
 
@@ -105,13 +109,34 @@ public class MindMapTemplateManager {
         return importedTemplates;
     }
 
+    public ITemplateDescriptor importCustomTemplate(IWorkbook workbook,
+            String name) {
+        if (!name.endsWith(MindMapUI.FILE_EXT_TEMPLATE)
+                && !name.endsWith(MindMapUI.FILE_EXT_XMIND)) {
+            name = name + MindMapUI.FILE_EXT_TEMPLATE;
+        }
+        File targetFile = createCustomTemplateOutputFile(name);
+        try {
+            OutputStream target = new FileOutputStream(targetFile);
+            try {
+                workbook.save(target);
+            } finally {
+                target.close();
+            }
+            FileTemplateDescriptor template = new FileTemplateDescriptor(
+                    targetFile);
+            fireTemplateAdded(template);
+            return template;
+        } catch (IOException e) {
+        } catch (CoreException e) {
+        }
+        return null;
+    }
+
     public ITemplateDescriptor importCustomTemplate(String path) {
-        String dirPath = getCustomTemplatesLocation();
-        File dir = new File(dirPath);
-        FileUtils.ensureDirectory(dir);
         File sourceFile = new File(path);
         String fileName = sourceFile.getName();
-        File targetFile = createNonConflictingFile(dir, fileName);
+        File targetFile = createCustomTemplateOutputFile(fileName);
         try {
             FileUtils.copy(sourceFile, targetFile);
             FileTemplateDescriptor template = new FileTemplateDescriptor(
@@ -121,6 +146,13 @@ public class MindMapTemplateManager {
         } catch (IOException e) {
         }
         return null;
+    }
+
+    private File createCustomTemplateOutputFile(String fileName) {
+        String dirPath = getCustomTemplatesLocation();
+        File dir = new File(dirPath);
+        FileUtils.ensureDirectory(dir);
+        return createNonConflictingFile(dir, fileName);
     }
 
     public boolean removeTemplate(ITemplateDescriptor template) {
@@ -176,27 +208,26 @@ public class MindMapTemplateManager {
 
     private void loadTemplatesFromDir(List<ITemplateDescriptor> templates,
             File templatesDir) {
-        SortedSet<ITemplateDescriptor> set = new TreeSet<ITemplateDescriptor>(
-                new Comparator<ITemplateDescriptor>() {
-                    public int compare(ITemplateDescriptor t1,
-                            ITemplateDescriptor t2) {
-                        File f1 = ((FileTemplateDescriptor) t1).getFile();
-                        File f2 = ((FileTemplateDescriptor) t2).getFile();
-                        return f1.compareTo(f2);
-                    }
-                });
+        List<ITemplateDescriptor> list = new ArrayList<ITemplateDescriptor>();
         if (templatesDir != null && templatesDir.isDirectory()) {
             for (String fileName : templatesDir.list()) {
                 if (fileName.endsWith(MindMapUI.FILE_EXT_TEMPLATE)
                         || fileName.endsWith(MindMapUI.FILE_EXT_XMIND)) {
                     File file = new File(templatesDir, fileName);
                     if (file.isFile() && file.canRead()) {
-                        set.add(new FileTemplateDescriptor(file));
+                        list.add(new FileTemplateDescriptor(file));
                     }
                 }
             }
         }
-        templates.addAll(set);
+        Collections.sort(list, new Comparator<ITemplateDescriptor>() {
+            public int compare(ITemplateDescriptor t1, ITemplateDescriptor t2) {
+                File f1 = ((FileTemplateDescriptor) t1).getFile();
+                File f2 = ((FileTemplateDescriptor) t2).getFile();
+                return (int) (f1.lastModified() - f2.lastModified());
+            }
+        });
+        templates.addAll(list);
     }
 
     private void loadSystemTemplates(List<ITemplateDescriptor> templates) {
@@ -204,7 +235,8 @@ public class MindMapTemplateManager {
         if (bundle != null) {
             Element element = getTemplateListElement(bundle);
             if (element != null) {
-                java.util.Properties properties = getTemplateListProperties(bundle);
+                java.util.Properties properties = getTemplateListProperties(
+                        bundle);
                 Iterator<Element> it = DOMUtils.childElementIterByTag(element,
                         "template"); //$NON-NLS-1$
                 while (it.hasNext()) {
@@ -219,8 +251,8 @@ public class MindMapTemplateManager {
                             String name = templateEle.getAttribute("name"); //$NON-NLS-1$
                             if (name.startsWith("%")) { //$NON-NLS-1$
                                 if (properties != null) {
-                                    name = properties.getProperty(name
-                                            .substring(1));
+                                    name = properties
+                                            .getProperty(name.substring(1));
                                 } else {
                                     name = null;
                                 }
@@ -261,8 +293,8 @@ public class MindMapTemplateManager {
     }
 
     private Element getTemplateListElement(Bundle bundle) {
-        URL xmlURL = FileLocator.find(bundle, new Path(TEMPLATES_DIR
-                + "templates.xml"), null); //$NON-NLS-1$
+        URL xmlURL = FileLocator.find(bundle,
+                new Path(TEMPLATES_DIR + "templates.xml"), null); //$NON-NLS-1$
         if (xmlURL == null)
             return null;
         try {
@@ -289,8 +321,8 @@ public class MindMapTemplateManager {
         int i = 1;
         while (targetFile.exists()) {
             i++;
-            targetFile = new File(rootDir, String.format(
-                    "%s %s%s", name, i, ext)); //$NON-NLS-1$
+            targetFile = new File(rootDir,
+                    String.format("%s %s%s", name, i, ext)); //$NON-NLS-1$
         }
         return targetFile;
     }

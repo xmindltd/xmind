@@ -40,7 +40,7 @@ public class BoldAction extends Action implements IRichTextAction {
         viewer = null;
     }
 
-    public void selctionChanged(IRichTextEditViewer viewer, ISelection selection) {
+    public void selectionChanged(IRichTextEditViewer viewer, ISelection selection) {
         setChecked(viewer.getRenderer().getSelectionFontBold());
     }
 

@@ -95,7 +95,7 @@ public abstract class AbstractExportWizard extends Wizard implements
         }
 
         private void openPressed() {
-            openFile(getTargetFolder(), monitor);
+            showFile(getTargetPath(), monitor);
             close();
         }
 
@@ -261,16 +261,20 @@ public abstract class AbstractExportWizard extends Wizard implements
         }
     }
 
+    public void showFile(String path, IProgressMonitor monitor) {
+        if (new File(path).exists()) {
+            boolean show = org.xmind.ui.viewers.FileUtils.show(new File(path));
+            if (!show)
+                Program.launch(new File(path).getParent());
+        }
+    }
+
     public void setTargetPath(String path) {
         this.targetPath = path;
     }
 
     public String getTargetPath() {
         return targetPath;
-    }
-
-    public String getTargetFolder() {
-        return targetPath.substring(0, targetPath.lastIndexOf(File.separator));
     }
 
     public boolean hasTargetPath() {

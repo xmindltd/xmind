@@ -5,6 +5,7 @@ import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
 
+@Deprecated
 public class FitMapAction extends RequestAction {
 
     public FitMapAction(IGraphicalEditorPage page) {

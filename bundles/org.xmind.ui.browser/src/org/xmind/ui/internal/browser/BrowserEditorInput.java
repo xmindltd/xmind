@@ -20,8 +20,8 @@ import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 
-public class BrowserEditorInput implements IEditorInput, IPersistableElement,
-        IElementFactory {
+public class BrowserEditorInput
+        implements IEditorInput, IPersistableElement, IElementFactory {
 
     private static final String ELEMENT_FACTORY_ID = "org.xmind.ui.browser.elementFactory"; //$NON-NLS-1$
 
@@ -123,6 +123,7 @@ public class BrowserEditorInput implements IEditorInput, IPersistableElement,
         return BrowserMessages.BrowserEditor_title;
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         return null;
     }

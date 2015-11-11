@@ -20,13 +20,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.eclipse.draw2d.geometry.Point;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
 import org.xmind.ui.branch.BranchStructureData;
 import org.xmind.ui.mindmap.IBranchPart;
-import org.xmind.ui.mindmap.ILabelPart;
+import org.xmind.ui.mindmap.IInfoPart;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
@@ -133,6 +132,10 @@ public class Chart extends BranchStructureData {
 
         Map<Row, List<Item>> rowItems = null;
         Map<Column, List<Item>> colItems = null;
+        if (cols == null)
+            cols = new ArrayList<Column>();
+        else
+            cols.clear();
         for (IBranchPart rowHead : getTitle().getSubBranches()) {
             List<Item> items = new ArrayList<Item>();
             Row row = buildRow(rowHead, items);
@@ -143,8 +146,8 @@ public class Chart extends BranchStructureData {
                 for (Item item : items) {
                     ColumnHead prefHead = item.getPrefColumnHead();
                     if (prefHead != null) {
-                        Column col = colItems == null ? null : findColumn(
-                                colItems.keySet(), prefHead);
+                        Column col = colItems == null ? null
+                                : findColumn(colItems.keySet(), prefHead);
                         if (col == null) {
                             col = new Column(this, prefHead);
                             List<Item> list = new ArrayList<Item>();
@@ -152,6 +155,8 @@ public class Chart extends BranchStructureData {
                             if (colItems == null)
                                 colItems = new HashMap<Column, List<Item>>();
                             colItems.put(col, list);
+                            if (!cols.contains(col))
+                                cols.add(col);
                         } else {
                             List<Item> list = colItems.get(col);
                             if (list == null) {
@@ -159,16 +164,19 @@ public class Chart extends BranchStructureData {
                                 colItems.put(col, list);
                             }
                             list.add(item);
+                            if (!cols.contains(col))
+                                cols.add(col);
                         }
                     }
                 }
             }
         }
-        if (colItems != null) {
-            cols = new ArrayList<Column>(new TreeSet<Column>(colItems.keySet()));
-        }
-        if (cols == null)
-            cols = new ArrayList<Column>(1);
+//        if (colItems != null) {
+//            cols = new ArrayList<Column>(
+//                    new TreeSet<Column>(colItems.keySet()));
+//        }
+//        if (cols == null)
+//            cols = new ArrayList<Column>(1);
         if (cols.isEmpty()) {
             cols.add(new Column(this, ColumnHead.EMPTY));
         }
@@ -233,9 +241,18 @@ public class Chart extends BranchStructureData {
     private int calcTitleAreaHeight() {
         int h = 0;
         int y = getBranch().getFigure().getBounds().y;
-        ILabelPart label = getBranch().getLabel();
-        if (label != null && label.getFigure().isVisible()) {
-            h = label.getFigure().getBounds().bottom() - y;
+//        ILabelPart label = getBranch().getLabel();
+//        if (label != null && label.getFigure().isVisible()) {
+//            h = label.getFigure().getBounds().bottom() - y;
+//        } else {
+//            ITopicPart topicPart = getBranch().getTopicPart();
+//            if (topicPart != null && topicPart.getFigure().isVisible()) {
+//                h = topicPart.getFigure().getBounds().bottom() - y;
+//            }
+//        }
+        IInfoPart info = getBranch().getInfoPart();
+        if (info != null && info.getFigure().isVisible()) {
+            h = info.getFigure().getBounds().bottom() - y;
         } else {
             ITopicPart topicPart = getBranch().getTopicPart();
             if (topicPart != null && topicPart.getFigure().isVisible()) {
@@ -275,6 +292,10 @@ public class Chart extends BranchStructureData {
             if (topicPart != null) {
                 sum = Math.max(sum, topicPart.getFigure().getBounds().width);
             }
+            IInfoPart infoPart = head.getInfoPart();
+            if (infoPart != null) {
+                sum = Math.max(sum, infoPart.getFigure().getBounds().width);
+            }
         }
         return sum;
     }
@@ -284,8 +305,8 @@ public class Chart extends BranchStructureData {
             IStyleSelector ss = StyleUtils.getStyleSelector(getBranch());
             String decorationId = StyleUtils.getString(getBranch(), ss,
                     Styles.ShapeClass, null);
-            lineWidth = StyleUtils.getInteger(getBranch(), ss,
-                    Styles.LineWidth, decorationId, 1);
+            lineWidth = StyleUtils.getInteger(getBranch(), ss, Styles.LineWidth,
+                    decorationId, 1);
         }
         return lineWidth;
     }
@@ -352,8 +373,11 @@ public class Chart extends BranchStructureData {
         if (hasRows()) {
             int y = getTitle().getTopicPart().getFigure().getBounds().bottom()
                     + getLineWidth();
-            if (point.y > y
-                    && point.y < y + getColumnHeadHeight() + getMajorSpacing()) {
+            if (getTitle().getInfoPart() != null) {
+                y += getTitle().getInfoPart().getFigure().getBounds().height;
+            }
+            if (point.y > y && point.y < y + getColumnHeadHeight()
+                    + getMajorSpacing()) {
                 for (Column col : cols) {
                     int x = col.getLeft();
                     if (point.x > x && point.x < x + col.getWidth()) {

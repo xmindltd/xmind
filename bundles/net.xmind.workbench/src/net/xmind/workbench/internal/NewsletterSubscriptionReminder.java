@@ -15,9 +15,6 @@ package net.xmind.workbench.internal;
 
 import java.util.regex.Pattern;
 
-import net.xmind.signin.internal.XMindNetRequest;
-import net.xmind.workbench.ui.internal.NewsletterSubscriptionDialog;
-
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -26,6 +23,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.xmind.core.net.internal.XMindNetRequest;
+
+import net.xmind.workbench.ui.internal.NewsletterSubscriptionDialog;
 
 public class NewsletterSubscriptionReminder {
 
@@ -37,8 +37,8 @@ public class NewsletterSubscriptionReminder {
 
 //    private static final int DISPLAY_DURATION = 1000 * 60 * 5;
 
-    private static final Pattern EMAIL_PATTERN = Pattern
-            .compile("^([a-zA-Z0-9_\\-\\.\\+]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$"); //$NON-NLS-1$
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^([a-zA-Z0-9_\\-\\.\\+]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$"); //$NON-NLS-1$
 
     private static IDialogSettings SETTINGS = null;
 
@@ -149,7 +149,8 @@ public class NewsletterSubscriptionReminder {
 
                 } catch (Throwable e) {
                     XMindNetWorkbench.log(e,
-                            "Failed to subscribe to XMind newsletter: " + email); //$NON-NLS-1$
+                            "Failed to subscribe to XMind newsletter: " //$NON-NLS-1$
+                                    + email);
                 } finally {
                     subscribeRequest = null;
                 }

@@ -41,6 +41,8 @@ public class TabFolderContainerPresentation extends
             return container;
         parent.setLayout(new FillLayout());
         container = new CTabFolder(parent, SWT.BOTTOM | SWT.FLAT);
+        container.setBackground(container.getDisplay().getSystemColor(
+                SWT.COLOR_WHITE));
         if (hasListener()) {
             container.addSelectionListener(this);
         }

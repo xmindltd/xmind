@@ -20,14 +20,11 @@ import java.util.List;
 
 import org.xmind.core.IFileEntry;
 
-public abstract class FileEntry implements IFileEntry {
+public abstract class FileEntry extends AbstractWorkbookComponent
+        implements IFileEntry {
 
     protected static final List<IFileEntry> NO_SUB_FILE_ENTRIES = Collections
             .emptyList();
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
 
     /*
      * (non-Javadoc)

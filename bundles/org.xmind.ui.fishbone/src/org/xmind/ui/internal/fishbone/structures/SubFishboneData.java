@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.xmind.ui.internal.fishbone.structures;
 
+import java.util.List;
+
 import org.eclipse.draw2d.IFigure;
 import org.xmind.gef.draw2d.IRotatableFigure;
 import org.xmind.gef.draw2d.IRotatableReferencedFigure;
@@ -121,6 +123,12 @@ public class SubFishboneData extends BranchStructureData {
 
         data.branchRefIns = new PrecisionInsets(data.topicRefIns);
         data.rBranchRefIns = h.ri(r2.ti(h.ti(data.branchRefIns)));
+
+        List<IBranchPart> calloutBranches = getBranch().getCalloutBranches();
+        if (!calloutBranches.isEmpty() && !getBranch().isFolded()) {
+            this.direction.fillFishboneExtraData(getBranch(), data, h, r2, 0,
+                    true);
+        }
 
         if (!getSubBranches().isEmpty() && !getBranch().isFolded()) {
             double spacing = getMinorSpacing() * fMinor;

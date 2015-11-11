@@ -113,12 +113,12 @@ import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
-import org.xmind.ui.util.Logger;
 import org.xmind.ui.util.PrefUtils;
 
-public class NewWorkbookEditor extends EditorPart implements
-        ISelectionChangedListener, IOpenListener, ITemplateManagerListener,
-        ICoreEventListener, IWorkbookHistoryListener {
+@Deprecated
+public class NewWorkbookEditor extends EditorPart
+        implements ISelectionChangedListener, IOpenListener,
+        ITemplateManagerListener, ICoreEventListener, IWorkbookHistoryListener {
 
     public static final String EDITOR_ID = "org.xmind.ui.NewWorkbookChooser"; //$NON-NLS-1$
 
@@ -129,6 +129,7 @@ public class NewWorkbookEditor extends EditorPart implements
         private DefaultInput() {
         }
 
+        @SuppressWarnings("unchecked")
         public Object getAdapter(Class adapter) {
             return null;
         }
@@ -183,11 +184,12 @@ public class NewWorkbookEditor extends EditorPart implements
             properties.set(GalleryViewer.TitlePlacement,
                     GalleryViewer.TITLE_BOTTOM);
             properties.set(GalleryViewer.FlatFrames, true);
-            properties.set(GalleryViewer.Layout, new GalleryLayout(
-                    GalleryLayout.ALIGN_TOPLEFT, GalleryLayout.ALIGN_TOPLEFT,
-                    10, 10, 10, 10, 10, 10));
-            properties.set(GalleryViewer.FrameContentSize, new Dimension(
-                    FRAME_WIDTH, FRAME_HEIGHT));
+            properties.set(GalleryViewer.Layout,
+                    new GalleryLayout(GalleryLayout.ALIGN_TOPLEFT,
+                            GalleryLayout.ALIGN_TOPLEFT, 10, 10, 10, 10, 10,
+                            10));
+            properties.set(GalleryViewer.FrameContentSize,
+                    new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         }
 
         @Override
@@ -299,8 +301,8 @@ public class NewWorkbookEditor extends EditorPart implements
 
         IWorkbenchWindow window = getSite().getWorkbenchWindow();
         final IEditorReference lastOpened = openedInstances.get(window);
-        openedInstances.put(window, (IEditorReference) getSite().getPage()
-                .getReference(this));
+        openedInstances.put(window,
+                (IEditorReference) getSite().getPage().getReference(this));
         if (lastOpened != null) {
             Display.getCurrent().asyncExec(new Runnable() {
                 public void run() {
@@ -411,8 +413,8 @@ public class NewWorkbookEditor extends EditorPart implements
     private Composite createFrameBody(Composite parent) {
         final ScrolledComposite composite = new ScrolledComposite(parent,
                 SWT.V_SCROLL);
-        composite.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND));
+        composite.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         ScrollBar vBar = composite.getVerticalBar();
         if (vBar != null && vBar.getIncrement() < 5) {
             vBar.setIncrement(5);
@@ -440,19 +442,19 @@ public class NewWorkbookEditor extends EditorPart implements
         Composite mainContent = createGridComposite(parent, 5, 5, 10, 10);
 
         Control content1 = createTemplatesGroup(mainContent);
-        content1.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-                false));
+        content1.setLayoutData(
+                new GridData(SWT.FILL, SWT.BEGINNING, true, false));
 
         Control content2 = createThemesGroup(mainContent);
-        content2.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true,
-                false));
+        content2.setLayoutData(
+                new GridData(SWT.FILL, SWT.BEGINNING, true, false));
         return mainContent;
     }
 
     private Control createTemplatesGroup(Composite parent) {
         Composite composite = createTitledComposite(parent,
-                WizardMessages.ChooseTemplateWizardPage_TemplatesGroup_text,
-                15, 15, 5, 5);
+                WizardMessages.ChooseTemplateWizardPage_TemplatesGroup_text, 15,
+                15, 5, 5);
         Control control = createTemplateChooser(composite);
         control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         createTemplateManagementBar(composite);
@@ -481,16 +483,16 @@ public class NewWorkbookEditor extends EditorPart implements
         properties.set(GalleryViewer.Wrap, true);
         properties.set(GalleryViewer.FlatFrames, true);
         properties.set(GalleryViewer.Horizontal, true);
-        properties
-                .set(GalleryViewer.TitlePlacement, GalleryViewer.TITLE_BOTTOM);
+        properties.set(GalleryViewer.TitlePlacement,
+                GalleryViewer.TITLE_BOTTOM);
         properties.set(GalleryViewer.SolidFrames, true);
-        properties.set(GalleryViewer.FrameContentSize, new Dimension(
-                FRAME_WIDTH, FRAME_HEIGHT));
+        properties.set(GalleryViewer.FrameContentSize,
+                new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         properties.set(GalleryViewer.ImageConstrained, true);
         properties.set(GalleryViewer.ImageStretched, true);
-        properties.set(GalleryViewer.Layout, new GalleryLayout(
-                GalleryLayout.ALIGN_TOPLEFT, GalleryLayout.ALIGN_TOPLEFT, 10,
-                10, 10, 10, 10, 10));
+        properties.set(GalleryViewer.Layout,
+                new GalleryLayout(GalleryLayout.ALIGN_TOPLEFT,
+                        GalleryLayout.ALIGN_TOPLEFT, 10, 10, 10, 10, 10, 10));
 
         Control control = viewer.createControl(parent, SWT.NONE);
         viewer.getCanvas().setScrollBarVisibility(FigureCanvas.NEVER);
@@ -504,7 +506,8 @@ public class NewWorkbookEditor extends EditorPart implements
         viewer.setInput(templates);
 
         if (templates.size() > 0) {
-            viewer.setSelection(new StructuredSelection(templates.get(0)), true);
+            viewer.setSelection(new StructuredSelection(templates.get(0)),
+                    true);
         }
         viewer.addSelectionChangedListener(this);
         viewer.addOpenListener(this);
@@ -540,8 +543,8 @@ public class NewWorkbookEditor extends EditorPart implements
         final Color canDrop = ColorUtils.getColor(230, 230, 230);
         final boolean[] dragging = new boolean[1];
         dragging[0] = false;
-        final DropTarget target = new DropTarget(control, DND.DROP_DEFAULT
-                | DND.DROP_COPY | DND.DROP_LINK);
+        final DropTarget target = new DropTarget(control,
+                DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_LINK);
         target.setTransfer(new Transfer[] { FileTransfer.getInstance() });
         target.addDropListener(new DropTargetAdapter() {
             public void dragEnter(DropTargetEvent event) {
@@ -696,8 +699,8 @@ public class NewWorkbookEditor extends EditorPart implements
         composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
         recentFileGroup = createGridComposite(composite, 0, 5, 0, 5);
-        recentFileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
+        recentFileGroup
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         fillRecentFiles(recentFileGroup);
     }
 
@@ -710,10 +713,11 @@ public class NewWorkbookEditor extends EditorPart implements
         if (items.length == 0) {
             Label label = new Label(parent, SWT.NONE);
             label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-            label.setText(MindMapMessages.ReopenWorkbookMenu_NoItemsPlaceholder_text);
+            label.setText(
+                    MindMapMessages.ReopenWorkbookMenu_NoItemsPlaceholder_text);
             label.setBackground(label.getParent().getBackground());
-            label.setForeground(label.getDisplay().getSystemColor(
-                    SWT.COLOR_GRAY));
+            label.setForeground(
+                    label.getDisplay().getSystemColor(SWT.COLOR_GRAY));
         } else {
             for (final WorkbookHistoryItem item : items) {
                 String path = item.getPath();
@@ -758,8 +762,8 @@ public class NewWorkbookEditor extends EditorPart implements
         Composite composite = createGridComposite(parent, 10, 0, 5, 5, 40, 0);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         createLink(composite,
-                WizardMessages.NewWorkbookEditor_OpenPreferencesLink_text,
-                null, new SafeRunnable() {
+                WizardMessages.NewWorkbookEditor_OpenPreferencesLink_text, null,
+                new SafeRunnable() {
                     public void run() throws Exception {
                         PrefUtils.openPrefDialog(getSite().getShell(),
                                 PrefUtils.GENERAL_PREF_PAGE_ID);
@@ -773,8 +777,8 @@ public class NewWorkbookEditor extends EditorPart implements
         link.setBackground(link.getParent().getBackground());
         link.setForeground(link.getDisplay().getSystemColor(SWT.COLOR_BLUE));
         link.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        link.setFont(FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT,
-                -1));
+        link.setFont(
+                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, -1));
         link.setText(text);
         link.setToolTipText(toolTip);
         link.setUnderlined(false);
@@ -847,8 +851,8 @@ public class NewWorkbookEditor extends EditorPart implements
     }
 
     private void createOpenFileDropSupport(final Control control) {
-        final DropTarget target = new DropTarget(control, DND.DROP_DEFAULT
-                | DND.DROP_COPY | DND.DROP_LINK);
+        final DropTarget target = new DropTarget(control,
+                DND.DROP_DEFAULT | DND.DROP_COPY | DND.DROP_LINK);
         target.setTransfer(new Transfer[] { FileTransfer.getInstance() });
         target.addDropListener(new DropTargetAdapter() {
             public void dragEnter(DropTargetEvent event) {
@@ -909,8 +913,9 @@ public class NewWorkbookEditor extends EditorPart implements
             public void run() {
                 try {
                     if (body != null && !body.isDisposed()) {
-                        body.setSize(body.computeSize(body.getParent()
-                                .getClientArea().width, SWT.DEFAULT, true));
+                        body.setSize(body.computeSize(
+                                body.getParent().getClientArea().width,
+                                SWT.DEFAULT, true));
                         body.layout(true, true);
                     }
                 } finally {
@@ -982,9 +987,11 @@ public class NewWorkbookEditor extends EditorPart implements
                 templatesViewer.setSelection(StructuredSelection.EMPTY);
                 reveal(selectedTheme, themesViewer);
             } else {
-                templatesViewer.setSelection(
-                        template == null ? StructuredSelection.EMPTY
-                                : new StructuredSelection(template), true);
+                templatesViewer
+                        .setSelection(
+                                template == null ? StructuredSelection.EMPTY
+                                        : new StructuredSelection(template),
+                                true);
                 themesViewer.setSelection(StructuredSelection.EMPTY);
                 reveal(template, templatesViewer);
             }
@@ -1011,10 +1018,12 @@ public class NewWorkbookEditor extends EditorPart implements
                 if (part == null)
                     return;
                 Rectangle clientBounds = part.getFigure().getBounds();
-                Point clientLocation = body.toControl(viewer.computeToDisplay(
-                        clientBounds.getLocation(), false).getSWTPoint());
+                Point clientLocation = body.toControl(viewer
+                        .computeToDisplay(clientBounds.getLocation(), false)
+                        .getSWTPoint());
                 Point hostLocation = scrollable.getOrigin();
-                Rectangle hostBounds = new Rectangle(scrollable.getClientArea());
+                Rectangle hostBounds = new Rectangle(
+                        scrollable.getClientArea());
                 int top = clientLocation.y - hostLocation.y - 15;
                 int bottom = clientLocation.y + clientBounds.height + 15
                         - hostLocation.y - hostBounds.height;
@@ -1027,8 +1036,8 @@ public class NewWorkbookEditor extends EditorPart implements
                     offset = 0;
                 }
                 if (offset != 0) {
-                    scrollable.setOrigin(hostLocation.x, hostLocation.y
-                            + offset);
+                    scrollable.setOrigin(hostLocation.x,
+                            hostLocation.y + offset);
                 }
             }
         });
@@ -1123,8 +1132,9 @@ public class NewWorkbookEditor extends EditorPart implements
 
                     viewer.setInput(MindMapTemplateManager.getInstance()
                             .loadAllTemplates());
-                    if (templateToSelectOnRefreshed != null
-                            && getSite().getPage().getActiveEditor() == NewWorkbookEditor.this) {
+                    if (templateToSelectOnRefreshed != null && getSite()
+                            .getPage()
+                            .getActiveEditor() == NewWorkbookEditor.this) {
                         setSelectedTemplate(templateToSelectOnRefreshed);
                     }
                     reflow();
@@ -1172,13 +1182,11 @@ public class NewWorkbookEditor extends EditorPart implements
     private void deleteSelectedTemplate() {
         ITemplateDescriptor template = selectedTemplate;
         if (template != null) {
-            if (!MessageDialog
-                    .openConfirm(
-                            getSite().getShell(),
-                            DialogMessages.ConfirmDeleteTemplateDialog_title,
-                            NLS.bind(
-                                    DialogMessages.ConfirmDeleteTemplateDialog_message_with_templateName,
-                                    template.getName())))
+            if (!MessageDialog.openConfirm(getSite().getShell(),
+                    DialogMessages.ConfirmDeleteTemplateDialog_title,
+                    NLS.bind(
+                            DialogMessages.ConfirmDeleteTemplateDialog_message_with_templateName,
+                            template.getName())))
                 return;
             MindMapTemplateManager.getInstance().removeTemplate(template);
         }
@@ -1198,8 +1206,8 @@ public class NewWorkbookEditor extends EditorPart implements
     }
 
     private void openFile() throws Exception {
-        IEditorPart[] openedEditors = new OpenWorkbookDialog(getSite()
-                .getWorkbenchWindow()).open();
+        IEditorPart[] openedEditors = new OpenWorkbookDialog(
+                getSite().getWorkbenchWindow()).open();
         if (openedEditors != null && openedEditors.length > 0) {
             hideMe();
         }
@@ -1254,38 +1262,25 @@ public class NewWorkbookEditor extends EditorPart implements
     }
 
     public static boolean showIn(IWorkbenchWindow window) {
-        IWorkbenchPage page = window.getActivePage();
-        if (page == null)
-            return false;
-        IEditorReference opened = openedInstances.get(window);
-        if (opened != null) {
-            page.showEditor(opened);
-            final IWorkbenchPart openedEditor = opened.getPart(false);
-            page.activate(openedEditor);
-            if (openedEditor instanceof NewWorkbookEditor) {
-                Display.getCurrent().asyncExec(new Runnable() {
-                    public void run() {
-                        ((NewWorkbookEditor) openedEditor).reflow();
-                    }
-                });
-            }
-            return true;
-        }
-        try {
-            final IEditorPart editor = page.openEditor(DefaultInput.singleton,
-                    EDITOR_ID);
-            if (editor instanceof NewWorkbookEditor) {
-                Display.getCurrent().asyncExec(new Runnable() {
-                    public void run() {
-                        ((NewWorkbookEditor) editor).reflow();
-                    }
-                });
-            }
-            return editor != null;
-        } catch (PartInitException e) {
-            Logger.log(e);
-            return false;
-        }
+//        IWorkbenchPage page = window.getActivePage();
+//        if (page == null)
+//            return false;
+//        try {
+//            final IEditorPart editor = page.openEditor(DefaultInput.singleton,
+//                    EDITOR_ID);
+//            if (editor instanceof NewWorkbookEditor) {
+//                Display.getCurrent().asyncExec(new Runnable() {
+//                    public void run() {
+//                        ((NewWorkbookEditor) editor).reflow();
+//                    }
+//                });
+//            }
+//            return editor != null;
+//        } catch (PartInitException e) {
+//            Logger.log(e);
+//            return false;
+//        }
+        return false;
     }
 
     public static void hideFrom(IWorkbenchWindow window) {
@@ -1294,7 +1289,8 @@ public class NewWorkbookEditor extends EditorPart implements
             return;
         IEditorReference opened = openedInstances.get(window);
         if (opened != null) {
-            page.hideEditor(opened);
+            IWorkbenchPart editorPart = opened.getPart(false);
+            page.closeEditor((IEditorPart) editorPart, false);
         }
     }
 

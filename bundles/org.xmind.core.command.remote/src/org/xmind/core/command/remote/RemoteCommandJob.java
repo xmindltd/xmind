@@ -62,7 +62,7 @@ public abstract class RemoteCommandJob extends Job implements
         return remoteCommandService;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Object getAdapter(Class adapter) {
         if (adapter == IRemoteCommandService.class)
             return getRemoteCommandService();

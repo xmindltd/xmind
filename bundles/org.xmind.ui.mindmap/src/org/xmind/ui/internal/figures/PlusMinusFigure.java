@@ -35,21 +35,33 @@ public class PlusMinusFigure extends Figure {
         MAX_FLAG = FLAG_PRESELECTED;
     }
 
-    private static final Color FillPlus = ColorUtils.getColor(200, 228, 248);
-    private static final Color FillPlus2 = ColorUtils.getColor(160, 196, 234);
-    private static final Color FillMinus = ColorUtils.getColor(210, 230, 255);
-    private static final Color FillMinus2 = ColorUtils.getColor(180, 210, 240);
+//    private static final Color FillPlus = ColorUtils.getColor(200, 228, 248);
+//    private static final Color FillPlus2 = ColorUtils.getColor(160, 196, 234);
+//    private static final Color FillMinus = ColorUtils.getColor(210, 230, 255);
+//    private static final Color FillMinus2 = ColorUtils.getColor(180, 210, 240);
+    private static final Color Fill1 = ColorUtils.getColor(160, 196, 234);
+    private static final Color Fill2 = ColorUtils.getColor(250, 250, 250);
     private static final Color BorderPlus = ColorUtils.getColor(120, 136, 162);
     private static final Color BorderMinus = ColorUtils.getColor(180, 200, 240);
     private static final Color ContentPlus = ColorUtils.getColor(48, 64, 96);
     private static final Color ContentMinus = ColorUtils
             .getColor(150, 160, 200);
 
+    private Color borderValue;
+
     public PlusMinusFigure() {
     }
 
     public PlusMinusFigure(boolean plusOrMinus) {
         setFlag(FLAG_PLUS_MINUS, plusOrMinus);
+    }
+
+    public void setBorderValue(Color borderValue) {
+        this.borderValue = borderValue;
+    }
+
+    public Color getBorderValue() {
+        return borderValue;
     }
 
     /**
@@ -90,12 +102,12 @@ public class PlusMinusFigure extends Figure {
     }
 
     protected Color getFillColor() {
-        return getValue() ? (isPreselected() ? FillPlus2 : FillPlus)
-                : (isPreselected() ? FillMinus2 : FillMinus);
+        return isPreselected() ? Fill1 : Fill2;
     }
 
     protected Color getBorderColor() {
-        return getValue() ? BorderPlus : BorderMinus;
+        return getBorderValue() != null ? getBorderValue()
+                : (getValue() ? BorderPlus : BorderMinus);
     }
 
     protected Color getContentColor() {

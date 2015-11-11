@@ -13,12 +13,6 @@
  *******************************************************************************/
 package net.xmind.workbench.internal.actions;
 
-import net.xmind.signin.IAccountInfo;
-import net.xmind.signin.IAuthenticationListener;
-import net.xmind.signin.XMindNet;
-import net.xmind.signin.internal.Messages;
-import net.xmind.workbench.internal.XMindNetWorkbench;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.osgi.util.NLS;
@@ -27,8 +21,15 @@ import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public class ShowAccountActionDelegate implements
-        IWorkbenchWindowActionDelegate, IActionDelegate2,
+import net.xmind.signin.IAccountInfo;
+import net.xmind.signin.IAuthenticationListener;
+import net.xmind.signin.XMindNet;
+import net.xmind.signin.internal.Messages;
+import net.xmind.workbench.internal.XMindNetWorkbench;
+
+@Deprecated
+public class ShowAccountActionDelegate
+        implements IWorkbenchWindowActionDelegate, IActionDelegate2,
         IAuthenticationListener {
 
     private IWorkbenchWindow window;
@@ -82,8 +83,8 @@ public class ShowAccountActionDelegate implements
                 action.setToolTipText(Messages.ShowAccount_toolTip);
             } else {
                 action.setText(NLS.bind(Messages.ShowAccount_pattern, userID));
-                action.setToolTipText(NLS.bind(
-                        Messages.ShowAccount_toolTip_pattern, userID));
+                action.setToolTipText(
+                        NLS.bind(Messages.ShowAccount_toolTip_pattern, userID));
             }
             action.setEnabled(XMindNet.getAccountInfo() != null);
         }
@@ -108,7 +109,8 @@ public class ShowAccountActionDelegate implements
         if (window == null || XMindNet.getAccountInfo() == null)
             return;
 
-        XMindNet.gotoURL(XMindNetWorkbench.URL_ACCOUNT, getUserID(), getToken());
+        XMindNet.gotoURL(XMindNetWorkbench.URL_ACCOUNT, getUserID(),
+                getToken());
     }
 
     /*

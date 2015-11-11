@@ -55,14 +55,15 @@ import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.ui.internal.imports.ImportMessages;
 import org.xmind.ui.internal.imports.ImporterUtils;
 import org.xmind.ui.io.MonitoredInputStream;
+import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.wizards.MindMapImporter;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class FreeMindImporter extends MindMapImporter implements
-        FreeMindConstants, ErrorHandler {
+public class FreeMindImporter extends MindMapImporter
+        implements FreeMindConstants, ErrorHandler {
 
     private class LinkPoint {
         ITopic end1;
@@ -107,8 +108,8 @@ public class FreeMindImporter extends MindMapImporter implements
             String tagName = DOMUtils.getLocalName(htmlEle.getTagName());
             boolean isParagraph = "p".equalsIgnoreCase(tagName) //$NON-NLS-1$
                     || "li".equalsIgnoreCase(tagName); //$NON-NLS-1$
-            IStyle style = pushStyle(htmlEle, isParagraph ? IStyle.PARAGRAPH
-                    : IStyle.TEXT);
+            IStyle style = pushStyle(htmlEle,
+                    isParagraph ? IStyle.PARAGRAPH : IStyle.TEXT);
             if (isParagraph)
                 addParagraph();
 
@@ -302,8 +303,8 @@ public class FreeMindImporter extends MindMapImporter implements
         if (nodeEle != null)
             loadTopic(sheet.getRootTopic(), nodeEle);
         else
-            sheet.getRootTopic().setTitleText(
-                    ImportMessages.Importer_CentralTopic);
+            sheet.getRootTopic()
+                    .setTitleText(ImportMessages.Importer_CentralTopic);
 
         if (linkEles != null && !linkEles.isEmpty())
             loadRelationship();
@@ -579,9 +580,11 @@ public class FreeMindImporter extends MindMapImporter implements
     private void loadFont(Element fontEle, ITopic topic) {
         if (fontEle == null)
             return;
-        String name = att(fontEle, "NAME"); //$NON-NLS-1$
-        if (name != null) {
-            registerStyle(topic, Styles.FontFamily, name);
+        String fontName = att(fontEle, "NAME"); //$NON-NLS-1$
+        String availableFontName = FontUtils.getAAvailableFontNameFor(fontName);
+        fontName = availableFontName != null ? availableFontName : fontName;
+        if (fontName != null) {
+            registerStyle(topic, Styles.FontFamily, fontName);
         }
         String size = att(fontEle, "SIZE"); //$NON-NLS-1$
         if (size != null) {
@@ -636,7 +639,8 @@ public class FreeMindImporter extends MindMapImporter implements
         return styleSheet;
     }
 
-    private String getTransferred(String type, String sourceId, String defaultId) {
+    private String getTransferred(String type, String sourceId,
+            String defaultId) {
         if (sourceId != null) {
             ResourceMappingManager mappings = getMappings();
             if (mappings != null) {
@@ -713,8 +717,8 @@ public class FreeMindImporter extends MindMapImporter implements
         NamedNodeMap atts = ele.getAttributes();
         for (int i = 0; i < atts.getLength(); i++) {
             Node att = atts.item(i);
-            if (attName.equalsIgnoreCase(DOMUtils.getLocalName(att
-                    .getNodeName()))) {
+            if (attName.equalsIgnoreCase(
+                    DOMUtils.getLocalName(att.getNodeName()))) {
                 return att.getNodeValue();
             }
         }

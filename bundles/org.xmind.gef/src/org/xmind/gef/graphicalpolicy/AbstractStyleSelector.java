@@ -64,4 +64,9 @@ public abstract class AbstractStyleSelector implements IStyleSelector {
 
     public abstract String getAutoValue(IGraphicalPart part, String key,
             IStyleValueProvider defaultValueProvider);
+
+    public String getOverridedValue(IGraphicalPart part, String key,
+            String layerName) {
+        return null;
+    }
 }

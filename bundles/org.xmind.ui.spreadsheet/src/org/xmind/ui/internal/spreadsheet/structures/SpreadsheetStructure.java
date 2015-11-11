@@ -46,8 +46,8 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.tools.ParentSearchKey;
 import org.xmind.ui.util.MindMapUtils;
 
-public class SpreadsheetStructure extends AbstractBranchStructure implements
-        IBranchDoubleClickSupport, IBranchMoveSupport {
+public class SpreadsheetStructure extends AbstractBranchStructure
+        implements IBranchDoubleClickSupport, IBranchMoveSupport {
 
     private Set<IBranchPart> invalidatingBranches = null;
 
@@ -64,8 +64,8 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
         return (Chart) super.getStructureData(branch);
     }
 
-    protected void doFillPlusMinus(IBranchPart branch,
-            IPlusMinusPart plusMinus, LayoutInfo info) {
+    protected void doFillPlusMinus(IBranchPart branch, IPlusMinusPart plusMinus,
+            LayoutInfo info) {
         if (!plusMinus.getFigure().isVisible()) {
             info.put(plusMinus.getFigure(), info.createInitBounds());
             return;
@@ -118,7 +118,9 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
             IBranchPart subBranch = subBranches.get(i);
             IFigure subBranchFigure = subBranch.getFigure();
             Dimension size = subBranchFigure.getPreferredSize();
-            Rectangle r = new Rectangle(x, y, size.width, size.height);
+            Rectangle r = new Rectangle(
+                    x + halfMajorSpacing1 - halfMinorSpacing1, y, size.width,
+                    size.height);
             info.put(subBranchFigure, r);
             y += size.height + halfMinorSpacing2 + lineWidth;
         }
@@ -128,9 +130,9 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
                     chartWidth, ins.getSize().height);
             info.add(insArea);
         }
-        info.addMargins(lineWidth + halfMajorSpacing2, lineWidth
-                + halfMinorSpacing2, lineWidth + halfMajorSpacing1, lineWidth
-                + halfMinorSpacing1);
+        info.addMargins(lineWidth + halfMajorSpacing2,
+                lineWidth + halfMinorSpacing2, lineWidth + halfMajorSpacing1,
+                lineWidth + halfMinorSpacing1);
     }
 
     protected void invalidateBranch(IBranchPart branch) {
@@ -199,9 +201,8 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
         int width = chart.getRowHeadWidth();
         Point topLeft = branch.getTopicPart().getFigure().getBounds()
                 .getBottomLeft();
-        Rectangle r = new Rectangle(topLeft.x, topLeft.y, width, branchFigure
-                .getBounds().bottom()
-                - topLeft.y);
+        Rectangle r = new Rectangle(topLeft.x, topLeft.y, width,
+                branchFigure.getBounds().bottom() - topLeft.y);
         if (!branch.getSubBranches().isEmpty() && !branch.isFolded()) {
             if (r.contains(pos))
                 return 1;
@@ -214,17 +215,13 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
         return -1;
     }
 
-    public int calcChildIndex(IBranchPart branch, ParentSearchKey key) {
-        return calcInsIndex(branch, key, false);
-    }
-
     public IInsertion calcInsertion(IBranchPart branch, ParentSearchKey key) {
         int newIndex = calcInsIndex(branch, key, true);
         Dimension newSize = calcInsSize(key.getFigure());
         return new Insertion(branch, newIndex, newSize);
     }
 
-    private int calcInsIndex(IBranchPart branch, ParentSearchKey key,
+    protected int calcInsIndex(IBranchPart branch, ParentSearchKey key,
             boolean withDisabled) {
         if (branch.getSubBranches().isEmpty() || branch.isFolded())
             return withDisabled ? 0 : -1;
@@ -302,7 +299,8 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
         return true;
     }
 
-    private void handleDoubleClickInColumnHead(Chart chart, ColumnHead colHead) {
+    private void handleDoubleClickInColumnHead(Chart chart,
+            ColumnHead colHead) {
         IBranchPart chartBranch = chart.getTitle();
         EditDomain domain = chartBranch.getSite().getDomain();
         if (domain != null) {
@@ -312,13 +310,15 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
                 editTool.setTargetViewer(chartBranch.getSite().getViewer());
                 domain.setActiveTool(Spreadsheet.TOOL_EDIT_COLUMN_HEAD);
                 if (domain.getActiveTool() == editTool) {
-                    domain.handleRequest(new Request(GEF.REQ_EDIT)
-                            .setPrimaryTarget(chartBranch).setViewer(
-                                    chartBranch.getSite().getViewer())
+                    domain.handleRequest(
+                            new Request(GEF.REQ_EDIT)
+                                    .setPrimaryTarget(chartBranch)
+                                    .setViewer(
+                                            chartBranch.getSite().getViewer())
                             .setParameter(Spreadsheet.PARAM_CHART, chart)
                             .setParameter(Spreadsheet.PARAM_COLUMN_HEAD,
-                                    colHead).setParameter(
-                                    Spreadsheet.PARAM_COLUMN,
+                                    colHead)
+                            .setParameter(Spreadsheet.PARAM_COLUMN,
                                     chart.findColumn(colHead)));
                 }
             }
@@ -364,8 +364,8 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
         Chart chart = getChart(branch);
         IInsertion colIns = (IInsertion) MindMapUtils.getCache(branch,
                 Spreadsheet.CACHE_COLUMN_INSERTION);
-        int insWidth = colIns == null ? 0 : colIns.getSize().width
-                + chart.getMinorSpacing();
+        int insWidth = colIns == null ? 0
+                : colIns.getSize().width + chart.getMinorSpacing();
         List<Column> cols = chart.getColumns();
         int lineWidth = chart.getLineWidth();
         int x = chart.getTitle().getFigure().getBounds().x + lineWidth
@@ -389,5 +389,52 @@ public class SpreadsheetStructure extends AbstractBranchStructure implements
         if (direction == PositionConstants.NORTH)
             return -1;
         return super.getQuickMoveOffset(branch, child, direction);
+    }
+
+    protected Point calcInsertPosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+
+        int index = calcInsIndex(branch, key, true);
+
+        IBranchPart sub = index == subBranches.size()
+                ? subBranches.get(subBranches.size() - 1)
+                : subBranches.get(index);
+
+        int deltaY = (key.getFigure().getSize().height
+                + sub.getFigure().getSize().height) / 2;
+
+        return getFigureLocation(sub.getFigure())
+                .getTranslated(
+                        (key.getInvent().getSize().width - sub.getTopicPart()
+                                .getFigure().getSize().width) / 2,
+                index == subBranches.size()
+                        ? deltaY + getMajorSpacing(branch) / 2 : -deltaY);
+    }
+
+    protected Point calcMovePosition(IBranchPart branch, IBranchPart child,
+            ParentSearchKey key) {
+        List<IBranchPart> subBranches = branch.getSubBranches();
+        List<Integer> disables = getDisableBranches(branch);
+
+        int index = calcInsIndex(branch, key, true);
+        int oldIndex = getOldIndex(branch, child);
+        if (disables != null) {
+            if (disables.contains(index - 1)) {
+                index--;
+                oldIndex = index;
+            } else if (disables.contains(index)) {
+                oldIndex = index;
+            }
+        }
+        Dimension inventSize = key.getInvent().getSize();
+
+        if (index == oldIndex)
+            return getFigureLocation(subBranches.get(index).getFigure())
+                    .getTranslated((inventSize.width - subBranches.get(index)
+                            .getTopicPart().getFigure().getSize().width) / 2,
+                            0);
+
+        return calcInsertPosition(branch, child, key);
     }
 }

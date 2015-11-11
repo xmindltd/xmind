@@ -41,21 +41,30 @@ public class FrameDecorator extends Decorator {
         Properties properties = viewer.getProperties();
         IBaseLabelProvider labelProvider = (IBaseLabelProvider) viewer
                 .getAdapter(IBaseLabelProvider.class);
+
         boolean hideTitle = properties.getBoolean(GalleryViewer.HideTitle,
                 false);
         frame.setHideTitle(hideTitle);
 
         boolean flat = properties.getBoolean(GalleryViewer.FlatFrames, false);
         frame.setFlat(flat);
-        frame.setContentSize((Dimension) properties
-                .get(GalleryViewer.FrameContentSize));
+        frame.setContentSize(
+                (Dimension) properties.get(GalleryViewer.FrameContentSize));
 
-        int titlePlacement = properties.getInteger(
-                GalleryViewer.TitlePlacement,
+        int titlePlacement = properties.getInteger(GalleryViewer.TitlePlacement,
                 GalleryViewer.TITLE_TOP.intValue());
         frame.setTitlePlacement(titlePlacement);
         if (!hideTitle) {
             decorateTitle(frame.getTitle(), model, labelProvider);
+        }
+
+        boolean useCustomDecorator = properties
+                .getBoolean(GalleryViewer.CustomContentPaneDecorator, false);
+        if (useCustomDecorator && labelProvider instanceof ILabelDecorator) {
+            IDecorationContext context = viewer instanceof IDecorationContext
+                    ? (IDecorationContext) viewer : null;
+            ((ILabelDecorator) labelProvider)
+                    .decorateFigure(frame.getContentPane(), model, context);
         }
 
         if (labelProvider instanceof IGraphicalToolTipProvider) {

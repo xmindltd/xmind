@@ -37,12 +37,6 @@ public interface IMindMapCommandConstants {
      */
     public static final String STYLE_RENAME = "org.xmind.ui.command.style.rename"; //$NON-NLS-1$
 
-    /**
-     * Id for command "Edit" in category "Style" (value is
-     * <code>org.xmind.ui.command.style.rename</code>).
-     */
-    public static final String STYLE_EDIT = "org.xmind.ui.command.style.edit"; //$NON-NLS-1$
-
     /*
      * ===================== Command Parameters ====================
      */

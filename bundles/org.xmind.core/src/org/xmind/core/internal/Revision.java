@@ -20,11 +20,8 @@ import org.xmind.core.IRevision;
  * @author Frank Shaka
  * 
  */
-public abstract class Revision implements IRevision {
-
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
+public abstract class Revision extends AbstractWorkbookComponent
+        implements IRevision {
 
     /*
      * (non-Javadoc)

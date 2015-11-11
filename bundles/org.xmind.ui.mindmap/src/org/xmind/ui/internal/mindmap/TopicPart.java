@@ -27,9 +27,11 @@ import org.xmind.core.Core;
 import org.xmind.core.IImage;
 import org.xmind.core.INumbering;
 import org.xmind.core.IRelationship;
+import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
+import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerRef;
@@ -48,6 +50,7 @@ import org.xmind.gef.policy.NullEditPolicy;
 import org.xmind.gef.ui.actions.ActionRegistry;
 import org.xmind.gef.ui.actions.IActionRegistry;
 import org.xmind.ui.internal.IconTipContributorManager;
+import org.xmind.ui.internal.InfoItemContributorManager;
 import org.xmind.ui.internal.decorators.TopicDecorator;
 import org.xmind.ui.internal.figures.TopicFigure;
 import org.xmind.ui.internal.graphicalpolicies.TopicGraphicalPolicy;
@@ -57,6 +60,7 @@ import org.xmind.ui.mindmap.IConnectionPart;
 import org.xmind.ui.mindmap.IIconTipContributor;
 import org.xmind.ui.mindmap.IIconTipPart;
 import org.xmind.ui.mindmap.IImagePart;
+import org.xmind.ui.mindmap.IInfoItemContributor;
 import org.xmind.ui.mindmap.IMarkerPart;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.INumberingPart;
@@ -211,6 +215,10 @@ public class TopicPart extends NodePart implements ITopicPart {
             reqHandler.installEditPolicy(GEF.ROLE_MOVABLE,
                     MindMapUI.POLICY_TOPIC_MOVABLE);
         }
+        if (isCentral()) {
+            reqHandler.installEditPolicy(GEF.ROLE_MAP_MOVABLE,
+                    MindMapUI.POLICY_MAP_MOVABLE);
+        }
     }
 
     private boolean isCentral() {
@@ -307,7 +315,6 @@ public class TopicPart extends NodePart implements ITopicPart {
 
     protected void register() {
         registerModel(getTopic());
-//        System.out.println(getTopic().getTitleText());
         super.register();
     }
 
@@ -352,13 +359,42 @@ public class TopicPart extends NodePart implements ITopicPart {
     private void addIconTips(ITopic topic, List<Object> list) {
         List<IIconTipContributor> contributors = IconTipContributorManager
                 .getInstance().getContributors();
-        if (contributors.isEmpty())
-            return;
+        if (!contributors.isEmpty()) {
+            for (IIconTipContributor contributor : contributors) {
+                IAction action = contributor.createAction(this, topic);
+                if (action != null) {
+                    list.add(new IconTip(topic, contributor, action));
+                }
+            }
+        }
 
-        for (IIconTipContributor contributor : contributors) {
-            IAction action = contributor.createAction(this, topic);
-            if (action != null) {
-                list.add(new IconTip(topic, contributor, action));
+        List<IInfoItemContributor> contributors2 = InfoItemContributorManager
+                .getInstance().getContributors();
+        if (!contributors2.isEmpty()) {
+            for (IInfoItemContributor contributor : contributors2) {
+                IAction action = contributor.createAction(this, topic);
+                if (action != null)
+                    list.add(new IconTip(topic, contributor, action));
+            }
+        }
+
+        List<IInfoItemContributor> bothContributors = InfoItemContributorManager
+                .getInstance().getBothContributors();
+        if (!bothContributors.isEmpty()) {
+            ISheet sheet = topic.getOwnedSheet();
+            if (sheet != null) {
+                for (IInfoItemContributor contributor : bothContributors) {
+                    String infoItemMode = sheet.getSetting().getInfoItemMode(
+                            contributor.getId(), DOMConstants.ATTR_MODE);
+                    if (infoItemMode == null || "".equals(infoItemMode)) //$NON-NLS-1$
+                        infoItemMode = contributor.getDefaultMode();
+                    if (DOMConstants.VAL_ICONMODE.equals(infoItemMode)
+                            || !contributor.isCardModeAvailable(topic, this)) {
+                        IAction action = contributor.createAction(this, topic);
+                        if (action != null)
+                            list.add(new IconTip(topic, contributor, action));
+                    }
+                }
             }
         }
     }
@@ -420,6 +456,7 @@ public class TopicPart extends NodePart implements ITopicPart {
                 register.register(Core.NumberingPrefix);
                 register.register(Core.NumberingSuffix);
                 register.register(Core.NumberPrepending);
+                register.register(Core.NumberingSeparator);
             }
         }
 
@@ -445,7 +482,8 @@ public class TopicPart extends NodePart implements ITopicPart {
         } else if (Core.NumberFormat.equals(type)
                 || Core.NumberingPrefix.equals(type)
                 || Core.NumberingSuffix.equals(type)
-                || Core.NumberPrepending.equals(type)) {
+                || Core.NumberPrepending.equals(type)
+                || Core.NumberingSeparator.equals(type)) {
             treeRefresh();
         } else {
             super.handleCoreEvent(event);
@@ -462,6 +500,12 @@ public class TopicPart extends NodePart implements ITopicPart {
                     ((TopicPart) child).treeRefresh();
                 }
             }
+            for (IBranchPart sub : branch.getCalloutBranches()) {
+                ITopicPart child = sub.getTopicPart();
+                if (child instanceof TopicPart) {
+                    ((TopicPart) child).treeRefresh();
+                }
+            }
         }
     }
 
@@ -471,9 +515,25 @@ public class TopicPart extends NodePart implements ITopicPart {
                 .getInstance().getContributors()) {
             iconTipCont.topicActivated(this);
         }
+
+        for (IInfoItemContributor infoItemCont : InfoItemContributorManager
+                .getInstance().getContributors())
+            infoItemCont.topicActivated(this);
+
+        for (IInfoItemContributor infoItemCont : InfoItemContributorManager
+                .getInstance().getBothContributors())
+            infoItemCont.topicActivated(this);
     }
 
     protected void onDeactivated() {
+        for (IInfoItemContributor infoItemCont : InfoItemContributorManager
+                .getInstance().getContributors())
+            infoItemCont.topicDeactivated(this);
+
+        for (IInfoItemContributor infoItemCont : InfoItemContributorManager
+                .getInstance().getBothContributors())
+            infoItemCont.topicDeactivated(this);
+
         for (IIconTipContributor iconTipCont : IconTipContributorManager
                 .getInstance().getContributors()) {
             iconTipCont.topicDeactivated(this);
@@ -486,12 +546,22 @@ public class TopicPart extends NodePart implements ITopicPart {
         for (IIconTipPart iconTip : getIconTips()) {
             iconTip.refresh();
         }
+        if (getParent() instanceof BranchPart) {
+            BranchPart branch = (BranchPart) getParent();
+            if (branch.getInfoPart() != null)
+                branch.getInfoPart().refresh();
+        }
     }
 
     public void update() {
         super.update();
         for (IIconTipPart iconTip : getIconTips()) {
             iconTip.update();
+        }
+        if (getParent() instanceof BranchPart) {
+            BranchPart branch = (BranchPart) getParent();
+            if (branch.getInfoPart() != null)
+                branch.getInfoPart().update();
         }
     }
 
@@ -616,11 +686,17 @@ public class TopicPart extends NodePart implements ITopicPart {
         IBranchPart branch = getOwnerBranch();
         if (branch != null) {
             branch.getConnections().rerouteAll(branch.getFigure());
+            branch.getCalloutConnections().rerouteAll(branch.getFigure());
 
             IBranchPart parentBranch = branch.getParentBranch();
             if (parentBranch != null) {
-                IDecoration decoration = parentBranch.getConnections()
-                        .getDecoration(branch.getBranchIndex());
+                IDecoration decoration = null;
+                if (MindMapUI.BRANCH_CALLOUT.equals(branch.getBranchType())) {
+                    decoration = parentBranch.getCalloutConnections()
+                            .getDecoration(branch.getBranchIndex());
+                } else
+                    decoration = parentBranch.getConnections().getDecoration(
+                            branch.getBranchIndex());
                 if (decoration instanceof IConnectionDecoration) {
                     ((IConnectionDecoration) decoration).reroute(parentBranch
                             .getFigure());
@@ -635,11 +711,11 @@ public class TopicPart extends NodePart implements ITopicPart {
     }
 
     public String getNumberingText() {
-        return MindMapUtils.getNumberingText(getTopic(), null);
+        return MindMapUtils.getNumberingText(getTopic(), null, null);
     }
 
     public String getFullNumberingText() {
-        return MindMapUtils.getFullNumberingText(getTopic(), null);
+        return MindMapUtils.getFullNumberingText(getTopic(), null, null);
     }
 
 }

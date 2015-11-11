@@ -17,17 +17,19 @@ import org.xmind.core.INamed;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerRef;
 
-public abstract class MarkerRef implements IMarkerRef {
+public abstract class MarkerRef extends AbstractWorkbookComponent
+        implements IMarkerRef {
 
     public Object getAdapter(Class adapter) {
         if (adapter == INamed.class)
             return getMarker();
-        return null;
+
+        return super.getAdapter(adapter);
     }
 
     public String getDescription() {
-        String description = getOwnedSheet().getLegend().getMarkerDescription(
-                getMarkerId());
+        String description = getOwnedSheet().getLegend()
+                .getMarkerDescription(getMarkerId());
         if (description != null)
             return description;
         IMarker marker = getMarker();

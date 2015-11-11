@@ -15,21 +15,28 @@ package org.xmind.ui.internal.tools;
 
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.UpdateManager;
+import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.GEF;
 import org.xmind.gef.Request;
+import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.draw2d.IReferencedFigure;
+import org.xmind.gef.draw2d.decoration.PathShapeDecoration;
+import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.gef.event.DragDropEvent;
 import org.xmind.gef.event.KeyEvent;
 import org.xmind.gef.event.MouseEvent;
 import org.xmind.gef.graphicalpolicy.IStructure;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.tool.GraphicalTool;
+import org.xmind.ui.branch.IInsertableBranchStructureExtension;
 import org.xmind.ui.branch.ILockableBranchStructureExtension;
 import org.xmind.ui.branch.IMovableBranchStructureExtension;
 import org.xmind.ui.mindmap.IBranchPart;
@@ -43,9 +50,26 @@ import org.xmind.ui.tools.ParentSearcher;
 
 public class MindMapDndTool extends GraphicalTool {
 
+    private class RoundedRectDecoration extends PathShapeDecoration {
+
+        public Insets getPreferredInsets(IFigure figure, int width, int height) {
+            int lineWidth = getLineWidth();
+            return new Insets(lineWidth, lineWidth, lineWidth, lineWidth);
+        }
+
+        @Override
+        protected void sketch(IFigure figure, Path shape, Rectangle box,
+                int purpose) {
+            shape.addRoundedRectangle(box, 5);
+        }
+
+    }
+
     private static ITopicMoveToolHelper defaultHelper = null;
 
     private BranchDummy dummy = null;
+
+    private IFigure invent = null;
 
     private IBranchPart targetParent = null;
 
@@ -59,17 +83,11 @@ public class MindMapDndTool extends GraphicalTool {
 
     private Request request = null;
 
-    private Image image = null;
-
     protected boolean acceptEvent(DragDropEvent de) {
         return true;
     }
 
     protected boolean handleDragStarted(DragDropEvent de) {
-        if (image != null) {
-            image.dispose();
-            image = null;
-        }
         targetParent = null;
         request = null;
         insideTopicAllowed = isInsideTopicAllowed(de);
@@ -122,6 +140,38 @@ public class MindMapDndTool extends GraphicalTool {
         dummy.getBranch().refresh();
     }
 
+    public IFigure getInvent() {
+        return invent;
+    }
+
+    private void doCreateInvent() {
+        if (invent != null)
+            return;
+
+        invent = createInvent();
+    }
+
+    private IFigure createInvent() {
+        DecoratedShapeFigure figure = new DecoratedShapeFigure();
+
+        figure.setSize(60, 15);
+        figure.setDecoration(new RoundedRectDecoration());
+
+        Layer layer = getTargetViewer().getLayer(GEF.LAYER_PRESENTATION);
+        if (layer != null)
+            layer.add(figure);
+
+        return figure;
+    }
+
+    private void destroyInvent() {
+        if (invent != null) {
+            if (invent.getParent() != null)
+                invent.getParent().remove(invent);
+            invent = null;
+        }
+    }
+
     protected boolean isInsideTopicAllowed(DragDropEvent de) {
         return true;
     }
@@ -134,6 +184,9 @@ public class MindMapDndTool extends GraphicalTool {
                         getCursorPosition());
                 key.setFeedback(dummy.getBranch());
                 targetParent = updateTargetParent();
+                if (invent == null)
+                    doCreateInvent();
+                key.setInvent(invent);
                 updateWithParent(targetParent);
                 return true;
             }
@@ -153,6 +206,45 @@ public class MindMapDndTool extends GraphicalTool {
 
     private void updateDummyWithParent(IBranchPart parent) {
         updateDummyPosition(getCursorPosition());
+        updateInventPosition(getCursorPosition());
+        updateInventVisible(parent);
+    }
+
+    private void updateInventVisible(IBranchPart parent) {
+        if (invent != null)
+            invent.setVisible(parent != null);
+    }
+
+    private void updateInventPosition(Point cursorPosition) {
+        IFigure fig = getInvent();
+        Point pos = new Point();
+        if (fig != null) {
+            if (targetParent != null && key != null) {
+                pos = calcInsertionPosition(targetParent, key);
+            }
+
+            if (fig instanceof IReferencedFigure)
+                ((IReferencedFigure) fig).setReference(pos);
+            else
+                fig.setLocation(pos);
+
+        }
+    }
+
+    private Point calcInsertionPosition(IBranchPart parent, ParentSearchKey key) {
+        UpdateManager um = key.getFigure().getUpdateManager();
+        if (um != null)
+            um.performValidation();
+
+        if (parent != null) {
+            IStructure structure = parent.getBranchPolicy()
+                    .getStructure(parent);
+            if (structure instanceof IInsertableBranchStructureExtension)
+                return ((IInsertableBranchStructureExtension) structure)
+                        .calcInsertionPosition(parent, null, key);
+        }
+
+        return new Point();
     }
 
     protected void updateDummyPosition(Point pos) {
@@ -203,6 +295,7 @@ public class MindMapDndTool extends GraphicalTool {
         if (acceptEvent(de)) {
             request = createRequest(de);
             destroyDummy();
+            destroyInvent();
             changeActiveTool(GEF.TOOL_DEFAULT);
             return true;
         }
@@ -256,19 +349,14 @@ public class MindMapDndTool extends GraphicalTool {
         unlockBranchStructures(getTargetViewer().getRootPart());
         ITopicMoveToolHelper oldHelper = this.helper;
         BranchDummy oldDummy = this.dummy;
-        Image oldImage = this.image;
         if (oldHelper != null) {
             oldHelper.deactivate(getDomain(), getTargetViewer());
         }
         if (oldDummy != null) {
             oldDummy.dispose();
         }
-        if (oldImage != null) {
-            oldImage.dispose();
-        }
         this.helper = null;
         this.dummy = null;
-        this.image = null;
     }
 
     protected boolean handleDrop(DragDropEvent de) {
@@ -306,6 +394,7 @@ public class MindMapDndTool extends GraphicalTool {
     protected boolean handleKeyTraversed(KeyEvent ke) {
         if (ke.traverse == SWT.TRAVERSE_ESCAPE) {
             destroyDummy();
+            destroyInvent();
             changeActiveTool(GEF.TOOL_DEFAULT);
             ke.consume();
             return true;
@@ -326,6 +415,7 @@ public class MindMapDndTool extends GraphicalTool {
         if (mouseDown) {
             mouseDown = false;
             destroyDummy();
+            destroyInvent();
             changeActiveTool(GEF.TOOL_DEFAULT);
             return true;
         }

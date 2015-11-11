@@ -13,21 +13,23 @@
  *******************************************************************************/
 package net.xmind.workbench.internal;
 
-import net.xmind.workbench.internal.notification.SiteEventNotificationService;
-
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
 
-public class XMindNetWorkbenchServiceCenter implements IStartup,
-        IWorkbenchListener {
+import net.xmind.workbench.internal.notification.SiteEventNotificationService;
+
+public class XMindNetWorkbenchServiceCenter
+        implements IStartup, IWorkbenchListener {
 
     private static XMindNetWorkbenchServiceCenter INSTANCE = null;
 
     private SiteEventNotificationService eventService = null;
 
     private NewsletterSubscriptionReminder newsletterSubscriptionReminder = null;
+
+    private XMindNetEvaluationHelper evaluationHelper = null;
 
     public void earlyStartup() {
         INSTANCE = this;
@@ -55,9 +57,17 @@ public class XMindNetWorkbenchServiceCenter implements IStartup,
         newsletterSubscriptionReminder = new NewsletterSubscriptionReminder(
                 workbench);
         newsletterSubscriptionReminder.start();
+
+        if (evaluationHelper == null) {
+            evaluationHelper = new XMindNetEvaluationHelper(workbench);
+        }
     }
 
     private void stopServices() {
+        if (evaluationHelper != null) {
+            evaluationHelper.shutdown();
+            evaluationHelper = null;
+        }
         if (newsletterSubscriptionReminder != null) {
             newsletterSubscriptionReminder.stop();
             newsletterSubscriptionReminder = null;

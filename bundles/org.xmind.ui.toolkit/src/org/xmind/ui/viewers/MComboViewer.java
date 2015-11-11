@@ -215,8 +215,8 @@ public class MComboViewer extends StructuredViewer {
     protected void selectLast() {
         if (hasNoElement())
             return;
-        setSelection(new StructuredSelection(elementList
-                .get(getItemCount() - 1)));
+        setSelection(new StructuredSelection(
+                elementList.get(getItemCount() - 1)));
     }
 
     protected boolean hasNoElement() {
@@ -431,6 +431,18 @@ public class MComboViewer extends StructuredViewer {
 
     public Object getCurrentSelection() {
         return selection;
+    }
+
+    public PopupFilteredList getPopupList() {
+        return popupList;
+    }
+
+    public Menu getMenu() {
+        return popupMenu == null ? null : popupMenu.getMenu();
+    }
+
+    public void open() {
+        openPopup();
     }
 
     protected void openPopup() {
@@ -703,6 +715,58 @@ public class MComboViewer extends StructuredViewer {
         if (oldLabelProvider != null) {
             oldLabelProvider.dispose();
         }
+    }
+
+    public void setHandlePaddings(int leftPadding, int topPadding,
+            int rightPadding, int bottomPadding) {
+        if (dropDownHandle != null) {
+            dropDownHandle.setPaddings(leftPadding, topPadding, rightPadding,
+                    bottomPadding);
+        }
+    }
+
+    public void setHandleHorizontalPaddings(int leftPadding, int rightPadding) {
+        if (dropDownHandle != null) {
+            dropDownHandle.setHorizontalPaddings(leftPadding, rightPadding);
+        }
+    }
+
+    public void setHandleVerticalPaddings(int topPadding, int bottomPadding) {
+        if (dropDownHandle != null) {
+            dropDownHandle.setVerticalPaddings(topPadding, bottomPadding);
+        }
+    }
+
+    public int getHandleLeftPadding() {
+        int leftPadding = 0;
+        if (dropDownHandle != null) {
+            leftPadding = dropDownHandle.getLeftPadding();
+        }
+        return leftPadding;
+    }
+
+    public int getHandleTopPadding() {
+        int topPadding = 0;
+        if (dropDownHandle != null) {
+            topPadding = dropDownHandle.getTopPadding();
+        }
+        return topPadding;
+    }
+
+    public int getHandleRightPadding() {
+        int rightPadding = 0;
+        if (dropDownHandle != null) {
+            rightPadding = dropDownHandle.getRightPadding();
+        }
+        return rightPadding;
+    }
+
+    public int getHandleBottomPadding() {
+        int bottomPadding = 0;
+        if (dropDownHandle != null) {
+            bottomPadding = dropDownHandle.getBottomPadding();
+        }
+        return bottomPadding;
     }
 
 }

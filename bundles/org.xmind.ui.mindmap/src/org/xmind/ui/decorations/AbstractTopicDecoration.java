@@ -17,8 +17,11 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Insets;
+import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.decoration.IShadowedDecoration;
 import org.xmind.gef.draw2d.decoration.PathShapeDecoration;
+import org.xmind.gef.draw2d.graphics.Path;
 
 public abstract class AbstractTopicDecoration extends PathShapeDecoration
         implements ITopicDecoration, IShadowedDecoration {
@@ -54,8 +57,9 @@ public abstract class AbstractTopicDecoration extends PathShapeDecoration
     }
 
     public Insets getPreferredInsets(IFigure figure, int width, int height) {
-        return new Insets(getTopMargin() + getLineWidth(), getLeftMargin()
-                + getLineWidth(), getBottomMargin() + getLineWidth(),
+        return new Insets(getTopMargin() + getLineWidth(),
+                getLeftMargin() + getLineWidth(),
+                getBottomMargin() + getLineWidth(),
                 getRightMargin() + getLineWidth());
     }
 
@@ -119,6 +123,15 @@ public abstract class AbstractTopicDecoration extends PathShapeDecoration
             figure.revalidate();
             repaint(figure);
         }
+    }
+
+    public Path createClippingPath(IFigure figure) {
+        Path shape = new Path(Display.getCurrent());
+        Rectangle box = getOutlineBox(figure);
+        sketch(figure, shape, box, FILL);
+        shape.close();
+
+        return shape;
     }
 
 }

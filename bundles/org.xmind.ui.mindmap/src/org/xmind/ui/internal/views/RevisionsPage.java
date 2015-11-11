@@ -14,25 +14,20 @@
 
 package org.xmind.ui.internal.views;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.draw2d.FigureCanvas;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.action.GroupMarker;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -46,29 +41,23 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.Page;
 import org.xmind.core.Core;
 import org.xmind.core.IRevision;
 import org.xmind.core.IRevisionManager;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
-import org.xmind.core.IWorkbook;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.dom.SheetImpl;
-import org.xmind.gef.command.Command;
-import org.xmind.gef.command.CompoundCommand;
-import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
-import org.xmind.ui.commands.AddSheetCommand;
-import org.xmind.ui.commands.DeleteRevisionCommand;
-import org.xmind.ui.commands.DeleteSheetCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.actions.ActionConstants;
 import org.xmind.ui.internal.dialogs.RevisionPreviewDialog;
+import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.TextFormatter;
 import org.xmind.ui.viewers.SWTUtils;
 
@@ -76,20 +65,21 @@ import org.xmind.ui.viewers.SWTUtils;
  * @author Frank Shaka
  * 
  */
-public class RevisionsPage extends Page implements ICoreEventListener,
-        IAdaptable {
+public class RevisionsPage extends Page
+        implements ICoreEventListener, IAdaptable {
 
     /**
      * @author Frank Shaka
      * 
      */
-    public static class RevisionContentProvider implements
-            IStructuredContentProvider {
+    public static class RevisionContentProvider
+            implements IStructuredContentProvider {
 
         public void dispose() {
         }
 
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        public void inputChanged(Viewer viewer, Object oldInput,
+                Object newInput) {
         }
 
         public Object[] getElements(Object inputElement) {
@@ -98,8 +88,8 @@ public class RevisionsPage extends Page implements ICoreEventListener,
 
     }
 
-    private static class RevisionNumberLabelProvider extends
-            ColumnLabelProvider {
+    private static class RevisionNumberLabelProvider
+            extends ColumnLabelProvider {
 
         @Override
         public String getText(Object element) {
@@ -137,158 +127,12 @@ public class RevisionsPage extends Page implements ICoreEventListener,
 
     }
 
-    private class RemoveRevisionAction extends Action implements
-            ISelectionChangedListener {
-
-        private List<IRevision> revisionsToRemove = new ArrayList<IRevision>();
-
-        public RemoveRevisionAction() {
-            setId(ActionConstants.REMOVE_REVISION_ID);
-            setEnabled(false);
-        }
-
-        public void selectionChanged(SelectionChangedEvent event) {
-            ISelection selection = event.getSelection();
-            revisionsToRemove.clear();
-            if (!selection.isEmpty()
-                    && selection instanceof IStructuredSelection) {
-                Iterator it = ((IStructuredSelection) selection).iterator();
-                while (it.hasNext()) {
-                    Object element = it.next();
-                    if (element instanceof IRevision) {
-                        revisionsToRemove.add((IRevision) element);
-                    }
-                }
-            }
-            setEnabled(!revisionsToRemove.isEmpty());
-        }
-
-        @Override
-        public void run() {
-            if (revisionsToRemove.isEmpty())
-                return;
-            List<Command> commands = new ArrayList<Command>(
-                    revisionsToRemove.size());
-            for (IRevision revision : revisionsToRemove) {
-                commands.add(new DeleteRevisionCommand(revision));
-            }
-            String label;
-            if (revisionsToRemove.size() > 1) {
-                label = MindMapMessages.DeleteMultipleRevisionsCommand_label;
-            } else {
-                label = MindMapMessages.DeleteSingleRevisionCommand_label;
-            }
-            Command command = new CompoundCommand(label, commands);
-            ICommandStack commandStack = (ICommandStack) source
-                    .getParentEditor().getAdapter(ICommandStack.class);
-            if (commandStack != null) {
-                commandStack.execute(command);
-            } else {
-                command.execute();
-            }
-        }
-
-    }
-
-    private class RevertToRevisionAction extends Action implements
-            ISelectionChangedListener {
-
-        private IRevision revision = null;
-
-        public RevertToRevisionAction() {
-            setId(ActionConstants.REVERT_TO_REVISION_ID);
-            setEnabled(false);
-        }
-
-        public void selectionChanged(SelectionChangedEvent event) {
-            ISelection selection = event.getSelection();
-            this.revision = null;
-            if (selection instanceof IStructuredSelection) {
-                IStructuredSelection ss = (IStructuredSelection) selection;
-                if (ss.size() == 1) {
-                    Object element = ss.getFirstElement();
-                    if (element instanceof IRevision) {
-                        this.revision = (IRevision) element;
-                    }
-                }
-            }
-            setEnabled(this.revision != null);
-        }
-
-        @Override
-        public void run() {
-            if (revision == null)
-                return;
-
-            final IRevisionManager manager = revision.getOwnedManager();
-            IRevision latestRevision = manager.getLatestRevision();
-            if (latestRevision == null
-                    || sheet.getModifiedTime() > latestRevision.getTimestamp()) {
-                SafeRunner.run(new SafeRunnable() {
-                    public void run() throws Exception {
-                        manager.addRevision(sheet);
-                    }
-                });
-            }
-
-            final IWorkbook workbook = sheet.getOwnedWorkbook();
-            final ISheet targetSheet = (ISheet) workbook.importElement(revision
-                    .getContent());
-            if (targetSheet == null)
-                return;
-
-            if (targetSheet instanceof SheetImpl) {
-                ((SheetImpl) targetSheet).updateModifiedTime();
-            }
-            final int index = sheet.getIndex();
-            List<Command> commands = new ArrayList<Command>(2);
-            ISheet placeholderSheet = workbook.createSheet();
-            commands.add(new AddSheetCommand(placeholderSheet, workbook));
-            commands.add(new DeleteSheetCommand(sheet));
-            commands.add(new AddSheetCommand(targetSheet, workbook, index));
-            commands.add(new DeleteSheetCommand(placeholderSheet, workbook));
-            Command command = new CompoundCommand(
-                    MindMapMessages.RevertToRevisionCommand_label, commands);
-            ICommandStack commandStack = (ICommandStack) source
-                    .getParentEditor().getAdapter(ICommandStack.class);
-            if (commandStack != null) {
-                commandStack.execute(command);
-            } else {
-                command.execute();
-            }
-        }
-    }
-
-    private class PreviewRevisionAction extends Action implements
-            ISelectionChangedListener {
-
-        private ISelection selection;
-
-        public PreviewRevisionAction() {
-            setId(ActionConstants.PREVIEW_REVISIONS);
-            setEnabled(false);
-        }
-
-        public void selectionChanged(SelectionChangedEvent event) {
-            this.selection = event.getSelection();
-            setEnabled(!this.selection.isEmpty());
-        }
-
-        @Override
-        public void run() {
-            handleOpen(selection);
-        }
-    }
-
-    private IGraphicalEditorPage source;
-
     private ISheet sheet;
 
     private Control control;
 
     private TableViewer viewer;
 
-//    private Label titleLabel;
     private RotatableWrapLabel titleLabel;
 
     private IRevisionManager revisionManager;
@@ -297,13 +141,12 @@ public class RevisionsPage extends Page implements ICoreEventListener,
 
     private ICoreEventRegister topicEventRegister = new CoreEventRegister(this);
 
-    private List<IAction> actions = new ArrayList<IAction>(3);
+    private MenuManager popupMenuManager;
 
     /**
      * 
      */
     public RevisionsPage(IGraphicalEditorPage source) {
-        this.source = source;
         this.sheet = (ISheet) source.getInput();
         this.revisionManager = this.sheet.getOwnedWorkbook()
                 .getRevisionRepository()
@@ -326,15 +169,14 @@ public class RevisionsPage extends Page implements ICoreEventListener,
         gridLayout.horizontalSpacing = 0;
         composite.setLayout(gridLayout);
 
-//        Control control = createTitleLabel(composite);
-//        control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         createTitleLabel(composite);
 
         Label separator = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
         separator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-        Control control2 = createViewer(composite);
-        control2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        Control viewerControl = createViewer(composite);
+        viewerControl
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         setControl(composite);
 
@@ -342,10 +184,16 @@ public class RevisionsPage extends Page implements ICoreEventListener,
 
         getSite().setSelectionProvider(viewer);
 
-        addAction(new RemoveRevisionAction());
-        addAction(new RevertToRevisionAction());
-        addAction(new PreviewRevisionAction());
-        getSite().getActionBars().updateActionBars();
+        popupMenuManager = new MenuManager("#popup"); //$NON-NLS-1$
+        popupMenuManager.add(new GroupMarker("start")); //$NON-NLS-1$
+        popupMenuManager
+                .add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        popupMenuManager.add(new GroupMarker("end")); //$NON-NLS-1$
+        getSite().registerContextMenu(MindMapUI.VIEW_REVISIONS,
+                popupMenuManager, viewer);
+        final Menu popupMenu = popupMenuManager
+                .createContextMenu(viewerControl);
+        viewerControl.setMenu(popupMenu);
 
         composite.addListener(SWT.Resize, new Listener() {
 
@@ -353,18 +201,6 @@ public class RevisionsPage extends Page implements ICoreEventListener,
                 titleLabel.setPrefWidth(composite.getSize().x);
             }
         });
-    }
-
-    private void addAction(IAction action) {
-        actions.add(action);
-        if (action.getId() != null) {
-            getSite().getActionBars().setGlobalActionHandler(action.getId(),
-                    action);
-        }
-        if (action instanceof ISelectionChangedListener) {
-            getSite().getSelectionProvider().addSelectionChangedListener(
-                    (ISelectionChangedListener) action);
-        }
     }
 
     private void setControl(Control control) {
@@ -384,8 +220,8 @@ public class RevisionsPage extends Page implements ICoreEventListener,
     }
 
     private Control createViewer(Composite parent) {
-        viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL
-                | SWT.V_SCROLL | SWT.FULL_SELECTION);
+        viewer = new TableViewer(parent,
+                SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
         viewer.getTable().setHeaderVisible(true);
         viewer.getTable().setLinesVisible(true);
         viewer.setContentProvider(new RevisionContentProvider());
@@ -418,6 +254,10 @@ public class RevisionsPage extends Page implements ICoreEventListener,
                 }
             }
         });
+
+        viewer.getControl().setToolTipText(
+                MindMapMessages.RevisionPage_ShowDetails_message);
+
         return viewer.getControl();
     }
 
@@ -443,14 +283,17 @@ public class RevisionsPage extends Page implements ICoreEventListener,
      */
     @Override
     public void dispose() {
-        for (IAction action : actions) {
-            if (action instanceof ISelectionChangedListener) {
-                getSite().getSelectionProvider()
-                        .removeSelectionChangedListener(
-                                (ISelectionChangedListener) action);
+        if (viewer != null) {
+            if (viewer.getControl() != null
+                    && !viewer.getControl().isDisposed()) {
+                viewer.getControl().setMenu(null);
             }
+            viewer = null;
         }
-        actions.clear();
+        if (popupMenuManager != null) {
+            popupMenuManager.dispose();
+            popupMenuManager = null;
+        }
         topicEventRegister.unregisterAll();
         coreEventRegister.unregisterAll();
         super.dispose();
@@ -479,18 +322,9 @@ public class RevisionsPage extends Page implements ICoreEventListener,
     private void viewRevision(IRevision revision) {
         List<IRevision> revisions = revisionManager.getRevisions();
         int index = revisions.indexOf(revision);
-        RevisionPreviewDialog dialog = new RevisionPreviewDialog(getSite()
-                .getShell(), sheet, revisions, index);
-//        if (Platform.OS_MACOSX.equals(Platform.getOS())) {
-//            Table table = viewer.getTable();
-//            Rectangle r = table.getItem(index).getBounds();
-//            Point p = table.toDisplay(r.x, r.y);
-//            final Rectangle sourceBounds = new Rectangle(p.x, p.y, r.width,
-//                    r.height);
-//            dialog.open(sourceBounds);
-//        } else {
+        RevisionPreviewDialog dialog = new RevisionPreviewDialog(
+                getSite().getShell(), sheet, revisions, index);
         dialog.open();
-//        }
     }
 
     /*
@@ -530,6 +364,7 @@ public class RevisionsPage extends Page implements ICoreEventListener,
                 .asyncExec(runnable);
     }
 
+    @SuppressWarnings("unchecked")
     public Object getAdapter(Class adapter) {
         if (adapter == ISelectionProvider.class)
             return viewer;
@@ -548,8 +383,8 @@ public class RevisionsPage extends Page implements ICoreEventListener,
     }
 
     private String getTitleText() {
-        String text = String
-                .format("%s (%s)", sheet.getTitleText(), sheet.getRootTopic().getTitleText()); //$NON-NLS-1$
+        String text = String.format("%s (%s)", sheet.getTitleText(), //$NON-NLS-1$
+                sheet.getRootTopic().getTitleText());
         return TextFormatter.removeNewLineCharacter(text);
     }
 

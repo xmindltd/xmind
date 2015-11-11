@@ -14,6 +14,8 @@
 
 package org.xmind.ui.internal.editor;
 
+import java.io.IOException;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -27,6 +29,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.xmind.core.CoreException;
 import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.mindmap.IMindMapImages;
@@ -390,6 +393,11 @@ public class EncryptionDailogPane extends DialogPane {
         IWorkbook workbook = ref.getWorkbook();
         if (workbook != null) {
             workbook.setPassword(password);
+            try {
+                workbook.saveTemp();
+            } catch (IOException e) {
+            } catch (CoreException e) {
+            }
         }
     }
 

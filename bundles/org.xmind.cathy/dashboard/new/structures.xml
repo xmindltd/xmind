@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<structure-list icon-width="225" icon-height="130">
+
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.map"
+		name="%map"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/mindmap.png"
+		value="org.xmind.ui.map.unbalanced" />
+		
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.map.uptodown"
+		name="%map_uptodown"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/map_uptodown.png"
+		value="org.xmind.ui.map" />
+	
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.map.clockwise"
+		name="%map_clockwise"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/map_clockwise.png"
+		value="org.xmind.ui.map.clockwise" />
+	
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.map.anticlockwise"
+		name="%map_anticlockwise"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/map_anticlockwise.png"
+		value="org.xmind.ui.map.anticlockwise" />
+
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.orgchart.uptodown"
+		name="%orgchart_uptodown"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/orgchart.png"
+		value="org.xmind.ui.org-chart.down" />
+		
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.orgchart.downtoup"
+		name="%orgchart_downtoup"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/orgchart_downtoup.png"
+		value="org.xmind.ui.org-chart.up" />
+
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.treechart.right"
+		name="%treechart_right"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/treechart.png"
+		value="org.xmind.ui.tree.right" />
+	
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.treechart.left"
+		name="%treechart_left"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/treechart_left.png"
+		value="org.xmind.ui.tree.left" />
+
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.logicchart.right"
+		name="%logicchart_right"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/logicchart.png"
+		value="org.xmind.ui.logic.right" />
+	
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.logicchart.left"
+		name="%logicchart_left"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/logicchart_left.png"
+		value="org.xmind.ui.logic.left" />
+		
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.timeline.horizontal"
+		name="%timeline_horizontal"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/timeline_horizontal.png"
+		value="org.xmind.ui.timeline.horizontal" />
+
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.timeline.vertical"
+		name="%timeline_vertical"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/timeline_vertical.png"
+		value="org.xmind.ui.timeline.vertical" />
+		
+		<structure
+		id="org.xmind.ui.part.dashboard.new.structures.fishbone.right"
+		name="%fishbone_right"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/fishbone_right.png"
+		value="org.xmind.ui.fishbone.rightHeaded" />
+
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.fishbone.left"
+		name="%fishbone_left"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/fishbone.png"
+		value="org.xmind.ui.fishbone.leftHeaded" />
+		
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.matrix.row"
+		name="%matrix_row"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/matrix_row.png"
+		value="org.xmind.ui.spreadsheet" />
+		
+	<structure
+		id="org.xmind.ui.part.dashboard.new.structures.matrix.column"
+		name="%matrix_column"
+		icon="platform:/plugin/org.xmind.cathy/dashboard/new/matrix_column.png"
+		value="org.xmind.ui.spreadsheet.column" />
+
+</structure-list>
