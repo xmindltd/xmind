@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.core
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.6.1.qualifier
 Export-Package: org.xmind.core,
  org.xmind.core.comment,
  org.xmind.core.event,

@@ -405,13 +405,6 @@
       </handler>
    </extension>
    <extension
-         point="org.xmind.ui.mindMapEditorConfigurer">
-      <configurer
-            class="org.xmind.ui.internal.sharing.MindMapEditorSharingStatusContributor"
-            id="org.xmind.ui.sharing.MindMapEditorSharingStatusContributor">
-      </configurer>
-   </extension>
-   <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"

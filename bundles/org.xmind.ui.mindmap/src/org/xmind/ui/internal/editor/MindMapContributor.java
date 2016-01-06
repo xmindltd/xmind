@@ -20,19 +20,29 @@ import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.handlers.IHandlerActivation;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.xmind.core.INamed;
 import org.xmind.core.ISheet;
+import org.xmind.core.ITitled;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.marker.IMarkerRef;
 import org.xmind.gef.ui.editor.GraphicalEditorActionBarContributor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
@@ -44,8 +54,13 @@ import org.xmind.ui.internal.actions.DropDownInsertImageAction;
 import org.xmind.ui.internal.actions.FindReplaceAction;
 import org.xmind.ui.internal.actions.RenameSheetAction;
 import org.xmind.ui.internal.actions.SaveSheetAsAction;
+import org.xmind.ui.mindmap.ICategoryAnalyzation;
+import org.xmind.ui.mindmap.ICategoryManager;
+import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.util.MindMapUtils;
 
-public class MindMapContributor extends GraphicalEditorActionBarContributor {
+public class MindMapContributor extends GraphicalEditorActionBarContributor
+        implements ISelectionListener {
 
     private IWorkbenchAction selectBrothersAction;
     private IWorkbenchAction selectChildrenAction;
@@ -124,6 +139,8 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor {
 
     private IGraphicalEditorPage page;
 
+    private ISelectionService selectionService;
+
     public void init(IActionBars bars, IWorkbenchPage page) {
         this.handlerService = (IHandlerService) page.getWorkbenchWindow()
                 .getService(IHandlerService.class);
@@ -133,6 +150,11 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor {
         } else {
             this.actionHandlerActivations = null;
         }
+
+        if (selectionService != null)
+            selectionService.removeSelectionListener(this);
+        selectionService = page.getWorkbenchWindow().getSelectionService();
+        selectionService.addSelectionListener(this);
 
         super.init(bars, page);
     }
@@ -420,7 +442,74 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor {
             handlerService = null;
             actionHandlerActivations = null;
         }
+        if (selectionService != null) {
+            selectionService.removeSelectionListener(this);
+            selectionService = null;
+        }
         super.dispose();
+    }
+
+    public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+        ICategoryManager manager = MindMapUI.getCategoryManager();
+        Object[] elements = (selection instanceof IStructuredSelection)
+                ? ((IStructuredSelection) selection).toArray() : null;
+        ICategoryAnalyzation categories = elements == null ? null
+                : manager.analyze(elements);
+        updateStatusLine(manager, categories);
+    }
+
+    private void updateStatusLine(ICategoryManager categoryManager,
+            ICategoryAnalyzation categories) {
+        IStatusLineManager sl = getActionBars().getStatusLineManager();
+        if (sl != null) {
+            sl.setMessage(getStatusMessage(categoryManager, categories));
+        }
+    }
+
+    private static String getStatusMessage(ICategoryManager categoryManager,
+            ICategoryAnalyzation categories) {
+        if (categories == null)
+            return null;
+        if (categories.isEmpty())
+            return null;
+        int size = categories.getElements().length;
+        String m;
+        if (categories.isMultiple()) {
+            m = MindMapMessages.StatusLine_MultipleItems;
+        } else {
+            String type = categories.getMainCategory();
+            if (ICategoryManager.UNKNOWN_CATEGORY.equals(type)) {
+                m = ""; //$NON-NLS-1$
+            } else {
+                String name = categoryManager.getCategoryName(type);
+                if (size == 1) {
+                    Object ele = categories.getElements()[0];
+                    String title = MindMapUtils.trimSingleLine(getTitle(ele));
+                    if (title != null) {
+                        m = NLS.bind(MindMapMessages.StatusLine_OneItemPattern,
+                                name, title);
+                    } else {
+                        m = NLS.bind(
+                                MindMapMessages.StatusLine_OneItemNoTitlePattern,
+                                name);
+                    }
+                } else {
+                    m = NLS.bind(MindMapMessages.StatusLine_MultipleItemPattern,
+                            size, name);
+                }
+            }
+        }
+        return m;
+    }
+
+    private static String getTitle(Object ele) {
+        if (ele instanceof ITitled)
+            return ((ITitled) ele).getTitleText();
+        if (ele instanceof INamed)
+            return ((INamed) ele).getName();
+        if (ele instanceof IMarkerRef)
+            return ((IMarkerRef) ele).getDescription();
+        return ""; //$NON-NLS-1$
     }
 
 }

@@ -416,4 +416,6 @@ public interface IWorkbook extends IAdaptable, IModifiable {
 
     ICommentManager getCommentManager();
 
+    boolean isSkipRevisionsWhenSaving();
+
 }

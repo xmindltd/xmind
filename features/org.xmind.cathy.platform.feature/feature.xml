@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.platform.feature"
       label="XMind Product Runtime Platform"
-      version="3.6.0.qualifier"
+      version="3.6.1.qualifier"
       provider-name="XMind Ltd.">
 
    <description>

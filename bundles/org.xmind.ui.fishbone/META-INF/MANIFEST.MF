@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.fishbone;singleton:=true
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.6.1.qualifier
 Bundle-Activator: org.xmind.ui.internal.fishbone.FishboneUIPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.xmind.de.erichseifert.vectorgraphics2d;singleton:=true
+Bundle-Version: 3.6.1.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: %providerName
+Export-Package: org.xmind.de.erichseifert.vectorgraphics2d,
+ org.xmind.de.erichseifert.vectorgraphics2d.util
+Bundle-ActivationPolicy: lazy

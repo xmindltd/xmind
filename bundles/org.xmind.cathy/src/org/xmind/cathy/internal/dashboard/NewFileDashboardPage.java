@@ -29,6 +29,8 @@ import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.core.style.IStyle;
 import org.xmind.ui.internal.ITemplateDescriptor;
 import org.xmind.ui.internal.MindMapTemplateManager;
+import org.xmind.ui.internal.dashboard.pages.DashboardPage;
+import org.xmind.ui.internal.dashboard.pages.IDashboardPage;
 import org.xmind.ui.internal.wizards.FileTemplateDescriptor;
 import org.xmind.ui.internal.wizards.ThemeTemplateDescriptor;
 import org.xmind.ui.mindmap.MindMapUI;

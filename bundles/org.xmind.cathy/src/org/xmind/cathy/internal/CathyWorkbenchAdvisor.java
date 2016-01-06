@@ -88,8 +88,6 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
         licenseVerified(XMindNet.getLicenseInfo());
 
         EditorHistoryPersistenceService.getInstance().preStartup();
-        PlatformUI.getWorkbench().addWorkbenchListener(
-                EditorHistoryPersistenceService.getInstance());
     }
 
     @Override
@@ -309,12 +307,10 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
                 licenseType = NLS.bind("{0} (Academia License)", licenseType); //$NON-NLS-1$
             } else if (ILicenseKeyHeader.LICENSEE_GOV.equals(licenseeType)) {
                 licenseType = NLS.bind("{0} (Gov/NPO License)", licenseType); //$NON-NLS-1$
-            } else
-                if (ILicenseKeyHeader.LICENSEE_TEAM_5U.equals(licenseeType)
-                        || ILicenseKeyHeader.LICENSEE_TEAM_10U
-                                .equals(licenseeType)
-                        || ILicenseKeyHeader.LICENSEE_TEAM_20U
-                                .equals(licenseeType)) {
+            } else if (ILicenseKeyHeader.LICENSEE_TEAM_5U.equals(licenseeType)
+                    || ILicenseKeyHeader.LICENSEE_TEAM_10U.equals(licenseeType)
+                    || ILicenseKeyHeader.LICENSEE_TEAM_20U
+                            .equals(licenseeType)) {
                 licenseType = NLS.bind("{0} (Team License)", licenseType); //$NON-NLS-1$
             } else if (ILicenseKeyHeader.LICENSEE_VLE.equals(licenseeType)) {
                 licenseType = NLS.bind("{0} (Volume License)", licenseType); //$NON-NLS-1$

@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmind.cathy.internal.CathyPlugin;
+import org.xmind.ui.internal.dashboard.pages.IDashboardPage;
 import org.xmind.ui.tabfolder.MTabFolder;
 import org.xmind.ui.tabfolder.MTabItem;
 

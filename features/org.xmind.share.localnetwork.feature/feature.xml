@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.share.localnetwork.feature"
       label="Sharing Support For Local Network"
-      version="3.6.0.qualifier"
+      version="3.6.1.qualifier"
       provider-name="XMind Ltd.">
 
    <description>

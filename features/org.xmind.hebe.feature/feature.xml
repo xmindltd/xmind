@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.hebe.feature"
       label="XMind Map Editor"
-      version="3.6.0.qualifier"
+      version="3.6.1.qualifier"
       provider-name="XMind Ltd.">
 
    <description>

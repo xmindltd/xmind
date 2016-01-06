@@ -14,14 +14,9 @@ package net.xmind.share.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.xmind.share.Info;
-import net.xmind.share.Messages;
-import net.xmind.share.XmindSharePlugin;
-import net.xmind.signin.IAccountInfo;
-import net.xmind.signin.XMindNet;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -38,8 +33,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-public class UploaderDialog extends TitleAreaDialog implements
-        IUploaderPageContainer {
+import net.xmind.share.Info;
+import net.xmind.share.Messages;
+import net.xmind.share.XmindSharePlugin;
+import net.xmind.signin.IAccountInfo;
+import net.xmind.signin.XMindNet;
+
+public class UploaderDialog extends TitleAreaDialog
+        implements IUploaderPageContainer {
 
     private static final String SECTION_NAME = "net.xmind.share.UploadDialog"; //$NON-NLS-1$
 
@@ -50,6 +51,8 @@ public class UploaderDialog extends TitleAreaDialog implements
     private List<IUploaderPage> pages;
 
     private List<String> pageIds;
+
+    private GeneralUploaderPage generalPage;
 
     public UploaderDialog(Shell parentShell) {
         super(parentShell);
@@ -86,8 +89,7 @@ public class UploaderDialog extends TitleAreaDialog implements
         ((GridLayout) parent.getLayout()).makeColumnsEqualWidth = false;
 
         Label informLable = new Label(parent, SWT.WRAP | SWT.LEFT);
-        informLable
-                .setText(Messages.UploaderDialog_containUnupload_text);
+        informLable.setText(Messages.UploaderDialog_containUnupload_text);
         informLable.setVisible(false);
         if (getInfo().getBoolean(Info.TRIMMED)) {
             informLable.setVisible(true);
@@ -147,7 +149,8 @@ public class UploaderDialog extends TitleAreaDialog implements
     }
 
     protected void addPages() {
-        addPage("org.xmind.ui.uploader.general", new GeneralUploaderPage()); //$NON-NLS-1$
+        generalPage = new GeneralUploaderPage();
+        addPage("org.xmind.ui.uploader.general", generalPage); //$NON-NLS-1$
         addPage("org.xmind.ui.uploader.privacy", new PrivacyUploaderPage()); //$NON-NLS-1$
         addPage("org.xmind.ui.uploader.thumbnail", new ThumbnailUploaderPage()); //$NON-NLS-1$
     }
@@ -187,8 +190,6 @@ public class UploaderDialog extends TitleAreaDialog implements
             item.setControl(control);
         }
 
-        setFocus();
-
         tabFolder.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
                 setFocus();
@@ -202,13 +203,25 @@ public class UploaderDialog extends TitleAreaDialog implements
         setMessage(Messages.UploaderDialog_message);
         if ((Boolean) getInfo().getProperty(Info.MULTISHEETS))
             setMessage(Messages.UploaderDialog_uploadOneSheet_message);
+
+        setFocus();
+
         return composite;
     }
 
     private void setFocus() {
-        IUploaderPage page = getActivePage();
-        if (page != null) {
-            page.setFocus();
+        String title = (String) getInfo().getProperty(Info.TITLE);
+        if (title == null || title.trim().equals("")) { //$NON-NLS-1$
+            setMessage(Messages.UploaderDialog_NullTitle_warning,
+                    IMessageProvider.WARNING);
+            InfoField titleField = generalPage.getTitleField();
+            titleField.getTextWidget().setEditable(true);
+            titleField.setFocus();
+        } else {
+            IUploaderPage page = getActivePage();
+            if (page != null) {
+                page.setFocus();
+            }
         }
     }
 
@@ -257,6 +270,23 @@ public class UploaderDialog extends TitleAreaDialog implements
     }
 
     protected void okPressed() {
+        InfoField titleField = generalPage.getTitleField();
+        if (titleField.getTextWidget().getEditable()) {
+            String title = titleField.getText();
+            if (title != null && !title.trim().equals("")) { //$NON-NLS-1$
+                getInfo().setProperty(Info.TITLE, title);
+            }
+        }
+
+        String title = (String) getInfo().getProperty(Info.TITLE);
+        if (title == null || title.trim().equals("")) { //$NON-NLS-1$
+            setErrorMessage(Messages.UploaderDialog_NullTitle_error);
+            showPage("org.xmind.ui.uploader.general"); //$NON-NLS-1$
+            titleField.getTextWidget().setEditable(true);
+            titleField.getTextWidget().setFocus();
+            return;
+        }
+
         getDialogSettings().put(Info.PRIVACY,
                 getInfo().getString(Info.PRIVACY, Info.PRIVACY_PUBLIC));
         getDialogSettings().put(Info.DOWNLOADABLE,

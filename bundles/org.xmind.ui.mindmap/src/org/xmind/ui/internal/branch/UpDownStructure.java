@@ -55,8 +55,8 @@ public class UpDownStructure extends AbstractBranchStructure {
         return upwards;
     }
 
-    protected void doFillPlusMinus(IBranchPart branch,
-            IPlusMinusPart plusMinus, LayoutInfo info) {
+    protected void doFillPlusMinus(IBranchPart branch, IPlusMinusPart plusMinus,
+            LayoutInfo info) {
         Point ref = info.getReference();
         t.setOrigin(ref);
         int x = ref.x;
@@ -114,7 +114,8 @@ public class UpDownStructure extends AbstractBranchStructure {
         if (insertion != null && num == insertion.getIndex()) {
             Dimension insSize = insertion.getSize();
             if (insSize != null) {
-                Rectangle r = new Rectangle(x, y, insSize.width, insSize.height);
+                Rectangle r = new Rectangle(x, y, insSize.width,
+                        insSize.height);
                 info.add(t.rr(r));
             }
         }
@@ -330,7 +331,8 @@ public class UpDownStructure extends AbstractBranchStructure {
                     Rectangle bBounds = boundary.getFigure().getBounds();
                     List<IBranchPart> enclosingBranches = boundary
                             .getEnclosingBranches();
-                    if (sub.equals(enclosingBranches.get(0)))
+                    if ((!enclosingBranches.isEmpty())
+                            && sub.equals(enclosingBranches.get(0)))
                         bounds = bBounds.contains(bounds) ? bBounds : bounds;
                 }
             }
@@ -353,8 +355,9 @@ public class UpDownStructure extends AbstractBranchStructure {
                     Rectangle bBounds = boundary.getFigure().getBounds();
                     List<IBranchPart> enclosingBranches = boundary
                             .getEnclosingBranches();
-                    if (sub.equals(enclosingBranches.get(enclosingBranches
-                            .size() - 1)))
+                    if ((!enclosingBranches.isEmpty())
+                            && sub.equals(enclosingBranches
+                                    .get(enclosingBranches.size() - 1)))
                         bounds = bBounds.contains(bounds) ? bBounds : bounds;
                 }
             }
@@ -404,8 +407,8 @@ public class UpDownStructure extends AbstractBranchStructure {
     protected Point calcFirstChildPosition(IBranchPart branch,
             ParentSearchKey key) {
         int y = branch.getFigure().getSize().height / 2
-                + getMajorSpacing(branch) + key.getInvent().getSize().height
-                / 2;
+                + getMajorSpacing(branch)
+                + key.getInvent().getSize().height / 2;
         return getFigureLocation(branch.getFigure()).getTranslated(0,
                 isUpwards() ? -y : y);
     }
@@ -431,11 +434,12 @@ public class UpDownStructure extends AbstractBranchStructure {
                         .getEnclosingBranches();
                 Rectangle bBounds = boundary.getFigure().getBounds();
 
-                if (orientation.equals(enclosingBranches.get(enclosingBranches
-                        .size() - 1)))
+                if ((!enclosingBranches.isEmpty()) && orientation.equals(
+                        enclosingBranches.get(enclosingBranches.size() - 1)))
                     lBounds = bBounds.contains(lBounds) ? bBounds : lBounds;
 
-                if (assist.equals(enclosingBranches.get(0)))
+                if ((!enclosingBranches.isEmpty())
+                        && assist.equals(enclosingBranches.get(0)))
                     rBounds = bBounds.contains(rBounds) ? bBounds : rBounds;
             }
         }

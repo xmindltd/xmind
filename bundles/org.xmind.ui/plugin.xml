@@ -4797,6 +4797,12 @@
             id="org.xmind.ui.command.revertToRevision"
             name="%command.revertRevision.name">
       </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            description="%command.previewRevision.description"
+            id="org.xmind.ui.command.previewRevision"
+            name="%command.previewRevision.name">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -4835,6 +4841,25 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.PreviewRevisionHandler"
+            commandId="org.xmind.ui.command.previewRevision">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <adapt
+                        type="org.xmind.core.IRevision">
+                  </adapt>
+               </iterate>
+               <count
+                     value="1">
+               </count>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          id="revisionsViewMenuContributions"
@@ -4847,7 +4872,18 @@
                visible="true">
          </separator>
          <command
+               commandId="org.xmind.ui.command.previewRevision"
+               icon="icons/e/revisions_preview.png"
+               id="org.xmind.ui.RevisionsView.popup.preview"
+               label="%popup.revisionview.previewRevision.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+         <command
                commandId="org.xmind.ui.command.revertToRevision"
+               icon="icons/e/revisions_revert.gif"
                id="org.xmind.ui.RevisionsView.popup.revert"
                label="%popup.revisionview.revertRevision.label"
                style="push">

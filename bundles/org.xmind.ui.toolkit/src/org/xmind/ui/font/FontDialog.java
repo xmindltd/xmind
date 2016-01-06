@@ -93,8 +93,8 @@ public class FontDialog extends Dialog implements IFontChooser {
 
     }
 
-    private class SizeControlListener implements ModifyListener,
-            ISelectionChangedListener {
+    private class SizeControlListener
+            implements ModifyListener, ISelectionChangedListener {
 
         private boolean synchronizingSelection = false;
 
@@ -231,7 +231,7 @@ public class FontDialog extends Dialog implements IFontChooser {
         Group colorGroup = new Group(typeComposite, SWT.NONE);
         colorGroup.setText(Messages.ColorGroup_text);
         GridLayoutFactory.swtDefaults().applyTo(colorGroup);
-        GridDataFactory.fillDefaults().applyTo(colorGroup);
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(colorGroup);
         createColorControl(colorGroup);
 
         return p;
@@ -242,6 +242,8 @@ public class FontDialog extends Dialog implements IFontChooser {
      */
     private void createColorControl(Group parent) {
         paletteViewer = new PaletteViewer();
+        paletteViewer.setShowStandardLabel(false);
+        paletteViewer.setHasVerticalIndent(false);
         paletteViewer.createControl(parent);
         paletteViewer.setInput(getPaletteContents());
         if (getColor() != null) {
@@ -291,14 +293,14 @@ public class FontDialog extends Dialog implements IFontChooser {
         boldButton = new Button(parent, SWT.CHECK);
         boldButton.setText(Messages.BoldButton_text);
 
-        boldButton.setFont(JFaceResources.getFontRegistry().getBold(
-                JFaceResources.DEFAULT_FONT));
+        boldButton.setFont(JFaceResources.getFontRegistry()
+                .getBold(JFaceResources.DEFAULT_FONT));
         boldButton.setSelection(getBold());
 
         italicButton = new Button(parent, SWT.CHECK);
         italicButton.setText(Messages.ItalicButton_text);
-        italicButton.setFont(JFaceResources.getFontRegistry().getItalic(
-                JFaceResources.DEFAULT_FONT));
+        italicButton.setFont(JFaceResources.getFontRegistry()
+                .getItalic(JFaceResources.DEFAULT_FONT));
         italicButton.setSelection(getItalic());
 
         underlineButton = new Button(parent, SWT.CHECK);
@@ -306,8 +308,8 @@ public class FontDialog extends Dialog implements IFontChooser {
         underlineButton.addPaintListener(new PaintListener() {
 
             public void paintControl(PaintEvent e) {
-                e.gc.drawLine(e.x + 20, e.y + e.height - 4, e.x + e.width, e.y
-                        + e.height - 4);
+                e.gc.drawLine(e.x + 20, e.y + e.height - 4, e.x + e.width,
+                        e.y + e.height - 4);
             }
 
         });
@@ -318,8 +320,8 @@ public class FontDialog extends Dialog implements IFontChooser {
         strikeoutButton.addPaintListener(new PaintListener() {
 
             public void paintControl(PaintEvent e) {
-                e.gc.drawLine(e.x + 20, e.y + e.height / 2, e.x + e.width, e.y
-                        + e.height / 2);
+                e.gc.drawLine(e.x + 20, e.y + e.height / 2, e.x + e.width,
+                        e.y + e.height / 2);
             }
 
         });
@@ -355,8 +357,8 @@ public class FontDialog extends Dialog implements IFontChooser {
 
         sizeText.addModifyListener(listener);
 
-        sizeList = new ListViewer(parent, SWT.SINGLE | SWT.BORDER
-                | SWT.V_SCROLL);
+        sizeList = new ListViewer(parent,
+                SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
         sizeList.setContentProvider(new ArrayContentProvider());
         sizeList.setLabelProvider(new LabelProvider());
         sizeList.setInput(Arrays.asList(8, 9, 10, 11, 12, 14, 16, 18, 20, 22,
@@ -419,8 +421,8 @@ public class FontDialog extends Dialog implements IFontChooser {
         fontTree.getViewer().setContentProvider(new TreeArrayContentProvider());
         fontTree.getViewer().setInput(FontUtils.getAvailableFontNames());
         setFontName(getFontName());
-        fontTree.getViewer().addSelectionChangedListener(
-                new ISelectionChangedListener() {
+        fontTree.getViewer()
+                .addSelectionChangedListener(new ISelectionChangedListener() {
                     public void selectionChanged(SelectionChangedEvent event) {
                         IStructuredSelection sel = (IStructuredSelection) event
                                 .getSelection();
@@ -481,8 +483,8 @@ public class FontDialog extends Dialog implements IFontChooser {
     @Override
     protected Point getInitialLocation(Point initialSize) {
         Rectangle r = getParentShell().getBounds();
-        return new Point(r.x + r.width - initialSize.x, r.y + r.height
-                - initialSize.y);
+        return new Point(r.x + r.width - initialSize.x,
+                r.y + r.height - initialSize.y);
     }
 
     /**
@@ -626,7 +628,8 @@ public class FontDialog extends Dialog implements IFontChooser {
         if (fontName == null)
             fontName = getDefaultFontName();
         this.fontName = fontName;
-        if (fontTree != null && !fontTree.isDisposed() && fontTree.isEnabled()) {
+        if (fontTree != null && !fontTree.isDisposed()
+                && fontTree.isEnabled()) {
             fontTree.setInitialText(fontName);
         }
     }
@@ -653,8 +656,8 @@ public class FontDialog extends Dialog implements IFontChooser {
             }
             sizeText.setText(Integer.toString(fontHeight));
             if (position >= 0) {
-                sizeText.setSelection(Math.min(position, sizeText.getText()
-                        .length()));
+                sizeText.setSelection(
+                        Math.min(position, sizeText.getText().length()));
             }
         }
         if (sizeList != null && !sizeList.getControl().isDisposed()) {
@@ -676,8 +679,8 @@ public class FontDialog extends Dialog implements IFontChooser {
 
     protected static int getDefaultFontHeight() {
         if (DEFAULT_FONT_HEIGHT < 0)
-            DEFAULT_FONT_HEIGHT = JFaceResources.getDefaultFont().getFontData()[0]
-                    .getHeight();
+            DEFAULT_FONT_HEIGHT = JFaceResources.getDefaultFont()
+                    .getFontData()[0].getHeight();
         return DEFAULT_FONT_HEIGHT;
     }
 

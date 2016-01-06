@@ -24,7 +24,6 @@ public class UnbalancedData extends RadialData {
                 CACHE_NUMBER_RIGHT_BRANCHES);
         if (num != null)
             return num.intValue();
-        int superRightNum = super.getNumRight();
         ITopicExtension extension = branch.getTopic()
                 .createExtension(EXTENTION_UNBALANCEDSTRUCTURE);
         ITopicExtensionElement element = extension.getContent()
@@ -33,11 +32,13 @@ public class UnbalancedData extends RadialData {
         if (rightNum != null) {
             int value = Integer.valueOf(rightNum).intValue();
             if (value < 0) {
+                int superRightNum = super.getNumRight();
                 element.setTextContent(String.valueOf(superRightNum));
                 return superRightNum;
             }
             return value;
         } else {
+            int superRightNum = super.getNumRight();
             element.setTextContent(String.valueOf(superRightNum));
             return superRightNum;
         }

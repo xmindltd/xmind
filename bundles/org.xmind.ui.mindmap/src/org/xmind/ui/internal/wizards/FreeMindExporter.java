@@ -384,8 +384,8 @@ public class FreeMindExporter {
         }
     }
 
-    private void writeEndArrow(Element arrowlinkEle,
-            IRelationship relationship, IStyle style, boolean canWritePoint) {
+    private void writeEndArrow(Element arrowlinkEle, IRelationship relationship,
+            IStyle style, boolean canWritePoint) {
 
         String endArrowId = relationship.getEnd2Id();
         if (endArrowId != null)
@@ -444,21 +444,23 @@ public class FreeMindExporter {
             String entryPath = HyperlinkUtils.toAttachmentPath(source);
             IFileEntry fileEntry = getSheet().getOwnedWorkbook().getManifest()
                     .getFileEntry(entryPath);
-            String path = fileEntry.getPath();
-            int lastIndex = path.lastIndexOf('/');
-            String fileName = path.substring(lastIndex + 1);
-            InputStream is = fileEntry.getInputStream();
-            if (is != null) {
-                FileOutputStream os = new FileOutputStream(new File(imageDir,
-                        fileName));
-                FileUtils.transfer(is, os, true);
+            if (fileEntry != null) {
+                String path = fileEntry.getPath();
+                int lastIndex = path.lastIndexOf('/');
+                String fileName = path.substring(lastIndex + 1);
+                InputStream is = fileEntry.getInputStream();
+                if (is != null) {
+                    FileOutputStream os = new FileOutputStream(
+                            new File(imageDir, fileName));
+                    FileUtils.transfer(is, os, true);
 
-                String sourcePath = "images" + "/" + fileName; //$NON-NLS-1$ //$NON-NLS-2$
-                // " ASCII is 34
-                String value = "<html><img src=" + (char) 34 + sourcePath //$NON-NLS-1$
-                        + (char) 34 + ">"; //$NON-NLS-1$
-                nodeEle.setAttribute("TEXT", value); //$NON-NLS-1$
-                return;
+                    String sourcePath = "images" + "/" + fileName; //$NON-NLS-1$ //$NON-NLS-2$
+                    // " ASCII is 34
+                    String value = "<html><img src=" + (char) 34 + sourcePath //$NON-NLS-1$
+                            + (char) 34 + ">"; //$NON-NLS-1$
+                    nodeEle.setAttribute("TEXT", value); //$NON-NLS-1$
+                    return;
+                }
             }
         }
         String text = topic.getTitleText();
@@ -468,13 +470,14 @@ public class FreeMindExporter {
     private File getImageDir() {
         if (imageDir == null) {
             String imageSource = new File(targetPath).getParent();
-            imageDir = FileUtils.ensureDirectory(new File(imageSource,
-                    IMAGE_FILE));
+            imageDir = FileUtils
+                    .ensureDirectory(new File(imageSource, IMAGE_FILE));
         }
         return imageDir;
     }
 
-    private void writSubTopics(Element topicEle, ITopic topic) throws Exception {
+    private void writSubTopics(Element topicEle, ITopic topic)
+            throws Exception {
         List<ITopic> children = topic.getAllChildren();
         if (children != null) {
             for (ITopic subTopic : children)
@@ -570,8 +573,8 @@ public class FreeMindExporter {
                         return FilePathParser.toAbsolutePath(base, path);
                     }
                 }
-                return FilePathParser.toAbsolutePath(
-                        System.getProperty("user.home"), path); //$NON-NLS-1$
+                return FilePathParser
+                        .toAbsolutePath(System.getProperty("user.home"), path); //$NON-NLS-1$
             }
             return path;
         } else if (HyperlinkUtils.isInternalURL(hyperlink)) {
@@ -590,8 +593,8 @@ public class FreeMindExporter {
             InputStream is = fileEntry.getInputStream();
             if (is != null) {
                 try {
-                    FileOutputStream os = new FileOutputStream(new File(
-                            imageDir, fileName));
+                    FileOutputStream os = new FileOutputStream(
+                            new File(imageDir, fileName));
                     try {
                         FileUtils.transfer(is, os, false);
                         return IMAGE_FILE + "/" + fileName; //$NON-NLS-1$

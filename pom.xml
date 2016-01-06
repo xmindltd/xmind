@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xmind.releng</groupId>
     <artifactId>org.xmind.cathy.releng</artifactId>
-    <version>3.6.0-SNAPSHOT</version>
+    <version>3.6.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.5/R-4.5.1-201509040015</eclipse-repo.url>
         <gef-repo.url>http://download.eclipse.org/tools/gef/updates/releases/3.10.1_gef-maintenance_1205</gef-repo.url>
-        <xmind-orbit-repo.url>http://p2.xmind.net/updates/xmind/3.6.0.R-201511090408/orbit</xmind-orbit-repo.url>
+        <xmind-orbit-repo.url>http://p2.xmind.net/updates/xmind/R3.6.1.201512240104/orbit</xmind-orbit-repo.url>
     </properties>
 
     <repositories>
@@ -29,7 +29,7 @@
             <layout>p2</layout>
         </repository>
         <repository>
-            <id>xmind-orbit-3.6.0</id>
+            <id>xmind-orbit-3.6.1</id>
             <url>${xmind-orbit-repo.url}</url>
             <layout>p2</layout>
         </repository>
@@ -139,12 +139,15 @@
         <module>bundles/org.xmind.core.net</module>
         <module>bundles/org.xmind.core.runtime</module>
         <module>bundles/org.xmind.core.sharing.localnetwork</module>
+        <module>bundles/org.xmind.de.erichseifert.vectorgraphics2d</module>
         <module>bundles/org.xmind.gef</module>
         <module>bundles/org.xmind.gef.ui</module>
         <module>bundles/org.xmind.neuquant</module>
+        <module>bundles/org.xmind.org.freehep.vectorgraphics</module>
         <module>bundles/org.xmind.ui</module>
         <module>bundles/org.xmind.ui.biggerplate</module>
         <module>bundles/org.xmind.ui.browser</module>
+        <module>bundles/org.xmind.ui.dashboard</module>
         <module>bundles/org.xmind.ui.evernote</module>
         <module>bundles/org.xmind.ui.fishbone</module>
         <module>bundles/org.xmind.ui.imports</module>
@@ -164,6 +167,7 @@
         <module>features/org.xmind.share.evernote.feature</module>
         <module>features/org.xmind.share.localnetwork.feature</module>
         <module>features/org.xmind.share.xmindnet.feature</module>
+        <module>features/org.xmind.graphicsio.feature</module>
 
         <module>releng/org.xmind.cathy.repository</module>
         <module>releng/org.xmind.cathy.product</module>

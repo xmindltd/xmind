@@ -14,10 +14,6 @@ package net.xmind.share.dialog;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import net.xmind.share.Info;
-import net.xmind.share.Messages;
-import net.xmind.share.XmindSharePlugin;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -35,12 +31,16 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.xmind.ui.resources.FontUtils;
 
-public class GeneralUploaderPage extends UploaderPage implements
-        PropertyChangeListener {
+import net.xmind.share.Info;
+import net.xmind.share.Messages;
+import net.xmind.share.XmindSharePlugin;
+
+public class GeneralUploaderPage extends UploaderPage
+        implements PropertyChangeListener {
 
     private static final String LANGUAGE_CHANNEL = "net.xmind.share.dialog.defaultLanguageChannel"; //$NON-NLS-1$
 
-    private TitleInfoField titleField;
+    private InfoField titleField;
 
     private InfoField descriptionField;
 
@@ -61,28 +61,20 @@ public class GeneralUploaderPage extends UploaderPage implements
         GridLayout layout = new GridLayout();
         layout.verticalSpacing = 10;
         composite.setLayout(layout);
-        composite.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, true,
-                false));
+        composite.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.FILL, true, false));
 
-        titleField = new TitleInfoField(false, true, true);
+        titleField = new InfoField(false, true, true);
         titleField.fill(composite);
         titleField.setName(Messages.UploaderDialog_Title_text);
         titleField.setText(getInfo().getString(Info.TITLE));
-
-        titleField.getCanvas().addListener(SWT.Resize, new Listener() {
-
-            public void handleEvent(Event event) {
-                titleField.getTitleLabel().setPrefWidth(
-                        titleField.getCanvas().getSize().x);
-            }
-        });
 
         descriptionField = new InfoField(true, false, false);
         descriptionField.fill(composite);
         descriptionField.setName(Messages.UploaderDialog_Description_text);
         descriptionField.setText(getInfo().getString(Info.DESCRIPTION));
-        descriptionField.getTextWidget().addModifyListener(
-                new ModifyListener() {
+        descriptionField.getTextWidget()
+                .addModifyListener(new ModifyListener() {
                     public void modifyText(ModifyEvent e) {
                         getInfo().setProperty(Info.DESCRIPTION,
                                 descriptionField.getText());
@@ -126,14 +118,16 @@ public class GeneralUploaderPage extends UploaderPage implements
         composite.setLayout(gridLayout);
 
         Label label = new Label(composite, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, true));
+        label.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, true));
         label.setText(Messages.UploaderDialog_LanguageChannel_label);
 
         final Combo combo = new Combo(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
-        combo.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, true));
+        combo.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, true));
         ((GridData) combo.getLayoutData()).widthHint = 280;
         combo.setItems(new String[] { //
-        "English", //$NON-NLS-1$
+                "English", //$NON-NLS-1$
                 "Chinese - \u4e2d\u6587", //$NON-NLS-1$
                 "French - fran\u00e7ais", //$NON-NLS-1$
                 "German - Deutsch", //$NON-NLS-1$
@@ -258,6 +252,10 @@ public class GeneralUploaderPage extends UploaderPage implements
 
     private void goToPrivacyPage() {
         getContainer().showPage("org.xmind.ui.uploader.privacy"); //$NON-NLS-1$
+    }
+
+    public InfoField getTitleField() {
+        return titleField;
     }
 
 }

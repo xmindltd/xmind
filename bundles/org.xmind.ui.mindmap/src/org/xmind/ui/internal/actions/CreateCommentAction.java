@@ -4,19 +4,19 @@ import org.eclipse.swt.widgets.Display;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
-import org.xmind.ui.commands.AddCommentCommand;
+import org.xmind.ui.commands.CreateCommentCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.comments.CommentAction;
 import org.xmind.ui.internal.comments.ICommentTextViewerContainer;
 import org.xmind.ui.mindmap.MindMapUI;
 
-public class AddCommentAction extends CommentAction {
+public class CreateCommentAction extends CommentAction {
 
     private Object target;
 
     private ICommentTextViewerContainer container;
 
-    public AddCommentAction(IGraphicalEditor editor, Object target,
+    public CreateCommentAction(IGraphicalEditor editor, Object target,
             ICommentTextViewerContainer container) {
         super(editor);
         this.target = target;
@@ -32,7 +32,7 @@ public class AddCommentAction extends CommentAction {
         setEnabled(false);
         control = container.getContentComposite();
         super.run();
-        final AddCommentCommand cmd = new AddCommentCommand(target);
+        final CreateCommentCommand cmd = new CreateCommentCommand(target);
 
         Display.getCurrent().timerExec(50, new Runnable() {
             public void run() {

@@ -1,4 +1,4 @@
-package org.xmind.cathy.internal.dashboard;
+package org.xmind.ui.internal.dashboard.pages;
 
 import org.eclipse.jface.dialogs.DialogPage;
 

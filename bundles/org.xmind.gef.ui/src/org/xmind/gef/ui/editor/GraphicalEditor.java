@@ -227,7 +227,7 @@ public abstract class GraphicalEditor extends EditorPart
 
     private void createMiniBarComposite(CTabFolder tabFolder) {
         final Composite composite = new Composite(getContainer(), SWT.None);
-        GridLayout layout = new GridLayout(2, false);
+        GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
         layout.horizontalSpacing = 0;
@@ -237,7 +237,7 @@ public abstract class GraphicalEditor extends EditorPart
         createMiniBar(composite);
         final ToolBar control = ((ToolBarManager) miniBar.getToolBarManager())
                 .getControl();
-        GridData controlData = new GridData(SWT.FILL, SWT.FILL, false, true);
+        GridData controlData = new GridData(SWT.RIGHT, SWT.FILL, true, true);
         control.setLayoutData(controlData);
 
         tabFolder.setTopRight(composite, SWT.RIGHT);
@@ -412,24 +412,10 @@ public abstract class GraphicalEditor extends EditorPart
         if (!(getContainer() instanceof CTabFolder))
             return;
 
-        miniBar = new MiniBar() {
-            protected void updateMiniBar() {
-                super.updateMiniBar();
-                GraphicalEditor.this.updateMiniBar(miniBar);
-            }
-        };
+        miniBar = new MiniBar();
         initializeMiniBar(miniBar);
         if (!((MiniBar) miniBar).isEmpty()) {
             createMiniBarControl(miniBar, (CTabFolder) getContainer(), parent);
-        }
-    }
-
-    protected void updateMiniBar(IMiniBar miniBar) {
-        ToolBar control = ((ToolBarManager) miniBar.getToolBarManager())
-                .getControl();
-        if (control != null && !control.isDisposed()) {
-            CTabFolder tabFolder = (CTabFolder) getContainer();
-            updateMiniBarControl(tabFolder, control);
         }
     }
 
@@ -451,26 +437,7 @@ public abstract class GraphicalEditor extends EditorPart
      */
     private void createMiniBarControl(IMiniBar miniBar, CTabFolder tabFolder,
             Composite parent) {
-        ToolBar control = ((ToolBarManager) miniBar.getToolBarManager())
-                .createControl(parent);
-        updateMiniBarControl(tabFolder, control);
-    }
-
-    private void updateMiniBarControl(CTabFolder tabFolder,
-            Control barControl) {
-        // Cache the original height of tab headers:
-        Integer normalHeight = ((Integer) tabFolder
-                .getData("org.xmind.gef.tabFolder.normalHeight")); //$NON-NLS-1$
-        if (normalHeight == null) {
-            normalHeight = Integer.valueOf(tabFolder.getTabHeight());
-            tabFolder.setData("org.xmind.gef.tabFolder.normalHeight", //$NON-NLS-1$
-                    normalHeight);
-        }
-
-        int tabHeight = barControl.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-        tabHeight = Math.max(tabHeight, normalHeight.intValue());
-        tabFolder.setTabHeight(tabHeight);
-//        tabFolder.setTopRight(barControl, SWT.RIGHT);
+        ((ToolBarManager) miniBar.getToolBarManager()).createControl(parent);
     }
 
     public IMiniBarContributor getMiniBarContributor() {

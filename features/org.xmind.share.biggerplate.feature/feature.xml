@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.share.biggerplate.feature"
       label="Sharing Support For Biggerplate"
-      version="3.6.0.qualifier"
+      version="3.6.1.qualifier"
       provider-name="XMind Ltd.">
 
    <description>

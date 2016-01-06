@@ -41,7 +41,6 @@ import org.xmind.core.Core;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.IWorkspace;
 import org.xmind.core.internal.InternalCore;
-import org.xmind.core.internal.dom.WorkbookImpl;
 import org.xmind.gef.command.CommandStack;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IWorkbookRef;
@@ -316,8 +315,7 @@ public class WorkbookRefManager implements IWorkbookRefManager {
                     }
                     saveTempLocation(editorMem, workbook.getTempLocation());
                     editorMem.putBoolean(ATTR_SKIP_REVISIONS,
-                            ((WorkbookImpl) workbook)
-                                    .isSkipRevisionsWhenSaving());
+                            workbook.isSkipRevisionsWhenSaving());
                 }
             }
             File sf = getSessionFile();

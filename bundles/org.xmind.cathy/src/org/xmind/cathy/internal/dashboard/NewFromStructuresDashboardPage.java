@@ -34,6 +34,7 @@ import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
 import org.xmind.ui.internal.ITemplateDescriptor;
+import org.xmind.ui.internal.dashboard.pages.DashboardPage;
 import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.internal.wizards.TemplateLabelProvider;
 import org.xmind.ui.mindmap.MindMapUI;

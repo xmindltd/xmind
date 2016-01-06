@@ -77,4 +77,10 @@ public class Spreadsheet {
 
     public static final String TAG_ROW = "row"; //$NON-NLS-1$
 
+    public static final String REQ_MODIFY_SHEET_HEAD = "modify_sheet_head"; //$NON-NLS-1$
+
+    public static final String ROLE_SHEET_HEAD_MODIFIABLE = "sheet head modifiable role"; //$NON-NLS-1$
+
+    public static final String POLICY_SHEET_HEAD_MODIFIABLE = "org.xmind.ui.editPolicy.sheetHeadModifiable"; //$NON-NLS-1$
+
 }

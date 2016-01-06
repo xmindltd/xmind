@@ -14,6 +14,13 @@
 		iconURI="platform:/plugin/org.xmind.cathy/dashboard/new.png"
 		contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.dashboard.NewFileDashboardPage">
 </page>
+
+<page
+		id="org.xmind.ui.part.dashboard.cloud"
+		label="%cloud"
+		iconURI="platform:/plugin/org.xmind.cathy/dashboard/cloud.png"
+		contributionURI="bundleclass://org.xmind.ui.seawind/org.xmind.ui.internal.seawind.dashboard.CloudDashboardPage">
+</page>
 	
 <page
 		id="org.xmind.ui.part.dashboard.recent"

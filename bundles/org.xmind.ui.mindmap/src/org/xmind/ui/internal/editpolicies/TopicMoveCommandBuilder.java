@@ -28,12 +28,14 @@ import org.xmind.core.IRelationship;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.ITopicRange;
+import org.xmind.core.comment.IComment;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.draw2d.IReferencedFigure;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.commands.AddBoundaryCommand;
+import org.xmind.ui.commands.AddCommentCommand;
 import org.xmind.ui.commands.AddSummaryCommand;
 import org.xmind.ui.commands.AddTopicCommand;
 import org.xmind.ui.commands.CloneTopicCommand;
@@ -54,6 +56,7 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
         public String oldType;
         public Point newPosition;
         public boolean needsReorganize;
+        public List<IComment> comments;
     }
 
     private static final List<ITopic> EMPTY_TOPICS = Collections.emptyList();
@@ -146,8 +149,8 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
     }
 
     public void moveTopics(List<ITopic> topics) {
-        Map<ITopic, TopicInfo> oldInfo = new HashMap<ITopic, TopicInfo>(topics
-                .size());
+        Map<ITopic, TopicInfo> oldInfo = new HashMap<ITopic, TopicInfo>(
+                topics.size());
         for (ITopic topic : topics) {
             TopicInfo info = deleteTopic(topic, insertIndex);
             if (!oldInfo.containsKey(topic)) {
@@ -174,6 +177,8 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
                     cacheOldRangedTopics(range, info.oldParent);
                 }
             }
+            info.comments = topic.getOwnedWorkbook().getCommentManager()
+                    .getComments(topic);
             deleteTopic(topic, true);
         }
         return info;
@@ -195,8 +200,9 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
 //            deleteTopic(topic, true);
 //        }
 
-        add(new ModifyPositionCommand(topic, MindMapUtils
-                .toModelPosition(info.newPosition)), !info.needsReorganize);
+        add(new ModifyPositionCommand(topic,
+                MindMapUtils.toModelPosition(info.newPosition)),
+                !info.needsReorganize);
         if (info.needsReorganize) {
             addTopic(topic, getTargetParent(), toIndex, getTargetType(), true);
             if (rangesToMove != null && !rangesToMove.isEmpty()) {
@@ -204,6 +210,13 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
                     ITopicRange range = rangesToMove.iterator().next();
                     moveRange(range, range.getParent());
                     rangesToMove.remove(range);
+                }
+            }
+            if (info.comments != null) {
+                for (IComment comment : info.comments) {
+                    if (comment != null) {
+                        add(new AddCommentCommand(topic, comment), false);
+                    }
                 }
             }
         }
@@ -309,9 +322,8 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
                 if (overallBoundary == null) {
                     add(new ModifyRangeCommand(range, -1, true), false);
                     add(new ModifyRangeCommand(range, -1, false), false);
-                    add(
-                            new ModifyBoundaryMasterCommand((IBoundary) range,
-                                    true), false);
+                    add(new ModifyBoundaryMasterCommand((IBoundary) range,
+                            true), false);
                     addAddRangeCommand(range, topic);
                 }
             }
@@ -336,7 +348,8 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
         addSubRange(range, newParent);
     }
 
-    protected void deleteBoundary(IBoundary boundary, boolean sourceCollectable) {
+    protected void deleteBoundary(IBoundary boundary,
+            boolean sourceCollectable) {
         if (rangesToMove == null)
             rangesToMove = new HashSet<ITopicRange>();
         rangesToMove.add(boundary);
@@ -397,8 +410,8 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
         return new Point(x, y);
     }
 
-    private boolean needsReorganize(ITopic topic, int toIndex,
-            ITopic oldParent, int oldIndex, String oldType) {
+    private boolean needsReorganize(ITopic topic, int toIndex, ITopic oldParent,
+            int oldIndex, String oldType) {
         if (!getTargetParent().equals(oldParent))
             return true;
         if (oldType != getTargetType()
@@ -445,13 +458,14 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
 
     private void copyTopic(ITopic topic, int toIndex) {
         Point position = calculateTargetPosition(topic);
-        CloneTopicCommand clone = new CloneTopicCommand(getTargetParent()
-                .getOwnedWorkbook(), topic);
+        CloneTopicCommand clone = new CloneTopicCommand(
+                getTargetParent().getOwnedWorkbook(), topic);
         add(clone, true);
         ITopic clonedTopic = (ITopic) clone.getSource();
-        add(new ModifyPositionCommand(clonedTopic, MindMapUtils
-                .toModelPosition(position)), false);
-        addTopic(clonedTopic, getTargetParent(), toIndex, getTargetType(), true);
+        add(new ModifyPositionCommand(clonedTopic,
+                MindMapUtils.toModelPosition(position)), false);
+        addTopic(clonedTopic, getTargetParent(), toIndex, getTargetType(),
+                true);
     }
 
 }

@@ -40,16 +40,32 @@ public class SvgFileLoader {
                         .newInstance();
                 factory.setValidating(false);
                 factory.setNamespaceAware(true);
-                factory.setFeature("http://xml.org/sax/features/namespaces", //$NON-NLS-1$
-                        false);
-                factory.setFeature("http://xml.org/sax/features/validation", //$NON-NLS-1$
-                        false);
-                factory.setFeature(
-                        "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", //$NON-NLS-1$
-                        false);
-                factory.setFeature(
-                        "http://apache.org/xml/features/nonvalidating/load-external-dtd", //$NON-NLS-1$
-                        false);
+                try {
+                    factory.setFeature("http://xml.org/sax/features/namespaces", //$NON-NLS-1$
+                            false);
+                } catch (Exception e) {
+                    // ignore
+                }
+                try {
+                    factory.setFeature("http://xml.org/sax/features/validation", //$NON-NLS-1$
+                            false);
+                } catch (Exception e) {
+                    // ignore
+                }
+                try {
+                    factory.setFeature(
+                            "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", //$NON-NLS-1$
+                            false);
+                } catch (Exception e) {
+                    // ignore
+                }
+                try {
+                    factory.setFeature(
+                            "http://apache.org/xml/features/nonvalidating/load-external-dtd", //$NON-NLS-1$
+                            false);
+                } catch (Exception e) {
+                    // ignore
+                }
                 Document document = factory.newDocumentBuilder().parse(stream);
 
                 Element element = document.getDocumentElement();

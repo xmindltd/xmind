@@ -141,8 +141,7 @@ public class Cell2 extends BranchStructureData {
         if (!items.isEmpty()) {
             Item2 first = items.get(0);
             Item2 last = items.get(items.size() - 1);
-            int height = last.getBranch().getFigure().getBounds().bottom()
-                    - getOwnedChart().getMinorSpacing()
+            int height = last.getBranch().getFigure().getBounds().bottom() - 10
                     - first.getBranch().getFigure().getBounds().y;
             IInsertion ins = (IInsertion) MindMapUtils.getCache(getBranch(),
                     IInsertion.CACHE_INSERTION);
@@ -161,8 +160,11 @@ public class Cell2 extends BranchStructureData {
                     List<IBoundaryPart> boundaries = parent.getBoundaries();
                     if (!boundaries.isEmpty()) {
                         for (IBoundaryPart boundary : boundaries) {
-                            if (item.getBranch().equals(
-                                    boundary.getEnclosingBranches().get(0))) {
+                            List<IBranchPart> enclosingBranches = boundary
+                                    .getEnclosingBranches();
+                            if ((!enclosingBranches.isEmpty())
+                                    && item.getBranch()
+                                            .equals(enclosingBranches.get(0))) {
                                 bh = boundary.getFigure().getInsets()
                                         .getHeight()
                                         - getOwnedChart().getMinorSpacing() - 3;

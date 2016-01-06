@@ -117,12 +117,12 @@ public class InternalBrowserView extends ViewPart
             if (hasNoToolBar && !hadNoToolBar) {
                 IToolBarManager toolBar = getViewSite().getActionBars()
                         .getToolBarManager();
-                addControls(toolBar);
+                removeControls(toolBar);
                 toolBar.update(true);
             } else if (hadNoToolBar && !hasNoToolBar) {
                 IToolBarManager toolBar = getViewSite().getActionBars()
                         .getToolBarManager();
-                removeControls(toolBar);
+                addControls(toolBar);
                 toolBar.update(true);
             }
         }

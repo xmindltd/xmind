@@ -87,8 +87,8 @@ public class ContactManager implements IContactManager {
                             TAG_CONTACT);
                     for (Element contactEle : contactEles) {
                         String id = contactEle.getAttribute(ATT_ID);
-                        Integer accessLevel = Integer.parseInt(contactEle
-                                .getAttribute(ATT_ACCESS_LEVEL));
+                        Integer accessLevel = Integer.parseInt(
+                                contactEle.getAttribute(ATT_ACCESS_LEVEL));
                         SharedContact contact = new SharedContact(id,
                                 contactEle.getAttribute(ATT_NAME));
                         accessLevelMap.put(id, accessLevel);
@@ -96,9 +96,9 @@ public class ContactManager implements IContactManager {
                     }
                 }
             } catch (Throwable e) {
-                LocalNetworkSharing
-                        .log("Error occurred while loading shared access controller info.", //$NON-NLS-1$
-                                e);
+                LocalNetworkSharing.log(
+                        "Error occurred while loading shared access controller info.", //$NON-NLS-1$
+                        e);
             }
         } finally {
             long end = System.currentTimeMillis();
@@ -110,17 +110,22 @@ public class ContactManager implements IContactManager {
 
     private File getMetaFile() {
         if (metaFile == null) {
-            metaFile = new File(LocalNetworkSharing.getDefault()
-                    .getDataDirectory(), FILE_ACCESS_CONTROLLER);
+            metaFile = new File(
+                    LocalNetworkSharing.getDefault().getDataDirectory(),
+                    FILE_ACCESS_CONTROLLER);
         }
         return metaFile;
     }
 
     private DocumentBuilder getDocumentBuilder() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setAttribute(
-                "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
-                Boolean.TRUE);
+        try {
+            factory.setAttribute(
+                    "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
+                    Boolean.TRUE);
+        } catch (Exception e) {
+            // ignore
+        }
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
@@ -205,8 +210,8 @@ public class ContactManager implements IContactManager {
         return IContactManager.NO_ACCESS;
     }
 
-    public synchronized ISharedContact addContact(String contactID,
-            String name, int accessLevel) {
+    public synchronized ISharedContact addContact(String contactID, String name,
+            int accessLevel) {
         if (contactID == null || "".equals(contactID) //$NON-NLS-1$
                 || name == null || "".equals(name)) //$NON-NLS-1$
             return null;

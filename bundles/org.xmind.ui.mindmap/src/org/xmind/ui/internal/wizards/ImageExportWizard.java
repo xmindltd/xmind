@@ -440,7 +440,6 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
         private void setProperty(String key, String value) {
             getDialogSettings().put(key, value);
-            updateShowPlusMinusRadiosState();
             updatePreview();
         }
 

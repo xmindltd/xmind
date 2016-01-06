@@ -1,6 +1,7 @@
 package org.xmind.ui.internal.biggerplate.dialog;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -47,8 +48,8 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
 
     public BiggerplateUploaderDialog(Shell parentShell) {
         super(parentShell);
-        setShellStyle(SWT.CLOSE | SWT.TITLE | SWT.RESIZE
-                | SWT.APPLICATION_MODAL);
+        setShellStyle(
+                SWT.CLOSE | SWT.TITLE | SWT.RESIZE | SWT.APPLICATION_MODAL);
         setBlockOnOpen(true);
     }
 
@@ -104,13 +105,14 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         createEditTitleArea(container);
         createPreviewArea(container);
         createDescriptionArea(container);
-//        createTagArea(container);
-//        createCopyrightArea(container);
+        // createTagArea(container);
+        // createCopyrightArea(container);
 
         setTitle(BiggerplateMessages.UploaderDialog_Upload_title);
         setMessage(BiggerplateMessages.UploaderDialog_Upload_description);
         if (getInfo().getBoolean(Info.MULTISHEETS)) {
-            setMessage(BiggerplateMessages.UploaderDialog_uploadOneSheet_message);
+            setMessage(
+                    BiggerplateMessages.UploaderDialog_uploadOneSheet_message);
         }
 
         return composite;
@@ -156,12 +158,12 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         createLabel(parent,
                 BiggerplateMessages.UploaderDialog_DescriptionLabel_text);
 
-        descriptionText = new Text(parent, SWT.MULTI | SWT.WRAP | SWT.LEFT
-                | SWT.BORDER);
-        descriptionText
-                .setText(BiggerplateMessages.UploaderDialog_Description_Initial_text);
+        descriptionText = new Text(parent,
+                SWT.MULTI | SWT.WRAP | SWT.LEFT | SWT.BORDER);
+        descriptionText.setText(
+                BiggerplateMessages.UploaderDialog_Description_Initial_text);
         final GridData data = new GridData(SWT.LEFT, SWT.FILL, false, true);
-//        data.widthHint = PREVIEW_IMAGE_WIDTH - 10;
+        // data.widthHint = PREVIEW_IMAGE_WIDTH - 10;
         data.heightHint = DESCRIPTION_TEXT_MIN_HEIGHT;
         descriptionText.setLayoutData(data);
         descriptionText.setData(DescriptionTextStatus.UNUSED);
@@ -169,8 +171,8 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         final Font font = descriptionText.getFont();
         descriptionText.setFont(FontUtils.getItalic(font));
         final Color foreground = descriptionText.getForeground();
-        descriptionText.setForeground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_GRAY));
+        descriptionText.setForeground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_GRAY));
 
         descriptionText.addListener(SWT.Resize, new Listener() {
 
@@ -195,47 +197,48 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         });
     }
 
-//    private void createTagArea(Composite parent) {
-//        createLabel(parent, "Tag:");
-//        final Text tagText = createText(parent, SWT.SINGLE | SWT.LEFT
-//                | SWT.BORDER);
-//        tagText.setText("Tag1, Tag2, ...");
-//        ((GridData) tagText.getLayoutData()).widthHint = PREVIEW_IMAGE_WIDTH - 11;
-//
-//        final Font font = tagText.getFont();
-//        tagText.setFont(FontUtils.getItalic(font));
-//        final Color foreground = tagText.getForeground();
-//        tagText.setForeground(parent.getDisplay()
-//                .getSystemColor(SWT.COLOR_GRAY));
-//
-//        tagText.addFocusListener(new FocusListener() {
-//
-//            @Override
-//            public void focusLost(FocusEvent e) {
-//                tagText.removeFocusListener(this);
-//            }
-//
-//            @Override
-//            public void focusGained(FocusEvent e) {
-//                tagText.setText("");
-//                tagText.setFont(font);
-//                tagText.setForeground(foreground);
-//            }
-//        });
-//    }
+    // private void createTagArea(Composite parent) {
+    // createLabel(parent, "Tag:");
+    // final Text tagText = createText(parent, SWT.SINGLE | SWT.LEFT
+    // | SWT.BORDER);
+    // tagText.setText("Tag1, Tag2, ...");
+    // ((GridData) tagText.getLayoutData()).widthHint = PREVIEW_IMAGE_WIDTH -
+    // 11;
+    //
+    // final Font font = tagText.getFont();
+    // tagText.setFont(FontUtils.getItalic(font));
+    // final Color foreground = tagText.getForeground();
+    // tagText.setForeground(parent.getDisplay()
+    // .getSystemColor(SWT.COLOR_GRAY));
+    //
+    // tagText.addFocusListener(new FocusListener() {
+    //
+    // @Override
+    // public void focusLost(FocusEvent e) {
+    // tagText.removeFocusListener(this);
+    // }
+    //
+    // @Override
+    // public void focusGained(FocusEvent e) {
+    // tagText.setText("");
+    // tagText.setFont(font);
+    // tagText.setForeground(foreground);
+    // }
+    // });
+    // }
 
-//    private void createCopyrightArea(Composite parent) {
-//        createLabel(parent, "Copyright:");
-//
-//        Combo combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY
-//                | SWT.SIMPLE);
-//        combo.setItems(new String[] { "All Rights Reserved",
-//                "Some Rights Reserved", "No Rights Reserved" });
-//        combo.select(0);
-//        GridData data = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-//        data.widthHint = PREVIEW_IMAGE_WIDTH - 24;
-//        combo.setLayoutData(data);
-//    }
+    // private void createCopyrightArea(Composite parent) {
+    // createLabel(parent, "Copyright:");
+    //
+    // Combo combo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY
+    // | SWT.SIMPLE);
+    // combo.setItems(new String[] { "All Rights Reserved",
+    // "Some Rights Reserved", "No Rights Reserved" });
+    // combo.select(0);
+    // GridData data = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+    // data.widthHint = PREVIEW_IMAGE_WIDTH - 24;
+    // combo.setLayoutData(data);
+    // }
 
     private Label createLabel(Composite parent, String text) {
         Label label = new Label(parent, SWT.NONE);
@@ -256,9 +259,8 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         text.addListener(SWT.Resize, new Listener() {
 
             public void handleEvent(Event event) {
-                text.setSize(
-                        PREVIEW_IMAGE_WIDTH,
-                        text.computeSize(data.widthHint, data.heightHint, true).y);
+                text.setSize(PREVIEW_IMAGE_WIDTH, text
+                        .computeSize(data.widthHint, data.heightHint, true).y);
             }
         });
 
@@ -286,6 +288,14 @@ public class BiggerplateUploaderDialog extends TitleAreaDialog {
         String title = titleText.getText();
         if (title != null && !title.equals("")) { //$NON-NLS-1$
             info.setProperty(Info.TITLE, title);
+        }
+
+        if (info.getProperty(Info.TITLE) == null
+                || info.getProperty(Info.TITLE).equals("")) { //$NON-NLS-1$
+            setMessage(BiggerplateMessages.BiggerplateUploaderDialog_NullTitle_error,
+                    IMessageProvider.ERROR);
+            titleText.setFocus();
+            return;
         }
 
         if (descriptionText.getData().equals(DescriptionTextStatus.USED)) {

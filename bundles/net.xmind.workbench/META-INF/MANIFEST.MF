@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: net.xmind.workbench;singleton:=true
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.6.1.qualifier
 Bundle-Activator: net.xmind.workbench.internal.XMindNetWorkbench
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,

@@ -111,6 +111,8 @@ import org.xmind.gef.ui.editor.GraphicalEditor;
 import org.xmind.gef.ui.editor.GraphicalEditorPagePopupPreviewHelper;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.ui.IPreSaveInteractiveFeedback;
+import org.xmind.ui.IPreSaveInteractiveProvider;
 import org.xmind.ui.IWordContextProvider;
 import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.blackbox.BlackBox;
@@ -732,12 +734,62 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         doSave(monitor, false);
     }
 
+    private String workbookNameByPreSaveInteractiveProvider;
+
+    private IPreSaveInteractiveFeedback preSaveInteractive(
+            int interactiveType) {
+        Class<? extends IPreSaveInteractiveProvider> preSaveInteractiveProviderClass = MindMapUIPlugin
+                .getDefault().getPreSaveInteractiveProvider();
+        if (preSaveInteractiveProviderClass != null) {
+            try {
+                IPreSaveInteractiveProvider preSaveInteractiveProvider = preSaveInteractiveProviderClass
+                        .newInstance();
+                return preSaveInteractiveProvider.executeInteractive(this,
+                        interactiveType);
+            } catch (InstantiationException e) {
+            } catch (IllegalAccessException e) {
+            }
+        }
+        return null;
+    }
+
     private void doSave(IProgressMonitor monitor, boolean useProgressDialog) {
         if (!workbookRef.willOverwriteTarget()) {
+            String interactiveResult = IPreSaveInteractiveProvider.INSTRUCTION_PROMOTE;
+
+            IPreSaveInteractiveFeedback feedback = preSaveInteractive(
+                    IPreSaveInteractiveProvider.TYPE_PRE_SAVE);
+            if (feedback != null) {
+                interactiveResult = feedback.interactiveFeedback().getProperty(
+                        IPreSaveInteractiveFeedback.INTERACTIVE_RESULT);
+                workbookNameByPreSaveInteractiveProvider = feedback
+                        .interactiveFeedback().getProperty(
+                                IPreSaveInteractiveFeedback.INTERACTIVE_FEEDBACK_1);
+            }
+            if (IPreSaveInteractiveProvider.INSTRUCTION_END == interactiveResult) {
+                return;
+            } else if (IPreSaveInteractiveProvider.INSTRUCTION_PROMOTE == interactiveResult) {
+            }
             doSaveAs(monitor, useProgressDialog);
         } else {
             int ret = promptWorkbookVersion(getPartName());
             if (ret == 0) {
+                String interactiveResult = IPreSaveInteractiveProvider.INSTRUCTION_PROMOTE;
+
+                IPreSaveInteractiveFeedback feedback = preSaveInteractive(
+                        IPreSaveInteractiveProvider.TYPE_PRE_SAVE_AS);
+                if (feedback != null) {
+                    interactiveResult = feedback.interactiveFeedback()
+                            .getProperty(
+                                    IPreSaveInteractiveFeedback.INTERACTIVE_RESULT);
+                    workbookNameByPreSaveInteractiveProvider = feedback
+                            .interactiveFeedback().getProperty(
+                                    IPreSaveInteractiveFeedback.INTERACTIVE_FEEDBACK_1);
+                }
+                if (IPreSaveInteractiveProvider.INSTRUCTION_END == interactiveResult) {
+                    return;
+                } else if (IPreSaveInteractiveProvider.INSTRUCTION_PROMOTE == interactiveResult) {
+                }
                 doSaveAs(monitor, useProgressDialog);
             } else if (ret == 1) {
                 BlackBox.doBackup(getWorkbook().getFile());
@@ -797,6 +849,10 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             path = null;
         }
 
+        if (workbookNameByPreSaveInteractiveProvider != null) {
+            proposalName = workbookNameByPreSaveInteractiveProvider;
+        }
+
         // Hide busy cursor
         Display display = getSite().getShell().getDisplay();
         Shell[] shells = display.getShells();
@@ -831,6 +887,15 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             }
         }
 
+        String lastPath = new File(result).getParent();
+        if (lastPath != null) {
+            MindMapUIPlugin.getDefault()
+                    .getDialogSettings(
+                            MindMapUIPlugin.SECTION_IPRESAVEINTERACTIVEPROVIDER)
+                    .put(MindMapUIPlugin.IPRESAVEINTERACTIVEPROVIDER_LASTPATH,
+                            lastPath);
+        }
+
         return MME.createFileEditorInput(result);
     }
 
@@ -841,6 +906,21 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
     }
 
     public void doSaveAs() {
+        String interactiveResult = IPreSaveInteractiveProvider.INSTRUCTION_PROMOTE;
+
+        IPreSaveInteractiveFeedback feedback = preSaveInteractive(
+                IPreSaveInteractiveProvider.TYPE_PRE_SAVE_AS);
+        if (feedback != null) {
+            interactiveResult = feedback.interactiveFeedback().getProperty(
+                    IPreSaveInteractiveFeedback.INTERACTIVE_RESULT);
+            workbookNameByPreSaveInteractiveProvider = feedback
+                    .interactiveFeedback().getProperty(
+                            IPreSaveInteractiveFeedback.INTERACTIVE_FEEDBACK_1);
+        }
+        if (IPreSaveInteractiveProvider.INSTRUCTION_END == interactiveResult) {
+            return;
+        } else if (IPreSaveInteractiveProvider.INSTRUCTION_PROMOTE == interactiveResult) {
+        }
         doSaveAs(new NullProgressMonitor(), false);
     }
 

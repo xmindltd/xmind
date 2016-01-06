@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.cathy;singleton:=true
-Bundle-Version: 3.6.0.qualifier
+Bundle-Version: 3.6.1.qualifier
 Bundle-Activator: org.xmind.cathy.internal.CathyPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -33,7 +33,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.osgi.services,
  org.eclipse.e4.core.di.extensions,
  org.eclipse.core.expressions,
- org.eclipse.e4.core.commands
+ org.eclipse.e4.core.commands,
+ org.xmind.ui.dashboard
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.annotation;version="1.0.0";resolution:=optional,

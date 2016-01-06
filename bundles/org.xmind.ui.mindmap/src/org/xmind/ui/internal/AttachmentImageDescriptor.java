@@ -56,6 +56,9 @@ public class AttachmentImageDescriptor extends ImageDescriptor {
                 Logger.log(e, "Failed to get image data from attachment: " //$NON-NLS-1$
                         + path + " (" + workbook.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
                 imageData = getMissingData();
+            } catch (OutOfMemoryError e) {
+                Logger.log(e, "Image too large"); //$NON-NLS-1$
+                imageData = getMissingData();
             } finally {
                 try {
                     in.close();

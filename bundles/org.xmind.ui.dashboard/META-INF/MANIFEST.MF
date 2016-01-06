@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dashboard
+Bundle-SymbolicName: org.xmind.ui.dashboard;singleton:=true
+Bundle-Version: 3.6.1.qualifier
+Bundle-Activator: org.xmind.ui.internal.dashboard.DashboardPlugin
+Bundle-Vendor: XMind Ltd
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
+Export-Package: org.xmind.ui.internal.dashboard,
+ org.xmind.ui.internal.dashboard.pages
+Bundle-ClassPath: .

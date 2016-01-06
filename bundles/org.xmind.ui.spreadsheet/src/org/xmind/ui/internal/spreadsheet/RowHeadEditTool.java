@@ -83,6 +83,19 @@ public class RowHeadEditTool extends MindMapEditToolBase {
         return rowHead.toString();
     }
 
+    @Override
+    protected void handleTextModified(IPart source, IDocument document) {
+        if (finishedOnMouseDown) {
+            finishedOnMouseDown = false;
+            if (shouldIgnoreTextChange(source, document, oldText))
+                return;
+        }
+        Request request = createTextRequest(source, document);
+        if (request != null)
+            source.handleRequest(request,
+                    Spreadsheet.ROLE_SHEET_HEAD_MODIFIABLE);
+    }
+
     protected Request createTextRequest(IPart source, IDocument document) {
         if (row == null)
             return null;
@@ -101,7 +114,7 @@ public class RowHeadEditTool extends MindMapEditToolBase {
             }
             return null;
         } else {
-            Request request = new Request(MindMapUI.REQ_MODIFY_LABEL);
+            Request request = new Request(Spreadsheet.REQ_MODIFY_SHEET_HEAD);
             request.setParameter(GEF.PARAM_TEXT, document.get());
             List<IPart> targets = new ArrayList<IPart>();
             for (Cell2 cell : row.getCells()) {
@@ -151,8 +164,8 @@ public class RowHeadEditTool extends MindMapEditToolBase {
         if (contentProposalAdapter == null) {
             contentProposalAdapter = new FloatingTextEditorContentAssistAdapter(
                     editor, proposalProvider);
-            contentProposalAdapter
-                    .setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+            contentProposalAdapter.setProposalAcceptanceStyle(
+                    ContentProposalAdapter.PROPOSAL_REPLACE);
             contentProposalAdapter.setPopupSize(new Point(180, 80));
             final Image labelImage = createLabelProposalImage();
             if (labelImage != null) {

@@ -38,6 +38,8 @@ public class RowHead implements Comparable<RowHead> {
 
     private Dimension prefSize;
 
+    private int index;
+
     public RowHead(Collection<String> labels) {
         this.labels = new TreeSet<String>(labels);
     }
@@ -48,6 +50,10 @@ public class RowHead implements Comparable<RowHead> {
 
     public Collection<String> getLabels() {
         return labels;
+    }
+
+    public void setLabels(Collection<String> labels) {
+        this.labels = labels;
     }
 
     public boolean isEmpty() {
@@ -102,12 +108,16 @@ public class RowHead implements Comparable<RowHead> {
         return MindMapUtils.getLabelText(labels);
     }
 
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
     public int compareTo(RowHead o) {
-        if (isEmpty())
-            return 1;
-        if (o.isEmpty())
-            return -1;
-        return toString().compareTo(o.toString());
+        return getIndex() - o.getIndex();
     }
 
 }

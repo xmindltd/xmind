@@ -37,6 +37,13 @@ import org.xmind.ui.mindmap.MindMapUI;
 
 //import org.eclipse.core.internal.resources.File;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated Reimplemented by {@link org.xmind.cathy.internal.StartUpProcess}
+ *             to do startup jobs synchronously.
+ */
+@Deprecated
 public class StartupJob extends Job {
 
     private static final boolean DEBUG_CHECK_OPEN_FILE = CathyPlugin

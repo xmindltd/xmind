@@ -6,12 +6,16 @@ import java.net.URLEncoder;
 
 public class EncodingUtils {
 
+    public static final String DEFAULT_ENCODING = "UTF-8"; //$NON-NLS-1$
+
+    public static final String LATIN1 = "ISO-8859-1"; //$NON-NLS-1$
+
     public static String urlEncode(Object object) {
         String text = object == null ? "" : String.valueOf(object); //$NON-NLS-1$
         try {
-            return URLEncoder.encode(text, "UTF-8"); //$NON-NLS-1$
+            return URLEncoder.encode(text, DEFAULT_ENCODING);
         } catch (UnsupportedEncodingException e) {
-            return text;
+            throw new UnsupportedEncodingError(DEFAULT_ENCODING, e);
         }
     }
 
@@ -19,9 +23,9 @@ public class EncodingUtils {
         if (text == null)
             return ""; //$NON-NLS-1$
         try {
-            return URLDecoder.decode(text, "UTF-8"); //$NON-NLS-1$
+            return URLDecoder.decode(text, DEFAULT_ENCODING);
         } catch (UnsupportedEncodingException e) {
-            return text;
+            throw new UnsupportedEncodingError(DEFAULT_ENCODING, e);
         }
     }
 
@@ -33,19 +37,35 @@ public class EncodingUtils {
         return String.format(pattern, encodedValues);
     }
 
+    public static byte[] toDefaultBytes(String str) {
+        try {
+            return str.getBytes(DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedEncodingError(DEFAULT_ENCODING, e);
+        }
+    }
+
+    public static String toDefaultString(byte[] bytes) {
+        try {
+            return new String(bytes, DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedEncodingError(DEFAULT_ENCODING, e);
+        }
+    }
+
     public static byte[] toAsciiBytes(String str) {
         try {
-            return str.getBytes("US-ASCII"); //$NON-NLS-1$
+            return str.getBytes(LATIN1);
         } catch (UnsupportedEncodingException e) {
-            return str.getBytes();
+            throw new UnsupportedEncodingError(LATIN1, e);
         }
     }
 
     public static String toAsciiString(byte[] bytes) {
         try {
-            return new String(bytes, "US-ASCII"); //$NON-NLS-1$
+            return new String(bytes, LATIN1);
         } catch (UnsupportedEncodingException e) {
-            return new String(bytes);
+            throw new UnsupportedEncodingError(LATIN1, e);
         }
     }
 

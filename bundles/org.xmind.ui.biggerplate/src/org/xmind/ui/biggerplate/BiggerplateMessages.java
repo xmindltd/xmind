@@ -10,6 +10,8 @@ public class BiggerplateMessages extends NLS {
 
     public static String AuthoriseJob_JobName;
 
+    public static String BiggerplateUploaderDialog_NullTitle_error;
+
     public static String BiggerplateUploadJob_Failed_text;
 
     public static String BiggerplateUploadJob_JobName;

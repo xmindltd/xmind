@@ -141,6 +141,10 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
 
     private boolean showCustom = false;
 
+    private boolean showStandardLabel = true;
+
+    private boolean hasVerticalIndent = true;
+
     private RGB autoColor = null;
 
     private ToolBarManager autoToolBar = null;
@@ -278,6 +282,14 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
         refresh();
     }
 
+    public boolean isShowStandardLabel() {
+        return showStandardLabel;
+    }
+
+    public boolean hasVerticalIndent() {
+        return hasVerticalIndent;
+    }
+
     public void setShowNoneItem(boolean show) {
         if (show == getShowNoneItem())
             return;
@@ -329,6 +341,14 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
             }
         }
         refresh();
+    }
+
+    public void setShowStandardLabel(boolean showStandardLabel) {
+        this.showStandardLabel = showStandardLabel;
+    }
+
+    public void setHasVerticalIndent(boolean hasVerticalIndent) {
+        this.hasVerticalIndent = hasVerticalIndent;
     }
 
     public RGB getAutoColor() {
@@ -402,36 +422,45 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
             paletteToolBarManagers.clear();
             paletteToolBarManagers = null;
         }
+
         if (showPaletteItems) {
-            int cols = ((PaletteContents) input).getPreferredColumns();
-            List<PaletteItem> items = Arrays.asList(newItems);
-            List<PaletteItem> genItems = items.subList(0, items.size() - cols);
-            last = showPalette(input,
-                    genItems.toArray(new PaletteItem[genItems.size()]),
-                    paletteChanged, parent, last);
+            if (isShowStandardLabel()) {
+                int cols = ((PaletteContents) input).getPreferredColumns();
+                List<PaletteItem> items = Arrays.asList(newItems);
+                List<PaletteItem> genItems = items.subList(0,
+                        items.size() - cols);
+                last = showPalette(input,
+                        genItems.toArray(new PaletteItem[genItems.size()]),
+                        paletteChanged, parent, last);
 
-            if (sep2 == null || sep2.isDisposed()) {
-                sep2 = createSeparator(parent);
+                if (sep2 == null || sep2.isDisposed()) {
+                    sep2 = createSeparator(parent);
+                }
+                last = moveControl(sep2, last);
+
+                if (standard == null || standard.isDisposed()) {
+                    standard = new Label(parent, SWT.NONE);
+                    standard.setText(
+                            PaletteMessages.PaletteItem_Standard_label);
+                    GridData labelLayout = new GridData(
+                            GridData.FILL_HORIZONTAL);
+                    labelLayout.horizontalIndent = 7;
+                    labelLayout.verticalIndent = 5;
+                    standard.setLayoutData(labelLayout);
+                }
+                last = moveControl(standard, last);
+
+                List<PaletteItem> staItems = items.subList(items.size() - cols,
+                        items.size());
+                last = showPalette(input,
+                        staItems.toArray(new PaletteItem[staItems.size()]),
+                        paletteChanged, parent, last);
+            } else {
+                List<PaletteItem> items = Arrays.asList(newItems);
+                last = showPalette(input,
+                        items.toArray(new PaletteItem[items.size()]),
+                        paletteChanged, parent, last);
             }
-            last = moveControl(sep2, last);
-
-            if (standard == null || standard.isDisposed()) {
-                standard = new Label(parent, SWT.NONE);
-                standard.setText(PaletteMessages.PaletteItem_Standard_label);
-                GridData labelLayout = new GridData(GridData.FILL_HORIZONTAL);
-                labelLayout.horizontalIndent = 7;
-                labelLayout.verticalIndent = 5;
-                standard.setLayoutData(labelLayout);
-            }
-            last = moveControl(standard, last);
-
-            List<PaletteItem> staItems = items.subList(items.size() - cols,
-                    items.size());
-            last = showPalette(input,
-                    staItems.toArray(new PaletteItem[staItems.size()]),
-                    paletteChanged, parent, last);
-        } else {
-
         }
 
         if (showCustomItem) {
@@ -470,6 +499,8 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
                 .getPreferredColumns();
         containerLayout.verticalSpacing = 0;
         containerLayout.horizontalSpacing = 0;
+        containerLayout.marginHeight = 0;
+        containerLayout.marginWidth = 5;
 //        if (newItems.length == ITEM_SIZE - containerLayout.numColumns
 //                || newItems.length == containerLayout.numColumns) {
 //            containerLayout.verticalSpacing = 0;
@@ -501,7 +532,7 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
 
                 GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
                 if (newItems.length == ITEM_SIZE - containerLayout.numColumns)
-                    if (i >= containerLayout.numColumns
+                    if (hasVerticalIndent() && i >= containerLayout.numColumns
                             && i < containerLayout.numColumns * 2) {
                         layoutData.verticalIndent = 10;
                     }
@@ -543,7 +574,8 @@ public class PaletteViewer extends Viewer implements IPaletteViewer {
                             GridData.FILL_HORIZONTAL);
                     if (newItems.length == ITEM_SIZE
                             - containerLayout.numColumns)
-                        if (i >= containerLayout.numColumns
+                        if (hasVerticalIndent()
+                                && i >= containerLayout.numColumns
                                 && i < containerLayout.numColumns * 2) {
                             layoutData.verticalIndent = 10;
                         }

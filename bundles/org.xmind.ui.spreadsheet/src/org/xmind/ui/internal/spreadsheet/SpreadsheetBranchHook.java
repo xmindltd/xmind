@@ -20,6 +20,7 @@ import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.ui.branch.IBranchHook;
+import org.xmind.ui.internal.mindmap.BranchPart;
 import org.xmind.ui.mindmap.IBranchPart;
 
 public class SpreadsheetBranchHook implements IBranchHook, ICoreEventListener {
@@ -34,9 +35,16 @@ public class SpreadsheetBranchHook implements IBranchHook, ICoreEventListener {
         register = new CoreEventRegister(topic, this);
         register.register(Spreadsheet.EVENT_MODIFY_COLUMN_ORDER);
         register.register(Spreadsheet.EVENT_MODIFY_ROW_ORDER);
+
+        ((BranchPart) branch).getRequestHandler().installEditPolicy(
+                Spreadsheet.ROLE_SHEET_HEAD_MODIFIABLE,
+                Spreadsheet.POLICY_SHEET_HEAD_MODIFIABLE);
     }
 
     public void unhook(IBranchPart branch) {
+        ((BranchPart) branch).getRequestHandler()
+                .uninstallEditPolicy(Spreadsheet.ROLE_SHEET_HEAD_MODIFIABLE);
+
         if (register != null) {
             register.unregisterAll();
             register = null;
@@ -45,9 +53,9 @@ public class SpreadsheetBranchHook implements IBranchHook, ICoreEventListener {
     }
 
     public void handleCoreEvent(CoreEvent event) {
-        if (branch != null
-                && (Spreadsheet.EVENT_MODIFY_COLUMN_ORDER.equals(event
-                        .getType()) || Spreadsheet.EVENT_MODIFY_ROW_ORDER
+        if (branch != null && (Spreadsheet.EVENT_MODIFY_COLUMN_ORDER
+                .equals(event.getType())
+                || Spreadsheet.EVENT_MODIFY_ROW_ORDER
                         .equals(event.getType()))) {
             Control c = branch.getSite().getViewerControl();
             if (c != null && !c.isDisposed()) {

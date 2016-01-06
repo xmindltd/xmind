@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.IPath;
@@ -52,17 +50,24 @@ public class EditorHistory implements IEditorHistory {
     private ListenerList listeners = new ListenerList();
 
     protected EditorHistory() {
-        Properties historyRepository = EditorHistoryPersistenceService.load();
-        Set<Object> keySet = historyRepository.keySet();
-        for (Object key : keySet) {
-            try {
-                String input = (String) key;
-                URI inputURI = new URI(input);
+        List<String> historyRepository = EditorHistoryPersistenceService.load();
+        for (String inputAndInfo : historyRepository) {
+            int index = inputAndInfo
+                    .indexOf(EditorHistoryPersistenceService.VALUE_SEPARATOR);
+            if (index < 0)
+                continue;
 
+            String input = inputAndInfo.substring(0, index);
+            String info = inputAndInfo.substring(index
+                    + EditorHistoryPersistenceService.VALUE_SEPARATOR.length());
+
+            try {
+                URI inputURI = new URI(input);
                 inputURIs.add(inputURI);
-                inputToInfo.put(inputURI, historyRepository.getProperty(input));
+                inputToInfo.put(inputURI, info);
             } catch (URISyntaxException e) {
             }
+
         }
 
     }

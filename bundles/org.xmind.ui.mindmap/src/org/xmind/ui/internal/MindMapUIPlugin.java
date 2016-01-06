@@ -30,12 +30,16 @@ import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.xmind.core.Core;
 import org.xmind.core.command.ICommandService;
+import org.xmind.ui.IPreSaveInteractiveProvider;
 import org.xmind.ui.internal.editor.BackgroundWorkbookSaver;
 
 public class MindMapUIPlugin extends AbstractUIPlugin {
 
     // The plug-in ID
     public static final String PLUGIN_ID = "org.xmind.ui.mindmap"; //$NON-NLS-1$
+
+    public static final String SECTION_IPRESAVEINTERACTIVEPROVIDER = "org.xmind.ui.mindmap.ipresaveinteractiveprovider"; //$NON-NLS-1$
+    public static final String IPRESAVEINTERACTIVEPROVIDER_LASTPATH = "org.xmind.ui.mindmap.ipresaveinteractiveprovider.lastpath"; //$NON-NLS-1$
 
     // The shared instance.
     private static MindMapUIPlugin plugin;
@@ -45,6 +49,8 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
     private ServiceTracker<DebugOptions, DebugOptions> debugTracker = null;
 
     private Set<Job> jobs = new HashSet<Job>();
+
+    private Class<? extends IPreSaveInteractiveProvider> preSaveInteractiveProvider;
 
     /**
      * The constructor
@@ -104,6 +110,23 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
      */
     public static MindMapUIPlugin getDefault() {
         return plugin;
+    }
+
+    public void setPreSaveInteractiveProvider(
+            Class<? extends IPreSaveInteractiveProvider> preSaveInteractiveProvider) {
+        this.preSaveInteractiveProvider = preSaveInteractiveProvider;
+    }
+
+    public void removePreSaveInteractiveProvider() {
+        this.preSaveInteractiveProvider = null;
+    }
+
+    /**
+     * Only for this plugin
+     * 
+     */
+    public Class<? extends IPreSaveInteractiveProvider> getPreSaveInteractiveProvider() {
+        return this.preSaveInteractiveProvider;
     }
 
     public IDialogSettings getDialogSettings(String sectionName) {

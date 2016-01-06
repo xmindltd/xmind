@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.feature"
       label="XMind RCP Application"
-      version="3.6.0.qualifier"
+      version="3.6.1.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -23,6 +23,13 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
 
    <plugin
          id="org.xmind.cathy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.ui.dashboard"
          download-size="0"
          install-size="0"
          version="0.0.0"

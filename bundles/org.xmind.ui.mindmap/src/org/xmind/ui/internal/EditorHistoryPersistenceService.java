@@ -18,7 +18,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IWorkbench;
@@ -31,6 +34,10 @@ import org.xmind.ui.util.Logger;
 
 public class EditorHistoryPersistenceService
         implements IEditorHistoryListener, IWorkbenchListener {
+
+    public static final String VALUE_SEPARATOR = "#$#"; //$NON-NLS-1$
+
+    private static final String KEY_PREFIX = "item."; //$NON-NLS-1$
 
     private static final String FILE_NAME = "workbookHistory.properties"; //$NON-NLS-1$
 
@@ -122,10 +129,15 @@ public class EditorHistoryPersistenceService
         IEditorHistory editorHistory = MindMapUI.getEditorHistory();
 
         // Push items
-        for (URI input : content) {
+        for (int index = 0; index < content.length; index++) {
+            URI input = content[index];
             String info = editorHistory.getInfo(input);
-            if (input != null && info != null)
-                repository.setProperty(input.toString(), info);
+            if (input != null && info != null) {
+                String key = KEY_PREFIX + index;
+                repository.setProperty(key,
+                        input.toString() + VALUE_SEPARATOR + info);
+
+            }
         }
 
         // Save to properties file
@@ -149,7 +161,7 @@ public class EditorHistoryPersistenceService
         }
     }
 
-    public static Properties load() {
+    public static List<String> load() {
         Properties repository = new Properties();
 
         // Load form properties file
@@ -167,7 +179,39 @@ public class EditorHistoryPersistenceService
                         + file.getAbsolutePath());
             }
         }
-        return repository;
+
+        int count = 0;
+        List<String> items = new ArrayList<String>();
+        // Parse properties
+        int size = repository.size();
+        for (int i = 0; i < size; i++) {
+            if (count >= EditorHistory.MAX_SIZE)
+                return items;
+
+            String key = KEY_PREFIX + i;
+            String value = repository.getProperty(key);
+            if (value == null)
+                continue;
+            items.add(value);
+            repository.remove(key);
+
+            count++;
+        }
+
+        //Compatible with the old version
+        Set<Object> oldVersionKeys = repository.keySet();
+        for (Object key : oldVersionKeys) {
+            if (count >= EditorHistory.MAX_SIZE)
+                return items;
+
+            String input = (String) key;
+            String info = repository.getProperty(input);
+
+            items.add(input + VALUE_SEPARATOR + info);
+            count++;
+        }
+
+        return items;
 
     }
 

@@ -120,6 +120,8 @@ public class TempSaver {
         }
         IManifest manifest = workbook.getManifest();
         saveDOM(manifest, target, MANIFEST_XML);
+        clearEncryptionData();
+
     }
 
     private IStorage createStorage() {
@@ -137,6 +139,12 @@ public class TempSaver {
                 saveStorageEntry(source, target, entryPath);
                 markSaved(entryPath);
             }
+        }
+    }
+
+    private void clearEncryptionData() {
+        for (IFileEntry entry : workbook.getManifest().getFileEntries()) {
+            entry.deleteEncryptionData();
         }
     }
 

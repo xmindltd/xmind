@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.ui.gallery.GalleryViewer;
+import org.xmind.ui.internal.dashboard.pages.DashboardPage;
 
 public class RecentFileListDashboardPage extends DashboardPage {
 

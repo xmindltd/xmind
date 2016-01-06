@@ -37,8 +37,6 @@ import java.util.zip.ZipInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.coobird.thumbnailator.Thumbnails;
-
 import org.eclipse.core.runtime.Platform;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -49,6 +47,8 @@ import org.xmind.core.sharing.SharingEvent;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import net.coobird.thumbnailator.Thumbnails;
 
 /**
  * @author Frank Shaka
@@ -130,17 +130,36 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
 
     private DocumentBuilder getDocumentBuilder() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setAttribute(
-                "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
-                true);
-        factory.setFeature(
-                "http://apache.org/xml/features/disallow-doctype-decl", true); //$NON-NLS-1$
+        try {
+            factory.setAttribute(
+                    "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
+                    true);
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            factory.setFeature(
+                    "http://apache.org/xml/features/disallow-doctype-decl", //$NON-NLS-1$
+                    true);
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-parameter-entities", //$NON-NLS-1$
+                    false);
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            factory.setFeature(
+                    "http://xml.org/sax/features/external-general-entities", //$NON-NLS-1$
+                    false);
+        } catch (Exception e) {
+            // ignore
+        }
         factory.setXIncludeAware(false);
         factory.setExpandEntityReferences(false);
-        factory.setFeature(
-                "http://xml.org/sax/features/external-parameter-entities", false); //$NON-NLS-1$
-        factory.setFeature(
-                "http://xml.org/sax/features/external-general-entities", false); //$NON-NLS-1$
         factory.setNamespaceAware(true);
         factory.setIgnoringElementContentWhitespace(true);
         DocumentBuilder documentBuilder = factory.newDocumentBuilder();
@@ -190,17 +209,17 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
                     for (Element mapElement : mapElements) {
                         LocalSharedMap map = new LocalSharedMap(this,
                                 mapElement.getAttribute(ATT_ID));
-                        map.setResourcePath(mapElement
-                                .getAttribute(ATT_RESOURCE));
+                        map.setResourcePath(
+                                mapElement.getAttribute(ATT_RESOURCE));
                         String modifiedTime = mapElement
                                 .getAttribute(ATT_MODIFIED_TIME);
                         if (modifiedTime != null && !"".equals(modifiedTime)) { //$NON-NLS-1$
                             try {
-                                map.setResourceModifiedTime(Long.parseLong(
-                                        modifiedTime, 10));
+                                map.setResourceModifiedTime(
+                                        Long.parseLong(modifiedTime, 10));
                             } catch (NumberFormatException e) {
-                                LocalNetworkSharing.log(
-                                        "Invalid 'modified-time': " //$NON-NLS-1$
+                                LocalNetworkSharing
+                                        .log("Invalid 'modified-time': " //$NON-NLS-1$
                                                 + modifiedTime, e);
                             }
                         }
@@ -210,15 +229,14 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
                             try {
                                 map.setAddedTime(Long.parseLong(addedTime, 10));
                             } catch (NumberFormatException e) {
-                                LocalNetworkSharing.log(
-                                        "Invalid 'added-time': " //$NON-NLS-1$
-                                                + addedTime, e);
+                                LocalNetworkSharing.log("Invalid 'added-time': " //$NON-NLS-1$
+                                        + addedTime, e);
                             }
                         }
                         Element thumbnailElement = getFirstChildElementByTag(
                                 mapElement, TAG_THUMBNAIL);
-                        map.setEncodedThumbnailData(thumbnailElement == null ? null
-                                : thumbnailElement.getTextContent());
+                        map.setEncodedThumbnailData(thumbnailElement == null
+                                ? null : thumbnailElement.getTextContent());
 
                         Element receiverIDsEle = getFirstChildElementByTag(
                                 mapElement, TAG_RECEIVERS);
@@ -237,9 +255,9 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
                     }
                 }
             } catch (Throwable e) {
-                LocalNetworkSharing
-                        .log("Error occurred while loading local shared library info.", //$NON-NLS-1$
-                                e);
+                LocalNetworkSharing.log(
+                        "Error occurred while loading local shared library info.", //$NON-NLS-1$
+                        e);
             }
 
             /*
@@ -256,8 +274,9 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
 
     private File getMetaFile() {
         if (metaFile == null) {
-            metaFile = new File(LocalNetworkSharing.getDefault()
-                    .getDataDirectory(), FILE_SHARED_MAPS);
+            metaFile = new File(
+                    LocalNetworkSharing.getDefault().getDataDirectory(),
+                    FILE_SHARED_MAPS);
         }
         return metaFile;
     }
@@ -321,8 +340,8 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
             return;
         this.name = name;
         save();
-        this.service.fireSharingEvent(new SharingEvent(
-                SharingEvent.Type.LIBRARY_NAME_CHANGED, this));
+        this.service.fireSharingEvent(
+                new SharingEvent(SharingEvent.Type.LIBRARY_NAME_CHANGED, this));
     }
 
     public synchronized ISharedMap addSharedMap(File file) {
@@ -380,7 +399,8 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
                     try {
                         String entryName = entry.getName();
                         if ("Thumbnails/thumbnail.png".equals(entryName) //$NON-NLS-1$
-                                || "Thumbnails/thumbnail.jpg".equals(entryName)) { //$NON-NLS-1$
+                                || "Thumbnails/thumbnail.jpg" //$NON-NLS-1$
+                                        .equals(entryName)) {
                             return createThumbnailData(zin);
                         }
                     } finally {
@@ -393,7 +413,8 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
         } catch (IOException e) {
             LocalNetworkSharing.log(
                     "Error occurred while create thumbnail data from local shared map: " //$NON-NLS-1$
-                            + file.getAbsolutePath(), e);
+                            + file.getAbsolutePath(),
+                    e);
         }
         return new byte[0];
     }
@@ -574,8 +595,8 @@ public class LocalSharedLibrary implements ILocalSharedLibrary {
     }
 
     private byte[] createXMind2014Thumbnail() {
-        URL url = Platform.getBundle(LocalNetworkSharing.ID).getEntry(
-                XMIND_2014_THUMBNAIL);
+        URL url = Platform.getBundle(LocalNetworkSharing.ID)
+                .getEntry(XMIND_2014_THUMBNAIL);
         if (url != null) {
             try {
                 InputStream input = url.openStream();

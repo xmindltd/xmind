@@ -5,13 +5,14 @@ import org.xmind.core.IAdaptable;
 import org.xmind.core.IIdentifiable;
 import org.xmind.core.IWorkbookComponent;
 
-public interface IComment extends IAdaptable, IWorkbookComponent, IIdentifiable {
+public interface IComment
+        extends IAdaptable, IWorkbookComponent, IIdentifiable {
 
     Element getImplementation();
 
     void setContent(String content);
 
-    void setTarget(IIdentifiable sheet);
+    void setTarget(IIdentifiable target);
 
     String getAuthor();
 

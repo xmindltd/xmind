@@ -197,7 +197,7 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
         BoundaryLayoutHelper boundaryLayoutHelper = getBoundaryLayoutHelper(
                 branch);
 
-        boundaryLayoutHelper.reset(branch, this, null);
+//        boundaryLayoutHelper.reset(branch, this, null);
         info.hasBoundaryTitles = false;
 
         ReferencedLayoutData fakeDelegate = info.delegate.copy();
@@ -353,7 +353,10 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
             IReferencedFigure calloutBranchFigure = (IReferencedFigure) calloutBranch
                     .getFigure();
 
-            IFigure calloutFigure = calloutBranch.getTopicPart().getFigure();
+            ITopicPart calloutTopicPart = calloutBranch.getTopicPart();
+            if (calloutTopicPart == null)
+                continue;
+            IFigure calloutFigure = calloutTopicPart.getFigure();
             Dimension calloutSize = calloutFigure.getPreferredSize();
 
             //over parent topic center
@@ -869,6 +872,7 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
                 .getCache(branch, CACHE_BOUNDARY_LAYOUT_HELPER);
         if (helper == null) {
             helper = new BoundaryLayoutHelper();
+            helper.reset(branch, this, null);
             MindMapUtils.setCache(branch, CACHE_BOUNDARY_LAYOUT_HELPER, helper);
         }
         return helper;
@@ -1107,7 +1111,8 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
                     Rectangle bBounds = boundary.getFigure().getBounds();
                     List<IBranchPart> enclosingBranches = boundary
                             .getEnclosingBranches();
-                    if (sub.equals(enclosingBranches.get(0)))
+                    if ((!enclosingBranches.isEmpty())
+                            && sub.equals(enclosingBranches.get(0)))
                         bounds = bBounds.contains(bounds) ? bBounds : bounds;
                 }
             }
@@ -1130,8 +1135,9 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
                     Rectangle bBounds = boundary.getFigure().getBounds();
                     List<IBranchPart> enclosingBranches = boundary
                             .getEnclosingBranches();
-                    if (sub.equals(enclosingBranches
-                            .get(enclosingBranches.size() - 1)))
+                    if ((!enclosingBranches.isEmpty())
+                            && sub.equals(enclosingBranches
+                                    .get(enclosingBranches.size() - 1)))
                         bounds = bBounds.contains(bounds) ? bBounds : bounds;
                 }
             }
@@ -1205,11 +1211,12 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
                         .getEnclosingBranches();
                 Rectangle bBounds = boundary.getFigure().getBounds();
 
-                if (orientation.equals(
+                if ((!enclosingBranches.isEmpty()) && orientation.equals(
                         enclosingBranches.get(enclosingBranches.size() - 1)))
                     uBounds = bBounds.contains(uBounds) ? bBounds : uBounds;
 
-                if (assist.equals(enclosingBranches.get(0)))
+                if ((!enclosingBranches.isEmpty())
+                        && assist.equals(enclosingBranches.get(0)))
                     dBounds = bBounds.contains(dBounds) ? bBounds : dBounds;
             }
         }

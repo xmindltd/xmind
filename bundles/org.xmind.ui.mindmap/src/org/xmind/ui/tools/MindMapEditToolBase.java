@@ -30,9 +30,9 @@ import org.xmind.ui.util.MindMapUtils;
 
 public abstract class MindMapEditToolBase extends FloatingTextEditTool {
 
-    private boolean finishedOnMouseDown = false;
+    protected boolean finishedOnMouseDown = false;
 
-    private String oldText = null;
+    protected String oldText = null;
 
     public MindMapEditToolBase() {
         setContextId(MindMapUI.CONTEXT_MINDMAP_TEXTEDIT);

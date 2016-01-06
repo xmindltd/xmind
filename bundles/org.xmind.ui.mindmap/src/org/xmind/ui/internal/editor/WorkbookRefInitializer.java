@@ -27,18 +27,18 @@ public class WorkbookRefInitializer {
     private boolean initNonExistingWorkbookRef(WorkbookRef ref,
             WorkbookEditorInput input) {
         if (input.getContents() != null) {
-            ref.setWorkbookLoader(new PreLoadedWorkbookLoader(input
-                    .getContents()));
+            ref.setWorkbookLoader(
+                    new PreLoadedWorkbookLoader(input.getContents()));
         } else {
-            ref.setWorkbookLoader(new TemplatedWorkbookLoader(input
-                    .getTemplateStream()));
+            ref.setWorkbookLoader(
+                    new TemplatedWorkbookLoader(input.getTemplateStream()));
         }
         return true;
     }
 
     private boolean initByLoadedWorkbook(WorkbookRef ref, Object refKey) {
-        IWorkbook workbook = (IWorkbook) MME
-                .getAdapter(refKey, IWorkbook.class);
+        IWorkbook workbook = (IWorkbook) MME.getAdapter(refKey,
+                IWorkbook.class);
         if (workbook != null) {
             ref.setWorkbookLoader(new PreLoadedWorkbookLoader(workbook));
             return true;

@@ -16,7 +16,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.actions.AddCommentAction;
+import org.xmind.ui.internal.actions.CreateCommentAction;
 import org.xmind.ui.internal.actions.DeleteCommentAction;
 import org.xmind.ui.internal.actions.ShowNextTopicCommentsAction;
 import org.xmind.ui.internal.actions.ShowPreTopicCommentsAction;
@@ -102,7 +102,7 @@ public class CommentsPopupActionBarContributor
     }
 
     protected void makeActions() {
-        addCommentAction = new AddCommentAction(targetEditor,
+        addCommentAction = new CreateCommentAction(targetEditor,
                 commentsPopup.getTopic(), commentsPopup);
         addAction(addCommentAction);
 

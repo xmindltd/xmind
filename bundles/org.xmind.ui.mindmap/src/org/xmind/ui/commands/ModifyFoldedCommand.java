@@ -53,7 +53,9 @@ public class ModifyFoldedCommand extends ModifyCommand {
 
     @Override
     protected void setNewValues() {
-        List<Object> rootParents = filterRootParents(getSources());
+        List<Object> sourcesToChange = filterSameValueSources(getSources(),
+                false);
+        List<Object> rootParents = filterRootParents(sourcesToChange);
         for (Object source : getSources()) {
             if (!rootParents.contains(source)) {
                 ModelCacheManager.getInstance().setCache(source,
@@ -72,7 +74,9 @@ public class ModifyFoldedCommand extends ModifyCommand {
 
     @Override
     protected void setOldValues() {
-        List<Object> rootParents = filterRootParents(getSources());
+        List<Object> sourcesToChange = filterSameValueSources(getSources(),
+                true);
+        List<Object> rootParents = filterRootParents(sourcesToChange);
         for (Object source : getSources()) {
             if (!rootParents.contains(source)) {
                 ModelCacheManager.getInstance().setCache(source,
@@ -87,6 +91,22 @@ public class ModifyFoldedCommand extends ModifyCommand {
         for (Object rootParent : rootParents) {
             setValue(rootParent, getOldValue(rootParent));
         }
+    }
+
+    private List<Object> filterSameValueSources(List<Object> sources,
+            boolean oldValueOrNewValue) {
+        ArrayList<Object> result = new ArrayList<Object>(sources.size());
+        for (Object topic : sources) {
+            if (topic instanceof ITopic) {
+                Object value = oldValueOrNewValue ? getOldValue(topic)
+                        : getNewValue();
+                boolean folded = ((ITopic) topic).isFolded();
+                if (value instanceof Boolean && !value.toString()
+                        .equals(Boolean.valueOf(folded).toString()))
+                    result.add(topic);
+            }
+        }
+        return result;
     }
 
     private List<Object> filterRootParents(List<Object> topics) {

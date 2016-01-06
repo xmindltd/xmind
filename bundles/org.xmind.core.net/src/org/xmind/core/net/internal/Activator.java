@@ -1,22 +1,27 @@
 package org.xmind.core.net.internal;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.service.debug.DebugOptions;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator implements BundleActivator {
 
     // The plug-in ID
     public static final String PLUGIN_ID = "org.xmind.core.net"; //$NON-NLS-1$
 
     // The shared instance
     private static Activator plugin;
+
+    private BundleContext bundleContext;
 
     private ServiceTracker<DebugOptions, DebugOptions> debugTracker = null;
 
@@ -33,8 +38,8 @@ public class Activator extends AbstractUIPlugin {
      * BundleContext)
      */
     public void start(BundleContext context) throws Exception {
-        super.start(context);
         plugin = this;
+        this.bundleContext = context;
     }
 
     /*
@@ -50,13 +55,22 @@ public class Activator extends AbstractUIPlugin {
         }
         this.debugTracker = null;
 
+        this.bundleContext = null;
         plugin = null;
-        super.stop(context);
+    }
+
+    public Bundle getBundle() {
+        return bundleContext.getBundle();
+    }
+
+    public ILog getLog() {
+        return Platform.getLog(getBundle());
     }
 
     private synchronized DebugOptions getDebugOptions() {
         if (debugTracker == null) {
-            debugTracker = new ServiceTracker<DebugOptions, DebugOptions>(getDefault().getBundle().getBundleContext(),
+            debugTracker = new ServiceTracker<DebugOptions, DebugOptions>(
+                    getDefault().getBundle().getBundleContext(),
                     DebugOptions.class, null);
             debugTracker.open();
         }
@@ -65,7 +79,8 @@ public class Activator extends AbstractUIPlugin {
 
     public boolean isDebugging(String option) {
         DebugOptions options = getDebugOptions();
-        return options != null && options.getBooleanOption(PLUGIN_ID + option, false);
+        return options != null
+                && options.getBooleanOption(PLUGIN_ID + option, false);
     }
 
     /**
@@ -82,11 +97,12 @@ public class Activator extends AbstractUIPlugin {
     }
 
     public static void log(Throwable e) {
-        log(e, ""); //$NON-NLS-1$
+        log(e, e.getMessage());
     }
 
     public static void log(Throwable e, String message) {
-        getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        getDefault().getLog()
+                .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
     }
 
 }

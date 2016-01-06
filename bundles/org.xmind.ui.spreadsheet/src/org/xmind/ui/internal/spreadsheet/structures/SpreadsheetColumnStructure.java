@@ -269,11 +269,11 @@ public class SpreadsheetColumnStructure extends AbstractBranchStructure
 
     public int getRangeGrowthDirection(IBranchPart branch,
             IBranchRangePart range) {
-        return PositionConstants.SOUTH;
+        return PositionConstants.EAST;
     }
 
     public int getSummaryDirection(IBranchPart branch, ISummaryPart summary) {
-        return PositionConstants.EAST;
+        return PositionConstants.SOUTH;
     }
 
     public int getSourceOrientation(IBranchPart branch) {

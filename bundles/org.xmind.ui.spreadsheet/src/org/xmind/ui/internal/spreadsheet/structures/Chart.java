@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.eclipse.draw2d.geometry.Point;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
@@ -132,10 +133,7 @@ public class Chart extends BranchStructureData {
 
         Map<Row, List<Item>> rowItems = null;
         Map<Column, List<Item>> colItems = null;
-        if (cols == null)
-            cols = new ArrayList<Column>();
-        else
-            cols.clear();
+        List<Column> cols2 = new ArrayList<Column>();
         for (IBranchPart rowHead : getTitle().getSubBranches()) {
             List<Item> items = new ArrayList<Item>();
             Row row = buildRow(rowHead, items);
@@ -150,13 +148,12 @@ public class Chart extends BranchStructureData {
                                 : findColumn(colItems.keySet(), prefHead);
                         if (col == null) {
                             col = new Column(this, prefHead);
+                            cols2.add(col);
                             List<Item> list = new ArrayList<Item>();
                             list.add(item);
                             if (colItems == null)
                                 colItems = new HashMap<Column, List<Item>>();
                             colItems.put(col, list);
-                            if (!cols.contains(col))
-                                cols.add(col);
                         } else {
                             List<Item> list = colItems.get(col);
                             if (list == null) {
@@ -164,19 +161,20 @@ public class Chart extends BranchStructureData {
                                 colItems.put(col, list);
                             }
                             list.add(item);
-                            if (!cols.contains(col))
-                                cols.add(col);
                         }
                     }
                 }
             }
         }
-//        if (colItems != null) {
-//            cols = new ArrayList<Column>(
-//                    new TreeSet<Column>(colItems.keySet()));
-//        }
-//        if (cols == null)
-//            cols = new ArrayList<Column>(1);
+        for (int i = 0; i < cols2.size(); i++) {
+            cols2.get(i).getHead().setIndex(i);
+        }
+        if (colItems != null) {
+            cols = new ArrayList<Column>(
+                    new TreeSet<Column>(colItems.keySet()));
+        }
+        if (cols == null)
+            cols = new ArrayList<Column>(1);
         if (cols.isEmpty()) {
             cols.add(new Column(this, ColumnHead.EMPTY));
         }
@@ -326,41 +324,41 @@ public class Chart extends BranchStructureData {
     public Row getPreviousRow(Row row) {
         int index = getRowIndex(row);
         if (index > 0)
-            return rows.get(index - 1);
+            return getRows().get(index - 1);
         return null;
     }
 
     public Row getNextRow(Row row) {
         int index = getRowIndex(row);
-        if (index < rows.size() - 1)
-            return rows.get(index + 1);
+        if (index < getRows().size() - 1)
+            return getRows().get(index + 1);
         return null;
     }
 
     public int getRowIndex(Row row) {
-        return rows.indexOf(row);
+        return getRows().indexOf(row);
     }
 
     public Column getPreviousColumn(Column col) {
         int index = getColumnIndex(col);
         if (index > 0)
-            return cols.get(index - 1);
+            return getColumns().get(index - 1);
         return null;
     }
 
     public Column getNextColumn(Column col) {
         int index = getColumnIndex(col);
-        if (index < cols.size() - 1)
-            return cols.get(index + 1);
+        if (index < getColumns().size() - 1)
+            return getColumns().get(index + 1);
         return null;
     }
 
     public int getColumnIndex(Column col) {
-        return cols.indexOf(col);
+        return getColumns().indexOf(col);
     }
 
     public Cell findCell(Point point) {
-        for (Row row : rows) {
+        for (Row row : getRows()) {
             for (Cell cell : row.getCells()) {
                 if (cell.getBounds().contains(point))
                     return cell;
@@ -378,7 +376,7 @@ public class Chart extends BranchStructureData {
             }
             if (point.y > y && point.y < y + getColumnHeadHeight()
                     + getMajorSpacing()) {
-                for (Column col : cols) {
+                for (Column col : getColumns()) {
                     int x = col.getLeft();
                     if (point.x > x && point.x < x + col.getWidth()) {
                         return col.getHead();
@@ -390,7 +388,7 @@ public class Chart extends BranchStructureData {
     }
 
     public Column findColumn(ColumnHead colHead) {
-        for (Column col : cols) {
+        for (Column col : getColumns()) {
             if (col.getHead().equals(colHead))
                 return col;
         }

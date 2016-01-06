@@ -4,7 +4,6 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_AUTHOR;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_OBJECT_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_TIME;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_COMMENT;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_CONTENT;
 
 import org.w3c.dom.Element;
@@ -122,11 +121,7 @@ public class CommentImpl extends Comment {
     }
 
     public String toString() {
-        return DOMUtils.toString(getCommentElement());
-    }
-
-    private Element getCommentElement() {
-        return DOMUtils.getFirstChildElementByTag(implementation, TAG_COMMENT);
+        return "COMMENT#" + getId() + "(" + getContent() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
 }

@@ -139,7 +139,10 @@ public class TimelineHorizontalStructure extends AbstractBranchStructure {
             IReferencedFigure calloutBranchFigure = (IReferencedFigure) calloutBranch
                     .getFigure();
 
-            IFigure calloutFigure = calloutBranch.getTopicPart().getFigure();
+            ITopicPart calloutPart = calloutBranch.getTopicPart();
+            if (calloutPart == null)
+                continue;
+            IFigure calloutFigure = calloutPart.getFigure();
             Dimension calloutSize = calloutFigure.getPreferredSize();
 
             //over parent topic center

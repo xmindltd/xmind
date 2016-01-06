@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.xmind.org.freehep.vectorgraphics;singleton:=true
+Bundle-Version: 3.6.1.qualifier
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: org.xmind.org.freehep.graphics2d,
+ org.xmind.org.freehep.graphics2d.font,
+ org.xmind.org.freehep.graphicsio,
+ org.xmind.org.freehep.graphicsio.font,
+ org.xmind.org.freehep.graphicsio.pdf,
+ org.xmind.org.freehep.graphicsio.raw,
+ org.xmind.org.freehep.util,
+ org.xmind.org.freehep.util.images,
+ org.xmind.org.freehep.util.io
+Bundle-ActivationPolicy: lazy
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName

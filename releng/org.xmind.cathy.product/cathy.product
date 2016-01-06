@@ -6,7 +6,7 @@
       uid="org.xmind.cathy.product"
       id="org.xmind.cathy.product"
       application="org.xmind.cathy.application"
-      version="3.6.0.qualifier"
+      version="3.6.1.qualifier"
       useFeatures="true"
       includeLaunchers="true">
 

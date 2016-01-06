@@ -943,12 +943,12 @@ public class WorkbookUtilsImpl {
         if (targetURL != null)
             return targetURL;
 
-        if (targetManifest == null) {
-            return (String) cache(data, sourceURL, sourceURL);
-        }
-
         boolean isSystemAttachment = sourceManifest == null
                 && HyperlinkUtils.isInternalAttachmentURL(sourceURL);
+        if (targetManifest == null
+                || (sourceManifest == null && !isSystemAttachment)) {
+            return (String) cache(data, sourceURL, sourceURL);
+        }
 
         InputStream sourceInputStream = null;
 
@@ -968,6 +968,8 @@ public class WorkbookUtilsImpl {
         } else {
             IFileEntry sourceEntry = sourceManifest
                     .getFileEntry(HyperlinkUtils.toAttachmentPath(sourceURL));
+            if (sourceEntry == null)
+                return (String) cache(data, sourceURL, sourceURL);
             sourceInputStream = sourceEntry.getInputStream();
             sourcePath = sourceEntry.getPath();
         }

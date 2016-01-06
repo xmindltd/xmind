@@ -135,9 +135,7 @@ public class Chart2 extends BranchStructureData {
 
         Map<Column2, List<Item2>> colItems = null;
         Map<Row2, List<Item2>> rowItems = null;
-        if(rows==null)
-            rows= new ArrayList<Row2>();
-        else rows.clear();
+        List<Row2> rows2 = new ArrayList<Row2>();
         for (IBranchPart colHead : getTitle().getSubBranches()) {
             List<Item2> items = new ArrayList<Item2>();
             Column2 col = buildCol(colHead, items);
@@ -152,13 +150,12 @@ public class Chart2 extends BranchStructureData {
                                 rowItems.keySet(), prefHead);
                         if (row == null) {
                             row = new Row2(this, prefHead);
+                            rows2.add(row);
                             List<Item2> list = new ArrayList<Item2>();
                             list.add(item);
                             if (rowItems == null)
                                 rowItems = new HashMap<Row2, List<Item2>>();
                             rowItems.put(row, list);
-                            if(!rows.contains(row))
-                                rows.add(row);
                         } else {
                             List<Item2> list = rowItems.get(row);
                             if (list == null) {
@@ -166,16 +163,17 @@ public class Chart2 extends BranchStructureData {
                                 rowItems.put(row, list);
                             }
                             list.add(item);
-                            if(!rows.contains(row))
-                                rows.add(row);
                         }
                     }
                 }
             }
         }
-//        if (rowItems != null) {
-//            rows = new ArrayList<Row2>(new TreeSet<Row2>(rowItems.keySet()));
-//        }
+        for (int i = 0; i < rows2.size(); i++) {
+            rows2.get(i).getHead().setIndex(i);
+        }
+        if (rowItems != null) {
+            rows = new ArrayList<Row2>(new TreeSet<Row2>(rowItems.keySet()));
+        }
         buildCells(colItems, rowItems);
     }
 
@@ -313,41 +311,42 @@ public class Chart2 extends BranchStructureData {
     public Column2 getPreviousColumn(Column2 col) {
         int index = getColumnIndex(col);
         if (index > 0)
-            return cols.get(index - 1);
+            return getColumns().get(index - 1);
         return null;
     }
 
     public Column2 getNextColumn(Column2 col) {
         int index = getColumnIndex(col);
-        if (index < cols.size() - 1)
-            return cols.get(index + 1);
+        if (index < getColumns().size() - 1)
+            return getColumns().get(index + 1);
         return null;
     }
 
     public int getRowIndex(Row2 row) {
-        return rows.indexOf(row);
+        return getRows().indexOf(row);
     }
 
     public Row2 getPreviousRow(Row2 row) {
         int index = getRowIndex(row);
         if (index > 0)
-            return rows.get(index - 1);
+            return getRows().get(index - 1);
         return null;
     }
 
     public Row2 getNextRow(Row2 row) {
         int index = getRowIndex(row);
-        if (index < rows.size() - 1)
-            return rows.get(index + 1);
+        if (index < getRows().size() - 1)
+            return getRows().get(index + 1);
         return null;
     }
 
     public int getColumnIndex(Column2 col) {
-        return cols.indexOf(col);
+        return getColumns().indexOf(col);
     }
 
     public Cell2 findCell(Point point) {
-        for (Column2 col : cols) {
+        //TODO
+        for (Column2 col : getColumns()) {
             for (Cell2 cell : col.getCells()) {
                 if (cell.getBounds().contains(point))
                     return cell;
@@ -362,7 +361,7 @@ public class Chart2 extends BranchStructureData {
                     - getMajorSpacing();
             if (point.x > x
                     && point.x < x + getRowHeadWidth() + getMajorSpacing() * 2) {
-                for (Row2 row : rows) {
+                for (Row2 row : getRows()) {
                     int y = row.getTop();
                     if (point.y > y && point.y < y + row.getHeight()) {
                         return row.getHead();
@@ -374,7 +373,7 @@ public class Chart2 extends BranchStructureData {
     }
 
     public Row2 findRow(RowHead colHead) {
-        for (Row2 row : rows) {
+        for (Row2 row : getRows()) {
             if (row.getHead().equals(colHead))
                 return row;
         }

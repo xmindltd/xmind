@@ -1,39 +1,31 @@
 package org.xmind.ui.commands;
 
-import org.xmind.core.ISheet;
-import org.xmind.core.ITopic;
-import org.xmind.core.IWorkbook;
+import org.xmind.core.IIdentifiable;
 import org.xmind.core.comment.IComment;
-import org.xmind.core.internal.dom.SheetImpl;
-import org.xmind.core.internal.dom.TopicImpl;
 import org.xmind.gef.command.Command;
 
-/**
- * The undo and redo function of this command is merged with
- * ModifyCommentCommand, so it's not provided in here.
- * 
- */
 public class AddCommentCommand extends Command {
 
-    private Object target;
+    private IComment comment;
 
-    public AddCommentCommand(Object target) {
-        this.target = target;
+    private int index = -1;
+
+    public AddCommentCommand(IIdentifiable target, IComment comment) {
+        comment.setTarget(target);
+        this.comment = comment;
     }
 
-    public void execute() {
-        if (target instanceof ITopic) {
-            TopicImpl topic = (TopicImpl) target;
-            IWorkbook workbook = topic.getOwnedWorkbook();
-            IComment comment = workbook.getCommentManager().createComment();
-            workbook.getCommentManager().addComment(comment, topic);
-        } else if (target instanceof ISheet) {
-            SheetImpl sheet = (SheetImpl) target;
-            IWorkbook workbook = sheet.getOwnedWorkbook();
-            IComment comment = workbook.getCommentManager().createComment();
-            workbook.getCommentManager().addComment(comment, sheet);
-        }
-        super.execute();
+    public void redo() {
+        index = comment.getOwnedWorkbook().getCommentManager().getAllComments()
+                .indexOf(comment);
+        comment.getOwnedWorkbook().getCommentManager().addComment(comment,
+                index);
+        super.undo();
+    }
+
+    public void undo() {
+        comment.getOwnedWorkbook().getCommentManager().removeComment(comment);
+        super.redo();
     }
 
 }

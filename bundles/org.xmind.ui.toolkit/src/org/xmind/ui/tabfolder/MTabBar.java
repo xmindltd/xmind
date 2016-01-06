@@ -76,6 +76,9 @@ public class MTabBar extends Composite {
     private int cornerHeight = 0;
     private Rectangle[] separators = null;
 
+    private Listener listener;
+    private boolean inDispose;
+
     public MTabBar(Composite parent, int style) {
         super(parent, style | SWT.DOUBLE_BUFFERED);
 
@@ -83,10 +86,13 @@ public class MTabBar extends Composite {
 
         super.setLayout(new MTabBarLayout());
 
-        Listener eventHandler = new Listener() {
+        listener = new Listener() {
 
             public void handleEvent(Event event) {
                 switch (event.type) {
+                case SWT.Dispose:
+                    onDispose(event);
+                    break;
                 case SWT.Resize:
                     onResize(event);
                     break;
@@ -119,13 +125,14 @@ public class MTabBar extends Composite {
             }
 
         };
-        addListener(SWT.Resize, eventHandler);
-        addListener(SWT.Paint, eventHandler);
-        addListener(SWT.MouseEnter, eventHandler);
-        addListener(SWT.MouseExit, eventHandler);
-        addListener(SWT.MouseMove, eventHandler);
-        addListener(SWT.MouseDown, eventHandler);
-        addListener(SWT.MouseUp, eventHandler);
+        addListener(SWT.Dispose, listener);
+        addListener(SWT.Resize, listener);
+        addListener(SWT.Paint, listener);
+        addListener(SWT.MouseEnter, listener);
+        addListener(SWT.MouseExit, listener);
+        addListener(SWT.MouseMove, listener);
+        addListener(SWT.MouseDown, listener);
+        addListener(SWT.MouseUp, listener);
 
     }
 
@@ -257,6 +264,9 @@ public class MTabBar extends Composite {
     }
 
     protected void destroyItem(MTabBarItem item) {
+        if (inDispose)
+            return;
+
         int index = indexOf(item);
         if (index < 0) {
             return;
@@ -1041,11 +1051,28 @@ public class MTabBar extends Composite {
         gc.setClipping(oldClipping);
     }
 
+    private void onDispose(Event event) {
+        removeListener(SWT.Dispose, listener);
+        notifyListeners(SWT.Dispose, event);
+        event.type = SWT.None;
+
+        inDispose = true;
+
+        for (MTabBarItem item : items) {
+            if (!item.isDisposed())
+                item.dispose();
+        }
+    }
+
     private void onResize(Event event) {
+        if (inDispose)
+            return;
         layout(true);
     }
 
     private void onPaint(Event event) {
+        if (inDispose)
+            return;
         paintTabBar(event.gc);
     }
 

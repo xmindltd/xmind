@@ -62,8 +62,8 @@ import org.xmind.ui.internal.wizards.MarkerGroupLabelProvider;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
-public class MarkerManagerPrefPage extends PreferencePage implements
-        IWorkbenchPreferencePage, Listener {
+public class MarkerManagerPrefPage extends PreferencePage
+        implements IWorkbenchPreferencePage, Listener {
 
     public static final String ID = "org.xmind.ui.MarkersPrefPage"; //$NON-NLS-1$
 
@@ -108,8 +108,8 @@ public class MarkerManagerPrefPage extends PreferencePage implements
                 groupViewer.setInput(sheet);
                 List<IMarkerGroup> groups = sheet.getMarkerGroups();
                 if (!groups.isEmpty()) {
-                    groupViewer.setSelection(new StructuredSelection(groups
-                            .get(0)));
+                    groupViewer.setSelection(
+                            new StructuredSelection(groups.get(0)));
                 }
                 refreshButtons();
             }
@@ -129,13 +129,13 @@ public class MarkerManagerPrefPage extends PreferencePage implements
         composite.setLayout(gridLayout);
 
         Label label = new Label(composite, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        label.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         label.setText(PrefMessages.MarkersPage_Groups_label);
 
         Composite groupContainer = new Composite(composite, SWT.NONE);
-        groupContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
+        groupContainer
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         GridLayout gridLayout2 = new GridLayout(2, false);
         gridLayout2.marginWidth = 0;
         gridLayout2.marginHeight = 0;
@@ -153,19 +153,20 @@ public class MarkerManagerPrefPage extends PreferencePage implements
         groupViewer.setContentProvider(new MarkerGroupContentProvider());
         final MarkerGroupLabelProvider labelProvider = new MarkerGroupLabelProvider();
         groupViewer.setLabelProvider(labelProvider);
-        groupViewer.getControl().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, true, true));
+        groupViewer.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         groupViewer
                 .addSelectionChangedListener(new ISelectionChangedListener() {
                     public void selectionChanged(SelectionChangedEvent event) {
-                        markerViewer.setInput(((IStructuredSelection) event
-                                .getSelection()).getFirstElement());
+                        markerViewer.setInput(
+                                ((IStructuredSelection) event.getSelection())
+                                        .getFirstElement());
                         refreshButtons();
                     }
                 });
         groupViewer.setColumnProperties(new String[] { "NAME" }); //$NON-NLS-1$
-        groupViewer.setCellEditors(new CellEditor[] { new TextCellEditor(
-                groupViewer.getTable(), SWT.SINGLE) });
+        groupViewer.setCellEditors(new CellEditor[] {
+                new TextCellEditor(groupViewer.getTable(), SWT.SINGLE) });
         groupViewer.setCellModifier(new ICellModifier() {
             public void modify(Object element, String property, Object value) {
                 if (element instanceof Widget) {
@@ -212,26 +213,26 @@ public class MarkerManagerPrefPage extends PreferencePage implements
 
         addGroupButton = new Button(inner, SWT.PUSH);
         addGroupButton.setText(PrefMessages.MarkersPage_AddGroup_text);
-        addGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                false));
+        addGroupButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(addGroupButton, SWT.Selection);
 
         removeGroupButton = new Button(inner, SWT.PUSH);
         removeGroupButton.setText(PrefMessages.MarkersPage_RemoveGroup_text);
-        removeGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                true, false));
+        removeGroupButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(removeGroupButton, SWT.Selection);
 
         renameGroupButton = new Button(inner, SWT.PUSH);
         renameGroupButton.setText(PrefMessages.MarkersPage_RenameGroup_text);
-        renameGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                true, false));
+        renameGroupButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(renameGroupButton, SWT.Selection);
 
         exportGroupButton = new Button(inner, SWT.PUSH);
         exportGroupButton.setText(PrefMessages.MarkersPage_ExportGroup_text);
-        exportGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                true, false));
+        exportGroupButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(exportGroupButton, SWT.Selection);
     }
 
@@ -246,13 +247,13 @@ public class MarkerManagerPrefPage extends PreferencePage implements
         composite.setLayout(gridLayout);
 
         Label label = new Label(composite, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        label.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         label.setText(PrefMessages.MarkersPage_Markers_label);
 
         Composite markerContainer = new Composite(composite, SWT.NONE);
-        markerContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
+        markerContainer
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         GridLayout gridLayout2 = new GridLayout(2, false);
         gridLayout2.marginWidth = 0;
         gridLayout2.marginHeight = 0;
@@ -272,8 +273,8 @@ public class MarkerManagerPrefPage extends PreferencePage implements
         markerViewer.setContentProvider(new MarkerGroupContentProvider());
         final MarkerGroupLabelProvider labelProvider = new MarkerGroupLabelProvider();
         markerViewer.setLabelProvider(labelProvider);
-        markerViewer.getControl().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, true, true));
+        markerViewer.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         markerViewer
                 .addSelectionChangedListener(new ISelectionChangedListener() {
                     public void selectionChanged(SelectionChangedEvent event) {
@@ -281,8 +282,8 @@ public class MarkerManagerPrefPage extends PreferencePage implements
                     }
                 });
         markerViewer.setColumnProperties(new String[] { "NAME" }); //$NON-NLS-1$
-        markerViewer.setCellEditors(new CellEditor[] { new TextCellEditor(
-                markerViewer.getTable(), SWT.SINGLE) });
+        markerViewer.setCellEditors(new CellEditor[] {
+                new TextCellEditor(markerViewer.getTable(), SWT.SINGLE) });
         markerViewer.setCellModifier(new ICellModifier() {
             public void modify(Object element, String property, Object value) {
                 if (element instanceof Widget) {
@@ -332,20 +333,20 @@ public class MarkerManagerPrefPage extends PreferencePage implements
 
         addMarkerButton = new Button(inner, SWT.PUSH);
         addMarkerButton.setText(PrefMessages.MarkersPage_AddMarker_text);
-        addMarkerButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                false));
+        addMarkerButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(addMarkerButton, SWT.Selection);
 
         removeMarkerButton = new Button(inner, SWT.PUSH);
         removeMarkerButton.setText(PrefMessages.MarkersPage_RemoveMarker_text);
-        removeMarkerButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                true, false));
+        removeMarkerButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(removeMarkerButton, SWT.Selection);
 
         renameMarkerButton = new Button(inner, SWT.PUSH);
         renameMarkerButton.setText(PrefMessages.MarkersPage_RenameMarker_text);
-        renameMarkerButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
-                true, false));
+        renameMarkerButton
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         hookWidget(renameMarkerButton, SWT.Selection);
     }
 
@@ -406,8 +407,8 @@ public class MarkerManagerPrefPage extends PreferencePage implements
 
     private String createGroupName() {
         int index = getSheet().getMarkerGroups().size() + 1;
-        String name = NLS
-                .bind(PrefMessages.MarkersPage_DefaultGroupName, index);
+        String name = NLS.bind(PrefMessages.MarkersPage_DefaultGroupName,
+                index);
         while (isNameExisting(name)) {
             index++;
             name = NLS.bind(PrefMessages.MarkersPage_DefaultGroupName, index);
@@ -431,6 +432,11 @@ public class MarkerManagerPrefPage extends PreferencePage implements
                 .getSelection();
         if (selection.isEmpty())
             return;
+
+        List<IMarkerGroup> markerGroups = ((IMarkerSheet) groupViewer
+                .getInput()).getMarkerGroups();
+        int index = markerGroups.indexOf(selection.getFirstElement());
+
         IMarkerSheet sheet = getSheet();
         for (Object group : selection.toList()) {
             List<IMarker> markers = ((IMarkerGroup) group).getMarkers();
@@ -444,6 +450,19 @@ public class MarkerManagerPrefPage extends PreferencePage implements
             sheet.removeMarkerGroup((IMarkerGroup) group);
         }
         groupViewer.refresh();
+
+        //select the next one
+        markerGroups = ((IMarkerSheet) groupViewer.getInput())
+                .getMarkerGroups();
+        if (index >= markerGroups.size()) {
+            index = markerGroups.size() - 1;
+        }
+        if (index >= 0) {
+            if (!markerGroups.isEmpty()) {
+                groupViewer.setSelection(
+                        new StructuredSelection(markerGroups.get(index)));
+            }
+        }
     }
 
     /**
@@ -493,7 +512,8 @@ public class MarkerManagerPrefPage extends PreferencePage implements
                     OutputStream os = resource.getOutputStream();
                     if (os != null) {
                         try {
-                            FileInputStream is = new FileInputStream(sourcePath);
+                            FileInputStream is = new FileInputStream(
+                                    sourcePath);
                             FileUtils.transfer(is, os, true);
                         } catch (IOException e) {
                             Logger.log(e);
@@ -550,6 +570,10 @@ public class MarkerManagerPrefPage extends PreferencePage implements
         if (groupSelection.isEmpty())
             return;
 
+        List<IMarker> markers = ((IMarkerGroup) markerViewer.getInput())
+                .getMarkers();
+        int index = markers.indexOf(selection.getFirstElement());
+
         IMarkerGroup group = (IMarkerGroup) groupSelection.getFirstElement();
         for (Object marker : selection.toList()) {
             group.removeMarker((IMarker) marker);
@@ -560,13 +584,25 @@ public class MarkerManagerPrefPage extends PreferencePage implements
             removeMarkerFile((IMarker) marker);
         }
         markerViewer.refresh();
+
+        //select the next one
+        markers = ((IMarkerGroup) markerViewer.getInput()).getMarkers();
+        if (index >= markers.size()) {
+            index = markers.size() - 1;
+        }
+        if (index >= 0) {
+            if (!markers.isEmpty()) {
+                markerViewer.setSelection(
+                        new StructuredSelection(markers.get(index)));
+            }
+        }
     }
 
     private void removeMarkerFile(IMarker marker) {
         if (marker == null)
             return;
-        String path = Core.getWorkspace().getAbsolutePath(
-                "markers/" + marker.getResourcePath()); //$NON-NLS-1$
+        String path = Core.getWorkspace()
+                .getAbsolutePath("markers/" + marker.getResourcePath()); //$NON-NLS-1$
         new File(path).delete();
     }
 

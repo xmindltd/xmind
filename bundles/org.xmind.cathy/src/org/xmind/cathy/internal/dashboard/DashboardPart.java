@@ -37,6 +37,8 @@ import org.eclipse.ui.internal.handlers.WizardHandler;
 import org.osgi.service.event.Event;
 import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.cathy.internal.ICathyConstants;
+import org.xmind.ui.internal.dashboard.pages.IDashboardPage;
+import org.xmind.ui.internal.dashboard.pages.IDashboardPageContainer;
 import org.xmind.ui.internal.e4handlers.DisabledHandler;
 import org.xmind.ui.tabfolder.MTabFolder;
 import org.xmind.ui.tabfolder.MTabItem;

@@ -98,8 +98,9 @@ public class Cell extends BranchStructureData {
                 List<IBoundaryPart> boundaries = parent.getBoundaries();
                 if (!boundaries.isEmpty()) {
                     for (IBoundaryPart boundary : boundaries) {
-                        if (boundary.getEnclosingBranches()
-                                .contains(item.getBranch())) {
+                        List<IBranchPart> enclosingBranches = boundary
+                                .getEnclosingBranches();
+                        if (enclosingBranches.contains(item.getBranch())) {
                             Insets ins = boundary.getFigure().getInsets();
                             bw = ins.getWidth();
                             if (boundary.getTitle() != null
@@ -107,8 +108,8 @@ public class Cell extends BranchStructureData {
                                 bw += 5;
                         }
 
-                        if (item.getBranch().equals(
-                                boundary.getEnclosingBranches().get(0))) {
+                        if ((!enclosingBranches.isEmpty()) && item.getBranch()
+                                .equals(enclosingBranches.get(0))) {
                             bh = boundary.getFigure().getInsets().getHeight();
                             if (boundary.getTitle() != null && boundary
                                     .getTitle().getFigure() != null) {
@@ -162,8 +163,11 @@ public class Cell extends BranchStructureData {
                     List<IBoundaryPart> boundaries = parent.getBoundaries();
                     if (!boundaries.isEmpty()) {
                         for (IBoundaryPart boundary : boundaries) {
-                            if (item.getBranch().equals(
-                                    boundary.getEnclosingBranches().get(0))) {
+                            List<IBranchPart> enclosingBranches = boundary
+                                    .getEnclosingBranches();
+                            if ((!enclosingBranches.isEmpty())
+                                    && item.getBranch()
+                                            .equals(enclosingBranches.get(0))) {
                                 bh = boundary.getFigure().getInsets()
                                         .getHeight()
                                         - getOwnedChart().getMinorSpacing();

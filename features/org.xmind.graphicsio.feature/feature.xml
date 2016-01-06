@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.xmind.graphicsio.feature"
+      label="Graphics IO Libraries"
+      version="3.6.1.qualifier"
+      provider-name="XMind Ltd.">
+
+   <description>
+      Graphics IO Libraries
+   </description>
+
+   <copyright>
+      Copyright(C) 2006-2015, XMind Ltd. and others.
+   </copyright>
+
+   <license url="license.html">
+      XMind 3 is dual licensed under 2 open source licenses:
+the Eclipse Public License v1.0 (EPL),
+which is available at http://www.eclipse.org/legal/epl-v10.html ,
+and the GNU Lesser General Public License v3 (LGPL),
+which is available at http://www.gnu.org/licenses/lgpl.html .
+   </license>
+
+   <plugin
+         id="org.xmind.de.erichseifert.vectorgraphics2d"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.org.freehep.vectorgraphics"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

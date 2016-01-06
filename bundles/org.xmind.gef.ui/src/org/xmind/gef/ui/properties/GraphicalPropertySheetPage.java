@@ -90,17 +90,14 @@ public abstract class GraphicalPropertySheetPage extends Page
             editor.getSite().getSelectionProvider()
                     .addSelectionChangedListener(this);
 
-            ISelection selection = editor.getSite().getSelectionProvider()
+            final ISelection selection = editor.getSite().getSelectionProvider()
                     .getSelection();
             if (selection != null && !selection.isEmpty()) {
                 Display.getCurrent().asyncExec(new Runnable() {
                     public void run() {
-                        ISelection currentSelection = editor.getSite()
-                                .getSelectionProvider().getSelection();
-                        selectionChanged(currentSelection);
-                        for (SectionRec rec : sections) {
-                            rec.section.setSelection(currentSelection);
-                        }
+                        selectionChanged(new SelectionChangedEvent(
+                                editor.getSite().getSelectionProvider(),
+                                selection));
                     }
                 });
             }

@@ -61,12 +61,14 @@ public class FontUtils {
         if (availableFontNames == null) {
             availableFontNames = findAvailableFontNamesBySWT();
         }
-        return Collections.unmodifiableList(availableFontNames);
+        return Collections.unmodifiableList(availableFontNames != null
+                ? availableFontNames : new ArrayList<String>());
     }
 
     private static List<String> findAvailableFontNamesBySWT() {
-        Display display = Display.getCurrent() != null ? Display.getCurrent()
-                : new Display();
+        Display display = Display.getCurrent();
+        if (display == null)
+            return null;
         FontData[] fonts = display.getFontList(null, true);
         Set<String> set = new TreeSet<String>();
         for (int i = 0; i < fonts.length; i++) {

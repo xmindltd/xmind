@@ -350,8 +350,8 @@ public class MME {
                 if (openMindMap(window, path, fileName))
                     return;
             }
-        } else
-            if (MindMapUI.FILE_EXT_MARKER_PACKAGE.equalsIgnoreCase(extension)) {
+        } else if (MindMapUI.FILE_EXT_MARKER_PACKAGE
+                .equalsIgnoreCase(extension)) {
             if (importMarkers(path))
                 return;
         }

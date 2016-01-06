@@ -165,7 +165,8 @@ public class RowStructure extends AbstractBranchStructure implements
                                     bw += 5;
                             }
 
-                            if (child.equals(enclosingBranches.get(0))) {
+                            if ((!enclosingBranches.isEmpty())
+                                    && child.equals(enclosingBranches.get(0))) {
                                 bh = boundary.getFigure().getInsets().top;
                                 if (boundary.getTitle() != null && boundary
                                         .getTitle().getFigure() != null) {
@@ -176,8 +177,9 @@ public class RowStructure extends AbstractBranchStructure implements
                                 y += bh;
                                 bh = 0;
                             }
-                            if (child.equals(enclosingBranches
-                                    .get(enclosingBranches.size() - 1))) {
+                            if ((!enclosingBranches.isEmpty())
+                                    && child.equals(enclosingBranches.get(
+                                            enclosingBranches.size() - 1))) {
                                 bh = boundary.getFigure().getInsets().bottom;
                             }
                         }

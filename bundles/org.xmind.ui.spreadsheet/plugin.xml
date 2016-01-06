@@ -600,5 +600,12 @@
             tooltip="%iconTip.addRow.tooltip">
       </infoItem>
    </extension>
+   <extension
+         point="org.xmind.ui.editPolicies">
+      <editPolicy
+            class="org.xmind.ui.internal.spreadsheet.SheetHeadModifiablePolicy"
+            id="org.xmind.ui.editPolicy.sheetHeadModifiable">
+      </editPolicy>
+   </extension>
 
 </plugin>
