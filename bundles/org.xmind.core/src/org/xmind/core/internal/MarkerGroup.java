@@ -29,7 +29,7 @@ public abstract class MarkerGroup implements IMarkerGroup {
         return null;
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

@@ -472,7 +472,12 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         if (workbook != null) {
             IMarkerSheet markerSheet = workbook.getMarkerSheet();
             if (markerSheet != null) {
-                return markerSheet.findMarker(markerId);
+                IMarker ownedMarker = markerSheet.findMarker(markerId);
+                if (ownedMarker == null) {
+                    ownedMarker = MindMapUI.getResourceManager()
+                            .getUserMarkerSheet().findMarker(markerId);
+                }
+                return ownedMarker;
             }
         }
         return null;
@@ -547,7 +552,8 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
         if (e == null)
             return null;
 
-        String hyperlink = HyperlinkUtils.toAttachmentURL(e.getPath());
+        String entryPath = e.getPath();
+        String hyperlink = HyperlinkUtils.toAttachmentURL(entryPath);
 
         List<Command> cmds = new ArrayList<Command>(topics.size());
         for (ITopic t : topics) {

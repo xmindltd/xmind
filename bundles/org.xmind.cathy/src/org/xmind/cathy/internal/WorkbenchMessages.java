@@ -27,7 +27,11 @@ public class WorkbenchMessages extends NLS {
     public static String Help_menu_text;
     public static String SaveAction_text;
 
+    public static String GeneralPrefPage_seePolicy_link;
+
     public static String GeneralPrefPage_title;
+
+    public static String GeneralPrefPage_usageData_text;
     public static String RecentFiles_label;
 
     public static String RecentFileViewer_PinThisMapAction_label;
@@ -37,6 +41,8 @@ public class WorkbenchMessages extends NLS {
     public static String CathyWorkbenchWindowAdvisor_menu_lockAction_text;
 
     public static String CathyWorkbenchWindowAdvisor_menu_resetAction_text;
+
+    public static String CathyWorkbenchWindowAdvisor_windowTitle_home_prefix;
 
     public static String ChangeLanguage_button;
 
@@ -169,6 +175,24 @@ public class WorkbenchMessages extends NLS {
 
     public static String OpenXMindCommandFileJob_name;
 
+    public static String WelcomeDialog_item_cloud_description;
+
+    public static String WelcomeDialog_item_cloud_title;
+
+    public static String WelcomeDialog_item_iconFinder_description;
+
+    public static String WelcomeDialog_item_iconFinder_title;
+
+    public static String WelcomeDialog_item_share_description;
+
+    public static String WelcomeDialog_item_share_title;
+
+    public static String WelcomeDialog_okButton_text;
+
+    public static String WelcomeDialog_seePolicy_link;
+
+    public static String WelcomeDialog_uploadDataCheck_text;
+
     public static String WelcomeToXMindHandler_welcomeToXMind_templatedName;
 
     public static String WizardHandler_menuLabel;
@@ -219,6 +243,8 @@ public class WorkbenchMessages extends NLS {
     public static String NewFileDashboardPage_GoIntoTemplatesManagerMode_tooltip;
 
     public static String NewFileDashboardPage_GoToEditTemplateMode_label;
+
+    public static String NewFileDashboardPage_leftTitleBar_text;
 
     public static String NewFileDashboardPage_TemplateFilterName_label;
 

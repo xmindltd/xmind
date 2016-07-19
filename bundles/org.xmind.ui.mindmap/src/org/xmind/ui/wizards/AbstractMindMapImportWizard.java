@@ -40,13 +40,12 @@ import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.commands.AddSheetCommand;
-import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.internal.wizards.WizardMessages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
-public abstract class AbstractMindMapImportWizard extends Wizard implements
-        IImportWizard {
+public abstract class AbstractMindMapImportWizard extends Wizard
+        implements IImportWizard {
 
     protected static final String KEY_IMPORT_TARGET = "IMPORT_TARGET"; //$NON-NLS-1$
 
@@ -123,8 +122,7 @@ public abstract class AbstractMindMapImportWizard extends Wizard implements
     }
 
     public boolean hasSourcePath() {
-        return this.sourcePath != null
-                && !"".equals(this.sourcePath) //$NON-NLS-1$
+        return this.sourcePath != null && !"".equals(this.sourcePath) //$NON-NLS-1$
                 && new File(this.sourcePath).exists()
                 && new File(this.sourcePath).canRead();
     }
@@ -138,7 +136,8 @@ public abstract class AbstractMindMapImportWizard extends Wizard implements
 
     protected boolean doImport() {
         final IWorkbook target = isToNewWorkbook() ? null : getTargetWorkbook();
-        final MindMapImporter importer = createImporter(getSourcePath(), target);
+        final MindMapImporter importer = createImporter(getSourcePath(),
+                target);
         final Display display = workbench.getDisplay();
 
         try {
@@ -156,18 +155,16 @@ public abstract class AbstractMindMapImportWizard extends Wizard implements
                         if (workbook == null)
                             return;
 
-//                        final WorkbookEditorInput input = new WorkbookEditorInput(
-//                                workbook, null, true);
-                        final IEditorInput input = MME
-                                .createLoadedEditorInput(workbook);
+                        final IEditorInput input = MindMapUI
+                                .getEditorInputFactory()
+                                .createEditorInputForPreLoadedWorkbook(workbook,
+                                        null);
                         final Throwable[] exception = new Throwable[1];
                         display.syncExec(new Runnable() {
                             public void run() {
                                 try {
-                                    getWorkbench()
-                                            .getActiveWorkbenchWindow()
-                                            .getActivePage()
-                                            .openEditor(input,
+                                    getWorkbench().getActiveWorkbenchWindow()
+                                            .getActivePage().openEditor(input,
                                                     MindMapUI.MINDMAP_EDITOR_ID);
                                     // Forcely make editor saveable:
                                     if (workbook instanceof ICoreEventSource2) {
@@ -206,10 +203,10 @@ public abstract class AbstractMindMapImportWizard extends Wizard implements
                                                 sheet, getTargetWorkbook());
                                         commands.add(command);
                                     }
-                                    String label = NLS
-                                            .bind(WizardMessages.Command_ImportFrom,
-                                                    new File(getSourcePath())
-                                                            .getName());
+                                    String label = NLS.bind(
+                                            WizardMessages.Command_ImportFrom,
+                                            new File(getSourcePath())
+                                                    .getName());
                                     commandStack.execute(new CompoundCommand(
                                             label, commands));
                                 } catch (Throwable e) {

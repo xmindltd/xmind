@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>task_7</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="98.2342156%" id="linearGradient-1">
+            <stop stop-color="#8BBAC1" offset="0%"></stop>
+            <stop stop-color="#75A2A9" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="task-priority" transform="translate(-126.000000, 0.000000)">
+            <g id="task_7" transform="translate(126.000000, 0.000000)">
+                <rect id="Rectangle-7-Copy-44" fill="url(#linearGradient-1)" x="0.00451660156" y="0" width="16" height="16" rx="3"></rect>
+                <path d="M11.4870684,5.18331938 C11.2370672,5.42941436 10.8894144,5.86788654 10.4440997,6.49874907 C9.99878494,7.1296116 9.6257418,7.78097227 9.32495904,8.45285063 C9.0866766,8.98019702 8.871835,9.62472182 8.68042779,10.3864444 C8.48902059,11.1481669 8.39331842,11.7731607 8.39331842,12.2614444 L6.65894342,12.2614444 C6.70972492,10.7379993 7.20971992,9.15403073 8.15894342,7.50949126 C8.77222773,6.48995491 9.28589447,5.77902452 9.69995904,5.37667876 L5.46363092,5.37667876 L5.48706842,3.87667876 L11.4870684,3.87667876 L11.4870684,5.18331938 Z" id="7" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

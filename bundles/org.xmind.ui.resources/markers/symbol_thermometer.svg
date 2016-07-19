@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_温度计</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="1.40106824%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#EF5350" offset="0%"></stop>
+            <stop stop-color="#E53935" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="0" width="16" height="16" rx="2"></rect>
+        <path d="M6.70380346,8.43464201 L6.70380346,7.80806747 L7.90438662,7.80806747 L7.90438662,7.40481241 L6.70380346,7.40481241 L6.70380346,6.19504724 L7.90438662,6.19504724 L7.90438662,5.79179218 L6.70380346,5.79179218 L6.70380346,4.57047952 L7.90438662,4.57047952 L7.90438662,4.16722446 L6.70380346,4.16722446 L6.70380346,2.16108142 C6.70380346,1.49372818 7.23630089,0.95273148 7.90348726,0.95273148 C8.56605432,0.95273148 9.10317105,1.49732671 9.10317105,2.16108142 L9.10317105,8.43390778 C10.2760706,8.91225496 11.1035434,10.0715899 11.1035434,11.4258155 C11.1035434,13.2075085 9.67123213,14.651856 7.90438662,14.651856 C6.13754111,14.651856 4.70522983,13.2075085 4.70522983,11.4258155 C4.70522983,10.0722822 5.53185677,8.91344047 6.70380346,8.43464201 Z" id="path-3"></path>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-48.000000, -19.000000)">
+            <g id="sym_温度计" transform="translate(48.000000, 19.000000)">
+                <g id="Rectangle-370-Copy-9">
+                    <use fill="#EE432F" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <g id="Combined-Shape">
+                    <use fill="#EE432F" xlink:href="#path-3"></use>
+                    <use fill="#FFFFFF" xlink:href="#path-3"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

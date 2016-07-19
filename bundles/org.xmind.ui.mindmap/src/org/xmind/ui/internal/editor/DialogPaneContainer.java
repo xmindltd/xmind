@@ -54,11 +54,10 @@ public class DialogPaneContainer implements IDialogPaneContainer {
         hideCurrentDialog();
     }
 
-    public int open(IDialogPane dialog) {
+    public void open(IDialogPane dialog) {
         if (composite == null || composite.isDisposed())
-            return IDialogPane.CANCEL;
+            return;
         showDialog(dialog);
-        return dialog.getReturnCode();
     }
 
     protected void showDialog(IDialogPane dialog) {
@@ -81,17 +80,11 @@ public class DialogPaneContainer implements IDialogPaneContainer {
                     .activateContext("org.xmind.ui.context.backcover"); //$NON-NLS-1$
         }
 
-        // Block:
-        Display display = Display.getCurrent();
-        while (currentPane != null) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
-        close();
-        if (contextService != null && activation != null) {
-            contextService.deactivateContext(activation);
-        }
+//        
+//        
+//        if (contextService != null && activation != null) {
+//            contextService.deactivateContext(activation);
+//        }
     }
 
     protected IDialogPane getCurrentDialog() {

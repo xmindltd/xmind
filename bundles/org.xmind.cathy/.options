@@ -1,1 +1,3 @@
 org.xmind.cathy/debug/checkopenfile=false
+org.xmind.cathy/debug/udc/showUploadButton=false
+org.xmind.cathy/debug/notshowwelcome=false

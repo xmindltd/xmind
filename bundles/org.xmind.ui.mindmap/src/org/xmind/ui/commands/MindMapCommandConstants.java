@@ -23,4 +23,11 @@ public class MindMapCommandConstants {
     public static final String SORT_PARAM_PRIORITY = "priority"; //$NON-NLS-1$
     public static final String SORT_PARAM_TITLE = "title"; //$NON-NLS-1$
 
+    public static final String COLORFUL_SHEET = "org.xmind.ui.command.colorfulSheet"; //$NON-NLS-1$
+    public static final String COLORFUL_SHEET_PARAM_RGB = "org.xmind.ui.command.colorfulSheet.rgbParameter"; //$NON-NLS-1$
+
+    public static final String SAVE_WORKBOOK_AS = "org.xmind.ui.command.saveWorkbookAs"; //$NON-NLS-1$
+    public static final String SAVE_AS_WIZARD_ID_PARAM = "org.xmind.ui.command.saveWorkbookAs.wizardId"; //$NON-NLS-1$
+    public static final String SAVE_AS_EXCLUDED_WIZARD_IDS_PARAM = "org.xmind.ui.command.saveWorkbookAs.excludedWizardIds"; //$NON-NLS-1$
+
 }

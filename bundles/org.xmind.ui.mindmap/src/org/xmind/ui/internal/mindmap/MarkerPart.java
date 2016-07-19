@@ -17,6 +17,9 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.graphics.Image;
 import org.xmind.core.Core;
 import org.xmind.core.ITopic;
@@ -26,11 +29,15 @@ import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.SizeableImageFigure;
+import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.part.IRequestHandler;
 import org.xmind.gef.policy.NullEditPolicy;
 import org.xmind.gef.service.IFeedback;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGImageFigure;
+import org.xmind.ui.internal.svgsupport.SVGReference;
 import org.xmind.ui.mindmap.IMarkerPart;
 import org.xmind.ui.mindmap.ISelectionFeedbackHelper;
 import org.xmind.ui.mindmap.ITopicPart;
@@ -44,10 +51,15 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
 
     private ImageReference imageRef = null;
 
+    private SVGReference svgRef = null;
+
     private Dimension preferredSize = null;
+
+    private LocalResourceManager resourceManager;
 
     public MarkerPart() {
         setDecorator(MarkerDecorator.getInstance());
+
     }
 
     @SuppressWarnings("unchecked")
@@ -61,11 +73,18 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
             return getTopic();
         if (adapter == Image.class)
             return getImage();
+        if (adapter == SVGImageData.class)
+            return getSVGData();
         return super.getAdapter(adapter);
     }
 
     protected IFigure createFigure() {
-        return new SizeableImageFigure();
+        if (svgRef != null) {
+            SVGImageFigure figure = new SVGImageFigure();
+            figure.setManager(resourceManager);
+            return figure;
+        } else
+            return new SizeableImageFigure();
     }
 
     public IMarkerRef getMarkerRef() {
@@ -114,18 +133,47 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
         return null;
     }
 
+    public SVGImageData getSVGData() {
+        if (svgRef != null)
+            return svgRef.getSVGData();
+        return null;
+    }
+
+    @Override
+    protected void onActivated() {
+        this.resourceManager = new LocalResourceManager(
+                JFaceResources.getResources());
+        super.onActivated();
+    }
+
     protected void onDeactivated() {
         if (imageRef != null) {
             imageRef.dispose();
             imageRef = null;
+        }
+        if (svgRef != null) {
+            svgRef = null;
+            this.resourceManager.dispose();
         }
         super.onDeactivated();
     }
 
     @Override
     public void setModel(Object model) {
+        // step 1, new marker part
+        // step 2, set model
         super.setModel(model);
-        this.imageRef = createImageReference();
+        // step 3, ensure image type 
+        IMarkerRef markerRef = (IMarkerRef) ((ViewerModel) model)
+                .getRealModel();
+        IMarker marker = markerRef.getMarker();
+        String svgPath = marker != null ? marker.getSVGPath() : null;
+        if (svgPath != null && !"".equals(svgPath)) { //$NON-NLS-1$
+            this.svgRef = createSVGReference();
+        } else {
+            this.imageRef = createImageReference();
+        }
+
     }
 
     /*
@@ -179,7 +227,8 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
         super.installModelListeners();
     }
 
-    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source,
+            ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.Style);
         ITopic topic = getMarkerRef().getParent();
@@ -195,21 +244,53 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
     }
 
     private void updateMarker() {
-        if (imageRef != null) {
-            imageRef.dispose();
+        if (svgRef == null) {
+            if (imageRef != null) {
+                imageRef.dispose();
+            }
+            imageRef = createImageReference();
+        } else {
+            // svgRef don't have to create a new reference, 
+            // but the preferredSize must be calculated again 
+            preferredSize = calculateSVGPreferredSize();
         }
-        imageRef = createImageReference();
+
         update();
     }
 
     private ImageReference createImageReference() {
-        preferredSize = calculatePreferredSize();
+        preferredSize = calculateImagePreferredSize();
         int hintSize = preferredSize == null ? -1 : preferredSize.width;
         return new ImageReference(MarkerImageDescriptor.createFromMarkerRef(
                 getMarkerRef(), hintSize, hintSize), false);
     }
 
-    private Dimension calculatePreferredSize() {
+    private SVGReference createSVGReference() {
+        preferredSize = calculateSVGPreferredSize();
+
+        String resourcePath = MarkerImageDescriptor.RESOURCE_URL_PREFIX
+                + getMarker().getSVGPath();
+        SVGReference ref = new SVGReference(resourcePath);
+        if (this.resourceManager == null)
+            this.resourceManager = new LocalResourceManager(
+                    JFaceResources.getResources());
+        return ref;
+    }
+
+    private Dimension calculateSVGPreferredSize() {
+        ITopicPart tp = getTopicPart();
+        if (tp == null)
+            return null;
+        IStyleSelector ss = (IStyleSelector) tp
+                .getAdapter(IStyleSelector.class);
+        TextStyleData data = StyleUtils.getTextStyleData(tp, ss, null);
+        int leading = GraphicsUtils.getAdvanced()
+                .getFontMetrics(JFaceResources.getDefaultFont()).getLeading();
+
+        return new Dimension(data.height + leading, data.height + leading);
+    }
+
+    private Dimension calculateImagePreferredSize() {
         ITopicPart tp = getTopicPart();
         if (tp == null)
             return null;
@@ -217,6 +298,7 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
                 .getAdapter(IStyleSelector.class);
         TextStyleData data = StyleUtils.getTextStyleData(tp, ss, null);
         int fontSize = data.height;
+
         if (fontSize < 13) {
             return new Dimension(16, 16);
         } else if (fontSize >= 13 && fontSize < 25) {
@@ -224,10 +306,15 @@ public class MarkerPart extends MindMapPartBase implements IMarkerPart {
         } else {
             return new Dimension(32, 32);
         }
+
     }
 
     public Dimension getPreferredSize() {
         return preferredSize;
+    }
+
+    public ResourceManager getResourceManager() {
+        return resourceManager;
     }
 
 }

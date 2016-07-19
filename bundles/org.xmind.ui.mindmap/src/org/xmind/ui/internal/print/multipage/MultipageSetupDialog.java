@@ -268,11 +268,9 @@ public class MultipageSetupDialog extends TrayDialog {
 
     private Button borderCheck;
 
-    private Button showBothRadio;
+    private Button showPlusCheck;
 
-    private Button hideBothRadio;
-
-    private Button hideMinusShowPlusRadio;
+    private Button showMinusCheck;
 
     private Button landscapeRadio;
 
@@ -526,27 +524,77 @@ public class MultipageSetupDialog extends TrayDialog {
         composite.setLayout(layout);
         composite.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
 
-        showBothRadio = new Button(composite, SWT.RADIO);
-        showBothRadio.setText(DialogMessages.PageSetupDialog_ShowBoth);
-        showBothRadio
-                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        hookWidget(showBothRadio, SWT.Selection);
+        createShowPlusCheck(composite);
+        createShowMinusCheck(composite);
 
-        hideMinusShowPlusRadio = new Button(composite, SWT.RADIO);
-        hideMinusShowPlusRadio
-                .setText(DialogMessages.PageSetupDialog_HideMinusShowPlus);
-        hideMinusShowPlusRadio
-                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        hookWidget(hideMinusShowPlusRadio, SWT.Selection);
-
-        hideBothRadio = new Button(composite, SWT.RADIO);
-        hideBothRadio.setText(DialogMessages.PageSetupDialog_HideBoth);
-        hideBothRadio
-                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        hookWidget(hideBothRadio, SWT.Selection);
+        initPlusMinusCheckState();
 
         addHideControl(label);
         addHideControl(composite);
+    }
+
+    private void createShowPlusCheck(Composite parent) {
+        showPlusCheck = createPlusMinusCheck(parent,
+                MindMapMessages.MultipageSetupDialog_showPlusCheck_text,
+                MindMapUI.getImages().get("plus.png", true).createImage()); //$NON-NLS-1$
+    }
+
+    private void createShowMinusCheck(Composite parent) {
+        showMinusCheck = createPlusMinusCheck(parent,
+                MindMapMessages.MultipageSetupDialog_showMinusCheck_text,
+                MindMapUI.getImages().get("minus.png", true).createImage()); //$NON-NLS-1$
+    }
+
+    private Button createPlusMinusCheck(Composite parent, String text,
+            Image image) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        composite.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, false, false));
+
+        GridLayout gridLayout = new GridLayout(2, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        gridLayout.horizontalSpacing = 5;
+        composite.setLayout(gridLayout);
+
+        Button check = new Button(composite, SWT.CHECK);
+        check.setBackground(composite.getBackground());
+        check.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+        check.setText(text);
+
+        Label imageLabel = new Label(composite, SWT.NONE);
+        imageLabel.setBackground(composite.getBackground());
+        imageLabel.setLayoutData(
+                new GridData(SWT.CENTER, SWT.CENTER, false, false));
+        imageLabel.setImage(image);
+
+        hookWidget(check, SWT.Selection);
+
+        return check;
+    }
+
+    private void initPlusMinusCheckState() {
+        boolean plusVisible = getBoolean(getSettings(),
+                PrintConstants.PLUS_VISIBLE,
+                PrintConstants.DEFAULT_PLUS_VISIBLE);
+        boolean minusVisible = getBoolean(getSettings(),
+                PrintConstants.MINUS_VISIBLE,
+                PrintConstants.DEFAULT_MINUS_VISIBLE);
+
+        showPlusCheck.setSelection(plusVisible);
+        showMinusCheck.setSelection(minusVisible);
+    }
+
+    private boolean getBoolean(IDialogSettings settings, String key,
+            boolean defaultValue) {
+        boolean value = defaultValue;
+        if (settings.get(key) != null) {
+            value = settings.getBoolean(key);
+        }
+
+        return value;
     }
 
     private void createOrientationSection(Composite parent) {
@@ -901,18 +949,15 @@ public class MultipageSetupDialog extends TrayDialog {
                     !backgroundCheck.getSelection());
 
         } else if (event.widget == borderCheck) {
-            setProperty(PrintConstants.NO_BORDER, !borderCheck.getSelection());
+            setProperty(PrintConstants.BORDER, borderCheck.getSelection());
 
-        } else
-            if ((event.widget == hideBothRadio || event.widget == showBothRadio
-                    || event.widget == hideMinusShowPlusRadio)
-                    && ((Button) event.widget).getSelection()) {
-            String value = (hideBothRadio.getSelection()
-                    ? PrintConstants.PLUS_MINUS_HIDDEN
-                    : (showBothRadio.getSelection()
-                            ? PrintConstants.PLUS_MINUS_VISIBLE
-                            : PrintConstants.PLUS_VISIBLE_MINUS_HIDDEN));
-            setProperty(PrintConstants.PLUS_MINUS_VISIBILITY, value);
+        } else if (event.widget == showPlusCheck) {
+            setProperty(PrintConstants.PLUS_VISIBLE,
+                    showPlusCheck.getSelection());
+
+        } else if (event.widget == showMinusCheck) {
+            setProperty(PrintConstants.MINUS_VISIBLE,
+                    showMinusCheck.getSelection());
 
         } else if (event.widget == landscapeRadio
                 || event.widget == portraitRadio) {
@@ -1102,9 +1147,10 @@ public class MultipageSetupDialog extends TrayDialog {
         boolean backgroundChanged = key == null
                 || PrintConstants.NO_BACKGROUND.equals(key);
         boolean borderChanged = key == null
-                || PrintConstants.NO_BORDER.equals(key);
+                || PrintConstants.BORDER.equals(key);
         boolean showPlusMinusIconsChanged = key == null
-                || PrintConstants.PLUS_MINUS_VISIBILITY.equals(key);
+                || PrintConstants.PLUS_VISIBLE.equals(key)
+                || PrintConstants.MINUS_VISIBLE.equals(key);
         boolean orientationChanged = key == null
                 || PrintConstants.ORIENTATION.equals(key);
         boolean unitChanged = key == null
@@ -1161,32 +1207,21 @@ public class MultipageSetupDialog extends TrayDialog {
         }
 
         if (borderChanged) {
-            boolean showBorder = !getBoolean(PrintConstants.NO_BORDER);
+            boolean showBorder = getBoolean(PrintConstants.BORDER);
             borderCheck.setSelection(showBorder);
             viewer.setBorderVisible(showBorder);
         }
 
         if (showPlusMinusIconsChanged) {
-            if (key == null) {
-                String plusMinusVisibility = getSettings()
-                        .get(PrintConstants.PLUS_MINUS_VISIBILITY);
-                if (plusMinusVisibility == null
-                        || "".equals(plusMinusVisibility)) { //$NON-NLS-1$
-                    getSettings().put(PrintConstants.PLUS_MINUS_VISIBILITY,
-                            PrintConstants.DEFAULT_PLUS_MINUS_VISIBILITY_VALUE);
-                }
-            }
-            String plusMinusVisibility = getSettings()
-                    .get(PrintConstants.PLUS_MINUS_VISIBILITY);
-            hideBothRadio.setSelection(PrintConstants.PLUS_MINUS_HIDDEN
-                    .equals(plusMinusVisibility));
-            showBothRadio.setSelection(PrintConstants.PLUS_MINUS_VISIBLE
-                    .equals(plusMinusVisibility));
-            hideMinusShowPlusRadio
-                    .setSelection(PrintConstants.PLUS_VISIBLE_MINUS_HIDDEN
-                            .equals(plusMinusVisibility));
+            boolean plusVisible = getBoolean(settings,
+                    PrintConstants.PLUS_VISIBLE,
+                    PrintConstants.DEFAULT_PLUS_VISIBLE);
+            boolean minusVisible = getBoolean(settings,
+                    PrintConstants.MINUS_VISIBLE,
+                    PrintConstants.DEFAULT_MINUS_VISIBLE);
 
-            getImageCreator().setPlusMinusVisibility(plusMinusVisibility);
+            getImageCreator().setPlusVisible(plusVisible);
+            getImageCreator().setMinusVisible(minusVisible);
             getImageCreator().setSourceImageValid(false);
         }
 

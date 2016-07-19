@@ -14,6 +14,7 @@
 package org.xmind.ui.internal;
 
 import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -77,13 +78,13 @@ public class AttachmentImageDescriptor extends ImageDescriptor {
             Logger.log("Failed to get file entry by entry path: " + path); //$NON-NLS-1$
             return null;
         }
-        InputStream stream = entry.getInputStream();
-        if (stream == null) {
+        try {
+            return new BufferedInputStream(entry.openInputStream());
+        } catch (IOException e) {
             Logger.log("Failed to get input stream from workbook entry: " //$NON-NLS-1$
                     + path);
             return null;
         }
-        return new BufferedInputStream(stream);
     }
 
     public String toString() {

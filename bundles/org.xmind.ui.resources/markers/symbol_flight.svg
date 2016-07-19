@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_航班</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="97.4232093%" id="linearGradient-1">
+            <stop stop-color="#00B0FF" offset="0%"></stop>
+            <stop stop-color="#0097F4" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-48.000000, 0.000000)">
+            <g id="sym_航班" transform="translate(48.000000, 0.000000)">
+                <rect id="Rectangle-370-Copy-2" fill="url(#linearGradient-1)" x="0" y="0" width="16" height="16" rx="2"></rect>
+                <path d="M11.6948181,14.2271244 L12.6817568,13.2401857 L11.2161355,6.8398707 L13.930217,4.1257892 C14.3397965,3.71620963 14.3410349,3.05619908 13.9329895,2.64815363 C13.524944,2.24010819 12.8649335,2.24134658 12.4553539,2.65092615 L9.74127241,5.36500764 L3.34095744,3.89938629 L2.35401872,4.88632502 L7.52066028,7.58561977 L4.80657879,10.2997013 L3.08313271,10.0566633 L2.34292866,10.7968673 L4.55707159,12.0240715 L5.7842758,14.2382144 L6.52447984,13.4980104 L6.28144185,11.7745643 L8.99552334,9.06048282 L11.6948181,14.2271244 L11.6948181,14.2271244 L11.6948181,14.2271244 Z" id="Shape-Copy" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

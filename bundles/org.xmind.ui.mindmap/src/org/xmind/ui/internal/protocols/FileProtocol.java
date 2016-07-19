@@ -1,14 +1,20 @@
 package org.xmind.ui.internal.protocols;
 
 import java.io.File;
+import java.net.URI;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.MindMapMessages;
@@ -70,9 +76,14 @@ public class FileProtocol implements IProtocol {
 
     public static String getAbsolutePath(Object context, String path) {
         if (FilePathParser.isPathRelative(path)) {
+            //TODO FIXME
             IWorkbook workbook = MindMapUtils.findWorkbook(context);
             if (workbook != null) {
-                String base = workbook.getFile();
+                String base = null;
+                URI fileURI = getFileURIFrom(workbook);
+                if (fileURI != null && URIUtil.isFileURI(fileURI)) {
+                    base = URIUtil.toFile(fileURI).getAbsolutePath();
+                }
                 if (base != null) {
                     base = new File(base).getParent();
                     if (base != null) {
@@ -80,10 +91,33 @@ public class FileProtocol implements IProtocol {
                     }
                 }
             }
-            return FilePathParser.toAbsolutePath(
-                    FilePathParser.ABSTRACT_FILE_BASE, path);
+            return FilePathParser
+                    .toAbsolutePath(FilePathParser.ABSTRACT_FILE_BASE, path);
         }
         return path;
+    }
+
+    private static URI getFileURIFrom(IWorkbook workbook) {
+        IWorkbenchPage[] pages = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getPages();
+        for (IWorkbenchPage wp : pages) {
+            IEditorReference[] ers = wp.getEditorReferences();
+            for (IEditorReference er : ers) {
+                IEditorInput editorInput = null;
+                try {
+                    editorInput = er.getEditorInput();
+                } catch (PartInitException e) {
+                    e.printStackTrace();
+                }
+                if (editorInput == null)
+                    continue;
+                IWorkbook w = editorInput.getAdapter(IWorkbook.class);
+                if (workbook.equals(w)) {
+                    return editorInput.getAdapter(URI.class);
+                }
+            }
+        }
+        return null;
     }
 
     private static IWorkbenchWindow getWindow(Object context) {

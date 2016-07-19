@@ -2,19 +2,23 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.cathy;singleton:=true
-Bundle-Version: 3.6.1.qualifier
+Bundle-Version: 3.6.51.qualifier
 Bundle-Activator: org.xmind.cathy.internal.CathyPlugin
 Bundle-Vendor: %providerName
-Bundle-Localization: plugin
 Export-Package: org.xmind.cathy.internal;x-internal:=true,
- org.xmind.cathy.internal.actions;x-internal:=true
+ org.xmind.cathy.internal.css;x-internal:=true,
+ org.xmind.cathy.internal.dashboard;x-internal:=true,
+ org.xmind.cathy.internal.handlers;x-internal:=true,
+ org.xmind.cathy.internal.jobs;x-internal:=true,
+ org.xmind.cathy.internal.renderer;x-internal:=true,
+ org.xmind.ui.internal.e4handlers;x-internal:=true
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
+ org.xmind.core.command;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.core.command.remote;bundle-version="[3.6.0,3.7.0)",
  org.xmind.ui;bundle-version="[3.6.0,3.7.0)",
  org.xmind.ui.imports;bundle-version="[3.6.0,3.7.0)",
  org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)",
- net.xmind.signin;bundle-version="[3.6.0,3.7.0)",
- org.xmind.core.command.remote;bundle-version="[3.6.0,3.7.0)",
  org.eclipse.e4.ui.workbench,
  org.eclipse.ui.themes,
  org.eclipse.e4.ui.model.workbench,
@@ -34,8 +38,13 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.core.di.extensions,
  org.eclipse.core.expressions,
  org.eclipse.e4.core.commands,
- org.xmind.ui.dashboard
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ org.xmind.ui.dashboard,
+ org.xmind.core.usagedata;bundle-version="[3.6.50,3.7.0)",
+ org.json,
+ org.xmind.ui.browser;bundle-version="[3.6.0,3.7.0)",
+ org.xmind.core.licensing;bundle-version="[3.6.51,3.7.0)"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.annotation;version="1.0.0";resolution:=optional,
  javax.inject;version="1.0.0"
+Service-Component: OSGI-INF/serviceManager.xml

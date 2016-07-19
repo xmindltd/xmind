@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.xmind.ui.internal.statushandlers;
 
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -27,33 +26,49 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
-import org.eclipse.ui.internal.progress.ProgressManagerUtil;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
 public class RuntimeErrorDialog extends Dialog {
 
-    public static final QualifiedName SHOW_DETAILS_ON_CREATE = new QualifiedName(
-            CathyStatusHandler.PROPERTY_PREFIX, "show_details_on_create"); //$NON-NLS-1$
-    public static final QualifiedName DIALOG_EXTENSION = new QualifiedName(
-            CathyStatusHandler.PROPERTY_PREFIX, "dialog_extension"); //$NON-NLS-1$
+    public static final int NONE = 0;
+    public static final int BLOCKED = 1 << 0;
 
     private StatusDetails details;
+    private String dialogTitle;
+    private IErrorReporter reporter;
 
     private Control detailsArea = null;
 
-    protected RuntimeErrorDialog(StatusAdapter statusAdapter) {
-        super(ProgressManagerUtil.getDefaultParent());
+    public RuntimeErrorDialog(int style, StatusAdapter statusAdapter,
+            String dialogTitle, IErrorReporter reporter) {
+        super((Shell) null);
         this.details = new StatusDetails(statusAdapter);
+        this.dialogTitle = dialogTitle;
+        this.reporter = reporter == null ? DefaultErrorReporter.getInstance()
+                : reporter;
         setBlockOnOpen(false);
-        if (!((Boolean) statusAdapter.getProperty(CathyStatusHandler.BLOCK))
-                .booleanValue()) {
+        if ((style & BLOCKED) != 0) {
+            setShellStyle(getShellStyle() | SWT.APPLICATION_MODAL);
+        } else {
             setShellStyle(~SWT.APPLICATION_MODAL & getShellStyle());
         }
     }
 
-    protected void configureShell(Shell newShell) {
-        super.configureShell(newShell);
-        newShell.setText(StatusHandlerMessages.RuntimeErrorDialog_windowTitle);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.dialogs.Dialog#create()
+     */
+    @Override
+    public void create() {
+        super.create();
+
+        Shell shell = getShell();
+        if (dialogTitle != null) {
+            shell.setText(dialogTitle);
+        } else {
+            shell.setText(StatusHandlerMessages.RuntimeErrorDialog_windowTitle);
+        }
     }
 
     protected Control createDialogArea(Composite parent) {
@@ -67,7 +82,7 @@ public class RuntimeErrorDialog extends Dialog {
         detailsArea
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         ((GridData) detailsArea.getLayoutData()).widthHint = 300;
-        ((GridData) detailsArea.getLayoutData()).heightHint = 100;
+        ((GridData) detailsArea.getLayoutData()).heightHint = 150;
 
         return composite;
     }
@@ -81,21 +96,16 @@ public class RuntimeErrorDialog extends Dialog {
 
         Label titleImageLabel = new Label(area, SWT.NONE);
         titleImageLabel.setImage(details.getImage());
-        titleImageLabel.setLayoutData(new GridData(SWT.BEGINNING,
-                SWT.BEGINNING, false, false));
+        titleImageLabel.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
 
         Composite messageParent = new Composite(area, SWT.NONE);
         messageParent.setLayout(new GridLayout());
 
         Label messageLabel = new Label(messageParent, SWT.WRAP);
         messageLabel.setText(details.getMessage());
-        messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                true));
-        IRuntimeErrorDialogExtension extension = (IRuntimeErrorDialogExtension) details
-                .getStatusAdapter().getProperty(DIALOG_EXTENSION);
-        if (extension != null) {
-            extension.createDialogExtension(messageParent);
-        }
+        messageLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
         return area;
     }
@@ -109,8 +119,8 @@ public class RuntimeErrorDialog extends Dialog {
         layout.horizontalSpacing = 10;
         area.setLayout(layout);
 
-        Text detailsText = new Text(area, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        Text detailsText = new Text(area,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
         detailsText.setEditable(false);
         detailsText.setText(details.getFullText());
         detailsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -123,7 +133,8 @@ public class RuntimeErrorDialog extends Dialog {
         ((GridLayout) parent.getLayout()).makeColumnsEqualWidth = false;
         ((GridLayout) parent.getLayout()).horizontalSpacing = 250;
         Hyperlink report = new Hyperlink(parent, SWT.LEFT);
-        report.setText(StatusHandlerMessages.RuntimeErrorDialog_ReportHyperlink_Text);
+        report.setText(
+                StatusHandlerMessages.RuntimeErrorDialog_ReportHyperlink_Text);
         report.setUnderlined(true);
         report.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e) {
@@ -138,7 +149,7 @@ public class RuntimeErrorDialog extends Dialog {
 
     private void reportPressed() {
         try {
-            IErrorReporter.Default.getInstance().report(details);
+            reporter.report(details);
         } catch (InterruptedException e) {
             return;
         }

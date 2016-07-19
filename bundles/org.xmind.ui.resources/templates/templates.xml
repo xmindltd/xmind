@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <templates>
-	<template resource="To Do List.xmt" name="%template.toDoList.name" />
-	<template resource="Flow Chart.xmt" name="%template.flowChart.name" />
-	<template resource="Travel Plan.xmt" name="%template.travelPlan.name" />
-	<template resource="Weight-loss Program.xmt" name="%template.weightLossProgram.name" />
-	<template resource="Personal Management.xmt" name="%template.personalManagement.name" />
-	<template resource="Negotiation of Sale.xmt" name="%template.negotiationOfSale.name" />
-	<template resource="Preparation for a Conversation.xmt" name="%template.preparationForAConversation.name" />
-	<template resource="Marketing.xmt" name="%template.marketing.name" />
-	<template resource="Org Employees.xmt" name="%template.orgEmployees.name" />
-
-	<template resource="Project Plan.xmt" name="%template.projectPlan.name" />
-	<template resource="Project Status Report.xmt" name="%template.projectStatusReport.name" />
-	<template resource="Projects Dashboard.xmt" name="%template.projectsDashboard.name" />
-	<template resource="Org Chart.xmt" name="%template.orgChart.name" />
-	<template resource="Short Meeting.xmt" name="%template.shortMeeting.name" />
-	<template resource="Meeting Management.xmt" name="%template.meetingManagement.name" />
-	<template resource="SWOT Analysis.xmt" name="%template.swotAnalysis.name" />
-	<template resource="Cause and Effect.xmt" name="%template.causeAndEffect.name" />
-	<template resource="Timeline.xmt" name="%template.timeline.name" />
-	<template resource="Make a Decision.xmt" name="%template.makeADecision.name" />
-	<template resource="Weekly Plan.xmt" name="%template.weeklyPlan.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/To Do List.xmt" name="%template.toDoList.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Flow Chart.xmt" name="%template.flowChart.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Travel Plan.xmt" name="%template.travelPlan.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Weight-loss Program.xmt" name="%template.weightLossProgram.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Personal Management.xmt" name="%template.personalManagement.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Negotiation of Sale.xmt" name="%template.negotiationOfSale.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Preparation for a Conversation.xmt" name="%template.preparationForAConversation.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Marketing.xmt" name="%template.marketing.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Org Employees.xmt" name="%template.orgEmployees.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Project Plan.xmt" name="%template.projectPlan.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Project Status Report.xmt" name="%template.projectStatusReport.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Projects Dashboard.xmt" name="%template.projectsDashboard.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Org Chart.xmt" name="%template.orgChart.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Short Meeting.xmt" name="%template.shortMeeting.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Meeting Management.xmt" name="%template.meetingManagement.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/SWOT Analysis.xmt" name="%template.swotAnalysis.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Cause and Effect.xmt" name="%template.causeAndEffect.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Timeline.xmt" name="%template.timeline.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Make a Decision.xmt" name="%template.makeADecision.name" />
+	<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/Weekly Plan.xmt" name="%template.weeklyPlan.name" />
 </templates>

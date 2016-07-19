@@ -23,6 +23,8 @@ import org.xmind.ui.prefs.PrefConstants;
 
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
+    private static final String DEFAULT_SAVE_WIZARDS = "org.xmind.ui.saveWizards.localFile,org.xmind.ui.saveWizards.seawind"; //$NON-NLS-1$
+//    private static final String DEFAULT_SAVE_WIZARD_ID = "org.xmind.ui.saveWizards.seawind"; //$NON-NLS-1$
     private static final String DEFAULT_DND_CLIENT_ID_ORDER = "org.xmind.ui.dnd.workbookComponent org.xmind.ui.dnd.image org.xmind.ui.dnd.file org.xmind.ui.dnd.url org.xmind.ui.dnd.text"; //$NON-NLS-1$
 
     public void initializeDefaultPreferences() {
@@ -45,6 +47,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         node.putInt(PrefConstants.UNDO_REDO_TIPS_FADE_DELAY,
                 UndoRedoTipsService.DEFAULT_DURATION);
 
+        node.put(PrefConstants.SAVE_WIZARDS, DEFAULT_SAVE_WIZARDS);
+//        node.put(PrefConstants.DEFAULT_SAVE_WIZARD, DEFAULT_SAVE_WIZARD_ID);
     }
 
 }

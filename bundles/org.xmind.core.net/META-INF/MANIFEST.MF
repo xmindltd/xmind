@@ -2,12 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.core.net;singleton:=true
-Bundle-Version: 3.6.1.qualifier
+Bundle-Version: 3.6.51.qualifier
 Bundle-Activator: org.xmind.core.net.internal.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.json;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: org.xmind.core.net,
- org.xmind.core.net.internal
+ org.xmind.core.net.http,
+ org.xmind.core.net.internal;x-internal:=true
 Bundle-Vendor: %providerName

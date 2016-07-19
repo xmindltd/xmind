@@ -14,23 +14,36 @@
 package org.xmind.core;
 
 /**
- * @author briansun
+ * This interface represents an object that can accept a string as its title
+ * text.
  * 
+ * @author Brian Sun
+ * @author Frank Shaka
  */
 public interface ITitled {
 
     /**
+     * Sets the title text of this object to given one. If the given string is
+     * <code>null</code>, the object's title text will be cleared.
+     * 
      * @param titleText
+     *            the new title text to set
      */
     void setTitleText(String titleText);
 
     /**
-     * @return
+     * Returns the title text of this object. If this object does not have a
+     * title text, an empty string is returned.
+     * 
+     * @return the title text, never <code>null</code>
      */
     String getTitleText();
 
     /**
-     * @return
+     * Returns whether this object has a valid title text.
+     * 
+     * @return <code>true</code> if this object has a valid title text, or
+     *         <code>false</code> otherwise
      */
     boolean hasTitle();
 

@@ -22,18 +22,54 @@ public interface IMarkerResource {
 
     String getPath();
 
-    InputStream getInputStream();
-
-    OutputStream getOutputStream();
-
     InputStream openInputStream() throws IOException;
-
-    OutputStream openOutputStream() throws IOException;
 
     List<IMarkerVariation> getVariations();
 
+    InputStream openInputStream(IMarkerVariation variation) throws IOException;
+
+    /**
+     * @deprecated Use
+     *             {@link IMarkerSheet#allocateMarkerResource(InputStream, String)}
+     * @return
+     * @throws IOException
+     */
+    @Deprecated
+    OutputStream openOutputStream() throws IOException;
+
+    /**
+     * @deprecated Use
+     *             {@link IMarkerSheet#allocateMarkerResource(InputStream, String)}
+     * @param variation
+     * @return
+     * @throws IOException
+     */
+    @Deprecated
+    OutputStream openOutputStream(IMarkerVariation variation)
+            throws IOException;
+
+    /**
+     * @deprecated Use {@link #openInputStream()}
+     */
+    @Deprecated
+    InputStream getInputStream();
+
+    /**
+     * @deprecated Use {@link #openOutputStream()}
+     */
+    @Deprecated
+    OutputStream getOutputStream();
+
+    /**
+     * @deprecated Use {@link #openInputStream(IMarkerVariation)}
+     */
+    @Deprecated
     InputStream getInputStream(IMarkerVariation variation);
 
+    /**
+     * @deprecated Use {@link #openOutputStream(IMarkerVariation)}
+     */
+    @Deprecated
     OutputStream getOutputStream(IMarkerVariation variation);
 
 }

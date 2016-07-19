@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.io.ByteArrayStorage;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.gef.GEF;
@@ -699,27 +700,26 @@ public class StyleUtils {
         IStyle sheetTheme = theme.getDefaultStyle(Styles.FAMILY_MAP);
         if (sheetTheme == null)
             return;
-        IStyle sheetStyle = styleSheet.findStyle(sheet.getStyleId());
-        if (sheetStyle != null) {
-            sheetStyle = Core.getWorkbookBuilder().createWorkbook()
-                    .getStyleSheet().importStyle(sheetStyle);
-        }
-        String value = null;
+
+        IStyle sourceStyle = styleSheet.findStyle(sheet.getStyleId());
+
+        IWorkbook tempWorkbook = Core.getWorkbookBuilder()
+                .createWorkbook(new ByteArrayStorage());
+        IStyle tempStyle = sourceStyle == null
+                ? tempWorkbook.getStyleSheet().createStyle(sheet.getStyleType())
+                : tempWorkbook.getStyleSheet().importStyle(sourceStyle);
+
         for (String styleName : sheetStyleNames) {
-            value = sheetTheme.getProperty(styleName);
-            if (value != null) {
-                if (sheetStyle == null)
-                    sheetStyle = Core.getWorkbookBuilder().createWorkbook()
-                            .getStyleSheet().createStyle(sheet.getStyleType());
-                sheetStyle.setProperty(styleName, value);
-            } else if (sheetStyle != null) {
-                sheetStyle.setProperty(styleName, value);
-            }
+            String value = sheetTheme.getProperty(styleName);
+            tempStyle.setProperty(styleName, value);
         }
-        if (sheetStyle != null) {
-            sheetStyle = workbook.getStyleSheet().importStyle(sheetStyle);
-            if (sheetStyle != null) {
-                sheet.setStyleId(sheetStyle.getId());
+        if (tempStyle.isEmpty()) {
+            sheet.setStyleId(null);
+        } else {
+            IStyle targetStyle = workbook.getStyleSheet()
+                    .importStyle(tempStyle);
+            if (targetStyle != null) {
+                sheet.setStyleId(targetStyle.getId());
             }
         }
     }

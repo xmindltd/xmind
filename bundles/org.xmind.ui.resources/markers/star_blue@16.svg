@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>star_blue</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="98.0229592%" id="linearGradient-1">
+            <stop stop-color="#4C91FF" offset="0%"></stop>
+            <stop stop-color="#3D83F6" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="star" transform="translate(-42.000000, 0.000000)" fill="url(#linearGradient-1)">
+            <polygon id="star_blue" points="49.9821599 12.6750882 45.2798779 15.1472242 46.1779338 9.91115621 42.3737078 6.20295227 47.6310189 5.43902025 49.9821599 0.675088228 52.3333009 5.43902025 57.590612 6.20295227 53.786386 9.91115621 54.6844419 15.1472242"></polygon>
+        </g>
+    </g>
+</svg>

@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.xmind.core;
 
+/**
+ *
+ * @see Core
+ * @author Frank Shaka
+ */
 public class CoreException extends Exception {
 
     /**
@@ -26,22 +31,42 @@ public class CoreException extends Exception {
 
     private String codeInfo;
 
+    /**
+     * 
+     * @param type
+     */
     public CoreException(int type) {
         super(getErrorMessage(type, null));
         this.type = type;
     }
 
+    /**
+     * 
+     * @param type
+     * @param codeInfo
+     */
     public CoreException(int type, String codeInfo) {
         super(getErrorMessage(type, codeInfo));
         this.type = type;
         this.codeInfo = codeInfo;
     }
 
+    /**
+     * 
+     * @param type
+     * @param cause
+     */
     public CoreException(int type, Throwable cause) {
         super(getErrorMessage(type, null), cause);
         this.type = type;
     }
 
+    /**
+     * 
+     * @param type
+     * @param codeInfo
+     * @param cause
+     */
     public CoreException(int type, String codeInfo, Throwable cause) {
         super(getErrorMessage(type, codeInfo), cause);
         this.type = type;
@@ -102,6 +127,8 @@ public class CoreException extends Exception {
             err = "Failed to initialize cryptogram engine"; //$NON-NLS-1$
         } else if (type == Core.ERROR_WRONG_PASSWORD) {
             err = "Wrong password"; //$NON-NLS-1$
+        } else if (type == Core.ERROR_FAIL_SERIALIZING_XML) {
+            err = "Failed to serialize XML"; //$NON-NLS-1$
         } else if (type == Core.ERROR_CANCELLATION) {
             err = "Operation canceled"; //$NON-NLS-1$
         } else {

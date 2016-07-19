@@ -18,20 +18,21 @@ import java.io.OutputStream;
 
 import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionData;
+import org.xmind.core.IEntryStreamNormalizer;
 
 /**
- * @author MANGOSOFT
- * 
+ * @author Frank Shaka
+ * @deprecated Use {@link IEntryStreamNormalizer}
  */
 public interface ISecurityProvider {
 
     InputStream createPasswordProtectedInputStream(InputStream input,
             boolean encrypt, IEncryptionData encData, String password)
-            throws CoreException;
+                    throws CoreException;
 
     OutputStream createPasswordProtectedOutputStream(OutputStream output,
             boolean encrypt, IEncryptionData encData, String password)
-            throws CoreException;
+                    throws CoreException;
 
     void initializeEncryptionData(IEncryptionData encryptionData);
 

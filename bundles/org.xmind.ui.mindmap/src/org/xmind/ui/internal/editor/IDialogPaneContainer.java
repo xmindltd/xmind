@@ -26,7 +26,7 @@ public interface IDialogPaneContainer {
      * @param pane
      * @return
      */
-    int open(IDialogPane pane);
+    void open(IDialogPane pane);
 
     /**
      * Closes the currently opened dialog.

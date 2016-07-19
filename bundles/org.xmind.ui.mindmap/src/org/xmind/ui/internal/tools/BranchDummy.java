@@ -21,8 +21,6 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.xmind.core.Core;
 import org.xmind.core.ITopic;
-import org.xmind.core.internal.dom.TopicImpl;
-import org.xmind.core.internal.event.CoreEventSupport;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.gef.AbstractViewer;
@@ -83,8 +81,7 @@ public class BranchDummy {
 
             if (Styles.RotateAngle.equals(key))
                 return Double.toString(0);
-            return sourceBranch.getBranchPolicy()
-                    .getStyleSelector(sourceBranch)
+            return sourceBranch.getBranchPolicy().getStyleSelector(sourceBranch)
                     .getAutoValue(sourceBranch, key, defaultValueProvider);
         }
 
@@ -94,8 +91,7 @@ public class BranchDummy {
 
             if (Styles.RotateAngle.equals(key))
                 return Double.toString(0);
-            return sourceBranch.getBranchPolicy()
-                    .getStyleSelector(sourceBranch)
+            return sourceBranch.getBranchPolicy().getStyleSelector(sourceBranch)
                     .getUserValue(sourceBranch, key);
         }
 
@@ -106,8 +102,7 @@ public class BranchDummy {
 
             if (Styles.RotateAngle.equals(key))
                 return Double.toString(0);
-            return sourceBranch.getBranchPolicy()
-                    .getStyleSelector(sourceBranch)
+            return sourceBranch.getBranchPolicy().getStyleSelector(sourceBranch)
                     .getStyleValue(sourceBranch, key, defaultValueProvider);
         }
 
@@ -203,8 +198,8 @@ public class BranchDummy {
             branch.getStatus().activate();
             removeShadow();
             if (sourceBranch != null)
-                ((BranchPart) branch).setGraphicalPolicy(new DummyBranchPolicy(
-                        sourceBranch));
+                ((BranchPart) branch).setGraphicalPolicy(
+                        new DummyBranchPolicy(sourceBranch));
             if (viewer instanceof AbstractViewer)
                 ((AbstractViewer) viewer).setPartRegistry(partRegistry);
         } else {
@@ -238,7 +233,8 @@ public class BranchDummy {
         figure.setSize(figure.getPreferredSize());
     }
 
-    private ITopic createDummyTopic(IBranchPart sourceBranch, boolean newTopic) {
+    private ITopic createDummyTopic(IBranchPart sourceBranch,
+            boolean newTopic) {
         ITopic topic;
         if (sourceBranch == null && newTopic) {
             ITopic centralTopic = (ITopic) viewer.getAdapter(ITopic.class);
@@ -250,7 +246,6 @@ public class BranchDummy {
             topic.setTitleText(sourceTopic.getTitleText());
             topic.setStyleId(sourceTopic.getStyleId());
             topic.setTitleWidth(sourceTopic.getTitleWidth());
-            ((TopicImpl) topic).setCoreEventSupport(new CoreEventSupport());
         } else {
             topic = Core.getWorkbookBuilder().createWorkbook().createTopic();
         }

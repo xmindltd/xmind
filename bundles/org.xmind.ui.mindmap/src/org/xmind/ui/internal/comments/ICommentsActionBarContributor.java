@@ -3,7 +3,7 @@ package org.xmind.ui.internal.comments;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.text.TextViewer;
-import org.xmind.core.comment.IComment;
+import org.xmind.core.IComment;
 import org.xmind.ui.texteditor.ISpellingActivation;
 
 public interface ICommentsActionBarContributor {

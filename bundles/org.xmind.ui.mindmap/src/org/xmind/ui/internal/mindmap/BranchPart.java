@@ -464,10 +464,11 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         register.register(Core.StructureClass);
         register.register(Core.Labels);
         register.register(Core.TopicNotes);
-        register.register(Core.TopicHyperlink);
+//        register.register(Core.TopicHyperlink);
         ISheet sheet = getTopic().getOwnedSheet();
         register.setNextSourceFrom(sheet);
         register.register(Core.Visibility);
+        register.register(Core.SheetSettings);
     }
 
     public void handleCoreEvent(final CoreEvent event) {
@@ -479,8 +480,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
         String type = event.getType();
         if (Core.TopicFolded.equals(type)) {
             treeUpdate(true);
-        } else
-            if (Core.TopicAdd.equals(type) || Core.TopicRemove.equals(type)) {
+        } else if (Core.TopicAdd.equals(type)
+                || Core.TopicRemove.equals(type)) {
             Object topicType = event.getData();
             if (ITopic.ATTACHED.equals(topicType)
                     || ITopic.CALLOUT.equals(topicType)) {
@@ -507,7 +508,8 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
             sendFakeStyleEvent();
         } else if (Core.Labels.equals(type) || Core.TopicNotes.equals(type)
                 || Core.TopicHyperlink.equals(type)
-                || Core.Visibility.equals(type)) {
+                || Core.Visibility.equals(type)
+                || Core.SheetSettings.equals(type)) {
             refresh();
             if (getInfoPart() != null)
                 getInfoPart().refresh();

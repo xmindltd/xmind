@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.service.datalocation.Location;
 
 /**
@@ -37,8 +38,8 @@ import org.eclipse.osgi.service.datalocation.Location;
  */
 public class SpellCheckerRegistry {
 
-    private static class FileSpellCheckerDescriptor implements
-            ISpellCheckerDescriptor {
+    private static class FileSpellCheckerDescriptor
+            implements ISpellCheckerDescriptor {
 
         private File file;
 
@@ -62,6 +63,18 @@ public class SpellCheckerRegistry {
 
         public InputStream openStream() throws IOException {
             return new FileInputStream(file);
+        }
+
+        public void setEnabled(boolean enabled) {
+            getPreferenceStore().setValue(getName(), enabled);
+        }
+
+        public boolean isEnabled() {
+            return getPreferenceStore().getBoolean(getName());
+        }
+
+        private IPreferenceStore getPreferenceStore() {
+            return SpellingPlugin.getDefault().getPreferenceStore();
         }
 
     }
@@ -110,9 +123,31 @@ public class SpellCheckerRegistry {
 //        return new File(Core.getWorkspace().getAbsolutePath("spelling/user")); //$NON-NLS-1$
     }
 
-    public ISpellCheckerDescriptor importDictFile(File sourceDictFile)
-            throws IOException {
+    public String getImportableDictFileName(File sourceDictFile,
+            List<String> nameExclusions) {
         String name = sourceDictFile.getName();
+        int sepIndex = name.lastIndexOf('.');
+        String prefix, suffix;
+        if (sepIndex < 0) {
+            prefix = name;
+            suffix = ""; //$NON-NLS-1$
+        } else {
+            prefix = name.substring(0, sepIndex);
+            suffix = name.substring(sepIndex);
+        }
+        File targetDictFile = createFile(getUserDictDir(), prefix, suffix,
+                nameExclusions);
+
+        FileSpellCheckerDescriptor descriptor = new FileSpellCheckerDescriptor(
+                targetDictFile);
+        return descriptor.getName();
+    }
+
+    public ISpellCheckerDescriptor importDictFile(File sourceDictFile,
+            String name) throws IOException {
+        if (name == null) {
+            name = sourceDictFile.getName();
+        }
         int sepIndex = name.lastIndexOf('.');
         String prefix, suffix;
         if (sepIndex < 0) {
@@ -125,7 +160,8 @@ public class SpellCheckerRegistry {
 //        File targetFile = FileUtils.ensureFileParent(createFile(
 //                getUserDictDir(), FileUtils.getNoExtensionFileName(name),
 //                FileUtils.getExtension(name)));
-        File targetDictFile = createFile(getUserDictDir(), prefix, suffix);
+        File targetDictFile = createFile(getUserDictDir(), prefix, suffix,
+                null);
         if (targetDictFile.getParentFile() != null) {
             targetDictFile.getParentFile().mkdirs();
         }
@@ -147,23 +183,25 @@ public class SpellCheckerRegistry {
                 inp.close();
             }
         } catch (IOException e) {
-            SpellingPlugin
-                    .log(e,
-                            "Failed to copy dict file into workspace while importing it."); //$NON-NLS-1$
+            SpellingPlugin.log(e,
+                    "Failed to copy dict file into workspace while importing it."); //$NON-NLS-1$
         }
         if (descriptors == null || descriptors.isEmpty()) {
             descriptors = new ArrayList<ISpellCheckerDescriptor>();
         }
         FileSpellCheckerDescriptor descriptor = new FileSpellCheckerDescriptor(
                 targetDictFile);
+        descriptor.setEnabled(false);
         descriptors.add(descriptor);
         return descriptor;
     }
 
-    private File createFile(File dir, String prefix, String suffix) {
+    private File createFile(File dir, String prefix, String suffix,
+            List<String> nameExclusions) {
         int i = 1;
         File file = new File(dir, prefix + suffix);
-        while (file.exists()) {
+        while (nameExclusions != null
+                && nameExclusions.contains(file.getName())) {
             i++;
             file = new File(dir, prefix + " (" + i + ")" + suffix); //$NON-NLS-1$ //$NON-NLS-2$
         }
@@ -172,6 +210,7 @@ public class SpellCheckerRegistry {
 
     public void removeDictionary(ISpellCheckerDescriptor descriptor) {
         FileSpellCheckerDescriptor fileDescriptor = (FileSpellCheckerDescriptor) descriptor;
+        fileDescriptor.setEnabled(false);
         if (descriptors != null && !descriptors.isEmpty()) {
             descriptors.remove(descriptor);
         }
@@ -222,9 +261,7 @@ public class SpellCheckerRegistry {
         }
         boolean moved = oldDir.renameTo(newDir);
         if (!moved) {
-            SpellingPlugin
-                    .getDefault()
-                    .getLog()
+            SpellingPlugin.getDefault().getLog()
                     .log(new Status(IStatus.WARNING, SpellingPlugin.PLUGIN_ID,
                             "Failed to migrate old user added dict directory: " //$NON-NLS-1$
                                     + oldDir.getAbsolutePath()));
@@ -239,4 +276,5 @@ public class SpellCheckerRegistry {
             instance = new SpellCheckerRegistry();
         return instance;
     }
+
 }

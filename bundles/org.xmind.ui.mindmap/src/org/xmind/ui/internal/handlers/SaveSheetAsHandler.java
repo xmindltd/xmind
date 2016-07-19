@@ -1,6 +1,5 @@
 package org.xmind.ui.internal.handlers;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -42,9 +41,7 @@ public class SaveSheetAsHandler extends AbstractHandler {
 
         ISheet sheet = mindmap.getSheet();
         final IWorkbook newWorkbook = Core.getWorkbookBuilder()
-                .createWorkbook();
-        String tempLocation = createTempLocation();
-        newWorkbook.setTempLocation(tempLocation);
+                .createWorkbook(MME.createTempStorage());
         try {
             newWorkbook.saveTemp();
         } catch (Exception ignore) {
@@ -52,9 +49,7 @@ public class SaveSheetAsHandler extends AbstractHandler {
         ICloneData clone = newWorkbook.clone(Arrays.asList(sheet));
         ISheet newSheet = (ISheet) clone.get(sheet);
         initSheet(newSheet);
-        ITopic newCentralTopic = newWorkbook
-                .findTopic(clone.getString(ICloneData.WORKBOOK_COMPONENTS,
-                        mindmap.getCentralTopic().getId()));
+        ITopic newCentralTopic = (ITopic) clone.get(mindmap.getCentralTopic());
         if (newCentralTopic == null)
             //TODO should we log this?
             return;
@@ -66,7 +61,10 @@ public class SaveSheetAsHandler extends AbstractHandler {
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
                 final IEditorPart newEditor = part.getSite().getPage()
-                        .openEditor(MME.createLoadedEditorInput(newWorkbook),
+                        .openEditor(
+                                MindMapUI.getEditorInputFactory()
+                                        .createEditorInputForPreLoadedWorkbook(
+                                                newWorkbook, null),
                                 //new WorkbookEditorInput(newWorkbook, null, true),
                                 MindMapUI.MINDMAP_EDITOR_ID, true);
                 // Forcely make editor saveable:
@@ -86,14 +84,6 @@ public class SaveSheetAsHandler extends AbstractHandler {
             }
         });
 
-    }
-
-    public String createTempLocation() {
-        String tempFile = Core.getIdFactory().createId()
-                + MindMapUI.FILE_EXT_XMIND_TEMP;
-        String hiberLoc = new File(Core.getWorkspace().getTempDir("workbooks"), //$NON-NLS-1$
-                tempFile).getAbsolutePath();
-        return hiberLoc;
     }
 
     private void initSheet(ISheet sheet) {

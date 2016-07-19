@@ -2,7 +2,7 @@ package org.xmind.ui.internal.comments;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Control;
-import org.xmind.core.comment.IComment;
+import org.xmind.core.IComment;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 

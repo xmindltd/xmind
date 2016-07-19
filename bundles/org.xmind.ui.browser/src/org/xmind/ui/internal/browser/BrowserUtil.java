@@ -100,14 +100,11 @@ public class BrowserUtil {
             isInternalBrowserOperational = new Boolean(true);
             return true;
         } catch (Throwable t) {
-            BrowserPlugin
-                    .getDefault()
-                    .getLog()
-                    .log(new Status(
-                            IStatus.WARNING,
-                            BrowserPlugin.PLUGIN_ID,
-                            0,
-                            "Internal browser is not available: " + t.getMessage(), null)); //$NON-NLS-1$
+            BrowserPlugin.getDefault().getLog()
+                    .log(new Status(IStatus.WARNING, BrowserPlugin.PLUGIN_ID, 0,
+                            "Internal browser is not available: " //$NON-NLS-1$
+                                    + t.getMessage(),
+                            null));
             isInternalBrowserOperational = new Boolean(false);
             return false;
         } finally {
@@ -135,15 +132,32 @@ public class BrowserUtil {
         return id.substring(0, id.lastIndexOf('-'));
     }
 
-    public static String makeRedirectURL(String url) {
+    public static String normalizeURL(String url) {
         if (url == null || "".equals(url)) //$NON-NLS-1$
             return url;
+
         if (!url.startsWith("http:") && !url.startsWith("https:")) //$NON-NLS-1$ //$NON-NLS-2$
             return url;
+
+        URI uri;
         try {
-            url = new URI(url).toString();
+            uri = new URI(url);
+            url = uri.toString();
         } catch (Exception ignore) {
+            uri = null;
         }
+
+        if (uri != null) {
+            String host = uri.getHost();
+            if (host != null && host.endsWith(".xmind.net")) //$NON-NLS-1$
+                /// make our server decide where exactly this url should go
+                return makeRedirectURL(url);
+        }
+
+        return url;
+    }
+
+    public static String makeRedirectURL(String url) {
         StringBuffer buffer = new StringBuffer(100);
         buffer.append("http://www.xmind.net/xmind/go?r="); //$NON-NLS-1$
         buffer.append(encode(url));
@@ -157,8 +171,8 @@ public class BrowserUtil {
         if (token != null) {
             buffer.append(encode(token));
             buffer.append("&exp="); //$NON-NLS-1$
-            buffer.append(encode(System.getProperty(
-                    "net.xmind.signin.account.expireDate", ""))); //$NON-NLS-1$ //$NON-NLS-2$
+            buffer.append(encode(System
+                    .getProperty("net.xmind.signin.account.expireDate", ""))); //$NON-NLS-1$ //$NON-NLS-2$
         }
         String distributionId = System
                 .getProperty("org.xmind.product.distribution.id"); //$NON-NLS-1$

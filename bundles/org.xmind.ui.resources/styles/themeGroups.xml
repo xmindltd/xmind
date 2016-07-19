@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xmap-styles xmlns:fo="http://www.w3.org/1999/XSL/Format"
+	xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns="urn:xmind:xmap:xmlns:style:2.0">
+	<theme-groups>
+		<theme-group id="bussinese" name="%Businese">
+		    <theme id="218vftoomr8dkckt0am1lv66vp" />
+		    <theme id="0f2gf4plgb93t5ajnnkpdupkk9" />
+		    <theme id="66hlckpkalaeh1kstmvhf9ec28" />
+		    <theme id="0gm315mt618jb1vtqqjj2nnna7" />
+		    <theme id="28ok9b7kmkrlclbb744l73cpk8" />
+	        <theme id="28h6p4pn8i888vjqo22dv97m1v" />
+		</theme-group>
+		<theme-group id="personality" name="%Personalized">
+		    <theme id="4cakkle68uhucfna9imvdrqtlm" />
+		    <theme id="3snaubmts6frg5hss26hnl6erk" />
+		    <theme id="38gp58js0pkdf5df1513q50au5" />
+		    <theme id="1si1cvr4j3vkchqbh9vdk5br3a" />
+		    <theme id="3o8ktjdenf9nle1r87lbfpot0d" />
+		    <theme id="252ofp78l6ditlmrhjcqu2f8h1" />
+		    <theme id="6iaf5buosnl70a475puqa6v241" />
+		    <theme id="4q5q61umvubc99t0orbaem5fd5" />
+		    <theme id="3p9s3p8gki0v8oq86tf59n6u2i" />
+		    <theme id="2059rofi8ohn069bcgj2l8knv8" />
+		    <theme id="6rlcqvedme0ije814rtfiol0d5" />
+		    <theme id="5dalgc2shq49qla4155ii4copr" />
+		    <theme id="3531an4mhum12as5qrft2f7pvi" />
+		    <theme id="5j5obq5q3utaiis6q5ugn1md11" />
+		    <theme id="6v7eqhd0bhhp2vfrhh737o3i0o" />
+		</theme-group>
+		<theme-group id="classic" name="%Classic">
+		    <theme id="xminddefaultthemeid" />
+		    <theme id="494a74lnl9hkk324mh88m06vmp" />
+		    <theme id="6ksialn25r82qgki6diuv4rf5p" />
+		    <theme id="2aoo5sl9gmef5m7paj3irs0oi1" />
+		    <theme id="3buva267ld4atmcg80ibu6jb9t" />
+		    <theme id="7id61jjetp3kol6j5fr0ukalol" />
+		    <theme id="0a0n2t4scjd2g85273148n60m8" />
+		</theme-group>
+	</theme-groups>
+</xmap-styles>
+

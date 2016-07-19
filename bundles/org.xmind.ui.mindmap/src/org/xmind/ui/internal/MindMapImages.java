@@ -20,10 +20,16 @@ import java.util.Map;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.Util;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.internal.util.BundleUtility;
+import org.xmind.core.Core;
 import org.xmind.core.IBoundary;
 import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
@@ -40,7 +46,7 @@ public class MindMapImages implements IMindMapImages {
 
     private Map<Object, Cursor> cursors = new HashMap<Object, Cursor>();
 
-    /* package */MindMapImages() {
+    /* package */ MindMapImages() {
     }
 
     public ImageDescriptor get(String fullPath) {
@@ -190,9 +196,19 @@ public class MindMapImages implements IMindMapImages {
             boolean directory, boolean returnNullIfUnidentifiable) {
         Program p = Program.findProgram(fileExtension);
         if (p != null) {
-            ImageData icon = p.getImageData();
-            if (icon != null) {
-                return ImageDescriptor.createFromImageData(icon);
+            ImageData data = p.getImageData();
+            if (data != null) {
+                if (Util.isMac())
+                    return ImageDescriptor.createFromImageData(data);
+                //fix bug: icon has black shadow in Windows.
+                String tempPath = getTempFileIconPath();
+
+                ImageLoader imageLoader = new ImageLoader();
+                imageLoader.data = new ImageData[] { data };
+                imageLoader.save(tempPath, SWT.IMAGE_ICO);
+
+                Image image = new Image(Display.getCurrent(), tempPath);
+                return ImageDescriptor.createFromImage(image);
             }
         }
         if (directory)
@@ -200,6 +216,12 @@ public class MindMapImages implements IMindMapImages {
         if (returnNullIfUnidentifiable)
             return null;
         return get(UNKNOWN_FILE, true);
+    }
+
+    private String getTempFileIconPath() {
+        String tempFile = Core.getWorkspace().getTempFile("fileIcons/" //$NON-NLS-1$
+                + Core.getIdFactory().createId() + ".ico"); //$NON-NLS-1$
+        return tempFile;
     }
 
 }

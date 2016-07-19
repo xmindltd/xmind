@@ -18,6 +18,12 @@ public class Activator implements BundleActivator {
     // The plug-in ID
     public static final String PLUGIN_ID = "org.xmind.core.net"; //$NON-NLS-1$
 
+    public static final String OPTION_HTTP_ASSC = "/debug/http/assc"; //$NON-NLS-1$
+
+    public static final String OPTION_HTTP_REQEUSTS = "/debug/http/requests"; //$NON-NLS-1$
+
+    public static final String CONFIG_DEBUG_HTTP_REQUESTS = "org.xmind.debug.httprequests"; //$NON-NLS-1$
+
     // The shared instance
     private static Activator plugin;
 
@@ -77,8 +83,11 @@ public class Activator implements BundleActivator {
         return debugTracker.getService();
     }
 
-    public boolean isDebugging(String option) {
-        DebugOptions options = getDebugOptions();
+    public static boolean isDebugging(String option) {
+        Activator defaultInstance = getDefault();
+        if (defaultInstance == null)
+            return false;
+        DebugOptions options = defaultInstance.getDebugOptions();
         return options != null
                 && options.getBooleanOption(PLUGIN_ID + option, false);
     }
@@ -93,16 +102,28 @@ public class Activator implements BundleActivator {
     }
 
     public static void log(String message) {
-        getDefault().getLog().log(new Status(IStatus.INFO, PLUGIN_ID, message));
+        Activator p = getDefault();
+        if (p == null) {
+            System.out.println(message);
+        } else {
+            p.getLog().log(new Status(IStatus.INFO, PLUGIN_ID, message));
+        }
     }
 
     public static void log(Throwable e) {
-        log(e, e.getMessage());
+        log(e, null);
     }
 
     public static void log(Throwable e, String message) {
-        getDefault().getLog()
-                .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        Activator p = getDefault();
+        if (p == null) {
+            if (message != null) {
+                System.err.println(message);
+            }
+            e.printStackTrace();
+        } else {
+            p.getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        }
     }
 
 }

@@ -61,8 +61,8 @@ public class RichTextRenderer implements IRichTextRenderer {
 
     private class DocumentListener implements IDocumentListener {
         public void documentAboutToBeChanged(DocumentEvent event) {
-            lineRangeBeforeChange = getLineRange(event.getOffset(), event
-                    .getLength());
+            lineRangeBeforeChange = getLineRange(event.getOffset(),
+                    event.getLength());
         }
 
         public void documentChanged(DocumentEvent event) {
@@ -135,14 +135,14 @@ public class RichTextRenderer implements IRichTextRenderer {
                 if (oldInput != newInput) {
                     if (document != null) {
                         document.removeDocumentListener(documentChangeHandler);
-                        document
-                                .removeRichDocumentListener(richDocumentChangeHandler);
+                        document.removeRichDocumentListener(
+                                richDocumentChangeHandler);
                     }
                     if (newInput != null && newInput instanceof IRichDocument) {
                         document = (IRichDocument) newInput;
                         document.addDocumentListener(documentChangeHandler);
-                        document
-                                .addRichDocumentListener(richDocumentChangeHandler);
+                        document.addRichDocumentListener(
+                                richDocumentChangeHandler);
                     } else {
                         document = null;
                     }
@@ -173,8 +173,8 @@ public class RichTextRenderer implements IRichTextRenderer {
             }
 
         });
-        viewer.getTextWidget().addPaintObjectListener(
-                new PaintObjectListener() {
+        viewer.getTextWidget()
+                .addPaintObjectListener(new PaintObjectListener() {
                     public void paintObject(PaintObjectEvent event) {
 //                        if (document == null)
 //                            return;
@@ -204,7 +204,8 @@ public class RichTextRenderer implements IRichTextRenderer {
                     if (document == null)
                         return;
                     handEntryKey();
-                } else if (SWTUtils.matchKey(e.stateMask, e.keyCode, 0, SWT.BS)) {
+                } else if (SWTUtils.matchKey(e.stateMask, e.keyCode, 0,
+                        SWT.BS)) {
                     if (document == null)
                         return;
                     handleBackspaceKey();
@@ -294,19 +295,19 @@ public class RichTextRenderer implements IRichTextRenderer {
             int lines = document.getNumberOfLines();
             for (int i = 0; i < lines; i++) {
                 if (lineStyle != null && i == lineStyle.lineIndex) {
-                    getAlignmentModifier(lineStyle.alignment).updateViewer(
-                            viewer, lineStyle.lineIndex, 1);
+                    getAlignmentModifier(lineStyle.alignment)
+                            .updateViewer(viewer, lineStyle.lineIndex, 1);
 
-                    getBulletModifier(lineStyle.bulletStyle).updateViewer(
-                            viewer, lineStyle.lineIndex, 1);
+                    getBulletModifier(lineStyle.bulletStyle)
+                            .updateViewer(viewer, lineStyle.lineIndex, 1);
                     lineStyleIndex++;
                     lineStyle = lineStyleIndex >= lineStyles.length ? null
                             : lineStyles[lineStyleIndex];
 
                 } else {
                     getAlignmentModifier(SWT.LEFT).updateViewer(viewer, i, 1);
-                    getBulletModifier(LineStyle.NONE_STYLE).updateViewer(
-                            viewer, i, 1);
+                    getBulletModifier(LineStyle.NONE_STYLE).updateViewer(viewer,
+                            i, 1);
                 }
             }
         }
@@ -534,7 +535,8 @@ public class RichTextRenderer implements IRichTextRenderer {
         return newHyperlinks;
     }
 
-    private int getInsertHyperlinkIndex(int offset, List<Hyperlink> hyperlinks) {
+    private int getInsertHyperlinkIndex(int offset,
+            List<Hyperlink> hyperlinks) {
         int i;
         for (i = 0; i < hyperlinks.size(); i++) {
             Hyperlink hyperlink = hyperlinks.get(i);
@@ -636,7 +638,8 @@ public class RichTextRenderer implements IRichTextRenderer {
         int newLength = event.getText().length();//later input the text's length
 
         updateTextStylesInDocument(start, oldLength, newLength);
-        updateLineStylesInDocument(start, oldLength, newLength, event.getText());
+        updateLineStylesInDocument(start, oldLength, newLength,
+                event.getText());
         updateImagesInDocument(start, oldLength, newLength);
 
         updateHyperlinksInDocument(start, oldLength, newLength);
@@ -685,7 +688,8 @@ public class RichTextRenderer implements IRichTextRenderer {
         lineRangeBeforeChange = null;
     }
 
-    private void updateImagesInDocument(int start, int oldLength, int newLength) {
+    private void updateImagesInDocument(int start, int oldLength,
+            int newLength) {
         List<ImagePlaceHolder> images = getModifiableImages();
         RichTextUtils.updateImagePositions(start, oldLength, newLength, images);
         ImagePlaceHolder[] modifiedImages = images.toArray(EMPTY_IMAGES);
@@ -702,7 +706,8 @@ public class RichTextRenderer implements IRichTextRenderer {
         return newStyles;
     }
 
-    private void addImageStyleRangeToDocument(Image image, int start, int length) {
+    private void addImageStyleRangeToDocument(Image image, int start,
+            int length) {
         List<StyleRange> styles = getModifiableTextStyles();
         StyleRange imageStyle = createImageStyle(start, length, image);
         RichTextUtils.replaceStyleRanges(start, length, length, styles,
@@ -712,8 +717,8 @@ public class RichTextRenderer implements IRichTextRenderer {
     }
 
     private void refreshViewer(StyleRange[] modifiedStyleRanges) {
-        TextPresentation presentation = createPresentation(0, document
-                .getLength(), modifiedStyleRanges);
+        TextPresentation presentation = createPresentation(0,
+                document.getLength(), modifiedStyleRanges);
         viewer.changeTextPresentation(presentation, true);
     }
 
@@ -1043,13 +1048,26 @@ public class RichTextRenderer implements IRichTextRenderer {
                 return;
             int indent = (Integer) value;
             int endLine = startLine + lineCount;
+
+            //restore old selection.
+            Point range = viewer.getSelectedRange();
+            range = new Point(range.x, range.y);
             try {
                 for (int line = startLine; line < endLine; line++) {
-                    RichTextUtils.replaceDocumentIndent(document, line, indent);
+                    int realDeltaIndent = RichTextUtils
+                            .replaceDocumentIndent(document, line, indent);
+
+                    if (line == startLine) {
+                        range.x += realDeltaIndent;
+                    } else {
+                        range.y += realDeltaIndent;
+                    }
                 }
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }
+
+            viewer.setSelectedRange(range.x, range.y);
         }
     };
 
@@ -1074,14 +1092,26 @@ public class RichTextRenderer implements IRichTextRenderer {
                 return;
             int deltaIndent = (Integer) value;
             int endLine = startLine + lineCount;
+
+            //restore old selection.
+            Point range = viewer.getSelectedRange();
+            range = new Point(range.x, range.y);
             try {
                 for (int line = startLine; line < endLine; line++) {
-                    RichTextUtils.modifyDocumentIndent(viewer, document, line,
-                            deltaIndent);
+                    int realDeltaIndent = RichTextUtils.modifyDocumentIndent(
+                            viewer, document, line, deltaIndent);
+
+                    if (line == startLine) {
+                        range.x += realDeltaIndent;
+                    } else {
+                        range.y += realDeltaIndent;
+                    }
                 }
             } catch (BadLocationException e) {
                 e.printStackTrace();
             }
+
+            viewer.setSelectedRange(range.x, range.y);
         }
     };
 

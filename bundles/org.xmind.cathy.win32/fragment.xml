@@ -7,5 +7,11 @@
             class="org.xmind.cathy.internal.win32.Startup">
       </startup>
    </extension>
+   <extension
+         point="org.xmind.ui.toolkit.applicationValidators">
+      <applicationValidator
+            class="org.xmind.cathy.internal.ApplicationValidator">
+      </applicationValidator>
+   </extension>
 
 </fragment>

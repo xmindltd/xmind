@@ -25,9 +25,11 @@ import java.util.Map;
  */
 public class FilePathParser {
 
-    private static final String SEP = System.getProperty("file.separator"); //$NON-NLS-1$
+    public static final String URI_SCHEME = "file"; //$NON-NLS-1$ 
 
-    private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+    private static final String FILE_PROTOCOL = URI_SCHEME + ":"; //$NON-NLS-1$
+
+    private static final String FILE_SEP = System.getProperty("file.separator"); //$NON-NLS-1$
 
     private static final String PROTOCOL_SEP = "//"; //$NON-NLS-1$
 
@@ -37,9 +39,9 @@ public class FilePathParser {
 
     private static final String SAME_DIR = "."; //$NON-NLS-1$
 
-    private static final String PARENT_DIR_SEP = PARENT_DIR + SEP;
+    private static final String PARENT_DIR_SEP = PARENT_DIR + FILE_SEP;
 
-    private static final String SAME_DIR_SEP = SAME_DIR + SEP;
+    private static final String SAME_DIR_SEP = SAME_DIR + FILE_SEP;
 
     public static final String ABSTRACT_FILE_BASE = System
             .getProperty("user.home"); //$NON-NLS-1$
@@ -126,13 +128,13 @@ public class FilePathParser {
         if (start < baseRoutine.size()) {
             for (int i = start; i < baseRoutine.size(); i++) {
                 builder.append(PARENT_DIR);
-                builder.append(SEP);
+                builder.append(FILE_SEP);
             }
         }
         for (int i = start; i < absRoutine.size(); i++) {
             builder.append(absRoutine.get(i));
             if (i < absRoutine.size() - 1) {
-                builder.append(SEP);
+                builder.append(FILE_SEP);
             }
         }
         return builder.toString();
@@ -169,7 +171,7 @@ public class FilePathParser {
         while (!"".equals(relativePath)) { //$NON-NLS-1$
             if (isWindows()) {
                 if (relativePath.startsWith(WIN_NETWORK_PATH_PREFIX))
-                    return relativePath.substring(SEP.length());
+                    return relativePath.substring(FILE_SEP.length());
             }
 
             if (relativePath.startsWith(PARENT_DIR_SEP)) {
@@ -179,7 +181,7 @@ public class FilePathParser {
             } else if (relativePath.startsWith(SAME_DIR_SEP)) {
                 relativePath = relativePath.substring(SAME_DIR_SEP.length());
             } else {
-                int sepIndex = relativePath.indexOf(SEP);
+                int sepIndex = relativePath.indexOf(FILE_SEP);
                 if (sepIndex < 0) {
                     if (file == null)
                         return relativePath;
@@ -192,7 +194,7 @@ public class FilePathParser {
                                 relativePath.substring(0, sepIndex));
                     }
                     relativePath = relativePath
-                            .substring(sepIndex + SEP.length());
+                            .substring(sepIndex + FILE_SEP.length());
                 }
             }
         }

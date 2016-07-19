@@ -1,13 +1,13 @@
 /* ******************************************************************************
  * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
+ *
  * This file is a part of XMind 3. XMind releases 3 and
  * above are dual-licensed under the Eclipse Public License (EPL),
  * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
+ * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
  * See http://www.xmind.net/license.html for details.
- * 
+ *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
@@ -30,12 +30,16 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPersistable;
+import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.ISaveablePart2;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPreferenceConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.XMLMemento;
@@ -44,22 +48,24 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.internal.IWorkbenchConstants;
+import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.xmind.cathy.internal.jobs.OpenFilesJob;
-import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.InternalCore;
-import org.xmind.ui.internal.EditorHistoryPersistenceService;
+import org.xmind.core.licensing.ILicenseAgent;
+import org.xmind.core.licensing.ILicenseChangedListener;
+import org.xmind.core.licensing.ILicenseKeyHeader;
+import org.xmind.gef.ui.editor.IEditingContext;
+import org.xmind.ui.internal.PasswordProvider;
 import org.xmind.ui.internal.dialogs.DialogMessages;
-import org.xmind.ui.internal.editor.MindMapEditor;
+import org.xmind.ui.internal.editor.AbstractWorkbookRef;
+import org.xmind.ui.internal.editor.DefaultMindMapPreviewGenerator;
+import org.xmind.ui.internal.editor.IMindMapPreviewGenerator;
+import org.xmind.ui.internal.editor.IPasswordProvider;
 import org.xmind.ui.mindmap.MindMapUI;
 
-import net.xmind.signin.ILicenseInfo;
-import net.xmind.signin.ILicenseKeyHeader;
-import net.xmind.signin.ILicenseListener;
-import net.xmind.signin.XMindNet;
-
 public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
-        implements ILicenseListener {
+        implements ILicenseChangedListener {
 
     public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
             IWorkbenchWindowConfigurer configurer) {
@@ -84,23 +90,69 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
     @Override
     public void preStartup() {
         super.preStartup();
-        XMindNet.addLicenseListener(this);
-        licenseVerified(XMindNet.getLicenseInfo());
 
-        EditorHistoryPersistenceService.getInstance().preStartup();
+        CathyPlugin.getDefault().getLicenseAgent()
+                .addLicenseChangedListener(this);
+        licenseChanged(CathyPlugin.getDefault().getLicenseAgent());
+
+        /**
+         * This hack requires workbench to exist. See
+         * {@link org.eclipse.ui.internal.PlatformUIPreferenceListener}.
+         */
+        UIPlugin.getDefault().getPreferenceStore().setValue(
+                IWorkbenchPreferenceConstants.SHOW_TRADITIONAL_STYLE_TABS,
+                true);
     }
 
     @Override
     public void postStartup() {
         super.postStartup();
+
         IWorkbench workbench = getWorkbenchConfigurer().getWorkbench();
-//        new StartupJob(workbench, false).schedule();
+
+        AbstractWorkbookRef.setDefaultEditingContext(
+                createDefaultEditingContext(workbench));
+
         new StartUpProcess(workbench).startUp();
+    }
+
+    private IEditingContext createDefaultEditingContext(
+            final IWorkbench workbench) {
+        final IMindMapPreviewGenerator previewGenerator = new DefaultMindMapPreviewGenerator(
+                workbench.getDisplay());
+
+        final IPasswordProvider passwordProvider = new PasswordProvider();
+
+        return new IEditingContext() {
+            public <T> T getAdapter(Class<T> adapter) {
+
+                if (IMindMapPreviewGenerator.class.equals(adapter))
+                    return adapter.cast(previewGenerator);
+
+                if (IPasswordProvider.class.equals(adapter))
+                    return adapter.cast(passwordProvider);
+
+                T result;
+
+                result = workbench.getService(adapter);
+                if (result != null)
+                    return result;
+
+                result = workbench.getAdapter(adapter);
+                if (result != null)
+                    return result;
+
+                return result;
+            }
+        };
     }
 
     @Override
     public void postShutdown() {
-        XMindNet.removeLicenseListener(this);
+        CathyPlugin.getDefault().getLicenseAgent()
+                .removeLicenseChangedListener(this);
+
+        AbstractWorkbookRef.setDefaultEditingContext(null);
         super.postShutdown();
     }
 
@@ -160,19 +212,27 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
         if (!editorRefs.isEmpty())
             for (IEditorReference ref : editorRefs) {
                 IEditorPart editor = ref.getEditor(false);
-                if (editor instanceof MindMapEditor) {
-                    IWorkbook workbook = ((MindMapEditor) editor).getWorkbook();
-                    if (workbook != null && workbook.getFile() != null) {
-                        IMemento childMem = childrenMemento
-                                .createChild(IWorkbenchConstants.TAG_EDITOR);
-                        childMem.putBoolean(IWorkbenchConstants.TAG_ACTIVE_PART,
-                                editor == activeEditor);
-                        childMem.putString(IWorkbenchConstants.TAG_PATH,
-                                workbook.getFile());
-                    }
+                IMemento editorMemento = childrenMemento
+                        .createChild(IWorkbenchConstants.TAG_EDITOR);
+                editorMemento.putBoolean(IWorkbenchConstants.TAG_ACTIVE_PART,
+                        editor == activeEditor);
+                IPersistable editorPersistable = CathyPlugin.getAdapter(editor,
+                        IPersistable.class);
+                if (editorPersistable != null) {
+                    editorPersistable.saveState(editorMemento);
+                }
+
+                IEditorInput input = editor.getEditorInput();
+                IMemento inputMemento = editorMemento
+                        .createChild(IWorkbenchConstants.TAG_INPUT);
+                IPersistableElement inputPersistable = CathyPlugin
+                        .getAdapter(input, IPersistableElement.class);
+                if (inputPersistable != null) {
+                    inputMemento.putString(IWorkbenchConstants.TAG_FACTORY_ID,
+                            inputPersistable.getFactoryId());
+                    inputPersistable.saveState(inputMemento);
                 }
             }
-
     }
 
     private boolean saveMementoToFile(XMLMemento memento) {
@@ -272,34 +332,26 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
         return closed;
     }
 
-    public void licenseVerified(ILicenseInfo info) {
-        String name = info.getLicensedTo();
-        if (name != null && !"".equals(name)) { //$NON-NLS-1$
-            name = NLS.bind(WorkbenchMessages.About_LicensedTo, name);
-        } else {
-            name = ""; //$NON-NLS-1$
-        }
-        System.setProperty("org.xmind.product.license.licensee", name); //$NON-NLS-1$
-
-        int type = info.getType();
-        ILicenseKeyHeader header = info.getLicenseKeyHeader();
+    public void licenseChanged(ILicenseAgent agent) {
+        int type = agent.getLicenseType();
+        ILicenseKeyHeader header = agent.getLicenseKeyHeader();
         String brandingVersion = System
                 .getProperty("org.xmind.product.brandingVersion", ""); //$NON-NLS-1$ //$NON-NLS-2$
         String licenseType;
-        if ((type & ILicenseInfo.VALID_PRO_LICENSE_KEY) != 0) {
+        if ((type & ILicenseAgent.PRO_LICENSE_KEY) != 0) {
             licenseType = NLS.bind(WorkbenchMessages.About_ProTitle,
                     brandingVersion);
-        } else if ((type & ILicenseInfo.VALID_PLUS_LICENSE_KEY) != 0) {
+        } else if ((type & ILicenseAgent.PLUS_LICENSE_KEY) != 0) {
             licenseType = NLS.bind(WorkbenchMessages.About_PlusTitle,
                     brandingVersion);
-        } else if ((type & ILicenseInfo.VALID_PRO_SUBSCRIPTION) != 0) {
+        } else if ((type & ILicenseAgent.PRO_SUBSCRIPTION) != 0) {
             licenseType = WorkbenchMessages.About_ProSubscriptionTitle;
         } else {
             licenseType = null;
         }
 
-        if (header != null && ((type & ILicenseInfo.VALID_PLUS_LICENSE_KEY) != 0
-                || (type & ILicenseInfo.VALID_PRO_LICENSE_KEY) != 0)) {
+        if (header != null && ((type & ILicenseAgent.PLUS_LICENSE_KEY) != 0
+                || (type & ILicenseAgent.PRO_LICENSE_KEY) != 0)) {
             String licenseeType = header.getLicenseeType();
             if (ILicenseKeyHeader.LICENSEE_FAMILY.equals(licenseeType)) {
                 licenseType = NLS.bind("{0} (Family License)", licenseType); //$NON-NLS-1$
@@ -322,8 +374,16 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
             licenseType = NLS.bind(WorkbenchMessages.About_LicenseTypePattern,
                     licenseType);
         }
-        System.setProperty("org.xmind.product.license.type", //$NON-NLS-1$ 
+        System.setProperty("org.xmind.product.license.type", //$NON-NLS-1$
                 licenseType);
+
+        String name = agent.getLicenseeName();
+        if (name != null && !"".equals(name)) { //$NON-NLS-1$
+            name = NLS.bind(WorkbenchMessages.About_LicensedTo, name);
+        } else {
+            name = ""; //$NON-NLS-1$
+        }
+        System.setProperty("org.xmind.product.license.licensee", name); //$NON-NLS-1$
     }
 
     @Override

@@ -18,6 +18,7 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_MEDIA_TYPE;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_FILE_ENTRY;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_MANIFEST;
 import static org.xmind.core.internal.dom.InternalDOMUtils.getParentPath;
+import static org.xmind.core.internal.zip.ArchiveConstants.MANIFEST_XML;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,63 +27,65 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.IEncryptionData;
+import org.xmind.core.IEntryStreamNormalizer;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IFileEntryFilter;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
-import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Manifest;
+import org.xmind.core.internal.event.CoreEventSupport;
+import org.xmind.core.io.ByteArrayStorage;
+import org.xmind.core.io.IStorage;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 
 public class ManifestImpl extends Manifest implements ICoreEventSource {
 
-    private static final Collection<IFileEntry> NO_ENTRIES = Collections
-            .emptyList();
-
-    private static final Comparator<String> ENTRY_COMPARATOR = new Comparator<String>() {
-
-        public int compare(String o1, String o2) {
-            return o1.compareToIgnoreCase(o2);
-        }
-
-    };
-
     private Document implementation;
+
+    private IStorage storage;
 
     private WorkbookImpl ownedWorkbook;
 
-    private Map<String, IFileEntry> entries = null;
+    private final Map<String, IFileEntry> entries;
 
-    public ManifestImpl(Document implementation) {
+    private IEntryStreamNormalizer normalizer;
+
+    private CoreEventSupport coreEventSupport;
+
+    public ManifestImpl(Document implementation, IStorage storage) {
         this.implementation = implementation;
+        this.storage = storage == null ? new ByteArrayStorage() : storage;
+        this.normalizer = IEntryStreamNormalizer.NULL;
+        this.ownedWorkbook = null;
+        this.entries = new HashMap<String, IFileEntry>();
         init();
-    }
-
-    /**
-     * 
-     * @param workbook
-     */
-    protected void setWorkbook(WorkbookImpl workbook) {
-        this.ownedWorkbook = workbook;
     }
 
     private void init() {
         Element m = DOMUtils.ensureChildElement(implementation, TAG_MANIFEST);
         NS.setNS(NS.Manifest, m);
+
+        // Prefetch all file entries, which makes getAllRegisteredEntries() 
+        // always returns correct value.
+        for (Iterator<IFileEntry> it = iterFileEntries(); it.hasNext();) {
+            it.next();
+        }
+
+        IFileEntry metaEntry = createFileEntry(MANIFEST_XML,
+                Core.MEDIA_TYPE_TEXT_XML);
+        insertFileEntryImpl(metaEntry.getAdapter(Element.class));
     }
 
     public Document getImplementation() {
@@ -114,9 +117,35 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
         return ownedWorkbook == null;
     }
 
+    /**
+     * 
+     * @param workbook
+     */
+    protected void setWorkbook(WorkbookImpl workbook) {
+        this.ownedWorkbook = workbook;
+        if (workbook != null) {
+            getCoreEventSupport().setParent(workbook.getCoreEventSupport());
+        }
+    }
+
+    protected void setStorage(IStorage storage) {
+        this.storage = storage == null ? new ByteArrayStorage() : storage;
+    }
+
+    protected IStorage getStorage() {
+        return storage;
+    }
+
+    protected void setStreamNormalizer(IEntryStreamNormalizer normalizer) {
+        this.normalizer = normalizer == null ? IEntryStreamNormalizer.NULL
+                : normalizer;
+    }
+
+    protected IEntryStreamNormalizer getStreamNormalizer() {
+        return this.normalizer;
+    }
+
     protected Collection<IFileEntry> getAllRegisteredEntries() {
-        if (entries == null)
-            return NO_ENTRIES;
         return entries.values();
     }
 
@@ -196,9 +225,7 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
     }
 
     private IFileEntry findEntry(String path) {
-        IFileEntry entry = null;
-        if (entries != null)
-            entry = entries.get(path);
+        IFileEntry entry = entries.get(path);
         if (entry == null) {
             Element e = findEntryElementByPath(path);
             if (e != null)
@@ -229,7 +256,8 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
         String parent = InternalDOMUtils.getParentPath(path);
         if (parent != null) {
-            createFileEntry(parent);
+            IFileEntry parentFileEntry = createFileEntry(parent);
+            insertFileEntryImpl(parentFileEntry.getAdapter(Element.class));
         }
         Element e = implementation.createElement(TAG_FILE_ENTRY);
         e.setAttribute(ATTR_FULL_PATH, path);
@@ -240,29 +268,17 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     private IFileEntry createFileEntry(String path, Element entryElement) {
         IFileEntry entry = new FileEntryImpl(entryElement, this);
-        if (entries == null)
-            entries = new TreeMap<String, IFileEntry>(ENTRY_COMPARATOR);
         entries.put(path, entry);
         return entry;
     }
 
     private IFileEntry getFileEntry(Element element) {
         String path = element.getAttribute(ATTR_FULL_PATH);
-        if (entries != null) {
-            IFileEntry entry = entries.get(path);
-            if (entry != null)
-                return entry;
-        }
+        IFileEntry entry = entries.get(path);
+        if (entry != null)
+            return entry;
         return createFileEntry(path, element);
     }
-
-//    public void insertElement(IFileEntry entry) {
-//        Element e = (Element) entry.getAdapter(Element.class);
-//
-//        Element ed = DOMUtils.ensureChildElement(e, "encryption-data");
-//        ed.setAttribute("data1", "123");
-//
-//    }
 
     protected void insertFileEntry(IFileEntry entry) {
         Element e = (Element) entry.getAdapter(Element.class);
@@ -430,21 +446,19 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     private void importFileEntry(String path, IFileEntry sourceEntry)
             throws IOException {
-        InputStream is = sourceEntry.getInputStream();
-        if (is != null) {
+        InputStream is = sourceEntry.openInputStream();
+        try {
+            IFileEntry entry = createFileEntry(path,
+                    sourceEntry.getMediaType());
+            entry.setTime(sourceEntry.getTime());
+            OutputStream os = entry.openOutputStream();
             try {
-                IFileEntry entry = createFileEntry(path,
-                        sourceEntry.getMediaType());
-                entry.setTime(sourceEntry.getTime());
-                OutputStream os = entry.openOutputStream();
-                try {
-                    FileUtils.transfer(is, os);
-                } finally {
-                    os.close();
-                }
+                FileUtils.transfer(is, os);
             } finally {
-                is.close();
+                os.close();
             }
+        } finally {
+            is.close();
         }
     }
 
@@ -507,8 +521,46 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
                 .registerCoreEventListener(this, type, listener);
     }
 
-    public ICoreEventSupport getCoreEventSupport() {
-        return ownedWorkbook.getCoreEventSupport();
+    public CoreEventSupport getCoreEventSupport() {
+        if (coreEventSupport != null)
+            return coreEventSupport;
+
+        coreEventSupport = new CoreEventSupport();
+        return coreEventSupport;
     }
+
+//    protected void saveTemp(String newPassword)
+//            throws IOException, CoreException {
+//        String oldPassword = getPassword();
+//        SerializerImpl serializer = (SerializerImpl) Core.getSerializerFactory()
+//                .newSerializer();
+//        if (oldPassword == newPassword
+//                || (oldPassword != null && oldPassword.equals(newPassword))) {
+//            serializer.serializeAll(ownedWorkbook, this, this,
+//                    FileEntrySelection.None, true);
+//        } else {
+//            Transformer transformer = DOMUtils.getDefaultTransformer();
+//            DOMResult newDocResult = new DOMResult();
+//            try {
+//                transformer.transform(new DOMSource(implementation),
+//                        newDocResult);
+//            } catch (TransformerException e) {
+//                throw new CoreException(Core.ERROR_FAIL_SERIALIZING_XML,
+//                        MANIFEST_XML, e);
+//            }
+//
+//            ManifestImpl tempManifest = new ManifestImpl(
+//                    (Document) newDocResult.getNode(), storage);
+//            this.password = newPassword;
+//            for (IFileEntry entry : getAllRegisteredEntries()) {
+//                if (entry.getEncryptionData() != null) {
+//                    entry.deleteEncryptionData();
+//                    entry.createEncryptionData();
+//                }
+//            }
+//            serializer.serializeAll(ownedWorkbook, tempManifest, this,
+//                    FileEntrySelection.All, true);
+//        }
+//    }
 
 }

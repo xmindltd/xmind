@@ -138,8 +138,8 @@ public class SmoothPopupDialog extends Window {
             int height = clientArea.height;
             Control[] children = composite.getChildren();
             for (Control c : children) {
-                c.setBounds(x, y, width - 2 * borderWidth, height - 2
-                        * borderWidth);
+                c.setBounds(x, y, width - 2 * borderWidth,
+                        height - 2 * borderWidth);
             }
         }
 
@@ -172,9 +172,9 @@ public class SmoothPopupDialog extends Window {
 
     protected static final String DEFAULT_BACKGROUDCOLOR_VALUE = "#e9e8e9"; //$NON-NLS-1$
 
-    private static final int VERTICAL_SPEED = 5;
+    private static final int VERTICAL_SPEED = 3;
 
-    private static final int ANIM_INTERVALS = 15;
+    private static final int ANIM_INTERVALS = 8;
 
     private static final GridDataFactory LAYOUTDATA_GRAB_BOTH = GridDataFactory
             .fillDefaults().grab(true, true);
@@ -657,6 +657,7 @@ public class SmoothPopupDialog extends Window {
         if (sourceControlMoveListener == null) {
             sourceControlMoveListener = new Listener() {
                 public void handleEvent(Event event) {
+                    group = null;
                     updateShellBounds(currentHeight);
                 }
             };
@@ -774,29 +775,34 @@ public class SmoothPopupDialog extends Window {
         currentHeight = targetHeight;
     }
 
-    private void updateShellBounds(int height) {
+    protected void updateShellBounds(int height) {
         Shell shell = getShell();
         if (shell != null && !shell.isDisposed()) {
-            Point bottomRight;
-            Point start;
-            if (sourceControl != null && group == null) {
-                start = getBottomRight(sourceControl);
-            } else {
-                start = startingBottomRight;
-            }
-            if (start != null) {
-                bottomRight = new Point(start.x, start.y);
-            } else {
-                Rectangle bounds = shell.getBounds();
-                bottomRight = new Point(bounds.x + bounds.width, bounds.y
-                        + bounds.height);
-            }
-            int x = bottomRight.x - targetWidth;
-            int y = bottomRight.y - height;
             shell.setRedraw(false);
-            shell.setBounds(x, y, targetWidth, height);
+            shell.setBounds(getCurrentBounds(height, shell));
             shell.setRedraw(true);
         }
+    }
+
+    protected Rectangle getCurrentBounds(int height, Shell shell) {
+        Point bottomRight;
+        Point start;
+        if (sourceControl != null && group == null) {
+            start = getBottomRight(sourceControl);
+        } else {
+            start = startingBottomRight;
+        }
+        if (start != null) {
+            bottomRight = new Point(start.x, start.y);
+        } else {
+            Rectangle bounds = shell.getBounds();
+            bottomRight = new Point(bounds.x + bounds.width,
+                    bounds.y + bounds.height);
+        }
+        int x = bottomRight.x - targetWidth;
+        int y = bottomRight.y - height;
+
+        return new Rectangle(x, y, targetWidth, height);
     }
 
     private void stop() {
@@ -861,8 +867,6 @@ public class SmoothPopupDialog extends Window {
 
     private void doPullDown(Shell shell) {
         Rectangle bounds = shell.getBounds();
-        startingBottomRight = new Point(bounds.x + bounds.width, bounds.y
-                + bounds.height);
         currentHeight = bounds.height;
         timer = new UITimer(0, ANIM_INTERVALS, new SafeRunnable() {
             public void run() {

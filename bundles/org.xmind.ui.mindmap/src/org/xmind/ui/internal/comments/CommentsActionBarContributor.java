@@ -9,13 +9,13 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.actions.ActionFactory;
-import org.xmind.core.comment.IComment;
+import org.xmind.core.IComment;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.texteditor.IMenuContributor;
 import org.xmind.ui.texteditor.ISpellingActivation;
 
-public abstract class CommentsActionBarContributor implements
-        ICommentsActionBarContributor {
+public abstract class CommentsActionBarContributor
+        implements ICommentsActionBarContributor {
 
     protected IGraphicalEditor targetEditor;
 
@@ -23,15 +23,12 @@ public abstract class CommentsActionBarContributor implements
 
     private ISpellingActivation spellingActivation;
 
-    protected CommentAction addCommentAction;
-
-    protected CommentAction deleteCommentAction;
-
     public CommentsActionBarContributor(IGraphicalEditor targetEditor) {
         this.targetEditor = targetEditor;
     }
 
-    protected abstract void makeActions();
+    protected void makeActions() {
+    }
 
     protected void addAction(CommentAction action) {
         if (action != null && action.getId() != null)

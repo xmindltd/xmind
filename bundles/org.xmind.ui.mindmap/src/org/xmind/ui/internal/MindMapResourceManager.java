@@ -20,20 +20,43 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xmind.core.Core;
 import org.xmind.core.IAdaptable;
+import org.xmind.core.IDeserializer;
 import org.xmind.core.IManifest;
+import org.xmind.core.ISerializer;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.IWorkbookBuilder;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
@@ -43,18 +66,27 @@ import org.xmind.core.internal.MarkerVariation;
 import org.xmind.core.internal.dom.StyleSheetImpl;
 import org.xmind.core.internal.event.CoreEventSupport;
 import org.xmind.core.internal.zip.ArchiveConstants;
+import org.xmind.core.io.BundleResource;
+import org.xmind.core.io.DirectoryInputSource;
+import org.xmind.core.io.DirectoryOutputTarget;
+import org.xmind.core.io.DirectoryStorage;
 import org.xmind.core.marker.AbstractMarkerResource;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerResource;
+import org.xmind.core.marker.IMarkerResourceAllocator;
 import org.xmind.core.marker.IMarkerResourceProvider;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.core.marker.IMarkerVariation;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
+import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.IPropertiesProvider;
 import org.xmind.ui.mindmap.IResourceManager;
+import org.xmind.ui.mindmap.IResourceManagerListener;
+import org.xmind.ui.mindmap.ITemplate;
+import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.Logger;
@@ -70,11 +102,9 @@ public class MindMapResourceManager implements IResourceManager {
 
     private static final String PATH_STYLES = "styles/"; //$NON-NLS-1$
 
-    private static final String USER_STYLES_TEMP_LOCATION = PATH_STYLES
-            + "userStyles"; //$NON-NLS-1$
+    private static final String PATH_USER_STYLES = PATH_STYLES + "userStyles/"; //$NON-NLS-1$
 
-    private static final String USER_THEME_TEMP_LOCATION = PATH_STYLES
-            + "userThemes"; //$NON-NLS-1$
+    private static final String PATH_USER_THEMES = PATH_STYLES + "userThemes/"; //$NON-NLS-1$
 
     private static final String MARKER_SHEET_XML = "markerSheet.xml"; //$NON-NLS-1$
 
@@ -91,6 +121,12 @@ public class MindMapResourceManager implements IResourceManager {
     private static final String THEMES = "themes"; //$NON-NLS-1$
 
     private static final String EXT_PROPERTIES = ".properties"; //$NON-NLS-1$
+
+    private static final String SYS_TEMPLATES_DIR = "$nl$/templates/"; //$NON-NLS-1$
+    private static final String SYS_TEMPLATES_XML_PATH = SYS_TEMPLATES_DIR
+            + "templates.xml"; //$NON-NLS-1$
+
+    private static final String USER_TEMPLATES_DIR = "templates/"; //$NON-NLS-1$
 
     private static class SystemMarkerResourceProvider
             implements IMarkerResourceProvider {
@@ -165,8 +201,24 @@ public class MindMapResourceManager implements IResourceManager {
         }
 
         @Override
+        public InputStream openInputStream(IMarkerVariation variation)
+                throws IOException {
+            InputStream stream = getInputStreamForPath(
+                    variation.getVariedPath(getFullPath()));
+            if (stream == null)
+                throw new FileNotFoundException();
+            return stream;
+        }
+
+        @Override
         public OutputStream getOutputStream(IMarkerVariation variation) {
             return null;
+        }
+
+        @Override
+        public OutputStream openOutputStream(IMarkerVariation variation)
+                throws IOException {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -180,7 +232,7 @@ public class MindMapResourceManager implements IResourceManager {
     }
 
     private static class UserMarkerResourceProvider
-            implements IMarkerResourceProvider {
+            implements IMarkerResourceProvider, IMarkerResourceAllocator {
 
         public IMarkerResource getMarkerResource(IMarker marker) {
             return new UserMarkerResource(marker);
@@ -188,6 +240,30 @@ public class MindMapResourceManager implements IResourceManager {
 
         public boolean isPermanent() {
             return false;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.xmind.core.marker.IMarkerResourceAllocator#
+         * allocateMarkerResourcePath(java.io.InputStream, java.lang.String)
+         */
+        @Override
+        public String allocateMarkerResource(InputStream source,
+                String suggestedPath) throws IOException {
+            String ext = suggestedPath == null ? ".png" //$NON-NLS-1$
+                    : FileUtils.getExtension(suggestedPath);
+            String path = Core.getIdFactory().createId() + ext;
+            File file = new File(Core.getWorkspace()
+                    .getAbsolutePath(PATH_USER_MARKERS + path));
+            FileUtils.ensureFileParent(file);
+            OutputStream target = new FileOutputStream(file);
+            try {
+                FileUtils.transfer(source, target, false);
+            } finally {
+                target.close();
+            }
+            return path;
         }
 
     }
@@ -199,7 +275,8 @@ public class MindMapResourceManager implements IResourceManager {
         }
 
         private File getFile() {
-            return new File(Core.getWorkspace().getAbsolutePath(getFullPath()));
+            return FileUtils.ensureFileParent(new File(
+                    Core.getWorkspace().getAbsolutePath(getFullPath())));
         }
 
         public InputStream getInputStream() {
@@ -213,7 +290,7 @@ public class MindMapResourceManager implements IResourceManager {
         }
 
         public OutputStream getOutputStream() {
-            File file = FileUtils.ensureFileParent(getFile());
+            File file = getFile();
             if (file != null)
                 try {
                     return new FileOutputStream(file);
@@ -266,14 +343,24 @@ public class MindMapResourceManager implements IResourceManager {
             eventSupport.dispatchTargetChange(this, Core.MarkerAdd, marker);
         }
 
-        public Object getAdapter(Class adapter) {
+        public <T> T getAdapter(Class<T> adapter) {
             if (adapter == ICoreEventSource.class)
-                return this;
+                return adapter.cast(this);
             return super.getAdapter(adapter);
         }
 
         public List<IMarker> getMarkers() {
             return markers;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.xmind.core.marker.IMarkerGroup#isEmpty()
+         */
+        @Override
+        public boolean isEmpty() {
+            return markers.isEmpty();
         }
 
         public String getName() {
@@ -355,6 +442,10 @@ public class MindMapResourceManager implements IResourceManager {
     private IStyleSheet systemThemeSheet = null;
 
     private IWorkbook userThemesContainer = null;
+
+    private ITemplate defaultTemplate;
+
+    private ListenerList resourceManagerListeners = new ListenerList();
 
     /*
      * (non-Javadoc)
@@ -470,6 +561,9 @@ public class MindMapResourceManager implements IResourceManager {
     public IStyleSheet getSystemStyleSheet() {
         if (systemStyleSheet == null) {
             systemStyleSheet = createSystemStyleSheet();
+            IManifest manifest = Core.getWorkbookBuilder().createWorkbook()
+                    .getManifest();
+            ((StyleSheetImpl) systemStyleSheet).setManifest(manifest);
         }
         return systemStyleSheet;
     }
@@ -491,41 +585,13 @@ public class MindMapResourceManager implements IResourceManager {
 
     public IStyleSheet getUserStyleSheet() {
         if (userStylesContainer == null) {
-            userStylesContainer = createUserStylesContainer();
+            userStylesContainer = loadResourceContainer(PATH_USER_STYLES);
         }
         return userStylesContainer.getStyleSheet();
     }
 
-    private IWorkbook createUserStylesContainer() {
-        IWorkbook stylesContainer = null;
-        String path = Core.getWorkspace()
-                .getAbsolutePath(USER_STYLES_TEMP_LOCATION);
-        File file = new File(path);
-        if (file.exists() && file.isDirectory()
-                && new File(file, ArchiveConstants.CONTENT_XML).exists()) {
-            try {
-                stylesContainer = Core.getWorkbookBuilder()
-                        .loadFromTempLocation(path);
-            } catch (Exception e) {
-                Logger.log(e, "Failed to load user styles from: " + file); //$NON-NLS-1$
-            }
-        }
-        if (stylesContainer == null) {
-            FileUtils.ensureDirectory(file);
-            stylesContainer = Core.getWorkbookBuilder().createWorkbook();
-        }
-        stylesContainer.setTempLocation(path);
-        return stylesContainer;
-    }
-
     public void saveUserStyleSheet() {
-        if (userStylesContainer != null) {
-            try {
-                userStylesContainer.saveTemp();
-            } catch (Exception e) {
-                Logger.log(e);
-            }
-        }
+        saveResourceContainer(userStylesContainer, PATH_USER_STYLES);
     }
 
     public IStyle getBlankTheme() {
@@ -599,6 +665,9 @@ public class MindMapResourceManager implements IResourceManager {
     public IStyleSheet getSystemThemeSheet() {
         if (systemThemeSheet == null) {
             systemThemeSheet = createSystemThemeSheet();
+            IManifest manifest = Core.getWorkbookBuilder().createWorkbook()
+                    .getManifest();
+            ((StyleSheetImpl) systemThemeSheet).setManifest(manifest);
         }
         return systemThemeSheet;
     }
@@ -620,42 +689,59 @@ public class MindMapResourceManager implements IResourceManager {
 
     public IStyleSheet getUserThemeSheet() {
         if (userThemesContainer == null) {
-            userThemesContainer = createUserThemeContainer();
+            userThemesContainer = loadResourceContainer(PATH_USER_THEMES);
         }
-        IStyleSheet styleSheet = userThemesContainer.getStyleSheet();
-        IManifest manifest = userThemesContainer.getManifest();
-        ((StyleSheetImpl) styleSheet).setManifest(manifest);
-        return styleSheet;
-    }
-
-    private IWorkbook createUserThemeContainer() {
-        IWorkbook stylesContainer = null;
-        String path = Core.getWorkspace()
-                .getAbsolutePath(USER_THEME_TEMP_LOCATION); //styles/userThemes
-        File file = new File(path);
-        IWorkbookBuilder workbookBuilder = Core.getWorkbookBuilder();
-        if (file.exists() && file.isDirectory()
-                && new File(file, ArchiveConstants.CONTENT_XML).exists()) {
-            try {
-                stylesContainer = workbookBuilder.loadFromTempLocation(path);
-            } catch (Exception e) {
-                Logger.log(e, "Failed to load user themes from: " + file); //$NON-NLS-1$
-            }
-        }
-        if (stylesContainer == null) {
-            FileUtils.ensureDirectory(file);
-            stylesContainer = workbookBuilder.createWorkbook();
-        }
-        stylesContainer.setTempLocation(path);
-        return stylesContainer;
+        return userThemesContainer.getStyleSheet();
     }
 
     public void saveUserThemeSheet() {
-        if (userThemesContainer != null) {
+        saveResourceContainer(userThemesContainer, PATH_USER_THEMES);
+    }
+
+    /**
+     * @param sourcePath
+     * @return
+     */
+    private static IWorkbook loadResourceContainer(String sourcePath) {
+        IWorkbook container = null;
+        File file = new File(Core.getWorkspace().getAbsolutePath(sourcePath));
+        File tempLoc = new File(Core.getWorkspace().getTempDir(sourcePath));
+        FileUtils.ensureDirectory(tempLoc);
+        DirectoryStorage tempStorage = new DirectoryStorage(tempLoc);
+
+        if (file.exists() && file.isDirectory()
+                && new File(file, ArchiveConstants.CONTENT_XML).exists()) {
             try {
-                userThemesContainer.saveTemp();
+                IDeserializer deserializer = Core.getWorkbookBuilder()
+                        .newDeserializer();
+                deserializer.setWorkbookStorage(tempStorage);
+                deserializer.setInputSource(new DirectoryInputSource(file));
+                deserializer.deserialize(null);
+                container = deserializer.getWorkbook();
             } catch (Exception e) {
+                Logger.log(e, "Failed to load user styles from: " + file); //$NON-NLS-1$
             }
+        }
+        if (container == null) {
+            container = Core.getWorkbookBuilder().createWorkbook(tempStorage);
+        }
+        return container;
+    }
+
+    private static void saveResourceContainer(IWorkbook workbook,
+            String targetPath) {
+        if (workbook == null)
+            return;
+
+        File file = new File(Core.getWorkspace().getAbsolutePath(targetPath));
+        FileUtils.ensureDirectory(file);
+        try {
+            ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
+            serializer.setWorkbook(workbook);
+            serializer.setOutputTarget(new DirectoryOutputTarget(file));
+            serializer.serialize(null);
+        } catch (Exception e) {
+            Logger.log(e);
         }
     }
 
@@ -889,6 +975,347 @@ public class MindMapResourceManager implements IResourceManager {
                 return "theme:user/" + style.getId(); //$NON-NLS-1$
         }
         return null;
+    }
+
+    @Override
+    public List<ITemplate> getSystemTemplates() {
+        List<ITemplate> sysTemplates = new ArrayList<ITemplate>();
+        loadSystemTemplates(sysTemplates);
+        return sysTemplates;
+    }
+
+    private void loadSystemTemplates(List<ITemplate> templates) {
+        Bundle bundle = Platform.getBundle(MindMapUI.PLUGIN_ID);
+        if (bundle == null)
+            return;
+
+        BundleResource listXMLResource = new BundleResource(bundle,
+                new Path(SYS_TEMPLATES_XML_PATH)).resolve();
+        if (listXMLResource == null) {
+            MindMapUIPlugin.getDefault().getLog()
+                    .log(new Status(IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
+                            "Failed to locate system template xml: " //$NON-NLS-1$
+                                    + bundle.getSymbolicName() + "/" //$NON-NLS-1$
+                                    + SYS_TEMPLATES_XML_PATH));
+            return;
+        }
+
+        URL listXMLURL = listXMLResource.toPlatformURL();
+        Element element = getTemplateListElement(listXMLURL);
+        if (element == null)
+            return;
+
+        java.util.Properties properties = getTemplateListProperties(bundle);
+        Iterator<Element> it = DOMUtils.childElementIterByTag(element,
+                "template"); //$NON-NLS-1$
+        while (it.hasNext()) {
+            Element templateEle = it.next();
+            String resource = templateEle.getAttribute("resource"); //$NON-NLS-1$
+            if (resource == null || "".equals(resource)) //$NON-NLS-1$
+                continue;
+
+            URI resourceURI;
+            try {
+                resourceURI = URIUtil.toURI(new URL(resource));
+            } catch (IOException e) {
+                MindMapUIPlugin.getDefault().getLog().log(new Status(
+                        IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
+                        "Failed to load system template: " + resource, e)); //$NON-NLS-1$
+                continue;
+            } catch (URISyntaxException e) {
+                MindMapUIPlugin.getDefault().getLog().log(new Status(
+                        IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
+                        "Failed to load system template: " + resource, e)); //$NON-NLS-1$
+                continue;
+            }
+
+            if (!resourceURI.isAbsolute()) {
+                BundleResource templateResource = new BundleResource(bundle,
+                        new Path(SYS_TEMPLATES_DIR + resource)).resolve();
+                try {
+                    resourceURI = templateResource.toPlatformURL().toURI();
+                } catch (URISyntaxException e) {
+                    MindMapUIPlugin.getDefault().getLog().log(new Status(
+                            IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
+                            "Failed to load system template: " + resource, e)); //$NON-NLS-1$
+                    continue;
+                }
+            }
+
+            String name = templateEle.getAttribute("name"); //$NON-NLS-1$
+            if (name.startsWith("%")) { //$NON-NLS-1$
+                if (properties != null) {
+                    name = properties.getProperty(name.substring(1));
+                } else {
+                    name = null;
+                }
+            }
+            if (name == null || "".equals(name)) { //$NON-NLS-1$
+                name = FileUtils.getNoExtensionFileName(resource);
+            }
+            templates.add(new ClonedTemplate(resourceURI, name));
+        }
+    }
+
+    private Properties getTemplateListProperties(Bundle bundle) {
+        URL propURL = ResourceFinder.findResource(bundle, SYS_TEMPLATES_DIR,
+                "templates", ".properties"); //$NON-NLS-1$ //$NON-NLS-2$
+        if (propURL == null) {
+            MindMapUIPlugin.getDefault().getLog().log(new Status(
+                    IStatus.WARNING, MindMapUIPlugin.PLUGIN_ID,
+                    "Failed to find template NLS properties file: " //$NON-NLS-1$
+                            + bundle.getSymbolicName() + "/" + SYS_TEMPLATES_DIR //$NON-NLS-1$
+                            + "templates_XX.properties")); //$NON-NLS-1$
+            return null;
+        }
+
+        try {
+            InputStream is = propURL.openStream();
+            try {
+                Properties properties = new Properties();
+                properties.load(is);
+                return properties;
+            } finally {
+                is.close();
+            }
+        } catch (IOException e) {
+            MindMapUIPlugin.getDefault().getLog()
+                    .log(new Status(IStatus.WARNING, MindMapUIPlugin.PLUGIN_ID,
+                            "Failed to load template NLS properties from " //$NON-NLS-1$
+                                    + propURL.toExternalForm(),
+                            e));
+        }
+        return null;
+    }
+
+    private Element getTemplateListElement(URL xmlURL) {
+        xmlURL = FileLocator.find(xmlURL);
+        try {
+            InputStream is = xmlURL.openStream();
+            if (is != null) {
+                try {
+                    Document doc = DocumentBuilderFactory.newInstance()
+                            .newDocumentBuilder().parse(is);
+                    if (doc != null)
+                        return doc.getDocumentElement();
+                } finally {
+                    is.close();
+                }
+            }
+        } catch (Throwable e) {
+            MindMapUIPlugin.getDefault().getLog()
+                    .log(new Status(IStatus.WARNING, MindMapUIPlugin.PLUGIN_ID,
+                            "Failed to load template list from " //$NON-NLS-1$
+                                    + xmlURL.toExternalForm(),
+                            e));
+        }
+        return null;
+    }
+
+    private File createNonConflictingFile(File rootDir, String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        String name = dotIndex < 0 ? fileName : fileName.substring(0, dotIndex);
+        String ext = dotIndex < 0 ? "" : fileName.substring(dotIndex); //$NON-NLS-1$
+        File targetFile = new File(rootDir, fileName);
+        int i = 1;
+        while (targetFile.exists()) {
+            i++;
+            targetFile = new File(rootDir,
+                    String.format("%s %s%s", name, i, ext)); //$NON-NLS-1$
+        }
+        return targetFile;
+    }
+
+    @Override
+    public List<ITemplate> getUserTemplates() {
+        List<ITemplate> customTemplates = new ArrayList<ITemplate>();
+        loadUserTemplates(customTemplates);
+        return customTemplates;
+    }
+
+    private void loadUserTemplates(List<ITemplate> templates) {
+        loadTemplatesFromDir(templates, getUserTemplatesDir());
+    }
+
+    private static File getUserTemplatesDir() {
+        return new File(
+                Core.getWorkspace().getAbsolutePath(USER_TEMPLATES_DIR));
+    }
+
+    private void loadTemplatesFromDir(List<ITemplate> templates,
+            File templatesDir) {
+        List<ITemplate> list = new ArrayList<ITemplate>();
+        if (templatesDir != null && templatesDir.isDirectory()) {
+            for (String fileName : templatesDir.list()) {
+                if (fileName.endsWith(MindMapUI.FILE_EXT_TEMPLATE)
+                        || fileName.endsWith(MindMapUI.FILE_EXT_XMIND)) {
+                    File file = new File(templatesDir, fileName);
+                    if ((file.isFile() && file.canRead())
+                            || file.isDirectory()) {
+                        list.add(new ClonedTemplate(file.toURI(), null));
+                    }
+                }
+            }
+        }
+        Collections.sort(list, new Comparator<ITemplate>() {
+            public int compare(ITemplate t1, ITemplate t2) {
+                if (!(t1 instanceof ClonedTemplate)
+                        || !(t2 instanceof ClonedTemplate))
+                    return 0;
+                ClonedTemplate ct1 = (ClonedTemplate) t1;
+                ClonedTemplate ct2 = (ClonedTemplate) t2;
+
+                File f1 = URIUtil.toFile(ct1.getSourceWorkbookURI());
+                File f2 = URIUtil.toFile(ct2.getSourceWorkbookURI());
+                if (f1 == null || f2 == null || !f1.exists() || !f2.exists())
+                    return 0;
+                return (int) (f1.lastModified() - f2.lastModified());
+            }
+        });
+        templates.addAll(list);
+    }
+
+    @Override
+    public ITemplate addUserTemplateFromWorkbookURI(URI workbookURI)
+            throws InvocationTargetException {
+        Assert.isNotNull(workbookURI);
+        final IWorkbookRef sourceWorkbookRef = MindMapUIPlugin.getDefault()
+                .getWorkbookRefFactory().createWorkbookRef(workbookURI, null);
+        if (sourceWorkbookRef == null)
+            throw new IllegalArgumentException(
+                    "Invalid workbook URI: " + workbookURI); //$NON-NLS-1$
+
+        final File userTemplateFile = createUserTemplateOutputFile(
+                sourceWorkbookRef.getName() + MindMapUI.FILE_EXT_TEMPLATE);
+        final URI templateURI = userTemplateFile.toURI();
+
+        final IWorkbookRef templateWorkbookRef = MindMapUIPlugin.getDefault()
+                .getWorkbookRefFactory().createWorkbookRef(templateURI, null);
+        if (templateWorkbookRef == null)
+            throw new IllegalStateException(
+                    "Failed to obtain workbook ref for local file URI: " //$NON-NLS-1$
+                            + templateURI);
+
+        IRunnableWithProgress runnable = new IRunnableWithProgress() {
+            @Override
+            public void run(IProgressMonitor monitor)
+                    throws InvocationTargetException, InterruptedException {
+                try {
+                    SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+                    sourceWorkbookRef.open(subMonitor.newChild(30));
+                    try {
+                        templateWorkbookRef.importFrom(subMonitor.newChild(60),
+                                sourceWorkbookRef);
+                    } finally {
+                        subMonitor.setWorkRemaining(10);
+                        sourceWorkbookRef.close(subMonitor.newChild(10));
+                    }
+                } finally {
+                    if (monitor != null)
+                        monitor.done();
+                }
+            }
+        };
+
+        try {
+            if (PlatformUI.isWorkbenchRunning()) {
+                PlatformUI.getWorkbench().getProgressService().run(true, true,
+                        runnable);
+            } else {
+                runnable.run(new NullProgressMonitor());
+            }
+        } catch (InterruptedException e) {
+            // canceled
+            return null;
+        }
+
+        ITemplate template = new ClonedTemplate(templateURI,
+                userTemplateFile.getName());
+        fireUserTemplateAdded(template);
+        return template;
+    }
+
+    private void fireUserTemplateAdded(final ITemplate template) {
+        for (final Object listener : resourceManagerListeners.getListeners()) {
+            SafeRunner.run(new SafeRunnable() {
+                @Override
+                public void run() throws Exception {
+                    ((IResourceManagerListener) listener)
+                            .userTemplateAdded(template);
+                }
+            });
+        }
+    }
+
+    private void fireUserTemplateRemoved(final ITemplate template) {
+        for (final Object listener : resourceManagerListeners.getListeners()) {
+            SafeRunner.run(new SafeRunnable() {
+                @Override
+                public void run() throws Exception {
+                    ((IResourceManagerListener) listener)
+                            .userTemplateRemoved(template);
+                }
+            });
+        }
+    }
+
+    private File createUserTemplateOutputFile(String fileName) {
+        File dir = getUserTemplatesDir();
+        FileUtils.ensureDirectory(dir);
+        File file = createNonConflictingFile(dir, fileName);
+        file.mkdirs();
+        return file;
+    }
+
+    @Override
+    public void removeUserTemplate(ITemplate template) {
+        URI templateURI = template.getSourceWorkbookURI();
+        if (URIUtil.isFileURI(templateURI)) {
+            File templateFile = URIUtil.toFile(templateURI);
+            File templatesDir = getUserTemplatesDir();
+            if (templatesDir.equals(templateFile.getParentFile())) {
+                FileUtils.delete(templateFile);
+                fireUserTemplateRemoved(template);
+            }
+        }
+    }
+
+    @Override
+    public void addResourceManagerListener(IResourceManagerListener listener) {
+        resourceManagerListeners.add(listener);
+    }
+
+    @Override
+    public void removeResourceManagerListener(
+            IResourceManagerListener listener) {
+        resourceManagerListeners.remove(listener);
+    }
+
+    @Override
+    public ITemplate getDefaultTemplate() {
+        return this.defaultTemplate;
+    }
+
+    @Override
+    public void setDefaultTemplate(ITemplate defaultTemplate) {
+        this.defaultTemplate = defaultTemplate;
+    }
+
+    @Override
+    public boolean isUserTemplate(ITemplate template) {
+        URI templateURI = template.getSourceWorkbookURI();
+        if (URIUtil.isFileURI(templateURI)) {
+            File templateFile = URIUtil.toFile(templateURI);
+            File templatesDir = getUserTemplatesDir();
+            return templatesDir.equals(templateFile.getParentFile());
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isSystemTemplate(ITemplate template) {
+        // TODO check source workbook URI to determine system template
+        return getSystemTemplates().contains(template);
     }
 
 }

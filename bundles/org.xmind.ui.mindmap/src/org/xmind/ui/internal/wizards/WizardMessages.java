@@ -52,6 +52,12 @@ public class WizardMessages extends NLS {
     public static String Export_UncompatibleFormat_title;
     public static String Export_FailedWhenExport;
 
+    public static String ImageExportWizard_showMinusCheck_text;
+
+    public static String ImageExportWizard_showPlusCheck_text;
+
+    public static String ImageExportWizard_showPlusMinus_groupTitle;
+
     public static String ImageExportWizard_windowTitle;
     public static String ImageExportPage_title;
     public static String ImageExportPage_description;

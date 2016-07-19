@@ -19,7 +19,6 @@ import org.xmind.gef.image.FigureRenderer;
 import org.xmind.gef.image.IExportSourceProvider;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.gef.util.Properties;
-import org.xmind.ui.internal.print.PageSetupDialog.Entries;
 import org.xmind.ui.internal.print.PrintConstants;
 import org.xmind.ui.internal.print.PrintUtils;
 import org.xmind.ui.mindmap.GhostShellProvider;
@@ -29,6 +28,7 @@ import org.xmind.ui.mindmap.MindMapExportViewer;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.mindmap.MindMapViewerExportSourceProvider;
 import org.xmind.ui.resources.ColorUtils;
+import org.xmind.ui.wizards.ExportContants;
 
 public class PrintMultipagePreviewImageCreator {
 
@@ -112,15 +112,30 @@ public class PrintMultipagePreviewImageCreator {
     private void initSource() {
         Properties properties = new Properties();
         properties.set(IMindMapViewer.VIEWER_GRADIENT, Boolean.FALSE);
-        String plusMinusVisibility = settings
-                .get(PrintConstants.PLUS_MINUS_VISIBILITY);
-        properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                Entries.getPropertiesValue(plusMinusVisibility));
+
+        //set plus minus visibility
+        boolean plusVisible = getBoolean(settings, PrintConstants.PLUS_VISIBLE,
+                PrintConstants.DEFAULT_PLUS_VISIBLE);
+        boolean minusVisible = getBoolean(settings,
+                PrintConstants.MINUS_VISIBLE,
+                PrintConstants.DEFAULT_MINUS_VISIBLE);
+        properties.set(IMindMapViewer.PLUS_VISIBLE, plusVisible);
+        properties.set(IMindMapViewer.MINUS_VISIBLE, minusVisible);
 
         GhostShellProvider shell = new GhostShellProvider(display);
         exportViewer = new MindMapExportViewer(shell, mindmap, properties);
         sourceProvider = new MindMapViewerPrintSourceProvider(exportViewer, 0,
                 settings);
+    }
+
+    private boolean getBoolean(IDialogSettings settings, String key,
+            boolean defaultValue) {
+        boolean value = defaultValue;
+        if (settings.get(key) != null) {
+            value = settings.getBoolean(key);
+        }
+
+        return value;
     }
 
     private Image getFullImage() {
@@ -517,14 +532,16 @@ public class PrintMultipagePreviewImageCreator {
 
             gc.drawImage(fullImage, 0, 0);
 
-            gc.setForeground(ColorUtils.getColor("#00a453")); //$NON-NLS-1$
+            gc.setForeground(ColorUtils.getColor("#90d483")); //$NON-NLS-1$
 
             double showRatio = Math.min(
                     (double) controlWidth / imageBounds.width,
                     (double) controlHeight / imageBounds.height);
-            int lineWidth = (int) (1 / showRatio);
-            int showTickLength = 5;
+            int lineWidth = (int) (2 / showRatio);
+            int showTickLength = 2;
             int tickLength = Math.max(1, (int) (showTickLength / showRatio));
+            int showSpaceLength = 4;
+            int spaceLength = Math.max(1, (int) (showSpaceLength / showRatio));
             gc.setLineWidth(lineWidth);
 
             //draw portrait separator dash lines
@@ -532,14 +549,14 @@ public class PrintMultipagePreviewImageCreator {
                 PrintMultipagePreviewImageCreator.drawDashLine(gc,
                         i * usefulPerPageWidthByRatio, 0,
                         i * usefulPerPageWidthByRatio, imageBounds.height,
-                        tickLength, tickLength, lineWidth);
+                        tickLength, spaceLength, lineWidth);
             }
 
             //draw landscape separator dash lines
             for (int i = 1; i < heightPages; i++) {
                 PrintMultipagePreviewImageCreator.drawDashLine(gc, 0,
                         i * usefulPerPageHeightByRatio, imageBounds.width,
-                        i * usefulPerPageHeightByRatio, tickLength, tickLength,
+                        i * usefulPerPageHeightByRatio, tickLength, spaceLength,
                         lineWidth);
             }
 
@@ -612,11 +629,17 @@ public class PrintMultipagePreviewImageCreator {
         settings.put(PrintConstants.NO_BACKGROUND, !showBackground);
     }
 
-    public void setPlusMinusVisibility(String plusMinusVisibility) {
+    public void setPlusVisible(boolean plusVisible) {
         if (exportViewer != null) {
-            exportViewer.getProperties().set(
-                    IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                    Entries.getPropertiesValue(plusMinusVisibility));
+            Properties properties = exportViewer.getProperties();
+            properties.set(IMindMapViewer.PLUS_VISIBLE, plusVisible);
+        }
+    }
+
+    public void setMinusVisible(boolean minusVisible) {
+        if (exportViewer != null) {
+            Properties properties = exportViewer.getProperties();
+            properties.set(IMindMapViewer.MINUS_VISIBLE, minusVisible);
         }
     }
 

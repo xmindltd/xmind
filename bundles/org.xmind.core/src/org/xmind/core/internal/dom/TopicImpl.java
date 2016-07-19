@@ -71,7 +71,6 @@ import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Topic;
-import org.xmind.core.internal.event.NullCoreEventSupport;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.ILabelRefCounter;
@@ -93,8 +92,6 @@ public class TopicImpl extends Topic implements ICoreEventSource {
     private ImageImpl image;
 
     private NumberingImpl numbering;
-
-    private ICoreEventSupport coreEventSupport;
 
     private Map<String, TopicExtensionImpl> extensions = new HashMap<String, TopicExtensionImpl>();
 
@@ -1113,14 +1110,13 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         }
     }
 
-    public void setCoreEventSupport(ICoreEventSupport coreEventSupport) {
-        this.coreEventSupport = coreEventSupport;
-    }
-
     public ICoreEventSupport getCoreEventSupport() {
-        if (coreEventSupport != null)
-            return coreEventSupport;
-        return NullCoreEventSupport.getInstance();
+        // Use workbook's core event support directly, so that 
+        // orphan components can have events broadcasted, which 
+        // will enable transient actions (such as dragging topics 
+        // or adjusting relationship control points, etc.) to 
+        // perform correctly.
+        return ownedWorkbook.getCoreEventSupport();
     }
 
     protected WorkbookImpl getRealizedWorkbook() {
@@ -1141,8 +1137,6 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, true);
         workbook.getAdaptableRegistry().registerById(this, getId(),
                 getImplementation().getOwnerDocument());
-        setCoreEventSupport(parent != null ? parent.getCoreEventSupport()
-                : sheet.getCoreEventSupport());
         increaseLabelRefs(sheet);
         increaseMarkerRefs(workbook, sheet);
         increaseStyleRef(workbook);
@@ -1158,10 +1152,14 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             ((SummaryImpl) s).addNotify(workbook, this);
         }
         extensionsAddNotify(workbook);
+        ((CommentManagerImpl) workbook.getCommentManager())
+                .objectAddNotify(getId(), this);
     }
 
     protected void removeNotify(WorkbookImpl workbook, SheetImpl sheet,
             TopicImpl parent) {
+        ((CommentManagerImpl) workbook.getCommentManager())
+                .objectRemoveNotify(getId(), this);
         extensionsRemoveNotify(workbook);
         for (ISummary s : getSummaries()) {
             ((SummaryImpl) s).removeNotify(workbook, this);
@@ -1177,7 +1175,6 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         decreaseStyleRef(workbook);
         decreaseMarkerRefs(workbook, sheet);
         decreaseLabelRefs(sheet);
-        setCoreEventSupport(null);
         workbook.getAdaptableRegistry().unregisterById(this, getId(),
                 getImplementation().getOwnerDocument());
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, false);

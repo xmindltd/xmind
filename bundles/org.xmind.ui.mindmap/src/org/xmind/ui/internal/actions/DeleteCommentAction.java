@@ -1,6 +1,6 @@
 package org.xmind.ui.internal.actions;
 
-import org.xmind.core.comment.IComment;
+import org.xmind.core.IComment;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.commands.DeleteCommentCommand;
@@ -25,21 +25,26 @@ public class DeleteCommentAction extends CommentAction {
     }
 
     public void run() {
-        DeleteCommentCommand cmd = new DeleteCommentCommand(comment);
-        String content = comment.getContent();
-        if (content == null || content.equals("")) { //$NON-NLS-1$
-            cmd.execute();
+        if (comment == null)
+            return;
+
+        Object target = comment.getOwnedWorkbook()
+                .getElementById(comment.getObjectId());
+        if (target == null)
+            return;
+
+        DeleteCommentCommand cmd = new DeleteCommentCommand(target, comment);
+        ICommandStack commandStack = getCommandStack();
+        if (commandStack != null) {
+            commandStack.execute(cmd);
         } else {
-            ICommandStack cs = getCommandStack();
-            cs.execute(cmd);
+            cmd.execute();
         }
     }
 
     @Override
     public void selectedCommentChanged(IComment comment) {
-        if (comment != null) {
-            this.comment = comment;
-        }
+        this.comment = comment;
         setEnabled(comment != null);
     }
 

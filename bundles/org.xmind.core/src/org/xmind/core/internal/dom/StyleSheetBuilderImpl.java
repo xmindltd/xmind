@@ -28,18 +28,15 @@ import org.w3c.dom.Element;
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.internal.StyleSheetBuilder;
-import org.xmind.core.internal.zip.ArchiveConstants;
-import org.xmind.core.io.IInputSource;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.util.DOMUtils;
-import org.xmind.core.util.IXMLLoader;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class StyleSheetBuilderImpl extends StyleSheetBuilder implements
-        ErrorHandler {
+public class StyleSheetBuilderImpl extends StyleSheetBuilder
+        implements ErrorHandler {
 
     private DocumentBuilder getDocumentCreator() {
         DocumentBuilder documentCreator = null;
@@ -73,21 +70,21 @@ public class StyleSheetBuilderImpl extends StyleSheetBuilder implements
         return sheet;
     }
 
-    public IStyleSheet loadFromStream(InputStream stream) throws IOException,
-            CoreException {
+    public IStyleSheet loadFromStream(InputStream stream)
+            throws IOException, CoreException {
         DocumentBuilder loader = getDocumentLoader();
         Document doc = parse(loader, stream);
         return createStyleSheet(doc);
     }
 
-    public IStyleSheet loadFromInputSource(IInputSource source,
-            IXMLLoader xmlLoader) throws IOException, CoreException {
-        Document doc = xmlLoader.loadXMLFile(source,
-                ArchiveConstants.STYLES_XML);
-        return createStyleSheet(doc);
-    }
+//    public IStyleSheet loadFromInputSource(IInputSource source,
+//            IXMLLoader xmlLoader) throws IOException, CoreException {
+//        Document doc = xmlLoader.loadXMLFile(source,
+//                ArchiveConstants.STYLES_XML);
+//        return createStyleSheet(doc);
+//    }
 
-    private IStyleSheet createStyleSheet(Document doc) {
+    protected StyleSheetImpl createStyleSheet(Document doc) {
         fixbug(doc);
         StyleSheetImpl sheet = new StyleSheetImpl(doc);
         init(sheet);

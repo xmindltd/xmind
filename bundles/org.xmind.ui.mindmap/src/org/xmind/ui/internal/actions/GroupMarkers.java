@@ -22,6 +22,9 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.xmind.core.ITopic;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
@@ -30,14 +33,15 @@ import org.xmind.gef.ISourceProvider;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.command.ICommandStack;
+import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.commands.AddMarkerCommand;
 import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.DeleteMarkerCommand;
-import org.xmind.ui.mindmap.IWorkbookRef;
-import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MarkerImageDescriptor;
 
 public class GroupMarkers extends ContributionItem {
+
+//    private static final RGB BACKGROUND = new RGB(240, 240, 240);
 
     private class ReplaceMarkerAction extends Action {
 
@@ -54,9 +58,12 @@ public class GroupMarkers extends ContributionItem {
             this.targetMarkerId = targetMarkerId;
             setText(topic.getOwnedSheet().getLegend()
                     .getMarkerDescription(targetMarkerId));
-            setImageDescriptor(MarkerImageDescriptor.createFromMarker(
-                    topic.getOwnedWorkbook().getMarkerSheet()
-                            .findMarker(targetMarkerId), 16, 16));
+            setImageDescriptor(
+                    MarkerImageDescriptor
+                            .createFromMarker(
+                                    topic.getOwnedWorkbook().getMarkerSheet()
+                                            .findMarker(targetMarkerId),
+                                    16, 16));
             boolean sameMarker = sourceMarkerId.equals(targetMarkerId);
             setEnabled(!sameMarker);
             setChecked(sameMarker);
@@ -66,18 +73,21 @@ public class GroupMarkers extends ContributionItem {
             if (!isEnabled())
                 return;
 
-            IWorkbookRef wr = MindMapUI.getWorkbookRefManager().findRef(
-                    topic.getOwnedWorkbook());
-            if (wr != null) {
-                ICommandStack cs = wr.getCommandStack();
-                if (cs != null) {
-                    Command cmd = createReplaceMarkerCommand();
-                    cs.execute(cmd);
-                    if (cmd instanceof ISourceProvider) {
-                        select(((ISourceProvider) cmd).getSources());
-                    }
+//            IWorkbookRef wr = MindMapUI.getWorkbookRefManager()
+//                    .findRef(topic.getOwnedWorkbook());
+//            if (wr != null) {
+            IGraphicalEditor page = (IGraphicalEditor) PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage()
+                    .getActiveEditor();
+            ICommandStack cs = page.getCommandStack();
+            if (cs != null) {
+                Command cmd = createReplaceMarkerCommand();
+                cs.execute(cmd);
+                if (cmd instanceof ISourceProvider) {
+                    select(((ISourceProvider) cmd).getSources());
                 }
             }
+//            }
         }
 
         private void select(List<Object> sources) {
@@ -108,13 +118,18 @@ public class GroupMarkers extends ContributionItem {
 
         @Override
         public void run() {
-            IWorkbookRef wr = MindMapUI.getWorkbookRefManager().findRef(
-                    topic.getOwnedWorkbook());
-            if (wr != null) {
-                ICommandStack cs = wr.getCommandStack();
-                if (cs != null) {
-                    Command cmd = createRemoveMarkerCommand();
-                    cs.execute(cmd);
+            IWorkbenchPage page = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage();
+            if (page != null) {
+                IEditorPart editor = page.getActiveEditor();
+                if (editor instanceof IGraphicalEditor) {
+                    ICommandStack cs = ((IGraphicalEditor) editor)
+                            .getCommandStack();
+
+                    if (cs != null) {
+                        Command cmd = createRemoveMarkerCommand();
+                        cs.execute(cmd);
+                    }
                 }
             }
         }
@@ -164,13 +179,14 @@ public class GroupMarkers extends ContributionItem {
                     if (!marker.isHidden()) {
                         String targetMarkerId = marker.getId();
                         new ActionContributionItem(new ReplaceMarkerAction(
-                                topic, sourceMarkerId, targetMarkerId)).fill(
-                                menu, index++);
+                                topic, sourceMarkerId, targetMarkerId))
+                                        .fill(menu, index++);
                     }
                 }
                 new Separator().fill(menu, index++);
-                new ActionContributionItem(new DeleteMarkerAction(topic,
-                        sourceMarkerId)).fill(menu, index++);
+                new ActionContributionItem(
+                        new DeleteMarkerAction(topic, sourceMarkerId))
+                                .fill(menu, index++);
             }
         }
     }

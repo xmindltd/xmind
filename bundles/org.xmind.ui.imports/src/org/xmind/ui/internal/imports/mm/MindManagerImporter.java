@@ -92,6 +92,8 @@ public class MindManagerImporter extends MindMapImporter
     private static final Pattern DATE_PATTERN = Pattern.compile(
             "((\\d+)-(\\d{1,2})-(\\d{1,2}))T((\\d{1,2}):(\\d{1,2}):(\\d{1,2}))"); //$NON-NLS-1$
 
+    private static final String TRANSPARENT_VALUE = "0.00"; //$NON-NLS-1$
+
     private static Pattern OID_PATTERN = null;
 
     private class NotesImporter {
@@ -1550,8 +1552,8 @@ public class MindManagerImporter extends MindMapImporter
                     recordTopicLink(OId, topic);
                 }
                 return;
-            } else
-                if (!url.startsWith("http://") && !url.startsWith("https://")) { //$NON-NLS-1$ //$NON-NLS-2$
+            } else if (!url.startsWith("http://") //$NON-NLS-1$
+                    && !url.startsWith("https://")) { //$NON-NLS-1$
                 String path;
                 if (url.startsWith("\"") && url.endsWith("\"")) { //$NON-NLS-1$ //$NON-NLS-2$
                     path = url.substring(1, url.length() - 1);
@@ -1910,9 +1912,10 @@ public class MindManagerImporter extends MindMapImporter
         Element colorEle = child(parentEle, "ap:Color"); //$NON-NLS-1$
         if (colorEle != null) {
             String fillColor = att(colorEle, "FillColor"); //$NON-NLS-1$
-            registerStyle(host, Styles.FillColor, parseColor(fillColor));
+            String opacity = parseAlpha(fillColor);
+            if (opacity != null && !opacity.equals(TRANSPARENT_VALUE))
+                registerStyle(host, Styles.FillColor, parseColor(fillColor));
             if (transparent) {
-                String opacity = parseAlpha(fillColor);
                 registerStyle(host, Styles.Opacity, opacity);
             }
 

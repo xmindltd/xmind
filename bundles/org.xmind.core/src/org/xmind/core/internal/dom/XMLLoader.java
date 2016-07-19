@@ -22,10 +22,19 @@ import org.xmind.core.CoreException;
 import org.xmind.core.io.IInputSource;
 import org.xmind.core.util.IXMLLoader;
 
+/**
+ * @deprecated
+ * @author Frank Shaka
+ */
+@Deprecated
 public abstract class XMLLoader implements IXMLLoader {
 
     private Map<String, Document> loadedDocuments = null;
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public Document loadXMLFile(IInputSource source, String entryName)
             throws IOException, CoreException {
         if (loadedDocuments != null) {
@@ -43,6 +52,10 @@ public abstract class XMLLoader implements IXMLLoader {
         return document;
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     protected abstract Document doLoadXMLFile(IInputSource source,
             String entryName) throws IOException, CoreException;
 

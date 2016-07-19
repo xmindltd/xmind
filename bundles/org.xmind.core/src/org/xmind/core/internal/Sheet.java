@@ -60,9 +60,9 @@ public abstract class Sheet extends AbstractWorkbookComponent
         return -1;
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == ITopic.class)
-            return getRootTopic();
+            return adapter.cast(getRootTopic());
 
         return super.getAdapter(adapter);
     }

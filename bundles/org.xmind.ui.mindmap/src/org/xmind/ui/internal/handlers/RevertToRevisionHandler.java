@@ -15,18 +15,14 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.xmind.core.IRevision;
 import org.xmind.core.IRevisionManager;
 import org.xmind.core.ISheet;
-import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.comment.IComment;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.ui.commands.AddSheetCommand;
-import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.commands.DeleteSheetCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
-import org.xmind.ui.internal.comments.CommentsUtils;
 
 public class RevertToRevisionHandler extends AbstractHandler {
 
@@ -73,16 +69,6 @@ public class RevertToRevisionHandler extends AbstractHandler {
         commands.add(new AddSheetCommand(targetSheet, workbook, sheetIndex));
         commands.add(new DeleteSheetCommand(placeholderSheet, workbook));
 
-        List<IComment> comments = CommentsUtils
-                .getAllCommentsOfSheetAndChildren(sourceSheet);
-        for (IComment comment : comments) {
-            if (comment.getTarget() instanceof ITopic
-                    && !containsTopicById(targetSheet.getRootTopic(),
-                            comment.getTarget().getId())) {
-                commands.add(new DeleteCommentCommand(comment));
-            }
-        }
-
         final Command command = new CompoundCommand(
                 MindMapMessages.RevertToRevisionCommand_label, commands);
         final ICommandStack commandStack = editor == null ? null
@@ -105,16 +91,6 @@ public class RevertToRevisionHandler extends AbstractHandler {
             }
         });
 
-    }
-
-    private static boolean containsTopicById(ITopic topic, String targetId) {
-        if (topic.getId().equals(targetId))
-            return true;
-        for (ITopic child : topic.getAllChildren()) {
-            if (containsTopicById(child, targetId))
-                return true;
-        }
-        return false;
     }
 
 }

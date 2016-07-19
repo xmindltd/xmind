@@ -13,103 +13,85 @@
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
-import static org.xmind.core.internal.zip.ArchiveConstants.PATH_MARKER_SHEET;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.xmind.core.IFileEntry;
 import org.xmind.core.internal.AbstractRefCounter;
+import org.xmind.core.internal.zip.ArchiveConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
-import org.xmind.core.marker.IMarkerResource;
-import org.xmind.core.marker.IMarkerSheet;
-import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.IMarkerRefCounter;
 
-public class WorkbookMarkerRefCounter extends AbstractRefCounter implements
-        IMarkerRefCounter {
+public class WorkbookMarkerRefCounter extends AbstractRefCounter
+        implements IMarkerRefCounter {
 
-    private MarkerSheetImpl sheet;
+    private WorkbookImpl workbook;
 
-    private ManifestImpl manifest;
+    private Map<IMarker, IMarkerGroup> groupCache;
 
-    WorkbookMarkerRefCounter(MarkerSheetImpl sheet, ManifestImpl manifest) {
-        this.sheet = sheet;
-        this.manifest = manifest;
+    WorkbookMarkerRefCounter(WorkbookImpl workbook) {
+        this.workbook = workbook;
+        this.groupCache = new HashMap<IMarker, IMarkerGroup>();
     }
 
     protected Object findResource(String resourceId) {
-        return sheet.findMarker(resourceId);
+        return workbook.getMarkerSheet().findMarker(resourceId);
     }
 
     protected void postIncreaseRef(String resourceId, Object resource) {
         IMarker marker = (IMarker) resource;
-        if (sheet.equals(marker.getOwnedSheet())) {
-            IMarkerGroup group = marker.getParent();
-            if (group != null) {
-                if (group.getParent() == null) {
-                    sheet.addMarkerGroup(group);
-                    for (IMarker m : group.getMarkers()) {
-                        IMarkerResource res = m.getResource();
-                        if (res instanceof WorkbookMarkerResource) {
-                            String fullPath = ((WorkbookMarkerResource) res)
-                                    .getFullPath();
-                            IFileEntry e = manifest.getFileEntry(fullPath);
-                            if (e == null)
-                                e = manifest.createFileEntry(fullPath,
-                                        FileUtils.getMediaType(fullPath));
-                            e.increaseReference();
-                        }
-                    }
-                }
 
-                IFileEntry sheetEntry = manifest.getFileEntry(PATH_MARKER_SHEET);
-                if (sheetEntry == null) {
-                    sheetEntry = manifest.createFileEntry(PATH_MARKER_SHEET);
+        MarkerSheetImpl markerSheet = workbook.getMarkerSheet();
+        if (markerSheet.equals(marker.getOwnedSheet())) {
+            String resourcePath = marker.getResourcePath();
+            if (resourcePath != null) {
+                IFileEntry entry = workbook.getManifest().getFileEntry(
+                        ArchiveConstants.PATH_MARKERS + resourcePath);
+                if (entry != null) {
+                    entry.increaseReference();
                 }
-                sheetEntry.increaseReference();
+            }
+
+            IMarkerGroup group = marker.getParent();
+            if (group == null) {
+                group = groupCache.get(marker);
+                if (group != null)
+                    group.addMarker(marker);
+            }
+            if (group != null) {
+                groupCache.put(marker, group);
+                if (group.getParent() == null) {
+                    markerSheet.addMarkerGroup(group);
+                }
             }
         }
     }
 
     protected void postDecreaseRef(String resourceId, Object resource) {
         IMarker marker = (IMarker) resource;
-        if (sheet.equals(marker.getOwnedSheet())) {
-            IMarkerGroup group = marker.getParent();
-            if (group != null) {
-                IMarkerSheet parent = group.getParent();
-                if (sheet.equals(parent)) {
-                    if (!isGroupReferenced(group)) {
-                        parent.removeMarkerGroup(group);
-                        for (IMarker m : group.getMarkers()) {
-                            IMarkerResource res = m.getResource();
-                            if (res instanceof WorkbookMarkerResource) {
-                                String fullPath = ((WorkbookMarkerResource) res)
-                                        .getFullPath();
-                                IFileEntry e = manifest.getFileEntry(fullPath);
-                                if (e != null) {
-                                    e.decreaseReference();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (sheet.isEmpty()) {
-                IFileEntry entry = manifest.getFileEntry(PATH_MARKER_SHEET);
+        MarkerSheetImpl markerSheet = workbook.getMarkerSheet();
+        if (markerSheet.equals(marker.getOwnedSheet())) {
+            String resourcePath = marker.getResourcePath();
+            if (resourcePath != null) {
+                IFileEntry entry = workbook.getManifest().getFileEntry(
+                        ArchiveConstants.PATH_MARKERS + resourcePath);
                 if (entry != null) {
                     entry.decreaseReference();
                 }
             }
-        }
-    }
 
-    private boolean isGroupReferenced(IMarkerGroup group) {
-        for (IMarker marker : group.getMarkers()) {
-            int c = getRefCount(marker.getId());
-            if (c > 0)
-                return true;
+            IMarkerGroup group = marker.getParent();
+            if (group != null) {
+                groupCache.put(marker, group);
+                if (getRefCount(resourceId) <= 0) {
+                    group.removeMarker(marker);
+                }
+                if (group.isEmpty() && markerSheet.equals(group.getParent())) {
+                    markerSheet.removeMarkerGroup(group);
+                }
+            }
         }
-        return false;
     }
 
 }

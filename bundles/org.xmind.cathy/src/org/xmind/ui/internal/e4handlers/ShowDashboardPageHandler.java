@@ -31,9 +31,9 @@ public class ShowDashboardPageHandler {
         }
 
         List<String> tags = window.getTags();
-        if (tags.contains(ICathyConstants.TAG_SHOW_DASHBOARD))
-            tags.remove(ICathyConstants.TAG_SHOW_DASHBOARD);
-        tags.add(ICathyConstants.TAG_SHOW_DASHBOARD);
+        if (!tags.contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
+            tags.add(ICathyConstants.TAG_SHOW_DASHBOARD);
+        }
 
         if (pageId == null)
             return;
@@ -55,6 +55,14 @@ public class ShowDashboardPageHandler {
         }
 
         MPart dashboardPart = dashboardParts.get(0);
+
+        String oldPageId = (String) dashboardPart.getTransientData()
+                .get(ICathyConstants.DATA_DASHBOARD_SELECTED_PAGE_ID);
+        if (pageId.equals(oldPageId)) {
+            ////todo
+            return;
+        }
+
         dashboardPart.getTransientData()
                 .remove(ICathyConstants.DATA_DASHBOARD_SELECTED_PAGE_ID);
         dashboardPart.getTransientData()

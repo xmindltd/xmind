@@ -138,4 +138,7 @@ public class PrefConstants {
     @Deprecated
     public static final String HIDE_MINUS_SHOW_PLUS = "hideMinusShowPlus"; //$NON-NLS-1$
 
+    public static final String SAVE_WIZARDS = "saveWizards"; //$NON-NLS-1$
+    public static final String DEFAULT_SAVE_WIZARD = "defaultSaveWizardId"; //$NON-NLS-1$
+
 }

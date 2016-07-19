@@ -33,6 +33,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -59,6 +60,7 @@ import org.xmind.gef.part.IPart;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.branch.IFreeableBranchStructureExtension;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.editor.MindMapEditor;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ICacheManager;
 import org.xmind.ui.mindmap.IIconTipPart;
@@ -68,7 +70,6 @@ import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.ISummaryPart;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.IViewerModel;
-import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ImageUtils;
 import org.xmind.ui.style.Styles;
@@ -910,17 +911,30 @@ public class MindMapUtils {
     }
 
     public static ICommandStack getCommandStack(IWorkbook workbook) {
-        if (workbook != null) {
-            IWorkbookRef workbookRef = MindMapUI.getWorkbookRefManager()
-                    .findRef(workbook);
-            if (workbookRef != null) {
-                return workbookRef.getCommandStack();
+        IWorkbenchPage page = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage();
+        if (page != null) {
+            IEditorReference[] editorRefs = page.getEditorReferences();
+            for (IEditorReference editorRef : editorRefs) {
+                IEditorPart editor = editorRef.getEditor(false);
+                if (editor instanceof MindMapEditor) {
+                    if (((MindMapEditor) editor).getWorkbook() == workbook) {
+                        return ((MindMapEditor) editor).getCommandStack();
+                    }
+                }
             }
         }
 
         return ICommandStack.NULL;
     }
 
+    /**
+     * @deprecated Find topic part from local context instead of from active
+     *             editor.
+     * @param topic
+     * @return
+     */
+    @Deprecated
     public static ITopicPart getTopicPart(ITopic topic) {
         IWorkbenchWindow window = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow();
@@ -988,6 +1002,27 @@ public class MindMapUtils {
                 selectionProvider.setSelection(new StructuredSelection(topic));
             }
         }
+    }
+
+    /**
+     * @param topic
+     * @return
+     */
+    public static ITopicPart findTopicPart(IViewer viewer, ITopic topic) {
+        if (viewer == null)
+            return null;
+
+        IPart part = viewer.findPart(topic);
+        if (part == null)
+            return null;
+
+        ITopicPart topicPart;
+        if (part instanceof ITopicPart) {
+            topicPart = (ITopicPart) part;
+        } else {
+            topicPart = part.getAdapter(ITopicPart.class);
+        }
+        return topicPart;
     }
 
 }

@@ -14,21 +14,22 @@
 
 package org.xmind.ui.internal.editor;
 
+import org.eclipse.jface.dialogs.ErrorSupportProvider;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
+import org.eclipse.ui.statushandlers.AbstractStatusAreaProvider;
 import org.eclipse.ui.statushandlers.StatusAdapter;
-import org.xmind.ui.internal.statushandlers.IErrorReporter;
-import org.xmind.ui.internal.statushandlers.IRuntimeErrorDialogExtension;
-import org.xmind.ui.internal.statushandlers.RuntimeErrorDialog;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.statushandlers.StatusDetails;
 import org.xmind.ui.internal.statushandlers.StatusHandlerMessages;
 
@@ -36,10 +37,17 @@ public class ErrorDialogPane2 extends DialogPane {
 
     private final StatusDetails details;
 
-    Composite composite;
+    private final ErrorSupportProvider supportProvider;
 
-    public ErrorDialogPane2(StatusAdapter error) {
+    private Composite composite;
+
+    private Runnable closeCallback;
+
+    public ErrorDialogPane2(StatusAdapter error,
+            ErrorSupportProvider supportProvider) {
         this.details = new StatusDetails(error);
+        this.supportProvider = supportProvider;
+        this.closeCallback = null;
     }
 
     @Override
@@ -80,8 +88,8 @@ public class ErrorDialogPane2 extends DialogPane {
 
         Label titleImageLabel = new Label(area, SWT.NONE);
         titleImageLabel.setImage(details.getImage());
-        titleImageLabel.setLayoutData(new GridData(SWT.BEGINNING,
-                SWT.BEGINNING, false, false));
+        titleImageLabel.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false));
         titleImageLabel.setBackground(parent.getBackground());
 
         Composite messageParent = new Composite(area, SWT.NONE);
@@ -90,15 +98,22 @@ public class ErrorDialogPane2 extends DialogPane {
 
         Label messageLabel = new Label(messageParent, SWT.WRAP);
         messageLabel.setText(details.getMessage());
-        messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                true));
+        messageLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
         messageLabel.setBackground(parent.getBackground());
 
-        IRuntimeErrorDialogExtension balckBoxHyper = (IRuntimeErrorDialogExtension) details
-                .getStatusAdapter().getProperty(
-                        RuntimeErrorDialog.DIALOG_EXTENSION);
-        if (balckBoxHyper != null) {
-            balckBoxHyper.createDialogExtension(messageParent);
+        if (supportProvider != null) {
+            if (supportProvider instanceof AbstractStatusAreaProvider
+                    && ((AbstractStatusAreaProvider) supportProvider)
+                            .validFor(details.getStatusAdapter())) {
+                ((AbstractStatusAreaProvider) supportProvider)
+                        .createSupportArea(messageParent,
+                                details.getStatusAdapter());
+            } else if (supportProvider
+                    .validFor(details.getStatusAdapter().getStatus())) {
+                supportProvider.createSupportArea(messageParent,
+                        details.getStatusAdapter().getStatus());
+            }
         }
 
         return area;
@@ -113,8 +128,8 @@ public class ErrorDialogPane2 extends DialogPane {
         layout.horizontalSpacing = 0;
         area.setLayout(layout);
 
-        Text detailsText = new Text(area, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        Text detailsText = new Text(area,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
         detailsText.setEditable(false);
         detailsText.setText(details.getFullText());
         detailsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -124,8 +139,8 @@ public class ErrorDialogPane2 extends DialogPane {
 
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.CLOSE_ID,
-                StatusHandlerMessages.RuntimeErrorDialog_CloseButton_Text, true);
-
+                StatusHandlerMessages.RuntimeErrorDialog_CloseButton_Text,
+                true);
     }
 
     @Override
@@ -141,7 +156,8 @@ public class ErrorDialogPane2 extends DialogPane {
         composite.setBackground(buttonBar.getBackground());
 
         Hyperlink report = new Hyperlink(composite, SWT.LEFT);
-        report.setText(StatusHandlerMessages.RuntimeErrorDialog_ReportHyperlink_Text);
+        report.setText(
+                StatusHandlerMessages.RuntimeErrorDialog_ReportHyperlink_Text);
         report.setUnderlined(true);
         report.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e) {
@@ -154,7 +170,7 @@ public class ErrorDialogPane2 extends DialogPane {
 
     private void reportPressed() {
         try {
-            IErrorReporter.Default.getInstance().report(details);
+            MindMapUIPlugin.getDefault().getErrorReporter().report(details);
         } catch (InterruptedException e) {
             return;
         }
@@ -165,7 +181,18 @@ public class ErrorDialogPane2 extends DialogPane {
     protected boolean closePressed() {
         setReturnCode(IDialogConstants.CLOSE_ID);
         close();
+        if (closeCallback != null) {
+            Display.getCurrent().asyncExec(closeCallback);
+        }
         return true;
+    }
+
+    /**
+     * @param closeCallback
+     *            the closeCallback to set
+     */
+    public void setCloseCallback(Runnable closeCallback) {
+        this.closeCallback = closeCallback;
     }
 
     protected void escapeKeyPressed() {

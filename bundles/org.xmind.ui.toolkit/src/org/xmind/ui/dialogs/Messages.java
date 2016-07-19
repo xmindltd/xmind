@@ -27,6 +27,8 @@ public class Messages extends NLS {
     public static String ErrorDetailsDialog_Copied_message;
     public static String ErrorDetailsDialog_CopyButton_text;
 
+    public static String Notification_closeButton_text;
+
     public static String NotificationDialog_MoreLink_defaultText;
 
     static {

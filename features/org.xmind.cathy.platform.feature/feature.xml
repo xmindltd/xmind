@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.platform.feature"
       label="XMind Product Runtime Platform"
-      version="3.6.1.qualifier"
+      version="3.6.51.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -248,8 +248,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="true"/>
+         fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.launcher.gtk.linux.x86"
@@ -259,8 +258,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="true"/>
+         fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.launcher.gtk.linux.x86_64"
@@ -270,8 +268,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="true"/>
+         fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.launcher.win32.win32.x86"
@@ -281,8 +278,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="true"/>
+         fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.preferences"
@@ -599,8 +595,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="true"/>
+         fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.simpleconfigurator.manipulator"
@@ -887,6 +882,41 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
 
    <plugin
          id="org.w3c.dom.svg"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.e4.core.di.annotations"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.emf.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.e4.emf.xpath"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.jxpath"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.tukaani.xz"
          download-size="0"
          install-size="0"
          version="0.0.0"

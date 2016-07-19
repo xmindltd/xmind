@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>face_emb</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFD036" offset="0%"></stop>
+            <stop stop-color="#ECB70A" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="faces" transform="translate(-129.000000, -1.000000)">
+            <g id="face_emb" transform="translate(129.002324, 1.000000)">
+                <circle id="Oval-332" fill="#E39104" cx="8" cy="8" r="8"></circle>
+                <circle id="Oval-332-Copy-3" fill="url(#linearGradient-1)" cx="8" cy="8" r="7.5"></circle>
+                <rect id="Rectangle-291" fill="#CA480B" x="3" y="6.4" width="4.2" height="0.8" rx="1"></rect>
+                <rect id="Rectangle-291-Copy-2" fill="#CA480B" x="3.5" y="10.3898883" width="8.8" height="0.8" rx="1"></rect>
+                <rect id="Rectangle-291-Copy" fill="#CA480B" x="8.8" y="6.4" width="4.2" height="0.8" rx="1"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

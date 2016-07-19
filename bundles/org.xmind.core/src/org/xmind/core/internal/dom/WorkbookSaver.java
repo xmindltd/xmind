@@ -15,7 +15,6 @@ package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_SHEET;
-import static org.xmind.core.internal.zip.ArchiveConstants.COMMENTS_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.CONTENT_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.MANIFEST_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.META_XML;
@@ -55,7 +54,6 @@ import org.xmind.core.IManifest;
 import org.xmind.core.IMeta;
 import org.xmind.core.IRevision;
 import org.xmind.core.IRevisionManager;
-import org.xmind.core.comment.ICommentManager;
 import org.xmind.core.internal.InternalCore;
 import org.xmind.core.internal.security.Crypto;
 import org.xmind.core.internal.zip.ArchiveConstants;
@@ -70,8 +68,9 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author Frank Shaka
- * 
+ * @deprecated Use <code>Core.getSerializerFactory().newSerializer()</code>
  */
+@Deprecated
 public class WorkbookSaver {
 
     private static class WorkbookSaveSession {
@@ -102,7 +101,8 @@ public class WorkbookSaver {
          * @param workbook
          * @param target
          */
-        public WorkbookSaveSession(WorkbookImpl workbook, IOutputTarget target) {
+        public WorkbookSaveSession(WorkbookImpl workbook,
+                IOutputTarget target) {
             this.workbook = workbook;
             this.target = target;
         }
@@ -178,10 +178,6 @@ public class WorkbookSaver {
         }
 
         private void saveComments() throws IOException, CoreException {
-            ICommentManager commentManager = workbook.getCommentManager();
-            if (!commentManager.isEmpty()) {
-                saveDOM(commentManager, target, COMMENTS_XML);
-            }
         }
 
         private void saveRevisions() throws IOException, CoreException {
@@ -203,9 +199,9 @@ public class WorkbookSaver {
 
         private void saveMeta() throws IOException, CoreException {
             IMeta meta = workbook.getMeta();
-            meta.setValue(IMeta.CREATOR_NAME, workbook.getCreatorName());
-            meta.setValue(IMeta.CREATOR_VERSION, workbook.getCreatorVersion());
-            saveDOM(workbook.getMeta(), target, META_XML);
+//            meta.setValue(IMeta.CREATOR_NAME, workbook.getCurrentCreatorName());
+//            meta.setValue(IMeta.CREATOR_VERSION, workbook.getCurrentCreatorVersion());
+            saveDOM(meta, target, META_XML);
         }
 
         private void copyOtherStaff() throws IOException, CoreException {
@@ -223,8 +219,8 @@ public class WorkbookSaver {
         }
 
         private synchronized void copyEntry(IInputSource source,
-                IOutputTarget target, String entryPath) throws IOException,
-                CoreException {
+                IOutputTarget target, String entryPath)
+                        throws IOException, CoreException {
             InputStream in = getInputStream(source, entryPath);
             if (in == null) {
                 Core.getLogger().log(
@@ -255,8 +251,7 @@ public class WorkbookSaver {
         }
 
         private boolean shouldSaveEntry(String entryPath) {
-            return entryPath != null
-                    && !"".equals(entryPath) //$NON-NLS-1$
+            return entryPath != null && !"".equals(entryPath) //$NON-NLS-1$
                     && !MANIFEST_XML.equals(entryPath)
                     && !hasBeenSaved(entryPath)
                     && !(workbook.isSkipRevisionsWhenSaving() && entryPath
@@ -273,8 +268,8 @@ public class WorkbookSaver {
                 String entryPath) throws IOException, CoreException {
             Node node = (Node) domAdapter.getAdapter(Node.class);
             if (node == null) {
-                Core.getLogger().log(
-                        "SaveWorkbook: No DOM node available for entry: " //$NON-NLS-1$
+                Core.getLogger()
+                        .log("SaveWorkbook: No DOM node available for entry: " //$NON-NLS-1$
                                 + entryPath);
                 return;
             }
@@ -295,7 +290,8 @@ public class WorkbookSaver {
             } catch (TransformerConfigurationException error) {
                 throw new CoreException(Core.ERROR_FAIL_ACCESS_XML_TRANSFORMER,
                         "Failed to create XML transformer for DOM entry '" //$NON-NLS-1$
-                                + entryPath + "'.", error); //$NON-NLS-1$
+                                + entryPath + "'.", //$NON-NLS-1$
+                        error);
             }
 
             OutputStream out = getOutputStream(target, entryPath);
@@ -327,7 +323,8 @@ public class WorkbookSaver {
             }
         }
 
-        private InputStream getInputStream(IInputSource source, String entryPath) {
+        private InputStream getInputStream(IInputSource source,
+                String entryPath) {
             if (source.hasEntry(entryPath)) {
                 return source.getEntryStream(entryPath);
             }
@@ -436,13 +433,13 @@ public class WorkbookSaver {
      * @throws IOException
      * @throws CoreException
      */
-    public synchronized void save(OutputStream output) throws IOException,
-            CoreException {
+    public synchronized void save(OutputStream output)
+            throws IOException, CoreException {
         doSave(new ZipStreamOutputTarget(new ZipOutputStream(output)));
     }
 
-    public synchronized void save(String file) throws IOException,
-            CoreException {
+    public synchronized void save(String file)
+            throws IOException, CoreException {
         if (new File(file).isDirectory()) {
             doSave(new DirectoryOutputTarget(file));
         } else {
@@ -461,8 +458,8 @@ public class WorkbookSaver {
         this.file = file;
     }
 
-    public synchronized void save(IOutputTarget target) throws IOException,
-            CoreException {
+    public synchronized void save(IOutputTarget target)
+            throws IOException, CoreException {
         doSave(target);
         this.lastTarget = target;
     }
@@ -473,8 +470,8 @@ public class WorkbookSaver {
      * @throws IOException
      * @throws CoreException
      */
-    private synchronized void doSave(IOutputTarget target) throws IOException,
-            CoreException {
+    private synchronized void doSave(IOutputTarget target)
+            throws IOException, CoreException {
         if (target == null)
             throw new FileNotFoundException("No target to save."); //$NON-NLS-1$
 

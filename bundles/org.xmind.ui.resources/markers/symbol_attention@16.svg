@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_inf</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FF9800" offset="0%"></stop>
+            <stop stop-color="#F57C00" offset="100%"></stop>
+        </linearGradient>
+        <circle id="path-2" cx="8" cy="8" r="8"></circle>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols" transform="translate(-127.000000, 0.000000)">
+            <g id="sym_inf" transform="translate(127.000000, 0.000000)">
+                <g id="Oval-1-Copy-19">
+                    <use fill="#FFCC80" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <path d="M8.86089275,3.14161536 L8.86089275,10.1195135 L7.1400779,10.1195135 L7.1400779,3.14161536 L8.86089275,3.14161536 Z M7.0119113,12.2499196 C7.0119113,11.9856238 7.10705636,11.7609758 7.29734931,11.5759688 C7.48764227,11.3909617 7.71493323,11.2984596 7.979229,11.2984596 C8.24352478,11.2984596 8.46817282,11.3909617 8.65317986,11.5759688 C8.8381869,11.7609758 8.93068903,11.9856238 8.93068903,12.2499196 C8.93068903,12.5142154 8.83554398,12.7415063 8.64525103,12.9317993 C8.45495807,13.1220923 8.23031003,13.2172373 7.97130017,13.2172373 C7.71229031,13.2172373 7.48764227,13.1220923 7.29734931,12.9317993 C7.10705636,12.7415063 7.0119113,12.5142154 7.0119113,12.2499196 L7.0119113,12.2499196 Z" id="!" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

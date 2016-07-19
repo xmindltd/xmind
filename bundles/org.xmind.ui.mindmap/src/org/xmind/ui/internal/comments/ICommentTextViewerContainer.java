@@ -2,13 +2,9 @@ package org.xmind.ui.internal.comments;
 
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.widgets.Composite;
-import org.xmind.core.comment.IComment;
+import org.xmind.core.IComment;
 
 public interface ICommentTextViewerContainer {
-
-//    void moveToPreviousTextViewer(Control currControl);
-//
-//    void moveToNextTextViewer(Control currControl);
 
     void moveToPreviousTextViewer(CommentTextViewer implementation);
 
@@ -25,5 +21,9 @@ public interface ICommentTextViewerContainer {
     void setSelectedComment(IComment selectedComment);
 
     IComment getSelectedComment();
+
+    void createComment(String objectId);
+
+    void cancelCreateComment();
 
 }

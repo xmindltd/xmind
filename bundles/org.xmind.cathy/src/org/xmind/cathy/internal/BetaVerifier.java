@@ -14,21 +14,12 @@
 package org.xmind.cathy.internal;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.xmind.signin.internal.XMindUpdater;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.program.Program;
@@ -54,10 +45,10 @@ public class BetaVerifier {
 
     public BetaVerifier(Display display) {
         this.display = display;
-        this.brandingVersion = System.getProperty(
-                CathyApplication.SYS_BRANDING_VERSION, ""); //$NON-NLS-1$
-        this.buildId = System
-                .getProperty(CathyApplication.SYS_BUILDID, "X.x.x"); //$NON-NLS-1$
+        this.brandingVersion = System
+                .getProperty(CathyApplication.SYS_BRANDING_VERSION, ""); //$NON-NLS-1$
+        this.buildId = System.getProperty(CathyApplication.SYS_BUILDID,
+                "X.x.x"); //$NON-NLS-1$
     }
 
     public boolean shouldExitAfterBetaExpired() {
@@ -68,10 +59,10 @@ public class BetaVerifier {
             String licenseRestrictions = System
                     .getProperty("org.xmind.product.license.restrictions"); //$NON-NLS-1$
             if (licenseRestrictions == null || "".equals(licenseRestrictions)) { //$NON-NLS-1$
-                licenseRestrictions = NLS
-                        .bind(WorkbenchMessages.About_BetaExpiryMessage_withExpiryTime,
-                                new SimpleDateFormat("MMM d, yyyy").format(new Date( //$NON-NLS-1$
-                                                BETA_EXPIRY_TIME)));
+                licenseRestrictions = NLS.bind(
+                        WorkbenchMessages.About_BetaExpiryMessage_withExpiryTime,
+                        new SimpleDateFormat("MMM d, yyyy") //$NON-NLS-1$
+                                .format(new Date(BETA_EXPIRY_TIME)));
                 System.setProperty("org.xmind.product.license.restrictions", //$NON-NLS-1$
                         licenseRestrictions);
             }
@@ -90,8 +81,7 @@ public class BetaVerifier {
         }
 
         try {
-            MessageDialog dialog = new MessageDialog(
-                    null,
+            MessageDialog dialog = new MessageDialog(null,
                     WorkbenchMessages.BetaVerifier_BetaExpiredPromptDialog_windowTitle,
                     titleIcon, message, dialogType, buttonLabels, 0);
             return dialog.open();
@@ -112,55 +102,8 @@ public class BetaVerifier {
                         WorkbenchMessages.BetaVerifier_BetaExpiredPromptDialog_CheckAndInstallButton_text,
                         WorkbenchMessages.BetaVerifier_BetaExpiredPromptDialog_ExitButton_text });
         if (selection == 0) {
-            while (downloadLatestRelease()) {
-            }
-        }
-    }
-
-    private boolean downloadLatestRelease() {
-        ProgressMonitorDialog monitor = new ProgressMonitorDialog(null);
-        try {
-            monitor.run(true, true, new IRunnableWithProgress() {
-                public void run(IProgressMonitor monitor)
-                        throws InvocationTargetException, InterruptedException {
-                    XMindUpdater installer = new XMindUpdater(null, display,
-                            null, XMindUpdater.SKIPPABLE_NO, true, true);
-                    IStatus status = installer.run(monitor);
-                    if (monitor.isCanceled())
-                        throw new InterruptedException(status.getMessage());
-                    if (status != null && !status.isOK()
-                            && status.getException() != null) {
-                        throw new InvocationTargetException(status
-                                .getException(), status.getMessage());
-                    } else if (status != null
-                            && (status.getSeverity() & (IStatus.ERROR
-                                    | IStatus.WARNING | IStatus.INFO)) != 0) {
-                        try {
-                            throw new CoreException(status);
-                        } catch (CoreException e) {
-                            throw new InvocationTargetException(e);
-                        }
-                    }
-                }
-            });
-        } catch (InvocationTargetException e) {
-            CathyPlugin.log(e, "Failed to download latest release for beta."); //$NON-NLS-1$
-            int selection = openMessageDialog(
-                    WorkbenchMessages.BetaVerifier_BetaExpiredPromptDialog_DownloadFailure_message,
-                    MessageDialog.ERROR,
-                    new String[] {
-                            IDialogConstants.RETRY_LABEL,
-                            WorkbenchMessages.BetaVerifier_BetaExpiredPromptDialog_ExitButton_text });
-            if (selection == 0)
-                // Choose retry...
-                return true;
-
-            // Choose exit...
             openDownloadSite();
-        } catch (InterruptedException e) {
-            // Cancelled.
         }
-        return false;
     }
 
     private void openDownloadSite() {

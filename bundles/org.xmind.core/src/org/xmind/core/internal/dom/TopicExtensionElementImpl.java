@@ -13,9 +13,12 @@
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
@@ -137,6 +140,18 @@ public class TopicExtensionElementImpl extends TopicExtensionElement {
 
     public void deleteChildren() {
         deleteChildren(null);
+    }
+
+    public Set<String> getAttributeKeys() {
+        Set<String> keys = new HashSet<String>();
+        NamedNodeMap atts = implementation.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Node att = atts.item(i);
+            String key = att.getNodeName();
+            if (key != null && !"".equals(key)) //$NON-NLS-1$
+                keys.add(key);
+        }
+        return keys;
     }
 
     public String getAttribute(String attrName) {

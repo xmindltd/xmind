@@ -41,7 +41,7 @@ import org.xmind.core.internal.zip.ArchiveConstants;
 
 /**
  * @author Frank Shaka
- * 
+ * @deprecated Use {@link PasswordProtectedNormalizer}
  */
 public final class BouncyCastleSecurityProvider implements ISecurityProvider {
 
@@ -77,8 +77,7 @@ public final class BouncyCastleSecurityProvider implements ISecurityProvider {
      * @return
      */
     private boolean needChecksum(String entryPath) {
-        return ArchiveConstants.CONTENT_XML.equals(entryPath)
-                || ArchiveConstants.META_XML.equals(entryPath)
+        return ArchiveConstants.CONTENT_XML.equals(entryPath) || ArchiveConstants.META_XML.equals(entryPath)
                 || ArchiveConstants.STYLES_XML.equals(entryPath)
                 || ArchiveConstants.PATH_MARKER_SHEET.equals(entryPath);
     }
@@ -96,29 +95,23 @@ public final class BouncyCastleSecurityProvider implements ISecurityProvider {
         }
 
         encData.setAttribute(ALGORITHM_NAME, TAG_ALGORITHM, ATTR_ALGORITHM_NAME);
-        encData.setAttribute(KEY_DERIVATION_ALGORITHM_NAME, TAG_KEY_DERIVATION,
-                ATTR_KEY_DERIVATION_NAME);
+        encData.setAttribute(KEY_DERIVATION_ALGORITHM_NAME, TAG_KEY_DERIVATION, ATTR_KEY_DERIVATION_NAME);
         encData.setAttribute(generateSalt(), TAG_KEY_DERIVATION, ATTR_SALT);
         encData.setAttribute("1024", TAG_KEY_DERIVATION, ATTR_ITERATION_COUNT); //$NON-NLS-1$
     }
 
-    private void checkEncryptionData(IEncryptionData encData)
-            throws CoreException {
-        String algoName = encData.getAttribute(TAG_ALGORITHM,
-                ATTR_ALGORITHM_NAME);
+    private void checkEncryptionData(IEncryptionData encData) throws CoreException {
+        String algoName = encData.getAttribute(TAG_ALGORITHM, ATTR_ALGORITHM_NAME);
         if (algoName == null || !ALGORITHM_NAME.equals(algoName))
             throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM);
 
-        String keyAlgoName = encData.getAttribute(TAG_KEY_DERIVATION,
-                ATTR_KEY_DERIVATION_NAME);
-        if (keyAlgoName == null
-                || !KEY_DERIVATION_ALGORITHM_NAME.equals(keyAlgoName))
+        String keyAlgoName = encData.getAttribute(TAG_KEY_DERIVATION, ATTR_KEY_DERIVATION_NAME);
+        if (keyAlgoName == null || !KEY_DERIVATION_ALGORITHM_NAME.equals(keyAlgoName))
             throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM);
     }
 
     private int getIterationCount(IEncryptionData encData) {
-        return encData.getIntAttribute(1024, TAG_KEY_DERIVATION,
-                ATTR_ITERATION_COUNT);
+        return encData.getIntAttribute(1024, TAG_KEY_DERIVATION, ATTR_ITERATION_COUNT);
     }
 
     private byte[] getSalt(IEncryptionData encData) throws CoreException {
@@ -128,9 +121,8 @@ public final class BouncyCastleSecurityProvider implements ISecurityProvider {
         return Base64.base64ToByteArray(saltString);
     }
 
-    public OutputStream createPasswordProtectedOutputStream(
-            OutputStream output, boolean encrypt, IEncryptionData encData,
-            String password) throws CoreException {
+    public OutputStream createPasswordProtectedOutputStream(OutputStream output, boolean encrypt,
+            IEncryptionData encData, String password) throws CoreException {
         BufferedBlockCipher cipher = createCipher(encrypt, encData, password);
         OutputStream out = new BlockCipherOutputStream(output, cipher);
         if (encData.getChecksumType() != null)
@@ -138,9 +130,8 @@ public final class BouncyCastleSecurityProvider implements ISecurityProvider {
         return out;
     }
 
-    public InputStream createPasswordProtectedInputStream(InputStream input,
-            boolean encrypt, IEncryptionData encData, String password)
-            throws CoreException {
+    public InputStream createPasswordProtectedInputStream(InputStream input, boolean encrypt, IEncryptionData encData,
+            String password) throws CoreException {
         BufferedBlockCipher cipher = createCipher(encrypt, encData, password);
         InputStream in = new BlockCipherInputStream(input, cipher);
         if (encData.getChecksumType() != null)
@@ -148,17 +139,16 @@ public final class BouncyCastleSecurityProvider implements ISecurityProvider {
         return in;
     }
 
-    private BufferedBlockCipher createCipher(boolean encrypt,
-            IEncryptionData encData, String password) throws CoreException {
+    private BufferedBlockCipher createCipher(boolean encrypt, IEncryptionData encData, String password)
+            throws CoreException {
         checkEncryptionData(encData);
 
         // Create a parameter generator
-        PKCS12ParametersGenerator paramGen = new PKCS12ParametersGenerator(
-                new MD5Digest());
+        PKCS12ParametersGenerator paramGen = new PKCS12ParametersGenerator(new MD5Digest());
 
         // Get the password bytes
-        byte[] pwBytes = PBEParametersGenerator.PKCS12PasswordToBytes(password
-                .toCharArray());
+        byte[] pwBytes = password == null ? new byte[0]
+                : PBEParametersGenerator.PKCS12PasswordToBytes(password.toCharArray());
 
         // Initialize the parameter generator with password bytes, 
         // salt and iteration counts
@@ -168,8 +158,7 @@ public final class BouncyCastleSecurityProvider implements ISecurityProvider {
         CipherParameters param = paramGen.generateDerivedParameters(128);
 
         // Create a block cipher
-        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(
-                new CBCBlockCipher(new AESEngine()));
+        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new AESEngine()));
 
         // Initialize the block cipher
         cipher.init(encrypt, param);

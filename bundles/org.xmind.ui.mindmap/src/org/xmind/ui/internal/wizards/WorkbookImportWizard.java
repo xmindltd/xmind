@@ -28,6 +28,10 @@ import org.xmind.ui.wizards.AbstractMindMapImportPage;
 import org.xmind.ui.wizards.AbstractMindMapImportWizard;
 import org.xmind.ui.wizards.MindMapImporter;
 
+/**
+ * @deprecated
+ * @author Frank Shaka
+ */
 public class WorkbookImportWizard extends AbstractMindMapImportWizard {
 
     private static final String SETTINGS_ID = "org.xmind.ui.imports.workbook"; //$NON-NLS-1$
@@ -49,8 +53,8 @@ public class WorkbookImportWizard extends AbstractMindMapImportWizard {
             setControl(composite);
 
             Control fileGroup = createFileControls(composite);
-            fileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            fileGroup.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
 
 //            Control destinationControl = createDestinationControl(composite);
 //            destinationControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
@@ -86,8 +90,7 @@ public class WorkbookImportWizard extends AbstractMindMapImportWizard {
             FileDialog dialog = super.createBrowseDialog();
             dialog.setFilterExtensions(new String[] { "*" //$NON-NLS-1$
                     + MindMapUI.FILE_EXT_XMIND });
-            dialog.setFilterNames(new String[] { NLS.bind(
-                    "{0} (*{1})", //$NON-NLS-1$
+            dialog.setFilterNames(new String[] { NLS.bind("{0} (*{1})", //$NON-NLS-1$
                     IDialogConstants.FILE_DIALOG_FILTER_WORKBOOK,
                     MindMapUI.FILE_EXT_XMIND) });
             return dialog;
@@ -110,7 +113,8 @@ public class WorkbookImportWizard extends AbstractMindMapImportWizard {
                     .addNewSection(SETTINGS_ID);
         }
         setDialogSettings(settings);
-        setWindowTitle(MindMapMessages.WorkbookImportWizard_ImportWorkbook_Title);
+        setWindowTitle(
+                MindMapMessages.WorkbookImportWizard_ImportWorkbook_Title);
     }
 
     public void addPages() {

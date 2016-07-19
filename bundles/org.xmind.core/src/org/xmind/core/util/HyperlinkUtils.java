@@ -41,14 +41,31 @@ public class HyperlinkUtils {
         return uri;
     }
 
+    public static String trimFileUrlContent(String uri) {
+        if (uri.startsWith("file://")) //$NON-NLS-1$
+            return uri.substring("file://".length()); //$NON-NLS-1$
+        return uri;
+    }
+
     public static String getAttachmentProtocolName() {
         return "xap"; //$NON-NLS-1$
+    }
+
+    public static String getFileProtocolName() {
+        return "file"; //$NON-NLS-1$
+    }
+
+    public static boolean isFileUrl(String url) {
+        if (url == null || "".equals(url)) //$NON-NLS-1$
+            return false;
+        return getFileProtocolName().equals(getProtocolName(url));
     }
 
     public static boolean isAttachmentURL(String url) {
         if (url == null || "".equals(url)) //$NON-NLS-1$
             return false;
-        return getAttachmentProtocolName().equals(getProtocolName(url));
+        String protocol = getProtocolName(url);
+        return getAttachmentProtocolName().equals(protocol);
     }
 
     public static String toAttachmentURL(String path) {

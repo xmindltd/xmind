@@ -85,7 +85,59 @@ public class DirectoryStorage implements IStorage {
      * @see org.xmind.core.io.IStorage#clear()
      */
     public void clear() {
-//        FileUtils.clearDir(dir);
         FileUtils.delete(dir);
     }
+
+    public void deleteEntry(String entryName) {
+        File f = new File(dir, entryName);
+        while (f != null && !f.equals(dir)) {
+            if (f.isFile() || (f.isDirectory() && f.list().length == 0)) {
+                f.delete();
+            }
+            f = f.getParentFile();
+        }
+        dir.delete();
+    }
+
+    public void renameEntry(String entryName, String newName) {
+        File targetFile = new File(dir, newName);
+        File targetParent = targetFile.getParentFile();
+        if (targetParent != null) {
+            targetParent.mkdirs();
+        }
+        new File(dir, entryName).renameTo(targetFile);
+        deleteEntry(entryName);
+    }
+
+    @Override
+    public String toString() {
+        return dir.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return dir.hashCode() ^ (filter == null ? 37 : filter.hashCode());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj == null || !(obj instanceof DirectoryStorage))
+            return false;
+        DirectoryStorage that = (DirectoryStorage) obj;
+        return this.dir.equals(that.dir) && (this.filter == that.filter
+                || (this.filter != null && this.filter.equals(that.filter)));
+    }
+
 }

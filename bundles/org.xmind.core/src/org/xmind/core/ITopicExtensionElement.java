@@ -14,6 +14,7 @@
 package org.xmind.core;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ITopicExtensionElement extends IAdaptable, IWorkbookComponent {
 
@@ -42,6 +43,8 @@ public interface ITopicExtensionElement extends IAdaptable, IWorkbookComponent {
     void deleteChildren();
 
     String getName();
+
+    Set<String> getAttributeKeys();
 
     String getAttribute(String attrName);
 

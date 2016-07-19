@@ -76,8 +76,8 @@ public class FileDndClient extends MindMapDNDClientBase {
                 elements.add(createAttachmentTopic(workbook, file, null));
             } else if (CREATE_IMAGE.equals(active)) {
                 if (targetParent != null) {
-                    elements.add(createImageOnTopic(workbook, targetParent,
-                            file));
+                    elements.add(
+                            createImageOnTopic(workbook, targetParent, file));
                 }
             }
         }
@@ -85,8 +85,8 @@ public class FileDndClient extends MindMapDNDClientBase {
         private ITopic createFileHyperlinkTopic(IWorkbook workbook, File file) {
             ITopic topic = workbook.createTopic();
             topic.setTitleText(file.getName());
-            topic.setHyperlink(FilePathParser.toURI(file.getAbsolutePath(),
-                    false));
+            topic.setHyperlink(
+                    FilePathParser.toURI(file.getAbsolutePath(), false));
             return topic;
         }
 
@@ -107,12 +107,13 @@ public class FileDndClient extends MindMapDNDClientBase {
                     IFileEntry entry = workbook.getManifest()
                             .createAttachmentFromFilePath(
                                     file.getAbsolutePath());
+                    entry.decreaseReference();
+                    entry.increaseReference();
                     if (isImagePath(file.getAbsolutePath())) {
                         Dimension size = getImageSize(file.getAbsolutePath());
                         if (size != null) {
-                            topic.getImage().setSource(
-                                    HyperlinkUtils.toAttachmentURL(entry
-                                            .getPath()));
+                            topic.getImage().setSource(HyperlinkUtils
+                                    .toAttachmentURL(entry.getPath()));
                             topic.getImage().setSize(size.width, size.height);
                             topic.setTitleText(""); //$NON-NLS-1$
                         } else {
@@ -120,13 +121,12 @@ public class FileDndClient extends MindMapDNDClientBase {
                                     .toAttachmentURL(entry.getPath()));
                         }
                     } else {
-                        topic.setHyperlink(HyperlinkUtils.toAttachmentURL(entry
-                                .getPath()));
+                        topic.setHyperlink(HyperlinkUtils
+                                .toAttachmentURL(entry.getPath()));
                     }
                 } catch (IOException e) {
-                    Logger.log(
-                            e,
-                            "Error occurred when transfering file: " + file.getAbsolutePath()); //$NON-NLS-1$
+                    Logger.log(e, "Error occurred when transfering file: " //$NON-NLS-1$
+                            + file.getAbsolutePath());
                 }
             }
             return topic;
@@ -137,19 +137,22 @@ public class FileDndClient extends MindMapDNDClientBase {
             try {
                 IFileEntry entry = workbook.getManifest()
                         .createAttachmentFromFilePath(file.getAbsolutePath());
+                entry.decreaseReference();
+                entry.increaseReference();
+
                 Dimension size = getImageSize(file.getAbsolutePath());
                 if (size != null) {
                     return createModifyImageCommand(topic,
                             HyperlinkUtils.toAttachmentURL(entry.getPath()),
                             size.width, size.height, null);
                 } else {
-                    Logger.log("[FileDndClient] Failed to open invalid image file: " //$NON-NLS-1$
-                            + file.getAbsolutePath());
+                    Logger.log(
+                            "[FileDndClient] Failed to open invalid image file: " //$NON-NLS-1$
+                                    + file.getAbsolutePath());
                 }
             } catch (IOException e) {
-                Logger.log(
-                        e,
-                        "Error occurred when transfering file: " + file.getAbsolutePath()); //$NON-NLS-1$
+                Logger.log(e, "Error occurred when transfering file: " //$NON-NLS-1$
+                        + file.getAbsolutePath());
             }
             return null;
         }
@@ -182,8 +185,9 @@ public class FileDndClient extends MindMapDNDClientBase {
             if (workbook != null) {
                 List<FileDropHandler> handlers = createFileDropHandlers(paths,
                         request.getIntParameter(GEF.PARAM_DROP_OPERATION,
-                                DND.DROP_DEFAULT), dropInParent, request
-                                .getTargetViewer().getControl().getShell());
+                                DND.DROP_DEFAULT),
+                        dropInParent,
+                        request.getTargetViewer().getControl().getShell());
                 if (handlers != null) {
                     List<Object> elements = new ArrayList<Object>(
                             handlers.size());
@@ -233,13 +237,12 @@ public class FileDndClient extends MindMapDNDClientBase {
             createFileDropHandlers(handlers, PrefConstants.CREATE_ATTACHMENT,
                     path);
         } else {
-            askForConfirmation(
-                    shell,
-                    DialogMessages.DND_ExternalFolder,
+            askForConfirmation(shell, DialogMessages.DND_ExternalFolder,
                     ADD_EXTERNAL_FILE,
                     NLS.bind(
                             DialogMessages.DND_ExternalFolder_confirmation_with_path,
-                            path), handlers, path);
+                            path),
+                    handlers, path);
         }
     }
 
@@ -252,15 +255,13 @@ public class FileDndClient extends MindMapDNDClientBase {
             createFileDropHandlers(handlers, PrefConstants.CREATE_ATTACHMENT,
                     path);
         } else {
-            askForConfirmation(
-                    shell,
-                    DialogMessages.DND_ExternalFile,
+            askForConfirmation(shell, DialogMessages.DND_ExternalFile,
                     ADD_EXTERNAL_FILE,
                     NLS.bind(
                             DialogMessages.DND_ExternalFile_confirmation_with_path_size,
                             path,
-                            org.xmind.ui.viewers.FileUtils
-                                    .fileLengthToString(new File(path).length())),
+                            org.xmind.ui.viewers.FileUtils.fileLengthToString(
+                                    new File(path).length())),
                     handlers, path);
         }
     }
@@ -294,19 +295,18 @@ public class FileDndClient extends MindMapDNDClientBase {
                 } else {
                     sb.append('\r');
                     sb.append('\n');
-                    sb.append(NLS
-                            .bind(DialogMessages.DND_MultipleExternalFiles_moreFiles_with_number,
-                                    paths.length - 3));
+                    sb.append(NLS.bind(
+                            DialogMessages.DND_MultipleExternalFiles_moreFiles_with_number,
+                            paths.length - 3));
                     break;
                 }
             }
-            askForConfirmation(
-                    shell,
-                    DialogMessages.DND_MultipleExternalFiles,
+            askForConfirmation(shell, DialogMessages.DND_MultipleExternalFiles,
                     ADD_EXTERNAL_FILE,
                     NLS.bind(
                             DialogMessages.DND_MultipleExternalFiles_confirmation_with_fileList,
-                            sb.toString()), handlers, paths);
+                            sb.toString()),
+                    handlers, paths);
         }
     }
 
@@ -319,8 +319,7 @@ public class FileDndClient extends MindMapDNDClientBase {
         }
         if (active == null) {
             shell.forceActive();
-            MessageDialogWithToggle dialog = new MessageDialogWithToggle(
-                    shell,
+            MessageDialogWithToggle dialog = new MessageDialogWithToggle(shell,
                     NLS.bind(
                             DialogMessages.DND_ConfirmDroppingFileDialog_title_with_type,
                             itemName),
@@ -331,11 +330,11 @@ public class FileDndClient extends MindMapDNDClientBase {
                             DialogMessages.DND_ConfirmDroppingFileDialog_LinkButton_text, //
                             DialogMessages.DND_ConfirmDroppingFileDialog_CopyButton_text, //
                             IDialogConstants.CANCEL_LABEL //
-                    },
-                    0, //
+                    }, 0, //
                     NLS.bind(
                             DialogMessages.DND_ConfirmDroppingFileDialog_RememberCheck_text_with_type,
-                            itemName), false);
+                            itemName),
+                    false);
             int ret = dialog.open();
             if (ret == IDialogConstants.INTERNAL_ID) {
                 active = PrefConstants.CREATE_HYPERLINK;

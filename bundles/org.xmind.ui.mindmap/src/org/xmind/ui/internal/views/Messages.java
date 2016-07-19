@@ -41,6 +41,9 @@ public class Messages extends NLS {
     public static String ThemesView_OverrideButton;
     public static String ThemesView_KeepButton;
 
+    public static String ThemeUICore_group_default_name;
+    public static String ThemeUICore_group_user_name;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

@@ -23,8 +23,6 @@ import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.dom.RelationshipImpl;
-import org.xmind.core.internal.event.CoreEventSupport;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.draw2d.AbstractAnchor;
 import org.xmind.gef.draw2d.IAnchor;
@@ -253,7 +251,6 @@ public class RelationshipDummy {
         r = wb.createRelationship();
         r.setEnd1Id(t1.getId());
         r.setEnd2Id(t2.getId());
-        ((RelationshipImpl) r).setCoreEventSupport(new CoreEventSupport());
     }
 
     private void activateParts(IFigure layer) {

@@ -45,11 +45,9 @@ public interface IInputSource {
     /**
      * Opens a new input stream to read data from for specified entry.
      * 
-     * <p>
-     * <strong>For diagnostic purpose, this method is not recommended any more.
-     * Use {@link #openEntryStream(String)} instead to let potential I/O errors
-     * be thrown.</strong>
-     * </p>
+     * @deprecated <strong>For diagnostic purpose, this method is not
+     *             recommended any more. Use {@link #openEntryStream(String)}
+     *             instead to let potential I/O errors be thrown.</strong>
      * 
      * @param entryName
      *            the name of the entry

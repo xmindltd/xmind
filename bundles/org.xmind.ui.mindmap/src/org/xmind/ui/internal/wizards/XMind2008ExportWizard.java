@@ -31,6 +31,7 @@ import org.xmind.core.util.FileUtils;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IMindMapImages;
+import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.wizards.AbstractMindMapExportPage;
 import org.xmind.ui.wizards.AbstractMindMapExportWizard;
@@ -70,8 +71,8 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
             setControl(composite);
 
             Control fileGroup = createFileControls(composite);
-            fileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            fileGroup.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
         }
 
         /*
@@ -97,10 +98,10 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
     public XMind2008ExportWizard() {
         setWindowTitle(WizardMessages.XMind2008ExportWizard_windowTitle);
-        setDefaultPageImageDescriptor(MindMapUI.getImages().getWizBan(
-                IMindMapImages.WIZ_EXPORT));
-        setDialogSettings(MindMapUIPlugin.getDefault().getDialogSettings(
-                DIALOG_SETTINGS_SECTION_ID));
+        setDefaultPageImageDescriptor(
+                MindMapUI.getImages().getWizBan(IMindMapImages.WIZ_EXPORT));
+        setDialogSettings(MindMapUIPlugin.getDefault()
+                .getDialogSettings(DIALOG_SETTINGS_SECTION_ID));
     }
 
     /*
@@ -158,8 +159,10 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
      * org.eclipse.swt.widgets.Shell)
      */
     protected void doExport(IProgressMonitor monitor, Display display,
-            Shell parentShell) throws InvocationTargetException,
-            InterruptedException {
+            Shell parentShell)
+                    throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ExportToXMind2008Count"); //$NON-NLS-1$
         XMind2008Exporter exporter = new XMind2008Exporter(sourceWorkbook,
                 getTargetPath());
         exporter.setMonitor(monitor);
@@ -168,11 +171,17 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
     @Override
     protected String getSuggestedFileName() {
-        String file = sourceWorkbook.getFile();
-        if (file == null)
-            file = getSourceEditor().getTitle();
-        return FileUtils.getNoExtensionFileName(new File(file).getName())
-                + FILE_EXT;
+        String suggestedName = null;
+        IGraphicalEditor editor = getSourceEditor();
+        IWorkbookRef workbookRef = editor.getAdapter(IWorkbookRef.class);
+        if (workbookRef != null) {
+            suggestedName = workbookRef.getName();
+        }
+        if (suggestedName == null) {
+            suggestedName = getSourceEditor().getTitle();
+        }
+        return FileUtils.getNoExtensionFileName(
+                new File(suggestedName).getName()) + FILE_EXT;
     }
 
 }

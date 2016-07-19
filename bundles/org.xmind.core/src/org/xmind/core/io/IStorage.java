@@ -13,9 +13,8 @@
  *******************************************************************************/
 package org.xmind.core.io;
 
-
 /**
- * @author frankshaka
+ * @author Frank Shaka
  * 
  */
 public interface IStorage {
@@ -47,5 +46,18 @@ public interface IStorage {
      * 
      */
     void clear();
+
+    /**
+     * 
+     * @param entryName
+     */
+    void deleteEntry(String entryName);
+
+    /**
+     * 
+     * @param entryName
+     * @param newName
+     */
+    void renameEntry(String entryName, String newName);
 
 }

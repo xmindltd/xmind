@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.hebe.feature"
       label="XMind Map Editor"
-      version="3.6.1.qualifier"
+      version="3.6.51.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -103,8 +103,7 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="true"/>
+         fragment="true"/>
 
    <plugin
          id="org.xmind.ui.browser"
@@ -143,6 +142,20 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
 
    <plugin
          id="org.xmind.core.command"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.core.usagedata"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.xmind.core.licensing"
          download-size="0"
          install-size="0"
          version="0.0.0"

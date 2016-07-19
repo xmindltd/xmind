@@ -1,74 +1,160 @@
 package org.xmind.ui.dialogs;
 
-import org.eclipse.draw2d.ColorConstants;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.IOpenListener;
-import org.eclipse.jface.viewers.OpenEvent;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
+import org.xmind.ui.internal.ToolkitImages;
 import org.xmind.ui.resources.ColorUtils;
-import org.xmind.ui.viewers.ImageButton;
+import org.xmind.ui.resources.FontUtils;
+import org.xmind.ui.util.RegionUtils;
+import org.xmind.ui.util.UITimer;
 
-public class Notification extends SmoothPopupDialog {
+public class Notification extends Dialog {
 
-    private static ImageDescriptor IMG_CLOSE_HOVER = null;
+    private static int STAY_DURATION = 5000;
 
-    private IAction leftAction;
-
-    private IAction rightAction;
+    private static List<Window> group = new ArrayList<Window>();
 
     private String infoText;
 
-    private Shell sourceShell;
+    private IAction action;
 
-    private Control closeButton;
+    private Rectangle bounds;
 
-    public Notification(Shell parent, String title, String infoText,
-            IAction leftAction, IAction rightAction) {
-        super(parent, true, title);
-        this.sourceShell = parent;
+    private boolean isCenter;
+
+    private boolean isLong;
+
+    private boolean isInfoHyperlink;
+
+    private String infoTooltip;
+
+    private UITimer timer;
+
+    private int duration = STAY_DURATION;
+
+    private Label close;
+
+    private ResourceManager resources;
+
+    public Notification(Shell parent, String infoText, IAction action,
+            Rectangle bounds, boolean isCenter, boolean isLong,
+            boolean isInfoHyperlink, String infoTooltip) {
+        super(parent);
         this.infoText = infoText;
-        this.leftAction = leftAction;
-        this.rightAction = rightAction;
+        this.action = action;
+        this.isCenter = isCenter;
+        this.isLong = isLong;
+        this.isInfoHyperlink = isInfoHyperlink;
+        this.infoTooltip = infoTooltip;
+
+        //initial bounds
+        if (bounds == null) {
+            bounds = parent.getBounds();
+        }
+        this.bounds = new Rectangle(bounds.x, bounds.y, bounds.width,
+                bounds.height);
+
+        setShellStyle(SWT.NO_TRIM | SWT.TOOL);
+        setBlockOnOpen(false);
     }
 
     @Override
-    protected Control createDialogArea(Composite parent) {
-        Composite composite = (Composite) super.createDialogArea(parent);
-        composite.setForeground(parent.getForeground());
-        composite.setBackground(parent.getBackground());
-        GridLayout layout = ((GridLayout) composite.getLayout());
-        layout.horizontalSpacing = 20;
-        layout.marginLeft = 10;
-        layout.marginWidth = 20;
-        layout.marginHeight = 0;
-        layout.marginBottom = 10;
-        layout.numColumns = leftAction != null || rightAction != null ? 3 : 2;
-        layout.makeColumnsEqualWidth = false;
-        composite.setLayout(layout);
-        composite.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                true, true));
+    protected void configureShell(Shell newShell) {
+        super.configureShell(newShell);
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                newShell);
+
+        newShell.setAlpha(0x95);
+        newShell.setBackgroundMode(SWT.INHERIT_FORCE);
+    }
+
+    @Override
+    protected void initializeBounds() {
+        Point size = getInitialSize();
+        Region region = RegionUtils
+                .getRoundedRectangle(new Rectangle(0, 0, size.x, size.y), 2);
+        getShell().setRegion(region);
+
+        Point location = getInitialLocation();
+        getShell().setLocation(location);
+
+        //dispose region
+        getShell().addDisposeListener(new DisposeListener() {
+
+            public void widgetDisposed(DisposeEvent e) {
+                getShell().getRegion().dispose();
+            }
+        });
+    }
+
+    private Point getInitialLocation() {
+        Point size = getInitialSize();
+        int x = isCenter ? bounds.x + (bounds.width - size.x) / 2
+                : bounds.x + bounds.width - size.x;
+        int y = bounds.y + bounds.height - size.y;
+        //if other notifications are being shown.
+        if (group.size() != 0) {
+            Window topDialog = group.get(group.size() - 1);
+            if (!topDialog.getShell().isDisposed()) {
+                y = topDialog.getShell().getBounds().y - size.y - 1;
+            }
+        }
+
+        return new Point(x, y);
+    }
+
+    @Override
+    protected Control createContents(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(
+                (Color) resources.get(ColorUtils.toDescriptor("#000000"))); //$NON-NLS-1$
+        GridData gridData = new GridData(GridData.FILL_BOTH);
+        gridData.widthHint = isLong ? 500 : 380;
+        gridData.heightHint = 64;
+        composite.setLayoutData(gridData);
+
+        GridLayout gridLayout = new GridLayout(3, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.horizontalSpacing = 0;
+        composite.setLayout(gridLayout);
 
         createImageSection(composite);
         createInfoSection(composite);
-        createButtonSection(composite);
+        createButtonsSection(composite);
 
         return composite;
     }
@@ -76,8 +162,8 @@ public class Notification extends SmoothPopupDialog {
     private void createImageSection(Composite parent) {
         Image image = null;
         final Image imageToDispose;
-        if (leftAction != null) {
-            ImageDescriptor icon = leftAction.getImageDescriptor();
+        if (action != null) {
+            ImageDescriptor icon = action.getImageDescriptor();
             if (icon != null) {
                 image = icon.createImage(false);
                 imageToDispose = image;
@@ -87,248 +173,336 @@ public class Notification extends SmoothPopupDialog {
         } else {
             imageToDispose = null;
         }
-        if (image == null && sourceShell != null && !sourceShell.isDisposed()) {
-            image = findBrandingImage(sourceShell.getImage(),
-                    sourceShell.getImages());
-        }
-        if (image != null) {
-            Label iconLabel = new Label(parent, SWT.CENTER);
-            iconLabel.setBackground(parent.getBackground());
-            iconLabel.setForeground(parent.getForeground());
-            iconLabel.setImage(image);
 
-            iconLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false,
-                    true));
+        //get default image
+        if (image == null) {
+            image = ToolkitImages.get("notification-default-small.png") //$NON-NLS-1$
+                    .createImage();
+        }
 
-            if (imageToDispose != null) {
-                iconLabel.addDisposeListener(new DisposeListener() {
-                    public void widgetDisposed(DisposeEvent e) {
-                        imageToDispose.dispose();
-                    }
-                });
-            }
-        }
-    }
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        GridData gridData = new GridData(SWT.LEFT, SWT.FILL, false, false);
+        gridData.widthHint = 76;
+        composite.setLayoutData(gridData);
+        composite.setLayout(new GridLayout(1, false));
 
-    private Image findBrandingImage(Image mainImage, Image[] images) {
-        Image best = null;
-        int scale = -1;
-        Rectangle r;
-        int s;
-        if (mainImage != null) {
-            r = mainImage.getBounds();
-            s = Math.abs(r.width - 48) * Math.abs(r.height - 48);
-            if (scale < 0 || s < scale) {
-                best = mainImage;
-                scale = s;
-            }
+        Label iconLabel = new Label(composite, SWT.CENTER);
+        iconLabel.setBackground(composite.getBackground());
+        GridData gridData2 = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        iconLabel.setLayoutData(gridData2);
+        iconLabel.setImage(image);
+
+        if (imageToDispose != null) {
+            iconLabel.addDisposeListener(new DisposeListener() {
+                public void widgetDisposed(DisposeEvent e) {
+                    imageToDispose.dispose();
+                }
+            });
         }
-        for (Image img : images) {
-            r = img.getBounds();
-            s = Math.abs(r.width - 48) * Math.abs(r.height - 48);
-            if (scale < 0 || s < scale) {
-                best = img;
-                scale = s;
-            }
-        }
-        return best;
     }
 
     private void createInfoSection(Composite parent) {
-        StyledLink link;
-        String content = infoText;
-        if (content.indexOf("<form>") >= 0) { //$NON-NLS-1$
-            link = new StyledLink(parent, SWT.NONE);
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        GridData gridData = new GridData(GridData.FILL_BOTH);
+        composite.setLayoutData(gridData);
+
+        GridLayout gridLayout = new GridLayout(1, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.marginRight = 20;
+        composite.setLayout(gridLayout);
+
+        if (isInfoHyperlink) {
+            StyledLink link;
+            String content = infoText;
+            if (content.indexOf("<form>") >= 0) { //$NON-NLS-1$
+                link = new StyledLink(composite, SWT.NONE);
+            } else {
+                link = new StyledLink(composite, SWT.SIMPLE);
+            }
+            link.setBackground(composite.getBackground());
+            link.setForeground(
+                    (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
+            link.setFont(
+                    (Font) resources.get(FontDescriptor.createFrom(FontUtils
+                            .relativeHeight(link.getFont().getFontData(), 1))));
+            link.setText(content);
+            if (infoTooltip != null) {
+                link.setToolTipText(infoTooltip);
+            }
+
+            GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true,
+                    true);
+            link.setLayoutData(layoutData);
+            if (action == null)
+                link.setEnabled(false);
+            final IAction theAction = this.action;
+            link.addHyperlinkListener(new IHyperlinkListener() {
+                public void linkExited(HyperlinkEvent e) {
+                }
+
+                public void linkEntered(HyperlinkEvent e) {
+                }
+
+                public void linkActivated(HyperlinkEvent e) {
+                    Display.getCurrent().asyncExec(new Runnable() {
+                        public void run() {
+                            if (theAction != null)
+                                theAction.run();
+                        }
+                    });
+                }
+            });
+
         } else {
-            link = new StyledLink(parent, SWT.SIMPLE);
-        }
-        link.setText(content);
-        link.setBackground(parent.getBackground());
-        link.setForeground(parent.getForeground());
-//        link.setFont(FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT,
-//                Util.isMac() ? -2 : -1));
-        link.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        if (leftAction == null)
-            link.setEnabled(false);
-        final IAction theAction = this.leftAction;
-        link.addHyperlinkListener(new IHyperlinkListener() {
-            public void linkExited(HyperlinkEvent e) {
+            Label infoLabel = null;
+            String content = infoText;
+            if (content.indexOf("<form>") >= 0) { //$NON-NLS-1$
+                infoLabel = new Label(composite, SWT.MULTI | SWT.WRAP);
+            } else {
+                infoLabel = new Label(composite, SWT.SIMPLE);
             }
 
-            public void linkEntered(HyperlinkEvent e) {
-            }
-
-            public void linkActivated(HyperlinkEvent e) {
-                Display.getCurrent().asyncExec(new Runnable() {
-                    public void run() {
-                        if (theAction != null)
-                            theAction.run();
-                    }
-                });
-            }
-        });
-    }
-
-    private void createButtonSection(Composite parent) {
-        boolean hasLeftAction = leftAction != null;
-        boolean hasRightAction = rightAction != null;
-        if (hasLeftAction || hasRightAction) {
-            Composite actionBar = new Composite(parent, SWT.NO_FOCUS);
-            actionBar.setForeground(parent.getForeground());
-            actionBar.setBackground(parent.getBackground());
-            int numColumns = hasLeftAction && hasRightAction ? 2 : 1;
-            GridLayout buttonBarLayout = new GridLayout(numColumns, false);
-            buttonBarLayout.marginWidth = 0;
-            buttonBarLayout.marginHeight = 0;
-            buttonBarLayout.horizontalSpacing = 10;
-            actionBar.setLayout(buttonBarLayout);
-            actionBar.setLayoutData(new GridData(GridData.BEGINNING,
-                    GridData.CENTER, false, false));
-
-            if (hasLeftAction) {
-                Control left = createActionBar(actionBar, leftAction);
-                GridData leftLayoutData = new GridData(SWT.BEGINNING,
-                        SWT.CENTER, true, true);
-                left.setLayoutData(leftLayoutData);
-            }
-
-            if (hasRightAction) {
-                Control right = createActionBar(actionBar, rightAction);
-                GridData rightLayoutData = new GridData(SWT.END, SWT.END, true,
-                        true);
-                right.setLayoutData(rightLayoutData);
+            infoLabel.setBackground(composite.getBackground());
+            infoLabel.setForeground(
+                    (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
+            infoLabel.setFont((Font) resources
+                    .get(FontDescriptor.createFrom(FontUtils.relativeHeight(
+                            infoLabel.getFont().getFontData(), 1))));
+            infoLabel.setText(content);
+            GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true,
+                    true);
+            infoLabel.setLayoutData(layoutData);
+            if (infoTooltip != null) {
+                infoLabel.setToolTipText(infoTooltip);
             }
         }
-
     }
 
-    private Control createActionBar(Composite parent, final IAction action) {
-        ImageButton actionBar = new ImageButton(parent, SWT.NONE);
-        actionBar.setNormalImageDescriptor(createNormalImageFrom(action
-                .getText()));
-        actionBar.setHoveredImageDescriptor(createHoverImageFrom(action
-                .getText()));
-        actionBar.addOpenListener(new IOpenListener() {
-            public void open(OpenEvent event) {
+    private void createButtonsSection(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        GridData gridData = new GridData(SWT.RIGHT, SWT.FILL, false, true);
+        gridData.widthHint = 74;
+        composite.setLayoutData(gridData);
+
+        GridLayout gridLayout = new GridLayout(1, true);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        composite.setLayout(gridLayout);
+
+        createCloseButton(composite);
+        createActionButton(composite);
+    }
+
+    private void createCloseButton(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(
+                (Color) resources.get(ColorUtils.toDescriptor("#9b9b9b"))); //$NON-NLS-1$
+        GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        composite.setLayoutData(layoutData);
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.marginLeft = 1;
+        layout.marginBottom = 1;
+        composite.setLayout(layout);
+
+        Composite composite2 = new Composite(composite, SWT.NONE);
+        composite2.setBackground(parent.getBackground());
+        GridData layoutData2 = new GridData(SWT.FILL, SWT.FILL, true, true);
+        composite2.setLayoutData(layoutData2);
+
+        GridLayout layout2 = new GridLayout(1, false);
+        layout2.marginWidth = 0;
+        layout2.marginHeight = 0;
+        composite2.setLayout(layout2);
+
+        close = new Label(composite2, SWT.RIGHT);
+        close.setBackground(close.getParent().getBackground());
+        close.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
+        close.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+
+        close.setFont(
+                (Font) resources
+                        .get(FontDescriptor.createFrom(FontUtils.bold(
+                                FontUtils.relativeHeight(
+                                        close.getFont().getFontData(), -1),
+                        true))));
+        close.setText(Messages.Notification_closeButton_text);
+
+        composite2.setCursor(
+                parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+        close.setCursor(parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+
+        //add select feedback
+        final Color original = close.getForeground();
+        MouseTrackListener mouseTrackListener = new MouseTrackListener() {
+
+            public void mouseHover(MouseEvent e) {
+            }
+
+            public void mouseExit(MouseEvent e) {
+                close.setForeground(original);
+            }
+
+            public void mouseEnter(MouseEvent e) {
+                close.setForeground((Color) resources
+                        .get(ColorUtils.toDescriptor("#3399ff"))); //$NON-NLS-1$
+            }
+        };
+
+        composite.addMouseTrackListener(mouseTrackListener);
+        close.addMouseTrackListener(mouseTrackListener);
+
+        MouseListener mouseListener = new MouseListener() {
+
+            public void mouseUp(MouseEvent e) {
+            }
+
+            public void mouseDown(MouseEvent e) {
                 close();
-                action.run();
             }
-        });
-        return actionBar.getControl();
+
+            public void mouseDoubleClick(MouseEvent e) {
+            }
+        };
+
+        composite2.addMouseListener(mouseListener);
+        close.addMouseListener(mouseListener);
     }
 
-    public static void setHoverCloseButtonImage(ImageDescriptor img) {
-        IMG_CLOSE_HOVER = img;
-    }
+    private void createActionButton(Composite parent) {
+        boolean hasAction = action != null;
+        if (hasAction) {
+            Composite composite = new Composite(parent, SWT.NONE);
+            composite.setBackground(
+                    (Color) resources.get(ColorUtils.toDescriptor("#9b9b9b"))); //$NON-NLS-1$
+            GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+            composite.setLayoutData(layoutData);
 
-    @Override
-    protected ImageDescriptor getHoverCloseButtonImage() {
-        if (IMG_CLOSE_HOVER == null) {
-            IMG_CLOSE_HOVER = createHoverCloseButtonImage();
+            GridLayout layout = new GridLayout(1, false);
+            layout.marginWidth = 0;
+            layout.marginHeight = 0;
+            layout.marginLeft = 1;
+            layout.marginTop = 0;
+            composite.setLayout(layout);
+
+            Composite composite2 = new Composite(composite, SWT.NONE);
+            composite2.setBackground(parent.getBackground());
+            GridData layoutData2 = new GridData(SWT.FILL, SWT.FILL, true, true);
+            composite2.setLayoutData(layoutData2);
+
+            GridLayout layout2 = new GridLayout(1, false);
+            layout2.marginWidth = 0;
+            layout2.marginHeight = 0;
+            composite2.setLayout(layout2);
+
+            final Label actionButton = new Label(composite2, SWT.RIGHT);
+            actionButton.setBackground(parent.getBackground());
+            actionButton.setForeground(
+                    (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
+            actionButton.setLayoutData(
+                    new GridData(SWT.CENTER, SWT.CENTER, true, true));
+
+            actionButton
+                    .setFont((Font) resources
+                            .get(FontDescriptor.createFrom(FontUtils.bold(
+                                    FontUtils.relativeHeight(actionButton
+                                            .getFont().getFontData(), -1),
+                            true))));
+            actionButton.setText(action.getText());
+
+            composite2.setCursor(
+                    parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+            actionButton.setCursor(
+                    parent.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+
+            //add select feedback
+            final Color original = actionButton.getForeground();
+            MouseTrackListener mouseTrackListener = new MouseTrackListener() {
+
+                public void mouseHover(MouseEvent e) {
+                }
+
+                public void mouseExit(MouseEvent e) {
+                    actionButton.setForeground(original);
+                }
+
+                public void mouseEnter(MouseEvent e) {
+                    actionButton.setForeground((Color) resources
+                            .get(ColorUtils.toDescriptor("#3399ff"))); //$NON-NLS-1$
+                }
+            };
+
+            composite.addMouseTrackListener(mouseTrackListener);
+            actionButton.addMouseTrackListener(mouseTrackListener);
+
+            Listener mouseDownListener = new Listener() {
+
+                public void handleEvent(Event event) {
+                    close();
+                    action.run();
+                }
+            };
+
+            composite2.addListener(SWT.MouseDown, mouseDownListener);
+            actionButton.addListener(SWT.MouseDown, mouseDownListener);
         }
-        return IMG_CLOSE_HOVER;
     }
 
-    private ImageDescriptor createHoverCloseButtonImage() {
-        Display display = Display.getCurrent();
-        Image img = new Image(display, 16, 16);
-        GC gc = new GC(img);
-        gc.setBackground(ColorUtils.getColor(DEFAULT_BACKGROUDCOLOR_VALUE));
-        gc.fillRectangle(0, 0, 16, 16);
-        gc.setForeground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
-        gc.setLineWidth(2);
-        gc.drawLine(4, 4, 11, 11);
-        gc.drawLine(4, 11, 11, 4);
-        gc.dispose();
-        ImageData data = img.getImageData();
-        img.dispose();
-        return ImageDescriptor.createFromImageData(data);
-    }
-
-    private ImageDescriptor createNormalImageFrom(String content) {
-        Display display = Display.getCurrent();
-        GC displayGC = new GC(display);
-        displayGC.setTextAntialias(SWT.ON);
-        displayGC.setAntialias(SWT.ON);
-        Point size = displayGC.textExtent(content);
-        displayGC.dispose();
-
-        Image img = new Image(display, size.x + 18, size.y + 8);
-        GC gc = new GC(img);
-        gc.setTextAntialias(SWT.ON);
-        gc.setAntialias(SWT.ON);
-        gc.setBackground(ColorUtils.getColor(DEFAULT_BACKGROUDCOLOR_VALUE));
-        gc.fillRectangle(0, 0, size.x + 18, size.y + 8);
-
-        gc.setBackground(ColorConstants.lightGray);
-        gc.fillRoundRectangle(0, 0, size.x + 18, size.y + 8, 6, 4);
-
-        gc.setBackground(ColorUtils.getColor(DEFAULT_BACKGROUDCOLOR_VALUE));
-        gc.fillRoundRectangle(1, 1, size.x + 16, size.y + 6, 6, 4);
-
-        gc.setForeground(ColorConstants.gray);
-        gc.setLineWidth(1);
-        gc.drawRoundRectangle(1, 1, size.x + 15, size.y + 5, 6, 4);
-        gc.drawText(content, 9, 3);
-        gc.dispose();
-        ImageData data = img.getImageData();
-        img.dispose();
-        return ImageDescriptor.createFromImageData(data);
-    }
-
-    private ImageDescriptor createHoverImageFrom(String content) {
-        Display display = Display.getCurrent();
-        GC displayGC = new GC(display);
-        displayGC.setTextAntialias(SWT.ON);
-        displayGC.setAntialias(SWT.ON);
-        Point size = displayGC.textExtent(content);
-        displayGC.dispose();
-
-        Image img = new Image(display, size.x + 18, size.y + 8);
-        GC gc = new GC(img);
-        gc.setTextAntialias(SWT.ON);
-        gc.setAntialias(SWT.ON);
-        gc.setBackground(ColorUtils.getColor(DEFAULT_BACKGROUDCOLOR_VALUE));
-        gc.fillRectangle(0, 0, size.x + 18, size.y + 8);
-
-        gc.setBackground(ColorConstants.lightGray);
-        gc.fillRoundRectangle(0, 0, size.x + 18, size.y + 8, 6, 4);
-
-        gc.setBackground(ColorUtils.getColor(DEFAULT_BACKGROUDCOLOR_VALUE));
-        gc.fillRoundRectangle(1, 1, size.x + 16, size.y + 6, 6, 4);
-
-        gc.setForeground(ColorConstants.gray);
-        gc.setLineWidth(1);
-        gc.drawRoundRectangle(1, 1, size.x + 15, size.y + 5, 6, 4);
-
-        gc.setForeground(ColorConstants.darkGray);
-        gc.drawText(content, 9, 3);
-        gc.dispose();
-        ImageData data = img.getImageData();
-        img.dispose();
-        return ImageDescriptor.createFromImageData(data);
+    /**
+     * 
+     * @param stayDuration
+     *            the duration this dialog will stay on the screen, in
+     *            milliseconds
+     */
+    public void setDuration(int stayDuration) {
+        this.duration = stayDuration;
     }
 
     @Override
     public int open() {
-        return super.open();
+        int code = super.open();
+
+        if (timer == null) {
+            timer = new UITimer(duration, 0, 0, new SafeRunnable() {
+
+                public void run() {
+                    close();
+                }
+
+            });
+        }
+        timer.run();
+
+        group.add(this);
+        return code;
     }
 
     @Override
-    public void setCenterPopUp(boolean centerPopUp) {
-        super.setCenterPopUp(centerPopUp);
-    }
+    public boolean close() {
+        boolean closed = super.close();
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
 
-    @Override
-    protected Control createCloseButton(Composite parent) {
-        closeButton = super.createCloseButton(parent);
-        return closeButton;
+        group.remove(this);
+        return closed;
     }
 
     public void setCloseButtonListener(int eventType, Listener listener) {
-        if (closeButton == null || closeButton.isDisposed())
+        if (close == null || close.isDisposed())
             return;
 
-        closeButton.addListener(eventType, listener);
+        close.addListener(eventType, listener);
+        close.getParent().addListener(eventType, listener);
     }
+
 }

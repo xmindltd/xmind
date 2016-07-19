@@ -1,6 +1,6 @@
 package org.xmind.ui.internal.comments;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
-import org.xmind.core.comment.IComment;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -19,27 +18,16 @@ public class CommentsUtils {
     private CommentsUtils() {
     }
 
-    public static List<ITopic> getAllTopicsWithComments(ISheet sheet) {
-        List<ITopic> topicsWithComments = new ArrayList<ITopic>();
-        List<ITopic> allTopics = MindMapUtils.getAllTopics(sheet, true, true);
-        for (ITopic topic : allTopics) {
-            if (CommentsUtils.hasComments(topic)) {
-                topicsWithComments.add(topic);
-            }
+    public static void collectTopicsWithComments(ITopic topic,
+            List<ITopic> result) {
+        if (topic.getOwnedWorkbook().getCommentManager()
+                .hasComments(topic.getId())) {
+            result.add(topic);
         }
-        return topicsWithComments;
-    }
 
-    public static boolean hasComments(ITopic topic) {
-        if (topic == null) {
-            return false;
-        }
-        List<IComment> comments = topic.getOwnedWorkbook().getCommentManager()
-                .getComments(topic);
-        if (comments.size() != 0) {
-            return true;
-        } else {
-            return false;
+        Iterator<ITopic> childIt = topic.getAllChildrenIterator();
+        while (childIt.hasNext()) {
+            collectTopicsWithComments(childIt.next(), result);
         }
     }
 
@@ -94,29 +82,14 @@ public class CommentsUtils {
         }
     }
 
-    public static List<IComment> getAllCommentsOfSheetAndChildren(
-            ISheet sheet) {
-        List<IComment> comments = new ArrayList<IComment>();
-        if (sheet == null) {
-            return comments;
-        }
-        comments.addAll(sheet.getOwnedWorkbook().getCommentManager()
-                .getComments(sheet));
-        List<ITopic> topics = MindMapUtils.getAllTopics(sheet, true, true);
-        for (ITopic topic : topics) {
-            comments.addAll(topic.getOwnedWorkbook().getCommentManager()
-                    .getComments(topic));
-        }
-        return comments;
-    }
-
-    public static void reveal(IGraphicalEditor sourceEditor, Object target) {
-        if (sourceEditor == null) {
+    public static void reveal(IGraphicalEditor editor, Object target) {
+        if (editor == null)
             return;
-        }
+
+        editor.getSite().getPage().activate(editor);
 
         if (target instanceof ITopic || target instanceof ISheet) {
-            ISelectionProvider selectionProvider = sourceEditor.getSite()
+            ISelectionProvider selectionProvider = editor.getSite()
                     .getSelectionProvider();
             if (selectionProvider != null) {
                 selectionProvider.setSelection(new StructuredSelection(target));

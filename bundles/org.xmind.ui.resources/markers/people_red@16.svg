@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>peo_re</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="1.40106824%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#EF5350" offset="0%"></stop>
+            <stop stop-color="#E53935" offset="100%"></stop>
+        </linearGradient>
+        <path d="M6.38606262,9.60221863 L6.38606262,8.62715938 C6.38606262,8.62715938 4.55518667,6.17180052 4.31640148,4.94926167 C4.05289237,3.60014057 3.75087277,1.98781796 5.41127474,0.752450025 C6.79249297,-0.27520036 9.33106418,-0.226133056 10.6747502,0.752449997 C12.0184363,1.73103305 11.934728,3.19698302 11.7211863,4.75460021 C11.5076447,6.31221739 9.77408346,8.62715963 9.77408346,8.62715963 L9.77408346,9.60221863 C9.77408346,9.60221863 14.954785,11.6026479 15.6896576,12.8898295 C16.4245303,14.1770111 15.9568725,14.8592608 13.1730129,15.5080588 C10.3891533,16.1568568 5.21792484,16.1710654 2.7360137,15.5080593 C0.254102561,14.8450533 -0.439384211,14.2745789 0.254102565,12.8898291 C0.94758934,11.5050792 6.38606262,9.60221863 6.38606262,9.60221863 Z" id="path-2"></path>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="people">
+            <g id="peo_re">
+                <use fill="#EE432F" xlink:href="#path-2"></use>
+                <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+            </g>
+        </g>
+    </g>
+</svg>

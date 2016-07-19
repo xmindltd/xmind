@@ -144,6 +144,10 @@ public class FrameFigure extends Figure {
         return contentLayer;
     }
 
+    protected IFigure getTitleContainer() {
+        return titleContainer;
+    }
+
     public ITextFigure getTitle() {
         return title;
     }

@@ -37,6 +37,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -324,9 +325,14 @@ public class MComboViewer extends StructuredViewer {
             text = ""; //$NON-NLS-1$
         action.setText(text);
 
-        Image image = labelProvider.getImage(element);
+        final Image image = labelProvider.getImage(element);
         if (image != null)
-            action.setImageDescriptor(ImageDescriptor.createFromImage(image));
+            action.setImageDescriptor(new ImageDescriptor() {
+                @Override
+                public ImageData getImageData() {
+                    return image.getImageData();
+                }
+            });
         else
             action.setImageDescriptor(null);
     }

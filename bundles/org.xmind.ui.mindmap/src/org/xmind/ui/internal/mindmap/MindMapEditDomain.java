@@ -86,6 +86,7 @@ import org.xmind.ui.internal.tools.MindMapTraverseTool;
 import org.xmind.ui.internal.tools.RangeResizeTool;
 import org.xmind.ui.internal.tools.RelationshipCreateTool;
 import org.xmind.ui.internal.tools.RelationshipMoveTool;
+import org.xmind.ui.internal.tools.SheetTitleEditTool;
 import org.xmind.ui.internal.tools.SummaryCreateTool;
 import org.xmind.ui.internal.tools.TopicAreaSelectTool;
 import org.xmind.ui.internal.tools.TopicMoveTool;
@@ -153,6 +154,7 @@ public class MindMapEditDomain extends EditDomain {
         installTool(TOOL_MOVE_LEGEND, new LegendMoveTool());
         installTool(TOOL_CREATE_LEGEND, new LegendCreateTool());
         installTool(TOOL_EDIT_LEGEND_ITEM, new LegendItemEditTool());
+        installTool(MindMapUI.TOOL_EDIT_SHEET_TITLE, new SheetTitleEditTool());
 
         setDefaultTool(GEF.TOOL_SELECT);
 

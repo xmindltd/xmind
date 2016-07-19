@@ -9,21 +9,28 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.jface.util.SafeRunnable;
 import org.osgi.framework.Bundle;
 import org.xmind.cathy.internal.CathyPlugin;
-
-import net.xmind.signin.XMindNet;
+import org.xmind.ui.browser.BrowserSupport;
 
 public class XMindHelpHandler extends AbstractHandler {
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        String internalURL = findInternalHelpURL();
-        if (internalURL != null) {
-            XMindNet.gotoURL(internalURL);
-        } else {
-            XMindNet.gotoURL(true, CathyPlugin.ONLINE_HELP_URL);
-        }
-
+        SafeRunner.run(new SafeRunnable() {
+            @Override
+            public void run() throws Exception {
+                String internalURL = findInternalHelpURL();
+                if (internalURL != null) {
+                    BrowserSupport.getInstance().createBrowser()
+                            .openURL(internalURL);
+                } else {
+                    BrowserSupport.getInstance().createBrowser()
+                            .openURL(CathyPlugin.ONLINE_HELP_URL);
+                }
+            }
+        });
         return null;
     }
 

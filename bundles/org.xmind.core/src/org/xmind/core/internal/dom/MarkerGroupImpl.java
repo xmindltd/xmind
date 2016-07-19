@@ -135,13 +135,23 @@ public class MarkerGroupImpl extends MarkerGroup implements ICoreEventSource {
                 ownedSheet.getElementAdapterProvider());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.marker.IMarkerGroup#isEmpty()
+     */
+    public boolean isEmpty() {
+        return !implementation.hasChildNodes();
+    }
+
     public void addMarker(IMarker marker) {
         Element m = ((MarkerImpl) marker).getImplementation();
         Node n = implementation.appendChild(m);
         if (n != null) {
             int index = DOMUtils.getElementIndex(implementation, TAG_MARKER, m);
             if (index >= 0) {
-                fireIndexedTargetChange(Core.MarkerAdd, marker, index);
+                if (getParent() != null)
+                    fireIndexedTargetChange(Core.MarkerAdd, marker, index);
             }
         }
     }
@@ -153,7 +163,9 @@ public class MarkerGroupImpl extends MarkerGroup implements ICoreEventSource {
             if (index >= 0) {
                 Node n = implementation.removeChild(m);
                 if (n != null) {
-                    fireIndexedTargetChange(Core.MarkerRemove, marker, index);
+                    if (getParent() != null)
+                        fireIndexedTargetChange(Core.MarkerRemove, marker,
+                                index);
                 }
             }
         }
@@ -165,12 +177,14 @@ public class MarkerGroupImpl extends MarkerGroup implements ICoreEventSource {
                 listener);
     }
 
-    private void fireValueChange(String type, Object oldValue, Object newValue) {
+    private void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         getCoreEventSupport().dispatchValueChange(this, type, oldValue,
                 newValue);
     }
 
-    private void fireIndexedTargetChange(String type, Object target, int index) {
+    private void fireIndexedTargetChange(String type, Object target,
+            int index) {
         getCoreEventSupport().dispatchIndexedTargetChange(this, type, target,
                 index);
     }

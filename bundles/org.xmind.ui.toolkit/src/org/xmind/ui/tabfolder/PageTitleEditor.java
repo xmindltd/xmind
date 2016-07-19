@@ -86,7 +86,9 @@ public class PageTitleEditor extends IFloatingTextEditorListener.Stub implements
     }
 
     private void startEditing(Event e) {
-        startEditing(tabFolder.getItem(new Point(e.x, e.y)));
+        CTabItem item = tabFolder.getItem(new Point(e.x, e.y));
+        if (item != null)
+            startEditing(tabFolder.indexOf(item));
     }
 
     public void startEditing(int pageIndex) {

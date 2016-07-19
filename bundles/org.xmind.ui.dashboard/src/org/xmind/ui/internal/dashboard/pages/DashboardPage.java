@@ -5,20 +5,14 @@ import org.eclipse.jface.dialogs.DialogPage;
 public abstract class DashboardPage extends DialogPage
         implements IDashboardPage {
 
-    private IDashboardPageContainer container = null;
+    private IDashboardContext context = null;
 
-    public void setContainer(IDashboardPageContainer container) {
-        this.container = container;
+    public void setContext(IDashboardContext container) {
+        this.context = container;
     }
 
-    protected IDashboardPageContainer getContainer() {
-        return container;
-    }
-
-    protected void hideDashboard() {
-        if (container == null)
-            return;
-        container.hideDashboard();
+    protected IDashboardContext getContext() {
+        return context;
     }
 
 }

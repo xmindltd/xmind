@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>task pro_3/4d</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#00D156" offset="0%"></stop>
+            <stop stop-color="#00C050" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="task-progress-" transform="translate(-128.000000, 0.000000)" fill="url(#linearGradient-1)">
+            <path d="M136,16 C140.418278,16 144,12.418278 144,8 C144,3.581722 140.418278,0 136,0 C131.581722,0 128,3.581722 128,8 C128,12.418278 131.581722,16 136,16 L136,16 L136,16 L136,16 L136,16 L136,16 L136,16 L136,16 L136,16 Z M136,15 C139.865993,15 143,11.8659932 143,8 C143,4.13400675 139.865993,1 136,1 C132.134007,1 129,4.13400675 129,8 C129,11.8659932 132.134007,15 136,15 L136,15 L136,15 L136,15 L136,15 L136,15 L136,15 L136,15 L136,15 Z M136,1 C139.865993,1 143,4.13400675 143,8 C143,11.8659932 139.865993,15 136,15 C132.134007,15 129,11.8659932 129,8 L136,8 L136,1 L136,1 Z" id="task-pro_3/4d"></path>
+        </g>
+    </g>
+</svg>

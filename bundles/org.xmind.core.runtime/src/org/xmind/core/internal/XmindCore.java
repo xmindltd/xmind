@@ -20,6 +20,7 @@ import org.xmind.core.internal.security.Crypto;
 /**
  * The activator class controls the plug-in life cycle
  */
+@SuppressWarnings("deprecation")
 public class XmindCore extends Plugin {
 
     // The plug-in ID

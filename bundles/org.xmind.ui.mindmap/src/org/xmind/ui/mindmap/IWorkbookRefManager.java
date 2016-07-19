@@ -17,30 +17,31 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.xmind.core.IWorkbook;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @since 3.0
+ * @deprecated
+ */
+@Deprecated
 public interface IWorkbookRefManager {
 
     /**
-     * 
-     * @param workbook
-     * @return
+     * @deprecated
      */
+    @Deprecated
     IWorkbookRef findRef(IWorkbook workbook);
 
     /**
-     * 
-     * @param editorInput
-     * @param editor
-     * @return
      * @deprecated
      */
+    @Deprecated
     IWorkbookRef createRef(IEditorInput editorInput, IEditorPart editor);
 
     /**
-     * 
-     * @param editorInput
-     * @param editor
      * @deprecated
      */
+    @Deprecated
     void disposeRef(IEditorInput editorInput, IEditorPart editor);
 
 }

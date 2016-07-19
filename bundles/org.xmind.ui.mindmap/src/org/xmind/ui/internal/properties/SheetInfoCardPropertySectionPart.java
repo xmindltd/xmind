@@ -1,5 +1,7 @@
 package org.xmind.ui.internal.properties;
 
+import static org.xmind.core.ISheetSettings.INFO_ITEM;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +20,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.xmind.core.Core;
+import org.xmind.core.ISettingEntry;
 import org.xmind.core.ISheet;
+import org.xmind.core.ISheetSettings;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
@@ -32,17 +36,11 @@ import org.xmind.ui.mindmap.IInfoItemContributor;
 import org.xmind.ui.properties.StyledPropertySectionPart;
 import org.xmind.ui.style.Styles;
 
-public class SheetInfoCardPropertySectionPart extends StyledPropertySectionPart {
-
-    private List<String> typeList;
-
-    private Map<String, Button> checkMap;
-
-    private Map<String, String> defaultModeMap;
-
-    private Control bar;
-
-    private ColorPicker backgroundColorPicker;
+/**
+ * @author Jason Wong
+ */
+public class SheetInfoCardPropertySectionPart
+        extends StyledPropertySectionPart {
 
     private class BackgroundColorOpenListener implements IOpenListener {
 
@@ -52,25 +50,33 @@ public class SheetInfoCardPropertySectionPart extends StyledPropertySectionPart 
 
     }
 
+    private List<String> types;
+
+    private Map<String, Button> checkMap;
+
+    private Map<String, String> defaultModes;
+
+    private Control bar;
+
+    private ColorPicker bgColorPicker;
+
     @Override
     protected void createContent(Composite parent) {
-        List<IInfoItemContributor> contributors = InfoItemContributorManager
-                .getInstance().getBothContributors();
-
-        for (final IInfoItemContributor contributor : contributors) {
-            final Button check = createCheck(parent, contributor);
-            if (typeList == null)
-                typeList = new ArrayList<String>();
-            typeList.add(contributor.getId());
+        List<IInfoItemContributor> cs = InfoItemContributorManager.getInstance()
+                .getBothContributors();
+        for (IInfoItemContributor c : cs) {
+            Button check = createCheck(parent, c);
+            if (types == null)
+                types = new ArrayList<String>();
+            types.add(c.getId());
 
             if (checkMap == null)
                 checkMap = new HashMap<String, Button>();
-            checkMap.put(contributor.getId(), check);
+            checkMap.put(c.getId(), check);
 
-            if (defaultModeMap == null)
-                defaultModeMap = new HashMap<String, String>();
-            defaultModeMap.put(contributor.getId(),
-                    contributor.getDefaultMode());
+            if (defaultModes == null)
+                defaultModes = new HashMap<String, String>();
+            defaultModes.put(c.getId(), c.getDefaultMode());
         }
 
         createBackgroundPart(parent);
@@ -81,8 +87,8 @@ public class SheetInfoCardPropertySectionPart extends StyledPropertySectionPart 
         String cardLabel = contributor.getCardLabel();
         final Button check = new Button(parent, SWT.CHECK);
         check.setText(cardLabel);
-        check.setSelection(DOMConstants.VAL_CARDMODE.equals(contributor
-                .getDefaultMode()));
+        check.setSelection(
+                DOMConstants.VAL_CARDMODE.equals(contributor.getDefaultMode()));
         check.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 infoItemVisibility(contributor.getId(), check.getSelection());
@@ -99,17 +105,16 @@ public class SheetInfoCardPropertySectionPart extends StyledPropertySectionPart 
 
         Label caption = new Label(composite, SWT.NONE);
         caption.setText(PropertyMessages.BackgroundColor_label);
-        caption.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                false, false));
+        caption.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, false, false));
 
-        backgroundColorPicker = new ColorPicker(ColorPicker.AUTO
-                | ColorPicker.CUSTOM, PaletteContents.getDefault());
-        backgroundColorPicker.getAction().setToolTipText(
-                PropertyMessages.InfoCardBackground_toolTip);
-        backgroundColorPicker
-                .addOpenListener(new BackgroundColorOpenListener());
+        bgColorPicker = new ColorPicker(ColorPicker.AUTO | ColorPicker.CUSTOM,
+                PaletteContents.getDefault());
+        bgColorPicker.getAction()
+                .setToolTipText(PropertyMessages.InfoCardBackground_toolTip);
+        bgColorPicker.addOpenListener(new BackgroundColorOpenListener());
         ToolBarManager colorBar = new ToolBarManager(SWT.FLAT);
-        colorBar.add(backgroundColorPicker);
+        colorBar.add(bgColorPicker);
         bar = colorBar.createControl(composite);
         bar.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER,
                 false, false));
@@ -120,13 +125,12 @@ public class SheetInfoCardPropertySectionPart extends StyledPropertySectionPart 
         if (editor == null)
             return;
 
-        ISheet sheet = (ISheet) editor.getActivePageInstance().getAdapter(
-                ISheet.class);
+        ISheet sheet = (ISheet) editor.getActivePageInstance()
+                .getAdapter(ISheet.class);
         ModifyInfoItemVisibilityCommand command = new ModifyInfoItemVisibilityCommand(
                 sheet, visible, type);
 
         command.setLabel(CommandMessages.Command_ShowOrHideInfoItem);
-
         editor.getCommandStack().execute(command);
     }
 
@@ -136,57 +140,56 @@ public class SheetInfoCardPropertySectionPart extends StyledPropertySectionPart 
     }
 
     protected void doRefresh() {
-        for (String type : typeList) {
-            Button check = checkMap.get(type);
-            check.setSelection(isinfoItemVisible(type));
-        }
-        updateColorPicker(backgroundColorPicker, Styles.YellowBoxFillColor,
-                null);
+        for (String type : types)
+            checkMap.get(type).setSelection(isVisible(type));
+        updateColorPicker(bgColorPicker, Styles.YellowBoxFillColor, null);
     }
 
-    private boolean isinfoItemVisible(String type) {
+    private boolean isVisible(String type) {
         for (Object o : getSelectedElements()) {
             if (o instanceof ISheet) {
-                String mode = getItemMode((ISheet) o, type);
-                return mode != null && mode.equals(DOMConstants.VAL_CARDMODE);
+                ISettingEntry entry = findEntry((ISheet) o, type);
+                if (entry == null)
+                    break;
+                return ISheetSettings.MODE_CARD
+                        .equals(entry.getAttribute(ISheetSettings.ATTR_MODE));
             }
         }
-        return false;
+        return ISheetSettings.MODE_CARD.equals(defaultModes.get(type));
     }
 
-    private String getItemMode(ISheet sheet, String type) {
-        String mode = sheet.getSetting().getInfoItemMode(type,
-                DOMConstants.ATTR_MODE);
-
-        if (mode == null)
-            mode = defaultModeMap.get(type);
-
-        return mode;
+    private ISettingEntry findEntry(ISheet sheet, String type) {
+        List<ISettingEntry> entries = sheet.getSettings().getEntries(INFO_ITEM);
+        for (ISettingEntry entry : entries) {
+            String t = entry.getAttribute(ISheetSettings.ATTR_TYPE);
+            if (type.equals(t))
+                return entry;
+        }
+        return null;
     }
 
     @Override
     protected void registerEventListener(Object source,
             ICoreEventRegister register) {
         super.registerEventListener(source, register);
-        if (source instanceof ISheet) {
-            register.register(Core.Visibility);
-        }
+        if (source instanceof ISheet)
+            register.register(Core.SheetSettings);
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        typeList = null;
+        types = null;
         checkMap = null;
-        defaultModeMap = null;
+        defaultModes = null;
         bar = null;
     }
 
     @Override
     public void setFocus() {
-        if (typeList != null && !typeList.isEmpty() && checkMap != null
+        if (types != null && !types.isEmpty() && checkMap != null
                 && !checkMap.isEmpty()) {
-            checkMap.get(typeList.get(0));
+            checkMap.get(types.get(0));
         }
     }
 }

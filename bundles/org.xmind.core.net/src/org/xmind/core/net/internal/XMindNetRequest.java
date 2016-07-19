@@ -54,7 +54,13 @@ import org.eclipse.core.runtime.Status;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmind.core.net.IDataStore;
+import org.xmind.core.net.JSONStore;
+import org.xmind.core.net.http.HttpRequest;
 
+/**
+ * @deprecated Use {@link HttpRequest} instead
+ * @author Frank Shaka
+ */
 public class XMindNetRequest {
 
     public static final int HTTP_PREPARING = 0;
@@ -206,7 +212,7 @@ public class XMindNetRequest {
     public static final int HTTP_PRECON_FAILED = HttpURLConnection.HTTP_PRECON_FAILED;
 
     /**
-     * HTTP Status-Code 413: Request Entity Too Large.
+     * HTTP Status-Code 413: Request HttpEntity Too Large.
      */
     public static final int HTTP_ENTITY_TOO_LARGE = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
 
@@ -252,12 +258,14 @@ public class XMindNetRequest {
      */
     public static final int HTTP_VERSION = HttpURLConnection.HTTP_VERSION;
 
-    private static final boolean DEBUG_ALL = Activator.getDefault().isDebugging("/debug/requests/all"); //$NON-NLS-1$
+    private static final boolean DEBUG_ALL = Activator
+            .isDebugging("/debug/http/requests"); //$NON-NLS-1$
 
     private static final boolean DEBUG_TO_STDOUT = DEBUG_ALL
-            || Activator.getDefault().isDebugging("/debug/requests/stdout"); //$NON-NLS-1$
+            || Activator.isDebugging("/debug/requests/stdout"); //$NON-NLS-1$
 
-    private static final boolean DEBUG_ASSC = Activator.getDefault().isDebugging("/debug/requests/assc"); //$NON-NLS-1$
+    private static final boolean DEBUG_ASSC = Activator
+            .isDebugging("/debug/requests/assc"); //$NON-NLS-1$
 
     private static final String DEFAULT_DOMAIN = "www.xmind.net"; //$NON-NLS-1$
 
@@ -271,7 +279,8 @@ public class XMindNetRequest {
 
     private static final String DELETE = "DELETE"; //$NON-NLS-1$
 
-    private static Set<String> WRITABLE_METHODS = new HashSet<String>(Arrays.asList(POST, PUT));
+    private static Set<String> WRITABLE_METHODS = new HashSet<String>(
+            Arrays.asList(POST, PUT));
 
     protected static class NamedValue {
 
@@ -389,27 +398,34 @@ public class XMindNetRequest {
         private static final byte[] EXTRA = toAsciiBytes("--"); //$NON-NLS-1$
 
         /** Content dispostion as a byte array */
-        private static final byte[] CONTENT_DISPOSITION = toAsciiBytes("Content-Disposition: form-data; name="); //$NON-NLS-1$
+        private static final byte[] CONTENT_DISPOSITION = toAsciiBytes(
+                "Content-Disposition: form-data; name="); //$NON-NLS-1$
 
         /** Content type header as a byte array */
-        private static final byte[] CONTENT_TYPE = toAsciiBytes("Content-Type: "); //$NON-NLS-1$
+        private static final byte[] CONTENT_TYPE = toAsciiBytes(
+                "Content-Type: "); //$NON-NLS-1$
 
         /** Content charset as a byte array */
         private static final byte[] CHARSET = toAsciiBytes("; charset=utf-8"); //$NON-NLS-1$
 
         /** Content type header as a byte array */
-        private static final byte[] CONTENT_TRANSFER_ENCODING = toAsciiBytes("Content-Transfer-Encoding: "); //$NON-NLS-1$
+        private static final byte[] CONTENT_TRANSFER_ENCODING = toAsciiBytes(
+                "Content-Transfer-Encoding: "); //$NON-NLS-1$
 
         /** Attachment's file name as a byte array */
         private static final byte[] FILE_NAME = toAsciiBytes("; filename="); //$NON-NLS-1$
 
-        private static final byte[] FILE_CONTENT_TYPE = toAsciiBytes("application/octet-stream"); //$NON-NLS-1$
+        private static final byte[] FILE_CONTENT_TYPE = toAsciiBytes(
+                "application/octet-stream"); //$NON-NLS-1$
 
-        private static final byte[] TEXT_CONTENT_TYPE = toAsciiBytes("text/plain"); //$NON-NLS-1$
+        private static final byte[] TEXT_CONTENT_TYPE = toAsciiBytes(
+                "text/plain"); //$NON-NLS-1$
 
-        private static final byte[] FILE_TRANSFER_ENCODING = toAsciiBytes("binary"); //$NON-NLS-1$
+        private static final byte[] FILE_TRANSFER_ENCODING = toAsciiBytes(
+                "binary"); //$NON-NLS-1$
 
-        private static final byte[] TEXT_TRANSFER_ENCODING = toAsciiBytes("8bit"); //$NON-NLS-1$
+        private static final byte[] TEXT_TRANSFER_ENCODING = toAsciiBytes(
+                "8bit"); //$NON-NLS-1$
 
         private byte[] boundary = null;
 
@@ -544,7 +560,8 @@ public class XMindNetRequest {
             return toAsciiBytes(part.getValue()).length;
         }
 
-        private static void writePartData(OutputStream stream, NamedValue part) throws IOException {
+        private static void writePartData(OutputStream stream, NamedValue part)
+                throws IOException {
             if (part.value instanceof File) {
                 writeFromFile(stream, (File) part.value);
             } else {
@@ -552,7 +569,8 @@ public class XMindNetRequest {
             }
         }
 
-        private static void writeFromFile(OutputStream writeStream, File file) throws IOException {
+        private static void writeFromFile(OutputStream writeStream, File file)
+                throws IOException {
             FileInputStream readStream = new FileInputStream(file);
             try {
                 byte[] buffer = new byte[4096];
@@ -570,7 +588,8 @@ public class XMindNetRequest {
             }
         }
 
-        private static void writeFromText(OutputStream writeStream, String encodedText) throws IOException {
+        private static void writeFromText(OutputStream writeStream,
+                String encodedText) throws IOException {
             // writeStream.write(toAsciiBytes(encodedText));
             writeStream.write(encodedText.getBytes("UTF-8")); //$NON-NLS-1$
         }
@@ -609,7 +628,8 @@ public class XMindNetRequest {
 
     private List<IRequestStatusChangeListener> statusChangeListeners = new ArrayList<IRequestStatusChangeListener>();
 
-    private boolean debugging = DEBUG_ALL || System.getProperty("org.xmind.debug.httprequests") != null; //$NON-NLS-1$
+    private boolean debugging = DEBUG_ALL
+            || System.getProperty("org.xmind.debug.httprequests") != null; //$NON-NLS-1$
 
     private long totalBytes = 0;
 
@@ -833,11 +853,13 @@ public class XMindNetRequest {
                 return this;
 
             if (method == null)
-                throw new IllegalStateException("Invalid HTTP Request: no method specified"); //$NON-NLS-1$
+                throw new IllegalStateException(
+                        "Invalid HTTP Request: no method specified"); //$NON-NLS-1$
 
             final String uri = getURI();
             if (uri == null)
-                throw new IllegalStateException("Invalid HTTP Request: no URI/path specified"); //$NON-NLS-1$
+                throw new IllegalStateException(
+                        "Invalid HTTP Request: no URI/path specified"); //$NON-NLS-1$
 
             final RequestWriter writer = createRequestWriter();
             if (isAborted())
@@ -849,7 +871,8 @@ public class XMindNetRequest {
                 }
             }, "XMindNetRequestConnection:" + uri); //$NON-NLS-1$
             thread.setDaemon(true);
-            thread.setPriority((Thread.MIN_PRIORITY + Thread.NORM_PRIORITY) / 2);
+            thread.setPriority(
+                    (Thread.MIN_PRIORITY + Thread.NORM_PRIORITY) / 2);
             thread.start();
             try {
                 thread.join();
@@ -951,13 +974,15 @@ public class XMindNetRequest {
             if (isAborted())
                 throw new OperationCanceledException();
 
-            readResponse(uri, connection, connection.getInputStream(), connection.getResponseCode());
+            readResponse(uri, connection, connection.getInputStream(),
+                    connection.getResponseCode());
             if (isAborted())
                 throw new OperationCanceledException();
         } catch (IOException e) {
             if (isAborted())
                 throw new OperationCanceledException();
-            readResponse(uri, connection, connection.getErrorStream(), connection.getResponseCode());
+            readResponse(uri, connection, connection.getErrorStream(),
+                    connection.getResponseCode());
             if (isAborted())
                 throw new OperationCanceledException();
         } finally {
@@ -991,11 +1016,13 @@ public class XMindNetRequest {
         return null;
     }
 
-    protected void writeHeaders(String uri, URLConnection connection, RequestWriter writer) {
+    protected void writeHeaders(String uri, URLConnection connection,
+            RequestWriter writer) {
         List<NamedValue> writtenHeaders = new ArrayList<NamedValue>();
         Object accept = null;
         for (NamedValue header : requestHeaders) {
-            writeHeader(connection, header.name, header.getValue(), writtenHeaders);
+            writeHeader(connection, header.name, header.getValue(),
+                    writtenHeaders);
             if ("Accept".equalsIgnoreCase(header.name)) //$NON-NLS-1$
                 accept = header.value;
         }
@@ -1019,16 +1046,19 @@ public class XMindNetRequest {
         return "xmind_v3.4.1"; //$NON-NLS-1$
     }
 
-    protected void writeHeader(URLConnection connection, String key, String value, List<NamedValue> headers) {
+    protected void writeHeader(URLConnection connection, String key,
+            String value, List<NamedValue> headers) {
         connection.setRequestProperty(key, value);
         headers.add(new NamedValue(key, value));
     }
 
-    private void writeBody(String uri, URLConnection connection, RequestWriter writer) throws IOException {
+    private void writeBody(String uri, URLConnection connection,
+            RequestWriter writer) throws IOException {
         OutputStream writeStream = connection.getOutputStream();
         if (isAborted())
             throw new OperationCanceledException();
-        BufferedOutputStream bufferedWriteStream = new BufferedOutputStream(writeStream);
+        BufferedOutputStream bufferedWriteStream = new BufferedOutputStream(
+                writeStream);
         if (isAborted())
             throw new OperationCanceledException();
         writer.write(bufferedWriteStream);
@@ -1052,8 +1082,8 @@ public class XMindNetRequest {
         return buffer.toString();
     }
 
-    protected void readResponse(String uri, URLConnection connection, InputStream readStream, int responseCode)
-            throws IOException {
+    protected void readResponse(String uri, URLConnection connection,
+            InputStream readStream, int responseCode) throws IOException {
         this.responseText = null;
         this.data = null;
         this.responseHeaders.clear();
@@ -1089,12 +1119,13 @@ public class XMindNetRequest {
                         totalBytes, responseCode, method, uri);
                 if (isAborted())
                     throw new OperationCanceledException();
-                if (targetFile != null && responseCode >= 200 && responseCode < 300) {
+                if (targetFile != null && responseCode >= 200
+                        && responseCode < 300) {
                     saveTargetFile(readStream);
                     setStatusCode(responseCode);
                     debug("HTTP Request: (Response) [%s] %s %s\r\n%s\r\nSaved to '%s' (%s bytes).", //$NON-NLS-1$
-                            getStatusCode(), method, uri, responseHeaders, targetFile.getAbsolutePath(),
-                            targetFile.length());
+                            getStatusCode(), method, uri, responseHeaders,
+                            targetFile.getAbsolutePath(), targetFile.length());
                 } else {
                     int wrappedResponseCode = readResponseData(readStream);
                     if (wrappedResponseCode >= 100) {
@@ -1103,7 +1134,8 @@ public class XMindNetRequest {
                         setStatusCode(responseCode);
                     }
                     debug("HTTP Request: (Response) [%s] %s %s\r\n%s\r\n%s", //$NON-NLS-1$
-                            responseCode, method, uri, responseHeaders, responseText);
+                            responseCode, method, uri, responseHeaders,
+                            responseText);
                 }
             }
         } finally {
@@ -1122,7 +1154,8 @@ public class XMindNetRequest {
             String respType = getResponseHeader("Content-Type"); //$NON-NLS-1$
             if (respType != null && respType.indexOf("application/json") >= 0) { //$NON-NLS-1$
                 try {
-                    this.data = new JSONStore(new JSONObject(this.responseText));
+                    this.data = new JSONStore(
+                            new JSONObject(this.responseText));
                     if (this.data.has("_code")) { //$NON-NLS-1$
                         return this.data.getInt("_code"); //$NON-NLS-1$
                     }
@@ -1135,7 +1168,8 @@ public class XMindNetRequest {
     }
 
     private String readResponseText(InputStream readStream) throws IOException {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(Math.max((int) totalBytes, 1024));
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(
+                Math.max((int) totalBytes, 1024));
         transfer(readStream, bytes);
         return bytes.toString("utf-8"); //$NON-NLS-1$
     }
@@ -1157,11 +1191,13 @@ public class XMindNetRequest {
         }
     }
 
-    protected void transfer(InputStream readStream, OutputStream writeStream) throws IOException {
+    protected void transfer(InputStream readStream, OutputStream writeStream)
+            throws IOException {
         transfer(readStream, writeStream, 1024);
     }
 
-    protected void transfer(InputStream readStream, OutputStream writeStream, int bufSize) throws IOException {
+    protected void transfer(InputStream readStream, OutputStream writeStream,
+            int bufSize) throws IOException {
         if (bufSize <= 0)
             bufSize = 1024;
         byte[] buffer = new byte[bufSize];
@@ -1204,7 +1240,8 @@ public class XMindNetRequest {
         statusChangeListeners.add(listener);
     }
 
-    public void removeStatusChangeListener(IRequestStatusChangeListener listener) {
+    public void removeStatusChangeListener(
+            IRequestStatusChangeListener listener) {
         statusChangeListeners.remove(listener);
     }
 
@@ -1219,15 +1256,16 @@ public class XMindNetRequest {
     protected void fireStatusChanged(final int oldStatus) {
         final int newStatus = this.statusCode;
         IRequestStatusChangeListener[] listeners = statusChangeListeners
-                .toArray(new IRequestStatusChangeListener[statusChangeListeners.size()]);
+                .toArray(new IRequestStatusChangeListener[statusChangeListeners
+                        .size()]);
         for (int i = 0; i < listeners.length; i++) {
             try {
                 listeners[i].requestStatusChanged(this, oldStatus, newStatus);
             } catch (Throwable e) {
-                Activator.getDefault().getLog()
-                        .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
-                                "Error occurred when notifying request status change.", //$NON-NLS-1$
-                                e));
+                Activator.getDefault().getLog().log(new Status(IStatus.WARNING,
+                        Activator.PLUGIN_ID,
+                        "Error occurred when notifying request status change.", //$NON-NLS-1$
+                        e));
             }
         }
     }
@@ -1251,7 +1289,8 @@ public class XMindNetRequest {
                 System.err.println("Failed to relax host checking."); //$NON-NLS-1$
             } else {
                 Activator.getDefault().getLog()
-                        .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, "Failed to relax host checking.", e)); //$NON-NLS-1$
+                        .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
+                                "Failed to relax host checking.", e)); //$NON-NLS-1$
             }
         }
     }
@@ -1276,7 +1315,8 @@ public class XMindNetRequest {
          * settings if it is an HTTPS connection.
          */
         public static void relaxHostChecking(HttpURLConnection conn)
-                throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+                throws KeyManagementException, NoSuchAlgorithmException,
+                KeyStoreException {
 
             if (conn instanceof HttpsURLConnection) {
                 HttpsURLConnection httpsConnection = (HttpsURLConnection) conn;
@@ -1286,28 +1326,34 @@ public class XMindNetRequest {
             }
         }
 
-        static synchronized SSLSocketFactory prepFactory(HttpsURLConnection httpsConnection)
-                throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        static synchronized SSLSocketFactory prepFactory(
+                HttpsURLConnection httpsConnection)
+                        throws NoSuchAlgorithmException, KeyStoreException,
+                        KeyManagementException {
 
             if (factory == null) {
                 SSLContext ctx = SSLContext.getInstance("TLS"); //$NON-NLS-1$
-                ctx.init(null, new TrustManager[] { new AlwaysTrustManager() }, null);
+                ctx.init(null, new TrustManager[] { new AlwaysTrustManager() },
+                        null);
                 factory = ctx.getSocketFactory();
             }
             return factory;
         }
 
-        private static final class TrustingHostnameVerifier implements HostnameVerifier {
+        private static final class TrustingHostnameVerifier
+                implements HostnameVerifier {
             public boolean verify(String hostname, SSLSession session) {
                 return true;
             }
         }
 
         private static class AlwaysTrustManager implements X509TrustManager {
-            public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+            public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+                    throws CertificateException {
             }
 
-            public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+            public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+                    throws CertificateException {
             }
 
             public X509Certificate[] getAcceptedIssuers() {

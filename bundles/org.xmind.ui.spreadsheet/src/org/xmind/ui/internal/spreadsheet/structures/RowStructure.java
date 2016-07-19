@@ -174,7 +174,7 @@ public class RowStructure extends AbstractBranchStructure implements
                                             .getFigure().getPreferredSize();
                                     bh = Math.max(bh, s.height);
                                 }
-                                y += bh;
+//                                y += bh;
                                 bh = 0;
                             }
                             if ((!enclosingBranches.isEmpty())
@@ -190,9 +190,9 @@ public class RowStructure extends AbstractBranchStructure implements
                             .getPrefSize().width;
                     Rectangle childBounds = new Rectangle(x + bw, y,
                             (size.width > headWidth ? size.width : headWidth),
-                            size.height + 10);
+                            size.height);
                     info.put(childFigure, childBounds);
-                    y += size.height + itemSpacing + bh;
+                    y += size.height + itemSpacing + bh + itemSpacing;
                 }
                 if (insertionInColumn && insertion.getIndex() == num) {
                     info.add(insertion.createRectangle(x, y));

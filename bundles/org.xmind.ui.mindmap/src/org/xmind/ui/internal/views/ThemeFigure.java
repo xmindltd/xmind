@@ -72,7 +72,7 @@ public class ThemeFigure extends Figure {
             previewStorage = new DirectoryStorage(dir);
             previewWorkbook = Core.getWorkbookBuilder()
                     .createWorkbook(previewStorage);
-            previewWorkbook.setTempStorage(previewStorage);
+//            previewWorkbook.setTempStorage(previewStorage);
         }
 
         private void initPreview() {

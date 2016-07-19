@@ -43,7 +43,8 @@ import org.xmind.gef.tool.SelectTool;
 /**
  * @author Brian Sun
  */
-public class GraphicalViewer extends AbstractViewer implements IGraphicalViewer {
+public class GraphicalViewer extends AbstractViewer
+        implements IGraphicalViewer {
 
     private static final Point POINT = new Point();
 
@@ -102,20 +103,20 @@ public class GraphicalViewer extends AbstractViewer implements IGraphicalViewer 
         lws.setContents(viewport);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ILayerManager.class)
-            return getLayerManager();
-        if (adapter == FigureCanvas.class)
-            return getCanvas();
-        if (adapter == ZoomManager.class)
-            return getZoomManager();
-        if (adapter == IGraphicalPart.class)
-            return getRootPart() instanceof IGraphicalPart ? (IGraphicalPart) getRootPart()
-                    : null;
-        if (adapter == IFigure.class)
-            return getRootFigure();
-        if (adapter == Viewport.class)
-            return getViewport();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ILayerManager.class.equals(adapter))
+            return adapter.cast(getLayerManager());
+        if (FigureCanvas.class.equals(adapter))
+            return adapter.cast(getCanvas());
+        if (ZoomManager.class.equals(adapter))
+            return adapter.cast(getZoomManager());
+        if (IGraphicalPart.class.equals(adapter))
+            return adapter.cast(getRootPart() instanceof IGraphicalPart
+                    ? getRootPart() : null);
+        if (IFigure.class.equals(adapter))
+            return adapter.cast(getRootFigure());
+        if (Viewport.class.equals(adapter))
+            return adapter.cast(getViewport());
         return super.getAdapter(adapter);
     }
 
@@ -390,7 +391,8 @@ public class GraphicalViewer extends AbstractViewer implements IGraphicalViewer 
      * @param clientArea
      * @param margin
      */
-    protected void ensureVisible(Rectangle box, Rectangle clientArea, int margin) {
+    protected void ensureVisible(Rectangle box, Rectangle clientArea,
+            int margin) {
         int dx = 0;
         int dy = 0;
         if (box.width > clientArea.width)

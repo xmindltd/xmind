@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
+    <title>Rectangle 55 Copy 18</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0.5" offset="0%"></stop>
+            <stop stop-color="#000000" stop-opacity="0.5" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="2" y="0" width="2" height="16"></rect>
+        <polygon id="path-3" points="9 0 14 10 4 10 "></polygon>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Rectangle-55-Copy-18">
+            <use stroke="#979797" stroke-width="0.5" fill="#FFFFFF" sketch:type="MSShapeGroup" xlink:href="#path-2"></use>
+            <use stroke="none" fill-opacity="0.5" fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+        </g>
+        <g id="Triangle-29-Copy-7">
+            <use fill="#51596E" fill-rule="evenodd" sketch:type="MSShapeGroup" transform="translate(9.000000, 5.000000) rotate(90.000000) translate(-9.000000, -5.000000) " xlink:href="#path-3"></use>
+            <use fill="none" xlink:href="#path-3"></use>
+        </g>
+    </g>
+</svg>

@@ -14,11 +14,13 @@
 package org.xmind.ui.mindmap;
 
 import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.graphics.Image;
 import org.xmind.core.ITopic;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
 
 public interface IMarkerPart extends IGraphicalPart {
 
@@ -32,6 +34,10 @@ public interface IMarkerPart extends IGraphicalPart {
 
     Image getImage();
 
+    SVGImageData getSVGData();
+
     Dimension getPreferredSize();
+
+    ResourceManager getResourceManager();
 
 }

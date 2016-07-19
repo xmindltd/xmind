@@ -46,7 +46,6 @@ import org.xmind.gef.image.IExportSourceProvider;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ResizeConstants;
 import org.xmind.gef.util.Properties;
-import org.xmind.ui.internal.print.PageSetupDialog.Entries;
 import org.xmind.ui.mindmap.GhostShellProvider;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
@@ -152,15 +151,30 @@ public class PrintClient extends FigureRenderer {
         int margin = VIEWER_MARGIN * dpi.x / UnitConvertor.getScreenDpi().x;
 //        properties.set(IMindMapViewer.VIEWER_MARGIN, margin);
         properties.set(IMindMapViewer.VIEWER_GRADIENT, Boolean.FALSE);
-        String plusMinusVisibility = settings
-                .get(PrintConstants.PLUS_MINUS_VISIBILITY);
-        properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                Entries.getPropertiesValue(plusMinusVisibility));
+
+        boolean plusVisible = getBoolean(settings, PrintConstants.PLUS_VISIBLE,
+                PrintConstants.DEFAULT_PLUS_VISIBLE);
+        boolean minusVisible = getBoolean(settings,
+                PrintConstants.MINUS_VISIBLE,
+                PrintConstants.DEFAULT_MINUS_VISIBLE);
+        properties.set(IMindMapViewer.PLUS_VISIBLE, plusVisible);
+        properties.set(IMindMapViewer.MINUS_VISIBLE, minusVisible);
+
         IGraphicalViewer exportViewer = new MindMapExportViewer(shell,
                 sourceMap, properties);
         this.source = new MindMapViewerPrintSourceProvider(exportViewer,
                 margin);
         render();
+    }
+
+    private boolean getBoolean(IDialogSettings settings, String key,
+            boolean defaultValue) {
+        boolean value = defaultValue;
+        if (settings.get(key) != null) {
+            value = settings.getBoolean(key);
+        }
+
+        return value;
     }
 
     public void print(IGraphicalViewer sourceViewer) {
@@ -232,7 +246,7 @@ public class PrintClient extends FigureRenderer {
         //draw border
         gc.setClipping(pageClientArea.x, pageClientArea.y, pageClientArea.width,
                 pageClientArea.height);
-        if (!settings.getBoolean(PrintConstants.NO_BORDER)) {
+        if (settings.getBoolean(PrintConstants.BORDER)) {
             drawBorder(gc);
         }
 

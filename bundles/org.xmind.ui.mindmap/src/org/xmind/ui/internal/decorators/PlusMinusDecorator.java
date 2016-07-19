@@ -59,15 +59,16 @@ public class PlusMinusDecorator extends Decorator {
             if (canFold) {
                 Properties properties = getProperties(pm);
                 if (properties != null) {
-                    String plusMinusVisibility = properties.getString(
-                            IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                            IMindMapViewer.PLUS_MINUS_VISIBLE);
+
                     boolean isPlus = figure.getValue();
-                    boolean isVisible = (IMindMapViewer.PLUS_MINUS_VISIBLE
-                            .equals(plusMinusVisibility))
-                            || (IMindMapViewer.PLUS_VISIBLE_MINUS_HIDDEN
-                                    .equals(plusMinusVisibility) && isPlus);
-                    figure.setVisible(isVisible);
+                    boolean plusVisible = properties
+                            .getBoolean(IMindMapViewer.PLUS_VISIBLE, true);
+                    boolean minusVisible = properties
+                            .getBoolean(IMindMapViewer.MINUS_VISIBLE, true);
+                    boolean visible = (isPlus && plusVisible)
+                            || (!isPlus && minusVisible);
+
+                    figure.setVisible(visible);
                 }
             } else {
                 figure.setVisible(false);

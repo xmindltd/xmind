@@ -6,19 +6,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.e4.ui.model.application.MApplication;
-import org.eclipse.e4.ui.model.application.ui.MUIElement;
-import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
-import org.eclipse.e4.ui.model.application.ui.menu.MHandledItem;
-import org.eclipse.e4.ui.workbench.Selector;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
-import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -31,132 +27,16 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.internal.IWorkbenchConstants;
-import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.WorkbenchPlugin;
-import org.xmind.ui.internal.editor.MME;
+import org.xmind.cathy.internal.dashboard.DashboardAutomationAddon;
+import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class StartUpProcess {
+
     private static final boolean DEBUG_CHECK_OPEN_FILE = CathyPlugin
             .getDefault().isDebugging("/debug/checkopenfile"); //$NON-NLS-1$
-
-    private static class DashBoardProcessor {
-
-        private Selector itemMatcher = new HandledItemMatcher(
-                ICathyConstants.COMMAND_TOGGLE_DASHBOARD);
-
-        void doOpenDashboard(IWorkbench workbench) {
-            final EModelService modelService = workbench
-                    .getService(EModelService.class);
-            final MApplication application = ((Workbench) workbench)
-                    .getApplication();
-
-            if (application == null || modelService == null)
-                return;
-
-            workbench.getDisplay().syncExec(new Runnable() {
-                public void run() {
-                    final List<MWindow> windows = modelService.findElements(
-                            application, ICathyConstants.ID_MAIN_WINDOW,
-                            MWindow.class, null);
-                    if (windows.isEmpty())
-                        return;
-
-                    MWindow window = windows.get(0);
-                    if (!window.getTags()
-                            .contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
-                        window.getTags()
-                                .add(ICathyConstants.TAG_SHOW_DASHBOARD);
-                    } else {
-                        if (showDashboard(window, application, modelService)) {
-                            updateDashboardToolItems(window, modelService);
-                        } else {
-                            window.getTags()
-                                    .remove(ICathyConstants.TAG_SHOW_DASHBOARD);
-                        }
-                    }
-                }
-            });
-
-        }
-
-        private boolean showDashboard(MWindow window, MApplication application,
-                EModelService modelService) {
-            MPart dashboardPart = findReferencedDashboardPartIn(window,
-                    application, modelService);
-            if (dashboardPart == null)
-                return false;
-
-            EPartService partService = window.getContext()
-                    .get(EPartService.class);
-            if (partService == null)
-                return false;
-
-            partService.activate(dashboardPart, true);
-            return partService.getActivePart() == dashboardPart;
-        }
-
-        private MPart findReferencedDashboardPartIn(MWindow window,
-                MApplication application, EModelService modelService) {
-            MPart dashboardPart = null;
-
-            /*
-             * Find Dashboard instance in window model tree.
-             */
-            List<MPart> dashboardParts = modelService.findElements(window,
-                    ICathyConstants.ID_DASHBOARD_PART, MPart.class, null);
-            if (!dashboardParts.isEmpty()) {
-                dashboardPart = dashboardParts.get(0);
-            } else {
-                /*
-                 * Find Dashboard instance in shared elements.
-                 */
-                for (MUIElement p : window.getChildren()) {
-                    if (p instanceof MPart && ICathyConstants.ID_DASHBOARD_PART
-                            .equals(p.getElementId())) {
-                        dashboardPart = (MPart) p;
-                        break;
-                    }
-                }
-            }
-
-            if (dashboardPart == null) {
-                /*
-                 * Create Dashboard part from snippet.
-                 */
-                MUIElement part = modelService.cloneSnippet(application,
-                        ICathyConstants.ID_DASHBOARD_PART, window);
-                if (part != null && part instanceof MPart
-                        && ICathyConstants.ID_DASHBOARD_PART
-                                .equals(part.getElementId())) {
-                    dashboardPart = (MPart) part;
-                    window.getChildren().add(dashboardPart);
-                }
-            }
-
-            return dashboardPart;
-        }
-
-        private void updateDashboardToolItems(MWindow window,
-                EModelService modelService) {
-            String tooltip;
-            boolean selected;
-            if (window.getTags().contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
-                tooltip = WorkbenchMessages.DashboardHideHome_tooltip;
-                selected = true;
-            } else {
-                tooltip = WorkbenchMessages.DashboardShowHome_tooltip;
-                selected = false;
-            }
-
-            List<MHandledItem> items = modelService.findElements(window,
-                    MHandledItem.class, EModelService.ANYWHERE, itemMatcher);
-            for (MHandledItem item : items) {
-                item.setTooltip(tooltip);
-                item.setSelected(selected);
-            }
-        }
-    }
 
     private IWorkbench workbench;
 
@@ -193,7 +73,17 @@ public class StartUpProcess {
     }
 
     private void checkAndRecoverFiles() {
-        new CheckRecoverFilesProcess(workbench).checkAndRecoverFiles();
+        SafeRunner.run(new SafeRunnable() {
+            public void run() throws Exception {
+                new EditorStatePersistance(workbench,
+                        CathyPlugin.getDefault().getStateLocation(),
+                        CathyPlugin.getDefault().getLogger(),
+                        CathyPlugin.getDefault().getDebugValue(
+                                CathyPlugin.OPTION_AUTO_SAVE_EDITOR_STATE_INTERVALS,
+                                CathyPlugin.AUTO_SAVE_EDITOR_STATE_INTERVALS))
+                                        .startUp();
+            }
+        });
     }
 
     private void openStartupMap() {
@@ -210,7 +100,23 @@ public class StartUpProcess {
     }
 
     private void doOpenDashboard() {
-        new DashBoardProcessor().doOpenDashboard(workbench);
+        final EModelService modelService = workbench
+                .getService(EModelService.class);
+        final MApplication application = workbench
+                .getService(MApplication.class);
+        if (modelService == null || application == null)
+            return;
+
+        final DashboardAutomationAddon automator = new DashboardAutomationAddon();
+        automator.setModelService(modelService);
+        automator.setApplication(application);
+        workbench.getDisplay().asyncExec(new Runnable() {
+            public void run() {
+                for (MWindow window : application.getChildren()) {
+                    automator.showDashboard(window);
+                }
+            }
+        });
     }
 
     private void doOpenLastSession() {
@@ -250,14 +156,29 @@ public class StartUpProcess {
                 .getChildren(IWorkbenchConstants.TAG_EDITOR);
         IEditorPart activeEditorPart = null;
         for (IMemento childEditor : childrenEditor) {
-            String path = childEditor.getString(IWorkbenchConstants.TAG_PATH);
-            if (path != null) {
-                IEditorInput editorInput = MME.createFileEditorInput(path);
-                IEditorPart editorPart = page.openEditor(editorInput,
-                        MindMapUI.MINDMAP_EDITOR_ID);
-                if ("true".equals(childEditor //$NON-NLS-1$
-                        .getString(IWorkbenchConstants.TAG_ACTIVE_PART))) {
-                    activeEditorPart = editorPart;
+            IMemento inputMemeto = childEditor.getChild("input"); //$NON-NLS-1$
+            if (inputMemeto == null)
+                continue;
+
+            String uri = inputMemeto.getString("uri"); //$NON-NLS-1$
+            if (uri != null) {
+                IWorkbookRef workbookRef = null;
+                try {
+                    workbookRef = MindMapUIPlugin.getDefault()
+                            .getWorkbookRefFactory()
+                            .createWorkbookRef(new URI(uri), null);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                if (workbookRef != null) {
+                    IEditorInput editorInput = MindMapUI.getEditorInputFactory()
+                            .createEditorInput(workbookRef);
+                    IEditorPart editorPart = page.openEditor(editorInput,
+                            MindMapUI.MINDMAP_EDITOR_ID);
+                    if ("true".equals(childEditor //$NON-NLS-1$
+                            .getString(IWorkbenchConstants.TAG_ACTIVE_PART))) {
+                        activeEditorPart = editorPart;
+                    }
                 }
             }
         }

@@ -17,18 +17,22 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.RGB;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerRef;
 import org.xmind.core.marker.IMarkerResource;
 import org.xmind.core.marker.IMarkerVariation;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGReference;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ImageUtils;
 
 public class MarkerImageDescriptor extends ImageDescriptor {
-
+    public static final String RESOURCE_URL_PREFIX = "platform:/plugin/org.xmind.ui.resources/markers/"; //$NON-NLS-1$
     private static ImageDescriptor ErrorImage = null;
 
     private IMarker marker;
@@ -37,11 +41,16 @@ public class MarkerImageDescriptor extends ImageDescriptor {
 
     private String markerId;
 
+    private RGB background;
+
+    private boolean createByStream = true;
+
     private int maxWidth;
 
     private int maxHeigh;
 
-    protected MarkerImageDescriptor(IMarker marker, int maxWidth, int maxHeigh) {
+    protected MarkerImageDescriptor(IMarker marker, int maxWidth,
+            int maxHeigh) {
         this.marker = marker;
         this.markerRef = null;
         this.markerId = marker.getId();
@@ -60,6 +69,28 @@ public class MarkerImageDescriptor extends ImageDescriptor {
 
     @Override
     public ImageData getImageData() {
+
+        String svgPath = getMarker() == null ? null : getMarker().getSVGPath();
+
+        boolean createImageDataByStream = createByStream
+                || (svgPath == null || "".equals(svgPath)); //$NON-NLS-1$
+
+        if (createImageDataByStream)
+            return createImageDataByStream();
+        else {
+            return createImageDataBySVG();
+        }
+    }
+
+    private ImageData createImageDataBySVG() {
+
+        String filePath = RESOURCE_URL_PREFIX + getMarker().getSVGPath();
+        SVGImageData data = new SVGReference(filePath).getSVGData();
+
+        return data.createImage(new Dimension(maxWidth, maxHeigh), background);
+    }
+
+    private ImageData createImageDataByStream() {
         InputStream in = getStream();
         ImageData result = null;
         if (in != null) {
@@ -185,8 +216,8 @@ public class MarkerImageDescriptor extends ImageDescriptor {
 
     private static ImageDescriptor getErrorImage() {
         if (ErrorImage == null) {
-            ErrorImage = ImageUtils.createErrorImage(
-                    MindMapUI.DEF_MARKER_WIDTH, MindMapUI.DEF_MARKER_HEIGHT);
+            ErrorImage = ImageUtils.createErrorImage(MindMapUI.DEF_MARKER_WIDTH,
+                    MindMapUI.DEF_MARKER_HEIGHT);
         }
         return ErrorImage;
     }
@@ -203,11 +234,27 @@ public class MarkerImageDescriptor extends ImageDescriptor {
         return new MarkerImageDescriptor(markerRef, -1, -1);
     }
 
-    public static ImageDescriptor createFromMarker(IMarker marker,
-            int maxWidth, int maxHeigh) {
+    public static ImageDescriptor createFromMarker(IMarker marker, int maxWidth,
+            int maxHeigh) {
         if (marker == null)
             return getErrorImage();
         return new MarkerImageDescriptor(marker, maxWidth, maxHeigh);
+    }
+
+    public static ImageDescriptor createFromMarker(IMarker marker, int maxWidth,
+            int maxHeigh, RGB background) {
+        MarkerImageDescriptor descriptor = (MarkerImageDescriptor) createFromMarker(
+                marker, maxWidth, maxHeigh);
+        descriptor.setBackground(background);
+        return descriptor;
+    }
+
+    public static ImageDescriptor createFromMarker(IMarker marker, int maxWidth,
+            int maxHeigh, boolean createByStream) {
+        MarkerImageDescriptor descriptor = (MarkerImageDescriptor) createFromMarker(
+                marker, maxWidth, maxHeigh);
+        descriptor.setCreateByStream(createByStream);
+        return descriptor;
     }
 
     public static ImageDescriptor createFromMarkerRef(IMarkerRef markerRef,
@@ -215,6 +262,14 @@ public class MarkerImageDescriptor extends ImageDescriptor {
         if (markerRef == null)
             return getErrorImage();
         return new MarkerImageDescriptor(markerRef, maxWidth, maxHeigh);
+    }
+
+    private void setBackground(RGB background) {
+        this.background = background;
+    }
+
+    private void setCreateByStream(boolean createByStream) {
+        this.createByStream = createByStream;
     }
 
 }

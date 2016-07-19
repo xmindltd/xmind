@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_折线图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#707C9B" offset="0%"></stop>
+            <stop stop-color="#59637C" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="0" width="16" height="16" rx="2"></rect>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-96.000000, 0.000000)">
+            <g id="sym_折线图" transform="translate(96.000000, 0.000000)">
+                <g id="Rectangle-370-Copy-4">
+                    <use fill="#51596E" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <polygon id="Path-42" fill="#FFFFFF" points="1.86416171 13.1579307 5.21228116 9.14299078 6.57632983 10.2379744 8.93241388 6.95302357 10.7924802 8.53466655 14.0165953 3.66807274 14.0165953 13.1579307"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -18,6 +18,8 @@ import java.beans.PropertyChangeListener;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.graphics.Image;
 import org.xmind.core.marker.IMarker;
 import org.xmind.gef.GEF;
@@ -28,19 +30,25 @@ import org.xmind.gef.part.IRequestHandler;
 import org.xmind.gef.policy.NullEditPolicy;
 import org.xmind.ui.internal.decorators.LegendItemDecorator;
 import org.xmind.ui.internal.figures.LegendItemFigure;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGReference;
 import org.xmind.ui.mindmap.ILegendItemPart;
 import org.xmind.ui.mindmap.ILegendPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MarkerImageDescriptor;
 
-public class LegendItemPart extends MindMapPartBase implements ILegendItemPart,
-        PropertyChangeListener {
+public class LegendItemPart extends MindMapPartBase
+        implements ILegendItemPart, PropertyChangeListener {
 
     private ImageDescriptor icon = null;
 
     private Image image = null;
 
+    private SVGReference svgRef = null;
+
     private boolean deactivated = false;
+
+    private LocalResourceManager resourceManager;
 
     public LegendItemPart() {
         setDecorator(LegendItemDecorator.getInstance());
@@ -51,7 +59,8 @@ public class LegendItemPart extends MindMapPartBase implements ILegendItemPart,
                 .getBoolean(IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, false);
         return new LegendItemFigure(
                 useAdvancedRenderer ? RotatableWrapLabel.ADVANCED
-                        : RotatableWrapLabel.NORMAL);
+                        : RotatableWrapLabel.NORMAL,
+                svgRef != null ? getResourceManager() : null);
     }
 
     public void setParent(IPart parent) {
@@ -103,27 +112,63 @@ public class LegendItemPart extends MindMapPartBase implements ILegendItemPart,
         return icon.createImage(false);
     }
 
+    public SVGImageData getSVGData() {
+        if (deactivated)
+            return null;
+        return svgRef == null ? null : svgRef.getSVGData();
+    }
+
     protected void onActivated() {
         super.onActivated();
-        getSite()
-                .getViewer()
-                .getProperties()
-                .addPropertyChangeListener(
-                        IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
+        getSite().getViewer().getProperties().addPropertyChangeListener(
+                IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
     }
 
     protected void onDeactivated() {
-        getSite()
-                .getViewer()
-                .getProperties()
-                .removePropertyChangeListener(
-                        IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
+        getSite().getViewer().getProperties().removePropertyChangeListener(
+                IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, this);
         deactivated = true;
+
         if (image != null) {
             image.dispose();
             image = null;
         }
+
+        if (svgRef != null)
+            svgRef = null;
+
+        if (resourceManager != null) {
+            resourceManager.dispose();
+            resourceManager = null;
+        }
         super.onDeactivated();
+    }
+
+    @Override
+    public void setModel(Object model) {
+        super.setModel(model);
+        if (model instanceof LegendItem) {
+            LegendItem item = (LegendItem) model;
+            IMarker marker = item.getMarker();
+            String svgPath = marker != null ? marker.getSVGPath() : null;
+            if (svgPath != null && !"".equals(svgPath)) { //$NON-NLS-1$
+                this.svgRef = createSVGReference();
+            }
+        }
+    }
+
+    private SVGReference createSVGReference() {
+        String resourcePath = MarkerImageDescriptor.RESOURCE_URL_PREFIX
+                + getItem().getMarker().getSVGPath();
+        SVGReference ref = new SVGReference(resourcePath);
+        return ref;
+    }
+
+    public LocalResourceManager getResourceManager() {
+        if (resourceManager == null)
+            resourceManager = new LocalResourceManager(
+                    JFaceResources.getResources());
+        return resourceManager;
     }
 
     protected void declareEditPolicies(IRequestHandler reqHandler) {
@@ -139,9 +184,8 @@ public class LegendItemPart extends MindMapPartBase implements ILegendItemPart,
     public void propertyChange(PropertyChangeEvent evt) {
         boolean useAdvancedRenderer = getSite().getViewer().getProperties()
                 .getBoolean(IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, false);
-        ((LegendItemFigure) getFigure())
-                .setTextRenderStyle(useAdvancedRenderer ? RotatableWrapLabel.ADVANCED
-                        : RotatableWrapLabel.NORMAL);
+        ((LegendItemFigure) getFigure()).setTextRenderStyle(useAdvancedRenderer
+                ? RotatableWrapLabel.ADVANCED : RotatableWrapLabel.NORMAL);
     }
 
 }

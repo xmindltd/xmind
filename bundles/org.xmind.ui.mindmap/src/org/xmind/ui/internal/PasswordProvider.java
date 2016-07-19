@@ -14,6 +14,7 @@
 package org.xmind.ui.internal;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -25,26 +26,29 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.xmind.core.Core;
-import org.xmind.core.CoreException;
-import org.xmind.core.IEncryptionHandler;
+import org.xmind.ui.internal.editor.IPasswordProvider;
+import org.xmind.ui.mindmap.IWorkbookRef;
 
 /**
- * @author MANGOSOFT
+ * @author Frank Shaka
  * 
  */
-public class PasswordProvider implements IEncryptionHandler {
+public class PasswordProvider implements IPasswordProvider {
 
-    private class PasswordDialog extends Dialog {
+    private static class PasswordDialog extends Dialog {
 
-        private String value = null;
+        private String value;
+
+        private String message;
 
         /**
          * @param parentShell
          */
-        protected PasswordDialog(Shell parentShell) {
+        protected PasswordDialog(Shell parentShell, String message) {
             super(parentShell);
             setShellStyle(getShellStyle() | SWT.RESIZE);
+            this.value = null;
+            this.message = message;
         }
 
         protected void configureShell(Shell shell) {
@@ -62,17 +66,24 @@ public class PasswordProvider implements IEncryptionHandler {
             Composite composite = (Composite) super.createDialogArea(parent);
 
             Label messageLabel = new Label(composite, SWT.WRAP);
-            messageLabel.setText(MindMapMessages.EncryteDialog_label_message);
-            messageLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            messageLabel.setText(message);
+            messageLabel.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
 
-            final Text passwordInput = new Text(composite, SWT.BORDER
-                    | SWT.SINGLE | SWT.PASSWORD);
-            passwordInput.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            final Text passwordInput = new Text(composite,
+                    SWT.BORDER | SWT.SINGLE | SWT.PASSWORD);
+            passwordInput.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
             passwordInput.addListener(SWT.Modify, new Listener() {
                 public void handleEvent(Event event) {
                     value = passwordInput.getText();
+                }
+            });
+
+            Display.getCurrent().asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    passwordInput.setFocus();
                 }
             });
 
@@ -84,19 +95,39 @@ public class PasswordProvider implements IEncryptionHandler {
         }
     }
 
-    public String retrievePassword() throws CoreException {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.xmind.ui.internal.editor.IPasswordProvider#askForPassword(org.xmind.
+     * ui.mindmap.IWorkbookRef, java.lang.String)
+     */
+    @Override
+    public String askForPassword(IWorkbookRef workbookRef, String message) {
         final String[] password = new String[1];
+        password[0] = null;
+
+        final String theMessage;
+        if (message != null) {
+            theMessage = message;
+        } else if (workbookRef != null) {
+            theMessage = NLS.bind(
+                    MindMapMessages.PasswordProvider_askPassword_message,
+                    workbookRef.getName());
+        } else {
+            theMessage = MindMapMessages.EncryteDialog_label_message;
+        }
+
         Display.getDefault().syncExec(new Runnable() {
             public void run() {
-                PasswordDialog dialog = new PasswordDialog(null);
+                PasswordDialog dialog = new PasswordDialog(null, theMessage);
                 int ret = dialog.open();
                 if (ret == PasswordDialog.OK) {
                     password[0] = dialog.getValue();
                 }
             }
         });
-        if (password[0] == null)
-            throw new CoreException(Core.ERROR_CANCELLATION);
+
         return password[0];
     }
 }

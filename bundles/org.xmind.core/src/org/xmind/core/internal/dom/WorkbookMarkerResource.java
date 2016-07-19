@@ -13,12 +13,13 @@
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.xmind.core.IFileEntry;
 import org.xmind.core.internal.zip.ArchiveConstants;
-import org.xmind.core.io.IStorage;
 import org.xmind.core.marker.AbstractMarkerResource;
 import org.xmind.core.marker.IMarker;
 
@@ -31,24 +32,36 @@ public class WorkbookMarkerResource extends AbstractMarkerResource {
         this.workbook = workbook;
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public InputStream getInputStream() {
-        return getStorage().getInputSource().getEntryStream(getFullPath());
+        IFileEntry entry = workbook.getManifest().getFileEntry(getFullPath());
+        return entry == null ? null : entry.getInputStream();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public OutputStream getOutputStream() {
-        return getStorage().getOutputTarget().getEntryStream(getFullPath());
+        IFileEntry entry = workbook.getManifest()
+                .createFileEntry(getFullPath());
+        return entry.getOutputStream();
     }
 
     public InputStream openInputStream() throws IOException {
-        return getStorage().getInputSource().openEntryStream(getFullPath());
+        IFileEntry entry = workbook.getManifest().getFileEntry(getFullPath());
+        if (entry == null)
+            throw new FileNotFoundException();
+        return entry.openInputStream();
     }
 
     public OutputStream openOutputStream() throws IOException {
-        return getStorage().getOutputTarget().openEntryStream(getFullPath());
-    }
-
-    private IStorage getStorage() {
-        return workbook.getTempStorage();
+        IFileEntry entry = workbook.getManifest()
+                .createFileEntry(getFullPath());
+        return entry.openOutputStream();
     }
 
     public boolean equals(Object obj) {

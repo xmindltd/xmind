@@ -16,10 +16,6 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.actions.CreateCommentAction;
-import org.xmind.ui.internal.actions.DeleteCommentAction;
-import org.xmind.ui.internal.actions.ShowNextTopicCommentsAction;
-import org.xmind.ui.internal.actions.ShowPreTopicCommentsAction;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class CommentsPopupActionBarContributor
@@ -102,13 +98,6 @@ public class CommentsPopupActionBarContributor
     }
 
     protected void makeActions() {
-        addCommentAction = new CreateCommentAction(targetEditor,
-                commentsPopup.getTopic(), commentsPopup);
-        addAction(addCommentAction);
-
-        deleteCommentAction = new DeleteCommentAction(targetEditor);
-        addAction(deleteCommentAction);
-
         if (commentsPopup.isShowExtraActions()) {
             showPreTopicCommentsAction = new ShowPreTopicCommentsAction(
                     targetEditor, commentsPopup);
@@ -132,7 +121,6 @@ public class CommentsPopupActionBarContributor
     }
 
     public void fillToolBar(IToolBarManager toolbar) {
-//        toolbar.add(addCommentAction);
         if (commentsPopup.isShowExtraActions()) {
             toolbar.add(showPreTopicCommentsAction);
             toolbar.add(showNextTopicCommentsAction);

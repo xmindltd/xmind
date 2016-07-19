@@ -11,13 +11,13 @@ import org.eclipse.swt.widgets.Control;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
-import org.xmind.core.IWorkbook;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.ui.internal.protocols.FilePathParser;
+import org.xmind.ui.internal.protocols.FileProtocol;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -91,34 +91,35 @@ public class ExternalFilesInspectorSection extends InspectorContentSection
     @Override
     protected Image getPropertyInspectorImage(Object element) {
         if (element instanceof ITopic) {
-            String path = FilePathParser.toPath(((ITopic) element)
-                    .getHyperlink());
+            String path = FilePathParser
+                    .toPath(((ITopic) element).getHyperlink());
 
-            if (FilePathParser.isPathRelative(path)) {
-                IWorkbook workbook = ((ITopic) element).getOwnedWorkbook();
-                if (workbook != null) {
-                    String base = workbook.getFile();
-                    if (base != null) {
-                        base = new File(base).getParent();
-                        if (base != null) {
-                            path = FilePathParser.toAbsolutePath(base, path);
-                        }
-                    }
-                }
-                path = FilePathParser.toAbsolutePath(
-                        FilePathParser.ABSTRACT_FILE_BASE, path);
-            }
+            path = FileProtocol.getAbsolutePath(element, path);
+//            if (FilePathParser.isPathRelative(path)) {
+//                IWorkbook workbook = ((ITopic) element).getOwnedWorkbook();
+//                if (workbook != null) {
+//                    String base = workbook.getFile();
+//                    if (base != null) {
+//                        base = new File(base).getParent();
+//                        if (base != null) {
+//                            path = FilePathParser.toAbsolutePath(base, path);
+//                        }
+//                    }
+//                }
+//                path = FilePathParser.toAbsolutePath(
+//                        FilePathParser.ABSTRACT_FILE_BASE, path);
+//            }
 
             File file = new File(path);
             ImageDescriptor image = MindMapUI.getImages().getFileIcon(path,
                     true);
             if (image == null) {
                 if (file.isDirectory()) {
-                    image = MindMapUI.getImages()
-                            .get(IMindMapImages.OPEN, true);
+                    image = MindMapUI.getImages().get(IMindMapImages.OPEN,
+                            true);
                 } else {
-                    image = MindMapUI.getImages().get(
-                            IMindMapImages.UNKNOWN_FILE, true);
+                    image = MindMapUI.getImages()
+                            .get(IMindMapImages.UNKNOWN_FILE, true);
                 }
             }
 
@@ -134,8 +135,8 @@ public class ExternalFilesInspectorSection extends InspectorContentSection
     protected String getPropertyInspectorText(Object element) {
         if (element instanceof ITopic) {
             String link = ((ITopic) element).getHyperlink();
-            return link
-                    .substring(link.lastIndexOf("/") + 1, link.length()).replaceAll("%20", " "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return link.substring(link.lastIndexOf("/") + 1, link.length()) //$NON-NLS-1$
+                    .replaceAll("%20", " "); //$NON-NLS-1$ //$NON-NLS-2$
         }
         return null;
     }

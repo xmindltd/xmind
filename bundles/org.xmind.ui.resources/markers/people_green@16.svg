@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>peo_gre</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#00CA53" offset="0%"></stop>
+            <stop stop-color="#00C050" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="people" transform="translate(-64.000000, 0.000000)" fill="url(#linearGradient-1)">
+            <path d="M70.3860626,9.60221863 L70.3860626,8.62715938 C70.3860626,8.62715938 68.5551867,6.17180052 68.3164015,4.94926167 C68.0528924,3.60014057 67.7508728,1.98781796 69.4112747,0.752450025 C70.792493,-0.27520036 73.3310642,-0.226133056 74.6747502,0.752449997 C76.0184363,1.73103305 75.934728,3.19698302 75.7211863,4.75460021 C75.5076447,6.31221739 73.7740835,8.62715963 73.7740835,8.62715963 L73.7740835,9.60221863 C73.7740835,9.60221863 78.954785,11.6026479 79.6896576,12.8898295 C80.4245303,14.1770111 79.9568725,14.8592608 77.1730129,15.5080588 C74.3891533,16.1568568 69.2179248,16.1710654 66.7360137,15.5080593 C64.2541026,14.8450533 63.5606158,14.2745789 64.2541026,12.8898291 C64.9475893,11.5050792 70.3860626,9.60221863 70.3860626,9.60221863 Z" id="peo_gre"></path>
+        </g>
+    </g>
+</svg>

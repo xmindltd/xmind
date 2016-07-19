@@ -72,8 +72,8 @@ public class DecryptionDialogPane extends DialogPane {
     }
 
     private void createPasswordInputBox(Composite parent) {
-        passwordInputBox = new Text(parent, SWT.BORDER | SWT.PASSWORD
-                | SWT.SINGLE);
+        passwordInputBox = new Text(parent,
+                SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
         applyFont(passwordInputBox);
 
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -109,8 +109,8 @@ public class DecryptionDialogPane extends DialogPane {
     private void createIcon(Composite parent) {
         iconLabel = new Label(parent, SWT.NONE);
         iconLabel.setBackground(parent.getBackground());
-        iconLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        iconLabel.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         iconLabel.setImage(getImage(iconLabel));
     }
 
@@ -118,8 +118,8 @@ public class DecryptionDialogPane extends DialogPane {
         if (errorOccurred)
             return control.getDisplay().getSystemImage(SWT.ICON_ERROR);
 
-        ImageDescriptor image = MindMapUI.getImages().get(
-                IMindMapImages.UNLOCK, true);
+        ImageDescriptor image = MindMapUI.getImages().get(IMindMapImages.UNLOCK,
+                true);
         if (image != null)
             return image.createImage(control.getDisplay());
         return null;
@@ -143,8 +143,6 @@ public class DecryptionDialogPane extends DialogPane {
     protected boolean cancelPressed() {
         setReturnCode(CANCEL);
         close();
-//        IWorkbenchPage page = this.mindMapEditor.getSite().getPage();
-//        page.closeEditor(this.mindMapEditor, false);
         return true;
     }
 
@@ -152,10 +150,6 @@ public class DecryptionDialogPane extends DialogPane {
         this.password = passwordInputBox.getText();
         setReturnCode(OK);
         close();
-//        if (this.mindMapEditor.loadWorkbookJob != null) {
-//            this.mindMapEditor.loadWorkbookJob.notifyPassword(passwordInputBox
-//                    .getText());
-//        }
         return true;
     }
 

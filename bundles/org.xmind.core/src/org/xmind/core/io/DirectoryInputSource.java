@@ -124,7 +124,10 @@ public class DirectoryInputSource implements IInputSource {
     }
 
     public InputStream openEntryStream(String entryName) throws IOException {
-        return new FileInputStream(new File(dir, entryName));
+        File file = new File(dir, entryName);
+        if (!file.exists())
+            throw new FileNotFoundException(file.toString());
+        return new FileInputStream(file);
     }
 
     public boolean closeEntryStream(String entryPath, InputStream stream) {
@@ -174,9 +177,8 @@ public class DirectoryInputSource implements IInputSource {
         if (obj == null || !(obj instanceof DirectoryInputSource))
             return false;
         DirectoryInputSource that = (DirectoryInputSource) obj;
-        return this.dir.equals(that.dir)
-                && (this.filter == that.filter || (this.filter != null && this.filter
-                        .equals(that.filter)));
+        return this.dir.equals(that.dir) && (this.filter == that.filter
+                || (this.filter != null && this.filter.equals(that.filter)));
     }
 
     /*

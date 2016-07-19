@@ -14,6 +14,7 @@
 package org.xmind.core.marker;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -29,11 +30,13 @@ public interface IMarkerSheet extends IAdaptable {
 
     IMarker createMarker(String resourcePath);
 
+    IMarkerGroup createMarkerGroupById(String groupId);
+
+    IMarker createMarkerById(String markerId, String resourcePath);
+
     void addMarkerGroup(IMarkerGroup group);
 
     void removeMarkerGroup(IMarkerGroup group);
-
-    void save(OutputStream out) throws IOException, CoreException;
 
     void setParentSheet(IMarkerSheet parent);
 
@@ -82,19 +85,100 @@ public interface IMarkerSheet extends IAdaptable {
      */
     IMarker findMarker(String markerId);
 
+    /**
+     * Returns whether this marker sheet contains at least one marker group.
+     * 
+     * @return <code>true</code> if no marker groups exist, or
+     *         <code>false</code> otherwise
+     */
     boolean isEmpty();
 
+    /**
+     * Returns whether this marker sheet's content is permanent that will not
+     * change over time. A permanent sheet's markers can always be referenced
+     * and need not to be copied to another marker sheet.
+     * 
+     * @return <code>true</code> if this marker sheet is permanent, or
+     *         <code>false</code> otherwise
+     */
     boolean isPermanent();
 
+    /**
+     * <p>
+     * <b>WARNING:</b> This method is for internal use only! Clients should use
+     * serialization methods to save a marker sheet.
+     * </p>
+     * 
+     * @param out
+     * @throws IOException
+     * @throws CoreException
+     */
+    void save(OutputStream out) throws IOException, CoreException;
+
+    /**
+     * <p>
+     * <b>WARNING:</b> This method is for internal use only! Don't call it!
+     * </p>
+     * 
+     * @param source
+     * @throws IOException
+     * @throws CoreException
+     */
     void importFrom(IInputSource source) throws IOException, CoreException;
 
-    void importFrom(IInputSource source, String groupName) throws IOException,
-            CoreException;
+    /**
+     * <p>
+     * <b>WARNING:</b> This method is for internal use only! Don't call it!
+     * </p>
+     * 
+     * @param source
+     * @param groupName
+     * @throws IOException
+     * @throws CoreException
+     */
+    void importFrom(IInputSource source, String groupName)
+            throws IOException, CoreException;
 
+    /**
+     * <p>
+     * <b>WARNING:</b> This method is for internal use only! Don't call it!
+     * </p>
+     * 
+     * @param sourcePath
+     * @throws IOException
+     * @throws CoreException
+     */
     void importFrom(String sourcePath) throws IOException, CoreException;
 
+    /**
+     * <p>
+     * <b>WARNING:</b> This method is for internal use only! Don't call it!
+     * </p>
+     * 
+     * @param sheet
+     */
     void importFrom(IMarkerSheet sheet);
 
+    /**
+     * <p>
+     * <b>WARNING:</b> This method is for internal use only! Don't call it!
+     * </p>
+     * 
+     * @param group
+     * @return
+     */
     IMarkerGroup importGroup(IMarkerGroup group);
+
+    /**
+     * Allocates a new marker resource path storing the given data.
+     * 
+     * @param source
+     * @param suggestedPath
+     * @return
+     * @throws IOException
+     * @throws UnsupportedOperationException
+     */
+    String allocateMarkerResource(InputStream source, String suggestedPath)
+            throws IOException;
 
 }

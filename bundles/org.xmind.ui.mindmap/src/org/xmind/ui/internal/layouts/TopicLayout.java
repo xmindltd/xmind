@@ -192,6 +192,13 @@ public class TopicLayout extends MindMapLayoutBase
         Point ref = data.getReference();
         IFigure fig = marker.getFigure();
         Dimension size = getChildPreferredSize(fig);
+        int rotatedOffset = 0;
+        if (getRotationDegrees() != 0) {
+            double cos = Math
+                    .abs(Math.cos(Math.toRadians(getRotationDegrees())));
+            rotatedOffset = (int) (size.width * cos);
+            data.translate(rotatedOffset / 2, 0);
+        }
         Rectangle area = data.getClientArea();
         Rectangle r;
         if (area == null) {
@@ -200,7 +207,7 @@ public class TopicLayout extends MindMapLayoutBase
             int dx = (size.width + spacing) / 2;
             data.translate(dx, 0);
             area = data.getClientArea();
-            r = new Rectangle(area.x - size.width - spacing,
+            r = new Rectangle(area.x - size.width - rotatedOffset - spacing,
                     ref.y - size.height / 2, size.width, size.height);
         }
         data.put(fig, r);

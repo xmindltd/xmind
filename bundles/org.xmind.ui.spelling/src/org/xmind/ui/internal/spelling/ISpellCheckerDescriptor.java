@@ -27,4 +27,8 @@ public interface ISpellCheckerDescriptor {
 
     InputStream openStream() throws IOException;
 
+    void setEnabled(boolean enabled);
+
+    boolean isEnabled();
+
 }

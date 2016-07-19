@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.toolkit;singleton:=true
-Bundle-Version: 3.6.1.qualifier
+Bundle-Version: 3.6.51.qualifier
 Bundle-Activator: org.xmind.ui.internal.ToolkitPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui;visibility:=reexport,
@@ -25,6 +25,7 @@ Export-Package: org.xmind.ui.animation,
  org.xmind.ui.font,
  org.xmind.ui.forms,
  org.xmind.ui.internal;x-internal:=true,
+ org.xmind.ui.internal.app;x-internal:=true,
  org.xmind.ui.internal.e4handlers;x-internal:=true,
  org.xmind.ui.internal.handlers;x-internal:=true,
  org.xmind.ui.internal.statushandlers;x-internal:=true,

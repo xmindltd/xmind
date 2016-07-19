@@ -1,7 +1,12 @@
 package org.xmind.ui.internal.comments;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -17,14 +22,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.core.Core;
+import org.xmind.core.IComment;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
-import org.xmind.core.comment.IComment;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.dom.SheetImpl;
+import org.xmind.core.util.TopicIterator;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -54,6 +59,12 @@ public class SheetCommentsViewer implements ICoreEventListener {
 
     private List<CommentTextViewer> implementations = new ArrayList<CommentTextViewer>();
 
+    private Map<ITopic, TopicCommentsViewer> topicViewers = new HashMap<ITopic, TopicCommentsViewer>();
+
+    private Composite sheetCommentsComposite;
+
+    private Control newCommentControl;
+
     public SheetCommentsViewer(ISheet input,
             ICommentsActionBarContributor contributor,
             ISelectionProvider selectionProvider,
@@ -78,6 +89,9 @@ public class SheetCommentsViewer implements ICoreEventListener {
         if (implementations != null) {
             implementations.clear();
         }
+        if (topicViewers != null) {
+            topicViewers.clear();
+        }
     }
 
     private Control createAllComments(Composite parent, ISheet sheet) {
@@ -94,17 +108,18 @@ public class SheetCommentsViewer implements ICoreEventListener {
         gridLayout.horizontalSpacing = 0;
         composite.setLayout(gridLayout);
 
-        boolean hasTopicsCommentsCreated = createTopicsComments(composite,
-                sheet);
-        boolean shouldSheetCommentsCreated = sheet.getOwnedWorkbook()
-                .getCommentManager().getComments(sheet).size() != 0;
-        if (hasTopicsCommentsCreated && shouldSheetCommentsCreated) {
+        boolean showTopicsComments = createTopicsComments(composite,
+                sheet.getRootTopic());
+
+        boolean showSheetComments = sheet.getOwnedWorkbook().getCommentManager()
+                .getComments(sheet.getId()).size() != 0;
+        if (showTopicsComments && showSheetComments) {
             createSeparatorLine(composite);
         }
         createSheetComments(composite, sheet);
 
         //If have no comment, create null comment content.
-        if (!hasTopicsCommentsCreated && !shouldSheetCommentsCreated) {
+        if (!showTopicsComments && !showSheetComments) {
             container.getScrolledComposite().setExpandVertical(true);
             createNullContentArea(parent);
         }
@@ -119,6 +134,121 @@ public class SheetCommentsViewer implements ICoreEventListener {
         return composite;
     }
 
+    /**
+     * 
+     * @param parent
+     * @param sheet
+     * @return true if create not less than one comment, false otherwise.
+     */
+    private boolean createTopicsComments(Composite parent, ITopic root) {
+        boolean hasContent = false;
+        Iterator<ITopic> topicIt = new TopicIterator(root);
+        while (topicIt.hasNext()) {
+            ITopic topic = topicIt.next();
+            if (topic.getOwnedWorkbook().getCommentManager()
+                    .hasComments(topic.getId())) {
+                if (hasContent) {
+                    createSeparatorLine(parent);
+                }
+                createTopicLabelAndComments(parent, topic);
+                hasContent = true;
+            }
+        }
+
+        return hasContent;
+    }
+
+    private void createSeparatorLine(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 10;
+        composite.setLayout(layout);
+
+        Label sep = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
+        sep.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        sep.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+    }
+
+    private void createTopicLabelAndComments(Composite parent, ITopic topic) {
+        topicViewer = new TopicCommentsViewer(topic, contributor,
+                selectionProvider, container, true, targetEditor);
+        topicViewer.create(parent);
+        controls.addAll(topicViewer.getControls());
+        implementations.addAll(topicViewer.getImplementations());
+        topicViewers.put(topic, topicViewer);
+    }
+
+    private void createSheetComments(Composite parent, ISheet sheet) {
+        Set<IComment> comments = new TreeSet<IComment>(sheet.getOwnedWorkbook()
+                .getCommentManager().getComments(sheet.getId()));
+        if (comments.isEmpty()) {
+            return;
+        }
+
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        layout.verticalSpacing = 5;
+        composite.setLayout(layout);
+        this.sheetCommentsComposite = composite;
+
+        createSheetLabel(composite, sheet);
+
+        for (IComment comment : comments) {
+            createCommentControl(composite, comment);
+        }
+    }
+
+    private void createSheetLabel(Composite parent, final ISheet sheet) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 10;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 0;
+        composite.setLayout(layout);
+
+        titleLabel = new Label(composite, SWT.LEFT | SWT.HORIZONTAL);
+        titleLabel.setBackground(parent.getBackground());
+        titleLabel.setForeground(ColorUtils.getColor("#353535")); //$NON-NLS-1$
+        GridData data = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+        data.horizontalIndent = 2;
+        titleLabel.setLayoutData(data);
+
+        titleLabel.setFont(FontUtils.getBold(
+                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 1)));
+
+        titleLabel.setText(MindMapMessages.Comment_SHEET_text
+                + TextFormatter.removeNewLineCharacter(sheet.getTitleText()));
+        hookSheetTitle();
+
+        titleLabel.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseDown(MouseEvent e) {
+                CommentsUtils.reveal(targetEditor, sheet);
+            }
+        });
+    }
+
+    private void createCommentControl(Composite parent, IComment comment) {
+        CommentTextViewer implementation = new CommentTextViewer(comment,
+                input.getId(), input.getOwnedWorkbook(), contributor,
+                selectionProvider, container, targetEditor);
+        implementation.createControl(parent);
+
+        registerControl(implementation);
+        registerImplementation(implementation);
+    }
+
     private void createNullContentArea(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(composite.getParent().getBackground());
@@ -130,7 +260,6 @@ public class SheetCommentsViewer implements ICoreEventListener {
         layout.verticalSpacing = 0;
         composite.setLayout(layout);
 
-//        createNullContentToolbar(composite);
         createNullContent(composite);
     }
 
@@ -180,141 +309,6 @@ public class SheetCommentsViewer implements ICoreEventListener {
                 FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 2));
     }
 
-    /**
-     * 
-     * @param parent
-     * @param sheet
-     * @return true if create not less than one comment, false otherwise.
-     */
-    private boolean createTopicsComments(Composite parent, ISheet sheet) {
-        List<ITopic> topics = CommentsUtils.getAllTopicsWithComments(sheet);
-        if (topics.size() == 0) {
-            return false;
-        } else {
-            for (ITopic topic : topics) {
-                createTopicLabelAndComments(parent, topic);
-                if (topics.indexOf(topic) != topics.size() - 1) {
-                    createSeparatorLine(parent);
-                }
-            }
-            return true;
-        }
-    }
-
-    private void createTopicLabelAndComments(Composite parent, ITopic topic) {
-        topicViewer = new TopicCommentsViewer(topic, contributor,
-                selectionProvider, container, true, targetEditor, false);
-        topicViewer.create(parent);
-        controls.addAll(topicViewer.getControls());
-        implementations.addAll(topicViewer.getImplementations());
-    }
-
-    private void createSeparatorLine(Composite parent) {
-        Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getBackground());
-        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        GridLayout layout = new GridLayout(1, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 10;
-        composite.setLayout(layout);
-
-        Label sep = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
-        sep.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        sep.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-    }
-
-    private void createSheetComments(Composite parent, ISheet sheet) {
-        List<IComment> comments = sheet.getOwnedWorkbook().getCommentManager()
-                .getComments(sheet);
-        if (comments.size() == 0) {
-            return;
-        }
-
-        Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getBackground());
-        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-        GridLayout layout = new GridLayout(1, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        layout.verticalSpacing = 5;
-        composite.setLayout(layout);
-
-        createSheetLabel(composite, sheet);
-
-        for (int i = comments.size() - 1; i >= 0; i--) {
-            createCommentControl(composite, comments.get(i));
-        }
-    }
-
-    private void createSheetLabel(Composite parent, final ISheet sheet) {
-        Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getBackground());
-        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//        GridLayout layout = new GridLayout(2, false);
-        GridLayout layout = new GridLayout(1, false);
-        layout.marginWidth = 10;
-        layout.marginHeight = 0;
-        layout.horizontalSpacing = 0;
-        composite.setLayout(layout);
-
-        titleLabel = new Label(composite, SWT.LEFT | SWT.HORIZONTAL);
-        titleLabel.setBackground(parent.getBackground());
-        titleLabel.setForeground(ColorUtils.getColor("#353535")); //$NON-NLS-1$
-        GridData data = new GridData(SWT.CENTER, SWT.CENTER, true, false);
-        data.horizontalIndent = 2;
-        titleLabel.setLayoutData(data);
-
-        titleLabel.setFont(FontUtils.getBold(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 1)));
-
-        titleLabel.setText(MindMapMessages.Comment_SHEET_text
-                + TextFormatter.removeNewLineCharacter(sheet.getTitleText()));
-        hookSheetTitle();
-
-//        final Label createButton = new Label(composite, SWT.NONE);
-//        createButton.setBackground(createButton.getParent().getBackground());
-//
-//        final CommentAction addCommentAction = contributor
-//                .getAction("org.xmind.ui.action.addComment"); //$NON-NLS-1$
-//        createButton
-//                .setImage(addCommentAction.getImageDescriptor().createImage());
-//
-//        GridData layoutData = new GridData(SWT.RIGHT, SWT.TOP, false, false);
-//        layoutData.widthHint = createButton.getImage().getBounds().width;
-//        layoutData.heightHint = createButton.getImage().getBounds().height;
-//        createButton.setLayoutData(layoutData);
-//
-//        createButton.addMouseListener(new MouseAdapter() {
-//
-//            @Override
-//            public void mouseDown(MouseEvent e) {
-//                ((Control) e.widget).getParent().forceFocus();
-//                if (addCommentAction.isEnabled()) {
-//                    addCommentAction.selectionChanged(sheet);
-//                    addCommentAction.run();
-//                }
-//            }
-//        });
-
-        titleLabel.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseDown(MouseEvent e) {
-                CommentsUtils.reveal(targetEditor, sheet);
-            }
-        });
-    }
-
-    private void createCommentControl(Composite parent, IComment comment) {
-        CommentTextViewer implementation = new CommentTextViewer(comment,
-                contributor, selectionProvider, container, targetEditor, true);
-        implementation.createControl(parent);
-
-        registerControl(implementation);
-        registerImplementation(implementation);
-    }
-
     private void registerControl(CommentTextViewer control) {
         controls.add(control);
     }
@@ -325,8 +319,7 @@ public class SheetCommentsViewer implements ICoreEventListener {
 
     private void hookSheetTitle() {
         if (eventRegister == null) {
-            eventRegister = new CoreEventRegister(
-                    ((SheetImpl) input).getCoreEventSupport(), this);
+            eventRegister = new CoreEventRegister(input, this);
         }
         eventRegister.register(Core.TitleText);
     }
@@ -363,6 +356,10 @@ public class SheetCommentsViewer implements ICoreEventListener {
             implementations.clear();
             implementations = null;
         }
+        if (topicViewers != null) {
+            topicViewers.clear();
+            topicViewers = null;
+        }
     }
 
     public void setTargetEditor(IGraphicalEditor targetEditor) {
@@ -384,6 +381,46 @@ public class SheetCommentsViewer implements ICoreEventListener {
 
     public List<CommentTextViewer> getImplementations() {
         return controls;
+    }
+
+    public void createNewComment(String objectId) {
+        if (newCommentControl != null && !newCommentControl.isDisposed()) {
+            newCommentControl.dispose();
+        }
+
+        Object object = input.getOwnedWorkbook().getElementById(objectId);
+        if (object instanceof ITopic) {
+            newCommentControl = topicViewers.get((ITopic) object)
+                    .createNewComment();
+        }
+        if (object instanceof ISheet) {
+            CommentTextViewer implementation = new CommentTextViewer(null,
+                    input.getId(), input.getOwnedWorkbook(), contributor,
+                    selectionProvider, container, targetEditor);
+            newCommentControl = implementation
+                    .createControl(sheetCommentsComposite);
+            newCommentControl
+                    .moveAbove((sheetCommentsComposite.getChildren())[0]);
+            container.getContentComposite().pack();
+
+            implementation.getTextViewer().getTextWidget().forceFocus();
+        }
+    }
+
+    public void cancelCreateNewComment() {
+        if (newCommentControl != null && !newCommentControl.isDisposed()) {
+            newCommentControl.dispose();
+            newCommentControl = null;
+        }
+
+        container.getContentComposite().pack();
+    }
+
+    public void save() {
+        Control contentComposite = container.getContentComposite();
+        if (contentComposite != null && !contentComposite.isDisposed()) {
+            contentComposite.forceFocus();
+        }
     }
 
 }

@@ -14,13 +14,12 @@
 package org.xmind.core.internal;
 
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import org.xmind.core.IIdFactory;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbookBuilder;
 import org.xmind.core.IWorkspace;
-import org.xmind.core.comment.ICommentManagerBuilder;
-import org.xmind.core.internal.dom.CommentManagerBuilderImpl;
 import org.xmind.core.internal.dom.MarkerSheetBuilderImpl;
 import org.xmind.core.internal.dom.StyleSheetBuilderImpl;
 import org.xmind.core.internal.dom.WorkbookBuilderImpl;
@@ -66,15 +65,26 @@ public class InternalCore {
 
     private IStyleSheetBuilder styleSheetBuilder;
 
-    private ICommentManagerBuilder commentManagerBuilder;
-
     private ILogger logger;
+
+    private Pattern partiallyCompatibleVersionPattern = Pattern
+            .compile("[012]\\.\\d+"); //$NON-NLS-1$
 
     private InternalCore() {
     }
 
     public String getCurrentVersion() {
         return "2.0"; //$NON-NLS-1$
+    }
+
+    public boolean isPartiallyCompatible(String version) {
+        if (version == null)
+            return false;
+
+        if (getCurrentVersion().equals(version))
+            return true;
+
+        return partiallyCompatibleVersionPattern.matcher(version).matches();
     }
 
     public synchronized IWorkbookBuilder getWorkbookBuilder() {
@@ -116,13 +126,6 @@ public class InternalCore {
             styleSheetBuilder = new StyleSheetBuilderImpl();
         }
         return styleSheetBuilder;
-    }
-
-    public synchronized ICommentManagerBuilder getCommentManagerBuilder() {
-        if (commentManagerBuilder == null) {
-            commentManagerBuilder = new CommentManagerBuilderImpl();
-        }
-        return commentManagerBuilder;
     }
 
     public synchronized ILogger getLogger() {

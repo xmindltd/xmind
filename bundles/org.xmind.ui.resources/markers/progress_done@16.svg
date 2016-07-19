@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>task pro_done</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#00D156" offset="0%"></stop>
+            <stop stop-color="#00C050" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="task-progress-" transform="translate(-21.000000, -21.000000)" fill="url(#linearGradient-1)">
+            <path d="M29,37 C33.418278,37 37,33.418278 37,29 C37,24.581722 33.418278,21 29,21 C24.581722,21 21,24.581722 21,29 C21,33.418278 24.581722,37 29,37 Z M28.2770224,30.3674484 L26.0986035,28.1890295 L24.7409585,29.5466745 L28.2764924,33.0822084 L28.6698067,32.6888941 L28.6703367,32.6894241 L33.794071,27.5656898 L32.436426,26.2080448 L28.2770224,30.3674484 Z" id="task-pro_done"></path>
+        </g>
+    </g>
+</svg>

@@ -13,3 +13,6 @@ local.properties
 
 # Folder containing Maven build results
 target/
+
+# Python temp files
+*.py[co]

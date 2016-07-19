@@ -41,12 +41,12 @@ public class ByteArrayStorage implements IStorage {
          * @see org.xmind.core.io.IInputSource#getEntries()
          */
         public Iterator<String> getEntries() {
-            return dataTable == null ? NO_ENTRIES.iterator() : dataTable
-                    .keySet().iterator();
+            return dataTable == null ? NO_ENTRIES.iterator()
+                    : dataTable.keySet().iterator();
         }
 
         public boolean isEntryAvailable(String entryName) {
-            return dataTable.get(entryName) != null;
+            return dataTable != null && dataTable.get(entryName) != null;
         }
 
         /*
@@ -64,7 +64,8 @@ public class ByteArrayStorage implements IStorage {
             return null;
         }
 
-        public InputStream openEntryStream(String entryName) throws IOException {
+        public InputStream openEntryStream(String entryName)
+                throws IOException {
             InputStream stream = getEntryStream(entryName);
             if (stream == null)
                 throw new FileNotFoundException(entryName);
@@ -113,14 +114,14 @@ public class ByteArrayStorage implements IStorage {
 
     protected class ByteArrayOutputTarget implements IOutputTarget {
 
-        private class ByteArrayOutputStream2 extends ByteArrayOutputStream {
+        private class EntryByteArrayOutputStream extends ByteArrayOutputStream {
 
             private String entryName;
 
             /**
              * 
              */
-            public ByteArrayOutputStream2(String entryName) {
+            public EntryByteArrayOutputStream(String entryName) {
                 this.entryName = entryName;
             }
 
@@ -145,7 +146,8 @@ public class ByteArrayStorage implements IStorage {
                 super.close();
                 pushBytes();
                 synchronized (ByteArrayOutputTarget.this) {
-                    if (timeTable == null || !timeTable.containsKey(entryName)) {
+                    if (timeTable == null
+                            || !timeTable.containsKey(entryName)) {
                         setEntryTime(entryName, System.currentTimeMillis());
                     }
                 }
@@ -155,10 +157,7 @@ public class ByteArrayStorage implements IStorage {
              * 
              */
             private void pushBytes() {
-                if (dataTable == null) {
-                    dataTable = new HashMap<String, byte[]>();
-                }
-                dataTable.put(entryName, toByteArray());
+                putEntryData(entryName, toByteArray());
             }
 
         }
@@ -169,12 +168,12 @@ public class ByteArrayStorage implements IStorage {
          * @see org.xmind.core.io.IOutputTarget#getEntryStream(java.lang.String)
          */
         public OutputStream getEntryStream(String entryName) {
-            return new ByteArrayOutputStream2(entryName);
+            return new EntryByteArrayOutputStream(entryName);
         }
 
         public OutputStream openEntryStream(String entryName)
                 throws IOException {
-            return new ByteArrayOutputStream2(entryName);
+            return new EntryByteArrayOutputStream(entryName);
         }
 
         /*
@@ -252,4 +251,44 @@ public class ByteArrayStorage implements IStorage {
         dataTable = null;
         timeTable = null;
     }
+
+    public void deleteEntry(String entryName) {
+        if (dataTable != null) {
+            dataTable.remove(entryName);
+        }
+        if (timeTable != null) {
+            timeTable.remove(entryName);
+        }
+    }
+
+    public void renameEntry(String entryName, String newName) {
+        if (dataTable != null) {
+            byte[] data = dataTable.remove(entryName);
+            if (data != null) {
+                dataTable.put(newName, data);
+            } else {
+                dataTable.remove(newName);
+            }
+        }
+        if (timeTable != null) {
+            Long time = timeTable.remove(entryName);
+            if (time != null) {
+                timeTable.put(newName, time);
+            } else {
+                timeTable.remove(newName);
+            }
+        }
+    }
+
+    public byte[] getEntryData(String entryPath) {
+        return dataTable == null ? null : dataTable.get(entryPath);
+    }
+
+    public void putEntryData(String entryPath, byte[] data) {
+        if (dataTable == null) {
+            dataTable = new HashMap<String, byte[]>();
+        }
+        dataTable.put(entryPath, data);
+    }
+
 }

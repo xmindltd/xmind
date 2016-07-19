@@ -51,8 +51,8 @@ import org.xmind.ui.util.MindMapUtils;
  * 
  * @author MANGOSOFT
  */
-public class SheetPart extends MindMapPartBase implements ISheetPart,
-        ControlListener {
+public class SheetPart extends MindMapPartBase
+        implements ISheetPart, ControlListener {
 
     private IBranchPart centralBranch = null;
 
@@ -239,16 +239,20 @@ public class SheetPart extends MindMapPartBase implements ISheetPart,
         reqHandler.installEditPolicy(MindMapUI.ROLE_MAP, MindMapUI.POLICY_MAP);
     }
 
-    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source,
+            ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.RelationshipAdd);
         register.register(Core.RelationshipRemove);
         register.register(Core.Style);
         register.register(Core.ThemeId);
+        register.register(Core.SheetSettings);
+
         ITopic rootTopic = getCentralTopic();
         register.setNextSourceFrom(rootTopic);
         register.register(Core.TopicAdd);
         register.register(Core.TopicRemove);
+
         ILegend legend = getSheet().getLegend();
         register.setNextSourceFrom(legend);
         register.register(Core.Visibility);
@@ -268,6 +272,8 @@ public class SheetPart extends MindMapPartBase implements ISheetPart,
                 || Core.RelationshipRemove.equals(type)) {
             refresh();
         } else if (Core.Visibility.equals(type)) {
+            refresh();
+        } else if (Core.SheetSettings.equals(type)) {
             refresh();
         } else if (Core.ThemeId.equals(type)) {
             refreshTheme();
@@ -357,9 +363,8 @@ public class SheetPart extends MindMapPartBase implements ISheetPart,
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.swt.events.ControlListener#controlMoved(org.eclipse.swt.events
-     * .ControlEvent)
+     * @see org.eclipse.swt.events.ControlListener#controlMoved(org.eclipse.swt.
+     * events .ControlEvent)
      */
     public void controlMoved(ControlEvent e) {
     }

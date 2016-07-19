@@ -22,11 +22,13 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.xmind.gef.GEF;
+import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.Request;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.CommandStackBase;
@@ -90,6 +92,7 @@ public abstract class FloatingTextEditTool extends EditTool {
 
     private class EditorListener extends IFloatingTextEditorListener.Stub
             implements Listener {
+
         public void editingCanceled(TextEvent e) {
             if (closingFromTool)
                 return;
@@ -108,6 +111,7 @@ public abstract class FloatingTextEditTool extends EditTool {
 
         public void textChanged(TextEvent e) {
             Display.getCurrent().asyncExec(new Runnable() {
+
                 public void run() {
                     if (!getStatus().isStatus(GEF.ST_ACTIVE))
                         return;
@@ -124,6 +128,7 @@ public abstract class FloatingTextEditTool extends EditTool {
                         .getShell();
                 final Display display = event.display;
                 display.asyncExec(new Runnable() {
+
                     public void run() {
                         if (!getStatus().isStatus(GEF.ST_ACTIVE)
                                 || oldShell.isDisposed())
@@ -131,6 +136,7 @@ public abstract class FloatingTextEditTool extends EditTool {
 
                         if (!display.isDisposed()) {
                             display.asyncExec(new Runnable() {
+
                                 public void run() {
                                     if (display.isDisposed()
                                             || oldShell.isDisposed()
@@ -268,10 +274,11 @@ public abstract class FloatingTextEditTool extends EditTool {
 
         if (editor == null) {
             editor = createEditor();
-            if (editor != null) {
-                hookEditor(editor);
-            }
         }
+        if (editor == null)
+            return false;
+
+        hookEditor(editor);
         boolean started = openEditor(editor, document);
         if (started) {
             notifySelectionChange();
@@ -407,6 +414,13 @@ public abstract class FloatingTextEditTool extends EditTool {
             editor.removeSelectionChangedListener(
                     editorSelectionChangedListener);
         editor.removeFloatingTextEditorListener(getEditorListener());
+        Display.getCurrent().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                restoreFocusControl();
+            }
+        });
     }
 
     private EditorListener getEditorListener() {
@@ -485,4 +499,15 @@ public abstract class FloatingTextEditTool extends EditTool {
         return SWTUtils.matchKey(ke.getState(), ke.keyCode, 0, SWT.ESC);
     }
 
+    protected void restoreFocusControl() {
+        IGraphicalViewer viewer = getTargetViewer();
+        if (viewer == null)
+            return;
+
+        Control control = viewer.getControl();
+        if (control == null || control.isDisposed())
+            return;
+
+        control.setFocus();
+    }
 }

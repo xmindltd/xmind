@@ -74,6 +74,12 @@ public class PropertyMessages extends NLS {
     public static String ImageHeight_label;
     public static String ResetImageSize_text;
     public static String MultiLineColors_text;
+    public static String MultiLineColors_CommandTextName1;
+    public static String MultiLineColors_CommandTextName2;
+    public static String MultiLineColors_CommandTextName3;
+    public static String MultiLineColors_CommandTextName4;
+    public static String MultiLineColors_CommandTextName5;
+    public static String MultiLineColors_CommandTextName6;
     public static String TaperedLines_text;
 
     public static String TextAlignLeft_text;

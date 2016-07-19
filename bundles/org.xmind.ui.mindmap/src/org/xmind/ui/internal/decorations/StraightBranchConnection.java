@@ -59,6 +59,11 @@ public class StraightBranchConnection extends AbstractBranchConnection {
         }
     }
 
+    public void invalidate() {
+        super.invalidate();
+        cachedTapered = false;
+    }
+
     protected boolean isPositionValid() {
         return super.isPositionValid() && cachedTapered == isTapered();
     }

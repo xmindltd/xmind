@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.xmind.ui.internal.mindmap;
 
+import static org.xmind.core.ISheetSettings.INFO_ITEM;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,9 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.LayoutManager;
 import org.eclipse.jface.action.IAction;
 import org.xmind.core.Core;
+import org.xmind.core.ISettingEntry;
 import org.xmind.core.ISheet;
+import org.xmind.core.ISheetSettings;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
@@ -176,24 +180,34 @@ public class InfoPart extends MindMapPartBase implements IInfoPart {
 
         ISheet sheet = topic.getOwnedSheet();
         if (sheet != null) {
-            for (IInfoItemContributor contributor : contributors) {
-                if (!contributor.isCardModeAvailable(topic, getTopicPart()))
+            for (IInfoItemContributor c : contributors) {
+                if (!c.isCardModeAvailable(topic, getTopicPart()))
                     continue;
-                String infoItemMode = sheet.getSetting().getInfoItemMode(
-                        contributor.getId(), DOMConstants.ATTR_MODE);
-                if (infoItemMode == null || "".equals(infoItemMode)) //$NON-NLS-1$
-                    infoItemMode = contributor.getDefaultMode();
 
+                String infoItemMode = null;
+                String type = c.getId();
+                if (type != null && !"".equals(type)) { //$NON-NLS-1$
+                    List<ISettingEntry> entries = sheet.getSettings()
+                            .getEntries(INFO_ITEM);
+                    for (ISettingEntry entry : entries) {
+                        String t = entry.getAttribute(ISheetSettings.ATTR_TYPE);
+                        if (type.equals(t))
+                            infoItemMode = entry
+                                    .getAttribute(ISheetSettings.ATTR_MODE);
+                    }
+                }
+
+                if (infoItemMode == null || "".equals(infoItemMode)) //$NON-NLS-1$
+                    infoItemMode = c.getDefaultMode();
                 if (DOMConstants.VAL_CARDMODE.equals(infoItemMode)) {
-                    IAction action = contributor.createAction(getTopicPart(),
-                            topic);
+                    IAction action = c.createAction(getTopicPart(), topic);
                     if (action != null) {
                         if (actionList == null)
                             actionList = new ArrayList<IAction>();
                         actionList.add(action);
-                        list.add(new InfoItemIcon(topic, contributor, action));
-                        list.add(new InfoItemContent(topic, contributor,
-                                contributor.getContent(topic)));
+                        list.add(new InfoItemIcon(topic, c, action));
+                        list.add(new InfoItemContent(topic, c,
+                                c.getContent(topic)));
                     }
                 }
             }

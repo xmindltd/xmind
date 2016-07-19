@@ -19,6 +19,8 @@ public class MindMapMessages extends NLS {
 
     private static final String BUNDLE_NAME = "org.xmind.ui.internal.messages"; //$NON-NLS-1$
 
+    public static String TemplateLabelProvider_loadThumbnail_jobName;
+
     public static String TitleText_CalloutTopic;
 
     public static String TitleText_CentralTopic;
@@ -101,6 +103,38 @@ public class MindMapMessages extends NLS {
     public static String Collapse_toolTip;
     public static String CollapseAll_text;
     public static String CollapseAll_toolTip;
+
+    public static String ColorfulSheetMenu_mac_blue;
+
+    public static String ColorfulSheetMenu_mac_gray;
+
+    public static String ColorfulSheetMenu_mac_green;
+
+    public static String ColorfulSheetMenu_mac_none;
+
+    public static String ColorfulSheetMenu_mac_orange;
+
+    public static String ColorfulSheetMenu_mac_purple;
+
+    public static String ColorfulSheetMenu_mac_red;
+
+    public static String ColorfulSheetMenu_mac_yellow;
+
+    public static String ColorfulSheetMenu_windows_blue;
+
+    public static String ColorfulSheetMenu_windows_brown;
+
+    public static String ColorfulSheetMenu_windows_gray;
+
+    public static String ColorfulSheetMenu_windows_green;
+
+    public static String ColorfulSheetMenu_windows_none;
+
+    public static String ColorfulSheetMenu_windows_purple;
+
+    public static String ColorfulSheetMenu_windows_red;
+
+    public static String ColorfulSheetMenu_windows_yellow;
 
     public static String Comment_Delete_label;
     public static String Comment_Edit_label;
@@ -203,6 +237,8 @@ public class MindMapMessages extends NLS {
     public static String Markers_text;
     public static String ModifyHyperlink_text;
     public static String ModifyHyperlink_toolTip;
+
+    public static String ModifySheetTabColorCommand_label;
     public static String ImportWorkbook_text;
     public static String ImportWorkbook_toolTip;
 
@@ -231,6 +267,22 @@ public class MindMapMessages extends NLS {
     public static String LoadWorkbookJob_errorDialog_title;
 
     public static String LoadWorkbookJob_errorDialog_Pre_message;
+    public static String LocalFileWorkbookRef_changeDialog_cancel_button;
+
+    public static String LocalFileWorkbookRef_changeDialog_message;
+
+    public static String LocalFileWorkbookRef_changeDialog_title;
+
+    public static String LocalFileWorkbookRef_changeDialog_update_button;
+
+    public static String LocalFileWorkbookRef_removeDialog_delete_button;
+
+    public static String LocalFileWorkbookRef_removeDialog_message;
+
+    public static String LocalFileWorkbookRef_removeDialog_saveAs_button;
+
+    public static String LocalFileWorkbookRef_removeDialog_title;
+
     public static String MindMapEditor_CompatibilityWarning_dialogTitle;
 
     public static String MindMapEditor_CompatibilityWarning_Overwrite_button;
@@ -239,7 +291,17 @@ public class MindMapMessages extends NLS {
 
     public static String MindMapEditor_CompatibilityWarning_SaveAs_button;
 
+    public static String MindMapEditor_fileChangedDialog_message_prefix;
+
+    public static String MindMapEditor_fileRemovedDialog_message_prefix;
+
     public static String MindMapEditor_partInitException_message;
+
+    public static String MindMapEditor_passwordPrompt_message1;
+
+    public static String MindMapEditor_passwordPrompt_message2;
+
+    public static String MindMapEditorInput_default_name;
 
     public static String MindMapPropertySheetPage_ResetStyle_text;
 
@@ -286,6 +348,10 @@ public class MindMapMessages extends NLS {
     public static String SaveAttachment_toolTip;
     public static String SaveAsTemplate_text;
     public static String SaveAsTemplate_toolTip;
+    public static String SaveAsTemplateHandler_inputDialog_message;
+
+    public static String SaveAsTemplateHandler_inputDialog_title;
+
     public static String SaveSheetAs_text;
     public static String SaveSheetAs_toolTip;
     public static String ShowAllComments_text;
@@ -400,6 +466,10 @@ public class MindMapMessages extends NLS {
 
     public static String ThemeLabel_LoadTheme;
 
+    public static String ThemeUICore_group_default_name;
+
+    public static String ThemeUICore_group_user_name;
+
     public static String DefaultTheme_title;
 
     public static String Legend;
@@ -501,11 +571,45 @@ public class MindMapMessages extends NLS {
     public static String SaveNewRevision_text;
     public static String SaveNewRevision_tooltip;
 
+    public static String SaveWizardDialog_location_text;
+
+    public static String SaveWizardDialog_name_text;
+
+    public static String SaveWizardDialog_okButton_text;
+
+    public static String SaveWizardDialog_shell_title;
+
+    public static String SaveWorkbookAsHandler_doneDialog_cancelButton_text;
+
+    public static String SaveWorkbookAsHandler_doneDialog_message;
+
+    public static String SaveWorkbookAsHandler_doneDialog_okButton_text;
+
+    public static String SaveWorkbookAsHandler_doneDialog_title;
+
+    public static String SaveWorkbookAsHandler_oldName_default;
+
+    public static String SaveWorkbookAsHandler_saveAsDialog_description;
+
+    public static String SaveWorkbookAsHandler_saveAsDialog_title;
+
+    public static String SaveWorkbookAsHandler_warningDialog_description;
+
+    public static String SaveWorkbookAsHandler_warningDialog_title;
+
+    public static String SaveWorkbookAsHandler_saveToOtherDialog_title;
+
+    public static String SaveWorkbookAsHandler_saveToOtherDialog_saveTo_text;
+
+    public static String SaveWorkbookAsHandler_saveToOtherDialog_saveToAnother_text;
+
     public static String WorkbookRevisionsPage_AutoSaveRevisionsCheck_text;
 
     public static String DuplicateSheet_text;
     public static String DuplicateSheet_toolTip;
     public static String CopySheet_text;
+    public static String PasswordProvider_askPassword_message;
+
     public static String PasteSheet_text;
 
     public static String RemoveAllStyles_text;
@@ -543,6 +647,8 @@ public class MindMapMessages extends NLS {
     public static String MultipageSetupDialog_Vertical;
     public static String MultipageSetupDialog_ShowDetails;
     public static String MultipageSetupDialog_HideDetails;
+    public static String MultipageSetupDialog_showPlusCheck_text;
+    public static String MultipageSetupDialog_showMinusCheck_text;
 
     public static String WorkbookMetadata_ModifyAuthorInfo;
 

@@ -13,37 +13,55 @@
  *******************************************************************************/
 package org.xmind.core.internal.compatibility;
 
-import java.io.IOException;
-
+import org.xmind.core.Core;
 import org.xmind.core.CoreException;
-import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.dom.DeserializerImpl;
 import org.xmind.core.internal.dom.FileFormat_0_1;
 import org.xmind.core.internal.dom.FileFormat_1;
 import org.xmind.core.internal.dom.WorkbookImpl;
-import org.xmind.core.io.IInputSource;
-import org.xmind.core.io.IStorage;
-import org.xmind.core.util.IXMLLoader;
+import org.xmind.core.io.CoreIOException;
 
 public class Compatibility {
 
-    public static IWorkbook loadCompatibleWorkbook(IInputSource source,
-            IXMLLoader loader, IStorage storage) throws CoreException,
-            IOException {
-
+    public static WorkbookImpl loadCompatibleWorkbook(
+            DeserializerImpl deserializer) throws CoreException {
         WorkbookImpl workbook = null;
 
-        FileFormat format = new FileFormat_0_1(source, loader, storage);
-
-        if (format.identifies())
-            workbook = format.load();
+        if (workbook == null) {
+            workbook = loadForFormat(new FileFormat_0_1(deserializer));
+        }
 
         if (workbook == null) {
-            format = new FileFormat_1(source, loader, storage);
-            if (format.identifies())
-                workbook = format.load();
+            workbook = loadForFormat(new FileFormat_1(deserializer));
         }
 
         return workbook;
+    }
+
+    private static WorkbookImpl loadForFormat(FileFormat format)
+            throws CoreException {
+        try {
+            if (!format.identifies())
+                return null;
+            return format.load();
+        } catch (CoreIOException e) {
+            CoreException ce = e.getCoreException();
+            if (ce.getType() == Core.ERROR_WRONG_PASSWORD
+                    || ce.getType() == Core.ERROR_CANCELLATION) {
+                throw new CoreException(ce.getType(), ce.getCodeInfo(), e);
+            }
+        } catch (CoreException e) {
+            if (e.getType() == Core.ERROR_WRONG_PASSWORD
+                    || e.getType() == Core.ERROR_CANCELLATION) {
+                // if we encountered wrong password or cancellation,
+                // interrupt the loading process
+                throw e;
+            }
+            // otherwise, just continue to the next available format
+        } catch (Throwable e) {
+            // just continue to the next available format
+        }
+        return null;
     }
 
 }

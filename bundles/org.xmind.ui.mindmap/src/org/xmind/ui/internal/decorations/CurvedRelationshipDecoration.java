@@ -76,7 +76,7 @@ public class CurvedRelationshipDecoration
                 sourceCP.setLocation(a1).move(a2,
                         Styles.DEF_CONTROL_POINT_AMOUNT);
 
-                if (sourceCPAngle != 0) {
+                if (sourceCPAngle != null && sourceCPAngle != 0) {
                     if (!sa.getOwner().containsPoint(sourceCP.toDraw2DPoint())
                             && !sa.getOwner()
                                     .intersects(ta.getOwner().getBounds())) {
@@ -99,7 +99,7 @@ public class CurvedRelationshipDecoration
                     targetCP.setLocation(a2).move(a1,
                             Styles.DEF_CONTROL_POINT_AMOUNT);
 
-                    if (targetCPAngle != 0) {
+                    if (targetCPAngle != null && targetCPAngle != 0) {
                         if (!sa.getOwner()
                                 .containsPoint(sourceCP.toDraw2DPoint())
                                 && !sa.getOwner().intersects(

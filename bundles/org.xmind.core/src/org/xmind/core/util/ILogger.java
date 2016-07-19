@@ -14,7 +14,7 @@
 package org.xmind.core.util;
 
 /**
- * @author MANGOSOFT
+ * @author Frank Shaka
  * 
  */
 public interface ILogger {

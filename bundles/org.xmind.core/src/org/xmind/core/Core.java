@@ -14,13 +14,20 @@
 package org.xmind.core;
 
 import java.util.Comparator;
+import java.util.UUID;
 
-import org.xmind.core.comment.ICommentManagerBuilder;
+import org.xmind.core.event.ICoreEventSource;
+import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.internal.InternalCore;
 import org.xmind.core.marker.IMarkerSheetBuilder;
 import org.xmind.core.style.IStyleSheetBuilder;
 import org.xmind.core.util.ILogger;
 
+/**
+ * 
+ * @author Frank Shaka
+ */
+@SuppressWarnings("deprecation")
 public class Core {
 
     /**
@@ -217,6 +224,27 @@ public class Core {
      * @see org.xmind.core.IWorkbook#moveSheet(int, int)
      */
     public static final String SheetMove = "sheetMove"; //$NON-NLS-1$
+
+    /**
+     * Core event type for modifying one attribute of a sheet's settings (value
+     * is 'sheetSettings').
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>{@link org.xmind.core.ISheet}</dd>
+     * <dt>Target:</dt>
+     * <dd>the attribute key ({@link String})</dd>
+     * <dt>Data:</dt>
+     * <dd>the entry path ({@link String})</dd>
+     * <dt>OldValue:</dt>
+     * <dd>the old attribute value ({@link String})</dd>
+     * <dt>NewValue:</dt>
+     * <dd>the new attribute value ({@link String})</dd>
+     * </dl>
+     * 
+     * @see org.xmind.core.ISheetSettings
+     * @see org.xmind.core.ISheet#getSettings()
+     */
+    public static final String SheetSettings = "sheetSettings"; //$NON-NLS-1$
 
     /**
      * Core event type for adding a relationship to a sheet (value is
@@ -793,16 +821,7 @@ public class Core {
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IWorkboook}</dd>
-     * <dt>OldValue:</dt>
-     * <dd>the old password ({@link String}) of the workbook, or
-     * <code>null</code> indicating that the password was unspecified</dd>
-     * <dt>NewValue:</dt>
-     * <dd>the new password ({@link String}) of the workbook, or
-     * <code>null</code> indicating that the password is unspecified</dd>
      * </dl>
-     * 
-     * @see org.xmind.core.IWorkbook#setPassword(String)
-     * @see org.xmind.core.IWorkbook#getPassword()
      */
     public static final String PasswordChange = "passwordChange"; //$NON-NLS-1$
 
@@ -827,12 +846,21 @@ public class Core {
     public static final String WorkbookPreSave = "workbookPreSave"; //$NON-NLS-1$
 
     /**
+     * <b>
+     * <em>NOTE: Since 3.6.50, this value is the same with 'workbookPreSave', for
+     * it's the client's responsibility to determine whether to use
+     * {@link ICoreEventSource#registerCoreEventListener(String, org.xmind.core.event.ICoreEventListener)} or
+     * {@link ICoreEventSource2#registerOnceCoreEventListener(String, org.xmind.core.event.ICoreEventListener)}.</em>
+     * </b>
+     * 
+     * <p>
      * Core event type for going to save a workbook (value is
-     * 'workbookPreSaveOnce'). Similar to {@link #WorkbookPreSave}, but
-     * listeners to this type events are notified only once and removed from the
-     * event list thereafter. This type of events are commonly used when some
-     * pending work that may modify the content of a workbook should be counted
-     * before saving the workbook.
+     * 'workbookPreSave'). Similar to {@link #WorkbookPreSave}, but listeners to
+     * this type events are notified only once and removed from the event list
+     * thereafter. This type of events are commonly used when some pending work
+     * that may modify the content of a workbook should be counted before saving
+     * the workbook.
+     * </p>
      * 
      * <dl>
      * <dt>Source:</dt>
@@ -844,7 +872,7 @@ public class Core {
      * @see org.xmind.core.IWorkbook#save(java.io.OutputStream)
      * @see org.xmind.core.IWorkbook#save(String)
      */
-    public static final String WorkbookPreSaveOnce = "workbookPreSaveOnce"; //$NON-NLS-1$
+    public static final String WorkbookPreSaveOnce = "workbookPreSave"; //$NON-NLS-1$
 
     /**
      * Core event type for having saved a workbook (value is 'workbookSave').
@@ -892,7 +920,7 @@ public class Core {
      * <dt>Target:</dt>
      * <dd>the child {@link org.xmind.core.IRevision}</dd>
      * <dt>Data:</dt>
-     * <dd>Corresponding sheet ID (String)</dd>
+     * <dd>Corresponding resource ID (String)</dd>
      * </dl>
      * 
      * @see org.xmind.core.IRevisionManager#addRevision(IAdaptable)
@@ -909,7 +937,7 @@ public class Core {
      * <dt>Target:</dt>
      * <dd>the child {@link org.xmind.core.IRevision}</dd>
      * <dt>Data:</dt>
-     * <dd>Corresponding sheet ID (String)</dd>
+     * <dd>Corresponding resource ID (String)</dd>
      * </dl>
      * 
      * @see org.xmind.core.IRevisionManager#removeRevision(IRevision)
@@ -924,7 +952,8 @@ public class Core {
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IMeta}</dd>
      * <dt>Target:</dt>
-     * <dd>a {@link String} representing the key of the modified metadata</dd>
+     * <dd>a {@link String} representing the key path of the modified metadata
+     * </dd>
      * <dt>OldValue:</dt>
      * <dd>the old {@link String} value of the metadata, or <code>null</code> to
      * indicate this metadata was created</dd>
@@ -955,6 +984,8 @@ public class Core {
      * <dt>NewValue:</dt>
      * <dd>the new {@link String} value of the attribute, or <code>null</code>
      * to indicate this attribute was removed</dd>
+     * 
+     * @deprecated Not used any more. {@link #Metadata} is enough.
      * 
      * @see org.xmind.core.IMetaData#setAttribute(String, String)
      */
@@ -990,29 +1021,54 @@ public class Core {
      */
     public static final String FileEntryRemove = "fileEntryRemove"; //$NON-NLS-1$
 
-//    /**
-//     * Core event type for adding one or more labels (value is 'labelAdd').
-//     * <dl>
-//     * <dt>Source:</dt>
-//     * <dd>a {@link org.xmind.core.ILabeled labeled object}</dd>
-//     * <dt>Target:</dt>
-//     * <dd>a {@link java.util.Set}<code>&lt;String&gt;</code> containing the
-//     * added labels</dd>
-//     * </dl>
-//     */
-//    public static final String LabelAdd = "labelAdd"; //$NON-NLS-1$
-//
-//    /**
-//     * Core event type for removing one or more labels (value is 'labelRemove').
-//     * <dl>
-//     * <dt>Source:</dt>
-//     * <dd>a {@link org.xmind.core.ILabeled labeled object}</dd>
-//     * <dt>Target:</dt>
-//     * <dd>a {@link java.util.Set}<code>&lt;String&gt;</code> containing the
-//     * removed labels</dd>
-//     * </dl>
-//     */
-//    public static final String LabelRemove = "labelRemove"; //$NON-NLS-1$
+    /**
+     * Core event type for adding a comment to its associated object (value is
+     * 'commentAdd').
+     * 
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>the associated object that implements {@link org.xmind.core.ITitled},
+     * e.g. {@link org.xmind.core.ITopic} or {@link org.xmind.core.ISheet}</dd>
+     * <dt>Target:</dt>
+     * <dd>the {@link org.xmind.core.IComment}</dd>
+     * </dl>
+     * 
+     * @see org.xmind.core.ICommentManager#addComment(IComment)
+     */
+    public static final String CommentAdd = "commentAdd"; //$NON-NLS-1$
+
+    /**
+     * Core event type for removing a comment from its associated object (value
+     * is 'commentRemove').
+     * 
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>the associated object that implements {@link org.xmind.core.ITitled},
+     * e.g. {@link org.xmind.core.ITopic} or {@link org.xmind.core.ISheet}</dd>
+     * <dt>Target:</dt>
+     * <dd>the {@link org.xmind.core.IComment}</dd>
+     * </dl>
+     * 
+     * @see org.xmind.core.ICommentManager#removeComment(IComment)
+     */
+    public static final String CommentRemove = "commentRemove"; //$NON-NLS-1$
+
+    /**
+     * Core event type for modifying the content of a comment (value is
+     * 'commentContent').
+     * 
+     * <dl>
+     * <dt>Source:</dt>
+     * <dd>the {@link org.xmind.core.IComment}</dd>
+     * <dt>OldValue:</dt>
+     * <dd>the old text content ({@link String}), or <code>null</code> if there
+     * was no content before modifying</dd>
+     * <dt>NewValue:</dt>
+     * <dd>the new text content ({@link String}), or <code>null</code> if there
+     * is no content after modifying</dd>
+     * </dl>
+     */
+    public static final String CommentContent = "commentContent"; //$NON-NLS-1$
 
     /**
      * Error constants indicating that an unknown error occurs (value=1).
@@ -1036,7 +1092,8 @@ public class Core {
 
     public static final int ERROR_FAIL_ACCESS_XML_PARSER = 12;
 
-    public static final int ERROR_FAIL_PARSING_XML = 13;
+    public static final int ERROR_SYNTAX = 13;
+    public static final int ERROR_FAIL_PARSING_XML = ERROR_SYNTAX;
 
     public static final int ERROR_NO_WORKBOOK_CONTENT = 14;
 
@@ -1045,6 +1102,8 @@ public class Core {
     public static final int ERROR_FAIL_INIT_CRYPTOGRAM = 16;
 
     public static final int ERROR_WRONG_PASSWORD = 17;
+
+    public static final int ERROR_FAIL_SERIALIZING_XML = 18;
 
     public static final int ERROR_CANCELLATION = 100;
 
@@ -1062,15 +1121,39 @@ public class Core {
      */
     public static final String MEDIA_TYPE_IMAGE_PNG = "image/png"; //$NON-NLS-1$
 
+    @Deprecated
     public static final String TopicComments = "topicComments"; //$NON-NLS-1$
 
     private Core() {
+        throw new AssertionError("Instantiation of this class is not allowed!"); //$NON-NLS-1$
     }
 
+    /**
+     * 
+     * <p>
+     * <b>WARNING:</b> This is a legacy mechanism to generate unique
+     * identifiers. Clients should use {@link UUID} instead for higher
+     * uniqueness.
+     * </p>
+     * 
+     * @return an {@link IIdFactory} that generates unique identifiers
+     */
     public static IIdFactory getIdFactory() {
         return getInternal().getIdFactory();
     }
 
+    /**
+     * 
+     * <p>
+     * <b>WARNING:</b> The workbook builder no longer supports loading
+     * workbooks. Use
+     * <code>Core.getSerializationProvider().newDeserializer()</code> for this
+     * kind of tasks.
+     * </p>
+     * 
+     * @return an {@link IWorkbookBuilder} that is capable for creating workbook
+     *         instances
+     */
     public static IWorkbookBuilder getWorkbookBuilder() {
         return getInternal().getWorkbookBuilder();
     }
@@ -1079,26 +1162,31 @@ public class Core {
         return getInternal().getWorkspace();
     }
 
-    public static IMarkerSheetBuilder getMarkerSheetBuilder() {
-        return getInternal().getMarkerSheetBuilder();
-    }
-
     public static Comparator<ITopic> getTopicComparator() {
         return getInternal().getTopicComparator();
+    }
+
+    public static IMarkerSheetBuilder getMarkerSheetBuilder() {
+        return getInternal().getMarkerSheetBuilder();
     }
 
     public static IStyleSheetBuilder getStyleSheetBuilder() {
         return getInternal().getStyleSheetBuilder();
     }
 
-    public static ICommentManagerBuilder getCommentManagerBuilder() {
-        return getInternal().getCommentManagerBuilder();
-    }
-
     public static final String getCurrentVersion() {
         return getInternal().getCurrentVersion();
     }
 
+    public static final boolean isPartiallyCompatible(String version) {
+        return getInternal().isPartiallyCompatible(version);
+    }
+
+    /**
+     * <b>NOTE</b>: For internal use only. Not a public API.
+     * 
+     * @return the default error logger
+     */
     public static final ILogger getLogger() {
         return getInternal().getLogger();
     }

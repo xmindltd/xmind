@@ -20,9 +20,7 @@ import java.io.IOException;
 import org.xmind.core.CoreException;
 import org.xmind.core.internal.compatibility.FileFormat;
 import org.xmind.core.io.IInputSource;
-import org.xmind.core.io.IStorage;
 import org.xmind.core.util.DOMUtils;
-import org.xmind.core.util.IXMLLoader;
 
 public class FileFormat_0_1 extends FileFormat {
 
@@ -32,29 +30,25 @@ public class FileFormat_0_1 extends FileFormat {
 
 //    private static final String PATH_PICTURES = "Pictures"; //$NON-NLS-1$
 
-    public FileFormat_0_1(IInputSource source, IXMLLoader loader,
-            IStorage storage) {
-        super(source, loader, storage);
+    public FileFormat_0_1(DeserializerImpl deserializer) {
+        super(deserializer);
     }
 
-    public boolean identifies() throws CoreException {
-        boolean hasEntry = source.hasEntry(CONTENTS_XML);
-        return hasEntry;
+    public boolean identifies() throws CoreException, IOException {
+        IInputSource inputSource = deserializer.getWorkbookStorage()
+                .getInputSource();
+        return inputSource.hasEntry(CONTENTS_XML)
+                && inputSource.isEntryAvailable(CONTENTS_XML);
     }
 
     public WorkbookImpl load() throws CoreException, IOException {
-        try {
-            WorkbookImpl wb = new WorkbookImpl(loader.createDocument());
-            wb.setTempStorage(storage);
-            DOMUtils.setAttribute(wb.getWorkbookElement(), ATTR_VERSION,
-                    VERSION);
+        WorkbookImpl wb = new WorkbookImpl(deserializer.createDocument(),
+                deserializer.getManifest());
+        DOMUtils.setAttribute(wb.getWorkbookElement(), ATTR_VERSION, VERSION);
 
-            //TODO load workbook content from old-formatted file
+        //TODO load workbook content from old-formatted file
 
-            return wb;
-        } catch (Throwable e) {
-        }
-        return null;
+        return wb;
     }
 
 }

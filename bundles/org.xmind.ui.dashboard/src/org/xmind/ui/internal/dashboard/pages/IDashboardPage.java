@@ -4,7 +4,7 @@ import org.eclipse.jface.dialogs.IDialogPage;
 
 public interface IDashboardPage extends IDialogPage {
 
-    void setContainer(IDashboardPageContainer container);
+    void setContext(IDashboardContext container);
 
     void setFocus();
 

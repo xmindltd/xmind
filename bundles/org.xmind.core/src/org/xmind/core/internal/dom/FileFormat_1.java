@@ -50,13 +50,11 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_TOPIC;
 import static org.xmind.core.internal.dom.DOMConstants.VAL_NONE;
 import static org.xmind.core.internal.dom.DOMConstants.VAL_TAPERED;
 import static org.xmind.core.internal.zip.ArchiveConstants.CONTENT_XML;
-import static org.xmind.core.internal.zip.ArchiveConstants.MANIFEST_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.META_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.STYLES_XML;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -92,18 +90,13 @@ import org.xmind.core.ITitled;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.compatibility.FileFormat;
-import org.xmind.core.io.IInputSource;
-import org.xmind.core.io.IOutputTarget;
-import org.xmind.core.io.IStorage;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.style.IStyled;
 import org.xmind.core.util.DOMUtils;
-import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
-import org.xmind.core.util.IXMLLoader;
 
 public class FileFormat_1 extends FileFormat {
 
@@ -137,120 +130,91 @@ public class FileFormat_1 extends FileFormat {
     private static final String VAL_USER = "User"; //$NON-NLS-1$
     private static final String VAL_ATTACHMENT = "Attachment"; //$NON-NLS-1$
 
-    private Document contentDocument;
-
     private MarkerSheetImpl markerSheet;
 
     private String defaultMarkerGroupId;
 
-    public FileFormat_1(IInputSource source, IXMLLoader loader,
-            IStorage storage) {
-        super(source, loader, storage);
+    public FileFormat_1(DeserializerImpl deserializer) {
+        super(deserializer);
     }
 
-    public boolean identifies() throws CoreException {
-        if (source.hasEntry(CONTENT_XML)) {
-            try {
-                contentDocument = loader.loadXMLFile(source, CONTENT_XML);
-                Element ele = contentDocument.getDocumentElement();
-                String version = DOMUtils.getAttribute(ele, ATTR_VERSION);
-                return version == null || VERSION.equals(version);
-            } catch (CoreException e) {
-                if (e.getType() == Core.ERROR_WRONG_PASSWORD
-                        || e.getType() == Core.ERROR_CANCELLATION) {
-                    throw e;
-                }
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-        return false;
+    public boolean identifies() throws CoreException, IOException {
+        Document document = deserializer.loadDocumentFromEntry(CONTENT_XML);
+        if (document == null)
+            return false;
+
+        Element ele = document.getDocumentElement();
+        String version = DOMUtils.getAttribute(ele, ATTR_VERSION);
+        return version == null || VERSION.equals(version);
     }
 
     public WorkbookImpl load() throws CoreException, IOException {
-        WorkbookImpl wb = new WorkbookImpl(loader.createDocument());
-        if (storage != null)
-            wb.setTempStorage(storage);
+        WorkbookImpl workbook = new WorkbookImpl(deserializer.createDocument(),
+                deserializer.getManifest());
 
-        DOMUtils.setAttribute(wb.getWorkbookElement(), ATTR_VERSION, VERSION);
+        DOMUtils.setAttribute(workbook.getWorkbookElement(), ATTR_VERSION,
+                VERSION);
 
-        if (source.hasEntry(META_XML)) {
-            Document metaDocument = loader.loadXMLFile(source, META_XML);
+        Document metaDocument = deserializer.loadDocumentFromEntry(META_XML);
+        if (metaDocument != null) {
             MetaImpl meta = new MetaImpl(metaDocument);
-            wb.setMeta(meta);
+            workbook.setMeta(meta);
         }
 
-        if (source.hasEntry(MANIFEST_XML)) {
-            Document mfDocument = loader.loadXMLFile(source, MANIFEST_XML);
-            ManifestImpl manifest = new ManifestImpl(mfDocument);
-            manifest.setWorkbook(wb);
-            wb.setManifest(manifest);
-            manifest.getFileEntries();
-            if (storage != null) {
-                IOutputTarget target = storage.getOutputTarget();
-                for (Iterator<String> entries = source.getEntries(); entries
-                        .hasNext();) {
-                    String path = entries.next();
-                    copyEntry(source, target, path);
-                }
-            }
-        }
-
-        if (source.hasEntry(STYLES_XML)) {
-            Document ssDocument = loader.loadXMLFile(source, STYLES_XML);
+        Document ssDocument = deserializer.loadDocumentFromEntry(STYLES_XML);
+        if (ssDocument != null) {
             upgradeStyleSheet(ssDocument);
             StyleSheetImpl ss = new StyleSheetImpl(ssDocument);
-            wb.setStyleSheet(ss);
+            workbook.setStyleSheet(ss);
             ss.getAllStyles();
         }
 
-        loadWorkbookContent(wb, contentDocument);
-        return wb;
+        Document contentDocument = deserializer
+                .loadDocumentFromEntry(CONTENT_XML);
+        assert contentDocument != null;
+        loadWorkbookContent(workbook, contentDocument);
+        return workbook;
     }
 
-    private void copyEntry(IInputSource source, IOutputTarget target,
-            String entryPath) throws CoreException {
-        try {
-            InputStream in = getInputStream(source, entryPath);
-            if (in != null) {
-                long time = source.getEntryTime(entryPath);
-                if (time >= 0) {
-                    target.setEntryTime(entryPath, time);
-                }
-                OutputStream out = getOutputStream(target, entryPath);
-                if (out != null) {
-                    FileUtils.transfer(in, out, true);
-                }
-            }
-        } catch (IOException e) {
-            Core.getLogger().log(e);
-        } catch (CoreException e) {
-            if (e.getType() == Core.ERROR_WRONG_PASSWORD
-                    || e.getType() == Core.ERROR_CANCELLATION)
-                throw e;
-            Core.getLogger().log(e);
-        }
-    }
+//    private void copyEntry(IInputSource source, IOutputTarget target,
+//            String entryPath) throws CoreException {
+//        try {
+//            InputStream in = getInputStream(source, entryPath);
+//            if (in != null) {
+//                long time = source.getEntryTime(entryPath);
+//                if (time >= 0) {
+//                    target.setEntryTime(entryPath, time);
+//                }
+//                OutputStream out = getOutputStream(target, entryPath);
+//                if (out != null) {
+//                    FileUtils.transfer(in, out, true);
+//                }
+//            }
+//        } catch (IOException e) {
+//            Core.getLogger().log(e);
+//        } catch (CoreException e) {
+//            if (e.getType() == Core.ERROR_WRONG_PASSWORD
+//                    || e.getType() == Core.ERROR_CANCELLATION)
+//                throw e;
+//            Core.getLogger().log(e);
+//        }
+//    }
 
-    private InputStream getInputStream(IInputSource source, String entryPath)
-            throws CoreException {
-        if (!source.hasEntry(entryPath))
-            return null;
-
-        InputStream in = source.getEntryStream(entryPath);
-        if (in == null)
-            return null;
-
-        return in;
-    }
-
-    private OutputStream getOutputStream(IOutputTarget target,
-            String entryPath) {
-        if (!target.isEntryAvaialble(entryPath))
-            return null;
-
-        return target.getEntryStream(entryPath);
-    }
+//    private InputStream getInputStream(IInputSource source, String entryPath)
+//            throws IOException, CoreException {
+//        if (!source.hasEntry(entryPath))
+//            return null;
+//
+//        return source.openEntryStream(entryPath);
+//    }
+//
+//    private OutputStream getOutputStream(IOutputTarget target, String entryPath)
+//            throws IOException {
+//        if (!target.isEntryAvaialble(entryPath))
+//            return null;
+//
+//        return target.openEntryStream(entryPath);
+//    }
 
     private void upgradeStyleSheet(Document ssDocument) {
         Element element = ssDocument.getDocumentElement();
@@ -416,7 +380,7 @@ public class FileFormat_1 extends FileFormat {
                     workbook.getManifest());
             if (entry != null) {
                 try {
-                    InputStream is = entry.getInputStream();
+                    InputStream is = entry.openInputStream();
                     try {
                         String path = entry.getPath();
                         IFileEntry fileEntry = workbook.getManifest()

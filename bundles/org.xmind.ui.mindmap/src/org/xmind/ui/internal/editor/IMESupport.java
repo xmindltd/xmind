@@ -45,6 +45,7 @@ import org.xmind.gef.Request;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.tool.PartTextSelection;
+import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.mindmap.ITitleTextPart;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -165,8 +166,9 @@ public class IMESupport implements ISelectionChangedListener, Listener,
 
     public void selectionChanged(SelectionChangedEvent event) {
         if (event.getSelection() instanceof IStructuredSelection) {
-            focus = viewer.findPart(((IStructuredSelection) event
-                    .getSelection()).getFirstElement());
+            focus = viewer
+                    .findPart(((IStructuredSelection) event.getSelection())
+                            .getFirstElement());
         } else if (event.getSelection() instanceof PartTextSelection) {
             focus = ((PartTextSelection) event.getSelection()).getPart();
         } else {
@@ -209,10 +211,8 @@ public class IMESupport implements ISelectionChangedListener, Listener,
             setCompositionLocation(pos.x, pos.y);
         } else if (!canvas.isDisposed()) {
             Rectangle r = canvas.getBounds();
-            setCompositionLocation(
-                    Math.max(0, r.width / 2 - 100),
-                    Math.max(0, Math.min(r.height / 2 + 100, r.height
-                            - caretHeight)));
+            setCompositionLocation(Math.max(0, r.width / 2 - 100), Math.max(0,
+                    Math.min(r.height / 2 + 100, r.height - caretHeight)));
         }
     }
 
@@ -232,22 +232,22 @@ public class IMESupport implements ISelectionChangedListener, Listener,
         caretHeight = 10;
         if (ime.getCompositionOffset() >= 0 && composition != null
                 && !composition.isDisposed()) {
-            int cacheLength = composedCache == null ? 0 : composedCache
-                    .length();
+            int cacheLength = composedCache == null ? 0
+                    : composedCache.length();
             int caretOffset = cacheLength + ime.getCaretOffset();
-            org.eclipse.swt.graphics.Point p = composition.getLocation(
-                    caretOffset, false);
+            org.eclipse.swt.graphics.Point p = composition
+                    .getLocation(caretOffset, false);
             x = compositionLeft + p.x;
             y = compositionTop + p.y;
             if (ime.getWideCaret()) {
-                Rectangle size = composition
-                        .getBounds(cacheLength, caretOffset);
+                Rectangle size = composition.getBounds(cacheLength,
+                        caretOffset);
                 caretWidth = size.width;
                 caretHeight = size.height;
             } else {
                 caretWidth = DEFAULT_CARET_WIDTH;
-                Rectangle size = composition
-                        .getBounds(caretOffset, caretOffset);
+                Rectangle size = composition.getBounds(caretOffset,
+                        caretOffset);
                 caretHeight = size.height;
             }
         }
@@ -311,20 +311,21 @@ public class IMESupport implements ISelectionChangedListener, Listener,
                 }
                 composedCache.append(text);
             }
-            int ignoreCount = viewer.getProperties().getInteger(
-                    PROP_IGNORE_KEY_DOWN, 0);
+            int ignoreCount = viewer.getProperties()
+                    .getInteger(PROP_IGNORE_KEY_DOWN, 0);
             viewer.getProperties().set(PROP_IGNORE_KEY_DOWN,
                     ignoreCount + text.length());
             Display.getCurrent().asyncExec(new Runnable() {
+
                 public void run() {
                     if (canvas == null || canvas.isDisposed())
                         return;
                     if (ime.getCompositionOffset() < 0) {
-                        if (composedCache != null && composedCache.length() > 0) {
+                        if (composedCache != null
+                                && composedCache.length() > 0) {
                             final EditDomain domain = viewer.getEditDomain();
                             Request request = new Request(GEF.REQ_EDIT)
-                                    .setPrimaryTarget(focus)
-                                    .setDomain(domain)
+                                    .setPrimaryTarget(focus).setDomain(domain)
                                     .setViewer(viewer)
                                     .setParameter(GEF.PARAM_TEXT,
                                             composedCache.toString());
@@ -405,11 +406,19 @@ public class IMESupport implements ISelectionChangedListener, Listener,
     }
 
     private void activateContext() {
-        page.changeContext(MindMapUI.CONTEXT_MINDMAP_TEXTEDIT);
+        IGraphicalEditor editor = page.getParentEditor();
+        if (editor instanceof MindMapEditor) {
+            ((MindMapEditor) editor)
+                    .changeContext(MindMapUI.CONTEXT_MINDMAP_TEXTEDIT);
+        }
     }
 
     private void deactivateContext() {
-        page.changeContext(page.getEditDomain().getActiveTool());
+        IGraphicalEditor editor = page.getParentEditor();
+        if (editor instanceof MindMapEditor) {
+            ((MindMapEditor) editor)
+                    .changeContext(page.getEditDomain().getActiveTool());
+        }
     }
 
     private void paintComposition(GC gc) {
@@ -437,8 +446,8 @@ public class IMESupport implements ISelectionChangedListener, Listener,
         gc.fillRectangle(compositionLeft - 2, compositionTop - 2,
                 size.width + 4, size.height + 4);
 
-        gc.setForeground(Display.getCurrent().getSystemColor(
-                SWT.COLOR_DARK_GRAY));
+        gc.setForeground(
+                Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
         gc.drawRectangle(compositionLeft - 2, compositionTop - 2,
                 size.width + 3, size.height + 3);
         gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));

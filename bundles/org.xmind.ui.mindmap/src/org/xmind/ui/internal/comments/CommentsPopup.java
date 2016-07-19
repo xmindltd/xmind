@@ -47,12 +47,13 @@ import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.keys.IBindingService;
 import org.xmind.core.Core;
+import org.xmind.core.IComment;
 import org.xmind.core.ITopic;
-import org.xmind.core.comment.IComment;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.ZoomManager;
@@ -209,7 +210,6 @@ public class CommentsPopup extends PopupDialog
 
             return keyStrokes;
         }
-
     }
 
     private IWorkbenchWindow window;
@@ -246,6 +246,8 @@ public class CommentsPopup extends PopupDialog
     private ToolBarManager toolBarManager;
 
     private ICoreEventRegister eventRegister;
+
+    private ICoreEventRegister globalEventRegister;
 
     private ControlListener controlListener;
 
@@ -337,6 +339,7 @@ public class CommentsPopup extends PopupDialog
         setInfoText(null);
 
         hookTopic();
+        registerGlobalEvent();
         initActions();
 
         return composite;
@@ -352,11 +355,26 @@ public class CommentsPopup extends PopupDialog
         return null;
     }
 
+    private void registerGlobalEvent() {
+        globalEventRegister = new CoreEventRegister(
+                topic.getOwnedWorkbook().getAdapter(ICoreEventSupport.class),
+                this);
+        globalEventRegister.register(Core.CommentContent);
+    }
+
+    private void unRegisterGlobalEvent() {
+        if (globalEventRegister != null) {
+            globalEventRegister.unregisterAll();
+            globalEventRegister = null;
+        }
+    }
+
     private void hookTopic() {
         if (eventRegister == null) {
             eventRegister = new CoreEventRegister(topic, this);
         }
-        eventRegister.register(Core.TopicComments);
+        eventRegister.register(Core.CommentAdd);
+        eventRegister.register(Core.CommentRemove);
     }
 
     private void unhookTopic() {
@@ -367,12 +385,20 @@ public class CommentsPopup extends PopupDialog
     }
 
     public void handleCoreEvent(final CoreEvent event) {
+        final String type = event.getType();
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
             public void run() {
-                String eventType = event.getType();
-                if (Core.TopicComments.equals(eventType)
-                        && !contentComposite.isDisposed()) {
-                    update();
+                if (!contentComposite.isDisposed()) {
+                    if (Core.CommentAdd.equals(type)
+                            || Core.CommentRemove.equals(type)) {
+                        update();
+                    } else if (Core.CommentContent.equals(type)) {
+                        IComment comment = (IComment) event.getSource();
+                        if (comment.getOwnedWorkbook().getElementById(
+                                comment.getObjectId()) == topic) {
+                            update();
+                        }
+                    }
                 }
             }
         });
@@ -385,6 +411,7 @@ public class CommentsPopup extends PopupDialog
     @Override
     public boolean close() {
         unhookTopic();
+        unRegisterGlobalEvent();
         if (contextActivation != null && contextService != null) {
             contextService.deactivateContext(contextActivation);
             contextActivation = null;
@@ -547,7 +574,7 @@ public class CommentsPopup extends PopupDialog
         resetContent();
 
         contentViewer = new TopicCommentsViewer(topic, contributor,
-                selectionProvider, this, false, getTargetEditor(), true);
+                selectionProvider, this, false, getTargetEditor());
         contentViewer.create(contentComposite);
         contentComposite.pack();
         contentComposite.setRedraw(true);
@@ -640,8 +667,8 @@ public class CommentsPopup extends PopupDialog
     }
 
     private void saveComment() {
-        if (contentComposite != null && !contentComposite.isDisposed()) {
-            contentComposite.forceFocus();
+        if (contentViewer != null) {
+            contentViewer.save();
         }
     }
 
@@ -751,6 +778,16 @@ public class CommentsPopup extends PopupDialog
 
     public IComment getSelectedComment() {
         return selectedComment;
+    }
+
+    @Override
+    public void createComment(String objectId) {
+        contentViewer.createNewComment();
+    }
+
+    @Override
+    public void cancelCreateComment() {
+        contentViewer.cancelCreateNewComment();
     }
 
 }

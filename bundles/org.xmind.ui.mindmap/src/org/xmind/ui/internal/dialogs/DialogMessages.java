@@ -194,6 +194,25 @@ public class DialogMessages extends NLS {
     public static String ConfirmClearRecentFileListDialog_title;
     public static String ConfirmClearRecentFileListDialog_message;
 
+    public static String WorkbookMetaInspectorDialog_title;
+    public static String WorkbookRevisionDialog_title;
+    public static String workbookRevisionDialog_Title_Label_text;
+    public static String workbookRevisionDialog_Description_Label_text;
+    public static String WorkbookRevisionDialog_Preview_Button_label;
+    public static String WorkbookRevisionDialog_Restore_Button_label;
+    public static String WorkbookRevisionDialog_Disable_Label_text;
+
+    public static String EnableRevisionDialog_Title_text;
+    public static String EnableRevisionDialog_Confirm_message;
+    public static String DisableRevisonDialog_Title_text;
+    public static String DisableRevisonDialog_Comfirm_message;
+
+    public static String RevisionPreviewDialog_Restore_Label_text;
+    public static String RevisionPreviewDialog_Previous_Button_label;
+    public static String RevisionPreviewDialog_Next_Button_label;
+
+    public static String ShareDialog_dialog_title;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, DialogMessages.class);

@@ -18,11 +18,15 @@ import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -34,10 +38,16 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
+import org.xmind.core.usagedata.IUsageDataSampler;
+import org.xmind.core.usagedata.IUsageDataUploader;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.prefs.PrefConstants;
+import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.util.NumberUtils;
 
 public class GeneralPrefPage extends FieldEditorPreferencePage
@@ -160,6 +170,8 @@ public class GeneralPrefPage extends FieldEditorPreferencePage
 
     private Button startupActionButton;
 
+    private ResourceManager resources;
+
     public GeneralPrefPage() {
         super(WorkbenchMessages.GeneralPrefPage_title, FLAT);
     }
@@ -222,6 +234,13 @@ public class GeneralPrefPage extends FieldEditorPreferencePage
         return CathyPlugin.getDefault().getPreferenceStore();
     }
 
+    @Override
+    public void createControl(Composite parent) {
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                parent);
+        super.createControl(parent);
+    }
+
     protected Control createContents(Composite parent) {
         Composite composite = (Composite) super.createContents(parent);
         ((GridLayout) composite.getLayout()).verticalSpacing = 15;
@@ -235,6 +254,7 @@ public class GeneralPrefPage extends FieldEditorPreferencePage
         addAutoBackupGroup();
         //addRememberLastSessionField();
         //addCheckUpdatesField();
+        addSendUsageDataGroup();
     }
 
     private void addStartupGroup() {
@@ -426,6 +446,69 @@ public class GeneralPrefPage extends FieldEditorPreferencePage
                 PrefConstants.AUTO_BACKUP_ENABLE,
                 WorkbenchMessages.AutoBackup_label,
                 createFieldContainer(parent, true)));
+    }
+
+    private void addSendUsageDataGroup() {
+        Composite composite = getFieldEditorParent();
+        GridLayout gridLayout = new GridLayout(2, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        gridLayout.horizontalSpacing = 5;
+        composite.setLayout(gridLayout);
+
+        Composite composite2 = new Composite(composite, SWT.NONE);
+        composite2.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, false, false));
+
+        GridLayout gridLayout2 = new GridLayout(1, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.verticalSpacing = 0;
+        gridLayout.horizontalSpacing = 0;
+        composite2.setLayout(gridLayout2);
+
+        addField(new BooleanFieldEditor(
+                CathyPlugin.USAGE_DATA_UPLOADING_ENABLED,
+                WorkbenchMessages.GeneralPrefPage_usageData_text, composite2));
+
+        //
+        Hyperlink privacyHyperlink = new Hyperlink(composite, SWT.NONE);
+        privacyHyperlink.setBackground(composite.getBackground());
+        privacyHyperlink.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, false, false));
+        privacyHyperlink
+                .setText(WorkbenchMessages.GeneralPrefPage_seePolicy_link);
+        privacyHyperlink.setUnderlined(true);
+        privacyHyperlink.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#77afe0"))); //$NON-NLS-1$
+        privacyHyperlink.addHyperlinkListener(new HyperlinkAdapter() {
+            public void linkActivated(HyperlinkEvent e) {
+                Program.launch("http://www.xmind.net/privacy/usage/"); //$NON-NLS-1$
+            }
+        });
+
+        if (CathyPlugin.getDefault()
+                .isDebugging("/debug/udc/showUploadButton")) { //$NON-NLS-1$
+            Button uploadButton = new Button(composite, SWT.PUSH);
+            GridData layoutData = new GridData(SWT.BEGINNING, SWT.CENTER, false,
+                    false);
+            layoutData.horizontalSpan = 2;
+            layoutData.horizontalIndent = 10;
+            layoutData.minimumWidth = 100;
+            uploadButton.setLayoutData(layoutData);
+            uploadButton.setBackground(composite.getBackground());
+            uploadButton.setText("Upload Now"); //$NON-NLS-1$
+            uploadButton.addListener(SWT.Selection, new Listener() {
+                public void handleEvent(Event event) {
+                    IUsageDataSampler sampler = CathyPlugin.getDefault()
+                            .getUsageDataCollector();
+                    if (sampler instanceof IUsageDataUploader) {
+                        ((IUsageDataUploader) sampler).forceUpload();
+                    }
+                }
+            });
+        }
     }
 
     private Composite createFieldContainer(Composite parent,

@@ -32,6 +32,12 @@ import org.xmind.ui.IEditorHistory.IEditorHistoryListener;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated
+ */
+@Deprecated
 public class EditorHistoryPersistenceService
         implements IEditorHistoryListener, IWorkbenchListener {
 

@@ -744,16 +744,16 @@
                    id="org.xmind.ui.file.recentMenu.contents">
              </dynamic>
              <separator
-                   name="group.clear"
+                   name="additions.group"
                    visible="true">
              </separator>
-             <command
-                   commandId="org.xmind.ui.command.clearWorkbookHistory"
-                   id="org.xmind.ui.file.recentMenu.clear"
-                   label="%menu.file.recentMenu.clear.label"
-                   style="push">
-             </command>
           </menu>
+          <command
+                commandId="org.xmind.ui.command.openCloudPage"
+                id="org.xmind.ui.openCloudPage"
+                label="%menu.cloud.label"
+                style="push">
+          </command>
        </menuContribution>
        <menuContribution
            allPopups="false"
@@ -775,6 +775,21 @@
                  style="push">
            </command>
        </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:file?after=share.group">
+         <command
+               commandId="org.xmind.ui.command.share"
+               label="%menu.share.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <test
+                     property="org.xmind.ui.shareOptionRegistry.hasOptions">
+               </test>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          id="editMenuContributions"
@@ -2132,6 +2147,27 @@
       </menuContribution>
    </extension>
    <extension
+         id="exportToolbarContributions"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.xmind.ui.toolbar.export?after=start">
+         <command
+               commandId="org.xmind.ui.command.share"
+               disabledIcon="icons/toolbar/d/share.png"
+               icon="icons/toolbar/e/share.png"
+               label="%toolbar.share.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <test
+                     property="org.xmind.ui.shareOptionRegistry.hasOptions">
+               </test>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
          id="exportPullDownMenuContributions"
          point="org.eclipse.ui.menus">
       <menuContribution
@@ -2148,6 +2184,31 @@
                   value="org.xmind.ui.ImageExportWizard">
             </parameter>
          </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.xmind.ui.MindMapEditor.page?after=new.ext">
+           <command
+                  commandId="org.xmind.ui.command.newSheetFromTemplate"
+                  id="org.xmind.ui.insert.sheet.fromTemplate"
+                  label="%popup.newFromTemplate.label"
+                  style="push">
+            </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.xmind.ui.MindMapEditor.page?after=additions">
+         <menu
+               id="org.xmind.ui.page.colorfulSheet"
+               label="%popup.colofurSheet.label">
+	         <dynamic
+	               class="org.xmind.ui.internal.colorful.ColorfulSheetMenu"
+	               id="org.xmind.ui.page.colorfulSheet.group">
+	         </dynamic>
+         </menu>
       </menuContribution>
    </extension>
 </plugin>

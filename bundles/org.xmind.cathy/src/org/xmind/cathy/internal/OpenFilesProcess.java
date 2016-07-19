@@ -1,6 +1,6 @@
 package org.xmind.cathy.internal;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,11 +18,11 @@ import org.xmind.core.command.CommandJob;
 import org.xmind.core.command.ICommand;
 import org.xmind.core.util.FileUtils;
 import org.xmind.ui.internal.MarkerImpExpUtils;
-import org.xmind.ui.internal.editor.MME;
-import org.xmind.ui.internal.editor.WorkbookEditorInput;
+import org.xmind.ui.internal.editor.ClonedWorkbookRef;
 import org.xmind.ui.internal.imports.freemind.FreeMindImporter;
 import org.xmind.ui.internal.imports.mm.MindManagerImporter;
 import org.xmind.ui.internal.prefs.MarkerManagerPrefPage;
+import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.PrefUtils;
 import org.xmind.ui.wizards.MindMapImporter;
@@ -122,36 +122,48 @@ public class OpenFilesProcess extends AbstractCheckFilesProcess {
         if (CathyPlugin.COMMAND_FILE_EXT.equalsIgnoreCase(extension)) {
             return openXMindCommandFile(path);
         } else if (MindMapUI.FILE_EXT_TEMPLATE.equalsIgnoreCase(extension)) {
-            return newFromTemplate(path);
+            return newFromTemplate(path, fileName);
         } else if (".mmap".equalsIgnoreCase(extension)) { //$NON-NLS-1$
-            return importMindManagerFile(path);
+            return importMindManagerFile(path, fileName);
         } else if (".mm".equalsIgnoreCase(extension)) { //$NON-NLS-1$
-            return importFreeMindFile(path);
-        } else
-            if (MindMapUI.FILE_EXT_MARKER_PACKAGE.equalsIgnoreCase(extension)) {
+            return importFreeMindFile(path, fileName);
+        } else if (MindMapUI.FILE_EXT_MARKER_PACKAGE
+                .equalsIgnoreCase(extension)) {
             return importMarkers(path);
         } else {
             // assumes we're opening xmind files
-            return MME.createFileEditorInput(path);
+            return MindMapUI.getEditorInputFactory()
+                    .createEditorInputForFile(new File(path));
         }
     }
 
-    protected IEditorInput newFromTemplate(String path) throws Exception {
-        return MME.createTemplatedEditorInput(new FileInputStream(path));
+    protected IEditorInput newFromTemplate(String path, String fileName)
+            throws Exception {
+        IWorkbookRef ref = ClonedWorkbookRef
+                .createFromSourceWorkbookURI(new File(path).toURI());
+        return MindMapUI.getEditorInputFactory().createEditorInput(ref);
     }
 
-    protected IEditorInput importMindManagerFile(String path) throws Exception {
+    protected IEditorInput importMindManagerFile(String path, String fileName)
+            throws Exception {
         MindMapImporter importer = new MindManagerImporter(path);
         importer.build();
         IWorkbook workbook = importer.getTargetWorkbook();
-        return workbook == null ? null : new WorkbookEditorInput(workbook);
+        return workbook == null ? null
+                : MindMapUI.getEditorInputFactory()
+                        .createEditorInputForPreLoadedWorkbook(workbook,
+                                fileName);
     }
 
-    protected IEditorInput importFreeMindFile(String path) throws Exception {
+    protected IEditorInput importFreeMindFile(String path, String fileName)
+            throws Exception {
         FreeMindImporter importer = new FreeMindImporter(path);
         importer.build();
         IWorkbook workbook = importer.getTargetWorkbook();
-        return workbook == null ? null : new WorkbookEditorInput(workbook);
+        return workbook == null ? null
+                : MindMapUI.getEditorInputFactory()
+                        .createEditorInputForPreLoadedWorkbook(workbook,
+                                fileName);
     }
 
     protected IEditorInput importMarkers(String path) throws Exception {

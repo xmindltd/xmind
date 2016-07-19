@@ -13,10 +13,14 @@
  *******************************************************************************/
 package org.xmind.ui.internal.wizards;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -33,8 +37,8 @@ public class HtmlExportWizard extends DocumentExportWizard {
 
     private static final String HTML_EXPORT_PAGE_NAME = "htmlExportPage"; //$NON-NLS-1$
 
-    private static final List<String> EXTENSIONS = Arrays.asList(
-            ".html", ".htm"); //$NON-NLS-1$  //$NON-NLS-2$
+    private static final List<String> EXTENSIONS = Arrays.asList(".html", //$NON-NLS-1$
+            ".htm"); //$NON-NLS-1$
 
     private static final String FILTER_HTML = "*.html;*.htm"; //$NON-NLS-1$
 
@@ -59,10 +63,10 @@ public class HtmlExportWizard extends DocumentExportWizard {
 
     public HtmlExportWizard() {
         setWindowTitle(WizardMessages.HtmlExportWizard_windowTitle);
-        setDefaultPageImageDescriptor(MindMapUI.getImages().getWizBan(
-                IMindMapImages.WIZ_EXPORT));
-        setDialogSettings(MindMapUIPlugin.getDefault().getDialogSettings(
-                DIALOG_SETTINGS_SECTION_ID));
+        setDefaultPageImageDescriptor(
+                MindMapUI.getImages().getWizBan(IMindMapImages.WIZ_EXPORT));
+        setDialogSettings(MindMapUIPlugin.getDefault()
+                .getDialogSettings(DIALOG_SETTINGS_SECTION_ID));
     }
 
     protected void addValidPages() {
@@ -96,6 +100,22 @@ public class HtmlExportWizard extends DocumentExportWizard {
 
     protected String getSuggestedFileName() {
         return super.getSuggestedFileName() + EXTENSIONS.get(0);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.ui.wizards.DocumentExportWizard#doExport(org.eclipse.core.
+     * runtime.IProgressMonitor, org.eclipse.swt.widgets.Display,
+     * org.eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void doExport(IProgressMonitor monitor, Display display,
+            Shell parentShell)
+                    throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ExportToHtmlCount"); //$NON-NLS-1$
+        super.doExport(monitor, display, parentShell);
     }
 
 }

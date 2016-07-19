@@ -30,6 +30,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -116,8 +117,6 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
 
     private RenameSheetAction renameSheetAction;
 
-    private IWorkbenchAction saveAsTemplateAction;
-
     // Global actions:
     private IWorkbenchAction deleteAction;
     private IWorkbenchAction copyAction;
@@ -126,8 +125,6 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
     private IWorkbenchAction propertiesAction;
 
     private IWorkbenchAction duplicateAction;
-
-    private IWorkbenchAction newSheetFromTemplateAction;
 
     private DropDownInsertImageAction dropDownInsertImageAction;
 
@@ -278,18 +275,10 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
                 .create(window);
         addRetargetAction((RetargetAction) resetPositionAction);
 
-        newSheetFromTemplateAction = MindMapActionFactory.NEW_SHEET_FROM_TEMPLATE
-                .create(window);
-        addRetargetAction((RetargetAction) newSheetFromTemplateAction);
-
         findReplaceAction = new FindReplaceAction(window);
         addAction(findReplaceAction);
 
         renameSheetAction = new RenameSheetAction();
-
-        saveAsTemplateAction = MindMapActionFactory.SAVE_TEMPLATE
-                .create(window);
-        addAction(saveAsTemplateAction);
 
         deleteAction = ActionFactory.DELETE.create(window);
         addRetargetAction((RetargetAction) deleteAction);
@@ -407,11 +396,13 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
         IAction createSheetAction = getActionRegistry()
                 .getAction(MindMapActionFactory.NEW_SHEET.getId());
         menu.add(createSheetAction);
-        menu.add(newSheetFromTemplateAction);
+        menu.add(new Separator(IWorkbenchActionConstants.NEW_EXT));
         if (isCopiedSheetAvailable()) {
             menu.add(new Separator());
             menu.add(pasteSheetAction);
         }
+        menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
         super.contributeToPagePopupMenu(menu);
     }
 

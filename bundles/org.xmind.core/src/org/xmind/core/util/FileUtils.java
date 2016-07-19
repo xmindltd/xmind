@@ -88,13 +88,14 @@ public class FileUtils {
 
     public static void transfer(IInputSource inputSource,
             IOutputTarget outputTarget, IFileEntryFilter filter)
-            throws IOException {
+                    throws IOException {
         Iterator<String> entries = inputSource.getEntries();
         while (entries.hasNext()) {
             String entryPath = entries.next();
             if ((filter == null || filter.select(entryPath, null, false))) {
-                InputStream is = inputSource.getEntryStream(entryPath);
-                if (is != null) {
+                if (inputSource.hasEntry(entryPath)
+                        && inputSource.isEntryAvailable(entryPath)) {
+                    InputStream is = inputSource.openEntryStream(entryPath);
                     try {
                         OutputStream os = outputTarget
                                 .openEntryStream(entryPath);
@@ -108,6 +109,21 @@ public class FileUtils {
                     }
                 }
             }
+        }
+    }
+
+    public static void transfer(IInputSource source, String sourcePath,
+            IOutputTarget target, String targetPath) throws IOException {
+        InputStream input = source.openEntryStream(sourcePath);
+        try {
+            OutputStream output = target.openEntryStream(targetPath);
+            try {
+                transfer(input, output, false);
+            } finally {
+                output.close();
+            }
+        } finally {
+            input.close();
         }
     }
 
@@ -125,11 +141,9 @@ public class FileUtils {
             boolean closeOnFinish, String taskName) throws IOException {
         try {
             byte[] buffer = new byte[4096];
-            while (true) {
-                int num = is.read(buffer);
-                if (num <= 0)
-                    break;
-                os.write(buffer, 0, num);
+            int numRead;
+            while ((numRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, numRead);
             }
         } finally {
             if (closeOnFinish) {
@@ -139,6 +153,21 @@ public class FileUtils {
                     os.close();
                 }
             }
+        }
+    }
+
+    public static void transfer(File source, File target) throws IOException {
+        ensureFileParent(target);
+        InputStream in = new FileInputStream(source);
+        try {
+            OutputStream out = new FileOutputStream(target);
+            try {
+                transfer(in, out, false);
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
         }
     }
 
@@ -289,18 +318,16 @@ public class FileUtils {
         ZipEntry entry;
         while ((entry = zin.getNextEntry()) != null) {
             String entryPath = entry.getName();
-            if (!entry.isDirectory()
-                    && (filter == null || filter.select(entryPath, null, false))) {
+            if (!entry.isDirectory() && (filter == null
+                    || filter.select(entryPath, null, false))) {
                 if (target.isEntryAvaialble(entryPath)) {
-                    OutputStream out = target.getEntryStream(entryPath);
-                    if (out != null) {
+                    OutputStream out = target.openEntryStream(entryPath);
+                    try {
+                        FileUtils.transfer(zin, out, false);
+                    } finally {
                         try {
-                            FileUtils.transfer(zin, out, false);
-                        } finally {
-                            try {
-                                out.close();
-                            } catch (IOException ignore) {
-                            }
+                            out.close();
+                        } catch (IOException ignore) {
                         }
                     }
                 }
@@ -308,8 +335,8 @@ public class FileUtils {
         }
     }
 
-    public static void extractZipStream(InputStream stream, IOutputTarget target)
-            throws IOException {
+    public static void extractZipStream(InputStream stream,
+            IOutputTarget target) throws IOException {
         extractZipStream(stream, target, null);
     }
 

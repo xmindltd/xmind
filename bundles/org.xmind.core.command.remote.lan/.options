@@ -1,3 +1,0 @@
-# Turn on debugging for LAN command service domain plug-in:
-org.xmind.core.command.remote.lan/debug=false
-org.xmind.core.command.remote.lan/debug/dnssd=false

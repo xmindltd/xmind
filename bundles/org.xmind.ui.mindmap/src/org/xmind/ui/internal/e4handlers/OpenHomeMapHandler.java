@@ -2,6 +2,8 @@ package org.xmind.ui.internal.e4handlers;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.xmind.ui.dialogs.IDialogConstants;
@@ -13,6 +15,7 @@ import org.xmind.ui.util.PrefUtils;
 
 public class OpenHomeMapHandler {
 
+    @Inject
     public void execute(IWorkbenchWindow window) {
         if (window == null)
             return;

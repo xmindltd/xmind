@@ -16,12 +16,15 @@ package org.xmind.cathy.internal;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import org.eclipse.equinox.app.IApplicationContext;
+import org.xmind.ui.internal.app.IApplicationValidator;
+
 public class ApplicationValidator implements IApplicationValidator {
 
     public ApplicationValidator() {
     }
 
-    public boolean shouldApplicationExitEarly() {
+    public boolean shouldApplicationExitEarly(IApplicationContext appContext) {
         Log log = Log.get(Log.SINGLETON);
         if (!log.exists())
             return false;

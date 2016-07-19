@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.IAdaptable;
+import org.xmind.core.IManifest;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
@@ -49,6 +50,7 @@ import org.xmind.core.io.IInputSource;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerResource;
+import org.xmind.core.marker.IMarkerResourceAllocator;
 import org.xmind.core.marker.IMarkerResourceProvider;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.core.util.DOMUtils;
@@ -69,6 +71,8 @@ public class MarkerSheetImpl extends MarkerSheet implements
     private CoreEventSupport coreEventSupport = null;
 
     private Properties properties = null;
+
+    private ManifestImpl manifest = null;
 
     public MarkerSheetImpl(Document implementation,
             IMarkerResourceProvider resourceProvider) {
@@ -92,7 +96,17 @@ public class MarkerSheetImpl extends MarkerSheet implements
         return implementation.getDocumentElement();
     }
 
+    /**
+     * @param manifest
+     *            the manifest to set
+     */
+    public void setManifest(ManifestImpl manifest) {
+        this.manifest = manifest;
+    }
+
     public Object getAdapter(Class adapter) {
+        if (adapter == IManifest.class)
+            return manifest;
         if (adapter == ICoreEventSource.class)
             return this;
         if (adapter == IMarkerResourceProvider.class)
@@ -144,11 +158,27 @@ public class MarkerSheetImpl extends MarkerSheet implements
 
     public IMarker createMarker(String resourcePath) {
         Element markerImpl = implementation.createElement(TAG_MARKER);
-        if (resourcePath != null)
-            markerImpl.setAttribute(ATTR_RESOURCE, resourcePath);
+        DOMUtils.setAttribute(markerImpl, ATTR_RESOURCE, resourcePath);
         MarkerImpl marker = new MarkerImpl(markerImpl, this);
         getElementRegistry().register(marker);
         return marker;
+    }
+
+    public IMarker createMarkerById(String markerId, String resourcePath) {
+        Element markerImpl = implementation.createElement(TAG_MARKER);
+        DOMUtils.setAttribute(markerImpl, ATTR_RESOURCE, resourcePath);
+        MarkerImpl marker = new MarkerImpl(markerImpl, this);
+        replaceId(marker, markerId);
+        getElementRegistry().register(marker);
+        return marker;
+    }
+
+    public IMarkerGroup createMarkerGroupById(String groupId) {
+        Element groupImpl = implementation.createElement(TAG_MARKER_GROUP);
+        MarkerGroupImpl group = new MarkerGroupImpl(groupImpl, this);
+        replaceId(group, groupId);
+        getElementRegistry().register(group);
+        return group;
     }
 
     public IMarkerGroup createMarkerGroup(boolean singleton) {
@@ -265,7 +295,8 @@ public class MarkerSheetImpl extends MarkerSheet implements
     private static final String OLD_ATT_ID = "id"; //$NON-NLS-1$
     private static final String OLD_ATT_FILE = "file"; //$NON-NLS-1$
 
-    public void importFrom(String sourcePath) throws IOException, CoreException {
+    public void importFrom(String sourcePath)
+            throws IOException, CoreException {
         File sourceFile = new File(sourcePath);
         IInputSource source;
         if (sourceFile.isDirectory()) {
@@ -282,27 +313,22 @@ public class MarkerSheetImpl extends MarkerSheet implements
         }
     }
 
-    public void importFrom(IInputSource source) throws IOException,
-            CoreException {
+    public void importFrom(IInputSource source)
+            throws IOException, CoreException {
         importFrom(source, null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.xmind.core.marker.IMarkerSheet#importFrom(org.xmind.core.io.IInputSource
-     * , java.lang.String)
+     * @see org.xmind.core.marker.IMarkerSheet#importFrom(org.xmind.core.io.
+     * IInputSource , java.lang.String)
      */
     public void importFrom(IInputSource source, String groupName)
             throws IOException, CoreException {
-//        try {
         if (source.hasEntry(ArchiveConstants.MARKER_SHEET_XML)) {
             InputStream is = source
-                    .getEntryStream(ArchiveConstants.MARKER_SHEET_XML);
-            if (is == null)
-                throw new IOException();
-
+                    .openEntryStream(ArchiveConstants.MARKER_SHEET_XML);
             IMarkerSheet sourceMarkerSheet = Core.getMarkerSheetBuilder()
                     .loadFromStream(is,
                             new MarkerResourceProvider(source, null));
@@ -312,12 +338,10 @@ public class MarkerSheetImpl extends MarkerSheet implements
         } else {
             importAllAsNewGroup(source, groupName);
         }
-//        } finally {
-//            source.close();
-//        }
     }
 
-    private void importAllAsNewGroup(IInputSource source, String groupName) {
+    private void importAllAsNewGroup(IInputSource source, String groupName)
+            throws IOException {
         IMarkerGroup group = createMarkerGroup(false);
         if (groupName == null) {
             groupName = createGroupName();
@@ -326,14 +350,14 @@ public class MarkerSheetImpl extends MarkerSheet implements
         Iterator<String> entries = source.getEntries();
         while (entries.hasNext()) {
             String entry = entries.next();
-            InputStream is = source.getEntryStream(entry);
+            InputStream is = source.openEntryStream(entry);
             if (is != null) {
                 IMarker marker = createMarker(entry);
                 marker.setName(FileUtils.getFileName(entry));
                 group.addMarker(marker);
                 IMarkerResource resource = marker.getResource();
                 if (resource != null) {
-                    OutputStream os = resource.getOutputStream();
+                    OutputStream os = resource.openOutputStream();
                     if (os != null) {
                         try {
                             FileUtils.transfer(is, os, true);
@@ -353,7 +377,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
 
     private void importFromOldMarkerSheet(IInputSource source)
             throws IOException {
-        InputStream is = source.getEntryStream(OLD_MARKERLISTS_XML);
+        InputStream is = source.openEntryStream(OLD_MARKERLISTS_XML);
         if (is == null)
             throw new FileNotFoundException();
         Document document = DOMUtils.loadDocument(is);
@@ -397,21 +421,21 @@ public class MarkerSheetImpl extends MarkerSheet implements
                 String markerId = markerEle.getAttribute(OLD_ATT_ID);
                 IMarker targetMarker = findMarker(markerId);
                 if (targetMarker == null) {
-                    targetMarker = createMarker(createGroupName()
-                            + FileUtils.getExtension(file));
+                    targetMarker = targetGroup.getOwnedSheet().createMarker(
+                            createGroupName() + FileUtils.getExtension(file));
                     replaceId(targetMarker, markerId);
                     targetGroup.addMarker(targetMarker);
                 }
                 targetMarker.setName(markerEle.getAttribute(OLD_ATT_NAME));
-                String oldEntryName = listEle.getAttribute(OLD_ATT_ID)
-                        + "/" + file; //$NON-NLS-1$
+                String oldEntryName = listEle.getAttribute(OLD_ATT_ID) + "/" //$NON-NLS-1$
+                        + file;
                 IMarkerResource newRes = targetMarker.getResource();
                 if (newRes != null) {
-                    OutputStream os = newRes.getOutputStream();
+                    OutputStream os = newRes.openOutputStream();
                     if (os != null) {
                         if (source.hasEntry(oldEntryName)) {
                             InputStream mis = source
-                                    .getEntryStream(oldEntryName);
+                                    .openEntryStream(oldEntryName);
                             FileUtils.transfer(mis, os, true);
                         }
                     }
@@ -420,20 +444,41 @@ public class MarkerSheetImpl extends MarkerSheet implements
         }
     }
 
+    @Deprecated
     public void importFrom(IMarkerSheet sheet) {
-        for (IMarkerGroup group : sheet.getMarkerGroups()) {
-            importGroup(group);
+        try {
+            importFromChecked(sheet);
+        } catch (Exception e) {
+            Core.getLogger().log(e);
         }
     }
 
+    public void importFromChecked(IMarkerSheet sheet)
+            throws IOException, CoreException {
+        for (IMarkerGroup group : sheet.getMarkerGroups()) {
+            importGroupChecked(group);
+        }
+    }
+
+    @Deprecated
     public IMarkerGroup importGroup(IMarkerGroup group) {
+        try {
+            return importGroupChecked(group);
+        } catch (Exception e) {
+            Core.getLogger().log(e);
+            return null;
+        }
+    }
+
+    public IMarkerGroup importGroupChecked(IMarkerGroup group)
+            throws IOException, CoreException {
         String id = group.getId();
         IMarkerGroup existingGroup = findMarkerGroup(id);
         if (existingGroup != null) {
             existingGroup.setName(group.getName());
+            importGroup(group, existingGroup);
             if (existingGroup.getParent() == null)
                 addMarkerGroup(existingGroup);
-            importGroup(group, existingGroup);
             return existingGroup;
         }
 
@@ -445,31 +490,26 @@ public class MarkerSheetImpl extends MarkerSheet implements
         return targetGroup;
     }
 
-    private void importGroup(IMarkerGroup sourceGroup, IMarkerGroup targetGroup) {
+    private void importGroup(IMarkerGroup sourceGroup, IMarkerGroup targetGroup)
+            throws IOException {
         for (IMarker sourceMarker : sourceGroup.getMarkers()) {
             String id = sourceMarker.getId();
             IMarker targetMarker = getLocalMarker(id);
             if (targetMarker == null
                     || !targetGroup.equals(targetMarker.getParent())) {
-                targetMarker = createMarker(sourceMarker.getResourcePath());
+                targetMarker = targetGroup.getOwnedSheet()
+                        .createMarker(sourceMarker.getResourcePath());
                 replaceId(targetMarker, sourceMarker.getId());
                 targetGroup.addMarker(targetMarker);
             }
             targetMarker.setName(sourceMarker.getName());
             IMarkerResource sourceRes = sourceMarker.getResource();
             if (sourceRes != null) {
-                InputStream is = sourceRes.getInputStream();
-                if (is != null) {
-                    IMarkerResource targetRes = targetMarker.getResource();
-                    if (targetRes != null) {
-                        OutputStream os = targetRes.getOutputStream();
-                        if (os != null) {
-                            try {
-                                FileUtils.transfer(is, os, true);
-                            } catch (IOException e) {
-                            }
-                        }
-                    }
+                InputStream is = sourceRes.openInputStream();
+                IMarkerResource targetRes = targetMarker.getResource();
+                if (targetRes != null) {
+                    OutputStream os = targetRes.openOutputStream();
+                    FileUtils.transfer(is, os, true);
                 }
             }
         }
@@ -489,7 +529,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
                 listener);
     }
 
-    public ICoreEventSupport getCoreEventSupport() {
+    public CoreEventSupport getCoreEventSupport() {
         if (coreEventSupport != null)
             return coreEventSupport;
 
@@ -497,9 +537,26 @@ public class MarkerSheetImpl extends MarkerSheet implements
         return coreEventSupport;
     }
 
-    private void fireIndexedTargetChange(String type, Object target, int index) {
+    private void fireIndexedTargetChange(String type, Object target,
+            int index) {
         getCoreEventSupport().dispatchIndexedTargetChange(this, type, target,
                 index);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.marker.IMarkerSheet#createMarkerResourcePath(java.io.
+     * InputStream, java.lang.String)
+     */
+    public String allocateMarkerResource(InputStream source,
+            String suggestedPath) throws IOException {
+        if (realResourceProvider != null
+                && realResourceProvider instanceof IMarkerResourceAllocator) {
+            return ((IMarkerResourceAllocator) realResourceProvider)
+                    .allocateMarkerResource(source, suggestedPath);
+        }
+        return null;
     }
 
 }

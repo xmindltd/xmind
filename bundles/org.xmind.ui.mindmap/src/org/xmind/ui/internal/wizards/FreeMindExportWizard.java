@@ -94,6 +94,8 @@ public class FreeMindExportWizard extends AbstractMindMapExportWizard {
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
                     throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ExportToFreeMindCount"); //$NON-NLS-1$
         IMindMap mindMap = getSourceMindMap();
         FreeMindExporter exporter = new FreeMindExporter(mindMap.getSheet(),
                 getTargetPath());

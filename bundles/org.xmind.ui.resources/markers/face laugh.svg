@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
+    <title>face laugh</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#BDF43B" offset="0%"></stop>
+            <stop stop-color="#86CD00" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="face-laugh" sketch:type="MSLayerGroup">
+            <circle id="Oval-1" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" cx="16" cy="16" r="16"></circle>
+            <g id="Oval-2-+-Oval-2-Copy-2" transform="translate(5.000000, 10.000000)" fill="#487E00" sketch:type="MSShapeGroup">
+                <path d="M8,4 C8,1.790861 6.209139,0 4,0 C1.790861,0 0,1.790861 0,4 L2,4 C2,2.8954305 2.8954305,2 4,2 C5.1045695,2 6,2.8954305 6,4 L8,4 Z" id="Oval-2"></path>
+                <path d="M22,4 C22,1.790861 20.209139,0 18,0 C15.790861,0 14,1.790861 14,4 L16,4 C16,2.8954305 16.8954305,2 18,2 C19.1045695,2 20,2.8954305 20,4 L22,4 Z" id="Oval-2-Copy-2"></path>
+            </g>
+            <path d="M8,22 C8,24.209139 11.581722,26 16,26 C20.418278,26 24,24.209139 24,22 C24,23.1045695 20.418278,24 16,24 C11.581722,24 8,23.1045695 8,22 Z" id="Oval-6" fill="#447400" sketch:type="MSShapeGroup"></path>
+        </g>
+    </g>
+</svg>

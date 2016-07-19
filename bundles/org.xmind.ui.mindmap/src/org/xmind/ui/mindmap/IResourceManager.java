@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.xmind.ui.mindmap;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.util.List;
+
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
@@ -52,13 +56,14 @@ public interface IResourceManager {
     /**
      * Finds a resource located at the specified URI.
      * <p>
-     * The URI must be of the specification: <strong><code>schema:path</code>
-     * </strong>:
+     * The URI must be of the specification: <strong>
+     * <code>schema:path</code> </strong>:
      * <ul>
      * <li><strong><code>marker:system/GROUP_ID/MARKER_ID</code></strong>
      * returns a {@link IMarker} representing a marker in the system marker
      * list; (if <code>GROUP_ID</code> is "<code>any</code>",
-     * {@link IMarkerSheet#findMarker(String)} will be used to find the marker)</li>
+     * {@link IMarkerSheet#findMarker(String)} will be used to find the marker)
+     * </li>
      * <li><strong><code>marker:system/GROUP_ID</code></strong> returns a
      * {@link IMarkerGroup} representing a marker group in the system marker
      * list;</li>
@@ -67,7 +72,8 @@ public interface IResourceManager {
      * <li><strong><code>marker:user/GROUP_ID/MARKER_ID</code></strong> returns
      * a {@link IMarker} representing a marker in the user custom marker list;
      * (if <code>GROUP_ID</code> is "<code>any</code>",
-     * {@link IMarkerSheet#findMarker(String)} will be used to find the marker)</li>
+     * {@link IMarkerSheet#findMarker(String)} will be used to find the marker)
+     * </li>
      * <li><strong><code>marker:user/GROUP_ID</code></strong> returns a
      * {@link IMarkerGroup} representing a marker group in the user custom
      * marker list;</li>
@@ -120,7 +126,8 @@ public interface IResourceManager {
      * <li><strong><code>marker:system</code></strong> for a
      * {@link IMarkerSheet} representing the system marker list;</li>
      * <li><strong><code>marker:user/GROUP_ID/MARKER_ID</code></strong> for a
-     * {@link IMarker} representing a marker in the user custom marker list;</li>
+     * {@link IMarker} representing a marker in the user custom marker list;
+     * </li>
      * <li><strong><code>marker:user/GROUP_ID</code></strong> for a
      * {@link IMarkerGroup} representing a marker group in the user custom
      * marker list;</li>
@@ -157,5 +164,26 @@ public interface IResourceManager {
      *         the specified object is not a valid resource
      */
     String toResourceURI(Object resource);
+
+    List<ITemplate> getSystemTemplates();
+
+    List<ITemplate> getUserTemplates();
+
+    boolean isSystemTemplate(ITemplate template);
+
+    boolean isUserTemplate(ITemplate template);
+
+    ITemplate addUserTemplateFromWorkbookURI(URI sourceWorkbookURI)
+            throws InvocationTargetException;
+
+    void removeUserTemplate(ITemplate template);
+
+    ITemplate getDefaultTemplate();
+
+    void setDefaultTemplate(ITemplate template);
+
+    void addResourceManagerListener(IResourceManagerListener listener);
+
+    void removeResourceManagerListener(IResourceManagerListener listener);
 
 }

@@ -19,6 +19,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.xmind.core.command.Command;
+import org.xmind.core.command.CommandJob;
+import org.xmind.core.command.ICommand;
 import org.xmind.ui.browser.IBrowser;
 
 public class ExternalBrowser implements IBrowser {
@@ -39,6 +42,14 @@ public class ExternalBrowser implements IBrowser {
     }
 
     public void openURL(String url) throws PartInitException {
+        ICommand command = Command.parseURI(url);
+        if (command != null) {
+            new CommandJob(command, null).schedule();
+            return;
+        }
+
+        url = BrowserUtil.normalizeURL(url);
+
         try {
             URL theURL = new URL(url);
             getWorkbenchBrowser().openURL(theURL);

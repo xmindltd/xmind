@@ -311,6 +311,7 @@ public class GraphicalEditorPagePopupPreviewHelper {
 
         GC gc = e.gc;
         SWTGraphics swtGraphics = new SWTGraphics(gc);
+        swtGraphics.pushState();
 
         double horizontalScale = w / bounds.width;
         double verticalScale = h / bounds.height;
@@ -336,6 +337,7 @@ public class GraphicalEditorPagePopupPreviewHelper {
             if (sg != null) {
                 sg.dispose();
             }
+            swtGraphics.popState();
             swtGraphics.dispose();
         }
 

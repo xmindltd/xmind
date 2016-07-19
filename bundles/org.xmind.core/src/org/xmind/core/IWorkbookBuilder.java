@@ -21,217 +21,498 @@ import org.xmind.core.io.IInputSource;
 import org.xmind.core.io.IStorage;
 
 /**
+ * A workbook builder is responsible for creating/loading/saving workbook
+ * instances.
  * 
- * @author frankshaka
+ * <p>
+ * Every workbook instance created by this workbook builder holds an
+ * {@link IStorage} object to store temporary data during creation/loading and
+ * afterwards. This storage object can be retrieved using
+ * <code>workbook.getAdapter(IStorage.class)</code>.
+ * </p>
  * 
+ * @author Frank Shaka
+ * @since 3.0
  */
 public interface IWorkbookBuilder {
 
     /**
+     * Creates a new <em>empty</em> workbook instance with a new in-memory
+     * storage. Equivalent to
+     * <code>createWorkbook(new ByteArrayStorage())</code>.
      * 
-     * @return
+     * @return a new empty workbook instance
      */
     IWorkbook createWorkbook();
 
     /**
+     * Creates a new <em>empty</em> workbook instance with the specified
+     * storage. The storage will be cleared.
      * 
-     * @param targetPath
-     * @return
-     */
-    IWorkbook createWorkbook(String targetPath);
-
-    /**
-     * 
-     * @param tempLocation
-     * @return
-     */
-    IWorkbook createWorkbookOnTemp(String tempLocation);
-
-    /**
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
      * 
      * @param storage
-     * @return
+     *            used by the created workbook to store temporary data after
+     *            creation
+     * @return a new empty workbook instance
      */
     IWorkbook createWorkbook(IStorage storage);
 
     /**
-     * 
-     * @param file
-     * @return
-     * @throws IOException
-     * @throws CoreException
+     * Creates a new instance of {@link ISerializer} used for saving a workbook
+     * to a location.
+     *
+     * @return a new serializer instance (never <code>null</code>)
      */
-    IWorkbook loadFromFile(File file) throws IOException, CoreException;
+    ISerializer newSerializer();
 
     /**
+     * Creates a new instance of {@link IDeserializer} used for loading a
+     * workbook from a location.
      * 
-     * @param file
-     * @param encryptionHandler
-     * @return
-     * @throws IOException
-     * @throws CoreException
+     * @return a new deserializer instance (never <code>null</code>)
      */
-    IWorkbook loadFromFile(File file, IEncryptionHandler encryptionHandler)
-            throws IOException, CoreException;
+    IDeserializer newDeserializer();
 
     /**
+     * Sets the default name and version of all workbooks loaded/saved by this
+     * workbook builder, to be stored in their meta info.
      * 
-     * @param file
-     * @param storage
-     * @param encryptionHandler
-     * @return
-     * @throws IOException
-     * @throws CoreException
+     * @param name
+     *            the name of this builder
+     * @param version
+     *            the version of this builder
      */
-    IWorkbook loadFromFile(File file, IStorage storage,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException;
+    void setCreator(String name, String version);
+
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    ////
+    //// DEPRECATED METHODS
+    ////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
 
     /**
+     * Creates a new workbook instance and loads its content from the specified
+     * local file path, into a new in-memory storage. The default encryption
+     * handler of this workbook builder is used to decrypt any
+     * password-protected content during the process.
      * 
      * @param path
-     * @return
+     *            the absolute path of the local file from which the created
+     *            workbook's content is loaded
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     IWorkbook loadFromPath(String path) throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * local file path, into a new in-memory storage. The specified encryption
+     * handler is used to decrypt any password-protected content during the
+     * process.
      * 
-     * @param path
+     * @param file
+     *            the absolute path of the local file from which the created
+     *            workbook's content is loaded
      * @param encryptionHandler
-     * @return
+     *            providing decryption information
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     IWorkbook loadFromPath(String path, IEncryptionHandler encryptionHandler)
             throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * local file path, into the specified storage. The specified encryption
+     * handler is used to decrypt any password-protected content during the
+     * process. The storage will be cleared.
      * 
-     * @param path
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
+     * 
+     * @param file
+     *            the absolute path of the local file from which the created
+     *            workbok's content is loaded
      * @param storage
+     *            used by the created workbook to store temporary data after
+     *            loading
      * @param encryptionHandler
-     * @return
+     *            providing decryption information
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     IWorkbook loadFromPath(String path, IStorage storage,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException;
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * local file, into a new in-memory storage. The default encryption handler
+     * of this workbook builder is used to decrypt any password-protected
+     * content during the process.
      * 
-     * @param tempLocation
-     * @return
+     * @param file
+     *            the local file from which the created workbook's content is
+     *            loaded
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
-    IWorkbook loadFromTempLocation(String tempLocation) throws IOException,
-            CoreException;
+    @Deprecated
+    IWorkbook loadFromFile(File file) throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * local file, into a new in-memory storage. The specified encryption
+     * handler is used to decrypt any password-protected content during the
+     * process.
      * 
-     * @param storage
-     * @return
+     * @param file
+     *            the local file from which the created workbook's content is
+     *            loaded
+     * @param encryptionHandler
+     *            providing decryption information
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
-    IWorkbook loadFromStorage(IStorage storage) throws IOException,
-            CoreException;
-
-    /**
-     * NOTE: The input stream will be consumed after loading.
-     * 
-     * @param in
-     * @param tempLocation
-     * @return
-     * @throws IOException
-     * @throws CoreException
-     */
-    IWorkbook loadFromStream(InputStream in, String tempLocation)
+    @Deprecated
+    IWorkbook loadFromFile(File file, IEncryptionHandler encryptionHandler)
             throws IOException, CoreException;
 
     /**
-     * NOTE: The input stream will be consumed after loading.
+     * Creates a workbook instance and loads its content from the specified
+     * local file, into the specified storage. The specified encryption handler
+     * is used to decrypt any password-protected content during the process. The
+     * storage will be cleared.
+     * 
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
+     * 
+     * @param file
+     *            the local file from which the created workbok's content is
+     *            loaded
+     * @param storage
+     *            used by the created workbook to store temporary data after
+     *            loading
+     * @param encryptionHandler
+     *            providing decryption information
+     * @return a new workbook instance with content
+     * @throws IOException
+     *             if any I/O error occurs
+     * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook loadFromFile(File file, IStorage storage,
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
+
+    /**
+     * Creates a workbook instance and loads its content from the specified
+     * input stream, into a new in-memory storage. The default encryption
+     * handler of this workbook builder is used to decrypt any
+     * password-protected content during the process.
+     * 
+     * <p>
+     * <b>NOTE</b> that the specified input stream will be closed after this
+     * method returns.
+     * </p>
      * 
      * @param in
-     * @param storage
-     * @return
+     *            the input stream from which the created workbok's content is
+     *            loaded
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
+    IWorkbook loadFromStream(InputStream in) throws IOException, CoreException;
+
+    /**
+     * Creates a workbook instance and loads its content from the specified
+     * input stream, into the specified storage. The default encryption handler
+     * of this workbook builder is used to decrypt any password-protected
+     * content during the process. The storage will be cleared.
+     * 
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
+     * 
+     * <p>
+     * <b>NOTE</b> that the specified input stream will be closed after this
+     * method returns.
+     * </p>
+     * 
+     * @param in
+     *            the input stream from which the created workbok's content is
+     *            loaded
+     * @param storage
+     *            used by the created workbook to store temporary data after
+     *            loading
+     * @return a new workbook instance with content
+     * @throws IOException
+     *             if any I/O error occurs
+     * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
     IWorkbook loadFromStream(InputStream in, IStorage storage)
             throws IOException, CoreException;
 
     /**
-     * NOTE: The input stream will be closed after loading.
+     * Creates a workbook instance and loads its content from the specified
+     * input stream, into the specified storage. The specified encryption
+     * handler is used to decrypt any password-protected content during the
+     * process. The storage will be cleared.
+     * 
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
+     * 
+     * <p>
+     * <b>NOTE</b> that the specified input stream will be closed after this
+     * method returns.
+     * </p>
      * 
      * @param in
-     * @param tempLocation
-     * @return
-     * @throws IOException
-     * @throws CoreException
-     */
-    IWorkbook loadFromStream(InputStream in, String tempLocation,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException;
-
-    /**
-     * NOTE: The input stream will be consumed after loading.
-     * 
-     * @param in
+     *            the input stream from which the created workbok's content is
+     *            loaded
      * @param storage
+     *            used by the created workbook to store temporary data after
+     *            loading
      * @param encryptionHandler
-     * @return
+     *            providing decryption information
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     IWorkbook loadFromStream(InputStream in, IStorage storage,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException;
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * input source, into a new in-memory storage. The default encryption
+     * handler of this workbook builder is used to decrypt any
+     * password-protected content during the process.
      * 
      * @param source
-     * @return
+     *            the input source from which the created workbok's content is
+     *            loaded
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
-    IWorkbook loadFromInputSource(IInputSource source) throws IOException,
-            CoreException;
+    @Deprecated
+    IWorkbook loadFromInputSource(IInputSource source)
+            throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * input source, into a new in-memory storage. The specified encryption
+     * handler is used to decrypt any password-protected content during the
+     * process.
      * 
      * @param source
+     *            the input source from which the created workbok's content is
+     *            loaded
      * @param encryptionHandler
-     * @return
+     *            providing decryption information
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     IWorkbook loadFromInputSource(IInputSource source,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException;
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
 
     /**
+     * Creates a workbook instance and loads its content from the specified
+     * input source, into the specified storage. The specified encryption
+     * handler is used to decrypt any password-protected content during the
+     * process. The storage will be cleared.
+     * 
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
      * 
      * @param source
+     *            the input source from which the created workbok's content is
+     *            loaded
      * @param storage
+     *            used by the created workbook to store temporary data after
+     *            loading
      * @param encryptionHandler
-     * @return
+     *            providing decryption information
+     * @return a new workbook instance with content
      * @throws IOException
+     *             if any I/O error occurs
      * @throws CoreException
+     *             if any syntax error occurs, or the operation is canceled
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     IWorkbook loadFromInputSource(IInputSource source, IStorage storage,
-            IEncryptionHandler encryptionHandler) throws IOException,
-            CoreException;
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
 
     /**
+     * Creates a new workbook instance and loads its content <em>directly</em>
+     * from the specified storage. The default encryption handler of this
+     * workbook builder is used to decrypt any password-protected content during
+     * the process.
+     * 
+     * <p>
+     * The storage will <b>NOT</b> be cleared so that all existing data in it
+     * will be preserved. If the storage is empty or corrupted, loading errors
+     * may occur.
+     * </p>
+     * 
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
+     * 
+     * @param storage
+     *            used by the worbook to load initial content and store
+     *            temporary data after loading
+     * @return a new workbook instance with content
+     * @throws IOException
+     *             if any I/O error occurs
+     * @throws CoreException
+     *             if any syntax error occurs
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook loadFromStorage(IStorage storage)
+            throws IOException, CoreException;
+
+    /**
+     * Creates a new workbook instance and loads its content <em>directly</em>
+     * from the specified storage. The specified encryption handler is used to
+     * decrypt any password-protected content during the process.
+     * 
+     * <p>
+     * The storage will <b>NOT</b> be cleared so that all existing data in it
+     * will be preserved. If the storage is empty or corrupted, loading errors
+     * may occur.
+     * </p>
+     * 
+     * <p>
+     * The storage can be retrieved using
+     * <code>workbook.getAdapter(IStorage.class)</code>.
+     * </p>
+     * 
+     * @param storage
+     *            used by the worbook to load initial content and store
+     *            temporary data after loading
+     * @param encryptionHandler
+     *            providing decryption information
+     * @return a new workbook instance with content
+     * @throws IOException
+     *             if any I/O error occurs
+     * @throws CoreException
+     *             if any syntax error occurs
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook loadFromStorage(IStorage storage,
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
+
+    /**
+     * Sets the default encryption handler to use for loadFromXXX methods.
      * 
      * @param encryptionHandler
+     *            the new encryption handler to use
+     * @deprecated See {@link org.xmind.core.IDeserializer}
      */
+    @Deprecated
     void setDefaultEncryptionHandler(IEncryptionHandler encryptionHandler);
 
-    void setCreator(String name, String version);
+    /**
+     * @deprecated Do NOT let workbook know about its file path.
+     */
+    @Deprecated
+    IWorkbook createWorkbook(String targetPath);
+
+    /**
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook createWorkbookOnTemp(String tempLocation);
+
+    /**
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook loadFromStream(InputStream in, String tempLocation)
+            throws IOException, CoreException;
+
+    /**
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook loadFromStream(InputStream in, String tempLocation,
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException;
+
+    /**
+     * @deprecated See {@link org.xmind.core.IDeserializer}
+     */
+    @Deprecated
+    IWorkbook loadFromTempLocation(String tempLocation)
+            throws IOException, CoreException;
 
 }

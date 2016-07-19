@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -54,18 +55,39 @@ public class DashboardContent {
     private static final String DATA_ID = "org.xmind.ui.dashboard.itemId"; //$NON-NLS-1$
     private static final String DATA_PARAMETERS = "org.xmind.ui.dashboard.commandParameters"; //$NON-NLS-1$
 
+    private static final String STATE_SELECTED_PAGE_ID = "selectedPageId"; //$NON-NLS-1$
+
     private final DashboardPart part;
 
     private final MTabFolder tabFolder;
 
     private Properties nlsProperties = new Properties();
 
-    public DashboardContent(DashboardPart part, MTabFolder tabFolder) {
+    public DashboardContent(final DashboardPart part,
+            final MTabFolder tabFolder) {
         this.part = part;
         this.tabFolder = tabFolder;
+        loadFromDefaultLocation();
+        tabFolder.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event event) {
+                Object page = event.item.getData();
+                if (page instanceof IDashboardPage) {
+                    handlePageSelected((IDashboardPage) page);
+                }
+            }
+        });
+        tabFolder.addDisposeListener(new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+                MTabItem item = tabFolder.getSelection();
+                String pageId = (String) item.getData(DATA_ID);
+                if (pageId != null) {
+                    part.setPersistedState(STATE_SELECTED_PAGE_ID, pageId);
+                }
+            }
+        });
     }
 
-    public void loadFromDefaultLocation() {
+    private void loadFromDefaultLocation() {
         // load NLS properties
         nlsProperties = CathyPlugin.getDefault()
                 .loadNLSProperties(NLS_PATH_BASE);
@@ -81,6 +103,11 @@ public class DashboardContent {
 
         // set primary selection
         tabFolder.setSelection(findPrimarySelection());
+
+        IDashboardPage page = getDashboardPage(tabFolder.getSelection());
+        if (page != null) {
+            handlePageSelected(page);
+        }
     }
 
     private void loadFromURL(URL docURL) throws Exception {
@@ -168,7 +195,7 @@ public class DashboardContent {
 
         final IDashboardPage page = (IDashboardPage) contribution;
 
-        page.setContainer(part);
+        page.setContext(part);
 
         String label = readLabel(element);
         page.setTitle(label);
@@ -328,6 +355,13 @@ public class DashboardContent {
     }
 
     private MTabItem findPrimarySelection() {
+        String lastPageId = part.getPersistedState(STATE_SELECTED_PAGE_ID);
+        if (lastPageId != null) {
+            MTabItem item = getItemById(lastPageId);
+            if (item != null)
+                return item;
+        }
+
         int itemCount = tabFolder.getItemCount();
         for (int i = 0; i < itemCount; i++) {
             MTabItem item = tabFolder.getItem(i);
@@ -357,6 +391,12 @@ public class DashboardContent {
     public IDashboardPage getDashboardPage(MTabItem item) {
         Object data = item.getData();
         return data instanceof IDashboardPage ? (IDashboardPage) data : null;
+    }
+
+    private void handlePageSelected(final IDashboardPage page) {
+        ISelectionProvider selectionProvider = CathyPlugin.getAdapter(page,
+                ISelectionProvider.class);
+        part.setSelectionProvider(selectionProvider);
     }
 
 }

@@ -13,10 +13,6 @@
  *******************************************************************************/
 package org.xmind.ui.internal.editor;
 
-import java.io.File;
-import java.io.InputStream;
-
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
@@ -24,41 +20,25 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.WorkbookFactory;
 
 /**
  * This class is used to represent an existing workbook as an editor input.
  * 
  * @author Frank Shaka
+ * @deprecated
  */
+@Deprecated
 public class WorkbookEditorInput implements IEditorInput {
 
     private static int NUMBER = 0;
 
     private String name;
 
-    private InputStream templateStream;
-
     private IWorkbook contents;
 
-    /**
-     */
-    public WorkbookEditorInput() {
-        this(WorkbookFactory.createEmptyWorkbook());
-    }
-
-    public WorkbookEditorInput(String name) {
-        this.name = name;
-    }
-
     public WorkbookEditorInput(String name, IWorkbook workbook) {
-        this(name);
         this.contents = workbook;
-    }
-
-    public WorkbookEditorInput(String name, InputStream templateStream) {
-        this(name);
-        this.templateStream = templateStream;
+        this.name = name;
     }
 
     /**
@@ -68,47 +48,7 @@ public class WorkbookEditorInput implements IEditorInput {
      *            The loaded workbook
      */
     public WorkbookEditorInput(IWorkbook contents) {
-        this((String) null);
-        if (contents == null)
-            throw new IllegalArgumentException();
-        this.contents = contents;
-    }
-
-    /**
-     * 
-     * @param contents
-     * @param targetFile
-     * @deprecated Use {@link org.xmind.ui.internal.editor.FileEditorInput}
-     */
-    public WorkbookEditorInput(IWorkbook contents, String targetFile) {
-        this(contents);
-    }
-
-    /**
-     * 
-     * @param contents
-     * @param targetFile
-     * @param initialDirty
-     * @deprecated Use {@link org.xmind.ui.internal.editor.FileEditorInput}
-     */
-    public WorkbookEditorInput(IWorkbook contents, String targetFile,
-            boolean initialDirty) {
-        this(contents);
-    }
-
-    /**
-     * 
-     * @param contents
-     * @param targetResourceFile
-     * @deprecated Use
-     *             {@link org.xmind.ui.internal.editor.FileEditorInputFactory#createResourceFileEditorInput(IFile)}
-     */
-    public WorkbookEditorInput(IWorkbook contents, IFile targetResourceFile) {
-        this(contents);
-    }
-
-    public InputStream getTemplateStream() {
-        return templateStream;
+        this(null, contents);
     }
 
     public boolean exists() {
@@ -139,13 +79,6 @@ public class WorkbookEditorInput implements IEditorInput {
     public Object getAdapter(Class adapter) {
         if (adapter == IWorkbook.class)
             return getContents();
-        if (adapter == File.class) {
-            if (contents != null) {
-                String file = contents.getFile();
-                if (file != null)
-                    return new File(file);
-            }
-        }
         return Platform.getAdapterManager().getAdapter(this, adapter);
     }
 

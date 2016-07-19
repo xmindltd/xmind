@@ -51,7 +51,6 @@ import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ImageWriter;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.internal.MindMapUIPlugin;
-import org.xmind.ui.internal.dialogs.DialogMessages;
 import org.xmind.ui.internal.dialogs.DialogUtils;
 import org.xmind.ui.io.MonitoredOutputStream;
 import org.xmind.ui.mindmap.GhostShellProvider;
@@ -67,34 +66,6 @@ import org.xmind.ui.wizards.AbstractMindMapExportWizard;
 import org.xmind.ui.wizards.ExportContants;
 
 public class ImageExportWizard extends AbstractMindMapExportWizard {
-
-    public static enum Entries {
-        PlusMinusVisible(ExportContants.PLUS_MINUS_VISIBLE,
-                IMindMapViewer.PLUS_MINUS_VISIBLE), //
-                PlusMinusHidden(ExportContants.PLUS_MINUS_HIDDEN,
-                        IMindMapViewer.PLUS_MINUS_HIDDEN), //
-                        PlusVisibleMinusHidden(
-                                ExportContants.PLUS_VISIBLE_MINUS_HIDDEN,
-                                IMindMapViewer.PLUS_VISIBLE_MINUS_HIDDEN);
-
-        private String settingsValue;
-
-        private String propertiesValue;
-
-        private Entries(String settingsValue, String propertiesValue) {
-            this.settingsValue = settingsValue;
-            this.propertiesValue = propertiesValue;
-        }
-
-        public static String getPropertiesValue(String settingsValue) {
-            for (Entries entry : values()) {
-                if (entry.settingsValue.equals(settingsValue)) {
-                    return entry.propertiesValue;
-                }
-            }
-            return ""; //$NON-NLS-1$
-        }
-    }
 
     private static final String IMAGE_EXPORT_PAGE_NAME = "imageExportPage"; //$NON-NLS-1$
 
@@ -304,11 +275,9 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
         private PreviewState previewState;
 
-        private Button showBothRadio;
+        private Button showPlusCheck;
 
-        private Button hideBothRadio;
-
-        private Button hideMinusShowPlusRadio;
+        private Button showMinusCheck;
 
         protected ImageExportPage() {
             super(IMAGE_EXPORT_PAGE_NAME, WizardMessages.ImageExportPage_title);
@@ -357,7 +326,6 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
             Label label = new Label(group, SWT.WRAP);
             GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-            gd.widthHint = 400;
             label.setLayoutData(gd);
             label.setText(
                     WizardMessages.ImageExportPage_FormatGroup_description);
@@ -376,69 +344,93 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
         }
 
         private void createShowPlusMinusControls(Composite parent) {
-            Group group = new Group(parent, SWT.NONE);
-            group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-            group.setLayout(new GridLayout());
-            group.setText(DialogMessages.PageSetupDialog_PlusAndMinusIcons);
-
-            Composite radioGroup = new Composite(group, SWT.NONE);
-            GridLayout gridLayout = new GridLayout(3, false);
+            Composite composite = new Composite(parent, SWT.NONE);
+            GridLayout gridLayout = new GridLayout(1, false);
             gridLayout.marginWidth = 0;
-            gridLayout.marginHeight = 3;
-            gridLayout.verticalSpacing = 0;
-            gridLayout.horizontalSpacing = 30;
-            radioGroup.setLayout(gridLayout);
-            GridData gridData = new GridData(SWT.FILL, SWT.FILL, false, false);
-            gridData.widthHint = 400;
-            gridData.heightHint = SWT.DEFAULT;
-            gridData.horizontalIndent = 10;
-            radioGroup.setLayoutData(gridData);
+            gridLayout.marginHeight = 0;
+            gridLayout.verticalSpacing = 15;
+            gridLayout.horizontalSpacing = 0;
+            composite.setLayout(gridLayout);
+            composite.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, true));
 
-            createShowPlusMinusRadios(radioGroup);
+            Label label = new Label(composite, SWT.NONE);
+            label.setLayoutData(
+                    new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+            label.setText(
+                    WizardMessages.ImageExportWizard_showPlusMinus_groupTitle);
+
+            Composite rightGroup = new Composite(composite, SWT.NONE);
+            GridLayout gridLayout2 = new GridLayout(2, false);
+            gridLayout2.marginWidth = 14;
+            gridLayout2.marginHeight = 3;
+            gridLayout2.verticalSpacing = 0;
+            gridLayout2.horizontalSpacing = 70;
+            rightGroup.setLayout(gridLayout2);
+            GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+            rightGroup.setLayoutData(gridData);
+
+            createShowPlusCheck(rightGroup);
+            createShowMinusCheck(rightGroup);
+
+            initPlusMinusCheckState();
         }
 
-        private void createShowPlusMinusRadios(Composite parent) {
-            hideBothRadio = new Button(parent, SWT.RADIO);
-            hideBothRadio.setText(DialogMessages.PageSetupDialog_HideBoth);
-            hideBothRadio.setLayoutData(
+        private void createShowPlusCheck(Composite parent) {
+            showPlusCheck = createPlusMinusCheck(parent,
+                    WizardMessages.ImageExportWizard_showPlusCheck_text,
+                    MindMapUI.getImages().get("plus.png", true).createImage()); //$NON-NLS-1$
+        }
+
+        private void createShowMinusCheck(Composite parent) {
+            showMinusCheck = createPlusMinusCheck(parent,
+                    WizardMessages.ImageExportWizard_showMinusCheck_text,
+                    MindMapUI.getImages().get("minus.png", true).createImage()); //$NON-NLS-1$
+        }
+
+        private Button createPlusMinusCheck(Composite parent, String text,
+                Image image) {
+            Composite composite = new Composite(parent, SWT.NONE);
+            composite.setLayoutData(
                     new GridData(SWT.LEFT, SWT.CENTER, false, false));
-            hookWidget(hideBothRadio, SWT.Selection);
 
-            showBothRadio = new Button(parent, SWT.RADIO);
-            showBothRadio.setText(DialogMessages.PageSetupDialog_ShowBoth);
-            showBothRadio.setLayoutData(
+            GridLayout gridLayout = new GridLayout(2, false);
+            gridLayout.marginWidth = 0;
+            gridLayout.marginHeight = 0;
+            gridLayout.verticalSpacing = 0;
+            gridLayout.horizontalSpacing = 5;
+            composite.setLayout(gridLayout);
+
+            Button check = new Button(composite, SWT.CHECK);
+            check.setBackground(composite.getBackground());
+            check.setLayoutData(
                     new GridData(SWT.CENTER, SWT.CENTER, false, false));
-            hookWidget(showBothRadio, SWT.Selection);
+            check.setText(text);
 
-            hideMinusShowPlusRadio = new Button(parent, SWT.RADIO);
-            hideMinusShowPlusRadio
-                    .setText(DialogMessages.PageSetupDialog_HideMinusShowPlus);
-            hideMinusShowPlusRadio.setLayoutData(
-                    new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-            hookWidget(hideMinusShowPlusRadio, SWT.Selection);
+            Label imageLabel = new Label(composite, SWT.NONE);
+            imageLabel.setBackground(composite.getBackground());
+            imageLabel.setLayoutData(
+                    new GridData(SWT.CENTER, SWT.CENTER, false, false));
+            imageLabel.setImage(image);
 
-            String plusMinusVisibility = getDialogSettings()
-                    .get(ExportContants.PLUS_MINUS_VISIBILITY);
-            if (plusMinusVisibility == null || "".equals(plusMinusVisibility)) { //$NON-NLS-1$
-                getDialogSettings().put(ExportContants.PLUS_MINUS_VISIBILITY,
-                        ExportContants.DEFAULT_PLUS_MINUS_VISIBILITY_VALUE);
-            }
-            updateShowPlusMinusRadiosState();
+            hookWidget(check, SWT.Selection);
+
+            return check;
         }
 
-        private void updateShowPlusMinusRadiosState() {
-            String plusMinusVisibility = getDialogSettings()
-                    .get(ExportContants.PLUS_MINUS_VISIBILITY);
-            hideBothRadio.setSelection(ExportContants.PLUS_MINUS_HIDDEN
-                    .equals(plusMinusVisibility));
-            showBothRadio.setSelection(ExportContants.PLUS_MINUS_VISIBLE
-                    .equals(plusMinusVisibility));
-            hideMinusShowPlusRadio
-                    .setSelection(ExportContants.PLUS_VISIBLE_MINUS_HIDDEN
-                            .equals(plusMinusVisibility));
+        private void initPlusMinusCheckState() {
+            boolean plusVisible = getBoolean(getDialogSettings(),
+                    ExportContants.PLUS_VISIBLE,
+                    ExportContants.DEFAULT_PLUS_VISIBLE);
+            boolean minusVisible = getBoolean(getDialogSettings(),
+                    ExportContants.MINUS_VISIBLE,
+                    ExportContants.DEFAULT_MINUS_VISIBLE);
+
+            showPlusCheck.setSelection(plusVisible);
+            showMinusCheck.setSelection(minusVisible);
         }
 
-        private void setProperty(String key, String value) {
+        private void setProperty(String key, boolean value) {
             getDialogSettings().put(key, value);
             updatePreview();
         }
@@ -449,10 +441,14 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
 
             Properties properties = exporter.getProperties();
             if (properties != null) {
-                String plusMinusVisibility = getDialogSettings()
-                        .get(ExportContants.PLUS_MINUS_VISIBILITY);
-                properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                        plusMinusVisibility);
+                boolean plusVisible = getBoolean(getDialogSettings(),
+                        ExportContants.PLUS_VISIBLE,
+                        ExportContants.DEFAULT_PLUS_VISIBLE);
+                boolean minusVisible = getBoolean(getDialogSettings(),
+                        ExportContants.MINUS_VISIBLE,
+                        ExportContants.DEFAULT_MINUS_VISIBLE);
+                properties.set(IMindMapViewer.PLUS_VISIBLE, plusVisible);
+                properties.set(IMindMapViewer.MINUS_VISIBLE, minusVisible);
             }
 
             generatePreview(getFormat());
@@ -488,15 +484,12 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
                 if (oldFormat != getFormat()) {
                     formatChanged();
                 }
-            } else if (event.widget == hideBothRadio) {
-                setProperty(ExportContants.PLUS_MINUS_VISIBILITY,
-                        ExportContants.PLUS_MINUS_HIDDEN);
-            } else if (event.widget == showBothRadio) {
-                setProperty(ExportContants.PLUS_MINUS_VISIBILITY,
-                        ExportContants.PLUS_MINUS_VISIBLE);
-            } else if (event.widget == hideMinusShowPlusRadio) {
-                setProperty(ExportContants.PLUS_MINUS_VISIBILITY,
-                        ExportContants.PLUS_VISIBLE_MINUS_HIDDEN);
+            } else if (event.widget == showPlusCheck) {
+                setProperty(ExportContants.PLUS_VISIBLE,
+                        showPlusCheck.getSelection());
+            } else if (event.widget == showMinusCheck) {
+                setProperty(ExportContants.MINUS_VISIBLE,
+                        showMinusCheck.getSelection());
             } else if (viewer != null && event.widget == viewer.getControl()) {
                 updateViewerSize();
             } else {
@@ -742,12 +735,31 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
         MindMapImageExporter exporter = new MindMapImageExporter(display);
 
         Properties properties = new Properties();
-        properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                getDialogSettings().get(ExportContants.PLUS_MINUS_VISIBILITY));
+
+        //set plus minus visibility
+        boolean plusVisible = getBoolean(getDialogSettings(),
+                ExportContants.PLUS_VISIBLE,
+                ExportContants.DEFAULT_PLUS_VISIBLE);
+        boolean minusVisible = getBoolean(getDialogSettings(),
+                ExportContants.MINUS_VISIBLE,
+                ExportContants.DEFAULT_MINUS_VISIBLE);
+        properties.set(IMindMapViewer.PLUS_VISIBLE, plusVisible);
+        properties.set(IMindMapViewer.MINUS_VISIBLE, minusVisible);
+
         exporter.setSource(getSourceMindMap(), getShellProvider(display),
                 properties, null);
 
         return exporter;
+    }
+
+    private boolean getBoolean(IDialogSettings settings, String key,
+            boolean defaultValue) {
+        boolean value = defaultValue;
+        if (settings.get(key) != null) {
+            value = settings.getBoolean(key);
+        }
+
+        return value;
     }
 
 //    protected void releaseImageExtractor(MindMapImageExtractor imageExtractor) {
@@ -817,6 +829,8 @@ public class ImageExportWizard extends AbstractMindMapExportWizard {
     protected void doExport(IProgressMonitor monitor, final Display display,
             final Shell parentShell)
                     throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ExportToImageCount"); //$NON-NLS-1$
         monitor.beginTask(null, 100);
 
         monitor.subTask(WizardMessages.ImageExport_CreatingSourceImage);

@@ -16,31 +16,46 @@ package org.xmind.ui.internal.figures;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.draw2d.ITitledFigure;
+import org.xmind.gef.draw2d.ReferencedFigure;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.gef.draw2d.SizeableImageFigure;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGImageFigure;
 
 public class LegendItemFigure extends Figure implements ITitledFigure {
 
     private static final int SPACING = 7;
 
-    private SizeableImageFigure icon;
+    private SizeableImageFigure icon = null;
+
+    private SVGImageFigure svgIcon = null;
 
     private ITextFigure caption;
 
     private Dimension cachedPrefSize = null;
 
-    public LegendItemFigure(int textRenderStyle) {
-        this.icon = new SizeableImageFigure();
-        this.icon.setConstrained(true);
-        this.caption = new RotatableWrapLabel(textRenderStyle);
-        add(this.icon);
-        add(this.caption);
+    public LegendItemFigure(int textRenderStyle,
+            LocalResourceManager resourceManager) {
+        System.out.println("figure   " + resourceManager == null);
+        if (resourceManager != null) {
+            svgIcon = new SVGImageFigure();
+            svgIcon.setManager(resourceManager);
+            svgIcon.setConstrained(true);
+            add(svgIcon);
+        } else {
+            icon = new SizeableImageFigure();
+            icon.setConstrained(true);
+            add(icon);
+        }
+        caption = new RotatableWrapLabel(textRenderStyle);
+        add(caption);
     }
 
     public ITextFigure getTitle() {
@@ -50,8 +65,8 @@ public class LegendItemFigure extends Figure implements ITitledFigure {
     public void setTitle(ITextFigure title) {
     }
 
-    public SizeableImageFigure getIcon() {
-        return icon;
+    public ReferencedFigure getIcon() {
+        return svgIcon != null ? svgIcon : icon;
     }
 
     public ITextFigure getCaption() {
@@ -65,10 +80,11 @@ public class LegendItemFigure extends Figure implements ITitledFigure {
         if (cachedPrefSize != null)
             return cachedPrefSize;
 
-        Dimension s1 = icon.getPreferredSize();
+        Dimension s1 = svgIcon != null ? svgIcon.getPreferredSize()
+                : icon.getPreferredSize();
         Dimension s2 = caption.getPreferredSize();
-        cachedPrefSize = new Dimension(s1.width + SPACING + s2.width, Math.max(
-                s1.height, s2.height));
+        cachedPrefSize = new Dimension(s1.width + SPACING + s2.width,
+                Math.max(s1.height, s2.height));
         return cachedPrefSize;
     }
 
@@ -79,12 +95,17 @@ public class LegendItemFigure extends Figure implements ITitledFigure {
 
     protected void layout() {
         Rectangle r = getBounds();
-        Dimension s1 = icon.getPreferredSize();
+        Dimension s1 = svgIcon != null ? svgIcon.getPreferredSize()
+                : icon.getPreferredSize();
         Dimension s2 = caption.getPreferredSize();
-        icon.setBounds(new Rectangle(r.x, r.y + (r.height - s1.height) / 2,
-                s1.width, s1.height));
-        caption.setBounds(new Rectangle(r.x + s1.width + SPACING, r.y
-                + (r.height - s2.height) / 2, s2.width, s2.height));
+        if (svgIcon != null)
+            svgIcon.setBounds(new Rectangle(r.x,
+                    r.y + (r.height - s1.height) / 2, s1.width, s1.height));
+        else
+            icon.setBounds(new Rectangle(r.x, r.y + (r.height - s1.height) / 2,
+                    s1.width, s1.height));
+        caption.setBounds(new Rectangle(r.x + s1.width + SPACING,
+                r.y + (r.height - s2.height) / 2, s2.width, s2.height));
     }
 
     public int getLineSpacing() {
@@ -127,12 +148,14 @@ public class LegendItemFigure extends Figure implements ITitledFigure {
         ((RotatableWrapLabel) caption).setRenderStyle(textRenderStyle);
     }
 
-    public Image getIconImage() {
-        return icon.getImage();
+    public void setIconImage(Image image) {
+        if (icon != null)
+            icon.setImage(image);
     }
 
-    public void setIconImage(Image image) {
-        icon.setImage(image);
+    public void setSVGData(SVGImageData svgImageData) {
+        if (svgIcon != null)
+            svgIcon.setSVGData(svgImageData);
     }
 
     public void setFont(Font f) {

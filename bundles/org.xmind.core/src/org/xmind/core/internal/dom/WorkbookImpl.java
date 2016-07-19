@@ -17,7 +17,6 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_RESOURCE_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_TYPE;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_VERSION;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_BOUNDARY;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_MANIFEST;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_MARKER_REF;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_RELATIONSHIP;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_RESOURCE_REF;
@@ -26,10 +25,10 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_SUMMARY;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_TOPIC;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_WORKBOOK;
 import static org.xmind.core.internal.zip.ArchiveConstants.CONTENT_XML;
-import static org.xmind.core.internal.zip.ArchiveConstants.MANIFEST_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.META_XML;
+import static org.xmind.core.internal.zip.ArchiveConstants.STYLES_XML;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -43,19 +42,21 @@ import org.xmind.core.CoreException;
 import org.xmind.core.IAdaptable;
 import org.xmind.core.IBoundary;
 import org.xmind.core.ICloneData;
+import org.xmind.core.IEntryStreamNormalizer;
+import org.xmind.core.IFileEntry;
 import org.xmind.core.IManifest;
-import org.xmind.core.IMeta;
 import org.xmind.core.INotes;
 import org.xmind.core.INotesContent;
 import org.xmind.core.IRelationship;
 import org.xmind.core.IRelationshipEnd;
 import org.xmind.core.IResourceRef;
 import org.xmind.core.IRevisionRepository;
+import org.xmind.core.ISerializer;
 import org.xmind.core.ISheet;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbookComponentRefManager;
-import org.xmind.core.comment.ICommentManager;
+import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
@@ -63,11 +64,12 @@ import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Workbook;
 import org.xmind.core.internal.event.CoreEventSupport;
-import org.xmind.core.io.DirectoryStorage;
+import org.xmind.core.internal.zip.ArchiveConstants;
 import org.xmind.core.io.IOutputTarget;
 import org.xmind.core.io.IStorage;
+import org.xmind.core.marker.IMarker;
+import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
-import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.IMarkerRefCounter;
 import org.xmind.core.util.IStyleRefCounter;
@@ -79,23 +81,15 @@ import org.xmind.core.util.IStyleRefCounter;
 public class WorkbookImpl extends Workbook
         implements ICoreEventSource, ICoreEventSource2, INodeAdaptableFactory {
 
-    private static interface ISaveable {
-        void run() throws IOException, CoreException;
-    }
-
     private Document implementation;
 
-    private WorkbookSaver saver;
-
-    private TempSaver tempSaver;
+    private ManifestImpl manifest;
 
     private NodeAdaptableRegistry adaptableRegistry;
 
     private CoreEventSupport coreEventSupport = null;
 
     private StyleSheetImpl styleSheet = null;
-
-    private ManifestImpl manifest = null;
 
     private MarkerSheetImpl markerSheet = null;
 
@@ -109,53 +103,70 @@ public class WorkbookImpl extends Workbook
 
     private WorkbookComponentRefCounter elementRefCounter = null;
 
-    private String password = null;
-
     private RevisionRepositoryImpl revisionRepository = null;
-
-    private String creatorName;
-
-    private String creatorVersion;
 
     /**
      * @param implementation
      */
-    public WorkbookImpl(Document implementation) {
-        this(implementation, null, true);
+    public WorkbookImpl(Document implementation, IStorage storage) {
+        this(implementation,
+                new ManifestImpl(DOMUtils.createDocument(), storage));
     }
 
     /**
-     * @param fileName
-     *            The file name of the workbook.
+     * 
+     * @param implementation
+     * @param manifest
      */
-    public WorkbookImpl(Document implementation, String targetPath) {
-        this(implementation, targetPath, true);
-    }
-
-    public WorkbookImpl(Document implementation, String targetPath,
-            boolean needInit) {
+    public WorkbookImpl(Document implementation, ManifestImpl manifest) {
         this.implementation = implementation;
-        this.saver = new WorkbookSaver(this, targetPath);
-        this.tempSaver = new TempSaver(this);
+        this.manifest = manifest;
         this.adaptableRegistry = new NodeAdaptableRegistry(implementation,
                 this);
-        if (needInit)
-            init();
+        init();
     }
 
     private void init() {
+        manifest.setWorkbook(this);
+        manifest.createFileEntry(CONTENT_XML, Core.MEDIA_TYPE_TEXT_XML)
+                .increaseReference();
+        manifest.createFileEntry(META_XML, Core.MEDIA_TYPE_TEXT_XML)
+                .increaseReference();
+
         Element w = DOMUtils.ensureChildElement(implementation, TAG_WORKBOOK);
         NS.setNS(NS.XMAP, w, NS.Xhtml, NS.Xlink, NS.SVG, NS.Fo);
         if (!DOMUtils.childElementIterByTag(w, TAG_SHEET).hasNext())
             addSheet(createSheet());
         InternalDOMUtils.addVersion(implementation);
+
+        ICoreEventListener eventHook = new ICoreEventListener() {
+            public void handleCoreEvent(CoreEvent event) {
+                handleMarkerSheetEvent(event);
+            }
+        };
+        ICoreEventSupport eventSupport = getCoreEventSupport();
+        eventSupport.registerGlobalListener(Core.MarkerAdd, eventHook);
+        eventSupport.registerGlobalListener(Core.MarkerRemove, eventHook);
+        eventSupport.registerGlobalListener(Core.MarkerGroupAdd, eventHook);
+        eventSupport.registerGlobalListener(Core.MarkerGroupRemove, eventHook);
     }
 
     /**
+     * <b>NOTE</b>: This is not a public API.
+     * 
      * @return the implementation
      */
     public Document getImplementation() {
         return implementation;
+    }
+
+    /**
+     * <b>NOTE</b>: This is not a public API.
+     * 
+     * @return the storage
+     */
+    public IStorage getStorage() {
+        return manifest.getStorage();
     }
 
     /**
@@ -177,13 +188,18 @@ public class WorkbookImpl extends Workbook
     }
 
     public String toString() {
-        if (getFile() != null) {
-            return "Workbook(" + getFile() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+        if (getStorage() != null) {
+            return "Workbook{" + hashCode() + ";path:" //$NON-NLS-1$//$NON-NLS-2$
+                    + getStorage().getFullPath() + "}"; //$NON-NLS-1$
         }
         return "Workbook{" + hashCode() + "}"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public Object getAdapter(Class adapter) {
+        if (adapter == IStorage.class)
+            return getStorage();
+        if (adapter == IEntryStreamNormalizer.class)
+            return manifest.getStreamNormalizer();
         if (adapter == ICoreEventSource.class)
             return this;
         if (adapter == Document.class || adapter == Node.class)
@@ -303,18 +319,6 @@ public class WorkbookImpl extends Workbook
         return DOMUtils.getAttribute(getWorkbookElement(), ATTR_VERSION);
     }
 
-    private void saveVersion() {
-        InternalDOMUtils.replaceVersion(implementation);
-        InternalDOMUtils
-                .replaceVersion(((MetaImpl) getMeta()).getImplementation());
-        if (styleSheet != null) {
-            InternalDOMUtils.replaceVersion(styleSheet.getImplementation());
-        }
-        if (markerSheet != null) {
-            InternalDOMUtils.replaceVersion(markerSheet.getImplementation());
-        }
-    }
-
     /**
      * @see org.xmind.core.IWorkbook#getSheets()
      */
@@ -323,11 +327,11 @@ public class WorkbookImpl extends Workbook
                 getAdaptableRegistry());
     }
 
-    public ISheet getPrimarySheet() {
+    public SheetImpl getPrimarySheet() {
         Element e = DOMUtils.getFirstChildElementByTag(getWorkbookElement(),
                 TAG_SHEET);
         if (e != null)
-            return (ISheet) getAdaptableRegistry().getAdaptable(e);
+            return (SheetImpl) getAdaptableRegistry().getAdaptable(e);
         return null;
     }
 
@@ -351,9 +355,6 @@ public class WorkbookImpl extends Workbook
     }
 
     public void removeSheet(ISheet sheet) {
-//        if (hasOnlyOneSheet())
-//            return;
-
         Element s = ((SheetImpl) sheet).getImplementation();
         Element w = getWorkbookElement();
         if (s != null && s.getParentNode() == w) {
@@ -366,17 +367,6 @@ public class WorkbookImpl extends Workbook
             }
         }
     }
-
-//    private boolean hasOnlyOneSheet() {
-//        Iterator<Element> it = DOMUtils.childElementIterByTag(
-//                getWorkbookElement(), TAG_SHEET);
-//        if (it.hasNext()) {
-//            it.next();
-//            if (!it.hasNext())
-//                return true;
-//        }
-//        return false;
-//    }
 
     public void moveSheet(int sourceIndex, int targetIndex) {
         if (sourceIndex < 0 || sourceIndex == targetIndex)
@@ -406,76 +396,74 @@ public class WorkbookImpl extends Workbook
         }
     }
 
-    public IStyleSheet getStyleSheet() {
+    public StyleSheetImpl getStyleSheet() {
         if (styleSheet == null)
-            styleSheet = createStyleSheet();
+            setStyleSheet(createStyleSheet());
         return styleSheet;
     }
 
     public void setStyleSheet(StyleSheetImpl styleSheet) {
+        StyleSheetImpl oldStyleSheet = this.styleSheet;
+        if (styleSheet == oldStyleSheet)
+            return;
+
+        if (oldStyleSheet != null) {
+            oldStyleSheet.getCoreEventSupport().setParent(null);
+        }
         this.styleSheet = styleSheet;
+        if (styleSheet != null) {
+            styleSheet.getCoreEventSupport().setParent(getCoreEventSupport());
+        }
     }
 
     protected StyleSheetImpl createStyleSheet() {
         StyleSheetImpl ss = (StyleSheetImpl) Core.getStyleSheetBuilder()
                 .createStyleSheet();
+        getManifest().createFileEntry(STYLES_XML, Core.MEDIA_TYPE_TEXT_XML)
+                .increaseReference();
         ss.setManifest(getManifest());
         return ss;
     }
 
-    public IManifest getManifest() {
-        if (manifest == null)
-            manifest = createManifest();
+    public ManifestImpl getManifest() {
         return manifest;
     }
 
-    public void setManifest(ManifestImpl manifest) {
-        if (manifest == null)
-            throw new IllegalArgumentException("Manifest is null"); //$NON-NLS-1$
-        ManifestImpl oldManifest = this.manifest;
-        this.manifest = manifest;
-        if (oldManifest != null) {
-            oldManifest.setWorkbook(null);
-        }
-        manifest.setWorkbook(this);
-    }
-
-    protected ManifestImpl createManifest() {
-        Document mfImpl = createManifestImplementation();
-
-        ManifestImpl mf = new ManifestImpl(mfImpl);
-        mf.setWorkbook(this);
-
-        mf.createFileEntry(CONTENT_XML, Core.MEDIA_TYPE_TEXT_XML)
-                .increaseReference();
-        mf.createFileEntry(MANIFEST_XML, Core.MEDIA_TYPE_TEXT_XML)
-                .increaseReference();
-        mf.createFileEntry(META_XML, Core.MEDIA_TYPE_TEXT_XML)
-                .increaseReference();
-
-        return mf;
-    }
-
-    private Document createManifestImplementation() {
-        return DOMUtils.createDocument(TAG_MANIFEST);
-    }
-
-    public IMarkerSheet getMarkerSheet() {
+    public MarkerSheetImpl getMarkerSheet() {
         if (markerSheet == null)
-            markerSheet = createMarkerSheet();
+            setMarkerSheet(createMarkerSheet());
         return markerSheet;
     }
 
     protected MarkerSheetImpl createMarkerSheet() {
-        return (MarkerSheetImpl) Core.getMarkerSheetBuilder()
+        MarkerSheetImpl ms = (MarkerSheetImpl) Core.getMarkerSheetBuilder()
                 .createMarkerSheet(new WorkbookMarkerResourceProvider(this));
+        ms.setManifest(getManifest());
+        return ms;
     }
 
     public void setMarkerSheet(MarkerSheetImpl markerSheet) {
+        MarkerSheetImpl oldMarkerSheet = this.markerSheet;
+        if (markerSheet == oldMarkerSheet)
+            return;
+
+        if (oldMarkerSheet != null) {
+            oldMarkerSheet.getCoreEventSupport().setParent(null);
+            for (IMarkerGroup oldMarkerGroup : oldMarkerSheet
+                    .getMarkerGroups()) {
+                handleMarkerGroupManagement(oldMarkerGroup, false);
+            }
+        }
         this.markerSheet = markerSheet;
+        if (markerSheet != null) {
+            for (IMarkerGroup newMarkerGroup : markerSheet.getMarkerGroups()) {
+                handleMarkerGroupManagement(newMarkerGroup, true);
+            }
+            markerSheet.getCoreEventSupport().setParent(getCoreEventSupport());
+        }
     }
 
-    public IMeta getMeta() {
+    public MetaImpl getMeta() {
         if (meta == null) {
             meta = createMeta();
         }
@@ -502,17 +490,14 @@ public class WorkbookImpl extends Workbook
 
     protected WorkbookMarkerRefCounter getMarkerRefCounter() {
         if (markerRefCounter == null)
-            markerRefCounter = new WorkbookMarkerRefCounter(
-                    (MarkerSheetImpl) getMarkerSheet(),
-                    (ManifestImpl) getManifest());
+            markerRefCounter = new WorkbookMarkerRefCounter(this);
         return markerRefCounter;
     }
 
     protected WorkbookStyleRefCounter getStyleRefCounter() {
         if (styleRefCounter == null) {
             styleRefCounter = new WorkbookStyleRefCounter(
-                    (StyleSheetImpl) getStyleSheet(),
-                    (ManifestImpl) getManifest());
+                    (StyleSheetImpl) getStyleSheet(), manifest);
         }
         return styleRefCounter;
     }
@@ -608,39 +593,6 @@ public class WorkbookImpl extends Workbook
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IWorkbook#setPassword(java.lang.String)
-     */
-    public void setPassword(String password) {
-        String oldPassword = this.password;
-        this.password = password;
-        fireValueChange(Core.PasswordChange, oldPassword, this.password);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IWorkbook#getPassword()
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * @param type
-     * @param oldValue
-     * @param newValue
-     */
-    private void fireValueChange(String type, Object oldValue,
-            Object newValue) {
-        ICoreEventSupport coreEventSupport = getCoreEventSupport();
-        if (coreEventSupport != null)
-            coreEventSupport.dispatchValueChange(this, type, oldValue,
-                    newValue);
-    }
-
     public ICoreEventSupport getCoreEventSupport() {
         if (coreEventSupport == null)
             coreEventSupport = new CoreEventSupport();
@@ -679,131 +631,136 @@ public class WorkbookImpl extends Workbook
     }
 
     /**
-     * 
+     * @deprecated
      */
-    private void fireTargetChange(String type, Object target) {
-        if (coreEventSupport != null) {
-            coreEventSupport.dispatchTargetChange(this, type, target);
+    @Deprecated
+    public synchronized void save() throws IOException, CoreException {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public synchronized void save(final String file)
+            throws IOException, CoreException {
+        FileOutputStream stream = new FileOutputStream(file);
+        try {
+            ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
+            serializer.setWorkbook(this);
+            serializer.setOutputStream(stream);
+            serializer.serialize(null);
+        } finally {
+            stream.close();
         }
     }
 
-    private void save(ISaveable runnable) throws IOException, CoreException {
-        saveVersion();
-        fireTargetChange(Core.WorkbookPreSaveOnce, this);
-        fireTargetChange(Core.WorkbookPreSave, this);
-        runnable.run();
-        fireTargetChange(Core.WorkbookSave, this);
-    }
-
     /**
-     * @see org.xmind.core.IWorkbook#save()
+     * @deprecated
      */
-    public synchronized void save() throws IOException, CoreException {
-        save(new ISaveable() {
-            public void run() throws IOException, CoreException {
-                saver.save();
-            }
-        });
-    }
-
-    /**
-     * @see org.xmind.core.IWorkbook#save(java.lang.String)
-     */
-    public synchronized void save(final String file)
-            throws IOException, CoreException {
-        if (file == null)
-            throw new IllegalArgumentException();
-
-        save(new ISaveable() {
-            public void run() throws IOException, CoreException {
-                saver.save(file);
-            }
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IWorkbook#save(org.xmind.core.io.IOutputTarget)
-     */
+    @Deprecated
     public synchronized void save(final IOutputTarget target)
             throws IOException, CoreException {
-        if (target == null)
-            throw new IllegalArgumentException();
-
-        save(new ISaveable() {
-            public void run() throws IOException, CoreException {
-                saver.save(target);
-            }
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IWorkbook#save(java.io.OutputStream)
-     */
-    public synchronized void save(final OutputStream output)
-            throws IOException, CoreException {
-        if (output == null)
-            throw new IllegalArgumentException();
-
-        save(new ISaveable() {
-            public void run() throws IOException, CoreException {
-                saver.save(output);
-            }
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IWorkbook#setTempArchive(org.xmind.core.io.IArchive)
-     */
-    public void setTempStorage(IStorage storage) {
-        if (storage == null)
-            throw new IllegalArgumentException();
-        tempSaver.setStorage(storage);
+        ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
+        serializer.setWorkbook(this);
+        serializer.setOutputTarget(target);
+        serializer.serialize(null);
     }
 
     /**
-     * @return the tempArchive
+     * @deprecated
      */
+    @Deprecated
+    public synchronized void save(final OutputStream output)
+            throws IOException, CoreException {
+        ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
+        serializer.setWorkbook(this);
+        serializer.setOutputStream(output);
+        serializer.serialize(null);
+    }
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public void setTempStorage(IStorage storage) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public IStorage getTempStorage() {
-        return tempSaver.getStorage();
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public String getFile() {
-        return saver.getFile();
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public void setFile(String file) {
-        saver.setFile(file);
+        throw new UnsupportedOperationException();
     }
 
-    public void setSkipRevisionsWhenSaving(boolean skipRevisions) {
-        saver.setSkipRevisions(skipRevisions);
-    }
-
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public boolean isSkipRevisionsWhenSaving() {
-        return saver.isSkipRevisions();
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public String getTempLocation() {
-        IStorage storage = getTempStorage();
-        return storage instanceof DirectoryStorage
-                ? ((DirectoryStorage) storage).getFullPath() : null;
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public void setTempLocation(String tempLocation) {
-        if (tempLocation == null)
-            throw new IllegalArgumentException();
-
-        setTempStorage(new DirectoryStorage(new File(tempLocation)));
+        throw new UnsupportedOperationException();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IWorkbook#setPassword(java.lang.String)
+     */
+    @Deprecated
+    public void setPassword(String password) {
+        throw new UnsupportedOperationException();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IWorkbook#getPassword()
+     */
+    @Deprecated
+    public String getPassword() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Deprecated
     public void saveTemp() throws IOException, CoreException {
-        tempSaver.save();
+        ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
+        serializer.setWorkbook(this);
+        serializer.setWorkbookStorageAsOutputTarget();
+        serializer.serialize(null);
     }
 
     public long getModifiedTime() {
@@ -818,36 +775,68 @@ public class WorkbookImpl extends Workbook
         InternalDOMUtils.updateModificationInfo(this);
     }
 
-    public void setCreator(String name, String version) {
-        this.creatorName = name;
-        this.creatorVersion = version;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public String getCreatorVersion() {
-        return creatorVersion;
-    }
-
-    public ICommentManager getCommentManager() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IWorkbook#getCommentManager()
+     */
+    public org.xmind.core.ICommentManager getCommentManager() {
         if (commentManager == null) {
             commentManager = createCommentManager();
         }
         return commentManager;
     }
 
+    /**
+     * @return
+     */
     private CommentManagerImpl createCommentManager() {
-        CommentManagerImpl commentManager = (CommentManagerImpl) Core
-                .getCommentManagerBuilder().createCommentManager();
-        commentManager.setOwnedWorkbook(this);
-        return commentManager;
+        return new CommentManagerImpl(this, DOMUtils.createDocument());
     }
 
     public void setCommentManager(CommentManagerImpl commentManager) {
         this.commentManager = commentManager;
-        commentManager.setOwnedWorkbook(this);
+    }
+
+    private void handleMarkerSheetEvent(CoreEvent event) {
+        String type = event.getType();
+        if (Core.MarkerAdd.equals(type)) {
+            handleMarkerManagement((IMarker) event.getTarget(), true);
+        } else if (Core.MarkerRemove.equals(type)) {
+            handleMarkerManagement((IMarker) event.getTarget(), false);
+        } else if (Core.MarkerGroupAdd.equals(type)) {
+            handleMarkerGroupManagement((IMarkerGroup) event.getTarget(), true);
+        } else if (Core.MarkerGroupRemove.equals(type)) {
+            handleMarkerGroupManagement((IMarkerGroup) event.getTarget(),
+                    false);
+        }
+    }
+
+    /**
+     * @param marker
+     */
+    private void handleMarkerManagement(IMarker marker, boolean added) {
+        String path = marker.getResourcePath();
+        if (path == null || "".equals(path)) //$NON-NLS-1$
+            return;
+
+        IFileEntry entry = getManifest()
+                .getFileEntry(ArchiveConstants.PATH_MARKERS + path);
+        if (entry == null)
+            return;
+
+        if (added) {
+            entry.increaseReference();
+        } else {
+            entry.decreaseReference();
+        }
+    }
+
+    private void handleMarkerGroupManagement(IMarkerGroup group,
+            boolean added) {
+        for (IMarker marker : group.getMarkers()) {
+            handleMarkerManagement(marker, added);
+        }
     }
 
 }

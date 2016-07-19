@@ -126,14 +126,15 @@ public class RevisionImpl extends Revision {
     private Document loadDocument(String path) {
         IFileEntry entry = getOwnedWorkbook().getManifest().getFileEntry(path);
         if (entry != null) {
-            InputStream stream = entry.getInputStream();
-            if (stream != null) {
+            try {
+                InputStream stream = entry.openInputStream();
                 try {
                     return DOMUtils.loadDocument(stream);
-                } catch (Throwable e) {
-                    Core.getLogger().log(e,
-                            "Failed to load content from " + path); //$NON-NLS-1$
+                } finally {
+                    stream.close();
                 }
+            } catch (Throwable e) {
+                Core.getLogger().log(e, "Failed to load content from " + path); //$NON-NLS-1$
             }
         }
         return null;
@@ -149,13 +150,15 @@ public class RevisionImpl extends Revision {
 
     protected void addNotify(WorkbookImpl workbook) {
         increaseFileEntryReference();
-        if (SHEET.equals(getContentType()) && getContent() instanceof SheetImpl) {
+        if (SHEET.equals(getContentType())
+                && getContent() instanceof SheetImpl) {
             ((SheetImpl) getContent()).addNotify(workbook);
         }
     }
 
     protected void removeNotify(WorkbookImpl workbook) {
-        if (SHEET.equals(getContentType()) && getContent() instanceof SheetImpl) {
+        if (SHEET.equals(getContentType())
+                && getContent() instanceof SheetImpl) {
             ((SheetImpl) getContent()).removeNotify(workbook);
         }
         decreaseFileEntryReference();

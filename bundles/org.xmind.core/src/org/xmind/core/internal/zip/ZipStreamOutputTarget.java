@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.core.internal.zip;
 
+import java.io.Closeable;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,13 +24,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.xmind.core.Core;
-import org.xmind.core.io.ICloseableOutputTarget;
+import org.xmind.core.io.IOutputTarget;
 
 /**
  * @author frankshaka
  * 
  */
-public class ZipStreamOutputTarget implements ICloseableOutputTarget {
+public class ZipStreamOutputTarget implements IOutputTarget, Closeable {
 
     private static final boolean DEFAULT_COMPRESSED = Boolean
             .getBoolean("org.xmind.core.workbook.compressed"); //$NON-NLS-1$

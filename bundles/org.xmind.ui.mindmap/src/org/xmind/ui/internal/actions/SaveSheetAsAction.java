@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
-import java.io.File;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.SafeRunner;
@@ -60,9 +59,7 @@ public class SaveSheetAsAction extends Action {
 
         ISheet sheet = mindmap.getSheet();
         final IWorkbook newWorkbook = Core.getWorkbookBuilder()
-                .createWorkbook();
-        String tempLocation = createTempLocation();
-        newWorkbook.setTempLocation(tempLocation);
+                .createWorkbook(MME.createTempStorage());
         try {
             newWorkbook.saveTemp();
         } catch (Exception ignore) {
@@ -70,9 +67,7 @@ public class SaveSheetAsAction extends Action {
         ICloneData clone = newWorkbook.clone(Arrays.asList(sheet));
         ISheet newSheet = (ISheet) clone.get(sheet);
         initSheet(newSheet);
-        ITopic newCentralTopic = newWorkbook.findTopic(clone.getString(
-                ICloneData.WORKBOOK_COMPONENTS, mindmap.getCentralTopic()
-                        .getId()));
+        ITopic newCentralTopic = (ITopic) clone.get(mindmap.getCentralTopic());
         if (newCentralTopic == null)
             //TODO should we log this?
             return;
@@ -84,9 +79,11 @@ public class SaveSheetAsAction extends Action {
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
                 final IEditorPart newEditor = page.getParentEditor().getSite()
-                        .getPage()
-                        .openEditor(MME.createLoadedEditorInput(newWorkbook),
-                        //new WorkbookEditorInput(newWorkbook, null, true),
+                        .getPage().openEditor(
+                                MindMapUI.getEditorInputFactory()
+                                        .createEditorInputForPreLoadedWorkbook(
+                                                newWorkbook, null),
+                                //new WorkbookEditorInput(newWorkbook, null, true),
                                 MindMapUI.MINDMAP_EDITOR_ID, true);
                 // Forcely make editor saveable:
                 if (newWorkbook instanceof ICoreEventSource2) {
@@ -105,14 +102,6 @@ public class SaveSheetAsAction extends Action {
             }
         });
 
-    }
-
-    public String createTempLocation() {
-        String tempFile = Core.getIdFactory().createId()
-                + MindMapUI.FILE_EXT_XMIND_TEMP;
-        String hiberLoc = new File(Core.getWorkspace().getTempDir("workbooks"), //$NON-NLS-1$
-                tempFile).getAbsolutePath();
-        return hiberLoc;
     }
 
     private void initSheet(ISheet sheet) {

@@ -6,7 +6,7 @@
       uid="org.xmind.cathy.product"
       id="org.xmind.cathy.product"
       application="org.xmind.cathy.application"
-      version="3.6.1.qualifier"
+      version="3.6.51.qualifier"
       useFeatures="true"
       includeLaunchers="true">
 
@@ -23,6 +23,8 @@
    <launcherArgs>
       <programArgs>--launcher.defaultAction
 openFile</programArgs>
+      <vmArgs>-Dfile.encoding=UTF-8
+      </vmArgs>
       <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
       <vmArgsWin>-Xms128m
 -Xmx1024m
@@ -68,7 +70,7 @@ openFile</programArgs>
 
       <property name="osgi.instance.area" value="@user.home/.xmind/workspace-cathy"/>
       <property name="osgi.configuration.area" value="@user.home/.xmind/configuration"/>
-      <property name="osgi.requiredJavaVersion" value="1.5" />
+      <property name="osgi.requiredJavaVersion" value="1.7" />
       <property name="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
 
       <!-- Specify 'UTF-8' as the default file encoding to prevent

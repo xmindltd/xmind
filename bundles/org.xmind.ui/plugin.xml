@@ -15,6 +15,9 @@
    <extension-point id="hyperlinkPages" name="%extension-point.hyperlinkPages.name" schema="schema/hyperlinkPages.exsd"/>
    <extension-point id="numberSeparators" name="%extension-point.numberSeparators.name" schema="schema/numberSeparators.exsd"/>
    <extension-point id="infoItems" name="%extension-point.infoItems.name" schema="schema/infoItems.exsd"/>
+   <extension-point id="workbookRefFactories" name="%extension-point.workbookRefFactories.name" schema="schema/workbookRefFactories.exsd"/>
+   <extension-point id="saveWizards" name="%extension-point.saveWizards.name" schema="schema/saveWizards.exsd"/>
+   <extension-point id="shareOptions" name="%extension-point.shareOptions.name" schema="schema/shareOptions.exsd"/>
 
    <extension
          point="org.eclipse.ui.editors">
@@ -596,6 +599,32 @@
             id="org.xmind.ui.command.clearWorkbookHistory"
             name="%command.clearWorkbookHistory.name">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.file"
+            description="%command.saveAs.description"
+            id="org.xmind.ui.command.saveWorkbookAs"
+            name="%command.saveAs.name">
+         <commandParameter
+               id="org.xmind.ui.command.saveWorkbookAs.wizardId"
+               name="%commandParameter.wizardId.name"
+               optional="true">
+         </commandParameter>
+         <commandParameter
+               id="org.xmind.ui.command.saveWorkbookAs.excludedWizardIds"
+               name="%commandParameter.excludedWizardId.name"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            defaultHandler="org.xmind.ui.internal.colorful.ColorfulSheetHandler"
+            id="org.xmind.ui.command.colorfulSheet"
+            name="%command.colorfulSheet.name">
+         <commandParameter
+               id="org.xmind.ui.command.colorfulSheet.rgbParameter"
+               name="%commandParameter.rgb.name"
+               optional="true">
+         </commandParameter>
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
@@ -652,6 +681,12 @@
             id="org.xmind.ui.context.comments.edit"
             name="%context.inCommentsView.name"
             parentId="org.eclipse.ui.contexts.window">
+      </context>
+      <context
+            description="%context.inPageTitle.description"
+            id="org.xmind.ui.context.mindmap.pagetitle"
+            name="%context.editing.name"
+            parentId="org.xmind.ui.context.mindmap.edit">
       </context>
    </extension>
    <extension
@@ -2852,38 +2887,6 @@
       </view>
    </extension>
    <extension
-         point="org.eclipse.ui.newWizards">
-      <category
-            id="org.xmind.ui.wizards.mindmapping"
-            name="%newCategory.mindmap.name">
-      </category>
-      <wizard
-            canFinishEarly="true"
-            category="org.xmind.ui.wizards.mindmapping"
-            class="org.xmind.ui.internal.wizards.NewUntitledWorkbookWizard"
-            hasPages="false"
-            icon="icons/xmind.16.gif"
-            id="org.xmind.ui.NewUntitledMindMapWizard"
-            name="%newWizard.untitledWorkbook.name">
-      </wizard>
-      <wizard
-            canFinishEarly="true"
-            category="org.xmind.ui.wizards.mindmapping"
-            class="org.xmind.ui.internal.wizards.NewFromTemplateWizard"
-            hasPages="false"
-            icon="icons/xmind.16.gif"
-            id="org.xmind.ui.NewFromTemplateWizard"
-            name="%newWizard.workbookFromTemplate.name">
-      </wizard>
-      <wizard
-            category="org.xmind.ui.wizards.mindmapping"
-            class="org.xmind.ui.internal.wizards.NewWorkbookWizard"
-            icon="icons/xmind.16.gif"
-            id="org.xmind.ui.NewTitledMindMapWizard"
-            name="%newWizard.mindMapWorkbook.name">
-      </wizard>
-   </extension>
-   <extension
          point="org.xmind.ui.decorations">
       <category
             id="org.xmind.ui.topicDecorations"
@@ -3600,6 +3603,16 @@
             class="org.xmind.ui.internal.properties.SheetAdvancedStylePropertySectionPart"
             id="org.xmind.ui.sheetAdvancedProperties"
             name="%propSection.mapAdvanced.name">
+         <enabledWhen>
+            <instanceof
+                  value="org.xmind.core.ISheet">
+            </instanceof>
+         </enabledWhen>
+      </section>
+      <section
+            class="org.xmind.ui.internal.properties.SheetMultiBranchColorsStylePropertySectionPart"
+            id="org.xmind.ui.sheetMultiBranchColorsProperties"
+            name="%propSection.multiBranchColor">
          <enabledWhen>
             <instanceof
                   value="org.xmind.core.ISheet">
@@ -4378,6 +4391,15 @@
             </and>
          </activeWhen>
       </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.CreateSheetFromTemplateHandler"
+            commandId="org.xmind.ui.command.newSheetFromTemplate">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+            </reference>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -4860,6 +4882,30 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SaveWorkbookAsHandler"
+            commandId="org.xmind.ui.command.saveWorkbookAs">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <or>
+                     <instanceof
+                           value="org.xmind.ui.mindmap.IWorkbookRef">
+                     </instanceof>
+                     <adapt
+                           type="org.xmind.ui.mindmap.IWorkbookRef">
+                     </adapt>
+                  </or>
+               </iterate>
+               <count
+                     value="1">
+               </count>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          id="revisionsViewMenuContributions"
@@ -4905,5 +4951,54 @@
             </visibleWhen>
          </command>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.xmind.ui.workbookRefFactories">
+      <factory
+            class="org.xmind.ui.internal.editor.LocalFileWorkbookRefFactory">
+         <availableForURIScheme
+               scheme="file">
+         </availableForURIScheme>
+      </factory>
+      <factory
+            class="org.xmind.ui.internal.editor.TempWorkbookRefFactory">
+         <availableForURIScheme
+               scheme="xmind-temp">
+         </availableForURIScheme>
+      </factory>
+   </extension>
+   <extension
+         point="org.xmind.ui.saveWizards">
+      <saveWizard
+            class="org.xmind.ui.internal.editor.LocalFileSaveWizard"
+            id="org.xmind.ui.saveWizards.localFile"
+            name="%saveWizard.myComputer.name">
+      </saveWizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            description="%category.share.description"
+            id="org.xmind.ui.category.share"
+            name="%category.share.name">
+      </category>
+      <command
+            categoryId="org.xmind.ui.category.share"
+            description="%command.shareOptions.description"
+            id="org.xmind.ui.command.share"
+            name="%command.shareOptions.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.ui.internal.handlers.ShowShareOptionsHandler"
+            commandId="org.xmind.ui.command.share">
+         <activeWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </activeWhen>
+      </handler>
    </extension>
 </plugin>

@@ -209,7 +209,7 @@ public class DOMUtils {
     private DOMUtils() {
     }
 
-    private static Transformer getDefaultTransformer() throws CoreException {
+    public static Transformer getDefaultTransformer() throws CoreException {
         try {
             return TransformerFactory.newInstance().newTransformer();
         } catch (TransformerException e) {

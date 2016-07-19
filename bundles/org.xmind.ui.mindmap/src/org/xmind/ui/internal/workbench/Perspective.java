@@ -87,7 +87,7 @@ public class Perspective implements IPerspectiveFactory {
 
     private void createLibrariesStack(IPageLayout pageLayout) {
         IPlaceholderFolderLayout layout = pageLayout.createPlaceholderFolder(
-                STACK_LIBRARIES, IPageLayout.LEFT, getRatio(220, true),
+                STACK_LIBRARIES, IPageLayout.LEFT, getRatio(400, true),
                 pageLayout.getEditorArea());
         layout.addPlaceholder(MindMapUI.VIEW_BROSWER);
         layout.addPlaceholder(MindMapUI.VIEW_BLACKBOX);

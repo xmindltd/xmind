@@ -14,6 +14,7 @@
 
 package org.xmind.ui.internal.tools;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.Platform;
@@ -27,6 +28,8 @@ public class QuickOpenHelper {
     private static QuickOpenHelper instance = null;
 
     private Process process;
+
+    private String[] shownPaths = null;
 
     public boolean canShow() {
         return "macosx".equals(Platform.getOS()); //$NON-NLS-1$
@@ -45,6 +48,7 @@ public class QuickOpenHelper {
             return;
         }
         this.process = proc;
+        this.shownPaths = paths;
     }
 
     public boolean isOpen() {
@@ -63,6 +67,16 @@ public class QuickOpenHelper {
             return;
         process.destroy();
         process = null;
+        if (shownPaths != null) {
+            for (String shownPath : shownPaths) {
+                File toHideFile = new File(shownPath);
+                if (toHideFile != null && toHideFile.exists()
+                        && toHideFile.canWrite()) {
+                    toHideFile.delete();
+                }
+            }
+            shownPaths = null;
+        }
     }
 
     /**

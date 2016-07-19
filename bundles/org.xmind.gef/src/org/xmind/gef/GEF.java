@@ -279,7 +279,6 @@ public class GEF {
 
     /**
      * Request parameter: the text selection.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>an {@link org.eclipse.jface.text.ITextSelection}</dd>
@@ -307,7 +306,6 @@ public class GEF {
 
     /**
      * Request parameter: the new index of a 'move to' or 'copy to' request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>an <code>Integer</code></dd>
@@ -317,12 +315,11 @@ public class GEF {
 
     /**
      * Request parameter: the alignment hint of a 'align' request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>LEFT, CENTER, RIGHT, TOP, MIDDLE, BOTTOM</dd>
      * </dl>
-     * 
+     *
      * @see org.eclipse.draw2d.PositionConstants#LEFT
      * @see org.eclipse.draw2d.PositionConstants#CENTER
      * @see org.eclipse.draw2d.PositionConstants#RIGHT
@@ -335,7 +332,6 @@ public class GEF {
     /**
      * Request parameter: the method to compare two elements when handling a
      * 'sort' request.
-     * 
      */
     public static final String PARAM_COMPARAND = "comparand"; //$NON-NLS-1$
 
@@ -392,7 +388,6 @@ public class GEF {
     /**
      * Result key of the traverse request to retrieve the traversable parts
      * selected by a <code>TraversablePolicy</code>.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>an array of parts (<code>{@link org.xmind.gef.part.IPart}[]</code>)
@@ -404,7 +399,6 @@ public class GEF {
     /**
      * Result key of the navigation request to retrieve the target parts
      * selected by a <code>NavigablePolicy</code>.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>an array of parts (<code>{@link org.xmind.gef.part.IPart}[]</code>)
@@ -415,7 +409,6 @@ public class GEF {
 
     /**
      * Result key of the navigation request to retrieve the part to be focused.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>an <code>{@link org.xmind.gef.part.IPart}</code></dd>

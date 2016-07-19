@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,102 +24,62 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
+import org.xmind.core.IDeserializer;
+import org.xmind.core.IEncryptionData;
 import org.xmind.core.IEncryptionHandler;
+import org.xmind.core.IEntryStreamNormalizer;
+import org.xmind.core.IFileEntry;
 import org.xmind.core.IMeta;
+import org.xmind.core.ISerializer;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.AbstractWorkbookBuilder;
+import org.xmind.core.internal.security.Crypto;
 import org.xmind.core.io.ByteArrayStorage;
-import org.xmind.core.io.DirectoryStorage;
+import org.xmind.core.io.ChecksumTrackingOutputStream;
+import org.xmind.core.io.ChecksumVerifiedInputStream;
 import org.xmind.core.io.IInputSource;
+import org.xmind.core.io.IOutputTarget;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
-public class WorkbookBuilderImpl extends AbstractWorkbookBuilder
-        implements ErrorHandler {
+@SuppressWarnings("deprecation")
+public class WorkbookBuilderImpl extends AbstractWorkbookBuilder {
 
-    private IEncryptionHandler defaultEncryptionHandler = null;
-
-//    private DocumentBuilderFactory documentBuilderFactory = null;
-
-    public String creatorName;
-
-    public String creatorversion;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.xmind.core.IWorkbookBuilder#setDefaultEncryptionHandler(org.xmind
-     * .core.IEncryptionHandler)
-     */
-    public synchronized void setDefaultEncryptionHandler(
-            IEncryptionHandler encryptionHandler) {
-        if (this.defaultEncryptionHandler != null)
-            return;
-
-        this.defaultEncryptionHandler = encryptionHandler;
-    }
-
-//    private synchronized DocumentBuilderFactory getDocumentBuilderFactory() {
-//        if (documentBuilderFactory == null) {
-//            DocumentBuilderFactory factory = DocumentBuilderFactory
-//                    .newInstance();
-//            factory.setAttribute(
-//                    "http://apache.org/xml/features/continue-after-fatal-error", //$NON-NLS-1$
-//                    Boolean.TRUE);
-//            factory.setNamespaceAware(true);
-//            documentBuilderFactory = factory;
-//        }
-//        return documentBuilderFactory;
-//    }
-
-    private DocumentBuilder getDocumentCreator() {
+    protected synchronized Document createDocument() {
+        DocumentBuilder docBuilder;
         try {
-            return DOMUtils.getDefaultDocumentBuilder();
+            docBuilder = DOMUtils.getDefaultDocumentBuilder();
         } catch (ParserConfigurationException e) {
             throw new IllegalStateException(e);
         }
+        return docBuilder.newDocument();
     }
 
-    public DocumentBuilder getDocumentLoader() throws CoreException {
+    protected synchronized DocumentBuilder getDocumentLoader()
+            throws CoreException {
         try {
             DocumentBuilder loader = DOMUtils.getDefaultDocumentBuilder();
-            loader.setErrorHandler(this);
             return loader;
         } catch (ParserConfigurationException e) {
             throw new CoreException(Core.ERROR_FAIL_ACCESS_XML_PARSER, e);
         }
     }
 
-    public IWorkbook createWorkbook() {
-        return newWorkbook(null);
-    }
+    @Override
+    protected IWorkbook doCreateWorkbook(IStorage storage) {
+        if (storage == null)
+            storage = new ByteArrayStorage();
+        storage.clear();
 
-    public IWorkbook createWorkbook(String targetPath) {
-        return newWorkbook(targetPath);
-    }
+        Document contentDoc = createDocument();
+        WorkbookImpl workbook = new WorkbookImpl(contentDoc, storage);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.xmind.core.IWorkbookBuilder#createWorkbook(org.xmind.core.io.IStorage
-     * )
-     */
-    public IWorkbook createWorkbook(IStorage storage) {
-        WorkbookImpl wb = newWorkbook(null);
-        wb.setTempStorage(storage);
-        return wb;
-    }
-
-    private WorkbookImpl newWorkbook(String file) {
-        Document impl = createDocument();
-        WorkbookImpl workbook = new WorkbookImpl(impl, file);
-        workbook.setCreator(creatorName, creatorversion);
+        /*
+         * ------------------------------------------------------
+         * 
+         * NEED REFACTOR:
+         */
         IMeta meta = workbook.getMeta();
         String name = System.getProperty(DOMConstants.AUTHOR_NAME);
         if (name == null)
@@ -138,98 +98,187 @@ public class WorkbookBuilderImpl extends AbstractWorkbookBuilder
         if (meta.getValue(IMeta.CREATED_TIME) == null)
             meta.setValue(IMeta.CREATED_TIME,
                     NumberUtils.formatDate(System.currentTimeMillis()));
+
+        meta.setValue(IMeta.CREATOR_NAME, getCreatorName());
+        meta.setValue(IMeta.CREATOR_VERSION, getCreatorVersion());
+
         return workbook;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.xmind.core.IWorkbookBuilder#createWorkbookOnTemp(java.lang.String)
+     * @see org.xmind.core.IWorkbookBuilder#newDeserializer()
      */
-    public IWorkbook createWorkbookOnTemp(String tempLocation) {
-        if (tempLocation == null)
-            throw new IllegalArgumentException("Temp location is null"); //$NON-NLS-1$
-
-        File dir = new File(tempLocation);
-        if (!dir.exists())
-            throw new IllegalArgumentException("Temp location not exists: " //$NON-NLS-1$
-                    + tempLocation);
-
-        return createWorkbook(new DirectoryStorage(dir));
-    }
-
-    public Document createDocument() {
-        return getDocumentCreator().newDocument();
+    public IDeserializer newDeserializer() {
+        DeserializerImpl deserializer = new DeserializerImpl();
+        deserializer.setCreatorName(getCreatorName());
+        deserializer.setCreatorVersion(getCreatorVersion());
+        return deserializer;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.xmind.core.internal.AbstractWorkbookBuilder#doLoadFromSteam(java.
-     * io.InputStream, org.xmind.core.io.IStorage,
-     * org.xmind.core.IEncryptionHandler)
+     * @see org.xmind.core.IWorkbookBuilder#newSerializer()
      */
-    protected IWorkbook doLoadFromSteam(InputStream in, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
-        // ZipInputStream has some stability issues, so we have to extract
-        // contents into a transient folder first.
-        File tempDir = new File(Core.getWorkspace()
-                .getTempDir("transient/" + Core.getIdFactory().createId())); //$NON-NLS-1$
-        FileUtils.ensureDirectory(tempDir);
-        IStorage tempStorage = new DirectoryStorage(tempDir);
-        try {
-            ZipInputStream zin = new ZipInputStream(in);
-            try {
-                FileUtils.extractZipFile(zin, tempStorage.getOutputTarget());
-            } finally {
-                zin.close();
+    public ISerializer newSerializer() {
+        SerializerImpl serializer = new SerializerImpl();
+        serializer.setCreatorName(getCreatorName());
+        serializer.setCreatorVersion(getCreatorVersion());
+        return serializer;
+    }
+
+    private static class LegacyEncryptionNormalizerAdapter
+            implements IEntryStreamNormalizer {
+
+        private final IEncryptionHandler encryptionHandler;
+
+        /**
+         * 
+         */
+        public LegacyEncryptionNormalizerAdapter(
+                IEncryptionHandler encryptionHandler) {
+            super();
+            this.encryptionHandler = encryptionHandler;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.xmind.core.IEntryStreamNormalizer#normalizeOutputStream(java.io.
+         * OutputStream, org.xmind.core.IFileEntry)
+         */
+        public OutputStream normalizeOutputStream(OutputStream stream,
+                IFileEntry fileEntry) throws IOException, CoreException {
+            fileEntry.deleteEncryptionData();
+            IEncryptionData encData = fileEntry.createEncryptionData();
+            Crypto.initEncryptionData(encData);
+            OutputStream out = Crypto.creatOutputStream(stream, true, encData,
+                    encryptionHandler.retrievePassword());
+            if (encData.getChecksumType() != null) {
+                return new ChecksumTrackingOutputStream(encData, out);
             }
-            return loadFromInputSource(tempStorage.getInputSource(), storage,
-                    encryptionHandler);
-        } finally {
-            tempStorage.clear();
+            return out;
         }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.xmind.core.IEntryStreamNormalizer#normalizeInputStream(java.io.
+         * InputStream, org.xmind.core.IFileEntry)
+         */
+        public InputStream normalizeInputStream(InputStream stream,
+                IFileEntry fileEntry) throws IOException, CoreException {
+            IEncryptionData encData = fileEntry.getEncryptionData();
+            if (encData == null)
+                return stream;
+            InputStream in = Crypto.createInputStream(stream, false, encData,
+                    encryptionHandler.retrievePassword());
+            if (encData.getChecksumType() != null) {
+                return new ChecksumVerifiedInputStream(in,
+                        encData.getChecksum());
+            }
+            return in;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (obj == null
+                    || !(obj instanceof LegacyEncryptionNormalizerAdapter))
+                return false;
+            LegacyEncryptionNormalizerAdapter that = (LegacyEncryptionNormalizerAdapter) obj;
+            return this.encryptionHandler.equals(that.encryptionHandler);
+        }
+
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * org.xmind.core.internal.AbstractWorkbookBuilder#doLoadFromInputSource
-     * (org.xmind.core.io.IInputSource, org.xmind.core.io.IStorage,
+     * org.xmind.core.internal.AbstractWorkbookBuilder#doLoadFromInputSource(org
+     * .xmind.core.io.IInputSource, org.xmind.core.io.IStorage,
      * org.xmind.core.IEncryptionHandler)
      */
-    public IWorkbook loadFromInputSource(IInputSource source, IStorage storage,
+    @Override
+    protected IWorkbook doLoadFromInputSource(IInputSource source,
+            IStorage storage, IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException {
+        IDeserializer deserializer = Core.getWorkbookBuilder()
+                .newDeserializer();
+        deserializer.setCreatorName(getCreatorName());
+        deserializer.setCreatorVersion(getCreatorVersion());
+        deserializer.setWorkbookStorage(storage);
+        deserializer.setEntryStreamNormalizer(
+                new LegacyEncryptionNormalizerAdapter(encryptionHandler));
+        deserializer.setInputSource(source);
+        deserializer.deserialize(null);
+        return deserializer.getWorkbook();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.xmind.core.internal.AbstractWorkbookBuilder#doLoadFromStream(java.io.
+     * InputStream, org.xmind.core.io.IStorage,
+     * org.xmind.core.IEncryptionHandler)
+     */
+    @Override
+    protected IWorkbook doLoadFromStream(InputStream in, IStorage storage,
             IEncryptionHandler encryptionHandler)
                     throws IOException, CoreException {
-        if (storage == null) {
-            storage = new ByteArrayStorage();
+        IDeserializer deserializer = Core.getWorkbookBuilder()
+                .newDeserializer();
+        deserializer.setCreatorName(getCreatorName());
+        deserializer.setCreatorVersion(getCreatorVersion());
+        deserializer.setWorkbookStorage(storage);
+        deserializer.setEntryStreamNormalizer(
+                new LegacyEncryptionNormalizerAdapter(encryptionHandler));
+        deserializer.setInputStream(in);
+        deserializer.deserialize(null);
+        return deserializer.getWorkbook();
+    }
+
+    @Override
+    protected IWorkbook doLoadFromStorage(IStorage storage,
+            IEncryptionHandler encryptionHandler)
+                    throws IOException, CoreException {
+        IDeserializer deserializer = Core.getWorkbookBuilder()
+                .newDeserializer();
+        deserializer.setCreatorName(getCreatorName());
+        deserializer.setCreatorVersion(getCreatorVersion());
+        deserializer.setWorkbookStorage(storage);
+        deserializer.setEntryStreamNormalizer(
+                new LegacyEncryptionNormalizerAdapter(encryptionHandler));
+        deserializer.setWorkbookStorageAsInputSource();
+        deserializer.deserialize(null);
+        return deserializer.getWorkbook();
+    }
+
+    /**
+     * @deprecated This method should NOT be called any more.
+     */
+    @Override
+    @Deprecated
+    protected void extractFromStream(InputStream input, IOutputTarget target)
+            throws IOException, CoreException {
+        ZipInputStream zip = new ZipInputStream(input);
+        try {
+            FileUtils.extractZipFile(zip, target);
+        } finally {
+            zip.close();
         }
-        if (encryptionHandler == null) {
-            encryptionHandler = this.defaultEncryptionHandler;
-        }
-        return new WorkbookLoader(this, source, storage, encryptionHandler)
-                .load();
-    }
-
-    public void error(SAXParseException exception) throws SAXException {
-        Core.getLogger().log(exception, "Error while loading workbook"); //$NON-NLS-1$
-    }
-
-    public void fatalError(SAXParseException exception) throws SAXException {
-        Core.getLogger().log(exception, "Fatal error while loading workbook"); //$NON-NLS-1$
-    }
-
-    public void warning(SAXParseException exception) throws SAXException {
-        Core.getLogger().log(exception, "Warning while loading workbook"); //$NON-NLS-1$
-    }
-
-    public void setCreator(String name, String version) {
-        this.creatorName = name;
-        this.creatorversion = version;
     }
 
 }

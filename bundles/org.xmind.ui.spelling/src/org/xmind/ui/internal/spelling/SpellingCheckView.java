@@ -73,8 +73,8 @@ import com.swabunga.spell.event.StringWordTokenizer;
  * @author Frank Shaka
  * 
  */
-public class SpellingCheckView extends ViewPart implements IJobChangeListener,
-        IPartListener {
+public class SpellingCheckView extends ViewPart
+        implements IJobChangeListener, IPartListener {
 
     private static class SpellingViewContent {
 
@@ -141,8 +141,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
         /**
          * 
          */
-        public WorkbookItem(SpellingCheckViewerInput parent,
-                IEditorPart editor, IWordContextProvider provider) {
+        public WorkbookItem(SpellingCheckViewerInput parent, IEditorPart editor,
+                IWordContextProvider provider) {
             this.parent = parent;
             this.editor = editor;
             this.provider = provider;
@@ -219,8 +219,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
         }
     }
 
-    private static class SpellingCheckContentProvider implements
-            ITreeContentProvider {
+    private static class SpellingCheckContentProvider
+            implements ITreeContentProvider {
 
         /*
          * (non-Javadoc)
@@ -310,7 +310,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
          * org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse
          * .jface.viewers.Viewer, java.lang.Object, java.lang.Object)
          */
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        public void inputChanged(Viewer viewer, Object oldInput,
+                Object newInput) {
         }
 
     }
@@ -330,8 +331,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
         public Image getColumnImage(Object element, int columnIndex) {
             if (element instanceof WordContextItem) {
                 if (columnIndex == 0) {
-                    return getImageFor(((WordContextItem) element).context
-                            .getIcon());
+                    return getImageFor(
+                            ((WordContextItem) element).context.getIcon());
                 }
             } else if (element instanceof WorkbookItem) {
                 if (columnIndex == 0) {
@@ -379,7 +380,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
                 if (columnIndex == 0) {
                     return item.invalidWord;
                 }
-                StringBuffer sb = new StringBuffer(item.suggestions.size() * 10);
+                StringBuffer sb = new StringBuffer(
+                        item.suggestions.size() * 10);
                 for (Object s : item.suggestions) {
                     if (sb.length() > 0) {
                         sb.append(", "); //$NON-NLS-1$
@@ -405,15 +407,14 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
 
     }
 
-    private static class WordDoubleClickListener implements
-            IDoubleClickListener {
+    private static class WordDoubleClickListener
+            implements IDoubleClickListener {
 
         /*
          * (non-Javadoc)
          * 
-         * @see
-         * org.eclipse.jface.viewers.IDoubleClickListener#doubleClick(org.eclipse
-         * .jface.viewers.DoubleClickEvent)
+         * @see org.eclipse.jface.viewers.IDoubleClickListener#doubleClick(org.
+         * eclipse .jface.viewers.DoubleClickEvent)
          */
         public void doubleClick(DoubleClickEvent event) {
             if (event.getSelection() instanceof IStructuredSelection) {
@@ -432,8 +433,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
 
     }
 
-    private static class CheckSpellingJob extends Job implements
-            SpellCheckListener {
+    private static class CheckSpellingJob extends Job
+            implements SpellCheckListener {
 
         private static final CheckSpellingJob instance = new CheckSpellingJob();
 
@@ -468,13 +469,12 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
          */
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            if (spellChecker == null) {
-                SpellCheckerAgent.visitSpellChecker(new ISpellCheckerVisitor() {
-                    public void handleWith(SpellChecker theSpellChecker) {
-                        spellChecker = theSpellChecker;
-                    }
-                });
-            }
+            spellChecker = null;
+            SpellCheckerAgent.visitSpellChecker(new ISpellCheckerVisitor() {
+                public void handleWith(SpellChecker theSpellChecker) {
+                    spellChecker = theSpellChecker;
+                }
+            });
 
             while (spellChecker == null) {
                 try {
@@ -507,6 +507,9 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
 
             monitor.done();
 
+            SpellingPlugin.getDefault().getUsageDataCollector()
+                    .increase("SpellingCheckCount"); //$NON-NLS-1$
+
             return Status.OK_STATUS;
         }
 
@@ -517,8 +520,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
                 if (monitor.isCanceled())
                     return;
                 WordContextItem item = new WordContextItem(parent, context);
-                monitor.subTask(parent.editor.getTitle()
-                        + " - " + item.context.getName()); //$NON-NLS-1$
+                monitor.subTask(parent.editor.getTitle() + " - " //$NON-NLS-1$
+                        + item.context.getName());
                 scan(new SubProgressMonitor(monitor, 1), item);
                 if (monitor.isCanceled())
                     return;
@@ -550,13 +553,12 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
         /*
          * (non-Javadoc)
          * 
-         * @see
-         * com.swabunga.spell.event.SpellCheckListener#spellingError(com.swabunga
-         * .spell.event.SpellCheckEvent)
+         * @see com.swabunga.spell.event.SpellCheckListener#spellingError(com.
+         * swabunga .spell.event.SpellCheckEvent)
          */
         public void spellingError(SpellCheckEvent event) {
-            currentWordContextItem.children.add(new WordItem(
-                    currentWordContextItem, event));
+            currentWordContextItem.children
+                    .add(new WordItem(currentWordContextItem, event));
         }
 
         public static CheckSpellingJob getInstance() {
@@ -574,8 +576,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
 
     }
 
-    private static class SuggestionMenu implements DisposeListener,
-            IMenuListener {
+    private static class SuggestionMenu
+            implements DisposeListener, IMenuListener {
 
         private TreeViewer viewer;
 
@@ -589,8 +591,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
             this.menu = new MenuManager();
             this.menu.addMenuListener(this);
             this.menu.setRemoveAllWhenShown(true);
-            viewer.getTree().setMenu(
-                    this.menu.createContextMenu(viewer.getTree()));
+            viewer.getTree()
+                    .setMenu(this.menu.createContextMenu(viewer.getTree()));
             viewer.getTree().addDisposeListener(this);
         }
 
@@ -726,9 +728,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets
-     * .Composite)
+     * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.
+     * widgets .Composite)
      */
     @Override
     public void createPartControl(Composite parent) {
@@ -778,8 +779,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
         Button scanAllButton = new Button(buttonBar, SWT.PUSH);
         scanAllButton
                 .setText(Messages.SpellingCheckView_button_ScanAllWorkbooks);
-        scanAllButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
-                false));
+        scanAllButton.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, false, false));
         scanAllButton.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
                 scanAll();
@@ -788,8 +789,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
 
         Button scanButton = new Button(buttonBar, SWT.PUSH);
         scanButton.setText(Messages.SpellingCheckView_button_ScanWorkbook);
-        scanButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
-                false));
+        scanButton.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, false, false));
         scanButton.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
                 scanWorkbook();
@@ -813,10 +814,10 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
     }
 
     private void createResultViewer(Composite parent) {
-        viewer = new TreeViewer(parent, SWT.FULL_SELECTION | SWT.SINGLE
-                | SWT.BORDER);
-        viewer.getTree().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, true, true));
+        viewer = new TreeViewer(parent,
+                SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER);
+        viewer.getTree()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         viewer.getTree().setLinesVisible(true);
         viewer.getTree().setHeaderVisible(true);
 
@@ -1012,9 +1013,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.IWorkbenchPart
-     * )
+     * @see org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.
+     * IWorkbenchPart )
      */
     public void partBroughtToTop(IWorkbenchPart part) {
     }
@@ -1044,9 +1044,8 @@ public class SpellingCheckView extends ViewPart implements IJobChangeListener,
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.IWorkbenchPart
-     * )
+     * @see org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.
+     * IWorkbenchPart )
      */
     public void partDeactivated(IWorkbenchPart part) {
     }

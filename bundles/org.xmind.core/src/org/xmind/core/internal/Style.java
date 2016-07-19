@@ -24,7 +24,7 @@ public abstract class Style implements IStyle {
     protected static final Collection<String> NO_VALUES = Collections
             .emptySet();
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

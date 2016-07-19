@@ -18,7 +18,6 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 
-import org.xmind.core.comment.ICommentManager;
 import org.xmind.core.io.IOutputTarget;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.marker.IMarkerSheet;
@@ -172,6 +171,18 @@ public interface IWorkbook extends IAdaptable, IModifiable {
     IMarkerSheet getMarkerSheet();
 
     /**
+     * 
+     * @return
+     */
+    IRevisionRepository getRevisionRepository();
+
+    /**
+     * 
+     * @return
+     */
+    ICommentManager getCommentManager();
+
+    /**
      * @see org.xmind.core.INotes#PLAIN
      * @see org.xmind.core.INotes#HTML
      * @see org.xmind.core.IPlainNotesContent
@@ -188,36 +199,14 @@ public interface IWorkbook extends IAdaptable, IModifiable {
     String getVersion();
 
     /**
-     * Clones the specified elements into this workbook and returns a session
-     * object mapping source resources to their clones.
-     * 
-     * <p>
-     * Note that the elements cloned will have newly assigned identifying
-     * attributes, so that it's safe to keep the cloned elements together with
-     * their sources within one workbook.
-     * </p>
-     * 
-     * @param sources
-     * @return
-     */
-    ICloneData clone(Collection<? extends Object> sources);
-
-    /**
-     * 
-     * @param topic
-     * @return
-     */
-    ITopic cloneTopic(ITopic topic);
-
-    /**
      * Imports the specified element into this workbook. The imported element
      * will have the same identifying attributes with the source element, so
-     * this method is primarily used to replace the existing element that has
-     * the same identifying attributes.
+     * this method is primarily used to replace existing elements that have the
+     * same identifying attributes.
      * 
      * <p>
      * Note that adding imported elements into this workbook without first
-     * removing the source element may cause unknown behavior when invocating
+     * removing the source element may cause unknown behavior when invoking
      * <code>getElementById()</code> or <code>findElement()</code>.
      * </p>
      * 
@@ -234,6 +223,33 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * @return
      */
     IResourceRef createResourceRef(String resourceType, String resourceId);
+
+    /**
+     * Clones the specified elements into this workbook and returns a session
+     * object mapping source resources to their clones.
+     * 
+     * <p>
+     * Note that the elements cloned will have newly assigned identifying
+     * attributes, so that it's safe to keep the cloned elements together with
+     * their sources within one workbook.
+     * </p>
+     * 
+     * @param sources
+     * @return
+     * @deprecated Use {@link org.xmind.core.util.CloneHandler}
+     */
+    @Deprecated
+    ICloneData clone(Collection<? extends Object> sources);
+
+    /**
+     * A convenient method for <code>clone(Arrays.asList(topic))</code>.
+     * 
+     * @param topic
+     * @return
+     * @deprecated Use {@link org.xmind.core.util.CloneHandler}
+     */
+    @Deprecated
+    ITopic cloneTopic(ITopic topic);
 
     /**
      * Saves this workbook to the last saved location.
@@ -268,6 +284,9 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * files.
      * </p>
      * 
+     * @deprecated Use
+     *             <code>Core.getSerializerFactory().newSerializer().saveToXXX(workbook, target)</code>
+     * 
      * @param file
      *            the absolute path of the target file in the local file system
      * @throws IOException
@@ -289,6 +308,9 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * <code>close()</code> on the output stream in a <code>finally</code>
      * block.
      * </p>
+     * 
+     * @deprecated Use
+     *             <code>Core.getSerializerFactory().newSerializer().saveToXXX(workbook, target)</code>
      * 
      * @param output
      *            the output stream to write workbook contents to
@@ -315,6 +337,9 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * clients should not rely on the deprecated <code>save()</code> method any
      * more.
      * </p>
+     * 
+     * @deprecated Use
+     *             <code>Core.getSerializerFactory().newSerializer().saveToXXX(workbook, target)</code>
      * 
      * @param target
      *            the output target to write all entries of this workbook to
@@ -346,7 +371,9 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * @return the file path that this workbook refers to
      * @see #setFile(String)
      * @see #save(String)
+     * @deprecated
      */
+    @Deprecated
     String getFile();
 
     /**
@@ -364,58 +391,67 @@ public interface IWorkbook extends IAdaptable, IModifiable {
      * @param file
      *            the path of a new local file that this workbook will refer to
      * @see #getFile()
+     * @deprecated
      */
+    @Deprecated
     void setFile(String file);
 
     /**
      * 
      * @param storage
+     * @deprecated
      */
+    @Deprecated
     void setTempStorage(IStorage storage);
 
     /**
      * 
      * @return
+     * @deprecated
      */
+    @Deprecated
     IStorage getTempStorage();
 
     /**
      * 
      * @param tempLocation
+     * @deprecated
      */
+    @Deprecated
     void setTempLocation(String tempLocation);
 
     /**
      * 
      * @return
+     * @deprecated
      */
+    @Deprecated
     String getTempLocation();
 
     /**
+     * Saves temporary data to somewhere, or does nothing if not supported. The
+     * implementation decides how and where to save these data.
      * 
      * @throws IOException
      * @throws CoreException
+     * @deprecated Use
+     *             <code>Core.getSerializationProvider().newSerializer()</code>
      */
+    @Deprecated
     void saveTemp() throws IOException, CoreException;
 
     /**
+     * @deprecated
      * @param password
      */
+    @Deprecated
     void setPassword(String password);
 
     /**
      * @return
+     * @deprecated
      */
+    @Deprecated
     String getPassword();
-
-    /**
-     * 
-     * @return
-     */
-    IRevisionRepository getRevisionRepository();
-
-    ICommentManager getCommentManager();
-
-    boolean isSkipRevisionsWhenSaving();
 
 }

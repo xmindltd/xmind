@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>task pro_1/8d copy 4</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#00D156" offset="0%"></stop>
+            <stop stop-color="#00C050" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="task-progress-" transform="translate(-107.000000, -21.000000)" fill="url(#linearGradient-1)">
+            <path d="M115,37 C119.418278,37 123,33.418278 123,29 C123,24.581722 119.418278,21 115,21 C110.581722,21 107,24.581722 107,29 C107,33.418278 110.581722,37 115,37 L115,37 L115,37 L115,37 L115,37 L115,37 L115,37 L115,37 L115,37 Z M115,22 C118.865993,22 122,25.1340068 122,29 C122,32.8659932 118.865993,36 115,36 C113.067003,36 111.317003,35.2164983 110.050253,33.9497475 L115,29 L115,22 Z" id="task-pro_5/8d-copy" transform="translate(115.000000, 29.000000) scale(-1, 1) translate(-115.000000, -29.000000) "></path>
+        </g>
+    </g>
+</svg>

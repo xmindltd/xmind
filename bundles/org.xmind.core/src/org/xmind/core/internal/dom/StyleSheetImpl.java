@@ -78,6 +78,8 @@ public class StyleSheetImpl extends StyleSheet implements INodeAdaptableFactory,
     }
 
     public Object getAdapter(Class adapter) {
+        if (adapter == IManifest.class)
+            return manifest;
         if (adapter == ICoreEventSource.class)
             return this;
         if (adapter == ElementRegistry.class)
@@ -307,7 +309,7 @@ public class StyleSheetImpl extends StyleSheet implements INodeAdaptableFactory,
                 listener);
     }
 
-    public ICoreEventSupport getCoreEventSupport() {
+    public CoreEventSupport getCoreEventSupport() {
         if (coreEventSupport != null)
             return coreEventSupport;
 

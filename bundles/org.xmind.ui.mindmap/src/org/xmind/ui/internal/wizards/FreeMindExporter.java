@@ -55,6 +55,7 @@ import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.core.util.Point;
 import org.xmind.ui.internal.protocols.FilePathParser;
+import org.xmind.ui.internal.protocols.FileProtocol;
 import org.xmind.ui.style.Styles;
 
 /**
@@ -564,19 +565,20 @@ public class FreeMindExporter {
             return null;
         if (hyperlink.startsWith("file:")) { //$NON-NLS-1$
             String path = FilePathParser.toPath(hyperlink);
-            if (FilePathParser.isPathRelative(path)) {
-                IWorkbook workbook = topic.getOwnedWorkbook();
-                String base = workbook.getFile();
-                if (base != null) {
-                    base = new File(base).getParent();
-                    if (base != null) {
-                        return FilePathParser.toAbsolutePath(base, path);
-                    }
-                }
-                return FilePathParser
-                        .toAbsolutePath(System.getProperty("user.home"), path); //$NON-NLS-1$
-            }
-            return path;
+            return FileProtocol.getAbsolutePath(topic, path);
+//            if (FilePathParser.isPathRelative(path)) {
+//                IWorkbook workbook = topic.getOwnedWorkbook();
+//                String base = workbook.getFile();
+//                if (base != null) {
+//                    base = new File(base).getParent();
+//                    if (base != null) {
+//                        return FilePathParser.toAbsolutePath(base, path);
+//                    }
+//                }
+//                return FilePathParser
+//                        .toAbsolutePath(System.getProperty("user.home"), path); //$NON-NLS-1$
+//            }
+//            return path;
         } else if (HyperlinkUtils.isInternalURL(hyperlink)) {
             return HyperlinkUtils.toElementID(hyperlink);
         } else if (HyperlinkUtils.isAttachmentURL(hyperlink)) {

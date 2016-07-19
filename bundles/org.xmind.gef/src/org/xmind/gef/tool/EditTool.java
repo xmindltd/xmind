@@ -63,7 +63,7 @@ public abstract class EditTool extends GraphicalTool implements ISourceTool {
     }
 
     /**
-     * 
+     *
      */
     protected void refreshStatus() {
         getStatus().setStatus(GEF.ST_CONTROL_PRESSED, false);
@@ -83,8 +83,10 @@ public abstract class EditTool extends GraphicalTool implements ISourceTool {
                 }
                 setSource(newSource);
                 if (acceptEditRequest(request)) {
-                    getTargetViewer().setSelection(
-                            new StructuredSelection(newSource), true);
+                    if (shouldUpdateSelectionOnEdit(newSource, request)) {
+                        getTargetViewer().setSelection(
+                                new StructuredSelection(newSource), true);
+                    }
                     if (!startEditing(getSource())) {
                         changeActiveTool(GEF.TOOL_DEFAULT);
                     }
@@ -101,6 +103,16 @@ public abstract class EditTool extends GraphicalTool implements ISourceTool {
         }
     }
 
+    /**
+     * @param newSource
+     * @param request
+     * @return
+     */
+    protected boolean shouldUpdateSelectionOnEdit(IGraphicalEditPart newSource,
+            Request request) {
+        return true;
+    }
+
     protected boolean canEdit(IGraphicalEditPart target) {
         return true;
     }
@@ -112,7 +124,6 @@ public abstract class EditTool extends GraphicalTool implements ISourceTool {
     /**
      * @param source
      * @return
-     * 
      */
     protected boolean startEditing(IGraphicalEditPart source) {
         return false;

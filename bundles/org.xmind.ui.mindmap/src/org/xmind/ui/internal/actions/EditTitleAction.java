@@ -22,7 +22,7 @@ import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
-import org.xmind.ui.tabfolder.PageTitleEditor;
+import org.xmind.ui.internal.editor.MindMapPageTitleEditor;
 
 public class EditTitleAction extends RequestAction implements ISelectionAction {
 
@@ -34,8 +34,8 @@ public class EditTitleAction extends RequestAction implements ISelectionAction {
 
     public void run() {
         if (isSheet) {
-            PageTitleEditor titleEditor = (PageTitleEditor) getEditor()
-                    .getAdapter(PageTitleEditor.class);
+            MindMapPageTitleEditor titleEditor = (MindMapPageTitleEditor) getEditor()
+                    .getAdapter(MindMapPageTitleEditor.class);
             if (titleEditor != null) {
                 titleEditor.startEditing(getPage().getIndex());
                 return;

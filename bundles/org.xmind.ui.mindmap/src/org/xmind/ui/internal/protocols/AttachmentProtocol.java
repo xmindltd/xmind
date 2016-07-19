@@ -14,6 +14,10 @@
 package org.xmind.ui.internal.protocols;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,17 +31,20 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.core.Core;
 import org.xmind.core.IFileEntry;
+import org.xmind.core.IManifest;
 import org.xmind.core.INamed;
 import org.xmind.core.ITitled;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventSource2;
+import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IProtocol;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.util.Logger;
 import org.xmind.ui.util.MindMapUtils;
 
 public class AttachmentProtocol implements IProtocol {
@@ -61,19 +68,37 @@ public class AttachmentProtocol implements IProtocol {
         }
 
         public void run() {
-            String hiberLoc = workbook.getTempLocation();
-            if (hiberLoc == null)
-                return;
 
+            String hiberLoc = Core.getWorkspace()
+                    .getAbsolutePath(".temp-attachments"); //$NON-NLS-1$
+            String[] tmps = path.split("/"); //$NON-NLS-1$
+            for (int i = 0; i < tmps.length - 1; i++)
+                hiberLoc = hiberLoc + File.separator + tmps[i];
             File hiberDir = new File(hiberLoc);
-            if (!hiberDir.isDirectory())
+            if (!hiberDir.exists())
+                hiberDir.mkdirs();
+
+            String entryMediaType = path.substring(path.lastIndexOf(".")); //$NON-NLS-1$
+            String absolutelyFileName = fileName.endsWith(entryMediaType)
+                    ? fileName : fileName + entryMediaType;
+            File hiberFile = new File(hiberDir, absolutelyFileName);
+
+            IManifest manifest = workbook.getManifest();
+            IFileEntry fileEntry = manifest.getFileEntry(path);
+            try {
+                InputStream is = fileEntry.openInputStream();
+                OutputStream os = new FileOutputStream(hiberFile);
+                FileUtils.transfer(is, os);
+            } catch (IOException e) {
+                Logger.log(e,
+                        "Failed to transfer attachment to temp-attachments dir."); //$NON-NLS-1$
+                return;
+            }
+
+            if (!hiberFile.exists())
                 return;
 
-            File attFile = new File(hiberDir, path);
-            if (!attFile.exists())
-                return;
-
-            MME.launch(window, attFile.getAbsolutePath(), fileName);
+            MME.launch(window, hiberFile.getAbsolutePath(), fileName);
 
             if (workbook instanceof ICoreEventSource2) {
                 ((ICoreEventSource2) workbook).registerOnceCoreEventListener(

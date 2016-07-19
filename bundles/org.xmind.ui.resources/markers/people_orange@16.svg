@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>peo_ora</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFB300" offset="0%"></stop>
+            <stop stop-color="#FFAB00" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="people" transform="translate(-21.000000, 0.000000)" fill="url(#linearGradient-1)">
+            <path d="M27.719396,9.60221863 L27.719396,8.62715938 C27.719396,8.62715938 25.88852,6.17180052 25.6497348,4.94926167 C25.3862257,3.60014057 25.0842061,1.98781796 26.7446081,0.752450025 C28.1258263,-0.27520036 30.6643975,-0.226133056 32.0080836,0.752449997 C33.3517696,1.73103305 33.2680613,3.19698302 33.0545197,4.75460021 C32.840978,6.31221739 31.1074168,8.62715963 31.1074168,8.62715963 L31.1074168,9.60221863 C31.1074168,9.60221863 36.2881183,11.6026479 37.022991,12.8898295 C37.7578636,14.1770111 37.2902058,14.8592608 34.5063462,15.5080588 C31.7224867,16.1568568 26.5512582,16.1710654 24.069347,15.5080593 C21.5874359,14.8450533 20.8939491,14.2745789 21.5874359,12.8898291 C22.2809227,11.5050792 27.719396,9.60221863 27.719396,9.60221863 Z" id="peo_ora"></path>
+        </g>
+    </g>
+</svg>

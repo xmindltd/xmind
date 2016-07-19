@@ -15,11 +15,13 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
 import org.xmind.ui.commands.MindMapCommandConstants;
+import org.xmind.ui.editor.IEditorHistory;
 import org.xmind.ui.internal.protocols.FilePathParser;
-import org.xmind.ui.mindmap.MindMapUI;
 
 public class RecentFileListContributionItem extends CompoundContributionItem
         implements IWorkbenchContribution {
+
+    private static final int MAX_SIZE = 10;
 
     private IServiceLocator serviceLocator;
 
@@ -45,15 +47,23 @@ public class RecentFileListContributionItem extends CompoundContributionItem
         if (serviceLocator == null)
             return;
 
-        int itemsToShow = WorkbenchPlugin.getDefault().getPreferenceStore()
-                .getInt(IPreferenceConstants.RECENT_FILES);
-        if (itemsToShow <= 0)
+        IEditorHistory editorHistory = serviceLocator
+                .getService(IEditorHistory.class);
+        if (editorHistory == null)
             return;
 
-        URI[] inputURIs = MindMapUI.getEditorHistory()
-                .getRecentInputURIs(itemsToShow);
-        if (inputURIs.length == 0)
-            return;
+        URI[] pinnedInputURIs = editorHistory.getPinnedInputURIs();
+        int pinnedItensToShow = Math.min(pinnedInputURIs.length, MAX_SIZE);
+        int unpinnedItemsToShow = WorkbenchPlugin.getDefault()
+                .getPreferenceStore().getInt(IPreferenceConstants.RECENT_FILES);
+        URI[] unpinnedInputURIs = editorHistory
+                .getUnpinnedInputURIs(unpinnedItemsToShow);
+        unpinnedItemsToShow = Math.min(MAX_SIZE, unpinnedInputURIs.length);
+
+        URI[] inputURIs = new URI[pinnedItensToShow + unpinnedItemsToShow];
+        System.arraycopy(pinnedInputURIs, 0, inputURIs, 0, pinnedItensToShow);
+        System.arraycopy(unpinnedInputURIs, 0, inputURIs, pinnedItensToShow,
+                Math.min(unpinnedItemsToShow, unpinnedInputURIs.length));
 
         Map<URI, String> labels = new HashMap<URI, String>(inputURIs.length);
         FilePathParser.calculateFileURILabels(inputURIs, labels);

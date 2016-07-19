@@ -115,7 +115,7 @@ public interface IRevisionManager extends IWorkbookComponent, IAdaptable {
 
     /**
      * Creates a snapshot derived from the specified content and add it as a new
-     * revision into this mananger. If the content is regarded the same as the
+     * revision into this manager. If the content is regarded the same as the
      * content of the latest revision, it will not create any new revision and
      * simply return <code>null</code>.
      * 
@@ -134,6 +134,9 @@ public interface IRevisionManager extends IWorkbookComponent, IAdaptable {
      * @return an object used to restore this revision into this workbook, or
      *         <code>null</code> if the revision has already been deleted or not
      *         found.
+     * @throws IllegalArgumentException
+     *             if the revision is <code>null</code> or not owned by the same
+     *             workbook
      */
     Object removeRevision(IRevision revision);
 
@@ -145,7 +148,8 @@ public interface IRevisionManager extends IWorkbookComponent, IAdaptable {
      * @param removal
      *            an object returned by <code>remove()</code> method
      * @throws IllegalArgumentException
-     *             if <code>removal</code> is invalid
+     *             if the revision is <code>null</code>, or the <em>removal</em>
+     *             object is invalid
      */
     void restoreRevision(IRevision revision, Object removal);
 

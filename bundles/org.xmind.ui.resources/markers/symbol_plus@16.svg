@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_plu</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#00CA53" offset="0%"></stop>
+            <stop stop-color="#00C050" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols">
+            <g id="sym_plu">
+                <circle id="Oval-1-Copy-4" fill="url(#linearGradient-1)" cx="8" cy="8" r="8"></circle>
+                <path d="M8.92799998,8.91999996 L11.936,8.91999996 L11.936,7 L8.92799998,7 L8.92799998,3.99199998 L7.00800002,3.99199998 L7.00800002,7 L4,7 L4,8.91999996 L7.00800002,8.91999996 L7.00800002,11.928 L8.92799998,11.928 L8.92799998,8.91999996 Z" id="Combined-Shape" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

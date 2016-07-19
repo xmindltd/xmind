@@ -33,7 +33,6 @@ import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Summary;
-import org.xmind.core.internal.event.NullCoreEventSupport;
 import org.xmind.core.util.DOMUtils;
 
 public class SummaryImpl extends Summary implements ICoreEventSource {
@@ -41,8 +40,6 @@ public class SummaryImpl extends Summary implements ICoreEventSource {
     private WorkbookImpl ownedWorkbook;
 
     private Element implementation;
-
-    private ICoreEventSupport coreEventSupport;
 
     public SummaryImpl(Element implementation, WorkbookImpl ownedWorkbook) {
         super();
@@ -220,13 +217,11 @@ public class SummaryImpl extends Summary implements ICoreEventSource {
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, true);
         workbook.getAdaptableRegistry().registerById(this, getId(),
                 getImplementation().getOwnerDocument());
-        setCoreEventSupport(parent.getCoreEventSupport());
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
     }
 
     protected void removeNotify(WorkbookImpl workbook, TopicImpl parent) {
         WorkbookUtilsImpl.decreaseStyleRef(workbook, this);
-        setCoreEventSupport(null);
         workbook.getAdaptableRegistry().unregisterById(this, getId(),
                 getImplementation().getOwnerDocument());
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, false);
@@ -238,14 +233,8 @@ public class SummaryImpl extends Summary implements ICoreEventSource {
                 listener);
     }
 
-    public void setCoreEventSupport(ICoreEventSupport coreEventSupport) {
-        this.coreEventSupport = coreEventSupport;
-    }
-
     public ICoreEventSupport getCoreEventSupport() {
-        if (coreEventSupport == null)
-            return NullCoreEventSupport.getInstance();
-        return coreEventSupport;
+        return ownedWorkbook.getCoreEventSupport();
     }
 
     private void fireValueChange(String type, Object oldValue,

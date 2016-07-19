@@ -26,6 +26,11 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.internal.MetaData;
 import org.xmind.core.util.DOMUtils;
 
+/**
+ * @deprecated
+ * 
+ * @author Frank Shaka
+ */
 public class MetaDataImpl extends MetaData {
 
     private Element implementation;
@@ -107,7 +112,8 @@ public class MetaDataImpl extends MetaData {
         sb.insert(0, e.getTagName());
         Node p = e.getParentNode();
         Element metaElement = ownedMeta.getMetaElement();
-        while (p != null && p != e && p != metaElement && p instanceof Element) {
+        while (p != null && p != e && p != metaElement
+                && p instanceof Element) {
             e = (Element) p;
             sb.insert(0, IMeta.SEP);
             sb.insert(0, e.getTagName());
@@ -134,8 +140,8 @@ public class MetaDataImpl extends MetaData {
         implementation.setTextContent(value);
         String newValue = implementation.getTextContent();
         if (!oldValue.equals(newValue)) {
-            ownedMeta.getCoreEventSupport().dispatchTargetValueChange(
-                    ownedMeta, Core.Metadata, getKeyPath(), oldValue, newValue);
+            ownedMeta.getCoreEventSupport().dispatchTargetValueChange(ownedMeta,
+                    Core.Metadata, getKeyPath(), oldValue, newValue);
         }
     }
 

@@ -22,6 +22,9 @@ import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -43,6 +46,7 @@ import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.print.PrintConstants;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
 
 public class MultipageImagePreviewViewer {
@@ -71,7 +75,7 @@ public class MultipageImagePreviewViewer {
                     .getClientArea();
             org.eclipse.draw2d.geometry.Rectangle borderBounds = borderFigure
                     .getBounds();
-            int textMargin = 0;
+            int textMargin = Util.isMac() ? 5 : 0;
             int bottomDownValue = 4;
             if (pageNumberLayer != null) {
                 Dimension size = pageNumberLayer.getPreferredSize(-1, -1);
@@ -258,7 +262,9 @@ public class MultipageImagePreviewViewer {
 
         borderFigure = new Layer();
         borderFigure.setBorder(new LineBorder(
-                canvas.getDisplay().getSystemColor(SWT.COLOR_BLACK), 1));
+                new LocalResourceManager(JFaceResources.getResources(), canvas)
+                        .createColor(ColorUtils.toRGB("#959595")), //$NON-NLS-1$
+                1));
         feedbackLayer.add(borderFigure);
 
         textLayer = new Layer();

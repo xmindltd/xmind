@@ -58,12 +58,13 @@ public class DownloadJob extends Job {
                 pluginId);
     }
 
-    public DownloadJob(String jobName, String sourceURL, IDownloadTarget target) {
+    public DownloadJob(String jobName, String sourceURL,
+            IDownloadTarget target) {
         this(jobName, sourceURL, target, ToolkitPlugin.PLUGIN_ID);
     }
 
-    public DownloadJob(String jobName, String sourceURL,
-            IDownloadTarget target, String pluginId) {
+    public DownloadJob(String jobName, String sourceURL, IDownloadTarget target,
+            String pluginId) {
         super(jobName);
         Assert.isNotNull(sourceURL);
         Assert.isNotNull(target);
@@ -130,7 +131,7 @@ public class DownloadJob extends Job {
      * @return resulting status of the run. The result must not be
      *         <code>null</code>
      */
-    protected final IStatus run(IProgressMonitor monitor) {
+    protected IStatus run(IProgressMonitor monitor) {
         IStatus status;
         try {
             status = runSafely(monitor);
@@ -195,8 +196,8 @@ public class DownloadJob extends Job {
             if (monitor.isCanceled())
                 return cancelStatus();
 
-            monitor.subTask(NLS.bind(Messages.InitializingTarget,
-                    getTargetPath()));
+            monitor.subTask(
+                    NLS.bind(Messages.InitializingTarget, getTargetPath()));
             OutputStream targetStream = target.openOutputStream();
             if (monitor.isCanceled())
                 return cancelStatus();
@@ -207,15 +208,15 @@ public class DownloadJob extends Job {
 
                 monitor.subTask(Messages.TransferingData);
 
-                transfer(sourceStream, targetStream, new SubProgressMonitor(
-                        monitor, 100), length);
+                transfer(sourceStream, targetStream,
+                        new SubProgressMonitor(monitor, 100), length);
 
                 setURLConnection(null);
 
                 monitor.done();
-                return new Status(IStatus.OK, pluginId, NLS.bind(
-                        Messages.DownloadFinished, getSourceURL(),
-                        getTargetPath()));
+                return new Status(IStatus.OK, pluginId,
+                        NLS.bind(Messages.DownloadFinished, getSourceURL(),
+                                getTargetPath()));
             } finally {
                 try {
                     targetStream.close();
@@ -257,9 +258,11 @@ public class DownloadJob extends Job {
         while ((num = sourceStream.read(buffer)) > 0) {
             targetStream.write(buffer, 0, num);
             downloaded += num;
-            String taskName = (total == null ? String.format("(%.1fK)", //$NON-NLS-1$ 
-                    (downloaded / 1024.0)) : String.format("(%.1fK/%s)", //$NON-NLS-1$ 
-                    (downloaded / 1024.0), total));
+            String taskName = (total == null
+                    ? String.format("(%.1fK)", //$NON-NLS-1$ 
+                            (downloaded / 1024.0))
+                    : String.format("(%.1fK/%s)", //$NON-NLS-1$ 
+                            (downloaded / 1024.0), total));
             monitor.subTask(Messages.TransferingData + " " + taskName); //$NON-NLS-1$
 
             if (length < 0) {

@@ -134,9 +134,9 @@ public abstract class Topic extends AbstractWorkbookComponent
      */
     protected abstract void removePosition();
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == ISheet.class)
-            return getOwnedSheet();
+            return adapter.cast(getOwnedSheet());
 
         return super.getAdapter(adapter);
     }

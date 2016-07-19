@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -21,9 +19,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
@@ -32,17 +27,16 @@ import org.xmind.gef.util.Properties;
 import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
-import org.xmind.ui.internal.ITemplateDescriptor;
-import org.xmind.ui.internal.ITemplateManagerListener;
-import org.xmind.ui.internal.MindMapTemplateManager;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
-import org.xmind.ui.internal.editor.MME;
-import org.xmind.ui.internal.wizards.FileTemplateDescriptor;
 import org.xmind.ui.internal.wizards.TemplateLabelProvider;
+import org.xmind.ui.mindmap.IResourceManager;
+import org.xmind.ui.mindmap.IResourceManagerListener;
+import org.xmind.ui.mindmap.ITemplate;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.resources.ColorUtils;
 
 public class NewFromTemplatesDashboardPage extends DashboardPage
-        implements ITemplateManagerListener {
+        implements IResourceManagerListener {
 
     private static final int FRAME_WIDTH = 225;
     private static final int FRAME_HEIGHT = 130;
@@ -57,17 +51,19 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
                 if (selection instanceof IStructuredSelection) {
                     Object element = ((IStructuredSelection) selection)
                             .getFirstElement();
-                    if (element instanceof ITemplateDescriptor) {
-                        ITemplateDescriptor template = (ITemplateDescriptor) element;
-                        if (template instanceof FileTemplateDescriptor) {
+                    if (element instanceof ITemplate) {
+                        ITemplate template = (ITemplate) element;
+                        if (MindMapUI.getResourceManager()
+                                .isUserTemplate(template)) {
                             if (MessageDialog.openConfirm(
                                     viewer.getControl().getShell(),
                                     WorkbenchMessages.ConfirmDeleteTemplateDialog_title,
                                     NLS.bind(
                                             WorkbenchMessages.ConfirmDeleteTemplateDialog_message_withTemplateName,
-                                            template.getName())))
-                                MindMapTemplateManager.getInstance()
-                                        .removeTemplate(template);
+                                            template.getName()))) {
+                                MindMapUI.getResourceManager()
+                                        .removeUserTemplate(template);
+                            }
                         }
                     }
                 }
@@ -78,6 +74,7 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
 
     private GalleryViewer viewer;
     private boolean normalOrEditMode;
+    private boolean templateOpening;
 
     public void setFocus() {
         if (viewer != null && viewer.getControl() != null
@@ -88,8 +85,7 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
 
     @Override
     public void dispose() {
-        MindMapTemplateManager.getInstance()
-                .removeTemplateManagerListener(this);
+        MindMapUI.getResourceManager().removeResourceManagerListener(this);
         super.dispose();
     }
 
@@ -121,6 +117,9 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
                         new Insets(5, 15, 5, 15)));
         properties.set(GalleryViewer.FrameContentSize,
                 new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
+        properties.set(GalleryViewer.ContentPaneBorderWidth, 1);
+        properties.set(GalleryViewer.ContentPaneBorderColor,
+                ColorUtils.getColor("#cccccc"));
 
         Control control = viewer.createControl(parent);
         control.setBackground(parent.getBackground());
@@ -132,12 +131,14 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
 
         viewer.addOpenListener(new IOpenListener() {
             public void open(OpenEvent event) {
-                if (normalOrEditMode)
-                    handleTemplateSelected(event.getSelection());
+                if (normalOrEditMode) {
+                    if (!templateOpening)
+                        handleTemplateSelected(event.getSelection());
+                }
             }
         });
 
-        MindMapTemplateManager.getInstance().addTemplateManagerListener(this);
+        MindMapUI.getResourceManager().addResourceManagerListener(this);
 
         setControl(control);
     }
@@ -149,32 +150,36 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         }
     }
 
-    private Object getViewerInput() {
-        List<ITemplateDescriptor> templates = new ArrayList<ITemplateDescriptor>();
-        MindMapTemplateManager templateManager = MindMapTemplateManager
-                .getInstance();
-        templates.addAll(templateManager.loadCustomTemplates());
-        templates.addAll(templateManager.loadSystemTemplates());
+    private List<ITemplate> getViewerInput() {
+        ArrayList<ITemplate> templates = new ArrayList<ITemplate>();
+        IResourceManager resourceManager = MindMapUI.getResourceManager();
+        templates.addAll(resourceManager.getSystemTemplates());
+        templates.addAll(resourceManager.getUserTemplates());
         // move recently added template ahead
         Collections.reverse(templates);
         return templates;
     }
 
-    public void templateAdded(ITemplateDescriptor template) {
-        if (viewer == null || viewer.getControl() == null
-                || viewer.getControl().isDisposed())
-            return;
-        viewer.setInput(getViewerInput());
+    public void userTemplateAdded(ITemplate template) {
+        if (template instanceof ITemplate) {
+            if (viewer == null || viewer.getControl() == null
+                    || viewer.getControl().isDisposed())
+                return;
+            viewer.setInput(getViewerInput());
+        }
     }
 
-    public void templateRemoved(ITemplateDescriptor template) {
-        if (viewer == null || viewer.getControl() == null
-                || viewer.getControl().isDisposed())
-            return;
-        viewer.setInput(getViewerInput());
+    public void userTemplateRemoved(ITemplate template) {
+        if (template instanceof ITemplate) {
+            if (viewer == null || viewer.getControl() == null
+                    || viewer.getControl().isDisposed())
+                return;
+            viewer.setInput(getViewerInput());
+        }
     }
 
     private void handleTemplateSelected(ISelection selection) {
+        templateOpening = true;
         Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
                 if (viewer == null || viewer.getControl() == null
@@ -186,34 +191,22 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         });
 
         if (selection == null || selection.isEmpty()
-                || !(selection instanceof IStructuredSelection))
+                || !(selection instanceof IStructuredSelection)) {
+            templateOpening = false;
             return;
+        }
 
         Object selectedElement = ((IStructuredSelection) selection)
                 .getFirstElement();
-        if (selectedElement == null
-                || !(selectedElement instanceof ITemplateDescriptor))
+        if (selectedElement == null || !(selectedElement instanceof ITemplate))
             return;
 
-        final ITemplateDescriptor template = (ITemplateDescriptor) selectedElement;
-        SafeRunner.run(new SafeRunnable() {
-            public void run() throws Exception {
-                IWorkbenchWindow wbWindow = PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow();
-                if (wbWindow == null)
-                    return;
+        ITemplate template = (ITemplate) selectedElement;
+        IEditorInput editorInput = MindMapUI.getEditorInputFactory()
+                .createEditorInput(template.createWorkbookRef());
+        getContext().openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);
 
-                IWorkbenchPage wbPage = wbWindow.getActivePage();
-                if (wbPage == null)
-                    return;
-
-                IEditorInput editorInput = MME
-                        .createTemplatedEditorInput(template.newStream());
-                wbPage.openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);
-
-                hideDashboard();
-            }
-        });
+        templateOpening = false;
     }
 
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>arr_ul</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="97.4232093%" id="linearGradient-1">
+            <stop stop-color="#00B0FF" offset="0%"></stop>
+            <stop stop-color="#0097F4" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="arrows" transform="translate(-3.000000, -24.000000)" fill="url(#linearGradient-1)">
+            <path d="M10.8509001,23.5268637 L3.90094722,30.3854872 C3.90094722,30.3854872 5.37494456,30.4084732 6.11680243,30.3999928 C6.54439289,30.395105 6.74194521,30.3999928 6.87297245,30.3999928 C8.08958134,30.3999928 8.12287384,31.2388895 8.12287384,31.2388895 L8.19521974,38.730314 C8.19521974,38.730314 8.30116962,39.5677393 11.0816463,39.5253037 C13.862123,39.4828681 13.9239559,38.730314 13.9239559,38.730314 L13.7832561,31.2388895 C13.7832561,31.2388895 13.9547203,30.3944603 15.0266439,30.3944603 C15.9392157,30.3944603 16.1815535,30.3984702 17.254752,30.3996624 C17.442152,30.3998706 17.9009472,30.3999928 17.9009472,30.3999928 L10.8509001,23.5268637 Z" id="arr_ul" transform="translate(10.900947, 31.526864) rotate(-45.000000) translate(-10.900947, -31.526864) "></path>
+        </g>
+    </g>
+</svg>

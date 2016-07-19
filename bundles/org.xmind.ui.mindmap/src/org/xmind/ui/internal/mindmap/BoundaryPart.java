@@ -130,7 +130,7 @@ public class BoundaryPart extends NodePart implements IBoundaryPart {
         return titled.hasTitle() && !"".equals(titled.getTitleText()); //$NON-NLS-1$
     }
 
-    private boolean isPolygonShape(IFigure figure) {
+    public boolean isPolygonShape(IFigure figure) {
         if (figure == null || !(figure instanceof BoundaryFigure))
             return false;
 

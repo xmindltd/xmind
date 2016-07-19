@@ -90,6 +90,7 @@ public class DOMConstants {
     public static final String ATTR_PROVIDER = "provider"; //$NON-NLS-1$
     public static final String ATTR_RANGE = "range"; //$NON-NLS-1$
     public static final String ATTR_RESOURCE = "resource"; //$NON-NLS-1$
+    public static final String ATTR_SVG = "svg"; //$NON-NLS-1$
     public static final String ATTR_RESOURCE_ID = "resource-id"; //$NON-NLS-1$
     public static final String ATTR_RESOURCE_TYPE = "resource-type"; //$NON-NLS-1$
     public static final String ATTR_REVISION_NUMBER = "rev-num"; //$NON-NLS-1$

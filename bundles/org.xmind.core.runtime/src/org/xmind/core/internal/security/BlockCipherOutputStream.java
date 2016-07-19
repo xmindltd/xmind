@@ -45,7 +45,8 @@ public class BlockCipherOutputStream extends FilterOutputStream {
     private BufferedBlockCipher cipher;
     private int lastOutputSize = -1;
 
-    public BlockCipherOutputStream(OutputStream out, BufferedBlockCipher cipher) {
+    public BlockCipherOutputStream(OutputStream out,
+            BufferedBlockCipher cipher) {
         super(out);
         this.cipher = cipher;
     }
@@ -61,6 +62,7 @@ public class BlockCipherOutputStream extends FilterOutputStream {
             }
             out.flush();
             out.close();
+            lastOutputSize = -1;
         } catch (Exception cause) {
             IOException ioex = new IOException(String.valueOf(cause));
             ioex.initCause(cause);

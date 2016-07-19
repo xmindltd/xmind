@@ -24,7 +24,6 @@ import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.io.DirectoryStorage;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.util.FileUtils;
-import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.internal.imports.freemind.FreeMindImporter;
 import org.xmind.ui.internal.imports.mm.MindManagerImporter;
 import org.xmind.ui.io.DownloadJob;
@@ -76,15 +75,13 @@ public class DownloadAndOpenFileJob extends Job {
         if (monitor.isCanceled())
             return Status.CANCEL_STATUS;
 
-        monitor.subTask(NLS
-                .bind(WorkbenchMessages.DownloadAndOpenFileJob_Task_Download_with_url,
-                        url));
+        monitor.subTask(NLS.bind(
+                WorkbenchMessages.DownloadAndOpenFileJob_Task_Download_with_url,
+                url));
         tempFile = createTempPath(url);
         if (tempFile.getParentFile() == null
                 || !tempFile.getParentFile().isDirectory()) {
-            return new Status(
-                    IStatus.ERROR,
-                    MindMapUI.PLUGIN_ID,
+            return new Status(IStatus.ERROR, MindMapUI.PLUGIN_ID,
                     WorkbenchMessages.DownloadAndOpenFileJob_Error_FailedToCreateTempFile);
         }
 
@@ -112,9 +109,9 @@ public class DownloadAndOpenFileJob extends Job {
     }
 
     private IStatus open(IProgressMonitor monitor) {
-        monitor.subTask(NLS
-                .bind(WorkbenchMessages.DownloadAndOpenFileJob_Task_OpenDownloadedFile_with_url,
-                        url));
+        monitor.subTask(NLS.bind(
+                WorkbenchMessages.DownloadAndOpenFileJob_Task_OpenDownloadedFile_with_url,
+                url));
 
         try {
             IStorage tempStorage = createTempStorage();
@@ -123,12 +120,11 @@ public class DownloadAndOpenFileJob extends Job {
                 return openMindMapEditor(monitor, workbook);
             }
         } catch (Throwable e) {
-            return new Status(
-                    IStatus.ERROR,
-                    MindMapUI.PLUGIN_ID,
+            return new Status(IStatus.ERROR, MindMapUI.PLUGIN_ID,
                     NLS.bind(
                             WorkbenchMessages.DownloadAndOpenFileJob_Error_FailedToLoadWorkbook_with_url,
-                            url), e);
+                            url),
+                    e);
         }
         return Status.CANCEL_STATUS;
     }
@@ -197,8 +193,8 @@ public class DownloadAndOpenFileJob extends Job {
 
                 String name = targetName == null ? getFileName(url)
                         : targetName;
-                IEditorInput input = MME
-                        .createLoadedEditorInput(name, workbook);
+                IEditorInput input = MindMapUI.getEditorInputFactory()
+                        .createEditorInputForPreLoadedWorkbook(workbook, name);
                 try {
                     page.openEditor(input, MindMapUI.MINDMAP_EDITOR_ID, true);
                 } catch (PartInitException e) {
@@ -234,13 +230,13 @@ public class DownloadAndOpenFileJob extends Job {
         String fileName = getFileName(url);
         String ext = FileUtils.getExtension(fileName);
         String prefix = fileName.substring(0, fileName.length() - ext.length());
-        return Core.getWorkspace()
-                .createTempFile("download", prefix + "_", ext); //$NON-NLS-1$ //$NON-NLS-2$
+        return Core.getWorkspace().createTempFile("download", prefix + "_", //$NON-NLS-1$//$NON-NLS-2$
+                ext);
     }
 
     private static IStorage createTempStorage() {
-        File tempDir = Core.getWorkspace().createTempFile(
-                "openFromDownloadedFile", "", ".temp"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        File tempDir = Core.getWorkspace()
+                .createTempFile("openFromDownloadedFile", "", ".temp"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         tempDir.mkdirs();
         return new DirectoryStorage(tempDir);
     }

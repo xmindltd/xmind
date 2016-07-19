@@ -14,7 +14,6 @@
 package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.dom.DOMConstants.TAG_MARKER_SHEET;
-import static org.xmind.core.internal.zip.ArchiveConstants.PATH_MARKER_SHEET;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,19 +26,17 @@ import org.w3c.dom.Document;
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.internal.MarkerSheetBuilder;
-import org.xmind.core.io.IInputSource;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerResourceProvider;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.core.util.DOMUtils;
-import org.xmind.core.util.IXMLLoader;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class MarkerSheetBuilderImpl extends MarkerSheetBuilder implements
-        ErrorHandler {
+public class MarkerSheetBuilderImpl extends MarkerSheetBuilder
+        implements ErrorHandler {
 
     private DocumentBuilder getDocumentCreator() {
         DocumentBuilder documentCreator = null;
@@ -75,26 +72,26 @@ public class MarkerSheetBuilderImpl extends MarkerSheetBuilder implements
     }
 
     public IMarkerSheet loadFromStream(InputStream stream,
-            IMarkerResourceProvider resourceProvider) throws IOException,
-            CoreException {
+            IMarkerResourceProvider resourceProvider)
+                    throws IOException, CoreException {
         DocumentBuilder loader = getDocumentLoader();
         Document doc = parse(loader, stream);
         return createMarkerSheet(doc, resourceProvider);
     }
 
-    private IMarkerSheet createMarkerSheet(Document doc,
+    protected MarkerSheetImpl createMarkerSheet(Document doc,
             IMarkerResourceProvider resourceProvider) {
         MarkerSheetImpl sheet = new MarkerSheetImpl(doc, resourceProvider);
         init(sheet);
         return sheet;
     }
 
-    public IMarkerSheet loadFromInputSource(IInputSource source,
-            IXMLLoader xmlLoader, IMarkerResourceProvider resourceProvider)
-            throws IOException, CoreException {
-        Document doc = xmlLoader.loadXMLFile(source, PATH_MARKER_SHEET);
-        return createMarkerSheet(doc, resourceProvider);
-    }
+//    public IMarkerSheet loadFromInputSource(IInputSource source,
+//            IXMLLoader xmlLoader, IMarkerResourceProvider resourceProvider)
+//                    throws IOException, CoreException {
+//        Document doc = xmlLoader.loadXMLFile(source, PATH_MARKER_SHEET);
+//        return createMarkerSheet(doc, resourceProvider);
+//    }
 
     private void init(MarkerSheetImpl sheet) {
         for (IMarkerGroup group : sheet.getMarkerGroups()) {

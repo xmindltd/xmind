@@ -20,9 +20,10 @@ import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionData;
 
 /**
- * @author MANGOSOFT
+ * @author Frank Shaka
  * 
  */
+@Deprecated
 public class NullSecurityProvider implements ISecurityProvider {
 
     private static final NullSecurityProvider instance = new NullSecurityProvider();
@@ -32,13 +33,13 @@ public class NullSecurityProvider implements ISecurityProvider {
 
     public InputStream createPasswordProtectedInputStream(InputStream input,
             boolean encrypt, IEncryptionData encData, String password)
-            throws CoreException {
+                    throws CoreException {
         return input;
     }
 
-    public OutputStream createPasswordProtectedOutputStream(
-            OutputStream output, boolean encrypt, IEncryptionData encData,
-            String password) throws CoreException {
+    public OutputStream createPasswordProtectedOutputStream(OutputStream output,
+            boolean encrypt, IEncryptionData encData, String password)
+                    throws CoreException {
         return output;
     }
 

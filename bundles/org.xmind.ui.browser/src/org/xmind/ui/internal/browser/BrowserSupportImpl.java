@@ -15,7 +15,6 @@ package org.xmind.ui.internal.browser;
 
 import java.util.HashMap;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.ui.browser.IBrowser;
@@ -58,10 +57,14 @@ public class BrowserSupportImpl implements IBrowserSupport {
 
     public IBrowser createBrowser(int style, String browserClientId,
             String name, String tooltip) {
-        //If OS is linux,force to use external browser as a temporary solution for linux browser bug.
-        if (Platform.OS_LINUX.equals(Platform.getOS())) {
-            style = AS_EXTERNAL;
-        }
+//        //If OS is linux,force to use external browser as a temporary solution for linux browser bug.
+//        if (Platform.OS_LINUX.equals(Platform.getOS())) {
+//            style = AS_EXTERNAL;
+//        }
+
+        //Force to use external browser
+        style = AS_EXTERNAL;
+
         String browserId = BrowserUtil.encodeStyle(
                 browserClientId == null ? DEFAULT_CLIENT_ID : browserClientId,
                 style);
@@ -105,27 +108,19 @@ public class BrowserSupportImpl implements IBrowserSupport {
     }
 
     private boolean isInternal(int style) {
-        return (style & AS_INTERNAL) != 0
-                || ((style & IMPL_TYPES) == 0 && BrowserPref.getBrowserChoice() == BrowserPref.INTERNAL);
+        return (style & AS_INTERNAL) != 0 || ((style & IMPL_TYPES) == 0
+                && BrowserPref.getBrowserChoice() == BrowserPref.INTERNAL);
     }
 
     private boolean isExternal(int style) {
-        return style == AS_EXTERNAL
-                || ((style & IMPL_TYPES) == 0 && BrowserPref.getBrowserChoice() == BrowserPref.EXTERNAL);
+        return style == AS_EXTERNAL || ((style & IMPL_TYPES) == 0
+                && BrowserPref.getBrowserChoice() == BrowserPref.EXTERNAL);
     }
 
     private IBrowser doCreateBrowser(int style, String browserClientId,
             String name, String tooltip) {
-        if (isInternal(style))
-            return new InternalBrowser(this, browserClientId, asEditor(style),
-                    style & INTERNAL_STYLES);
-        if (isExternal(style))
-            return new ExternalBrowser(browserClientId);
-        return new DefaultBrowser(this, browserClientId);
-    }
-
-    private boolean asEditor(int style) {
-        return (style & IMPL_TYPES) == 0 || (style & AS_VIEW) == 0;
+        /// no longer support internal browsers
+        return new ExternalBrowser(browserClientId);
     }
 
     private void registerBrowser(IBrowser browser) {

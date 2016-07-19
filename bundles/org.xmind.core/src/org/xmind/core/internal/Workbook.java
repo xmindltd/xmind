@@ -28,7 +28,7 @@ import org.xmind.core.IWorkbook;
  */
 public abstract class Workbook implements IWorkbook {
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 
@@ -43,6 +43,7 @@ public abstract class Workbook implements IWorkbook {
         addSheet(sheet, -1);
     }
 
+    @Deprecated
     public ITopic cloneTopic(ITopic topic) {
         ICloneData result = clone(Arrays.asList(topic));
         return (ITopic) result.get(topic);

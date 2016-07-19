@@ -1,2 +1,0 @@
-# Turn on debugging for Local Network Sharing Core plug-in:
-org.xmind.core.sharing.localnetwork/debug=false

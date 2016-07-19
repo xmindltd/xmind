@@ -37,6 +37,11 @@ public interface ICloneData {
      */
     String URLS = "urls"; //$NON-NLS-1$
 
+    /**
+     * Category for getting/putting file entry paths.
+     */
+    String FILE_ENTRIES = "fileEntries"; //$NON-NLS-1$
+
     Collection<Object> getSources();
 
     Collection<Object> getCloneds();

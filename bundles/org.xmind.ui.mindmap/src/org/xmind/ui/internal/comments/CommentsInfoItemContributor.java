@@ -1,22 +1,28 @@
 package org.xmind.ui.internal.comments;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.core.Core;
+import org.xmind.core.IComment;
 import org.xmind.core.ITopic;
-import org.xmind.core.comment.IComment;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
+import org.xmind.gef.EditDomain;
+import org.xmind.gef.command.Command;
+import org.xmind.gef.command.CompoundCommand;
+import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.actions.IActionRegistry;
-import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.actions.DelegatingAction;
+import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.actions.DeleteCommentAction;
 import org.xmind.ui.mindmap.AbstractInfoItemContributor;
 import org.xmind.ui.mindmap.IInfoPart;
 import org.xmind.ui.mindmap.IMindMapImages;
@@ -52,16 +58,10 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
     }
 
     public IAction createAction(ITopicPart topicPart, ITopic topic) {
-        List<IComment> comments = topic.getOwnedWorkbook().getCommentManager()
-                .getComments(topic);
-        if (comments.size() == 0) {
+        Set<IComment> comments = new TreeSet<IComment>(topic.getOwnedWorkbook()
+                .getCommentManager().getComments(topic.getId()));
+        if (comments.isEmpty())
             return null;
-        } else if (comments.size() == 1) {
-            String content = comments.get(0).getContent();
-            if (content == null || content.equals("")) { //$NON-NLS-1$
-                return null;
-            }
-        }
 
         IAction action = null;
         IActionRegistry actionRegistry = (IActionRegistry) topicPart
@@ -75,29 +75,38 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
         if (action == null)
             action = new ShowCommentsAction(topicPart);
 
-        String text = ""; //$NON-NLS-1$
+        StringBuilder text = new StringBuilder();
 
-        for (int i = 0; i < comments.size(); i++) {
-            IComment comment = comments.get(i);
-            String userName = comment.getAuthor();
+        Iterator<IComment> commentIt = comments.iterator();
+        while (commentIt.hasNext()) {
+            IComment comment = commentIt.next();
+            String author = comment.getAuthor();
             String content = comment.getContent();
 
-            String timeMillisString = comment.getTime();
-            String dateString = TextFormatter.formatTimeMillis(timeMillisString,
-                    CommentsConstants.DATE_FORMAT_PATTERN);
-            String timeString = TextFormatter.formatTimeMillis(timeMillisString,
-                    CommentsConstants.TIME_FORMAT_PATTERN);
-            String timeText = dateString + " at " + timeString; //$NON-NLS-1$
+            long timeMillisString = comment.getTime();
 
-            text += userName + " : " + content + "\n" + timeText; //$NON-NLS-1$ //$NON-NLS-2$
-            if (i != comments.size() - 1) {
-                text += "\n\n"; //$NON-NLS-1$
+            text.append(author);
+            text.append(" : "); //$NON-NLS-1$
+            text.append(content);
+            text.append('\n');
+            text.append(TextFormatter.formatTimeMillis(timeMillisString,
+                    CommentsConstants.DATE_FORMAT_PATTERN));
+            text.append(' ');
+            text.append(TextFormatter.formatTimeMillis(timeMillisString,
+                    CommentsConstants.TIME_FORMAT_PATTERN));
+            if (commentIt.hasNext()) {
+                text.append("\n\n"); //$NON-NLS-1$
             }
+
+            if (text.length() > 500)
+                break;
         }
 
-        if (text.length() > 500)
-            text = text.substring(0, 500) + "...\n..."; //$NON-NLS-1$
-        action.setToolTipText(text);
+        if (text.length() > 500) {
+            text.delete(501, text.length());
+            text.append("...\n..."); //$NON-NLS-1$
+        }
+        action.setToolTipText(text.toString());
 
         return action;
     }
@@ -105,55 +114,55 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
     @Override
     protected void registerTopicEvent(ITopicPart topicPart, ITopic topic,
             ICoreEventRegister register) {
-        register.register(Core.TopicComments);
+        register.register(Core.CommentAdd);
+        register.register(Core.CommentRemove);
     }
 
-    public void removeComments(ITopic topic) {
-        if (topic == null)
-            return;
-        IWorkbenchWindow window = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        if (window == null)
-            return;
-
-        IGraphicalEditor editor = (IGraphicalEditor) window.getActivePage()
-                .getActiveEditor();
-        if (editor == null)
+    private void removeComments(ITopicPart topicPart) {
+        ITopic topic = topicPart.getTopic();
+        Set<IComment> comments = topic.getOwnedWorkbook().getCommentManager()
+                .getComments(topic.getId());
+        if (comments.isEmpty())
             return;
 
-        DeleteCommentAction removeAction = new DeleteCommentAction(editor);
-        List<IComment> comments = topic.getOwnedWorkbook().getCommentManager()
-                .getComments(topic);
-
-        if (removeAction == null || comments == null)
-            return;
-
+        List<Command> commands = new ArrayList<Command>(comments.size());
         for (IComment comment : comments) {
-            removeAction.selectedCommentChanged(comment);
-            removeAction.run();
+            commands.add(new DeleteCommentCommand(topic, comment));
+        }
+        Command command = new CompoundCommand(
+                MindMapMessages.Comment_Delete_label, commands);
+
+        EditDomain domain = topicPart.getSite().getDomain();
+        ICommandStack commandStack = domain == null ? null
+                : domain.getCommandStack();
+        if (commandStack != null) {
+            commandStack.execute(command);
+        } else {
+            command.execute();
         }
     }
 
     @Override
-    public List<IAction> getPopupMenuActions(ITopicPart topicPart,
+    public List<IAction> getPopupMenuActions(final ITopicPart topicPart,
             final ITopic topic) {
         List<IAction> actions = new ArrayList<IAction>();
 
         IAction editCommentsAction = createAction(topicPart, topic);
         editCommentsAction.setText(MindMapMessages.ModifyMenu);
+        actions.add(editCommentsAction);
+
         IAction deleteCommentsAction = new Action(
                 MindMapMessages.Comment_Delete_label) {
             @Override
             public void run() {
-                removeComments(topic);
+                removeComments(topicPart);
             };
         };
         deleteCommentsAction.setId("org.xmind.ui.removeComments"); //$NON-NLS-1$
         deleteCommentsAction.setImageDescriptor(
                 MindMapUI.getImages().get(IMindMapImages.DELETE, true));
-
-        actions.add(editCommentsAction);
         actions.add(deleteCommentsAction);
+
         return actions;
     }
 

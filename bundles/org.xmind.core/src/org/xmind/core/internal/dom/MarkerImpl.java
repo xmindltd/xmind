@@ -17,6 +17,7 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_HIDDEN;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_NAME;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_RESOURCE;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_SVG;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_MARKER_GROUP;
 
 import java.util.Properties;
@@ -106,12 +107,18 @@ public class MarkerImpl extends Marker implements ICoreEventSource {
         return implementation.getAttribute(ATTR_RESOURCE);
     }
 
+    public void setResourcePath(String resourcePath) {
+        DOMUtils.setAttribute(implementation, ATTR_RESOURCE, resourcePath);
+    }
+
+    public String getSVGPath() {
+        return DOMUtils.getAttribute(implementation, ATTR_SVG);
+    }
+
     public void setName(String name) {
-        String oldName = implementation.hasAttribute(ATTR_NAME) ? getName()
-                : null;
+        String oldName = DOMUtils.getAttribute(implementation, ATTR_NAME);
         DOMUtils.setAttribute(implementation, ATTR_NAME, name);
-        String newName = implementation.hasAttribute(ATTR_NAME) ? getName()
-                : null;
+        String newName = DOMUtils.getAttribute(implementation, ATTR_NAME);
         fireValueChange(Core.Name, oldName, newName);
     }
 
@@ -134,7 +141,8 @@ public class MarkerImpl extends Marker implements ICoreEventSource {
                 listener);
     }
 
-    private void fireValueChange(String type, Object oldValue, Object newValue) {
+    private void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         getCoreEventSupport().dispatchValueChange(this, type, oldValue,
                 newValue);
     }

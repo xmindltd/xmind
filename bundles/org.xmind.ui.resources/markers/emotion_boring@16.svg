@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>face_bor</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFD036" offset="0%"></stop>
+            <stop stop-color="#ECB70A" offset="100%"></stop>
+        </linearGradient>
+        <radialGradient cx="21.8660608%" cy="24.9444716%" fx="21.8660608%" fy="24.9444716%" r="75.0555284%" id="radialGradient-2">
+            <stop stop-color="#FFFFFF" stop-opacity="0.5" offset="0%"></stop>
+            <stop stop-color="#68A6E9" stop-opacity="0.5" offset="100%"></stop>
+        </radialGradient>
+        <path d="M7.85078639,11.2410564 C6.92268562,10.9309325 6.45863517,10.4657463 5.8399013,9.8454982 C5.22116742,9.2252501 4.13838314,9.2252501 3.51964926,9.2252501 C2.90091539,9.2252501 0.89003029,10.3106843 0.89003029,12.0163665 C0.89003029,13.7220488 1.97281457,15.117607 3.67433273,15.117607 C5.37585089,15.117607 6.61331864,14.4973589 8.16015333,12.1714286 C8.46952027,11.5511805 8.77888716,11.5511804 7.85078639,11.2410564 Z" id="path-3"></path>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="faces" transform="translate(-85.000000, -1.000000)">
+            <g id="face_bor" transform="translate(84.260020, 0.232307)">
+                <circle id="Oval-332" fill="#E39104" cx="8.71910112" cy="8.76190476" r="8"></circle>
+                <circle id="Oval-332-Copy" fill="url(#linearGradient-1)" cx="8.73795428" cy="8.7951665" r="7.5"></circle>
+                <rect id="Rectangle-300" fill="#CA480B" x="3.7752809" y="8.19047619" width="3.43820225" height="0.761904762"></rect>
+                <rect id="Rectangle-300-Copy" fill="#CA480B" x="9.50561798" y="8.19047619" width="3.43820225" height="0.761904762"></rect>
+                <g id="Path-1001">
+                    <use fill="#5EA0E6" xlink:href="#path-3"></use>
+                    <use fill="url(#radialGradient-2)" xlink:href="#path-3"></use>
+                </g>
+                <polygon id="z" fill="#635D59" points="10.3712693 7.04761905 8.45330056 7.04761905 8.45330056 6.59644717 9.50017556 5.36793155 8.50017556 5.36793155 8.50017556 4.85425967 10.3497849 4.85425967 10.3497849 5.29761905 9.30095681 6.52418155 10.3712693 6.52418155"></polygon>
+                <polygon id="z-copy-3" fill="#635D59" points="13.4782523 5 10.6012992 5 10.6012992 4.32324219 12.1716117 2.48046875 10.6716117 2.48046875 10.6716117 1.70996094 13.4460257 1.70996094 13.4460257 2.375 11.8727835 4.21484375 13.4782523 4.21484375"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

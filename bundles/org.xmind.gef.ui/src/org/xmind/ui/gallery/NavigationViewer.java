@@ -153,12 +153,12 @@ public class NavigationViewer extends GraphicalViewer {
         animationService.setActive(true);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == IContentProvider.class
-                || adapter == IStructuredContentProvider.class)
-            return getContentProvider();
-        if (adapter == IBaseLabelProvider.class)
-            return getLabelProvider();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IContentProvider.class.equals(adapter)
+                || IStructuredContentProvider.class.equals(adapter))
+            return adapter.cast(getContentProvider());
+        if (IBaseLabelProvider.class.equals(adapter))
+            return adapter.cast(getLabelProvider());
         return super.getAdapter(adapter);
     }
 
@@ -264,14 +264,13 @@ public class NavigationViewer extends GraphicalViewer {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.xmind.gef.GraphicalViewer#internalCreateControl(org.eclipse.swt.widgets
-     * .Composite, int)
+     * @see org.xmind.gef.GraphicalViewer#internalCreateControl(org.eclipse.swt.
+     * widgets .Composite, int)
      */
     @Override
     protected Control internalCreateControl(Composite parent, int style) {
-        FigureCanvas canvas = (FigureCanvas) super.internalCreateControl(
-                parent, style);
+        FigureCanvas canvas = (FigureCanvas) super.internalCreateControl(parent,
+                style);
         canvas.setScrollBarVisibility(FigureCanvas.NEVER);
         getViewport().setContentsTracksWidth(true);
         getViewport().setContentsTracksHeight(true);

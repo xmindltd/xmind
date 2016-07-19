@@ -133,8 +133,8 @@ public class ControlPointImpl extends ControlPoint implements ICoreEventSource {
     public double getPolarAngle() {
         Element ele = getImplementation();
         if (ele != null) {
-            return NumberUtils.safeParseDouble(
-                    DOMUtils.getAttribute(ele, ATTR_ANGLE), 0);
+            return NumberUtils
+                    .safeParseDouble(DOMUtils.getAttribute(ele, ATTR_ANGLE), 0);
         }
         return 0;
     }
@@ -263,12 +263,18 @@ public class ControlPointImpl extends ControlPoint implements ICoreEventSource {
             setPosition(position.x, position.y);
     }
 
-    protected void fireValueChange(String type, Object oldValue, Object newValue) {
+    protected void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         getCoreEventSupport().dispatchValueChange(this, type, oldValue,
                 newValue);
     }
 
     public ICoreEventSupport getCoreEventSupport() {
+        // Use workbook's core event support directly, so that 
+        // orphan components can have events broadcasted, which 
+        // will enable transient actions (such as dragging topics 
+        // or adjusting relationship control points, etc.) to 
+        // perform correctly.
         return parent.getCoreEventSupport();
     }
 

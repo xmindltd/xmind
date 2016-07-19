@@ -2,25 +2,29 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.mindmap;singleton:=true
-Bundle-Version: 3.6.1.qualifier
+Bundle-Version: 3.6.51.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.xmind.ui.internal.MindMapUIPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.xmind.ui,
  org.xmind.ui.actions,
+ org.xmind.ui.blackbox,
  org.xmind.ui.branch,
  org.xmind.ui.commands,
  org.xmind.ui.decorations,
  org.xmind.ui.dialogs,
+ org.xmind.ui.editor,
  org.xmind.ui.internal;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.actions;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.branch;x-friends:="org.xmind.ui",
+ org.xmind.ui.internal.colorful;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.comments;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.decorations;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.decorators;x-internal:=true,
  org.xmind.ui.internal.dialogs;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.dnd;x-friends:="org.xmind.ui",
+ org.xmind.ui.internal.e4handlers;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.editor;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.editpolicies;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.figures;x-internal:=true,
@@ -34,10 +38,11 @@ Export-Package: org.xmind.ui,
  org.xmind.ui.internal.outline;x-internal:=true,
  org.xmind.ui.internal.prefs;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.print;x-internal:=true,
- org.xmind.ui.internal.print.multipage,
+ org.xmind.ui.internal.print.multipage;x-internal:=true,
  org.xmind.ui.internal.properties;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.protocols;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.spellsupport;x-friends:="org.xmind.ui",
+ org.xmind.ui.internal.svgsupport;x-internal:=true,
  org.xmind.ui.internal.tools;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.views;x-friends:="org.xmind.ui",
  org.xmind.ui.internal.wizards;x-friends:="org.xmind.ui",
@@ -61,8 +66,16 @@ Require-Bundle: org.eclipse.ui,
  org.xmind.ui.browser;bundle-version="[3.6.0,3.7.0)",
  org.xmind.ui.spelling;bundle-version="[3.6.0,3.7.0)",
  org.xmind.core.command;bundle-version="[3.6.0,3.7.0)",
- org.eclipse.swt
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ org.eclipse.swt,
+ org.eclipse.e4.ui.services,
+ org.eclipse.e4.core.di.annotations,
+ org.xmind.core.usagedata;bundle-version="[3.6.50,3.7.0)",
+ org.xmind.core,
+ org.eclipse.e4.ui.workbench,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.core.contexts
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.inject;version="1.0.0"
 Eclipse-LazyStart: true
+Service-Component: OSGI-INF/serviceManager.xml

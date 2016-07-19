@@ -23,8 +23,11 @@ import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.xmind.core.Core;
 import org.xmind.core.ICloneData;
+import org.xmind.core.ISerializer;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.IWorkspace;
+import org.xmind.core.internal.dom.MarkerSheetImpl;
+import org.xmind.core.io.DirectoryStorage;
+import org.xmind.core.marker.IMarkerRef;
 import org.xmind.core.util.FileUtils;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -105,6 +108,13 @@ public class MindMapElementTransfer extends ByteArrayTransfer {
         ICloneData result = tempWorkbook.clone(Arrays.asList(elements));
         Collection<Object> cloneds = result.getCloneds();
         if (!cloneds.isEmpty()) {
+            for (Object element : elements) {
+                if (element instanceof IMarkerRef) {
+                    IMarkerRef ref = (IMarkerRef) element;
+                    ((MarkerSheetImpl) tempWorkbook.getMarkerSheet())
+                            .getElementRegistry().register(ref.getMarker());
+                }
+            }
             fillCloneMap(result, elements);
             return cloneds.toArray();
         }
@@ -125,18 +135,23 @@ public class MindMapElementTransfer extends ByteArrayTransfer {
     }
 
     private IWorkbook recreateTempWorkbook() {
-        String tempDir = Core.getWorkspace().getAbsolutePath(
-                IWorkspace.DIR_TEMP);
-        File file = new File(tempDir, "transfer" //$NON-NLS-1$
+        String tempDir = Core.getWorkspace().getTempDir("element_transfer" //$NON-NLS-1$
                 + MindMapUI.FILE_EXT_XMIND_TEMP);
-        FileUtils.delete(file);
-        IWorkbook wb = Core.getWorkbookBuilder().createWorkbook();
-        wb.setTempLocation(file.getAbsolutePath());
+        File tempLocation = new File(tempDir);
+        FileUtils.delete(tempLocation);
+        tempLocation.mkdirs();
+        IWorkbook workbook = Core.getWorkbookBuilder()
+                .createWorkbook(new DirectoryStorage(tempLocation));
+        workbook.getMarkerSheet().setParentSheet(
+                MindMapUI.getResourceManager().getSystemMarkerSheet());
         try {
-            wb.saveTemp();
+            ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
+            serializer.setWorkbook(workbook);
+            serializer.setWorkbookStorageAsOutputTarget();
+            serializer.serialize(null);
         } catch (Exception e) {
         }
-        return wb;
+        return workbook;
     }
 
 }

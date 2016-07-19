@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
@@ -28,8 +25,8 @@ import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
-public class InsertParentTopicAction extends RequestAction implements
-        ISelectionAction {
+public class InsertParentTopicAction extends RequestAction
+        implements ISelectionAction {
 
     public InsertParentTopicAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.INSERT_PARENT_TOPIC.getId(), page,
@@ -37,26 +34,31 @@ public class InsertParentTopicAction extends RequestAction implements
         setText(MindMapMessages.InsertParentTopic_text);
         setToolTipText(MindMapMessages.InsertParentTopic_toolTip);
         setActionDefinitionId("org.xmind.ui.command.insert.parentTopic"); //$NON-NLS-1$
-        setImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.INSERT_PARENT, true));
-        setDisabledImageDescriptor(MindMapUI.getImages().get(
-                IMindMapImages.INSERT_PARENT, false));
+        setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.INSERT_PARENT, true));
+        setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.INSERT_PARENT, false));
     }
 
     public void setSelection(ISelection selection) {
         setEnabled(MindMapUtils.isSingleTopic(selection)
-                && !MindMapUtils.hasCentralTopic(selection, getViewer()));
+                && !MindMapUtils.hasCentralTopic(selection, getViewer())
+                && !MindMapUtils.hasSuchElements(selection,
+                        MindMapUI.CATEGORY_SUMMARY));
         if (MindMapUtils.isSingleTopic(selection)) {
-            setEnabled(!MindMapUtils.hasCentralTopic(selection, getViewer()));
+            setEnabled(!MindMapUtils.hasCentralTopic(selection, getViewer())
+                    && !MindMapUtils.hasSuchElements(selection,
+                            MindMapUI.CATEGORY_SUMMARY));
         } else if (MindMapUtils.isAllSuchElements(selection,
                 MindMapUI.CATEGORY_TOPIC)) {
             List<ITopic> topics = getAllTopics(selection);
             if (topics == null || topics.size() == 0
-                    || containsCentralTopic(topics)) {
+                    || containsCentralTopic(topics)
+                    || containsSummeryTopic(topics)) {
                 setEnabled(false);
             } else {
-                setEnabled(isAllBrothers(MindMapUtils.filterOutDescendents(
-                        topics, null)));
+                setEnabled(isAllBrothers(
+                        MindMapUtils.filterOutDescendents(topics, null)));
             }
         }
     }
@@ -117,6 +119,24 @@ public class InsertParentTopicAction extends RequestAction implements
         }
 
         return topic.getOwnedSheet().getRootTopic() == topic;
+    }
+
+    private boolean containsSummeryTopic(List<ITopic> topics) {
+        if (topics == null || topics.size() == 0)
+            return false;
+
+        for (ITopic topic : topics) {
+            if (isSummaryTopic(topic))
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean isSummaryTopic(ITopic topic) {
+        if (topic == null)
+            return false;
+        return ITopic.SUMMARY.equals(topic.getType());
     }
 
 }

@@ -102,13 +102,12 @@ public class TextFormatter {
         return text.replaceAll(" ?(\\r\\n|\\n|\\r)+", " "); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    public static String formatTimeMillis(String timeMillis, String pattern) {
-        if (timeMillis == null || pattern == null) {
+    public static String formatTimeMillis(long timeMillis, String pattern) {
+        if (timeMillis <= 0 || pattern == null) {
             return null;
         }
-        long millis = Long.parseLong(timeMillis);
         Calendar calendar = GregorianCalendar.getInstance();
-        calendar.setTimeInMillis(millis);
+        calendar.setTimeInMillis(timeMillis);
         DateFormat formatter = new SimpleDateFormat(pattern,
                 Locale.getDefault());
         return formatter.format(calendar.getTime());

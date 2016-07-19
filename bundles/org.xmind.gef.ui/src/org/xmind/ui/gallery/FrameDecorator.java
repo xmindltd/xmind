@@ -20,6 +20,7 @@ import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.swt.graphics.Color;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.part.Decorator;
@@ -81,6 +82,15 @@ public class FrameDecorator extends Decorator {
                 toolTipFigure.setText(toolTip);
                 frame.setToolTip(toolTipFigure);
             }
+        }
+
+        ShadowedLayer layer = frame.getContentPane();
+        layer.setBorderWidth(
+                properties.getInteger(GalleryViewer.ContentPaneBorderWidth, 1));
+        Object color = properties.get(GalleryViewer.ContentPaneBorderColor);
+        if (color != null && color instanceof Color) {
+            layer.setBorderAlpha(0xff);
+            layer.setBorderColor((Color) color);
         }
     }
 

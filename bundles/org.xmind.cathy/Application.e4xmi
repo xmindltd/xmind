@@ -21,16 +21,6 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_Du1b8P04EeSFCalzBJpRhw" elementId="org.xmind.ui.toolbar.export">
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_HJHhUESQEeW5MZ3VuY9QmQ" elementId="start" visible="false"/>
-        <children xsi:type="menu:DirectToolItem" xmi:id="_F-gwwETPEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.share" label="%toolbar.share.label" iconURI="platform:/plugin/org.xmind.cathy/icons/toolbar/e/share.png" tooltip="%toolbar.share.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
-          <menu xmi:id="_SyARYETPEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.share.menu">
-            <children xsi:type="menu:MenuSeparator" xmi:id="_TtfpQETPEeWqKcBDsQEnrw" elementId="start" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_aqrugEV3EeWqKcBDsQEnrw" elementId="group.favorite"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_M76RYEV3EeWqKcBDsQEnrw" elementId="group.intranet"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_M9gM0EV3EeWqKcBDsQEnrw" elementId="group.internet" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_TvE9oETPEeWqKcBDsQEnrw" elementId="additions" visible="false"/>
-            <children xsi:type="menu:MenuSeparator" xmi:id="_Tw2fQETPEeWqKcBDsQEnrw" elementId="end" visible="false"/>
-          </menu>
-        </children>
         <children xsi:type="menu:DirectToolItem" xmi:id="_SPWpkETKEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.export" label="%toolbar.export.label" iconURI="platform:/plugin/org.xmind.cathy/icons/toolbar/e/export.png" tooltip="%toolbar.export.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
           <menu xmi:id="_ajm-wETKEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.export.export.menu">
             <children xsi:type="menu:MenuSeparator" xmi:id="_2eNroETOEeWqKcBDsQEnrw" elementId="start" visible="false"/>

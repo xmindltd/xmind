@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.xmind.ui.internal.mindmap;
 
+import static org.xmind.core.ISheetSettings.INFO_ITEM;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,11 +29,12 @@ import org.xmind.core.Core;
 import org.xmind.core.IImage;
 import org.xmind.core.INumbering;
 import org.xmind.core.IRelationship;
+import org.xmind.core.ISettingEntry;
 import org.xmind.core.ISheet;
+import org.xmind.core.ISheetSettings;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerRef;
@@ -120,9 +123,8 @@ public class TopicPart extends NodePart implements ITopicPart {
                     return nosingle.indexOf(pMarker)
                             - nosingle.indexOf(qMarker);
                 }
-                return (grouplist.indexOf(pMarkerGroup) - grouplist
-                        .indexOf(qMarkerGroup))
-                        * 100
+                return (grouplist.indexOf(pMarkerGroup)
+                        - grouplist.indexOf(qMarkerGroup)) * 100
                         + pMarkerGroup.getMarkers().indexOf(pMarker)
                         - qMarkerGroup.getMarkers().indexOf(qMarker);
             } else {
@@ -383,16 +385,28 @@ public class TopicPart extends NodePart implements ITopicPart {
         if (!bothContributors.isEmpty()) {
             ISheet sheet = topic.getOwnedSheet();
             if (sheet != null) {
-                for (IInfoItemContributor contributor : bothContributors) {
-                    String infoItemMode = sheet.getSetting().getInfoItemMode(
-                            contributor.getId(), DOMConstants.ATTR_MODE);
+                for (IInfoItemContributor c : bothContributors) {
+                    String infoItemMode = null;
+                    String type = c.getId();
+                    if (type != null && !"".equals(type)) { //$NON-NLS-1$
+                        List<ISettingEntry> entries = sheet.getSettings()
+                                .getEntries(INFO_ITEM);
+                        for (ISettingEntry entry : entries) {
+                            String t = entry
+                                    .getAttribute(ISheetSettings.ATTR_TYPE);
+                            if (type.equals(t))
+                                infoItemMode = entry
+                                        .getAttribute(ISheetSettings.ATTR_MODE);
+                        }
+                    }
+
                     if (infoItemMode == null || "".equals(infoItemMode)) //$NON-NLS-1$
-                        infoItemMode = contributor.getDefaultMode();
-                    if (DOMConstants.VAL_ICONMODE.equals(infoItemMode)
-                            || !contributor.isCardModeAvailable(topic, this)) {
-                        IAction action = contributor.createAction(this, topic);
+                        infoItemMode = c.getDefaultMode();
+                    if (ISheetSettings.MODE_ICON.equals(infoItemMode)
+                            || !c.isCardModeAvailable(topic, this)) {
+                        IAction action = c.createAction(this, topic);
                         if (action != null)
-                            list.add(new IconTip(topic, contributor, action));
+                            list.add(new IconTip(topic, c, action));
                     }
                 }
             }
@@ -439,7 +453,8 @@ public class TopicPart extends NodePart implements ITopicPart {
         return actionRegistry;
     }
 
-    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source,
+            ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.MarkerRefAdd);
         register.register(Core.MarkerRefRemove);
@@ -467,7 +482,8 @@ public class TopicPart extends NodePart implements ITopicPart {
 
     public void handleCoreEvent(CoreEvent event) {
         String type = event.getType();
-        if (Core.MarkerRefAdd.equals(type) || Core.MarkerRefRemove.equals(type)) {
+        if (Core.MarkerRefAdd.equals(type)
+                || Core.MarkerRefRemove.equals(type)) {
             refresh();
         } else if (Core.ImageSource.equals(type)) {
             boolean hasNoImage = event.getNewValue() == null;
@@ -475,7 +491,8 @@ public class TopicPart extends NodePart implements ITopicPart {
             if ((hasNoImage && !hadNoImage) || (hadNoImage && !hasNoImage)) {
                 refresh();
             }
-        } else if (Core.TopicAdd.equals(type) || Core.TopicRemove.equals(type)) {
+        } else if (Core.TopicAdd.equals(type)
+                || Core.TopicRemove.equals(type)) {
             if (ITopic.ATTACHED.equals(event.getData())) {
                 treeRefresh();
             }
@@ -644,8 +661,8 @@ public class TopicPart extends NodePart implements ITopicPart {
         super.addChildView(child, index);
         if (getFigure() instanceof ITitledFigure) {
             if (child instanceof ITitleTextPart) {
-                ((ITitledFigure) getFigure()).setTitle(((ITitleTextPart) child)
-                        .getTextFigure());
+                ((ITitledFigure) getFigure())
+                        .setTitle(((ITitleTextPart) child).getTextFigure());
             }
         }
     }
@@ -695,11 +712,11 @@ public class TopicPart extends NodePart implements ITopicPart {
                     decoration = parentBranch.getCalloutConnections()
                             .getDecoration(branch.getBranchIndex());
                 } else
-                    decoration = parentBranch.getConnections().getDecoration(
-                            branch.getBranchIndex());
+                    decoration = parentBranch.getConnections()
+                            .getDecoration(branch.getBranchIndex());
                 if (decoration instanceof IConnectionDecoration) {
-                    ((IConnectionDecoration) decoration).reroute(parentBranch
-                            .getFigure());
+                    ((IConnectionDecoration) decoration)
+                            .reroute(parentBranch.getFigure());
                 }
             }
         }

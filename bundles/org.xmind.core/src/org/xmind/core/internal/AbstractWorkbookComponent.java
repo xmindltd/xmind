@@ -7,9 +7,9 @@ import org.xmind.core.IWorkbookComponent;
 public abstract class AbstractWorkbookComponent
         implements IAdaptable, IWorkbookComponent {
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IWorkbook.class)
-            return getOwnedWorkbook();
+            return adapter.cast(getOwnedWorkbook());
 
         return null;
     }

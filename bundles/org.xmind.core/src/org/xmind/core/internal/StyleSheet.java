@@ -28,7 +28,7 @@ public abstract class StyleSheet implements IStyleSheet {
 
     private IStyleSheet parent = null;
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

@@ -62,9 +62,8 @@ public class SWTUtils {
     }
 
     public static boolean isModifierKey(int stateMask, int keyCode) {
-        return stateMask == 0
-                && (keyCode == SWT.MOD1 || keyCode == SWT.MOD2
-                        || keyCode == SWT.MOD3 || keyCode == SWT.MOD4);
+        return stateMask == 0 && (keyCode == SWT.MOD1 || keyCode == SWT.MOD2
+                || keyCode == SWT.MOD3 || keyCode == SWT.MOD4);
     }
 
     public static Path addRoundedRectangle(Path path, float x, float y,
@@ -121,6 +120,18 @@ public class SWTUtils {
             }
 
         });
+    }
+
+    public static boolean isInside(Control outer, Control inner) {
+        if (inner == null || outer == null)
+            return false;
+        while (inner != null && inner != outer) {
+            Control parent = inner.getParent();
+            if (parent == inner)
+                return false;
+            inner = parent;
+        }
+        return inner == outer;
     }
 
 }

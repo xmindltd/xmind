@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_笔</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#00CA53" offset="0%"></stop>
+            <stop stop-color="#00C050" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-24.000000, -39.000000)">
+            <g id="sym_笔" transform="translate(24.000000, 39.000000)">
+                <rect id="Rectangle-370-Copy-6" fill="url(#linearGradient-1)" x="0" y="0" width="16" height="16" rx="2"></rect>
+                <path d="M2.4583024,13.6593856 L5.61276744,13.2008164 L12.0060142,6.90623948 L9.31728352,4.25887387 L2.92403674,10.5534508 L2.4583024,13.6593856 Z M13.8451874,4.21489984 L12.0506753,2.44768346 C11.8033383,2.20446379 11.4037938,2.20446379 11.1564567,2.44768346 L9.99587499,3.59041004 L12.6846057,6.23777566 L13.8451874,5.09504908 C14.0925245,4.85182941 14.0925245,4.45843173 13.8451874,4.21489984 Z" id="Fill-76" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

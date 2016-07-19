@@ -18,7 +18,6 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dialogs.DialogMessages;
-import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.PrefUtils;
@@ -85,7 +84,8 @@ public class OpenHomeMapAction extends Action implements IWorkbenchAction {
                 .bind(DialogMessages.FailedToLoadWorkbook_message, path);
         SafeRunner.run(new SafeRunnable(errMessage) {
             public void run() throws Exception {
-                IEditorInput input = MME.createFileEditorInput(path);
+                IEditorInput input = MindMapUI.getEditorInputFactory()
+                        .createEditorInputForFile(new File(path));
                 IEditorPart editor = page.openEditor(input,
                         MindMapUI.MINDMAP_EDITOR_ID);
                 opened[0] = editor != null;

@@ -21,14 +21,14 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
-import org.xmind.ui.internal.editor.BackgroundWorkbookSaver;
+import org.xmind.ui.internal.editor.BackgroundSaveWorkbook;
 
 /**
  * @author Frank Shaka
  * 
  */
-public class AutoSaveService implements IStartup, IWorkbenchListener,
-        IPropertyChangeListener {
+public class AutoSaveService
+        implements IStartup, IWorkbenchListener, IPropertyChangeListener {
 
     private IWorkbench workbench;
 
@@ -45,7 +45,7 @@ public class AutoSaveService implements IStartup, IWorkbenchListener,
         IPreferenceStore ps = CathyPlugin.getDefault().getPreferenceStore();
         boolean enabled = ps.getBoolean(CathyPlugin.AUTO_SAVE_ENABLED);
         int intervals = ps.getInt(CathyPlugin.AUTO_SAVE_INTERVALS) * 60000;
-        BackgroundWorkbookSaver.getInstance().reset(intervals, enabled);
+        BackgroundSaveWorkbook.getInstance().reset(intervals, enabled);
     }
 
     /*
@@ -78,7 +78,7 @@ public class AutoSaveService implements IStartup, IWorkbenchListener,
         this.workbench = null;
         CathyPlugin.getDefault().getPreferenceStore()
                 .removePropertyChangeListener(this);
-        BackgroundWorkbookSaver.getInstance().stopAll();
+        BackgroundSaveWorkbook.getInstance().stopAll();
     }
 
     public boolean preShutdown(IWorkbench workbench, boolean forced) {

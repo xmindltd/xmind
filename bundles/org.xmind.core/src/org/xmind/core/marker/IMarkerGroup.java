@@ -23,6 +23,8 @@ public interface IMarkerGroup extends IAdaptable, IIdentifiable, INamed {
 
     List<IMarker> getMarkers();
 
+    boolean isEmpty();
+
     IMarker getMarker(String markerId);
 
     boolean isSingleton();

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>flags_pl</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="97.654257%" id="linearGradient-1">
+            <stop stop-color="#BE4ED1" offset="0%"></stop>
+            <stop stop-color="#AB47BC" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="flags" transform="translate(-84.000000, 0.000000)" fill="url(#linearGradient-1)">
+            <path d="M89.0629639,10.0833333 L89.0629639,16.008 L87.0629639,16.008 L87.0629639,6.004 L87.0629639,-1.5339034e-16 L99.0629639,5.5 L89.0629639,10.0833333 Z" id="flags_pl"></path>
+        </g>
+    </g>
+</svg>

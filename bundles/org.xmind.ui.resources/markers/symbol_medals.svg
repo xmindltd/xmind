@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_奖牌</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FDD835" offset="0%"></stop>
+            <stop stop-color="#FBC02D" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-120.000000, -19.000000)">
+            <g id="sym_奖牌" transform="translate(120.000000, 19.000000)">
+                <rect id="Rectangle-370-Copy-13" fill="url(#linearGradient-1)" x="0" y="0" width="16" height="16" rx="2"></rect>
+                <path d="M6.7366028,7.30207739 L3.54646124,1.74849461 L5.79646124,1.74849461 L8.04646124,5.66542464 L10.2964612,1.74849461 L12.5464612,1.74849461 L9.35631969,7.30207739 C10.8659179,7.82637609 11.9464612,9.23125564 11.9464612,10.8820088 C11.9464612,12.9804379 10.2003718,14.6815507 8.04646124,14.6815507 C5.89255072,14.6815507 4.14646124,12.9804379 4.14646124,10.8820088 C4.14646124,9.23125564 5.22700462,7.82637609 6.7366028,7.30207739 Z M8.60446124,8.98808332 L7.95346124,8.98808332 L6.98746124,9.46887151 L7.15546124,10.0110369 L7.83796124,9.66323269 L7.84846124,9.66323269 L7.84846124,12.8548479 L8.60446124,12.8548479 L8.60446124,8.98808332 Z" id="Combined-Shape" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -33,7 +33,6 @@ import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Boundary;
-import org.xmind.core.internal.event.NullCoreEventSupport;
 import org.xmind.core.util.DOMUtils;
 
 public class BoundaryImpl extends Boundary implements ICoreEventSource {
@@ -41,8 +40,6 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
     private WorkbookImpl ownedWorkbook;
 
     private Element implementation;
-
-    private ICoreEventSupport coreEventSupport;
 
     public BoundaryImpl(Element implementation, WorkbookImpl ownedWorkbook) {
         super();
@@ -243,13 +240,11 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, true);
         workbook.getAdaptableRegistry().registerById(this, getId(),
                 getImplementation().getOwnerDocument());
-        setCoreEventSupport(parent.getCoreEventSupport());
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
     }
 
     protected void removeNotify(WorkbookImpl workbook, TopicImpl parent) {
         WorkbookUtilsImpl.decreaseStyleRef(workbook, this);
-        setCoreEventSupport(null);
         workbook.getAdaptableRegistry().unregisterById(this, getId(),
                 getImplementation().getOwnerDocument());
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, false);
@@ -261,14 +256,13 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
                 listener);
     }
 
-    public void setCoreEventSupport(ICoreEventSupport coreEventSupport) {
-        this.coreEventSupport = coreEventSupport;
-    }
-
     public ICoreEventSupport getCoreEventSupport() {
-        if (coreEventSupport != null)
-            return coreEventSupport;
-        return NullCoreEventSupport.getInstance();
+        // Use workbook's core event support directly, so that 
+        // orphan components can have events broadcasted, which 
+        // will enable transient actions (such as dragging topics 
+        // or adjusting relationship control points, etc.) to 
+        // perform correctly.
+        return ownedWorkbook.getCoreEventSupport();
     }
 
     private void fireValueChange(String type, Object oldValue,

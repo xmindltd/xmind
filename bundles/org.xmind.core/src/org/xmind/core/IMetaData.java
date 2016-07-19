@@ -13,6 +13,12 @@
  *******************************************************************************/
 package org.xmind.core;
 
+/**
+ * @deprecated Use {@link IMeta#getValue(String)} and
+ *             {@link IMeta#setValue(String, String)} instead
+ * 
+ * @author Frank Shaka
+ */
 public interface IMetaData extends IAdaptable {
 
     /**

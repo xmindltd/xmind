@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -46,7 +45,6 @@ import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
@@ -113,6 +111,7 @@ public abstract class GraphicalEditor extends EditorPart
         private void fireSelectionChanged(final SelectionChangedEvent event) {
             listeners.fireEvent(ISelectionChangedListener.class,
                     new IEventDispatcher() {
+
                         public void dispatch(Object listener) {
                             ((ISelectionChangedListener) listener)
                                     .selectionChanged(event);
@@ -124,9 +123,9 @@ public abstract class GraphicalEditor extends EditorPart
 
     protected class MultiPageSelectionProvider
             extends DelegatedSelectionProvider {
+
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.ui.tabfolder.DelegatedSelectionProvider#setSelection(org
          * .eclipse.jface.viewers.ISelection)
@@ -146,6 +145,7 @@ public abstract class GraphicalEditor extends EditorPart
     private IPageContainerPresentation containerPresentation = null;
 
     private IPageChangedListener presentationHooker = new IPageChangedListener() {
+
         public void pageChanged(PageChangedEvent event) {
             handlePageChange(getActivePage());
         }
@@ -175,7 +175,6 @@ public abstract class GraphicalEditor extends EditorPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.part.EditorPart#init(org.eclipse.ui.IEditorSite,
      * org.eclipse.ui.IEditorInput)
      */
@@ -250,7 +249,6 @@ public abstract class GraphicalEditor extends EditorPart
     /**
      * Creates the parent control for the container returned by
      * {@link #getContainer() }.
-     * 
      * <p>
      * Subclasses may extend and must call super implementation first.
      * </p>
@@ -313,6 +311,7 @@ public abstract class GraphicalEditor extends EditorPart
         showsItems[0] = false;
         popupMenu.setRemoveAllWhenShown(true);
         popupMenu.addMenuListener(new IMenuListener() {
+
             public void menuAboutToShow(IMenuManager manager) {
                 if (showsItems[0]) {
                     contributeToPagePopupMenu(manager);
@@ -320,6 +319,7 @@ public abstract class GraphicalEditor extends EditorPart
             }
         });
         container.addMenuDetectListener(new MenuDetectListener() {
+
             public void menuDetected(MenuDetectEvent e) {
                 CTabFolder folder = (CTabFolder) container;
                 Point p = folder.toControl(e.x, e.y);
@@ -382,12 +382,11 @@ public abstract class GraphicalEditor extends EditorPart
         return pages.indexOf(page);
     }
 
-    @Override
-    public void doSave(IProgressMonitor monitor) {
+    protected void postSave() {
         if (getCommandStack() != null) {
             getCommandStack().markSaved();
         }
-        fireDirty();
+        firePropertyChange(PROP_DIRTY);
     }
 
     public int getPageCount() {
@@ -420,7 +419,6 @@ public abstract class GraphicalEditor extends EditorPart
     }
 
     /**
-     * 
      * @param miniBar
      */
     private void initializeMiniBar(IMiniBar miniBar) {
@@ -462,12 +460,18 @@ public abstract class GraphicalEditor extends EditorPart
     public void handleCommandStackEvent(CommandStackEvent event) {
         if ((event.getStatus() & GEF.CS_POST_MASK) != 0
                 || event.getStatus() == GEF.CS_UPDATED) {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+            getSite().getShell().getDisplay().asyncExec(new Runnable() {
+
                 public void run() {
-                    fireDirty();
+                    firePropertyChange(PROP_DIRTY);
                 }
             });
         }
+    }
+
+    @Deprecated
+    protected void fireDirty() {
+        firePropertyChange(PROP_DIRTY);
     }
 
     /**
@@ -502,7 +506,7 @@ public abstract class GraphicalEditor extends EditorPart
                 action.setCommandStack(newCS);
             }
         }
-        fireDirty();
+        firePropertyChange(PROP_DIRTY);
     }
 
     protected void hookCommandStack(ICommandStack cs) {
@@ -577,6 +581,7 @@ public abstract class GraphicalEditor extends EditorPart
     protected void firePageChanged(Object page) {
         final PageChangedEvent event = new PageChangedEvent(this, page);
         listeners.fireEvent(IPageChangedListener.class, new IEventDispatcher() {
+
             public void dispatch(Object listener) {
                 ((IPageChangedListener) listener).pageChanged(event);
             }
@@ -585,6 +590,7 @@ public abstract class GraphicalEditor extends EditorPart
 
     protected void firePageClosed(final Object page) {
         listeners.fireEvent(IPageChangedListener.class, new IEventDispatcher() {
+
             public void dispatch(Object listener) {
                 if (listener instanceof IPageClosedListener) {
                     ((IPageClosedListener) listener).pageClosed(page);
@@ -593,20 +599,16 @@ public abstract class GraphicalEditor extends EditorPart
         });
     }
 
-    protected void fireDirty() {
-        firePropertyChange(PROP_DIRTY);
-    }
-
     @SuppressWarnings("deprecation")
     protected void handlePageChange(int newPageIndex) {
         boolean wasFocused = false;
         IGraphicalEditorPage oldActivePage = getPage(activePageIndex);
         if (oldActivePage != null && oldActivePage.isActive()) {
             wasFocused = oldActivePage.isFocused();
-            EditDomain editDomain = oldActivePage.getEditDomain();
-            if (editDomain != null) {
-                editDomain.setActiveTool(GEF.TOOL_DEFAULT);
-            }
+//            EditDomain editDomain = oldActivePage.getEditDomain();
+//            if (editDomain != null) {
+//                editDomain.setActiveTool(GEF.TOOL_DEFAULT);
+//            }
             oldActivePage.setActive(false);
         }
 
@@ -705,7 +707,10 @@ public abstract class GraphicalEditor extends EditorPart
     }
 
     public void setActivePage(int pageIndex) {
-        Assert.isTrue(pageIndex < getPageCount());
+//        Assert.isTrue(pageIndex < getPageCount());
+        if (pageIndex < 0 || pageIndex >= getPageCount())
+            return;
+
         if (pageIndex >= 0) {
             containerPresentation.setActivePage(getContainer(), pageIndex);
         } else {
@@ -767,6 +772,7 @@ public abstract class GraphicalEditor extends EditorPart
 
         for (final Object o : pages.toArray()) {
             SafeRunner.run(new SafeRunnable() {
+
                 public void run() throws Exception {
                     IGraphicalEditorPage page = (IGraphicalEditorPage) o;
                     page.dispose();

@@ -35,6 +35,28 @@ public class DashboardAutomationAddon {
     private Selector itemMatcher = new HandledItemMatcher(
             ICathyConstants.COMMAND_TOGGLE_DASHBOARD);
 
+    /**
+     * @param modelService
+     *            the modelService to set
+     */
+    public void setModelService(EModelService modelService) {
+        this.modelService = modelService;
+    }
+
+    /**
+     * @param application
+     *            the application to set
+     */
+    public void setApplication(MApplication application) {
+        this.application = application;
+    }
+
+    public void showDashboard(MWindow window) {
+        if (doShowDashboard(window)) {
+            updateDashboardToolItems(window);
+        }
+    }
+
     @Inject
     @Optional
     public void updateDashboardVisibilityWhenWindowTagsChanged(
@@ -49,7 +71,7 @@ public class DashboardAutomationAddon {
                 .equals(event.getProperty(UIEvents.EventTags.TYPE))
                 && ICathyConstants.TAG_SHOW_DASHBOARD.equals(
                         event.getProperty(UIEvents.EventTags.NEW_VALUE))) {
-            if (!showDashboard(window)) {
+            if (!doShowDashboard(window)) {
                 window.getTags().remove(ICathyConstants.TAG_SHOW_DASHBOARD);
                 return;
             }
@@ -57,7 +79,7 @@ public class DashboardAutomationAddon {
                 .equals(event.getProperty(UIEvents.EventTags.TYPE))
                 && ICathyConstants.TAG_SHOW_DASHBOARD.equals(
                         event.getProperty(UIEvents.EventTags.OLD_VALUE))) {
-            if (!hideDashboard(window)) {
+            if (!doHideDashboard(window)) {
                 window.getTags().add(ICathyConstants.TAG_SHOW_DASHBOARD);
                 return;
             }
@@ -66,7 +88,7 @@ public class DashboardAutomationAddon {
         updateDashboardToolItems(window);
     }
 
-    private boolean showDashboard(MWindow window) {
+    private boolean doShowDashboard(MWindow window) {
         MPart dashboardPart = findReferencedDashboardPartIn(window, true);
         if (dashboardPart == null)
             return false;
@@ -79,7 +101,7 @@ public class DashboardAutomationAddon {
         return partService.getActivePart() == dashboardPart;
     }
 
-    private boolean hideDashboard(MWindow window) {
+    private boolean doHideDashboard(MWindow window) {
         MPart dashboardPart = findReferencedDashboardPartIn(window, false);
         if (dashboardPart == null)
             return true;

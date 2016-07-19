@@ -14,12 +14,14 @@
 package org.xmind.ui.internal.editpolicies;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
+import org.xmind.core.Core;
 import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITitled;
@@ -125,6 +127,8 @@ public class EditablePolicy extends DeletablePolicy {
     }
 
     protected void performCopy(Object[] elements, IViewer viewer) {
+        elements = filterAndSort(elements);
+
         IDndSupport dndSupport = viewer.getDndSupport();
         if (dndSupport != null) {
             String[] ids = dndSupport.getDndClientIds();
@@ -150,6 +154,31 @@ public class EditablePolicy extends DeletablePolicy {
                 }
             }
         }
+    }
+
+    private Object[] filterAndSort(Object[] elements) {
+        if (elements == null) {
+            return null;
+        }
+
+        List<ITopic> topics = new ArrayList<ITopic>();
+        List<Object> others = new ArrayList<Object>();
+
+        for (Object element : elements) {
+            if (element instanceof ITopic) {
+                topics.add((ITopic) element);
+            } else {
+                others.add(element);
+            }
+        }
+
+        List<ITopic> filteredTopics = MindMapUtils.filterOutDescendents(topics,
+                null);
+        Collections.sort(filteredTopics, Core.getTopicComparator());
+
+        List<Object> all = new ArrayList<Object>(filteredTopics);
+        all.addAll(others);
+        return all.toArray();
     }
 
     protected void cut(Request request) {
@@ -491,8 +520,8 @@ public class EditablePolicy extends DeletablePolicy {
         if (text == null || replacement == null)
             return;
 
-        boolean ignoreCase = Boolean.TRUE.equals(request
-                .getParameter(MindMapUI.PARAM_IGNORE_CASE));
+        boolean ignoreCase = Boolean.TRUE
+                .equals(request.getParameter(MindMapUI.PARAM_IGNORE_CASE));
         List<IPart> targets = request.getTargets();
         if (targets.isEmpty())
             return;
@@ -512,8 +541,8 @@ public class EditablePolicy extends DeletablePolicy {
                     if (oldText != null) {
                         String searchText = ignoreCase ? oldText.toLowerCase()
                                 : oldText;
-                        StringBuilder sb = new StringBuilder(oldText.length()
-                                + replacement.length());
+                        StringBuilder sb = new StringBuilder(
+                                oldText.length() + replacement.length());
                         int start = 0;
                         int index = searchText.indexOf(text);
                         while (index >= 0) {

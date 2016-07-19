@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.core.runtime;singleton:=true
-Bundle-Version: 3.6.1.qualifier
+Bundle-Version: 3.6.51.qualifier
 Bundle-Activator: org.xmind.core.internal.XmindCore
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,
@@ -15,7 +15,8 @@ Export-Package: org.xmind.core.internal;x-internal:=true,
  org.xmind.core.internal.runtime;x-internal:=true,
  org.xmind.core.internal.security;x-internal:=true,
  org.xmind.core.internal.xpath;x-internal:=true,
- org.xmind.core.io
+ org.xmind.core.io,
+ org.xmind.core.util
 Bundle-ClassPath: src/org/xmind/core/internal/,
  .
 Bundle-Localization: plugin

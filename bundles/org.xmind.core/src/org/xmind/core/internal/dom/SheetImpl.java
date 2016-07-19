@@ -30,6 +30,7 @@ import org.xmind.core.Core;
 import org.xmind.core.ILegend;
 import org.xmind.core.IRelationship;
 import org.xmind.core.ISheetSetting;
+import org.xmind.core.ISheetSettings;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
@@ -37,13 +38,13 @@ import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.internal.Sheet;
-import org.xmind.core.internal.event.CoreEventSupport;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.ILabelRefCounter;
 import org.xmind.core.util.IMarkerRefCounter;
 
 /**
- * @author briansun
+ * @author Brian Sun
+ * @author Frank Shaka
  * 
  */
 public class SheetImpl extends Sheet implements ICoreEventSource {
@@ -61,9 +62,9 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
 
     private LegendImpl legend = null;
 
-    private CoreEventSupport coreEventSupport = null;
-
     private ISheetSetting setting;
+
+    private ISheetSettings settings;
 
     /**
      * @param implementation
@@ -306,8 +307,6 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, true);
         workbook.getAdaptableRegistry().registerById(this, getId(),
                 getImplementation().getOwnerDocument());
-        ((CoreEventSupport) getCoreEventSupport())
-                .setParent(workbook.getCoreEventSupport());
         WorkbookUtilsImpl.increaseStyleRef(workbook, this);
         increaseThemeRef(workbook);
         ((TopicImpl) getRootTopic()).addNotify(workbook, this, null);
@@ -323,29 +322,31 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         ((TopicImpl) getRootTopic()).removeNotify(workbook, this, null);
         decreaseThemeRef(workbook);
         WorkbookUtilsImpl.decreaseStyleRef(workbook, this);
-        ((CoreEventSupport) getCoreEventSupport()).setParent(null);
         workbook.getAdaptableRegistry().unregisterById(this, getId(),
                 getImplementation().getOwnerDocument());
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, false);
     }
 
     private void decreaseThemeRef(WorkbookImpl workbook) {
+        if (workbook == null)
+            return;
+
         String themeId = getThemeId();
         if (themeId != null)
             workbook.getStyleRefCounter().decreaseRef(themeId);
     }
 
     private void increaseThemeRef(WorkbookImpl workbook) {
+        if (workbook == null)
+            return;
+
         String themeId = getThemeId();
         if (themeId != null)
             workbook.getStyleRefCounter().increaseRef(themeId);
     }
 
     public ICoreEventSupport getCoreEventSupport() {
-        if (coreEventSupport == null) {
-            coreEventSupport = new CoreEventSupport();
-        }
-        return coreEventSupport;
+        return ownedWorkbook.getCoreEventSupport();
     }
 
     public ICoreEventRegistration registerCoreEventListener(String type,
@@ -391,6 +392,12 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         if (setting == null)
             setting = new SheetSetting(implementation, this);
         return setting;
+    }
+
+    public ISheetSettings getSettings() {
+        if (settings == null)
+            settings = new SheetSettingsImpl(implementation, this);
+        return settings;
     }
 
 }

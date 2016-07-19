@@ -2,6 +2,10 @@ package org.xmind.ui;
 
 import java.net.URI;
 
+/**
+ * @deprecated
+ */
+@Deprecated
 public interface IEditorHistory {
 
     public static interface IEditorHistoryListener {

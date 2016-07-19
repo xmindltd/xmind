@@ -51,6 +51,7 @@ public class MindMapActionFactory {
         }
     };
 
+    @Deprecated
     public static final ActionFactory SAVE_TEMPLATE = new ActionFactory(
             "org.xmind.ui.saveTemplate") { //$NON-NLS-1$
         public IWorkbenchAction create(IWorkbenchWindow window) {

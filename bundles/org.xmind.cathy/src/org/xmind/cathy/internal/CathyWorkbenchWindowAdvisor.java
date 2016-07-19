@@ -1,28 +1,39 @@
 /* ******************************************************************************
  * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
+ *
  * This file is a part of XMind 3. XMind releases 3 and
  * above are dual-licensed under the Eclipse Public License (EPL),
  * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
+ * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
  * See http://www.xmind.net/license.html for details.
- * 
+ *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
 package org.xmind.cathy.internal;
 
 import java.io.File;
+import java.util.List;
 
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.e4.ui.model.application.MApplication;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.e4.ui.workbench.modeling.IPartListener;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IPropertyListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -31,17 +42,17 @@ import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.tweaklets.TitlePathUpdater;
 import org.eclipse.ui.internal.tweaklets.Tweaklets;
+import org.xmind.core.licensing.ILicenseAgent;
+import org.xmind.core.licensing.ILicenseChangedListener;
+import org.xmind.core.util.FileUtils;
 import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.internal.workbench.Util;
 
-import net.xmind.signin.ILicenseInfo;
-import net.xmind.signin.ILicenseListener;
-import net.xmind.signin.XMindNet;
-
 public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
-        implements IPartListener2, IPropertyListener, ILicenseListener {
+        implements IPartListener2, IPropertyListener, ILicenseChangedListener {
 
     private String licenseName = null;
 
@@ -50,6 +61,8 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 //    private boolean checkingNewWorkbookEditor = false;
 
     private TitlePathUpdater titlePathUpdater;
+
+    private boolean homeShowing = true;
 
     public CathyWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
         super(configurer);
@@ -69,7 +82,9 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         configurer.setShowStatusLine(true);
         configurer.setShowProgressIndicator(true);
         configurer.setTitle(WorkbenchMessages.AppWindowTitle);
-        XMindNet.addLicenseListener(this);
+
+        CathyPlugin.getDefault().getLicenseAgent()
+                .addLicenseChangedListener(this);
     }
 
     public void postWindowOpen() {
@@ -82,32 +97,89 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 shell.addShellListener(new ShellAdapter() {
                     @Override
                     public void shellActivated(ShellEvent e) {
-                        new CheckOpenFilesProcess(window.getWorkbench())
-                                .doCheckAndOpenFiles();
-//                        CheckOpenFilesJob checkOpenFilesJob = new CheckOpenFilesJob(
-//                                getWindowConfigurer().getWorkbenchConfigurer()
-//                                        .getWorkbench());
-//                        checkOpenFilesJob.setRule(Log.get(Log.OPENING));
-//                        checkOpenFilesJob.schedule();
+                        Display.getCurrent().asyncExec(new Runnable() {
+                            public void run() {
+                                SafeRunner.run(new SafeRunnable() {
+                                    public void run() throws Exception {
+                                        new CheckOpenFilesProcess(
+                                                window.getWorkbench())
+                                                        .doCheckAndOpenFiles();
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
         }
+
+        addE4PartListener();
+    }
+
+    private void addE4PartListener() {
+        IWorkbench workbench = getWindowConfigurer().getWorkbenchConfigurer()
+                .getWorkbench();
+        EModelService modelService = workbench.getService(EModelService.class);
+        MApplication application = ((Workbench) workbench).getApplication();
+
+        if (modelService == null || application == null) {
+            return;
+        }
+
+        final List<MWindow> windows = modelService.findElements(application,
+                ICathyConstants.ID_MAIN_WINDOW, MWindow.class, null);
+        if (windows.isEmpty()) {
+            return;
+        }
+
+        EPartService partService = windows.get(0).getContext()
+                .get(EPartService.class);
+        if (partService == null) {
+            return;
+        }
+
+        partService.addPartListener(new IPartListener() {
+
+            public void partVisible(MPart part) {
+            }
+
+            public void partHidden(MPart part) {
+            }
+
+            public void partDeactivated(MPart part) {
+                if (ICathyConstants.ID_DASHBOARD_PART
+                        .equals(part.getElementId())) {
+                    homeShowing = false;
+                    updateWindowTitle();
+                }
+            }
+
+            public void partBroughtToTop(MPart part) {
+            }
+
+            public void partActivated(MPart part) {
+                if (ICathyConstants.ID_DASHBOARD_PART
+                        .equals(part.getElementId())) {
+                    homeShowing = true;
+                    updateWindowTitle();
+                }
+            }
+        });
     }
 
     @Override
     public void postWindowClose() {
-        XMindNet.removeLicenseListener(this);
+        CathyPlugin.getDefault().getLicenseAgent()
+                .removeLicenseChangedListener(this);
     }
 
-    public void licenseVerified(ILicenseInfo info) {
-        if ((info.getType() & ILicenseInfo.VALID_PRO_LICENSE_KEY) != 0) {
+    public void licenseChanged(ILicenseAgent agent) {
+        int licenseType = agent.getLicenseType();
+        if ((licenseType & ILicenseAgent.PRO_LICENSE_KEY) != 0) {
             licenseName = "Pro"; //$NON-NLS-1$
-        } else
-            if ((info.getType() & ILicenseInfo.VALID_PLUS_LICENSE_KEY) != 0) {
+        } else if ((licenseType & ILicenseAgent.PLUS_LICENSE_KEY) != 0) {
             licenseName = "Plus"; //$NON-NLS-1$
-        } else if ((info.getType()
-                & ILicenseInfo.VALID_PRO_SUBSCRIPTION) != 0) {
+        } else if ((licenseType & ILicenseAgent.PRO_SUBSCRIPTION) != 0) {
             licenseName = "Pro"; //$NON-NLS-1$
         } else {
             licenseName = null;
@@ -179,6 +251,12 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
             return;
 
         StringBuffer sb = new StringBuffer(20);
+
+        if (homeShowing) {
+            sb.append(
+                    WorkbenchMessages.CathyWorkbenchWindowAdvisor_windowTitle_home_prefix);
+        }
+
         sb.append(WorkbenchMessages.AppWindowTitle);
         if (licenseName != null) {
             sb.append(' ');
@@ -194,6 +272,8 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                                 : editor.getTitleToolTip();
                 if (text == null) {
                     text = editor.getTitle();
+                } else {
+                    text = FileUtils.getFileName(text);
                 }
                 sb.append(text);
             }

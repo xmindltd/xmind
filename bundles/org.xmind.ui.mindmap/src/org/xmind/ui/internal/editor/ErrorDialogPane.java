@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.statushandlers.RuntimeErrorDialog;
 import org.xmind.ui.internal.statushandlers.StatusDetails;
 
 public class ErrorDialogPane extends DialogPane {
@@ -39,15 +38,15 @@ public class ErrorDialogPane extends DialogPane {
 
     public ErrorDialogPane(StatusAdapter error) {
         this.error = error;
-        Throwable cause = StatusDetails.getRootCause(error.getStatus()
-                .getException());
+        Throwable cause = StatusDetails
+                .getRootCause(error.getStatus().getException());
         if (cause == null)
             cause = new UnknownError();
-        this.summary = NLS
-                .bind(MindMapMessages.ErrorDialogPane_summaryBoard_text,
-                        new Object[] { error.getStatus().getMessage(),
-                                cause.getClass().getName(),
-                                cause.getLocalizedMessage() });
+        this.summary = NLS.bind(
+                MindMapMessages.ErrorDialogPane_summaryBoard_text,
+                new Object[] { error.getStatus().getMessage(),
+                        cause.getClass().getName(),
+                        cause.getLocalizedMessage() });
     }
 
     @Override
@@ -141,8 +140,6 @@ public class ErrorDialogPane extends DialogPane {
     }
 
     private void showDetails() {
-        error.setProperty(RuntimeErrorDialog.SHOW_DETAILS_ON_CREATE,
-                Boolean.TRUE);
         StatusManager.getManager().handle(error, StatusManager.SHOW);
     }
 

@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
+import org.xmind.core.usagedata.IUsageDataSampler;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -25,6 +27,8 @@ import org.osgi.framework.BundleContext;
 public class SpellingPlugin extends AbstractUIPlugin {
 
     public static final String SPELLING_CHECK_ENABLED = "SPELLING_CHECK_ENABLED"; //$NON-NLS-1$
+
+    public static final String DEFAULT_SPELLING_CHECKER_INVISIBLE = "DEFAULT_SPELLING_CHECKER_INVISIBLE"; //$NON-NLS-1$
 
     public static final String DEFAULT_SPELLING_CHECKER_DISABLED = "DEFAULT_SPELLING_CHECKER_DISABLED"; //$NON-NLS-1$
 
@@ -38,6 +42,8 @@ public class SpellingPlugin extends AbstractUIPlugin {
     // The shared instance
     private static SpellingPlugin plugin;
 
+    private ServiceTracker<IUsageDataSampler, IUsageDataSampler> usageDataTracker;
+
     /**
      * The constructor
      */
@@ -47,13 +53,16 @@ public class SpellingPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
+     * BundleContext )
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+
+        usageDataTracker = new ServiceTracker<IUsageDataSampler, IUsageDataSampler>(
+                context, IUsageDataSampler.class, null);
+        usageDataTracker.open();
 
         // Migrate old settings
         SpellCheckerAgent.migrateUserDictFile();
@@ -63,13 +72,21 @@ public class SpellingPlugin extends AbstractUIPlugin {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-     * )
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
+     * BundleContext )
      */
     public void stop(BundleContext context) throws Exception {
+        usageDataTracker.close();
+        usageDataTracker = null;
+
         plugin = null;
         super.stop(context);
+    }
+
+    public IUsageDataSampler getUsageDataCollector() {
+        IUsageDataSampler service = usageDataTracker == null ? null
+                : usageDataTracker.getService();
+        return service == null ? IUsageDataSampler.NULL : service;
     }
 
     /**
@@ -86,13 +103,13 @@ public class SpellingPlugin extends AbstractUIPlugin {
     }
 
     public static void log(Throwable e, String message) {
-        getDefault().getLog().log(
-                new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        getDefault().getLog()
+                .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
     }
 
     public static boolean isSpellingCheckEnabled() {
-        return getDefault().getPreferenceStore().getBoolean(
-                SPELLING_CHECK_ENABLED);
+        return getDefault().getPreferenceStore()
+                .getBoolean(SPELLING_CHECK_ENABLED);
     }
 
     public static String getBundleDataPath(String subPath) {

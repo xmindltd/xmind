@@ -14,6 +14,7 @@
 package org.xmind.ui.resources;
 
 import java.awt.GraphicsEnvironment;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +28,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -36,6 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import org.xmind.ui.internal.ToolkitPlugin;
 
 /**
+ * 
  * @author Frank Shaka
  */
 public class FontUtils {
@@ -309,6 +313,9 @@ public class FontUtils {
         }.run();
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getFont(String key, FontData[] fontData) {
         if (key == null) {
             key = toString(fontData);
@@ -328,6 +335,9 @@ public class FontUtils {
         return reg.get(key);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getBold(String key, FontData[] fontData) {
         if (key == null) {
             key = toString(fontData);
@@ -347,6 +357,9 @@ public class FontUtils {
         return reg.getBold(key);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getItalic(String key, FontData[] fontData) {
         if (key == null) {
             key = toString(fontData);
@@ -458,6 +471,70 @@ public class FontUtils {
         return sb.toString();
     }
 
+    public static FontDescriptor scaleHeight(FontDescriptor font, float scale) {
+        if (scale == 1) {
+            return font;
+        }
+        FontData[] data = font.getFontData();
+
+        Method getHeight = null;
+        Method setHeight = null;
+        boolean getHeightAccessible = false;
+        boolean setHeightAccessible = false;
+
+        try {
+            getHeight = FontData.class.getDeclaredMethod("getHeightF"); //$NON-NLS-1$
+            getHeightAccessible = getHeight.isAccessible();
+        } catch (Exception e) {
+        }
+        try {
+            setHeight = FontData.class.getDeclaredMethod("setHeight", //$NON-NLS-1$
+                    float.class);
+            setHeightAccessible = setHeight.isAccessible();
+        } catch (Exception e) {
+        }
+
+        if (getHeight != null)
+            getHeight.setAccessible(true);
+        try {
+            if (setHeight != null)
+                setHeight.setAccessible(true);
+            try {
+                for (int i = 0; i < data.length; i++) {
+                    FontData next = data[i];
+
+                    if (getHeight != null && setHeight != null) {
+                        try {
+                            // try float-height methods
+                            Object height = getHeight.invoke(next);
+                            setHeight.invoke(next,
+                                    ((Float) height).floatValue() * scale);
+                            next = null;
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    if (next != null) {
+                        // fall back to integer-height methods
+                        int height = next.getHeight();
+                        next.setHeight((int) (height * scale));
+                    }
+                }
+            } finally {
+                if (setHeight != null)
+                    setHeight.setAccessible(setHeightAccessible);
+            }
+        } finally {
+            if (getHeight != null)
+                getHeight.setAccessible(getHeightAccessible);
+        }
+
+        return FontDescriptor.createFrom(data);
+    }
+
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getFont(String name, int size, boolean bold,
             boolean italic) {
         int style = SWT.NORMAL;
@@ -470,14 +547,23 @@ public class FontUtils {
         return getFont(key, new FontData[] { fd });
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getFont(FontData fontData) {
         return getFont(null, new FontData[] { fontData });
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getFont(String key) {
         return getFont(key, null);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getFont(FontData[] fontData) {
         return getFont(null, fontData);
     }
@@ -554,24 +640,36 @@ public class FontUtils {
         return style(fontData, null, Boolean.valueOf(italic));
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getNewName(Font font, String name) {
         if (font == null || name == null)
             return font;
         return getNewName(toString(font.getFontData()), name);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getNewHeight(Font font, int height) {
         if (font == null || height < 0)
             return font;
         return getNewHeight(toString(font.getFontData()), height);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getRelativeHeight(Font font, int deltaHeight) {
         if (font == null || deltaHeight == 0)
             return font;
         return getRelativeHeight(toString(font.getFontData()), deltaHeight);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getNewName(String key, String name) {
         if (key == null)
             return null;
@@ -602,6 +700,9 @@ public class FontUtils {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getNewHeight(String key, int height) {
         if (key == null)
             return null;
@@ -631,6 +732,9 @@ public class FontUtils {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getRelativeHeight(String key, int deltaHeight) {
         if (key == null)
             return null;
@@ -668,20 +772,32 @@ public class FontUtils {
                 || JFaceResources.BANNER_FONT.equals(key);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getBold(FontData[] fontData) {
         return getBold(null, fontData);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getBold(Font font) {
         if (font == null)
             return font;
         return getBold(font.getFontData());
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getBold(String key) {
         return getBold(key, null);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getBold(String key, int newHeight) {
         if (key == null)
             return null;
@@ -711,6 +827,9 @@ public class FontUtils {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getBoldRelative(String key, int relativeHeight) {
         if (key == null)
             return null;
@@ -739,6 +858,9 @@ public class FontUtils {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getNewStyle(String key, int newStyle) {
         if (key == null)
             return null;
@@ -769,22 +891,34 @@ public class FontUtils {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getStyled(Font font, int newStyle) {
         if (font == null)
             return null;
         return getNewStyle(toString(font.getFontData()), newStyle);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getItalic(FontData[] fontData) {
         return getItalic(null, fontData);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getItalic(Font font) {
         if (font == null)
             return font;
         return getItalic(font.getFontData());
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Font getItalic(String key) {
         return getItalic(key, null);
     }

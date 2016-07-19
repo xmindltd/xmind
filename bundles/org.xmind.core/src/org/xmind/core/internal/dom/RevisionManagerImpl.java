@@ -37,6 +37,7 @@ import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.IAdaptable;
 import org.xmind.core.IFileEntry;
+import org.xmind.core.IMeta;
 import org.xmind.core.IRevision;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
@@ -51,8 +52,8 @@ import org.xmind.core.util.DOMUtils;
  * @author Frank Shaka
  * 
  */
-public class RevisionManagerImpl extends RevisionManager implements
-        ICoreEventSource, INodeAdaptableFactory {
+public class RevisionManagerImpl extends RevisionManager
+        implements ICoreEventSource, INodeAdaptableFactory {
 
     private Document implementation;
 
@@ -63,6 +64,8 @@ public class RevisionManagerImpl extends RevisionManager implements
     private ICoreEventSupport coreEventSupport;
 
     private String dirPath;
+
+    private boolean registered = false;
 
     /**
      * 
@@ -151,13 +154,13 @@ public class RevisionManagerImpl extends RevisionManager implements
     }
 
     public int getNextRevisionNumber() {
-        String num = getRevisionsElement().getAttribute(
-                ATTR_NEXT_REVISION_NUMBER);
+        String num = getRevisionsElement()
+                .getAttribute(ATTR_NEXT_REVISION_NUMBER);
         return NumberUtils.safeParseInt(num, 1);
     }
 
-    public IRevision addRevision(IAdaptable content) throws IOException,
-            CoreException {
+    public IRevision addRevision(IAdaptable content)
+            throws IOException, CoreException {
         Node node = (Node) content.getAdapter(Node.class);
         if (node == null)
             throw new CoreException(Core.ERROR_INVALID_ARGUMENT,
@@ -178,8 +181,10 @@ public class RevisionManagerImpl extends RevisionManager implements
         String path = takeSnapshot(node, revNum, timestamp);
         RevisionImpl revision = createRevision(revNum, timestamp, path);
         setNextRevisionNumber(revNum + 1);
-        revision.addNotify(ownedWorkbook);
-        fireTargetEvent(Core.RevisionAdd, revision);
+        if (!isOrphan()) {
+            revision.addNotify(ownedWorkbook);
+            fireTargetEvent(Core.RevisionAdd, revision);
+        }
         return revision;
     }
 
@@ -188,14 +193,17 @@ public class RevisionManagerImpl extends RevisionManager implements
                 String.valueOf(nextRevNum));
     }
 
-    private RevisionImpl createRevision(int revNum, long timestamp, String path) {
+    private RevisionImpl createRevision(int revNum, long timestamp,
+            String path) {
         Element ele = implementation.createElement(TAG_REVISION);
         ele.setAttribute(ATTR_REVISION_NUMBER, String.valueOf(revNum));
         ele.setAttribute(ATTR_TIMESTAMP, String.valueOf(timestamp));
         ele.setAttribute(ATTR_RESOURCE, path);
-        ele.setAttribute(ATTR_CREATOR_NAME, ownedWorkbook.getCreatorName());
+
+        ele.setAttribute(ATTR_CREATOR_NAME,
+                getOwnedWorkbook().getMeta().getValue(IMeta.CREATOR_NAME));
         ele.setAttribute(ATTR_CREATOR_VERSION,
-                ownedWorkbook.getCreatorVersion());
+                getOwnedWorkbook().getMeta().getValue(IMeta.CREATOR_VERSION));
         getRevisionsElement().appendChild(ele);
         return new RevisionImpl(ele, this);
     }
@@ -226,9 +234,11 @@ public class RevisionManagerImpl extends RevisionManager implements
         int index = DOMUtils.getNodeIndex(parentEle, ele);
         if (index < 0)
             return null;
-        rev.removeNotify(ownedWorkbook);
+        if (!isOrphan())
+            rev.removeNotify(ownedWorkbook);
         parentEle.removeChild(ele);
-        fireTargetEvent(Core.RevisionRemove, revision);
+        if (!isOrphan())
+            fireTargetEvent(Core.RevisionRemove, revision);
         return Integer.valueOf(index);
     }
 
@@ -245,8 +255,10 @@ public class RevisionManagerImpl extends RevisionManager implements
         } else {
             parentEle.appendChild(ele);
         }
-        ((RevisionImpl) revision).addNotify(ownedWorkbook);
-        fireTargetEvent(Core.RevisionAdd, revision);
+        if (!isOrphan()) {
+            ((RevisionImpl) revision).addNotify(ownedWorkbook);
+            fireTargetEvent(Core.RevisionAdd, revision);
+        }
     }
 
     public IWorkbook getOwnedWorkbook() {
@@ -254,25 +266,29 @@ public class RevisionManagerImpl extends RevisionManager implements
     }
 
     public boolean isOrphan() {
-        IFileEntry metaEntry = ownedWorkbook.getManifest().getFileEntry(
-                getDirPath() + ArchiveConstants.REVISIONS_XML);
-        return metaEntry == null || metaEntry.isOrphan();
+        return !registered;
     }
 
     protected void addNotify(WorkbookImpl workbook) {
+        registered = true;
         increaseFileEntryReference();
         Iterator<IRevision> it = iterRevisions();
         while (it.hasNext()) {
-            ((RevisionImpl) it.next()).addNotify(workbook);
+            RevisionImpl rev = (RevisionImpl) it.next();
+            rev.addNotify(workbook);
+            fireTargetEvent(Core.RevisionAdd, rev);
         }
     }
 
     protected void removeNotify(WorkbookImpl workbook) {
         Iterator<IRevision> it = iterRevisionsReversed();
         while (it.hasNext()) {
-            ((RevisionImpl) it.next()).removeNotify(workbook);
+            RevisionImpl rev = (RevisionImpl) it.next();
+            rev.removeNotify(workbook);
+            fireTargetEvent(Core.RevisionRemove, rev);
         }
         decreaseFileEntryReference();
+        registered = false;
     }
 
     private void increaseFileEntryReference() {

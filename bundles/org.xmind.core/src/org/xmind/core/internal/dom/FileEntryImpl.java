@@ -26,13 +26,16 @@ import java.util.Iterator;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionData;
+import org.xmind.core.IEntryStreamNormalizer;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IFileEntryFilter;
 import org.xmind.core.IManifest;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.FileEntry;
-import org.xmind.core.internal.security.Crypto;
+import org.xmind.core.io.CoreIOException;
+import org.xmind.core.io.IInputSource;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.util.DOMUtils;
 
@@ -131,23 +134,11 @@ public class FileEntryImpl extends FileEntry {
         }
     }
 
-//    private IArchivedWorkbook getArchivedWorkbook() {
-//        IWorkbook wb = ownedManifest.getOwnedWorkbook();
-//        if (wb == null)
-//            return null;
-//        IArchivedWorkbook aw = ((WorkbookImpl) wb).getTempArchivedWorkbook();
-//        if (aw == null)
-//            aw = ((WorkbookImpl) wb).getArchivedWorkbook();
-//        return aw;
-//    }
-
     private IStorage getStorage() {
-        IWorkbook wb = ownedManifest.getOwnedWorkbook();
-        if (wb != null)
-            return wb.getTempStorage();
-        return null;
+        return ownedManifest.getStorage();
     }
 
+    @Deprecated
     public InputStream getInputStream() {
         if (isDirectory())
             return null;
@@ -159,6 +150,7 @@ public class FileEntryImpl extends FileEntry {
         return null;
     }
 
+    @Deprecated
     public OutputStream getOutputStream() {
         if (isDirectory())
             return null;
@@ -169,13 +161,46 @@ public class FileEntryImpl extends FileEntry {
         return null;
     }
 
+    public boolean canRead() {
+        IStorage storage = getStorage();
+        if (storage != null) {
+            IInputSource source = storage.getInputSource();
+            return source.hasEntry(getPath())
+                    && source.isEntryAvailable(getPath());
+        }
+        return false;
+    }
+
+    public boolean canWrite() {
+        IStorage storage = getStorage();
+        if (storage != null) {
+            return storage.getOutputTarget().isEntryAvaialble(getPath());
+        }
+        return false;
+    }
+
     public InputStream openInputStream() throws IOException {
         if (isDirectory())
             throw new FileNotFoundException(getPath());
         IStorage storage = getStorage();
         if (storage == null)
             throw new FileNotFoundException(getPath());
-        return storage.getInputSource().openEntryStream(getPath());
+
+        IInputSource inputSource = storage.getInputSource();
+        if (!inputSource.hasEntry(getPath()))
+            throw new FileNotFoundException(getPath());
+
+        InputStream stream = inputSource.openEntryStream(getPath());
+        IEntryStreamNormalizer encryptionHandler = ownedManifest
+                .getStreamNormalizer();
+        if (!isIgnoreEncryption() && encryptionHandler != null) {
+            try {
+                stream = encryptionHandler.normalizeInputStream(stream, this);
+            } catch (CoreException e) {
+                throw new CoreIOException(e);
+            }
+        }
+        return stream;
     }
 
     public OutputStream openOutputStream() throws IOException {
@@ -184,7 +209,18 @@ public class FileEntryImpl extends FileEntry {
         IStorage storage = getStorage();
         if (storage == null)
             throw new FileNotFoundException(getPath());
-        return storage.getOutputTarget().openEntryStream(getPath());
+        OutputStream stream = storage.getOutputTarget()
+                .openEntryStream(getPath());
+        IEntryStreamNormalizer encryptionHandler = ownedManifest
+                .getStreamNormalizer();
+        if (!isIgnoreEncryption() && encryptionHandler != null) {
+            try {
+                stream = encryptionHandler.normalizeOutputStream(stream, this);
+            } catch (CoreException e) {
+                throw new CoreIOException(e);
+            }
+        }
+        return stream;
     }
 
     public long getTime() {
@@ -200,28 +236,6 @@ public class FileEntryImpl extends FileEntry {
             storage.getOutputTarget().setEntryTime(getPath(), time);
         }
     }
-
-//    public List<IFileEntry> getSubEntries() {
-//        if (!isDirectory())
-//            return NO_SUB_FILE_ENTRIES;
-//        String path = getPath();
-//
-//        Collection<IFileEntry> all = ownedManifest.getAllRegisteredEntries();
-//        ArrayList<IFileEntry> ret = new ArrayList<IFileEntry>(all);
-//        Iterator<IFileEntry> it = ret.iterator();
-//        while (it.hasNext()) {
-//            IFileEntry e = it.next();
-//            if (e == this) {
-//                it.remove();
-//            } else {
-//                String p = e.getPath();
-//                if (!isParentPath(p, path)) {
-//                    it.remove();
-//                }
-//            }
-//        }
-//        return ret;
-//    }
 
     /*
      * (non-Javadoc)
@@ -244,10 +258,6 @@ public class FileEntryImpl extends FileEntry {
     }
 
     public long getSize() {
-//        IArchivedWorkbook aw = getArchivedWorkbook();
-//        if (aw != null) {
-//            return aw.getSize(getPath());
-//        }
         IStorage storage = getStorage();
         if (storage != null) {
             return storage.getInputSource().getEntrySize(getPath());
@@ -288,7 +298,6 @@ public class FileEntryImpl extends FileEntry {
         Element encEle = DOMUtils.createElement(implementation,
                 TAG_ENCRYPTION_DATA);
         encData = new EncryptionDataImpl(encEle, this);
-        Crypto.initEncryptionData(encData);
         return encData;
     }
 
@@ -298,6 +307,7 @@ public class FileEntryImpl extends FileEntry {
      * @see org.xmind.core.IFileEntry#deleteEncryptionData()
      */
     public void deleteEncryptionData() {
+        getEncryptionData();
         if (encData != null) {
             Element encEle = encData.getImplementation();
             if (encEle != null && encEle.getParentNode() == implementation) {
@@ -310,6 +320,7 @@ public class FileEntryImpl extends FileEntry {
     /**
      * @param ignoreEncryption
      *            the ignoreEncryption to set
+     * @deprecated
      */
     public void setIgnoreEncryption(boolean ignoreEncryption) {
         this.ignoreEncryption = ignoreEncryption;
@@ -317,6 +328,7 @@ public class FileEntryImpl extends FileEntry {
 
     /**
      * @return the ignoreEncryption
+     * @deprecated
      */
     public boolean isIgnoreEncryption() {
         return ignoreEncryption;

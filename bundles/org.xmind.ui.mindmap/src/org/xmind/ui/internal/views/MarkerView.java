@@ -153,8 +153,8 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         public MarkerAction(IMarker marker) {
             super();
             this.marker = marker;
-            setImageDescriptor(
-                    MarkerImageDescriptor.createFromMarker(marker, 24, 24));
+            setImageDescriptor(MarkerImageDescriptor.createFromMarker(marker,
+                    24, 24, false));
             setToolTipText(marker.getName());
         }
 
@@ -503,7 +503,11 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                         return;
 
                     int index = toolbar.indexOf(sourceItem);
-                    IMarker marker = group.getMarkers().get(index);
+                    List<IMarker> visibleMarkers = new ArrayList<IMarker>();
+                    for (IMarker marker : group.getMarkers())
+                        if (!marker.isHidden())
+                            visibleMarkers.add(marker);
+                    IMarker marker = visibleMarkers.get(index);
                     event.data = new Object[] { marker };
                 }
 
@@ -592,6 +596,7 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
                                 }
                             }
                         }
+                        MindMapUI.getResourceManager().saveUserMarkerSheet();
                     }
                 }
 
@@ -780,6 +785,7 @@ public class MarkerView extends ViewPart implements IContributedContentsView {
         menu.add(exportMarkerAction);
         menu.add(new Separator());
         menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
     }
 
     private ScrolledForm createForm(Composite parent) {

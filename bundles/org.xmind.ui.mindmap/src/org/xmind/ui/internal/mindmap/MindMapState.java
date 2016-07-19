@@ -8,14 +8,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.Field;
+import java.net.URI;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.XMLMemento;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -37,6 +43,8 @@ public class MindMapState {
 
     private volatile static MindMapState instance;
 
+    private static final int MAX_STATE_NUM = 100;
+
     private File stateFile;
 
     private XMLMemento root;
@@ -51,19 +59,25 @@ public class MindMapState {
         }
     }
 
-    public void saveState(IGraphicalEditorPage[] pages) {
-        if (pages != null && !(pages.length == 0)) {
-            for (IGraphicalEditorPage page : pages)
-                writeState(page);
+    public void saveState(IWorkbookRef workbookRef,
+            IGraphicalEditorPage[] pages) {
+        if (workbookRef != null) {
+            IWorkbook workbook = workbookRef.getWorkbook();
+            URI uri = workbookRef.getURI();
+            if (workbook != null && uri != null) {
+                if (pages != null && !(pages.length == 0)) {
+                    for (IGraphicalEditorPage page : pages)
+                        writeState(page, uri);
+                }
+            }
         }
     }
 
-    private void writeState(IGraphicalEditorPage page) {
+    private void writeState(IGraphicalEditorPage page, URI uri) {
         try {
             ISheet sheet = MindMapUtils.findSheet(page);
-            IWorkbook workbook = sheet.getOwnedWorkbook();
             int workbookIndex = getWorkbookIndex(root.getChildren(TAG_WORKBOOK),
-                    workbook.getFile());
+                    uri.toString());
             if (workbookIndex != NEGATIVE_INDEX) {
                 IMemento workbookMem = root
                         .getChildren(TAG_WORKBOOK)[workbookIndex];
@@ -80,8 +94,11 @@ public class MindMapState {
                     setZoomValue(page, zoomMem);
                 }
             } else {
+                if (root.getChildren(TAG_WORKBOOK).length >= MAX_STATE_NUM) {
+                    removeOldestState();
+                }
                 IMemento workbookMem = root.createChild(TAG_WORKBOOK,
-                        workbook.getFile());
+                        uri.toString());
                 IMemento zoomMem = createZoomMem(sheet, workbookMem);
                 setZoomValue(page, zoomMem);
             }
@@ -99,6 +116,29 @@ public class MindMapState {
         }
     }
 
+    private void removeOldestState() {
+        try {
+            Field eleField = root.getClass().getDeclaredField("element"); //$NON-NLS-1$
+            boolean isAccessible = eleField.isAccessible();
+            eleField.setAccessible(true);
+            Element element = (Element) eleField.get(root);
+            NodeList list = element.getElementsByTagName(TAG_WORKBOOK);
+            if (list != null && list.getLength() > 0) {
+                Node firstWorkbookNode = list.item(0);
+                element.removeChild(firstWorkbookNode);
+            }
+            eleField.setAccessible(isAccessible);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
     private IMemento createZoomMem(ISheet sheet, IMemento workbookMem) {
         IMemento sheetMem = workbookMem.createChild(TAG_SHEET, sheet.getId());
         IMemento zoomMem = sheetMem.createChild(TAG_STATE_ZOOM);
@@ -110,13 +150,15 @@ public class MindMapState {
                 (float) page.getViewer().getZoomManager().getScale());
     }
 
-    public void loadState(IGraphicalEditorPage page) {
-        ISheet sheet = MindMapUtils.findSheet(page);
-        IWorkbook workbook = sheet.getOwnedWorkbook();
+    public void loadState(IWorkbookRef workbookRef, IGraphicalEditorPage page) {
+        URI uri = workbookRef.getURI();
+        if (uri == null)
+            return;
 
+        ISheet sheet = MindMapUtils.findSheet(page);
         boolean hasZoom = false;
         int workbookIndex = getWorkbookIndex(root.getChildren(),
-                workbook.getFile());
+                uri.toString());
         if (workbookIndex != NEGATIVE_INDEX) {
             IMemento workbookMem = root
                     .getChildren(TAG_WORKBOOK)[workbookIndex];

@@ -16,6 +16,7 @@ package org.xmind.ui.resources;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -52,22 +53,38 @@ public class ImageUtils {
     private ImageUtils() {
     }
 
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
     public static Image getImage(String key) {
         return getImageRegistry().get(key);
     }
 
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
     public static ImageDescriptor getDescriptor(String key) {
         return getImageRegistry().getDescriptor(key);
     }
 
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
     public static void putImage(String key, Image image) {
         getImageRegistry().put(key, image);
     }
 
-    public static void putImageDescriptor(String key, ImageDescriptor descriptor) {
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
+    public static void putImageDescriptor(String key,
+            ImageDescriptor descriptor) {
         getImageRegistry().put(key, descriptor);
     }
 
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
     public static boolean disposeImage(String key) {
         Image img = getImage(key);
         if (img == null)
@@ -78,6 +95,9 @@ public class ImageUtils {
         return true;
     }
 
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
     public static Image getImage(String key, ImageData defaultImageData) {
         Image image = getImage(key);
         if (image == null) {
@@ -88,6 +108,9 @@ public class ImageUtils {
         return image;
     }
 
+    /**
+     * @deprecated Use local {@link ImageRegistry} instances
+     */
     public static Image getImage(String key,
             ImageDescriptor defaultImageDescriptor) {
         ImageDescriptor descriptor = getImageRegistry().getDescriptor(key);
@@ -97,6 +120,9 @@ public class ImageUtils {
         return getImageRegistry().get(key);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Image getImage(ImageDescriptor imgDesc) {
         return imgDesc == null ? null : getImage(imgDesc.toString(), imgDesc);
     }
@@ -162,8 +188,8 @@ public class ImageUtils {
         destData.transparentPixel = srcData.transparentPixel;
         destData.alpha = -1;
 
-        Point destSize = getScaledConstrainedSize(srcData.width,
-                srcData.height, width, height);
+        Point destSize = getScaledConstrainedSize(srcData.width, srcData.height,
+                width, height);
         int startX = (width - destSize.x) / 2;
         int startY = (height - destSize.y) / 2;
 

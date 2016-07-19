@@ -47,4 +47,13 @@ public interface IMindMapCommandConstants {
      */
     public static final String RESOURCE_URI = "org.xmind.ui.resource.uri"; //$NON-NLS-1$
 
+    /*
+     * 
+     */
+
+    /**
+     * 
+     */
+    public static final String SOURCE_VIEWER = "org.xmind.ui.command.sourceViewer"; //$NON-NLS-1$
+
 }

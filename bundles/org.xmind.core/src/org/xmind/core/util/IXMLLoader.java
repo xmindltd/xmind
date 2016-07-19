@@ -19,11 +19,25 @@ import org.w3c.dom.Document;
 import org.xmind.core.CoreException;
 import org.xmind.core.io.IInputSource;
 
+/**
+ * 
+ * @deprecated
+ * @author Frank Shaka
+ */
+@Deprecated
 public interface IXMLLoader {
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     Document loadXMLFile(IInputSource source, String entryName)
             throws IOException, CoreException;
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     Document createDocument();
 
 }

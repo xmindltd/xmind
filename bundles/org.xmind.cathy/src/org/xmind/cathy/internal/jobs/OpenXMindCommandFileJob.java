@@ -1,13 +1,13 @@
 /* ******************************************************************************
  * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
+ *
  * This file is a part of XMind 3. XMind releases 3 and
  * above are dual-licensed under the Eclipse Public License (EPL),
  * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
+ * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
  * See http://www.xmind.net/license.html for details.
- * 
+ *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
@@ -34,11 +34,11 @@ public class OpenXMindCommandFileJob extends Job {
 
     private static final String DEBUG_OPTION = "/debug/openXMindCommandFile"; //$NON-NLS-1$
 
-    private static boolean DEBUGGING = CathyPlugin.getDefault().isDebugging(
-            DEBUG_OPTION);
+    private static boolean DEBUGGING = CathyPlugin.getDefault()
+            .isDebugging(DEBUG_OPTION);
 
-    private static class InternalOpenXMindCommandFileHandler extends
-            IncomingCommandHandler {
+    private static class InternalOpenXMindCommandFileHandler
+            extends IncomingCommandHandler {
 
         protected IStatus createReadingErrorStatus(Throwable e) {
             return super.createReadingErrorStatus(e);
@@ -69,7 +69,8 @@ public class OpenXMindCommandFileJob extends Job {
     private String commandFilePath;
 
     public OpenXMindCommandFileJob(String commandFilePath) {
-        super(NLS.bind(WorkbenchMessages.OpenXMindCommandFileJob_name, commandFilePath));
+        super(NLS.bind(WorkbenchMessages.OpenXMindCommandFileJob_name,
+                commandFilePath));
         this.commandFilePath = commandFilePath;
         setUser(false);
     }
@@ -82,9 +83,7 @@ public class OpenXMindCommandFileJob extends Job {
         File commandFile = new File(commandFilePath);
         if (!commandFile.exists() || !commandFile.isFile()
                 || !commandFile.canRead())
-            return new Status(
-                    IStatus.WARNING,
-                    CathyPlugin.PLUGIN_ID,
+            return new Status(IStatus.WARNING, CathyPlugin.PLUGIN_ID,
                     NLS.bind(
                             WorkbenchMessages.OpenXMindCommandFileJob_failed_fileIsNotReadable,
                             commandFilePath));
@@ -109,9 +108,11 @@ public class OpenXMindCommandFileJob extends Job {
                 input.close();
             }
         } catch (IOException e) {
-            return new Status(IStatus.WARNING, CathyPlugin.PLUGIN_ID, NLS.bind(
-                    WorkbenchMessages.OpenXMindCommandFileJob_failed_openXMindCommandFile,
-                    e.getLocalizedMessage()), e);
+            return new Status(IStatus.WARNING, CathyPlugin.PLUGIN_ID,
+                    NLS.bind(
+                            WorkbenchMessages.OpenXMindCommandFileJob_failed_openXMindCommandFile,
+                            e.getLocalizedMessage()),
+                    e);
         }
     }
 

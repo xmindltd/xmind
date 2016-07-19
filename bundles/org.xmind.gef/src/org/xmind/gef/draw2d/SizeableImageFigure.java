@@ -15,6 +15,7 @@ package org.xmind.gef.draw2d;
 
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -39,6 +40,8 @@ public class SizeableImageFigure extends ReferencedFigure implements IHasImage {
     private Dimension imgSize = null;
 
     private int alpha = -1;
+
+    private Insets margins;
 
     /**
      * @param parent
@@ -106,6 +109,10 @@ public class SizeableImageFigure extends ReferencedFigure implements IHasImage {
         repaint();
     }
 
+    public void setMargins(Insets margins) {
+        this.margins = margins;
+    }
+
     /**
      * @return The Image that this Figure displays
      */
@@ -157,8 +164,8 @@ public class SizeableImageFigure extends ReferencedFigure implements IHasImage {
             if (wHint == 0 || hHint == 0)
                 return new Dimension(0, 0);
             if (wHint > 0 && hHint > 0) {
-                if (constrained
-                        && (stretched || size.width > wHint || size.height > hHint)) {
+                if (constrained && (stretched || size.width > wHint
+                        || size.height > hHint)) {
                     int a = size.width * hHint;
                     int b = size.height * wHint;
                     if (stretched ? (a < b) : (a > b)) {
@@ -214,13 +221,19 @@ public class SizeableImageFigure extends ReferencedFigure implements IHasImage {
         Rectangle area = getClientArea(IMAGE_CLIENT_AREA);
         boolean constrained = isConstrained();
         boolean stretched = isStretched();
-        if (constrained
-                && (stretched || imageSize.width > area.width || imageSize.height > area.height)) {
+        if (constrained && (stretched || imageSize.width > area.width
+                || imageSize.height > area.height)) {
             adaptAreaToRatio(area, imageSize, stretched);
         } else if (!stretched) {
             adaptAreaToSize(area, imageSize);
         }
-        return area;
+        if (margins != null) {
+            return new Rectangle(area.x + margins.left, area.y + margins.top,
+                    Math.max(0, area.width - margins.getWidth()),
+                    Math.max(0, area.height - margins.getHeight()));
+        } else {
+            return area;
+        }
     }
 
     protected void adaptAreaToSize(Rectangle area, Dimension size) {

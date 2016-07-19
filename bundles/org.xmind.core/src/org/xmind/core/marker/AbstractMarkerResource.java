@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.core.marker;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public abstract class AbstractMarkerResource implements IMarkerResource {
         if (marker == null)
             throw new IllegalArgumentException();
         this.marker = marker;
-        this.mainPath = mainPath == null ? "/" : mainPath; //$NON-NLS-1$
+        this.mainPath = mainPath == null ? "" : mainPath; //$NON-NLS-1$
     }
 
     protected IMarker getMarker() {
@@ -68,12 +69,56 @@ public abstract class AbstractMarkerResource implements IMarkerResource {
     protected void loadVariations(List<IMarkerVariation> variations) {
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.marker.IMarkerResource#getInputStream()
+     */
+    public InputStream getInputStream() {
+        try {
+            return openInputStream();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.marker.IMarkerResource#getOutputStream()
+     */
+    public OutputStream getOutputStream() {
+        try {
+            return openOutputStream();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public InputStream getInputStream(IMarkerVariation variation) {
         return getInputStream();
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public OutputStream getOutputStream(IMarkerVariation variation) {
         return getOutputStream();
+    }
+
+    public InputStream openInputStream(IMarkerVariation variation)
+            throws IOException {
+        return openInputStream();
+    }
+
+    public OutputStream openOutputStream(IMarkerVariation variation)
+            throws IOException {
+        return openOutputStream();
     }
 
     public boolean equals(Object obj) {

@@ -1,6 +1,6 @@
 package org.xmind.ui.internal.comments;
 
-import org.xmind.core.comment.IComment;
+import org.xmind.core.IComment;
 
 public interface ICommentAction {
 

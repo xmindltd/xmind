@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_柱状图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#707C9B" offset="0%"></stop>
+            <stop stop-color="#59637C" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="0" width="16" height="16" rx="2"></rect>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-120.000000, 0.000000)">
+            <g id="sym_柱状图" transform="translate(120.000000, 0.000000)">
+                <g id="Rectangle-370-Copy-5">
+                    <use fill="#51596E" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <path d="M5.74690107,13.9257691 L5.74690107,11.1640716 C5.74690107,10.6051386 5.29711964,10.1562764 4.74228612,10.1562764 L4.28158634,10.1562764 C3.72999456,10.1562764 3.27697139,10.6074817 3.27697139,11.1640716 L3.27697139,13.9257691 L5.74690107,13.9257691 Z M9.32829912,13.9257691 L9.32829912,7.62538601 C9.32829912,7.08106825 8.87851769,6.62997674 8.32368417,6.62997674 L7.86298439,6.62997674 C7.31139261,6.62997674 6.85836943,7.07563665 6.85836943,7.62538601 L6.85836943,13.9257691 L9.32829912,13.9257691 Z M13.0331937,13.9257691 L13.0331937,4.0991716 C13.0331937,3.55626526 12.5834122,3.10367713 12.0285787,3.10367713 L11.5678789,3.10367713 C11.0162871,3.10367713 10.563264,3.54937519 10.563264,4.0991716 L10.563264,13.9257691 L13.0331937,13.9257691 Z" id="Combined-Shape" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

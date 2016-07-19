@@ -55,22 +55,22 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.xmind.core.Core;
+import org.xmind.core.IComment;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.comment.IComment;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource2;
+import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
+import org.xmind.ui.commands.AddCommentCommand;
+import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.commands.ModifyCommentCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.actions.DeleteCommentAction;
 import org.xmind.ui.internal.spelling.SpellingPlugin;
 import org.xmind.ui.internal.spellsupport.SpellingSupport;
 import org.xmind.ui.internal.views.CommentsView;
@@ -84,6 +84,7 @@ import org.xmind.ui.util.TextFormatter;
 public class CommentTextViewer {
 
     private static class LessLatencyTextViewer extends TextViewer {
+
         private LessLatencyTextViewer(Composite parent, int styles) {
             super(parent, styles);
         }
@@ -105,6 +106,10 @@ public class CommentTextViewer {
     private Color selectColor;
 
     private IComment comment;
+
+    private String objectId;
+
+    private IWorkbook workbook;
 
     private ICommentsActionBarContributor contributor;
 
@@ -154,37 +159,29 @@ public class CommentTextViewer {
 
     private StyleRange styleRange;
 
-//    private Label deleteButton;
-
     private Label timeLabel;
 
     private Control modifyCommentActionBar;
-
-    private DeleteCommentAction deleteCommentAction;
 
     private boolean isLinkHovering;
 
     private Listener listener;
 
-//    private boolean showBorder;
-
-//    private int buttonExtraWidth;
-
     private Menu contextMenu;
 
-    public CommentTextViewer(IComment comment,
-            ICommentsActionBarContributor contributor,
+    public CommentTextViewer(IComment comment, String objectId,
+            IWorkbook workbook, ICommentsActionBarContributor contributor,
             ISelectionProvider selectionProvider,
             ICommentTextViewerContainer container,
-            IGraphicalEditor targetEditor, boolean showBorder) {
+            IGraphicalEditor targetEditor) {
         this.comment = comment;
+        this.objectId = objectId;
+        this.workbook = workbook;
         this.contributor = contributor;
         this.selectionProvider = selectionProvider;
         this.container = container;
         this.targetEditor = targetEditor;
-//        this.showBorder = showBorder;
 
-        initDeleteAction();
         initColors();
     }
 
@@ -198,20 +195,6 @@ public class CommentTextViewer {
             hoverColor = ColorUtils.getColor("#f9f9f9"); //$NON-NLS-1$
             selectColor = ColorUtils.getColor("#f5f5f5"); //$NON-NLS-1$
         }
-    }
-
-    private void initDeleteAction() {
-        deleteCommentAction = new DeleteCommentAction(getTargetEditor());
-        deleteCommentAction.selectedCommentChanged(comment);
-    }
-
-    private IGraphicalEditor getTargetEditor() {
-        IEditorPart editorPart = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-        if (editorPart instanceof IGraphicalEditor) {
-            return (IGraphicalEditor) editorPart;
-        }
-        return null;
     }
 
     public Control createControl(Composite parent) {
@@ -238,14 +221,10 @@ public class CommentTextViewer {
     }
 
     private void createContentArea(Composite parent) {
-        if (comment.getContent() == null || comment.getContent().equals("")) { //$NON-NLS-1$
+        if (comment == null) {
             createNullContentArea(parent);
         } else {
             createNotNullContentArea(parent);
-            if (container.getSelectedComment() == comment) {
-                container.setSelectedComment(null);
-                startEditing();
-            }
         }
     }
 
@@ -274,22 +253,38 @@ public class CommentTextViewer {
         createAddCommentActionBar(composite);
 
         marginComposite.setBackground(ColorUtils.getColor("#298fca")); //$NON-NLS-1$
-//        if (showBorder) {
-//            marginComposite.setBackground(ColorUtils.getColor("#a0a0a0")); //$NON-NLS-1$
-//        } else {
-        //drawRoundRectangle composite
-//            marginComposite.addPaintListener(new PaintListener() {
-//
-//                public void paintControl(PaintEvent e) {
-//                    Rectangle r = ((Control) e.widget).getBounds();
-//                    e.gc.setForeground(((Control) e.widget).getForeground());
-//                    e.gc.setBackground(((Control) e.widget).getForeground());
-//                    e.gc.setLineWidth(1);
-//                    e.gc.fillRoundRectangle(0, 0, r.width, r.height, 2, 2);
-//                }
-//            });
-//    }
+    }
 
+    private void createNullTextControl(Composite parent) {
+        textViewer = createTextViewer(parent, DEFAULT_STYLE);
+        initTextViewer(textViewer);
+        setEditable(true);
+
+        StyledText text = textViewer.getTextWidget();
+        text.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        text.setForeground(ColorUtils.getColor("#000000")); //$NON-NLS-1$
+        text.setFont(
+                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 0));
+
+        GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
+        gridData.horizontalIndent = 0;
+        gridData.verticalIndent = 0;
+        gridData.minimumHeight = 110;
+
+        IDocument contentDocument = new Document(null);
+        setDocument(contentDocument);
+
+        ScrolledComposite sc = container.getScrolledComposite();
+        if (sc.getClientArea().width != 0) {
+            gridData.widthHint = sc.getClientArea().width - EXTRA_WIDTH;
+        }
+        text.setLayoutData(gridData);
+        sc.addControlListener(getControlListener());
+
+        text.addModifyListener(getModifyListener());
+        text.addFocusListener(getFocusListener());
+
+        text.setFocus();
     }
 
     private void createAddCommentActionBar(Composite parent) {
@@ -304,63 +299,32 @@ public class CommentTextViewer {
         layout.verticalSpacing = 0;
         composite.setLayout(layout);
 
-        Hyperlink cancelLink = createLink(composite,
-                MindMapMessages.Comment_Cancel_text,
-                MindMapMessages.Comment_Cancel_tooltip, deleteCommentAction);
-        cancelLink.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
-
-        IAction modifyCommentAction = new Action() {
+        IAction cancelAddCommentAction = new Action() {
 
             @Override
             public void run() {
-                saveComment();
+                resetModified();
+                isLinkHovering = false;
+                container.cancelCreateComment();
+            }
+        };
+
+        Hyperlink cancelLink = createLink(composite,
+                MindMapMessages.Comment_Cancel_text,
+                MindMapMessages.Comment_Cancel_tooltip, cancelAddCommentAction);
+        cancelLink.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+
+        IAction addCommentAction = new Action() {
+
+            @Override
+            public void run() {
+                addComment();
             }
         };
         Hyperlink addLink = createLink(composite,
                 MindMapMessages.AddCommentLink_text,
-                MindMapMessages.AddCommentLink_tooltip, modifyCommentAction);
+                MindMapMessages.AddCommentLink_tooltip, addCommentAction);
         addLink.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, false));
-    }
-
-    private void createModifyCommentActionBar(Composite parent) {
-        Composite composite = new Composite(parent, SWT.NONE);
-        GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
-        layoutData.verticalIndent = 5;
-        composite.setLayoutData(layoutData);
-
-        composite.setBackground(parent.getBackground());
-        GridLayout layout = new GridLayout(2, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        layout.horizontalSpacing = 0;
-        layout.verticalSpacing = 0;
-        composite.setLayout(layout);
-
-        IAction cancelModifyAction = new Action() {
-
-            @Override
-            public void run() {
-                cancelEditing();
-            }
-        };
-        Hyperlink cancelLink = createLink(composite,
-                MindMapMessages.Comment_Cancel_text,
-                MindMapMessages.Comment_Cancel_tooltip, cancelModifyAction);
-        cancelLink.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
-
-        IAction modifyCommentAction = new Action() {
-
-            @Override
-            public void run() {
-                saveComment();
-            }
-        };
-        Hyperlink addLink = createLink(composite,
-                MindMapMessages.ModifyComment_text,
-                MindMapMessages.ModifyComment_tooltip, modifyCommentAction);
-        addLink.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, false));
-
-        modifyCommentActionBar = composite;
     }
 
     private Hyperlink createLink(Composite parent, String text, String toolTip,
@@ -404,7 +368,6 @@ public class CommentTextViewer {
         composite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         composite.setBackground(parent.getBackground());
 
-//        GridLayout layout = new GridLayout(2, false);
         GridLayout layout = new GridLayout(1, false);
         layout.marginHeight = 0;
         layout.marginWidth = 7;
@@ -431,7 +394,6 @@ public class CommentTextViewer {
         marginComposite.setLayout(layout2);
 
         createNotNullTextControl(marginComposite);
-//        createDeleteButton(composite);
 
         Composite composite3 = new Composite(parent, SWT.NONE);
         composite3.setBackground(parent.getBackground());
@@ -445,39 +407,120 @@ public class CommentTextViewer {
         createTimeLabel(composite3);
         createModifyCommentActionBar(composite3);
 
-//        deleteButton.setVisible(false);
-//        ((GridData) deleteButton.getLayoutData()).exclude = true;
-//        ((GridLayout) deleteButton.getParent().getLayout()).numColumns = 1;
-
         modifyCommentActionBar.setVisible(false);
         ((GridData) modifyCommentActionBar.getLayoutData()).exclude = true;
 
         addMouseFilter();
-//        CommentsUtils.addRecursiveMouseListener(control, getMouseListener(),
-//                deleteButton);
         CommentsUtils.addRecursiveMouseListener(control, getMouseListener(),
                 null);
         addContextMenu();
         selectionProvider
                 .addSelectionChangedListener(getSelectionChangedListener());
+    }
 
-//        if (!showBorder) {
-//            //drawRoundRectangle composite
-//            marginComposite.addPaintListener(new PaintListener() {
-//
-//                public void paintControl(PaintEvent e) {
-//                    if (getTextWidget().isFocusControl()) {
-//                        Rectangle r = ((Control) e.widget).getBounds();
-//                        e.gc.setForeground(
-//                                ((Control) e.widget).getForeground());
-//                        e.gc.setBackground(
-//                                ((Control) e.widget).getForeground());
-//                        e.gc.setLineWidth(1);
-//                        e.gc.fillRoundRectangle(0, 0, r.width, r.height, 2, 2);
-//                    }
-//                }
-//            });
-//        }
+    private void createNotNullTextControl(Composite parent) {
+        textViewer = createTextViewer(parent, DEFAULT_STYLE);
+        initTextViewer(textViewer);
+        setEditable(false);
+
+        StyledText text = textViewer.getTextWidget();
+        text.setBackground(parent.getBackground());
+        text.setForeground(ColorUtils.getColor("#45464a")); //$NON-NLS-1$
+        text.setFont(
+                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 0));
+
+        GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
+        gridData.minimumHeight = 22;
+
+        String author = comment.getAuthor() + " : "; //$NON-NLS-1$
+        String commentContent = comment.getContent();
+        IDocument contentDocument = new Document(author + commentContent);
+        setDocument(contentDocument);
+
+        styleRange = new StyleRange();
+        styleRange.start = 0;
+        styleRange.length = author.lastIndexOf(':');
+        styleRange.foreground = null;
+        styleRange.background = null;
+        styleRange.fontStyle = SWT.BOLD;
+        text.setStyleRange(styleRange);
+
+        ScrolledComposite sc = container.getScrolledComposite();
+        if (sc.getClientArea().width != 0) {
+            gridData.widthHint = sc.getClientArea().width - EXTRA_WIDTH;
+        }
+        text.setLayoutData(gridData);
+        sc.addControlListener(getControlListener());
+
+        text.addModifyListener(getModifyListener());
+        text.addFocusListener(getFocusListener());
+    }
+
+    private void createTimeLabel(Composite parent) {
+        timeLabel = new Label(parent, SWT.NONE);
+        timeLabel.setAlignment(SWT.LEFT);
+        timeLabel.setBackground(parent.getBackground());
+        timeLabel.setForeground(ColorUtils.getColor("#999999")); //$NON-NLS-1$
+        timeLabel.setFont(
+                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, -1));
+
+        GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, false);
+        layoutData.horizontalIndent = 3;
+        layoutData.verticalIndent = 0;
+        timeLabel.setLayoutData(layoutData);
+
+        if (comment != container.getLatestCreatedComment()) {
+            long timeMillisString = comment.getTime();
+            String dateString = TextFormatter.formatTimeMillis(timeMillisString,
+                    CommentsConstants.DATE_FORMAT_PATTERN);
+            String timeString = TextFormatter.formatTimeMillis(timeMillisString,
+                    CommentsConstants.TIME_FORMAT_PATTERN);
+            timeLabel.setText(dateString + " at " + timeString); //$NON-NLS-1$
+        } else {
+            container.setLatestCreatedComment(null);
+            timeLabel.setText(MindMapMessages.Comment_JustNow_text);
+        }
+    }
+
+    private void createModifyCommentActionBar(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridData layoutData = new GridData(GridData.FILL_HORIZONTAL);
+        layoutData.verticalIndent = 5;
+        composite.setLayoutData(layoutData);
+
+        composite.setBackground(parent.getBackground());
+        GridLayout layout = new GridLayout(2, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 0;
+        composite.setLayout(layout);
+
+        IAction cancelModifyAction = new Action() {
+
+            @Override
+            public void run() {
+                cancelEditing();
+            }
+        };
+        Hyperlink cancelLink = createLink(composite,
+                MindMapMessages.Comment_Cancel_text,
+                MindMapMessages.Comment_Cancel_tooltip, cancelModifyAction);
+        cancelLink.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));
+
+        IAction modifyCommentAction = new Action() {
+
+            @Override
+            public void run() {
+                saveComment();
+            }
+        };
+        Hyperlink addLink = createLink(composite,
+                MindMapMessages.ModifyComment_text,
+                MindMapMessages.ModifyComment_tooltip, modifyCommentAction);
+        addLink.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, false));
+
+        modifyCommentActionBar = composite;
     }
 
     //recursion add contextMenu
@@ -516,27 +559,69 @@ public class CommentTextViewer {
             menuManager.add(new Action(MindMapMessages.Comment_Delete_label) {
                 @Override
                 public void run() {
-                    if (deleteCommentAction.isEnabled()) {
-                        deleteCommentAction.run();
-                    }
+                    DeleteCommentCommand cmd = new DeleteCommentCommand(
+                            comment.getOwnedWorkbook().getElementById(
+                                    comment.getObjectId()),
+                            comment);
+                    ICommandStack cs = targetEditor.getCommandStack();
+                    cs.execute(cmd);
                 }
             });
 
             menuManager.add(new Action(MindMapMessages.Comment_Reply_label) {
                 @Override
                 public void run() {
-                    CommentAction addCommentAction = contributor
-                            .getAction("org.xmind.ui.action.addComment"); //$NON-NLS-1$
-                    addCommentAction.selectionChanged(comment.getTarget());
-                    if (addCommentAction.isEnabled()) {
-                        addCommentAction.run();
-                    }
+                    container.createComment(comment.getObjectId());
                 }
             });
 
             contextMenu = menuManager.createContextMenu(control.getShell());
         }
         return contextMenu;
+    }
+
+    private TextViewer createTextViewer(Composite parent, int style) {
+        return new LessLatencyTextViewer(parent, style);
+    }
+
+    private void initTextViewer(TextViewer textViewer) {
+        Control control = textViewer.getTextWidget();
+        createContentPopupMenu(control);
+        textViewer.setTextDoubleClickStrategy(
+                new DefaultTextDoubleClickStrategy(),
+                IDocument.DEFAULT_CONTENT_TYPE);
+
+        textViewer.setUndoManager(new TextViewerUndoManager(25));
+        textViewer.activatePlugins();
+        addHyperlinkListener(textViewer);
+    }
+
+    private void createContentPopupMenu(Control control) {
+        textContextMenuManager = new MenuManager();
+        textContextMenuManager.setRemoveAllWhenShown(true);
+        textContextMenuManager.addMenuListener(new IMenuListener() {
+            public void menuAboutToShow(IMenuManager manager) {
+                fillContextMenu(manager);
+            }
+        });
+        textContextMenu = textContextMenuManager.createContextMenu(control);
+        control.setMenu(textContextMenu);
+    }
+
+    private void fillContextMenu(IMenuManager menu) {
+        if (contributor != null)
+            contributor.fillContextMenu(menu);
+    }
+
+    private void addHyperlinkListener(TextViewer viewer) {
+        PresentationReconciler reconciler = new PresentationReconciler();
+        RichTextDamagerRepairer dr = new RichTextDamagerRepairer(
+                new RichTextScanner());
+        reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+        reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+        reconciler.setDocumentPartitioning(
+                IDocumentExtension3.DEFAULT_PARTITIONING);
+        reconciler.install(viewer);
     }
 
     private void addMouseFilter() {
@@ -602,274 +687,6 @@ public class CommentTextViewer {
         return parent == composite;
     }
 
-//    private void createDeleteButton(Composite parent) {
-//        deleteButton = new Label(parent, SWT.NONE);
-//        deleteButton.setImage(MindMapUI.getImages()
-//                .get("delete-comment.png", false).createImage()); //$NON-NLS-1$
-//
-//        final GridData gridData = new GridData(SWT.RIGHT, SWT.TOP, false,
-//                false);
-//        gridData.verticalIndent = 5;
-//        gridData.widthHint = deleteButton.getImage().getBounds().width;
-//        gridData.heightHint = deleteButton.getImage().getBounds().height;
-//        deleteButton.setLayoutData(gridData);
-//
-//        //set different image when mouse enter/exit
-//        deleteButton.addMouseTrackListener(new MouseTrackListener() {
-//
-//            public void mouseHover(MouseEvent e) {
-//            }
-//
-//            public void mouseExit(MouseEvent e) {
-//                deleteButton.setImage(MindMapUI.getImages()
-//                        .get("delete-comment.png", false).createImage()); //$NON-NLS-1$
-//            }
-//
-//            public void mouseEnter(MouseEvent e) {
-//                deleteButton.setImage(MindMapUI.getImages()
-//                        .get("delete-comment.png", true).createImage()); //$NON-NLS-1$
-//            }
-//        });
-//
-//        deleteButton.addMouseListener(new MouseAdapter() {
-//
-//            @Override
-//            public void mouseDown(MouseEvent e) {
-//                ((Control) e.widget).getParent().forceFocus();
-//                Display.getCurrent().timerExec(50, new Runnable() {
-//                    public void run() {
-//
-//                        Display.getCurrent().asyncExec(new Runnable() {
-//                            public void run() {
-//                                deleteCommentAction.run();
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//        });
-//
-//        Listener visibleListener = new Listener() {
-//
-//            public void handleEvent(Event event) {
-//                ScrolledComposite sc = container.getScrolledComposite();
-//                switch (event.type) {
-//                case SWT.Show:
-//                    buttonExtraWidth = deleteButton.getImage().getBounds().width
-//                            + 7 - 10 + 20;
-//
-//                    if (sc.getClientArea().width != 0) {
-//                        ((GridData) getTextWidget()
-//                                .getLayoutData()).widthHint = sc
-//                                        .getClientArea().width - EXTRA_WIDTH
-//                                        - buttonExtraWidth;
-//                    }
-//                    break;
-//
-//                case SWT.Hide:
-//                    buttonExtraWidth = 0;
-//
-//                    if (sc.getClientArea().width != 0) {
-//                        ((GridData) getTextWidget()
-//                                .getLayoutData()).widthHint = sc
-//                                        .getClientArea().width - EXTRA_WIDTH
-//                                        - buttonExtraWidth;
-//                    }
-//                    break;
-//                }
-//            }
-//        };
-//
-//        deleteButton.addListener(SWT.Show, visibleListener);
-//        deleteButton.addListener(SWT.Hide, visibleListener);
-//    }
-
-    private void createTimeLabel(Composite parent) {
-        timeLabel = new Label(parent, SWT.NONE);
-        timeLabel.setAlignment(SWT.LEFT);
-        timeLabel.setBackground(parent.getBackground());
-        timeLabel.setForeground(ColorUtils.getColor("#999999")); //$NON-NLS-1$
-        timeLabel.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, -1));
-
-        GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, false);
-        layoutData.horizontalIndent = 3;
-        layoutData.verticalIndent = 0;
-        timeLabel.setLayoutData(layoutData);
-
-        if (comment != container.getLatestCreatedComment()) {
-            String timeMillisString = comment.getTime();
-            String dateString = TextFormatter.formatTimeMillis(timeMillisString,
-                    CommentsConstants.DATE_FORMAT_PATTERN);
-            String timeString = TextFormatter.formatTimeMillis(timeMillisString,
-                    CommentsConstants.TIME_FORMAT_PATTERN);
-            timeLabel.setText(dateString + " at " + timeString); //$NON-NLS-1$
-        } else {
-            container.setLatestCreatedComment(null);
-            timeLabel.setText(MindMapMessages.Comment_JustNow_text);
-        }
-    }
-
-    private void createNullTextControl(Composite parent) {
-        textViewer = createTextViewer(parent, DEFAULT_STYLE);
-        initTextViewer(textViewer);
-        setEditable(true);
-
-        StyledText text = textViewer.getTextWidget();
-        text.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        text.setForeground(ColorUtils.getColor("#000000")); //$NON-NLS-1$
-        text.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 0));
-
-        GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
-        gridData.horizontalIndent = 0;
-        gridData.verticalIndent = 0;
-        gridData.minimumHeight = 110;
-
-        IDocument contentDocument = new Document(null);
-        setDocument(contentDocument);
-
-        ScrolledComposite sc = container.getScrolledComposite();
-        if (sc.getClientArea().width != 0) {
-//            gridData.widthHint = sc.getClientArea().width - EXTRA_WIDTH
-//                    - buttonExtraWidth;
-            gridData.widthHint = sc.getClientArea().width - EXTRA_WIDTH;
-        }
-        text.setLayoutData(gridData);
-        sc.addControlListener(getControlListener());
-
-        text.addModifyListener(getModifyListener());
-        text.addFocusListener(getFocusListener());
-
-        text.setFocus();
-    }
-
-    private void startEditing() {
-        removeMouseFilter();
-        setRecursiveBackgroundColor(control, originalColor, null);
-        getTextWidget().setForeground(ColorUtils.getColor("#000000")); //$NON-NLS-1$
-
-//        if (showBorder) {
-        getTextWidget().getParent()
-                .setBackground(ColorUtils.getColor("#298fca")); //$NON-NLS-1$
-//        }
-
-//        CommentsUtils.removeRecursiveMouseListener(control, getMouseListener(),
-//                deleteButton);
-        CommentsUtils.removeRecursiveMouseListener(control, getMouseListener(),
-                null);
-        removeContextMenu();
-        textViewer.getControl().setMenu(textContextMenu);
-
-        textViewer.getTextWidget().setStyleRange(null);
-
-        String commentContent = comment.getContent();
-        IDocument contentDocument = new Document(commentContent);
-        setDocument(contentDocument);
-
-//        deleteButton.setVisible(false);
-//        ((GridData) deleteButton.getLayoutData()).exclude = true;
-//        ((GridLayout) deleteButton.getParent().getLayout()).numColumns = 1;
-
-        timeLabel.setVisible(false);
-        ((GridData) timeLabel.getLayoutData()).exclude = true;
-
-        modifyCommentActionBar.setVisible(true);
-        ((GridData) modifyCommentActionBar.getLayoutData()).exclude = false;
-
-        ((GridData) textViewer.getControl()
-                .getLayoutData()).minimumHeight = 110;
-        setEditable(true);
-
-        textViewer.getControl().setFocus();
-
-        container.getContentComposite().pack();
-        container.getContentComposite().layout(true, true);
-    }
-
-    private void cancelEditing() {
-        setRecursiveBackgroundColor(control, originalColor, null);
-        getTextWidget().setForeground(ColorUtils.getColor("#45464a")); //$NON-NLS-1$
-
-//        CommentsUtils.addRecursiveMouseListener(control, getMouseListener(),
-//                deleteButton);
-        CommentsUtils.addRecursiveMouseListener(control, getMouseListener(),
-                null);
-        addContextMenu();
-
-        String author = comment.getAuthor() + " : "; //$NON-NLS-1$
-        String commentContent = comment.getContent();
-        IDocument contentDocument = new Document(author + commentContent);
-        setDocument(contentDocument);
-
-        textViewer.getTextWidget().setStyleRange(styleRange);
-
-//        deleteButton.setVisible(false);
-//        ((GridData) deleteButton.getLayoutData()).exclude = true;
-//        ((GridLayout) deleteButton.getParent().getLayout()).numColumns = 1;
-
-        timeLabel.setVisible(true);
-        ((GridData) timeLabel.getLayoutData()).exclude = false;
-
-        modifyCommentActionBar.setVisible(false);
-        ((GridData) modifyCommentActionBar.getLayoutData()).exclude = true;
-
-        ((GridData) textViewer.getControl().getLayoutData()).minimumHeight = 22;
-        setEditable(false);
-        addMouseFilter();
-
-        Display.getCurrent().timerExec(50, new Runnable() {
-
-            public void run() {
-                Display.getCurrent().asyncExec(new Runnable() {
-
-                    public void run() {
-                        if (container != null
-                                && container.getContentComposite() != null
-                                && !container.getContentComposite()
-                                        .isDisposed()) {
-                            container.getContentComposite().pack();
-                            container.getContentComposite().layout(true, true);
-                        }
-                    }
-                });
-            }
-        });
-
-    }
-
-    private void commentSelected() {
-        CommentsUtils.reveal(getTargetEditor(), comment.getTarget());
-        removeMouseFilter();
-
-//        deleteButton.setVisible(true);
-//        ((GridData) deleteButton.getLayoutData()).exclude = false;
-//        ((GridLayout) deleteButton.getParent().getLayout()).numColumns = 2;
-
-        setRecursiveBackgroundColor(control, selectColor, null);
-
-        container.getContentComposite().pack();
-        container.getContentComposite().layout(true, true);
-    }
-
-    private void commentDeselected() {
-        addMouseFilter();
-
-//        deleteButton.setVisible(false);
-//        ((GridData) deleteButton.getLayoutData()).exclude = true;
-//        ((GridLayout) deleteButton.getParent().getLayout()).numColumns = 1;
-
-        if (textViewer.getTextWidget().isFocusControl()) {
-            setRecursiveBackgroundColor(control, originalColor,
-                    getTextWidget());
-        } else {
-            setRecursiveBackgroundColor(control, originalColor, null);
-        }
-
-        container.getContentComposite().pack();
-        container.getContentComposite().layout(true, true);
-    }
-
     private void setRecursiveBackgroundColor(Control control, Color background,
             Control excludeControl) {
         if (control == excludeControl) {
@@ -882,92 +699,6 @@ public class CommentTextViewer {
                 setRecursiveBackgroundColor(child, background, excludeControl);
             }
         }
-    }
-
-    private void createNotNullTextControl(Composite parent) {
-        textViewer = createTextViewer(parent, DEFAULT_STYLE);
-        initTextViewer(textViewer);
-        setEditable(false);
-
-        StyledText text = textViewer.getTextWidget();
-        text.setBackground(parent.getBackground());
-        text.setForeground(ColorUtils.getColor("#45464a")); //$NON-NLS-1$
-        text.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 0));
-
-        GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
-        gridData.minimumHeight = 22;
-
-        String author = comment.getAuthor() + " : "; //$NON-NLS-1$
-        String commentContent = comment.getContent();
-        IDocument contentDocument = new Document(author + commentContent);
-        setDocument(contentDocument);
-
-        styleRange = new StyleRange();
-        styleRange.start = 0;
-        styleRange.length = author.lastIndexOf(':');
-        styleRange.foreground = null;
-        styleRange.background = null;
-//        styleRange.font = FontUtils.getNewHeight("黑体", 9);
-//        styleRange.fontStyle = SWT.NORMAL;
-        styleRange.fontStyle = SWT.BOLD;
-        text.setStyleRange(styleRange);
-
-        ScrolledComposite sc = container.getScrolledComposite();
-        if (sc.getClientArea().width != 0) {
-//            gridData.widthHint = sc.getClientArea().width - EXTRA_WIDTH
-//                    - buttonExtraWidth;
-            gridData.widthHint = sc.getClientArea().width - EXTRA_WIDTH;
-        }
-        text.setLayoutData(gridData);
-        sc.addControlListener(getControlListener());
-
-        text.addModifyListener(getModifyListener());
-        text.addFocusListener(getFocusListener());
-    }
-
-    private TextViewer createTextViewer(Composite parent, int style) {
-        return new LessLatencyTextViewer(parent, style);
-    }
-
-    private void initTextViewer(TextViewer textViewer) {
-        Control control = textViewer.getTextWidget();
-        createContentPopupMenu(control);
-        textViewer.setTextDoubleClickStrategy(
-                new DefaultTextDoubleClickStrategy(),
-                IDocument.DEFAULT_CONTENT_TYPE);
-
-        textViewer.setUndoManager(new TextViewerUndoManager(25));
-        textViewer.activatePlugins();
-        addHyperlinkListener(textViewer);
-    }
-
-    private void createContentPopupMenu(Control control) {
-        textContextMenuManager = new MenuManager();
-        textContextMenuManager.setRemoveAllWhenShown(true);
-        textContextMenuManager.addMenuListener(new IMenuListener() {
-            public void menuAboutToShow(IMenuManager manager) {
-                fillContextMenu(manager);
-            }
-        });
-        textContextMenu = textContextMenuManager.createContextMenu(control);
-        control.setMenu(textContextMenu);
-    }
-
-    private void fillContextMenu(IMenuManager menu) {
-        if (contributor != null)
-            contributor.fillContextMenu(menu);
-    }
-
-    private void addHyperlinkListener(TextViewer viewer) {
-        PresentationReconciler reconciler = new PresentationReconciler();
-        RichTextDamagerRepairer dr = new RichTextDamagerRepairer(
-                new RichTextScanner());
-        reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
-        reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
-        reconciler.setDocumentPartitioning(
-                IDocumentExtension3.DEFAULT_PARTITIONING);
-        reconciler.install(viewer);
     }
 
     private MouseListener getMouseListener() {
@@ -1029,6 +760,32 @@ public class CommentTextViewer {
         return selectionChangedListener;
     }
 
+    private void commentSelected() {
+//        if (container instanceof CommentsView) {
+//            CommentsUtils.reveal(targetEditor, comment.getOwnedWorkbook()
+//                    .getElementById(comment.getObjectId()));
+//        }
+        removeMouseFilter();
+        setRecursiveBackgroundColor(control, selectColor, null);
+
+        container.getContentComposite().pack();
+        container.getContentComposite().layout(true, true);
+    }
+
+    private void commentDeselected() {
+        addMouseFilter();
+
+        if (textViewer.getTextWidget().isFocusControl()) {
+            setRecursiveBackgroundColor(control, originalColor,
+                    getTextWidget());
+        } else {
+            setRecursiveBackgroundColor(control, originalColor, null);
+        }
+
+        container.getContentComposite().pack();
+        container.getContentComposite().layout(true, true);
+    }
+
     private FocusListener getFocusListener() {
         if (textFocusListener == null) {
             textFocusListener = new FocusListener() {
@@ -1061,13 +818,99 @@ public class CommentTextViewer {
                     container.setSelectedComment(null);
 
                     if (!isLinkHovering) {
-                        saveComment();
+                        if (comment == null) {
+                            addComment();
+                        } else {
+                            saveComment();
+                        }
                     }
                 }
             };
         }
 
         return textFocusListener;
+    }
+
+    private void startEditing() {
+        removeMouseFilter();
+        setRecursiveBackgroundColor(control, originalColor, null);
+        getTextWidget().setForeground(ColorUtils.getColor("#000000")); //$NON-NLS-1$
+
+        getTextWidget().getParent()
+                .setBackground(ColorUtils.getColor("#298fca")); //$NON-NLS-1$
+
+        CommentsUtils.removeRecursiveMouseListener(control, getMouseListener(),
+                null);
+        removeContextMenu();
+        textViewer.getControl().setMenu(textContextMenu);
+
+        textViewer.getTextWidget().setStyleRange(null);
+
+        String commentContent = comment.getContent();
+        IDocument contentDocument = new Document(commentContent);
+        setDocument(contentDocument);
+
+        timeLabel.setVisible(false);
+        ((GridData) timeLabel.getLayoutData()).exclude = true;
+
+        modifyCommentActionBar.setVisible(true);
+        ((GridData) modifyCommentActionBar.getLayoutData()).exclude = false;
+
+        ((GridData) textViewer.getControl()
+                .getLayoutData()).minimumHeight = 110;
+        setEditable(true);
+
+        textViewer.getControl().setFocus();
+
+        container.getContentComposite().pack();
+        container.getContentComposite().layout(true, true);
+    }
+
+    private void cancelEditing() {
+        setRecursiveBackgroundColor(control, originalColor, null);
+        getTextWidget().setForeground(ColorUtils.getColor("#45464a")); //$NON-NLS-1$
+
+        CommentsUtils.addRecursiveMouseListener(control, getMouseListener(),
+                null);
+        addContextMenu();
+
+        String author = comment.getAuthor() + " : "; //$NON-NLS-1$
+        String commentContent = comment.getContent();
+        IDocument contentDocument = new Document(author + commentContent);
+        setDocument(contentDocument);
+
+        textViewer.getTextWidget().setStyleRange(styleRange);
+
+        resetModified();
+
+        timeLabel.setVisible(true);
+        ((GridData) timeLabel.getLayoutData()).exclude = false;
+
+        modifyCommentActionBar.setVisible(false);
+        ((GridData) modifyCommentActionBar.getLayoutData()).exclude = true;
+
+        ((GridData) textViewer.getControl().getLayoutData()).minimumHeight = 22;
+        setEditable(false);
+        addMouseFilter();
+
+        Display.getCurrent().timerExec(50, new Runnable() {
+
+            public void run() {
+                Display.getCurrent().asyncExec(new Runnable() {
+
+                    public void run() {
+                        if (container != null
+                                && container.getContentComposite() != null
+                                && !container.getContentComposite()
+                                        .isDisposed()) {
+                            container.getContentComposite().pack();
+                            container.getContentComposite().layout(true, true);
+                        }
+                    }
+                });
+            }
+        });
+
     }
 
     private void showControl() {
@@ -1222,10 +1065,6 @@ public class CommentTextViewer {
                             .getContentComposite();
                     StyledText text = getTextWidget();
                     if (text != null && !text.isDisposed()) {
-//                        ((GridData) text
-//                                .getLayoutData()).widthHint = contentComposite
-//                                        .getParent().getClientArea().width
-//                                        - EXTRA_WIDTH - buttonExtraWidth;
                         ((GridData) text
                                 .getLayoutData()).widthHint = contentComposite
                                         .getParent().getClientArea().width
@@ -1280,7 +1119,6 @@ public class CommentTextViewer {
         }
         saveCommentReg = null;
 
-        IWorkbook workbook = comment.getOwnedWorkbook();
         if (workbook instanceof ICoreEventSource2) {
             saveCommentReg = ((ICoreEventSource2) workbook)
                     .registerOnceCoreEventListener(Core.WorkbookPreSaveOnce,
@@ -1288,16 +1126,16 @@ public class CommentTextViewer {
         }
     }
 
-    private void resetModified() {
-        deactivateJob();
-        getTextViewer().removeTextListener(getTextListener());
-    }
-
     private void deactivateJob() {
         if (saveCommentReg != null) {
             saveCommentReg.unregister();
             saveCommentReg = null;
         }
+    }
+
+    private void resetModified() {
+        deactivateJob();
+        getTextViewer().removeTextListener(getTextListener());
     }
 
     private void handleControlDispose(DisposeEvent e) {
@@ -1330,69 +1168,89 @@ public class CommentTextViewer {
         getTextWidget().removeModifyListener(getModifyListener());
     }
 
-    // return if ModifyCommentCommand has been execute. (oldContent != newContent)
+    private boolean addComment() {
+        resetModified();
+        isLinkHovering = false;
+
+        final IDocument document = (IDocument) textViewer.getInput();
+        if (document == null || document.get() == null
+                || document.get().equals("")) { //$NON-NLS-1$
+            container.cancelCreateComment();
+            return false;
+        }
+
+        String author = System.getProperty(DOMConstants.AUTHOR_NAME);
+        author = (author != null ? author : System.getProperty("user.name")); //$NON-NLS-1$
+        long time = System.currentTimeMillis();
+        IComment comment = workbook.getCommentManager().createComment(author,
+                time, objectId);
+        final AddCommentCommand cmd = new AddCommentCommand(author, time,
+                objectId, document.get(), workbook, comment);
+
+        container.setLatestCreatedComment(comment);
+
+        //todo: maybe this timerExec is unnecessary.
+        Display.getCurrent().timerExec(40, new Runnable() {
+            public void run() {
+
+                Display.getCurrent().asyncExec(new Runnable() {
+                    public void run() {
+                        ICommandStack cs = targetEditor.getCommandStack();
+                        cs.execute(cmd);
+                    }
+                });
+            }
+        });
+        return true;
+    }
+
     private boolean saveComment() {
         resetModified();
         isLinkHovering = false;
 
-        String oldContent = null;
-        String newContent = null;
+        final ICommandStack cs = targetEditor.getCommandStack();
 
-        if (comment != null) {
-            oldContent = comment.getContent();
+        final IDocument document = (IDocument) textViewer.getDocument();
+        if (document == null || document.get() == null
+                || document.get().equals("")) { //$NON-NLS-1$
+            DeleteCommentCommand cmd = new DeleteCommentCommand(comment
+                    .getOwnedWorkbook().getElementById(comment.getObjectId()),
+                    comment);
+            cs.execute(cmd);
+            return true;
         }
-        IDocument document = (IDocument) textViewer.getInput();
-        newContent = document.get();
 
-        if (newContent != null && (!newContent.equals("")) //$NON-NLS-1$
-                && newContent.equals(oldContent)) {
+        String oldContent = comment.getContent();
+        String newContent = document.get();
+        if (newContent.equals(oldContent)) {
             cancelEditing();
             return false;
         }
 
-        final ModifyCommentCommand cmd = new ModifyCommentCommand(comment,
-                document.get());
-        if ((oldContent == null || oldContent.equals("")) //$NON-NLS-1$
-                && (newContent == null || newContent.equals(""))) { //$NON-NLS-1$
+        Display.getCurrent().timerExec(40, new Runnable() {
+            public void run() {
 
-            Display.getCurrent().timerExec(40, new Runnable() {
-                public void run() {
-
-                    Display.getCurrent().asyncExec(new Runnable() {
-                        public void run() {
-                            cmd.execute();
-                        }
-                    });
-                }
-            });
-
-        } else {
-            if (targetEditor != null) {
-                if (oldContent == null || oldContent.equals("")) { //$NON-NLS-1$
-                    //set latest comment to show "just now" time picker.
-                    container.setLatestCreatedComment(comment);
-                }
-
-                final ICommandStack cs = targetEditor.getCommandStack();
-                if (cs != null) {
-
-                    Display.getCurrent().timerExec(40, new Runnable() {
-
-                        public void run() {
-                            Display.getCurrent().asyncExec(new Runnable() {
-
-                                public void run() {
-                                    cs.execute(cmd);
-                                }
-                            });
-                        }
-                    });
-
-                }
+                Display.getCurrent().asyncExec(new Runnable() {
+                    public void run() {
+                        final ModifyCommentCommand cmd = new ModifyCommentCommand(
+                                comment.getOwnedWorkbook()
+                                        .getElementById(comment.getObjectId()),
+                                comment, document.get());
+                        cs.execute(cmd);
+                    }
+                });
             }
-        }
+        });
 
         return true;
+    }
+
+    private void setEditable(boolean editable) {
+        if (editable == this.editable) {
+            return;
+        }
+        this.editable = editable;
+        updateTextControl();
     }
 
     private void setDocument(IDocument document) {
@@ -1412,14 +1270,6 @@ public class CommentTextViewer {
                 && !textViewer.getTextWidget().isDisposed()) {
             textViewer.getTextWidget().setEnabled(editable);
         }
-    }
-
-    private void setEditable(boolean editable) {
-        if (editable == this.editable) {
-            return;
-        }
-        this.editable = editable;
-        updateTextControl();
     }
 
     public TextViewer getTextViewer() {

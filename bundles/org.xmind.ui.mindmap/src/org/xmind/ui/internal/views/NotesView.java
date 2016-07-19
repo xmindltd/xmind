@@ -569,6 +569,16 @@ public class NotesView extends ViewPart
         }
     }
 
+    private void unRegisterTextActionHandlers() {
+        if (handlerService != null) {
+            if (handlerActivations != null) {
+                for (IHandlerActivation activation : handlerActivations) {
+                    handlerService.deactivateHandler(activation);
+                }
+            }
+        }
+    }
+
     private void showBootstrapContent() {
         IEditorPart activeEditor = getSite().getPage().getActiveEditor();
         if (activeEditor instanceof IGraphicalEditor) {
@@ -1134,6 +1144,9 @@ public class NotesView extends ViewPart
             oldAdapter.dispose();
         }
         update();
+
+        unRegisterTextActionHandlers();
+        registerTextActionHandlers();
     }
 
     private ISelectionChangedListener getSelectionChangedListener() {

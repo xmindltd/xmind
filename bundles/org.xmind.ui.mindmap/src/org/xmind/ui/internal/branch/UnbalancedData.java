@@ -25,7 +25,9 @@ public class UnbalancedData extends RadialData {
         if (num != null)
             return num.intValue();
         ITopicExtension extension = branch.getTopic()
-                .createExtension(EXTENTION_UNBALANCEDSTRUCTURE);
+                .getExtension(EXTENTION_UNBALANCEDSTRUCTURE);
+        if (extension == null)
+            return super.getNumRight();
         ITopicExtensionElement element = extension.getContent()
                 .getCreatedChild(EXTENTIONELEMENT_RIGHTNUMBER);
         String rightNum = element.getTextContent();

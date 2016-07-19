@@ -1,10 +1,13 @@
 package org.xmind.ui.internal.e4handlers;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.runtime.SafeRunner;
@@ -16,14 +19,13 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.xmind.ui.commands.MindMapCommandConstants;
 import org.xmind.ui.internal.dialogs.DialogUtils;
-import org.xmind.ui.internal.editor.MME;
-import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class OpenWorkbooksHandler {
 
     private static final List<String> NO_URIS = Collections.emptyList();
 
+    @Inject
     public void execute(final IWorkbenchWindow window,
             ParameterizedCommand command) {
         String uri = (String) command.getParameterMap()
@@ -48,7 +50,7 @@ public class OpenWorkbooksHandler {
                     SWT.MULTI);
             uris = new ArrayList<String>(files.size());
             for (File file : files) {
-                uris.add(FilePathParser.toURI(file.getAbsolutePath(), false));
+                uris.add(file.toURI().toString());
             }
         }
 
@@ -72,7 +74,8 @@ public class OpenWorkbooksHandler {
         final IEditorPart[] editor = new IEditorPart[1];
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
-                IEditorInput input = MME.createEditorInputFromURI(uri);
+                IEditorInput input = MindMapUI.getEditorInputFactory()
+                        .createEditorInput(new URI(uri));
                 editor[0] = page.openEditor(input, MindMapUI.MINDMAP_EDITOR_ID,
                         false);
             }

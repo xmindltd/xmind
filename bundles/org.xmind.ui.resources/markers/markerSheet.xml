@@ -1,116 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <marker-sheet xmlns="urn:xmind:xmap:xmlns:marker:2.0">
 	<marker-group id="priorityMarkers" name="%priorityMarkers" singleton="true">
-		<marker id="priority-1" name="%priority1" resource="priority_1.png" />
-		<marker id="priority-2" name="%priority2" resource="priority_2.png" />
-		<marker id="priority-3" name="%priority3" resource="priority_3.png" />
-		<marker id="priority-4" name="%priority4" resource="priority_4.png" />
-		<marker id="priority-5" name="%priority5" resource="priority_5.png" />
-		<marker id="priority-6" name="%priority6" resource="priority_6.png" />
-		<marker id="priority-7" name="%priority7" resource="priority_7.png" />
-		<marker id="priority-8" name="%priority8" resource="priority_8.png" />
-		<marker id="priority-9" name="%priority9" resource="priority_9.png" />
+		<marker id="priority-1" name="%priority1" resource="priority_1.png" svg = "priority_1@16.svg"/>
+		<marker id="priority-2" name="%priority2" resource="priority_2.png" svg="priority_2@16.svg"/>
+		<marker id="priority-3" name="%priority3" resource="priority_3.png" svg="priority_3@16.svg"/>
+		<marker id="priority-4" name="%priority4" resource="priority_4.png" svg="priority_4@16.svg"/>
+		<marker id="priority-5" name="%priority5" resource="priority_5.png" svg="priority_5@16.svg"/>
+		<marker id="priority-6" name="%priority6" resource="priority_6.png" svg="priority_6@16.svg"/>
+		<marker id="priority-7" name="%priority7" resource="priority_7.png" svg="priority_7@16.svg"/>
+		<marker id="priority-8" name="%priority8" resource="priority_8.png" svg="priority_8@16.svg"/>
+		<marker id="priority-9" name="%priority9" resource="priority_9.png" svg="priority_9@16.svg"/>
 	</marker-group>
 	<marker-group id="smileyMarkers" name="%smileyMarkers" singleton="true">
-		<marker id="smiley-smile" name="%smileySmile" resource="emotion_smile.png" />
-		<marker id="smiley-laugh" name="%smileyLaugh" resource="emotion_laugh.png" />
-		<marker id="smiley-angry" name="%smileyAngry" resource="emotion_angry.png" />
-		<marker id="smiley-cry" name="%smileyCry" resource="emotion_cry.png" />
-		<marker id="smiley-surprise" name="%smileySurprise" resource="emotion_surprise.png" />
-		<marker id="smiley-boring" name="%smileyBoring" resource="emotion_boring.png" />
+		<marker id="smiley-smile" name="%smileySmile" resource="emotion_smile.png" svg="emotion_smile@16.svg"/>
+		<marker id="smiley-laugh" name="%smileyLaugh" resource="emotion_laugh.png" svg="emotion_laugh@16.svg"/>
+		<marker id="smiley-angry" name="%smileyAngry" resource="emotion_angry.png" svg="emotion_angry@16.svg"/>
+		<marker id="smiley-cry" name="%smileyCry" resource="emotion_cry.png" svg="emotion_cry@16.svg"/>
+		<marker id="smiley-surprise" name="%smileySurprise" resource="emotion_surprise.png" svg="emotion_surprise@16.svg"/>
+		<marker id="smiley-boring" name="%smileyBoring" resource="emotion_boring.png" svg="emotion_boring@16.svg"/>
+		<marker id="smiley-embarrass" name="%smileyEmbarrass" resource="emotion_embarrass.png" svg="emotion_embarrass.svg"/>
 	</marker-group>
 	<marker-group id="taskMakers" name="%taskMarkers" singleton="true">
-		<marker id="task-start" name="%taskStart" resource="progress_start.png" />
-		<marker id="task-oct" name="%taskOct" resource="progress_1o.png" />
-		<marker id="task-quarter" name="%taskQuarter" resource="progress_1q.png" />
-		<marker id="task-3oct" name="%task3Oct" resource="progress_3o.png" />
-		<marker id="task-half" name="%taskHalf" resource="progress_half.png" />
-		<marker id="task-5oct" name="%task5Oct" resource="progress_5o.png" />
-		<marker id="task-3quar" name="%task3Quarters" resource="progress_3q.png" />
-		<marker id="task-7oct" name="%task7Oct" resource="progress_7o.png" />
-		<marker id="task-done" name="%taskDone" resource="progress_done.png" />
+		<marker id="task-start" name="%taskStart" resource="progress_start.png" svg="progress_start@16.svg"/>
+		<marker id="task-oct" name="%taskOct" resource="progress_1o.png" svg="progress_1o@16.svg"/>
+		<marker id="task-quarter" name="%taskQuarter" resource="progress_1q.png" svg="progress_1q@16.svg"/>
+		<marker id="task-3oct" name="%task3Oct" resource="progress_3o.png" svg="progress_3o@16.svg"/>
+		<marker id="task-half" name="%taskHalf" resource="progress_half.png" svg="progress_half@16.svg"/>
+		<marker id="task-5oct" name="%task5Oct" resource="progress_5o.png" svg="progress_5o@16.svg"/>
+		<marker id="task-3quar" name="%task3Quarters" resource="progress_3q.png" svg="progress_3q@16.svg"/>
+		<marker id="task-7oct" name="%task7Oct" resource="progress_7o.png" svg="progress_7o@16.svg"/>
+		<marker id="task-done" name="%taskDone" resource="progress_done.png" svg="progress_done@16.svg"/>
 		<marker id="task-pause" name="%taskPause" resource="progress_pause.png" hidden="true"/>
 	</marker-group>
 	<marker-group id="flagMakers" name="%flagMarkers" singleton="true">
-		<marker id="flag-red" name="%colorRed" resource="flag_red.png" />
-		<marker id="flag-orange" name="%colorOrange" resource="flag_orange.png" />
-		<marker id="flag-yellow" name="%colorYellow" resource="flag_yellow.png" />
-		<marker id="flag-blue" name="%colorBlue" resource="flag_blue.png" />
-		<marker id="flag-green" name="%colorGreen" resource="flag_green.png" />
-		<marker id="flag-purple" name="%colorPurple" resource="flag_purple.png" />
-		<marker id="flag-gray" name="%colorGray" resource="flag_gray.png"/>
+		<marker id="flag-red" name="%colorRed" resource="flag_red.png" svg="flag_red@16.svg"/>
+		<marker id="flag-orange" name="%colorOrange" resource="flag_orange.png" svg="flag_orange@16.svg"/>
+		<marker id="flag-yellow" name="%colorYellow" resource="flag_yellow.png" svg="flag_yellow@16.svg" hidden="true"/>
+		<marker id="flag-blue" name="%colorBlue" resource="flag_blue.png" svg="flag_blue@16.svg"/>
+		<marker id="flag-green" name="%colorGreen" resource="flag_green.png" svg="flag_green@16.svg"/>
+		<marker id="flag-purple" name="%colorPurple" resource="flag_purple.png" svg="flag_purple@16.svg"/>
+				<marker id="flag-gray" name="%colorGray" resource="flag_gray.png" svg="flag_gray@16.svg" hidden="true"/>
+		<marker id="flag-dark-green" name="%colorDarkGreen" resource="flag_dark_green.png" svg="flag_dark_green@16.svg"/>
+		<marker id="flag-dark-gray" name="%colorDarkGray" resource="flag_dark_gray.png" svg="flag_dark_gray@16.svg"/>
 	</marker-group>
 	<marker-group id="starMakers" name="%starMarkers" singleton="true">
-		<marker id="star-red" name="%colorRed" resource="star_red.png" />
-		<marker id="star-orange" name="%colorOrange" resource="star_orange.png" />
-		<marker id="star-yellow" name="%colorYellow" resource="star_yellow.png" />
-		<marker id="star-blue" name="%colorBlue" resource="star_blue.png" />
-		<marker id="star-green" name="%colorGreen" resource="star_green.png" />
-		<marker id="star-purple" name="%colorPurple" resource="star_purple.png" />
-		<marker id="star-gray" name="%colorGray" resource="star_gray.png"/>
+		<marker id="star-red" name="%colorRed" resource="star_red.png" svg="star_red@16.svg"/>
+		<marker id="star-orange" name="%colorOrange" resource="star_orange.png" svg="star_orange@16.svg"/>
+		<marker id="star-yellow" name="%colorYellow" resource="star_yellow.png" svg="star_yellow@16.svg" hidden="true"/>
+		<marker id="star-blue" name="%colorBlue" resource="star_blue.png" svg="star_blue@16.svg"/>
+		<marker id="star-green" name="%colorGreen" resource="star_green.png" svg="star_green@16.svg"/>
+		<marker id="star-purple" name="%colorPurple" resource="star_purple.png" svg="star_purple@16.svg"/>
+				<marker id="star-gray" name="%colorGray" resource="star_gray.png" svg="star_gray@16.svg" hidden="true"/>
+		<marker id="star-dark-green" name="%colorDarkGreen" resource="star_dark_green.png" svg="star_dark_green@16.svg"/>
+		<marker id="star-dark-gray" name="%colorDarkGray" resource="star_dark_gray.png" svg="star_dark_gray@16.svg"/>
 	</marker-group>
 	<marker-group id="peopleMakers" name="%peopleMarkers" singleton="true">
-		<marker id="people-red" name="%colorRed" resource="people_red.png" />
-		<marker id="people-orange" name="%colorOrange" resource="people_orange.png" />
-		<marker id="people-yellow" name="%colorYellow" resource="people_yellow.png" />
-		<marker id="people-blue" name="%colorBlue" resource="people_blue.png" />
-		<marker id="people-green" name="%colorGreen" resource="people_green.png" />
-		<marker id="people-purple" name="%colorPurple" resource="people_purple.png" />
-		<marker id="people-gray" name="%colorGray" resource="people_gray.png"/>
+		<marker id="people-red" name="%colorRed" resource="people_red.png" svg="people_red@16.svg"/>
+		<marker id="people-orange" name="%colorOrange" resource="people_orange.png" svg="people_orange@16.svg"/>
+		<marker id="people-yellow" name="%colorYellow" resource="people_yellow.png" svg="people_yellow@16.svg" hidden="true"/>
+		<marker id="people-blue" name="%colorBlue" resource="people_blue.png" svg="people_blue@16.svg"/>
+		<marker id="people-green" name="%colorGreen" resource="people_green.png" svg="people_green@16.svg"/>
+		<marker id="people-purple" name="%colorPurple" resource="people_purple.png" svg="people_purple@16.svg"/>
+				<marker id="people-gray" name="%colorGray" resource="people_gray.png" svg="people_gray@16.svg" hidden="true"/>
+		<marker id="people-dark-green" name="%colorDarkGreen" resource="people_dark_green.png" svg="people_dark_green@16.svg"/>
+		<marker id="people-dark-gray" name="%colorDarkGray" resource="people_dark_gray.png" svg="people_dark_gray@16.svg"/>
 	</marker-group>
 	<marker-group id="arrowMakers" name="%arrowMarkers" singleton="true">
-		<marker id="arrow-up" name="%arrowUp" resource="arrow_up.png" />
-		<marker id="arrow-up-right" name="%arrowUpRight" resource="arrow_up_right.png" />
-		<marker id="arrow-right" name="%arrowRight" resource="arrow_right.png" />
-		<marker id="arrow-down-right" name="%arrowDownRight" resource="arrow_down_right.png" />
-		<marker id="arrow-down" name="%arrowDown" resource="arrow_down.png" />
-		<marker id="arrow-down-left" name="%arrowDownLeft" resource="arrow_down_left.png" />
-		<marker id="arrow-left" name="%arrowLeft" resource="arrow_left.png" />
-		<marker id="arrow-up-left" name="%arrowUpLeft" resource="arrow_up_left.png" />
-		<marker id="arrow-refresh" name="%arrowRefresh" resource="arrow_refresh.png" />
+		<marker id="arrow-up" name="%arrowUp" resource="arrow_up.png" svg="arrow_up@16.svg"/>
+		<marker id="arrow-up-right" name="%arrowUpRight" resource="arrow_up_right.png" svg="arrow_up_right@16.svg"/>
+		<marker id="arrow-right" name="%arrowRight" resource="arrow_right.png" svg="arrow_right@16.svg"/>
+		<marker id="arrow-down-right" name="%arrowDownRight" resource="arrow_down_right.png" svg="arrow_down_right@16.svg"/>
+		<marker id="arrow-down" name="%arrowDown" resource="arrow_down.png" svg="arrow_down@16.svg"/>
+		<marker id="arrow-down-left" name="%arrowDownLeft" resource="arrow_down_left.png" svg="arrow_down_left@16.svg"/>
+		<marker id="arrow-left" name="%arrowLeft" resource="arrow_left.png" svg="arrow_left@16.svg"/>
+		<marker id="arrow-up-left" name="%arrowUpLeft" resource="arrow_up_left.png" svg="arrow_up_left@16.svg"/>
+		<marker id="arrow-refresh" name="%arrowRefresh" resource="arrow_refresh.png" svg="arrow_refresh@16.svg"/>
 	</marker-group>
 	<marker-group id="symbolMakers" name="%symbolMarkers" singleton="true">
-		<marker id="symbol-plus" name="%symbolPlus" resource="symbol_plus.png" />
-		<marker id="symbol-minus" name="%symbolMinus" resource="symbol_minus.png" />
-		<marker id="symbol-question" name="%symbolQuestion" resource="symbol_question.png" />
-		<marker id="symbol-exclam" name="%symbolExclam" resource="symbol_exclamation.png" />
-		<marker id="symbol-info" name="%symbolInfo" resource="symbol_information.png" />
-		<marker id="symbol-wrong" name="%symbolWrong" resource="symbol_wrong.png" />
-		<marker id="symbol-right" name="%symbolRight" resource="symbol_right.png" />
-		<marker id="symbol-pause" name="%symbolPause" resource="symbol_pause.png"/>
-		<marker id="c_simbol-plus" name="%symbolPlus" resource="c_simbol_plus.png" />
-		<marker id="c_simbol-minus" name="%symbolMinus" resource="c_simbol_minus.png" />
-		<marker id="c_simbol-question" name="%symbolQuestion" resource="c_simbol_question.png" />
-		<marker id="c_simbol-exclam" name="%symbolExclam" resource="c_simbol_exclamation.png" />
-		<marker id="c_simbol-info" name="%symbolInfo" resource="c_simbol_information.png" />
-		<marker id="c_simbol-wrong" name="%symbolWrong" resource="c_simbol_wrong.png" />
-		<marker id="c_simbol-right" name="%symbolRight" resource="c_simbol_right.png" />
-		<marker id="c_simbol-pause" name="%symbolPause" resource="c_simbol_pause.png"/>
+		<marker id="symbol-plus" name="%symbolPlus" resource="symbol_plus.png" svg="symbol_plus@16.svg"/>
+		<marker id="symbol-minus" name="%symbolMinus" resource="symbol_minus.png" svg="symbol_minus@16.svg"/>
+		<marker id="symbol-question" name="%symbolQuestion" resource="symbol_question.png" svg="symbol_question@16.svg"/>
+		<marker id="symbol-exclam" name="%symbolExclam" resource="symbol_exclamation.png" svg="symbol_exclamation@16.svg" hidden="true"/>
+		<marker id="symbol-info" name="%symbolInfo" resource="symbol_information.png" svg="symbol_information@16.svg"/>
+		<marker id="symbol-attention" name="%symbolAttention" resource="symbol_attention.png" svg="symbol_attention@16.svg"/>
+		<marker id="symbol-wrong" name="%symbolWrong" resource="symbol_wrong.png" svg="symbol_wrong@16.svg"/>
+		<marker id="symbol-right" name="%symbolRight" resource="symbol_right.png" svg="symbol_right@16.svg"/>
+		<marker id="symbol-pause" name="%symbolPause" resource="symbol_pause.png" svg="symbol_pause@16.svg"/>
+		<marker id="c_simbol-plus" name="%symbolPlus" resource="c_simbol_plus.png" svg="c_simbol_plus@16.svg" hidden="true"/>
+		<marker id="c_simbol-minus" name="%symbolMinus" resource="c_simbol_minus.png" svg="c_simbol_minus@16.svg" hidden="true"/>
+		<marker id="c_simbol-question" name="%symbolQuestion" resource="c_simbol_question.png" svg="c_simbol_question@16.svg" hidden="true"/>
+		<marker id="c_simbol-exclam" name="%symbolExclam" resource="c_simbol_exclamation.png" svg="c_simbol_exclamation@16.svg" hidden="true"/>
+		<marker id="c_simbol-info" name="%symbolInfo" resource="c_simbol_information.png" svg="c_simbol_information@16.svg" hidden="true"/>
+		<marker id="c_simbol-wrong" name="%symbolWrong" resource="c_simbol_wrong.png" svg="c_simbol_wrong@16.svg" hidden="true"/>
+		<marker id="c_simbol-right" name="%symbolRight" resource="c_simbol_right.png" svg="c_simbol_right@16.svg" hidden="true"/>
+		<marker id="c_simbol-pause" name="%symbolPause" resource="c_simbol_pause.png" svg="c_simbol_pause@16.svg" hidden="true"/>
+		<marker id="c_symbol_bar_chart" name="%symbolBarChart" resource="symbol_bar_chart.png" svg="symbol_bar_chart.svg"/>
+		<marker id="c_symbol_contact" name="%symbolContact" resource="symbol_contact.png" svg="symbol_contact.svg"/>
+		<marker id="c_symbol_dislike" name="%symbolDislike" resource="symbol_dislike.png" svg="symbol_dislike.svg"/>
+		<marker id="c_symbol_drink" name="%symbolDrink" resource="symbol_drink.png" svg="symbol_drink.svg"/>
+		<marker id="c_symbol_exercise" name="%symbolExercise" resource="symbol_exercise.png" svg="symbol_exercise.svg"/>
+		<marker id="c_symbol_flight" name="%symbolFlight" resource="symbol_flight.png" svg="symbol_flight.svg"/>
+		<marker id="c_symbol_heart" name="%symbolHeart" resource="symbol_heart.png" svg="symbol_heart.svg"/>
+		<marker id="c_symbol_like" name="%symbolLike" resource="symbol_like.png" svg="symbol_like.svg"/>
+		<marker id="c_symbol_line_graph" name="%symbolLineGraph" resource="symbol_line_graph.png" svg="symbol_line_graph.svg"/>
+		<marker id="c_symbol_medals" name="%symbolMedals" resource="symbol_medals.png" svg="symbol_medals.svg"/>
+		<marker id="c_symbol_money" name="%symbolMoney" resource="symbol_money.png" svg="symbol_money.svg"/>
+		<marker id="c_symbol_music" name="%symbolMusic" resource="symbol_music.png" svg="symbol_music.svg"/>
+		<marker id="c_symbol_pen" name="%symbolPen" resource="symbol_pen.png" svg="symbol_pen.svg"/>
+		<marker id="c_symbol_pie_chart" name="%symbolPieChart" resource="symbol_pie_chart.png" svg="symbol_pie_chart.svg"/>
+		<marker id="c_symbol_shopping_cart" name="%symbolShoppingCart" resource="symbol_shopping_cart.png" svg="symbol_shopping_cart.svg"/>
+		<marker id="c_symbol_telephone" name="%symbolTelephone" resource="symbol_telephone.png" svg="symbol_telephone.svg"/>
+		<marker id="c_symbol_thermometer" name="%symbolThermometer" resource="symbol_thermometer.png" svg="symbol_thermometer.svg"/>
+		<marker id="c_symbol_trophy" name="%symbolTrophy" resource="symbol_trophy.png" svg="symbol_trophy.svg"/>
 	</marker-group>
 	<marker-group id="monthMakers" name="%monthMarkers" singleton="true">
-		<marker id="month-jan" name="%monthJan" resource="month_jan.png" />
-		<marker id="month-feb" name="%monthFeb" resource="month_feb.png" />
-		<marker id="month-mar" name="%monthMar" resource="month_mar.png" />
-		<marker id="month-apr" name="%monthApr" resource="month_apr.png" />
-		<marker id="month-may" name="%monthMay" resource="month_may.png" />
-		<marker id="month-jun" name="%monthJun" resource="month_jun.png" />
-		<marker id="month-jul" name="%monthJul" resource="month_jul.png" />
-		<marker id="month-aug" name="%monthAug" resource="month_aug.png" />
-		<marker id="month-sep" name="%monthSep" resource="month_sep.png" />
-		<marker id="month-oct" name="%monthOct" resource="month_oct.png" />
-		<marker id="month-nov" name="%monthNov" resource="month_nov.png" />
-		<marker id="month-dec" name="%monthDec" resource="month_dec.png" />
+		<marker id="month-jan" name="%monthJan" resource="month_jan.png" svg="month_jan@16.svg"/>
+		<marker id="month-feb" name="%monthFeb" resource="month_feb.png" svg="month_feb@16.svg"/>
+		<marker id="month-mar" name="%monthMar" resource="month_mar.png" svg="month_mar@16.svg"/>
+		<marker id="month-apr" name="%monthApr" resource="month_apr.png" svg="month_apr@16.svg"/>
+		<marker id="month-may" name="%monthMay" resource="month_may.png" svg="month_may@16.svg"/>
+		<marker id="month-jun" name="%monthJun" resource="month_jun.png" svg="month_jun@16.svg"/>
+		<marker id="month-jul" name="%monthJul" resource="month_jul.png" svg="month_jul@16.svg"/>
+		<marker id="month-aug" name="%monthAug" resource="month_aug.png" svg="month_aug@16.svg"/>
+		<marker id="month-sep" name="%monthSep" resource="month_sep.png" svg="month_sep@16.svg"/>
+		<marker id="month-oct" name="%monthOct" resource="month_oct.png" svg="month_oct@16.svg"/>
+		<marker id="month-nov" name="%monthNov" resource="month_nov.png" svg="month_nov@16.svg"/>
+		<marker id="month-dec" name="%monthDec" resource="month_dec.png" svg="month_dec@16.svg"/>
 	</marker-group>
 	<marker-group id="weekMakers" name="%weekMarkers" singleton="true">
-		<marker id="week-sun" name="%weekSun" resource="week_sun.png" />
-		<marker id="week-mon" name="%weekMon" resource="week_mon.png" />
-		<marker id="week-tue" name="%weekTue" resource="week_tue.png" />
-		<marker id="week-wed" name="%weekWed" resource="week_wed.png" />
-		<marker id="week-thu" name="%weekThu" resource="week_thu.png" />
-		<marker id="week-fri" name="%weekFri" resource="week_fri.png" />
-		<marker id="week-sat" name="%weekSat" resource="week_sat.png" />
+		<marker id="week-sun" name="%weekSun" resource="week_sun.png" svg="week_sun@16.svg"/>
+		<marker id="week-mon" name="%weekMon" resource="week_mon.png" svg="week_mon@16.svg"/>
+		<marker id="week-tue" name="%weekTue" resource="week_tue.png" svg="week_tue@16.svg"/>
+		<marker id="week-wed" name="%weekWed" resource="week_wed.png" svg="week_wed@16.svg"/>
+		<marker id="week-thu" name="%weekThu" resource="week_thu.png" svg="week_thu@16.svg"/>
+		<marker id="week-fri" name="%weekFri" resource="week_fri.png" svg="week_fri@16.svg"/>
+		<marker id="week-sat" name="%weekSat" resource="week_sat.png" svg="week_sat@16.svg"/>
 	</marker-group>
-	<marker-group id="halfStarMarkers" name="%halfStarMarkers" singleton="true" hidden="true">
+	<marker-group id="halfStarMarkers" name="%halfStarMarkers" singleton="true" hidden="true" >
 		<marker id="half-star-green" name="%colorGreen" resource="star_green_half.png" />
 		<marker id="half-star-red" name="%colorRed" resource="star_red_half.png" />
 		<marker id="half-star-yellow" name="%colorYellow" resource="star_yellow_half.png" />

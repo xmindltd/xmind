@@ -38,17 +38,16 @@ public interface IOutputTarget {
      * Opens a new output stream to receive data for the specified entry. The
      * stream should be closed by clients when data writing finishes.
      * 
-     * <p>
-     * <strong> For diagnostic purpose, this method is not recommended any more.
-     * Use {@link #openEntryStream(String)} instead to let potential I/O errors
-     * be thrown. </strong>
-     * </p>
+     * @deprecated <strong>For diagnostic purpose, this method is not
+     *             recommended any more. Use {@link #openEntryStream(String)}
+     *             instead to let potential I/O errors be thrown.</strong>
      * 
      * @param entryName
      *            the name of the entry
      * @return an output stream for the specified entry, or <code>null</code> if
      *         the specified entry is not available
      */
+    @Deprecated
     OutputStream getEntryStream(String entryName);
 
     /**

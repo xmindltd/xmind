@@ -23,6 +23,7 @@ import org.eclipse.draw2d.RangeModel;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
+import org.eclipse.jface.viewers.IFilter;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -130,6 +131,12 @@ public class GalleryViewer extends GraphicalViewer
      */
     public static final String CustomContentPaneDecorator = "org.xmind.ui.gallery.customDecorateContentPane"; //$NON-NLS-1$
 
+    public static final String ContentPaneMargins = "org.xmind.ui.gallery.contentPaneMargins"; //$NON-NLS-1$
+
+    public static final String ContentPaneBorderWidth = "org.xmind.ui.gallery.contentPaneBorderWidth"; //$NON-NLS-1$
+
+    public static final String ContentPaneBorderColor = "org.xmind.ui.gallery.contentPaneBorderColor"; //$NON-NLS-1$
+
     /**
      * Value for title placement 'top'.
      */
@@ -170,16 +177,18 @@ public class GalleryViewer extends GraphicalViewer
 
     private List<IOpenListener> openListeners = null;
 
+    private IFilter titleEditingApprover = null;
+
     public GalleryViewer() {
         setPartFactory(GalleryPartFactory.getDefault());
         setRootPart(new GraphicalRootEditPart());
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == IBaseLabelProvider.class)
-            return getLabelProvider();
-        if (adapter == IStructuredContentProvider.class)
-            return getContentProvider();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IBaseLabelProvider.class.equals(adapter))
+            return adapter.cast(getLabelProvider());
+        if (IStructuredContentProvider.class.equals(adapter))
+            return adapter.cast(getContentProvider());
         return super.getAdapter(adapter);
     }
 
@@ -349,6 +358,11 @@ public class GalleryViewer extends GraphicalViewer
     }
 
     @Override
+    public void setSelection(ISelection selection) {
+        setSelection(selection, true);
+    }
+
+    @Override
     public void setSelection(ISelection selection, boolean reveal) {
         if (getProperties().getBoolean(EmptySelectionIgnored, false)
                 && selection.isEmpty())
@@ -356,8 +370,16 @@ public class GalleryViewer extends GraphicalViewer
         super.setSelection(selection, reveal);
     }
 
+    public IFilter getTitleEditingApprover() {
+        return titleEditingApprover;
+    }
+
+    public void setTitleEditingApprover(IFilter titleEditingApprover) {
+        this.titleEditingApprover = titleEditingApprover;
+    }
+
     protected boolean isTitleEditable(IPart p) {
-        return false;
+        return titleEditingApprover != null && titleEditingApprover.select(p);
     }
 
     public Object getProperty(String key, Object defaultValue) {

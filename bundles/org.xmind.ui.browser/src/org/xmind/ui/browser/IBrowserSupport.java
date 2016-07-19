@@ -14,6 +14,10 @@
 package org.xmind.ui.browser;
 
 /**
+ * <p>
+ * <b>IMPORTANT:</b> Since 3.6.51, only <em>external</em> browser are allowed,
+ * and all other styles will be ignored.
+ * </p>
  * 
  * @author Frank Shaka
  */
@@ -23,16 +27,22 @@ public interface IBrowserSupport {
 
     int AS_EXTERNAL = 1;
 
+    @Deprecated
     int AS_VIEW = 1 << 1;
 
+    @Deprecated
     int AS_EDITOR = 1 << 2;
 
+    @Deprecated
     int NO_LOCATION_BAR = 1 << 10;
 
+    @Deprecated
     int NO_EXTRA_CONTRIBUTIONS = 1 << 11;
 
+    @Deprecated
     int NO_TOOLBAR = 1 << 12;
 
+    @Deprecated
     int AS_INTERNAL = AS_VIEW | AS_EDITOR;
 
     int IMPL_TYPES = AS_EXTERNAL | AS_INTERNAL;

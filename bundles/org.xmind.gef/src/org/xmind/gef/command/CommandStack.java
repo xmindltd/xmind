@@ -28,8 +28,8 @@ import org.xmind.gef.GEF;
 /**
  * @author Brian Sun
  */
-public class CommandStack extends CommandStackBase implements ICommandStack2,
-        ICommandStack3 {
+public class CommandStack extends CommandStackBase
+        implements ICommandStack2, ICommandStack3 {
 
     private class DelegateListener implements ICommandStackListener {
 
@@ -55,11 +55,8 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
 
     private Command compoundCommand = null;
 
-    /**
-     * 
-     */
     public CommandStack() {
-        commandList = new ArrayList<Command>(getUndoLimit());
+        this(DEFAULT_UNDO_LIMIT);
     }
 
     /**
@@ -67,7 +64,7 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
      */
     public CommandStack(int undoLimit) {
         super(undoLimit);
-        commandList = new ArrayList<Command>(getUndoLimit());
+        commandList = new ArrayList<Command>(undoLimit);
     }
 
     public void startCompoundCommand() {
@@ -175,16 +172,16 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
             return;
         }
 
-        Command undoCmd = commandList.get(currentLocation--);
+        Command undoCmd = commandList.get(currentLocation);
         if (undoCmd.canUndo()) {
             beginTransaction();
-
             fireEvent(undoCmd, CS_PRE_UNDO);
             undoCmd.undo();
             endTransaction(undoCmd, CS_PRE_UNDO);
-
+            currentLocation--;
             fireEvent(undoCmd, CS_POST_UNDO);
-
+        } else {
+            currentLocation--;
         }
         fireEvent(null, GEF.CS_UPDATED);
     }
@@ -209,15 +206,16 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
             return;
         }
 
-        Command redoCmd = commandList.get(++currentLocation);
+        Command redoCmd = commandList.get(currentLocation + 1);
         if (redoCmd.canExecute()) {
             fireEvent(redoCmd, CS_PRE_REDO);
-
             beginTransaction();
             redoCmd.redo();
             endTransaction(redoCmd, CS_PRE_REDO);
-
+            currentLocation++;
             fireEvent(redoCmd, CS_POST_REDO);
+        } else {
+            currentLocation++;
         }
         fireEvent(null, GEF.CS_UPDATED);
     }
@@ -271,6 +269,7 @@ public class CommandStack extends CommandStackBase implements ICommandStack2,
         for (Command c : commandList)
             c.dispose();
         commandList.clear();
+        fireEvent(null, GEF.CS_UPDATED);
     }
 
 //    /**

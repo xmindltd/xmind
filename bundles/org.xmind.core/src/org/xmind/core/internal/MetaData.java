@@ -15,9 +15,10 @@ package org.xmind.core.internal;
 
 import org.xmind.core.IMetaData;
 
+@Deprecated
 public abstract class MetaData implements IMetaData {
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

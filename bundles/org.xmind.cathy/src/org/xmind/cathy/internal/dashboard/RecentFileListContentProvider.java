@@ -1,7 +1,6 @@
 package org.xmind.cathy.internal.dashboard;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 import org.eclipse.core.commands.common.EventManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -11,9 +10,8 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
-import org.xmind.ui.IEditorHistory;
-import org.xmind.ui.IEditorHistory.IEditorHistoryListener;
-import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.editor.IEditorHistory;
+import org.xmind.ui.editor.IEditorHistory.IEditorHistoryListener;
 
 public class RecentFileListContentProvider extends EventManager
         implements IStructuredContentProvider, IEditorHistoryListener,
@@ -76,29 +74,8 @@ public class RecentFileListContentProvider extends EventManager
         if (itemsToShow <= 0)
             return new URI[0];
 
-        URI[] recentInputURIs = history
-                .getRecentInputURIs(history.getAllInputURIs().length);
-        URI[] sortedInput = sort(recentInputURIs);
-        itemsToShow = Math.max(0,
-                Math.min(itemsToShow, recentInputURIs.length));
-        URI[] content = new URI[itemsToShow];
-        System.arraycopy(sortedInput, 0, content, 0, itemsToShow);
-        return content;
-    }
-
-    private URI[] sort(URI[] source) {
-        int pinLocation = 0;
-        ArrayList<URI> result = new ArrayList<URI>(source.length);
-
-        IEditorHistory eh = MindMapUI.getEditorHistory();
-        for (URI uri : source) {
-            if (eh.isPin(uri)) {
-                result.add(pinLocation++, uri);
-            } else {
-                result.add(uri);
-            }
-        }
-        return result.toArray(new URI[source.length]);
+        URI[] recentInputURIs = history.getRecentInputURIs(itemsToShow);
+        return recentInputURIs;
     }
 
     private int getItemCount() {

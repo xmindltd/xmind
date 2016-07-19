@@ -449,23 +449,23 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
     }
 
     @SuppressWarnings("unchecked")
-    public Object getAdapter(Class adapter) {
-        if (adapter == Control.class || adapter == Widget.class)
-            return getControl();
-        if (adapter == IRootPart.class)
-            return getRootPart();
-        if (adapter == IPartFactory.class)
-            return getPartFactory();
-        if (adapter == PartRegistry.class)
-            return getPartRegistry();
-        if (adapter == EditDomain.class)
-            return getEditDomain();
-        if (adapter == ISelectionSupport.class)
-            return getSelectionSupport();
-        if (adapter == IDndSupport.class)
-            return getDndSupport();
-        if (adapter == Properties.class)
-            return getProperties();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (Control.class.equals(adapter) || Widget.class.equals(adapter))
+            return adapter.cast(getControl());
+        if (IRootPart.class.equals(adapter))
+            return adapter.cast(getRootPart());
+        if (IPartFactory.class.equals(adapter))
+            return adapter.cast(getPartFactory());
+        if (PartRegistry.class.equals(adapter))
+            return adapter.cast(getPartRegistry());
+        if (EditDomain.class.equals(adapter))
+            return adapter.cast(getEditDomain());
+        if (ISelectionSupport.class.equals(adapter))
+            return adapter.cast(getSelectionSupport());
+        if (IDndSupport.class.equals(adapter))
+            return adapter.cast(getDndSupport());
+        if (Properties.class.equals(adapter))
+            return adapter.cast(getProperties());
         return null;
     }
 

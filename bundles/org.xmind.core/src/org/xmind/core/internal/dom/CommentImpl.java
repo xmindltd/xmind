@@ -1,127 +1,177 @@
+/* ******************************************************************************
+ * Copyright (c) 2006-2016 XMind Ltd. and others.
+ * 
+ * This file is a part of XMind 3. XMind releases 3 and
+ * above are dual-licensed under the Eclipse Public License (EPL),
+ * which is available at http://www.eclipse.org/legal/epl-v10.html
+ * and the GNU Lesser General Public License (LGPL), 
+ * which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details.
+ * 
+ * Contributors:
+ *     XMind Ltd. - initial API and implementation
+ *******************************************************************************/
+/**
+ * 
+ */
 package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_AUTHOR;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_OBJECT_ID;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_TIME;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_CONTENT;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmind.core.Core;
-import org.xmind.core.IIdentifiable;
-import org.xmind.core.ISheet;
-import org.xmind.core.ITopic;
+import org.xmind.core.IComment;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.IWorkbookComponent;
-import org.xmind.core.internal.Comment;
+import org.xmind.core.event.ICoreEventListener;
+import org.xmind.core.event.ICoreEventRegistration;
+import org.xmind.core.event.ICoreEventSource;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.util.DOMUtils;
 
-public class CommentImpl extends Comment {
+/**
+ * @author Frank Shaka
+ *
+ */
+public class CommentImpl implements IComment, ICoreEventSource {
 
-    private Element implementation;
+    private final WorkbookImpl ownerWorkbook;
 
-    private IWorkbook ownedWorkbook;
+    private final Element implementation;
 
-    public CommentImpl(Element implementation, IWorkbook ownedWorkbook) {
-        this.implementation = DOMUtils.addIdAttribute(implementation);
-        this.ownedWorkbook = ownedWorkbook;
+    /**
+     * 
+     */
+    public CommentImpl(WorkbookImpl ownerWorkbook, Element implementation) {
+        this.ownerWorkbook = ownerWorkbook;
+        this.implementation = implementation;
     }
 
-    public void initAttributes() {
-        String osUser = System.getProperty("user.name"); //$NON-NLS-1$
-        setAuthor(osUser);
-        String timeMillis = Long.toString(System.currentTimeMillis());
-        setTime(timeMillis);
-    }
-
+    /**
+     * @return the implementation
+     */
     public Element getImplementation() {
         return implementation;
     }
 
-    public String getId() {
-        return implementation.getAttribute(ATTR_ID);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IAdaptable#getAdapter(java.lang.Class)
+     */
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IWorkbook.class.equals(adapter))
+            return adapter.cast(getOwnedWorkbook());
+        if (Node.class.equals(adapter) || Element.class.equals(adapter))
+            return adapter.cast(implementation);
+        if (ICoreEventSupport.class.equals(adapter))
+            return adapter.cast(getCoreEventSupport());
+        return null;
     }
 
-    public String getAuthor() {
-        return DOMUtils.getAttribute(implementation, ATTR_AUTHOR);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IWorkbookComponent#getOwnedWorkbook()
+     */
+    public IWorkbook getOwnedWorkbook() {
+        return ownerWorkbook;
     }
 
-    public String getTime() {
-        return DOMUtils.getAttribute(implementation, ATTR_TIME);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IWorkbookComponent#isOrphan()
+     */
+    public boolean isOrphan() {
+        return DOMUtils.isOrphanNode(implementation);
     }
 
-    public String getContent() {
-        return DOMUtils.getTextContentByTag(implementation, TAG_CONTENT);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(IComment that) {
+        return (int) (that.getTime() - this.getTime());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IComment#getObjectId()
+     */
     public String getObjectId() {
         return DOMUtils.getAttribute(implementation, ATTR_OBJECT_ID);
     }
 
-    public IIdentifiable getTarget() {
-        return (IIdentifiable) getOwnedWorkbook().getElementById(getObjectId());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IComment#getAuthor()
+     */
+    public String getAuthor() {
+        return DOMUtils.getAttribute(implementation, ATTR_AUTHOR);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IComment#getTime()
+     */
+    public long getTime() {
+        return NumberUtils.safeParseLong(
+                DOMUtils.getAttribute(implementation, DOMConstants.ATTR_TIME),
+                0);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IComment#getContent()
+     */
+    public String getContent() {
+        return DOMUtils.getTextContentByTag(implementation, TAG_CONTENT);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IComment#setContent(java.lang.String)
+     */
     public void setContent(String content) {
-        String oldValue = getContent();
+        String oldContent = getContent();
+        if (content == oldContent
+                || (content != null && content.equals(oldContent)))
+            return;
+
         DOMUtils.setText(implementation, TAG_CONTENT, content);
-        String newValue = getContent();
-        fireTargetValueChange(getTarget(), oldValue, newValue);
+        getCoreEventSupport().dispatchValueChange(this, Core.CommentContent,
+                oldContent, content);
     }
 
-    private void fireTargetValueChange(Object target, String oldValue,
-            String newValue) {
-        if (target instanceof ITopic) {
-            TopicImpl topic = (TopicImpl) target;
-            topic.getCoreEventSupport().dispatchValueChange(topic,
-                    Core.TopicComments, oldValue, newValue);
-        } else if (target instanceof ISheet) {
-            SheetImpl sheet = (SheetImpl) target;
-            sheet.getCoreEventSupport().dispatchValueChange(sheet,
-                    Core.TopicComments, oldValue, newValue);
-        }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.xmind.core.event.ICoreEventSource#registerCoreEventListener(java.lang
+     * .String, org.xmind.core.event.ICoreEventListener)
+     */
+    public ICoreEventRegistration registerCoreEventListener(String type,
+            ICoreEventListener listener) {
+        return getCoreEventSupport().registerCoreEventListener(this, type,
+                listener);
     }
 
-    public void setAuthor(String author) {
-        DOMUtils.setAttribute(implementation, ATTR_AUTHOR, author);
-    }
-
-    public void setTime(String time) {
-        DOMUtils.setAttribute(implementation, ATTR_TIME, time);
-    }
-
-    public void setTarget(IIdentifiable target) {
-        setObjectId(target.getId());
-    }
-
-    private void setObjectId(String objectId) {
-        DOMUtils.setAttribute(implementation, ATTR_OBJECT_ID, objectId);
-    }
-
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class) {
-            return getImplementation();
-        }
-        return super.getAdapter(adapter);
-    }
-
-    public IWorkbook getOwnedWorkbook() {
-        return ownedWorkbook;
-    }
-
-    public boolean isOrphan() {
-        IIdentifiable target = getTarget();
-        if (target instanceof IWorkbookComponent) {
-            if (!((IWorkbookComponent) target).isOrphan()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public String toString() {
-        return "COMMENT#" + getId() + "(" + getContent() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.event.ICoreEventSource#getCoreEventSupport()
+     */
+    public ICoreEventSupport getCoreEventSupport() {
+        return ownerWorkbook.getCoreEventSupport();
     }
 
 }

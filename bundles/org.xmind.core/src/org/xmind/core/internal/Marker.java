@@ -17,7 +17,7 @@ import org.xmind.core.marker.IMarker;
 
 public abstract class Marker implements IMarker {
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         return null;
     }
 

@@ -1,13 +1,13 @@
 /* ******************************************************************************
  * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
+ *
  * This file is a part of XMind 3. XMind releases 3 and
  * above are dual-licensed under the Eclipse Public License (EPL),
  * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
+ * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
  * See http://www.xmind.net/license.html for details.
- * 
+ *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.core.IFileEntry;
@@ -31,18 +33,20 @@ import org.xmind.core.IManifest;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.dom.FileEntryImpl;
 import org.xmind.core.util.FileUtils;
+import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.image.FigureRenderer;
 import org.xmind.gef.image.IExportAreaProvider;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ResizeConstants;
 import org.xmind.gef.util.Properties;
+import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.util.ImageFormat;
 import org.xmind.ui.viewers.ICompositeProvider;
 
 /**
  * @author Frank Shaka
- * 
+ *
  */
 public class MindMapImageExporter {
 
@@ -77,7 +81,7 @@ public class MindMapImageExporter {
     private IExportAreaProvider area = null;
 
     /**
-     * 
+     *
      */
     public MindMapImageExporter(Display display) {
         this.display = display;
@@ -208,9 +212,26 @@ public class MindMapImageExporter {
     public Image createImage() {
         prepareSourceProvider();
         try {
-            FigureRenderer renderer = new FigureRenderer();
+            final FigureRenderer renderer = new FigureRenderer();
             initRenderer(renderer);
-            return ImageExportUtils.createImage(display, renderer);
+            final Image[] image = new Image[1];
+            final Throwable[] error = new Throwable[1];
+            display.syncExec(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        image[0] = ImageExportUtils.createImage(display,
+                                renderer);
+                    } catch (RuntimeException e) {
+                        error[0] = e;
+                    } catch (Error e) {
+                        error[0] = e;
+                    }
+                }
+            });
+            if (error[0] != null)
+                throw new RuntimeException(error[0].getMessage(), error[0]);
+            return image[0];
         } finally {
             cleanUpSources();
         }
@@ -287,7 +308,7 @@ public class MindMapImageExporter {
     }
 
     /**
-     * 
+     *
      */
     public void prepareTargetStream() {
         cleanUpTargets();
@@ -301,24 +322,25 @@ public class MindMapImageExporter {
     }
 
     /**
-     * 
+     *
      */
     private void recreateTargetStreamFromFileEntry() {
         IManifest manifest = targetWorkbook.getManifest();
         String entryPath = this.targetEntryPath;
         if (entryPath == null) {
-            entryPath = "Thumbnails/thumbnail" + format.getExtensions().get(0); //$NON-NLS-1$
+            entryPath = toThumbnailArchivePath(format);
         }
         this.fileEntry = manifest.createFileEntry(entryPath,
                 format.getMediaType());
-        ((FileEntryImpl) this.fileEntry)
-                .setIgnoreEncryption(ignoreEntryEncryption);
-        this.targetStream = this.fileEntry.getOutputStream();
+        try {
+            this.targetStream = this.fileEntry.openOutputStream();
+        } catch (IOException e) {
+        }
         this.streamToClose = this.targetStream;
     }
 
     /**
-     * 
+     *
      */
     private void recreateTargetStreamFromFile() {
         FileUtils.ensureFileParent(targetFile);
@@ -331,7 +353,7 @@ public class MindMapImageExporter {
     }
 
     /**
-     * 
+     *
      */
     public void cleanUpSources() {
         if (exportViewer != null) {
@@ -355,7 +377,7 @@ public class MindMapImageExporter {
     }
 
     /**
-     * 
+     *
      */
     public void cleanUpTargets() {
         if (streamToClose != null) {
@@ -370,6 +392,31 @@ public class MindMapImageExporter {
 
     public Properties getProperties() {
         return properties;
+    }
+
+    /**
+     * Must be called after export.
+     *
+     * @return
+     */
+    public String getBackgroundColor() {
+        return getBackgroundColor(getSourceProvider().getViewer());
+    }
+
+    public static String toThumbnailArchivePath(ImageFormat format) {
+        return "Thumbnails/thumbnail" + format.getExtensions().get(0); //$NON-NLS-1$
+    }
+
+    private static String getBackgroundColor(IGraphicalViewer sourceViewer) {
+        if (sourceViewer != null) {
+            Layer layer = sourceViewer.getLayer(GEF.LAYER_BACKGROUND);
+            if (layer != null) {
+                Color color = layer.getBackgroundColor();
+                if (color != null)
+                    return ColorUtils.toString(color);
+            }
+        }
+        return "#ffffff"; //$NON-NLS-1$
     }
 
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+    <extension
+        point="org.eclipse.ui.exportWizards">
+        <wizard
+            category="org.xmind.ui.exportWizards.image"
+            class="org.xmind.ui.internal.exports.vector.svg.SVGExportWizard"
+            icon="icons/exportsvg.png"
+            id="org.xmind.ui.exports.vector.exportsvg"
+            name="%exportWizard.svg.name">
+        </wizard>
+    </extension>
+</plugin>
+ 

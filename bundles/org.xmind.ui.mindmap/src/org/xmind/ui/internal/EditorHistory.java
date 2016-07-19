@@ -35,6 +35,12 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.xmind.core.util.FileUtils;
 import org.xmind.ui.IEditorHistory;
 
+/**
+ * 
+ * @author Frank Shaka
+ * @deprecated
+ */
+@Deprecated
 public class EditorHistory implements IEditorHistory {
 
     private static final String THUMBNAIL_DIR_NAME = "thumbnailHistory"; //$NON-NLS-1$

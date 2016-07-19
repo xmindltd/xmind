@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
+import org.xmind.ui.internal.editor.MME;
 
 public abstract class MindMapImporter {
 
@@ -47,9 +48,8 @@ public abstract class MindMapImporter {
         this.targetSheets = new ArrayList<ISheet>();
         this.newWorkbook = targetWorkbook == null;
         if (targetWorkbook == null) {
-            this.targetWorkbook = Core.getWorkbookBuilder().createWorkbook();
-            this.targetWorkbook.setTempLocation(Core.getWorkspace().getTempDir(
-                    Core.getIdFactory().createId()));
+            this.targetWorkbook = Core.getWorkbookBuilder()
+                    .createWorkbook(MME.createTempStorage());
         } else {
             this.targetWorkbook = targetWorkbook;
         }
@@ -77,8 +77,8 @@ public abstract class MindMapImporter {
         return targetWorkbook;
     }
 
-    public abstract void build() throws InvocationTargetException,
-            InterruptedException;
+    public abstract void build()
+            throws InvocationTargetException, InterruptedException;
 
     public List<ISheet> getTargetSheets() {
         return targetSheets;

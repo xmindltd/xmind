@@ -2,42 +2,4 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="browserViewerContributions" name="%extension-point.name" schema="schema/browserViewerContributions.exsd"/>
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="org.xmind.ui.internal.browser.BrowserPrefPage"
-            id="org.xmind.ui.WebBrowserPreferencePage"
-            name="%prefPage.browser.name">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="org.xmind.ui.internal.browser.InternalBrowserEditor"
-            contributorClass="org.xmind.ui.internal.browser.BrowserEditorActionContributor"
-            default="false"
-            icon="icons/browser.gif"
-            id="org.xmind.ui.browser.editor"
-            name="%editor.browserEditor.name">
-      </editor>
-   </extension>
-   <extension
-         point="org.eclipse.ui.elementFactories">
-      <factory
-            class="org.xmind.ui.internal.browser.BrowserEditorInput"
-            id="org.xmind.ui.browser.elementFactory">
-      </factory>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
-      <view
-            allowMultiple="true"
-            category="org.xmind.ui.views.resources"
-            class="org.xmind.ui.internal.browser.InternalBrowserView"
-            icon="icons/browser.gif"
-            id="org.xmind.ui.BrowserView"
-            name="%view.browserView.name"
-            restorable="true">
-      </view>
-   </extension>
 </plugin>

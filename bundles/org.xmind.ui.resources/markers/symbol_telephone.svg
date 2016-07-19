@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_电话</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="97.4232093%" id="linearGradient-1">
+            <stop stop-color="#00B0FF" offset="0%"></stop>
+            <stop stop-color="#0097F4" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-24.000000, 0.000000)">
+            <g id="sym_电话" transform="translate(24.000000, 0.000000)">
+                <rect id="Rectangle-370" fill="url(#linearGradient-1)" x="0" y="0" width="16" height="16" rx="2"></rect>
+                <path d="M8.85773112,11.7671589 L10.3212748,10.3036152 C10.5008915,10.1239985 10.7669904,10.0641263 10.9998269,10.1439559 C11.3284224,10.2525098 12.9136548,10.5231468 13.3747591,10.5231468 C13.740645,10.5231468 14.0400062,10.822508 14.0400062,11.1883939 L14.0400062,13.5101064 C14.0400062,13.8759923 13.288779,14.1753535 12.9228931,14.1753535 C6.67622262,14.1753535 1.89117279,9.11282289 1.89117279,2.86615237 C1.89117279,2.50026645 2.36491917,2.20090523 2.73080509,2.20090523 L5.05917003,2.20090523 C5.42505595,2.20090523 5.68809046,2.50202259 5.72441715,2.86615236 C5.93729629,4.99999991 5.85746658,4.49600782 6.10360801,5.2410846 C6.1767852,5.47392109 6.12356543,5.73336747 5.93729623,5.91963667 L4.47375256,7.38318035 C5.43170842,9.26582971 6.97508175,10.8025506 8.85773112,11.7671589 Z" id="Fill-137" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

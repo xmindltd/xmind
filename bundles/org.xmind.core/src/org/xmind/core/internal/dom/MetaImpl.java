@@ -16,8 +16,10 @@ package org.xmind.core.internal.dom;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_META;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,6 +35,7 @@ import org.xmind.core.internal.ElementRegistry;
 import org.xmind.core.internal.Meta;
 import org.xmind.core.util.DOMUtils;
 
+@SuppressWarnings("deprecation")
 public class MetaImpl extends Meta implements ICoreEventSource {
 
     private Document implementation;
@@ -160,6 +163,36 @@ public class MetaImpl extends Meta implements ICoreEventSource {
                 keyPath, oldValue, value);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.xmind.core.IMeta#getKeyPaths()
+     */
+    public Set<String> getKeyPaths() {
+        Set<String> keyPaths = new HashSet<String>();
+        collectKeyPaths(getMetaElement(), null, keyPaths);
+        return keyPaths;
+    }
+
+    private void collectKeyPaths(Element parentEle, String parentKeyPath,
+            Set<String> keyPaths) {
+        Iterator<Element> it = DOMUtils.childElementIter(parentEle);
+        while (it.hasNext()) {
+            Element childEle = it.next();
+            String childKey = childEle.getTagName();
+            String childKeyPath = parentKeyPath == null ? childKey
+                    : parentKeyPath + SEP + childKey;
+            if (childEle.hasChildNodes()) {
+                collectKeyPaths(childEle, childKeyPath, keyPaths);
+            } else {
+                keyPaths.add(childKeyPath);
+            }
+        }
+    }
+
+    /**
+     * @deprecated
+     */
     public void addMetaData(IMetaData data) {
         Element mdEle = ((MetaDataImpl) data).getImplementation();
         getMetaElement().appendChild(mdEle);
@@ -169,6 +202,9 @@ public class MetaImpl extends Meta implements ICoreEventSource {
                 keyPath, null, newValue);
     }
 
+    /**
+     * @deprecated
+     */
     public void removeMetaData(IMetaData data) {
         String keyPath = ((MetaDataImpl) data).getKeyPath();
         String oldValue = data.getValue();
@@ -178,6 +214,9 @@ public class MetaImpl extends Meta implements ICoreEventSource {
                 keyPath, oldValue, null);
     }
 
+    /**
+     * @deprecated
+     */
     public IMetaData createMetaData(String key) {
         Element mdEle = implementation.createElement(key);
         MetaDataImpl md = new MetaDataImpl(mdEle, this);
@@ -185,6 +224,9 @@ public class MetaImpl extends Meta implements ICoreEventSource {
         return md;
     }
 
+    /**
+     * @deprecated
+     */
     public IMetaData[] getMetaData(String key) {
         List<IMetaData> list = new ArrayList<IMetaData>();
         Iterator<Element> it = DOMUtils.childElementIterByTag(getMetaElement(),
@@ -196,6 +238,9 @@ public class MetaImpl extends Meta implements ICoreEventSource {
         return list.toArray(new IMetaData[list.size()]);
     }
 
+    /**
+     * @deprecated
+     */
     protected MetaDataImpl getMetaData(Element mdEle) {
         if (elementRegistry != null) {
             Object md = elementRegistry.getElement(mdEle);

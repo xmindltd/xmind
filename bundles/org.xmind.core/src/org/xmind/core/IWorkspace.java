@@ -39,9 +39,6 @@ public interface IWorkspace {
      */
     String DIR_TEMP = "temp"; //$NON-NLS-1$
 
-    String FILE_OPENED = ".opened"; //$NON-NLS-1$
-    String FILE_TO_RECOVER = ".toRecover"; //$NON-NLS-1$
-
     /**
      * Returns the root directory of this workspace. XMind Core must be given
      * read-and-write access to this directory and all contents inside it.

@@ -20,6 +20,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.xmind.core.command.Command;
+import org.xmind.core.command.CommandJob;
+import org.xmind.core.command.ICommand;
 
 public class DefaultBrowser extends InternalBrowser {
 
@@ -30,6 +33,14 @@ public class DefaultBrowser extends InternalBrowser {
     }
 
     public void openURL(String url) throws PartInitException {
+        ICommand command = Command.parseURI(url);
+        if (command != null) {
+            new CommandJob(command, null).schedule();
+            return;
+        }
+
+        url = BrowserUtil.normalizeURL(url);
+
         try {
             doOpenURL(url);
         } catch (PartInitException e) {
@@ -69,14 +80,11 @@ public class DefaultBrowser extends InternalBrowser {
 
     protected IWebBrowser createExternalWorkbenchBrowser()
             throws PartInitException {
-        return PlatformUI
-                .getWorkbench()
-                .getBrowserSupport()
-                .createBrowser(
-                        IWorkbenchBrowserSupport.AS_EXTERNAL
-                                | IWorkbenchBrowserSupport.LOCATION_BAR
-                                | IWorkbenchBrowserSupport.NAVIGATION_BAR,
-                        getClientId(), getName(), getTooltip());
+        return PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
+                IWorkbenchBrowserSupport.AS_EXTERNAL
+                        | IWorkbenchBrowserSupport.LOCATION_BAR
+                        | IWorkbenchBrowserSupport.NAVIGATION_BAR,
+                getClientId(), getName(), getTooltip());
     }
 
     protected void doOpenURLByDefault(String url) {

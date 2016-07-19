@@ -23,13 +23,13 @@ import org.xmind.gef.tree.TreeViewer;
 
 public class MindMapTreeViewer extends TreeViewer {
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ISheet.class) {
-            return getSheet();
-        } else if (adapter == ITopic.class) {
-            return getTopTopic();
-        } else if (adapter == IWorkbook.class) {
-            return getWorkbook();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ISheet.class.equals(adapter)) {
+            return adapter.cast(getSheet());
+        } else if (ITopic.class.equals(adapter)) {
+            return adapter.cast(getTopTopic());
+        } else if (IWorkbook.class.equals(adapter)) {
+            return adapter.cast(getWorkbook());
         }
         return super.getAdapter(adapter);
     }

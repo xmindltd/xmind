@@ -111,4 +111,16 @@ public class RegistryConstants implements IWorkbenchRegistryConstants {
 //                    BRANCH_FAMILY_CENTRAL, BRANCH_FAMILY_FLOATING,
 //                    BRANCH_FAMILY_MAIN, BRANCH_FAMILY_SUB)));
 
+    public static final String EXT_WORKBOOK_REF_FACTORIES = "workbookRefFactories"; //$NON-NLS-1$
+    public static final String TAG_AVAILABLE_FOR_URI_SCHEME = "availableForURIScheme"; //$NON-NLS-1$
+    public static final String ATT_SCHEME = "scheme"; //$NON-NLS-1$
+
+    public static final String EXT_SAVE_WIZARDS = "saveWizards"; //$NON-NLS-1$
+    public static final String TAG_SAVE_WIZARD = "saveWizard"; //$NON-NLS-1$
+
+    public static final String EXT_SHARE_OPTIONS = "shareOptions"; //$NON-NLS-1$
+    public static final String TAG_OPTION = "option"; //$NON-NLS-1$
+    public static final String VAL_CATEGORY_NORMAL = "normal"; //$NON-NLS-1$
+    public static final String VAL_CATEGORY_POPULAR = "popular"; //$NON-NLS-1$
+
 }

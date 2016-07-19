@@ -42,7 +42,8 @@ import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
-public class ProtocolManager extends RegistryReader implements IProtocolManager {
+public class ProtocolManager extends RegistryReader
+        implements IProtocolManager {
 
     private static String DEFAULT_BROWSER_ID = "org.xmind.ui.defaultProtocol.browser"; //$NON-NLS-1$
 
@@ -50,11 +51,11 @@ public class ProtocolManager extends RegistryReader implements IProtocolManager 
         private String url;
 
         public DefaultOpenURLAction(String url) {
-            super(MindMapMessages.OpenHyperlink_text, MindMapUI.getImages()
-                    .get(IMindMapImages.HYPERLINK, true));
+            super(MindMapMessages.OpenHyperlink_text,
+                    MindMapUI.getImages().get(IMindMapImages.HYPERLINK, true));
             this.url = url;
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.HYPERLINK, false));
+            setDisabledImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.HYPERLINK, false));
             setToolTipText(url);
         }
 
@@ -64,10 +65,11 @@ public class ProtocolManager extends RegistryReader implements IProtocolManager 
                     String theURL = url;
                     try {
                         URI uri = new URI(theURL);
-                        if ("www.xmind.net".equals(uri.getHost())) { //$NON-NLS-1$
+                        String host = uri.getHost();
+                        if (host != null && host.endsWith(".xmind.net")) { //$NON-NLS-1$
                             theURL = BrowserUtil.makeRedirectURL(theURL);
                         }
-                    }catch(Exception ignored) {
+                    } catch (Exception ignored) {
                     }
                     BrowserSupport.getInstance()
                             .createBrowser(DEFAULT_BROWSER_ID).openURL(theURL);
@@ -82,7 +84,8 @@ public class ProtocolManager extends RegistryReader implements IProtocolManager 
             return null;
         }
 
-        public IAction createOpenHyperlinkAction(Object source, final String uri) {
+        public IAction createOpenHyperlinkAction(Object source,
+                final String uri) {
             return new DefaultOpenURLAction(uri);
         }
 
@@ -214,8 +217,8 @@ public class ProtocolManager extends RegistryReader implements IProtocolManager 
         }
         IProtocolDescriptor desc = findProtocolDescriptor(uri);
         return adaptAction(
-                getProtocol(desc).createOpenHyperlinkAction(context, uri),
-                desc, uri);
+                getProtocol(desc).createOpenHyperlinkAction(context, uri), desc,
+                uri);
     }
 
     private IAction adaptAction(IAction action, IProtocolDescriptor desc,
@@ -236,8 +239,8 @@ public class ProtocolManager extends RegistryReader implements IProtocolManager 
         }
 
         if (action.getImageDescriptor() == null) {
-            action.setImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.HYPERLINK, true));
+            action.setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.HYPERLINK, true));
         }
 
         if (action.getToolTipText() == null) {

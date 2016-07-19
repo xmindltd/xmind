@@ -19,10 +19,11 @@ import org.eclipse.swt.graphics.Image;
 import org.xmind.gef.draw2d.SizeableImageFigure;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGImageFigure;
 import org.xmind.ui.mindmap.IMarkerPart;
 
 public class MarkerDecorator extends Decorator {
-
     private static final MarkerDecorator instance = new MarkerDecorator();
 
     @Override
@@ -48,6 +49,15 @@ public class MarkerDecorator extends Decorator {
                     preferredSize.setHeight(imageSize.height);
             }
             imgFigure.setPreferredSize(preferredSize);
+        } else if (figure instanceof SVGImageFigure) {
+            SVGImageFigure svgImageFigure = (SVGImageFigure) figure;
+            SVGImageData svgData = null;
+
+            svgData = ((IMarkerPart) part).getSVGData();
+            svgImageFigure.setSVGData(svgData);
+
+            svgImageFigure
+                    .setPreferredSize(((IMarkerPart) part).getPreferredSize());
         }
     }
 
@@ -57,6 +67,9 @@ public class MarkerDecorator extends Decorator {
         if (figure instanceof SizeableImageFigure) {
             SizeableImageFigure imgFigure = (SizeableImageFigure) figure;
             imgFigure.setImage(null);
+        } else if (figure instanceof SVGImageFigure) {
+            SVGImageFigure svgImageFigure = (SVGImageFigure) figure;
+            svgImageFigure.setSVGData(null);
         }
     }
 

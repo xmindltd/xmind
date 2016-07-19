@@ -88,9 +88,9 @@ public abstract class Relationship extends AbstractWorkbookComponent
      */
     protected abstract String getLocalTitleText();
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == ISheet.class)
-            return getOwnedSheet();
+            return adapter.cast(getOwnedSheet());
 
         return super.getAdapter(adapter);
     }

@@ -35,11 +35,11 @@ import org.xmind.ui.io.DownloadJob;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
-public class XMindFileBrowserContribution implements
-        IBrowserViewerContribution, IBrowserViewerContribution2 {
+public class XMindFileBrowserContribution
+        implements IBrowserViewerContribution, IBrowserViewerContribution2 {
 
-    protected static class XMindFileListener implements PropertyChangeListener,
-            IPropertyChangingListener {
+    protected static class XMindFileListener
+            implements PropertyChangeListener, IPropertyChangingListener {
 
         private IBrowserViewer viewer;
 
@@ -73,8 +73,8 @@ public class XMindFileBrowserContribution implements
          * .xmind.ui.browser.PropertyChangingEvent)
          */
         public void propertyChanging(PropertyChangingEvent event) {
-            if (!IBrowserViewer.PROPERTY_LOCATION.equals(event
-                    .getPropertyName()))
+            if (!IBrowserViewer.PROPERTY_LOCATION
+                    .equals(event.getPropertyName()))
                 return;
 
             String location = (String) event.getNewValue();
@@ -129,9 +129,8 @@ public class XMindFileBrowserContribution implements
                 /*
                  * (non-Javadoc)
                  * 
-                 * @see
-                 * org.eclipse.core.runtime.jobs.JobChangeAdapter#done(org.eclipse
-                 * .core.runtime.jobs.IJobChangeEvent)
+                 * @see org.eclipse.core.runtime.jobs.JobChangeAdapter#done(org.
+                 * eclipse .core.runtime.jobs.IJobChangeEvent)
                  */
                 @Override
                 public void done(IJobChangeEvent event) {
@@ -161,7 +160,9 @@ public class XMindFileBrowserContribution implements
             final IEditorInput[] input = new IEditorInput[1];
             SafeRunner.run(new SafeRunnable() {
                 public void run() throws Exception {
-                    input[0] = MME.createFileEditorInput(file);
+                    input[0] = MindMapUI.getEditorInputFactory()
+                            .createEditorInputForFile(file);
+                    ;
                 }
             });
             if (input[0] == null)
@@ -225,7 +226,8 @@ public class XMindFileBrowserContribution implements
 
     private Map<IBrowserViewer, XMindFileListener> map = new HashMap<IBrowserViewer, XMindFileListener>();
 
-    public void fillToolBar(IBrowserViewer viewer, IContributionManager toolBar) {
+    public void fillToolBar(IBrowserViewer viewer,
+            IContributionManager toolBar) {
     }
 
     public void installBrowserListeners(IBrowserViewer viewer) {

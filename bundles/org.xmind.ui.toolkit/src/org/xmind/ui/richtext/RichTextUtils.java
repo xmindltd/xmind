@@ -275,7 +275,8 @@ public class RichTextUtils {
         int newEndLine = startLine + newLineCount;
         if (firstInRange != null) {
             int styleIndex = firstInRangeIndex + 1;
-            for (int lineIndex = firstInRange.lineIndex + 1; lineIndex < newEndLine; lineIndex++) {
+            for (int lineIndex = firstInRange.lineIndex
+                    + 1; lineIndex < newEndLine; lineIndex++) {
                 LineStyle lineStyle = (LineStyle) firstInRange.clone();
                 lineStyle.lineIndex = lineIndex;
                 lineStyle.indent = calcLineIndentCount(document, lineIndex);
@@ -661,8 +662,10 @@ public class RichTextUtils {
         return changed;
     }
 
-    public static void replaceDocumentIndent(IDocument document, int line,
+    public static int replaceDocumentIndent(IDocument document, int line,
             int newIndent) throws BadLocationException {
+        int realDeltaIndent = 0;
+
         IRegion region = document.getLineInformation(line);
         int lineOffset = region.getOffset();
         int lineLength = region.getLength();
@@ -673,14 +676,19 @@ public class RichTextUtils {
             Arrays.fill(chars, INDENT_CHAR);
             String value = String.valueOf(chars);
             document.replace(lineOffset, oldIndent, value);
+            realDeltaIndent = newIndent - oldIndent;
         }
+
+        return realDeltaIndent;
     }
 
-    public static void modifyDocumentIndent(TextViewer viewer,
+    public static int modifyDocumentIndent(TextViewer viewer,
             IDocument document, int line, int deltaIndent)
-            throws BadLocationException {
+                    throws BadLocationException {
+        int realDeltaIndent = 0;
         if (deltaIndent == 0)
-            return;
+            return realDeltaIndent;
+
         IRegion region = document.getLineInformation(line);
         int lineOffset = region.getOffset();
 //        StyledText styledText = viewer.getTextWidget();
@@ -690,6 +698,7 @@ public class RichTextUtils {
             Arrays.fill(chars, INDENT_CHAR);
             String value = String.valueOf(chars);
             document.replace(lineOffset, 0, value);
+            realDeltaIndent = deltaIndent;
 
 //            Bullet bullet = styledText.getLineBullet(lineOffset);
 //            StyleRange style = new StyleRange();
@@ -705,8 +714,11 @@ public class RichTextUtils {
             int deleteCount = Math.min(oldIndent, Math.abs(deltaIndent));
             if (deleteCount > 0) {
                 document.replace(lineOffset, deleteCount, EMPTY);
+                realDeltaIndent = -deleteCount;
             }
         }
+
+        return realDeltaIndent;
     }
 
     public static int calcLineCount(String text) {
@@ -851,8 +863,8 @@ public class RichTextUtils {
                 newHyperlinks.add(oldHyperlink);
             }
         }
-        doc.setHyperlinks(newHyperlinks.toArray(new Hyperlink[newHyperlinks
-                .size()]));
+        doc.setHyperlinks(
+                newHyperlinks.toArray(new Hyperlink[newHyperlinks.size()]));
     }
 
 }

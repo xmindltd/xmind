@@ -1,13 +1,6 @@
 package org.xmind.cathy.internal.dashboard;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.draw2d.geometry.Insets;
-import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -18,14 +11,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.xmind.core.Core;
-import org.xmind.core.CoreException;
-import org.xmind.core.IWorkbook;
-import org.xmind.core.io.ByteArrayStorage;
+import org.xmind.cathy.internal.dashboard.StructureListContentProvider.StructureDescriptor;
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
@@ -33,11 +19,10 @@ import org.xmind.gef.util.Properties;
 import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
-import org.xmind.ui.internal.ITemplateDescriptor;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
-import org.xmind.ui.internal.editor.MME;
-import org.xmind.ui.internal.wizards.TemplateLabelProvider;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.mindmap.WorkbookInitializer;
+import org.xmind.ui.resources.ColorUtils;
 
 public class NewFromStructuresDashboardPage extends DashboardPage {
 
@@ -70,14 +55,18 @@ public class NewFromStructuresDashboardPage extends DashboardPage {
                 new GalleryLayout(GalleryLayout.ALIGN_CENTER,
                         GalleryLayout.ALIGN_TOPLEFT, 10, 10,
                         new Insets(5, 15, 5, 15)));
+        properties.set(GalleryViewer.ContentPaneBorderWidth, 1);
+        properties.set(GalleryViewer.ContentPaneBorderColor,
+                ColorUtils.getColor("#cccccc"));
 
         Control control = viewer.createControl(parent);
         control.setBackground(parent.getBackground());
         control.setForeground(parent.getForeground());
 
-        StructureListContentProvider contentProvider = new StructureListContentProvider();
-        viewer.setContentProvider(contentProvider);
-        viewer.setLabelProvider(new TemplateLabelProvider());
+        StructureListContentProvider contentAndLabelProvider = new StructureListContentProvider();
+        viewer.setContentProvider(contentAndLabelProvider);
+        viewer.setLabelProvider(
+                new StructureListContentProvider.StructureListLabelProvider());
 
         viewer.setInput(StructureListContentProvider.getDefaultInput());
 
@@ -108,74 +97,19 @@ public class NewFromStructuresDashboardPage extends DashboardPage {
         Object selectedElement = ((IStructuredSelection) selection)
                 .getFirstElement();
         if (selectedElement == null
-                || !(selectedElement instanceof ITemplateDescriptor))
+                || !(selectedElement instanceof StructureDescriptor))
             return;
 
-        final ITemplateDescriptor primaryTemplate = (ITemplateDescriptor) selectedElement;
+        final StructureDescriptor structure = (StructureDescriptor) selectedElement;
         final IStyle theme = chooseTheme(viewer.getControl().getShell());
         if (theme == null)
             return;
 
-        SafeRunner.run(new SafeRunnable() {
-            public void run() throws Exception {
-                byte[] workbookData = makeTemplateWorkbookData(primaryTemplate,
-                        theme);
-                openWorkbookEditorForData(workbookData);
-            }
-        });
-    }
-
-    private byte[] makeTemplateWorkbookData(
-            final ITemplateDescriptor primaryTemplate, final IStyle theme)
-                    throws IOException, CoreException {
-        IWorkbook tempWorkbook;
-        InputStream primaryStream = primaryTemplate.newStream();
-        try {
-            tempWorkbook = Core.getWorkbookBuilder()
-                    .loadFromStream(primaryStream, new ByteArrayStorage());
-        } finally {
-            primaryStream.close();
-        }
-
-        if (theme == MindMapUI.getResourceManager().getBlankTheme()) {
-            tempWorkbook.getPrimarySheet().setThemeId(null);
-        } else {
-            IStyle importedTheme = tempWorkbook.getStyleSheet()
-                    .importStyle(theme);
-            if (importedTheme == null) {
-                tempWorkbook.getPrimarySheet().setThemeId(null);
-            } else {
-                tempWorkbook.getPrimarySheet()
-                        .setThemeId(importedTheme.getId());
-            }
-        }
-
-        ByteArrayOutputStream tempStream = new ByteArrayOutputStream();
-        try {
-            tempWorkbook.save(tempStream);
-        } finally {
-            tempStream.close();
-        }
-
-        return tempStream.toByteArray();
-    }
-
-    private void openWorkbookEditorForData(byte[] data)
-            throws PartInitException {
-        IWorkbenchWindow wbWindow = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        if (wbWindow == null)
-            return;
-
-        IWorkbenchPage wbPage = wbWindow.getActivePage();
-        if (wbPage == null)
-            return;
-
-        IEditorInput editorInput = MME
-                .createTemplatedEditorInput(new ByteArrayInputStream(data));
-        wbPage.openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);
-
-        hideDashboard();
+        WorkbookInitializer initializer = WorkbookInitializer.getDefault()
+                .withStructureClass(structure.getValue()).withTheme(theme);
+        IEditorInput editorInput = MindMapUI.getEditorInputFactory()
+                .createEditorInputForWorkbookInitializer(initializer, null);
+        getContext().openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);
     }
 
     private IStyle chooseTheme(Shell shell) {

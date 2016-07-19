@@ -17,8 +17,6 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.ui.IWorkbenchPreferenceConstants;
-import org.eclipse.ui.internal.UIPlugin;
 
 public class CathyPrefInitializer extends AbstractPreferenceInitializer {
 
@@ -27,20 +25,14 @@ public class CathyPrefInitializer extends AbstractPreferenceInitializer {
 
     public void initializeDefaultPreferences() {
         IScopeContext context = DefaultScope.INSTANCE;
-        IEclipsePreferences node = context.getNode(CathyPlugin.getDefault()
-                .getBundle().getSymbolicName());
+        IEclipsePreferences node = context.getNode(
+                CathyPlugin.getDefault().getBundle().getSymbolicName());
         node.putBoolean(CathyPlugin.AUTO_SAVE_ENABLED, false);
         node.putInt(CathyPlugin.AUTO_SAVE_INTERVALS, 5);
         node.putBoolean(CathyPlugin.RESTORE_LAST_SESSION, false);
         node.putBoolean(CathyPlugin.CHECK_UPDATES_ON_STARTUP, true);
         node.putInt(CathyPlugin.STARTUP_ACTION,
                 CathyPlugin.STARTUP_ACTION_WIZARD);
-
-        UIPlugin.getDefault()
-                .getPreferenceStore()
-                .setValue(
-                        IWorkbenchPreferenceConstants.SHOW_TRADITIONAL_STYLE_TABS,
-                        true);
 
 //        ColorRegistry colorRegistry = PlatformUI.getWorkbench()
 //                .getThemeManager().getCurrentTheme().getColorRegistry();

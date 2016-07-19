@@ -15,12 +15,15 @@ package org.xmind.ui.mindmap;
 
 import org.eclipse.swt.graphics.Image;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
 
 public interface ILegendItemPart extends IGraphicalPart {
 
     ILegendPart getOwnedLegend();
 
     Image getIconImage();
+
+    SVGImageData getSVGData();
 
     String getDescription();
 

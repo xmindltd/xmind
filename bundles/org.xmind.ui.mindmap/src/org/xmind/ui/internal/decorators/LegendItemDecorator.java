@@ -32,9 +32,6 @@ public class LegendItemDecorator extends Decorator {
         if (figure instanceof LegendItemFigure) {
             ((LegendItemFigure) figure).getIcon().setPreferredSize(24, 24);
         }
-//        if (figure instanceof ITextFigure) {
-//            ITextFigure fig = (ITextFigure) figure;
-//        }
     }
 
     public void decorate(IGraphicalPart part, IFigure figure) {
@@ -44,8 +41,8 @@ public class LegendItemDecorator extends Decorator {
             if (part instanceof ILegendItemPart) {
                 ILegendItemPart item = (ILegendItemPart) part;
                 itemFigure.setIconImage(item.getIconImage());
+                itemFigure.setSVGData(item.getSVGData());
                 itemFigure.setText(item.getDescription());
-//                itemFigure.setFont(JFaceResources.getDefaultFont());
             }
         }
     }
@@ -53,6 +50,7 @@ public class LegendItemDecorator extends Decorator {
     public void deactivate(IGraphicalPart part, IFigure figure) {
         if (figure instanceof LegendItemFigure) {
             ((LegendItemFigure) figure).setIconImage(null);
+            ((LegendItemFigure) figure).setSVGData(null);
         }
         super.deactivate(part, figure);
     }

@@ -46,7 +46,7 @@ public class SpellCheckerAgent {
 
     private Configuration configuration;
 
-    private List<ISpellCheckerVisitor> visitors;
+    private List<ISpellCheckerVisitor> listeners = new ArrayList<ISpellCheckerVisitor>();
 
     public static void resetSpellChecker() {
         getInstance().spellChecker = null;
@@ -64,29 +64,42 @@ public class SpellCheckerAgent {
         getInstance().doMigrateUserDictFile();
     }
 
+    public static void addListener(ISpellCheckerVisitor listener) {
+        getInstance().listeners.add(listener);
+    }
+
+    public static void removeListener(ISpellCheckerVisitor listener) {
+        getInstance().listeners.remove(listener);
+    }
+
     private synchronized void doVisitSpellChecker(
-            ISpellCheckerVisitor visitor) {
+            final ISpellCheckerVisitor visitor) {
         if (spellChecker != null) {
             visitor.handleWith(spellChecker);
             return;
         }
 
-        if (visitors != null) {
-            visitors.add(visitor);
-            return;
-        }
-
-        visitors = new ArrayList<ISpellCheckerVisitor>();
-        visitors.add(visitor);
-
         new Job(Messages.loadingSpellChecker) {
             protected IStatus run(IProgressMonitor monitor) {
-                return loadSpellChecker(monitor);
+                return loadSpellChecker(monitor, visitor);
             }
         }.schedule();
     }
 
-    private IStatus loadSpellChecker(IProgressMonitor monitor) {
+    public static void updateSpellChecker() {
+        getInstance().doUpdateSpellChecker();
+    }
+
+    private synchronized void doUpdateSpellChecker() {
+        new Job(Messages.loadingSpellChecker) {
+            protected IStatus run(IProgressMonitor monitor) {
+                return loadSpellChecker(monitor, null);
+            }
+        }.schedule();
+    }
+
+    private IStatus loadSpellChecker(IProgressMonitor monitor,
+            ISpellCheckerVisitor visitor) {
         monitor.beginTask(null, 4);
 
         monitor.subTask(Messages.creatingSpellCheckerInstance);
@@ -111,23 +124,30 @@ public class SpellCheckerAgent {
         this.spellChecker = spellChecker;
 
         monitor.subTask(Messages.notifyingSpellingVisitors);
-        notifyVisitors();
+
+        notifyVisitor(visitor);
+        notifyListeners();
+
         monitor.done();
 
         return new Status(IStatus.OK, SpellingPlugin.PLUGIN_ID,
                 "Finish loading spell checker"); //$NON-NLS-1$
     }
 
-    private void notifyVisitors() {
-        if (visitors == null)
-            return;
+    private void notifyVisitor(ISpellCheckerVisitor visitor) {
+        if (visitor != null) {
+            visitor.handleWith(spellChecker);
+        }
+    }
 
-        for (ISpellCheckerVisitor visitor : visitors) {
-            if (visitor != null) {
-                visitor.handleWith(spellChecker);
+    private void notifyListeners() {
+        if (listeners != null) {
+            for (ISpellCheckerVisitor listener : listeners) {
+                if (listener != null) {
+                    listener.handleWith(spellChecker);
+                }
             }
         }
-        visitors = null;
     }
 
     private void setConfigurations(SpellChecker spellChecker) {
@@ -139,8 +159,10 @@ public class SpellCheckerAgent {
         for (ISpellCheckerDescriptor descriptor : SpellCheckerRegistry
                 .getInstance().getDescriptors()) {
             try {
-                spellChecker.addDictionary(new SpellDictionaryHashMap(
-                        new InputStreamReader(descriptor.openStream())));
+                if (descriptor.isEnabled()) {
+                    spellChecker.addDictionary(new SpellDictionaryHashMap(
+                            new InputStreamReader(descriptor.openStream())));
+                }
             } catch (IOException e) {
                 SpellingPlugin.log(e);
             }
@@ -167,8 +189,11 @@ public class SpellCheckerAgent {
     }
 
     private void addSystemDictionaries(SpellChecker spellChecker) {
-        if (!SpellingPlugin.getDefault().getPreferenceStore()
-                .getBoolean(SpellingPlugin.DEFAULT_SPELLING_CHECKER_DISABLED)) {
+        if ((!SpellingPlugin.getDefault().getPreferenceStore()
+                .getBoolean(SpellingPlugin.DEFAULT_SPELLING_CHECKER_INVISIBLE))
+                && (!SpellingPlugin.getDefault().getPreferenceStore()
+                        .getBoolean(
+                                SpellingPlugin.DEFAULT_SPELLING_CHECKER_DISABLED))) {
             loadDictionariesFromBundle(spellChecker, "net.sourceforge.jazzy", //$NON-NLS-1$
                     "dict/"); //$NON-NLS-1$
         }

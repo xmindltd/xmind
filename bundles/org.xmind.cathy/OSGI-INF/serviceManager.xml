@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.xmind.cathy.serviceManager">
+   <implementation class="org.xmind.cathy.internal.ServiceManager"/>
+   <reference bind="setErrorReporter" cardinality="0..1" interface="org.xmind.ui.internal.statushandlers.IErrorReporter" name="IErrorReporter" policy="dynamic" unbind="unsetErrorReporter"/>
+   <reference bind="setUsageDataSampler" cardinality="0..1" interface="org.xmind.core.usagedata.IUsageDataSampler" name="IUsageDataSampler" policy="dynamic" unbind="unsetUsageDataSampler"/>
+   <reference bind="setLicenseAgent" cardinality="0..1" interface="org.xmind.core.licensing.ILicenseAgent" name="ILicenseAgent" policy="dynamic" unbind="unsetLicenseAgent"/>
+</scr:component>

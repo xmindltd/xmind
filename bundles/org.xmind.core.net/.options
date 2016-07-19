@@ -1,3 +1,3 @@
 org.xmind.core.net/debug=false
-org.xmind.core.net/debug/requests/all=false
-org.xmind.core.net/debug/requests/assc=false
+org.xmind.core.net/debug/http/requests=false
+org.xmind.core.net/debug/http/assc=false

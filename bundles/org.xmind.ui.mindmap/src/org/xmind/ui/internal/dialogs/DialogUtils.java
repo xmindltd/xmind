@@ -105,14 +105,14 @@ public class DialogUtils {
 
     public static String save(Shell shell, String title, String proposalName,
             String[] filterExtensions, String[] filterNames, int filterIndex,
-            String path) {
+            String dirPath) {
         FileDialog dialog = new FileDialog(shell, SWT.SAVE);
         dialog.setOverwrite(false);
         dialog.setText(title == null ? DialogMessages.Save_title : title);
         if (proposalName != null)
             dialog.setFileName(proposalName);
-        if (path != null)
-            dialog.setFilterPath(path);
+        if (dirPath != null)
+            dialog.setFilterPath(dirPath);
         if (filterExtensions != null)
             dialog.setFilterExtensions(filterExtensions);
         if (filterNames != null)
@@ -124,9 +124,9 @@ public class DialogUtils {
 
     public static String save(Shell shell, String proposalName,
             String[] filterExtensions, String[] filterNames, int filterIndex,
-            String path) {
+            String dirPath) {
         return save(shell, null, proposalName, filterExtensions, filterNames,
-                filterIndex, path);
+                filterIndex, dirPath);
     }
 
     public static String save(Shell shell, FileDialog dialog) {

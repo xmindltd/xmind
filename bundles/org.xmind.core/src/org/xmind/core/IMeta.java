@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.xmind.core;
 
+import java.util.Set;
+
 public interface IMeta extends IAdaptable, IWorkbookComponent {
 
     String SEP = "/"; //$NON-NLS-1$
@@ -78,12 +80,19 @@ public interface IMeta extends IAdaptable, IWorkbookComponent {
 
     /**
      * 
+     * @return
+     */
+    Set<String> getKeyPaths();
+
+    /**
+     * @deprecated
      * @param key
      * @return
      */
     IMetaData[] getMetaData(String key);
 
     /**
+     * @deprecated
      * 
      * @param key
      * @return
@@ -91,12 +100,14 @@ public interface IMeta extends IAdaptable, IWorkbookComponent {
     IMetaData createMetaData(String key);
 
     /**
+     * @deprecated
      * 
      * @param data
      */
     void addMetaData(IMetaData data);
 
     /**
+     * @deprecated
      * 
      * @param data
      */

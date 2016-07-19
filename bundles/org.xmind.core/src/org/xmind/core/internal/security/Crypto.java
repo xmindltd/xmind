@@ -18,10 +18,11 @@ import java.io.OutputStream;
 
 import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionData;
+import org.xmind.core.IEntryStreamNormalizer;
 
 /**
- * @author MANGOSOFT
- * 
+ * @author Frank Shaka
+ * @deprecated Use {@link IEntryStreamNormalizer}
  */
 public class Crypto {
 
@@ -41,14 +42,14 @@ public class Crypto {
 
     public static OutputStream creatOutputStream(OutputStream output,
             boolean encrypt, IEncryptionData encData, String password)
-            throws CoreException {
+                    throws CoreException {
         return getProvider().createPasswordProtectedOutputStream(output,
                 encrypt, encData, password);
     }
 
     public static InputStream createInputStream(InputStream input,
             boolean encrypt, IEncryptionData encData, String password)
-            throws CoreException {
+                    throws CoreException {
         return getProvider().createPasswordProtectedInputStream(input, encrypt,
                 encData, password);
     }

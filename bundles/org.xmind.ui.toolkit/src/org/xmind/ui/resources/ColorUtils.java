@@ -13,12 +13,18 @@
  *******************************************************************************/
 package org.xmind.ui.resources;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.eclipse.jface.resource.ColorDescriptor;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 /**
+ * 
  * @author Frank Shaka
  */
 public class ColorUtils {
@@ -26,6 +32,9 @@ public class ColorUtils {
     private ColorUtils() {
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getColor(String key, RGB rgb) {
         if (key == null) {
             key = toString(rgb);
@@ -44,41 +53,78 @@ public class ColorUtils {
         return reg.get(key);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getColor(RGB rgb) {
         return getColor(null, rgb);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getColor(String s) {
         return getColor(s, null);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getColor(int r, int g, int b) {
         return getColor(new RGB(r, g, b));
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getRelative(RGB source, int dr, int dg, int db) {
-        return getColor(new RGB(source.red + dr, source.green + dg, source.blue
-                + db));
+        return getColor(
+                new RGB(source.red + dr, source.green + dg, source.blue + db));
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getRelative(Color c, int dr, int dg, int db) {
         return getRelative(c.getRGB(), dr, dg, db);
     }
 
+    public static ColorDescriptor toDescriptor(String s) {
+        return ColorDescriptor.createFrom(toRGB(s));
+    }
+
+    private static final Pattern PATTERN_RGBA = Pattern.compile(
+            "rgb\\s*\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*(,\\s*(\\d+)\\s*)?\\)"); //$NON-NLS-1$
+
     public static RGB toRGB(String s) {
-        if (s != null) {
-            if (s.startsWith("#")) { //$NON-NLS-1$
-                s = s.substring(1);
+        if (s == null)
+            return null;
+
+        if (s.startsWith("#")) { //$NON-NLS-1$
+            int n;
+            try {
+                n = Integer.parseInt(s.substring(1), 16);
+            } catch (NumberFormatException e) {
+                return null;
             }
-            if (s.length() == 6) {
-                s = s.toLowerCase();
-                try {
-                    int rgb = Integer.parseInt(s, 16);
-                    return split(rgb);
-                } catch (Exception e) {
-                }
+
+            if (s.length() == 4) {
+                return splitShortRGB(n);
+            } else if (s.length() == 7) {
+                return splitRGB(n);
             }
+            return null;
         }
+
+        Matcher m = PATTERN_RGBA.matcher(s);
+        if (m.matches()) {
+            int r = Integer.parseInt(m.group(1), 10);
+            int g = Integer.parseInt(m.group(2), 10);
+            int b = Integer.parseInt(m.group(3), 10);
+            // currently alpha value is not honored by RGB
+            return new RGB(r, g, b);
+        }
+
         return null;
     }
 
@@ -90,7 +136,7 @@ public class ColorUtils {
     }
 
     public static String toString(Color color) {
-        return toString(color.getRGB());
+        return color == null ? null : toString(color.getRGB());
     }
 
     public static String toString(int r, int g, int b) {
@@ -110,12 +156,26 @@ public class ColorUtils {
     }
 
     public static RGB split(int rgb) {
+        return splitRGB(rgb);
+    }
+
+    private static RGB splitRGB(int rgb) {
         int r = (rgb >> 16) & 0xff;
         int g = (rgb >> 8) & 0xff;
         int b = rgb & 0xff;
         return new RGB(r, g, b);
     }
 
+    private static RGB splitShortRGB(int rgb) {
+        int r = ((rgb >> 8) & 0xf) * 17;
+        int g = ((rgb >> 4) & 0xf) * 17;
+        int b = (rgb & 0xf) * 17;
+        return new RGB(r, g, b);
+    }
+
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color darker(Color c) {
         return getColor(darker(c.getRGB()));
     }
@@ -124,25 +184,35 @@ public class ColorUtils {
         return new RGB(rgb.red * 2 / 3, rgb.green * 2 / 3, rgb.blue * 2 / 3);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color lighter(Color c) {
         return getColor(lighter(c.getRGB()));
     }
 
     public static RGB lighter(RGB rgb) {
-        return new RGB(rgb.red + (255 - rgb.red) / 2, rgb.green
-                + (255 - rgb.green) / 2, rgb.blue + (255 - rgb.blue) / 2);
+        return new RGB(rgb.red + (255 - rgb.red) / 2,
+                rgb.green + (255 - rgb.green) / 2,
+                rgb.blue + (255 - rgb.blue) / 2);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color gradientLighter(Color c) {
         return getColor(gradientLighter(c.getRGB()));
     }
 
     public static RGB gradientLighter(RGB rgb) {
-        return new RGB(rgb.red + (255 - rgb.red) * 5 / 7, rgb.green
-                + (255 - rgb.green) * 5 / 7, rgb.blue + (255 - rgb.blue) * 5
-                / 7);
+        return new RGB(rgb.red + (255 - rgb.red) * 5 / 7,
+                rgb.green + (255 - rgb.green) * 5 / 7,
+                rgb.blue + (255 - rgb.blue) * 5 / 7);
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color gray(Color c) {
         return getColor(gray(c.getRGB()));
     }
@@ -170,10 +240,16 @@ public class ColorUtils {
         return rainbowColors[index % 6];
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getRainbowColor(int index, int total) {
         return getColor(getRainbow(index, total));
     }
 
+    /**
+     * @deprecated Use {@link LocalResourceManager}
+     */
     public static Color getRainbowColor2(int index, int total) {
         total = Math.abs(total);
         if (index < 0)

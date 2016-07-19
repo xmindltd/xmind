@@ -13,23 +13,8 @@
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_END1;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_END2;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_HREF;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_ID;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_MARKER_ID;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_RESOURCE_ID;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_SRC;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_STYLE_ID;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_THEME;
-import static org.xmind.core.internal.dom.DOMConstants.ATTR_TOPIC_ID;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_IMG;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_MARKER_REF;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_PROPERTIES;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_RELATIONSHIP;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_RESOURCE_REF;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_SUMMARY;
-import static org.xmind.core.internal.dom.DOMConstants.TAG_TOPIC;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,17 +33,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xmind.core.Core;
-import org.xmind.core.IAdaptable;
 import org.xmind.core.ICloneData;
 import org.xmind.core.IFileEntry;
-import org.xmind.core.IImage;
 import org.xmind.core.IManifest;
-import org.xmind.core.IResourceRef;
-import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.IWorkbookComponent;
 import org.xmind.core.internal.CloneData;
-import org.xmind.core.internal.ICloneDataListener;
 import org.xmind.core.internal.zip.ArchiveConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
@@ -66,6 +46,7 @@ import org.xmind.core.marker.IMarkerResource;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyled;
+import org.xmind.core.util.CloneHandler;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
@@ -81,57 +62,28 @@ public class WorkbookUtilsImpl {
         CloneData result = new CloneData(sources, prevResult);
         for (Object source : sources) {
             if (result.get(source) == null) {
-                Object cloned;
-                if (source instanceof IImage) {
-                    cloned = doClone((WorkbookImpl) targetWorkbook,
-                            ((IImage) source).getParent(), result);
-                    if (cloned instanceof ITopic) {
-                        cloned = ((ITopic) cloned).getImage();
-                    }
+                CloneHandler handler = new CloneHandler(result);
+                if (source instanceof IWorkbookComponent) {
+                    IWorkbook sourceWorkbook = ((IWorkbookComponent) source)
+                            .getOwnedWorkbook();
+                    handler.withWorkbooks(sourceWorkbook, targetWorkbook);
+                } else if (source instanceof IMarker) {
+                    handler.withMarkerSheets(((IMarker) source).getOwnedSheet(),
+                            targetWorkbook.getMarkerSheet());
                 } else {
-                    cloned = doClone((WorkbookImpl) targetWorkbook, source,
-                            result);
+                    /// unrecognized object, skip it
+                    continue;
                 }
-                if (cloned != null) {
-                    result.put(source, cloned);
+
+                try {
+                    handler.cloneObject(source);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
         }
         return result;
-    }
-
-    private static Object doClone(WorkbookImpl targetWorkbook, Object source,
-            CloneData data) {
-        if (source instanceof IAdaptable) {
-            if (source instanceof IWorkbookComponent) {
-                Node sourceNode = (Node) ((IAdaptable) source)
-                        .getAdapter(Node.class);
-                if (sourceNode != null) {
-                    return cloneWorkbookComponent(targetWorkbook, sourceNode,
-                            (IWorkbookComponent) source, data);
-                }
-            } else if (source instanceof IMarker) {
-                IMarker sourceMarker = (IMarker) source;
-                return cloneMarker(targetWorkbook,
-                        (MarkerSheetImpl) targetWorkbook.getMarkerSheet(),
-                        sourceMarker.getId(), sourceMarker,
-                        sourceMarker.getOwnedSheet(), data);
-            }
-            return null;
-        } else {
-            return source;
-        }
-    }
-
-    private static Object cloneWorkbookComponent(WorkbookImpl targetWorkbook,
-            Node sourceEle, IWorkbookComponent source, CloneData data) {
-        Document doc = targetWorkbook.getImplementation();
-        Node clonedEle = clone(doc, sourceEle);
-        if (clonedEle instanceof Element) {
-            replaceAttributes(targetWorkbook, (Element) clonedEle,
-                    source.getOwnedWorkbook(), data);
-        }
-        return targetWorkbook.getAdaptableRegistry().getAdaptable(clonedEle);
     }
 
     private static Node clone(Document doc, Node source) {
@@ -139,414 +91,6 @@ public class WorkbookUtilsImpl {
             return source.cloneNode(true);
         }
         return doc.importNode(source, true);
-    }
-
-    private static void replaceAttributes(WorkbookImpl targetWorkbook,
-            Element ele, IWorkbook sourceWorkbook, CloneData data) {
-        if (ele.hasAttribute(ATTR_ID)) {
-            replaceId(ele, data, ICloneData.WORKBOOK_COMPONENTS);
-        }
-
-        for (Iterator<Element> it = DOMUtils.childElementIter(ele); it
-                .hasNext();) {
-            replaceAttributes(targetWorkbook, it.next(), sourceWorkbook, data);
-        }
-
-        String tag = ele.getTagName();
-        if (TAG_SUMMARY.equals(tag)) {
-            replaceTopicRef(ele, ATTR_TOPIC_ID, data);
-        } else if (TAG_RELATIONSHIP.equals(tag)) {
-            replaceTopicRef(ele, ATTR_END1, data);
-            replaceTopicRef(ele, ATTR_END2, data);
-        } else if (TAG_TOPIC.equals(tag)) {
-            replaceTopicHyperlink(targetWorkbook, ele, sourceWorkbook, data);
-            //replaceTopicImageUrl(targetWorkbook, ele, sourceWorkbook, data);
-            //replaceNotes(targetWorkbook, ele, sourceWorkbook, data);
-        } else if (TAG_MARKER_REF.equals(tag)) {
-            replaceMarkerRef(targetWorkbook, ele, sourceWorkbook, data);
-        } else if (TAG_IMG.equals(tag)) {
-            replaceImageUrl(targetWorkbook, ele, sourceWorkbook, data);
-        } else if (TAG_RESOURCE_REF.equals(tag)) {
-            replaceResourceId(targetWorkbook, ele, sourceWorkbook, data);
-        }
-
-        if (ele.hasAttribute(ATTR_STYLE_ID)) {
-            replaceStyle(targetWorkbook, ele, ATTR_STYLE_ID, sourceWorkbook,
-                    data);
-        }
-        if (ele.hasAttribute(ATTR_THEME)) {
-            replaceStyle(targetWorkbook, ele, ATTR_THEME, sourceWorkbook, data);
-        }
-
-        NamedNodeMap attributes = ele.getAttributes();
-        for (int i = 0; i < attributes.getLength(); i++) {
-            Node item = attributes.item(i);
-            if (item.getNodeName().endsWith("-id")) { //$NON-NLS-1$
-                replaceExtensionWithIdAttr(targetWorkbook, ele,
-                        item.getNodeName(), sourceWorkbook, data);
-            }
-        }
-    }
-
-    private static void replaceResourceId(WorkbookImpl targetWorkbook,
-            Element ele, IWorkbook sourceWorkbook, CloneData data) {
-        String type = DOMUtils.getAttribute(ele, DOMConstants.ATTR_TYPE);
-        if (IResourceRef.FILE_ENTRY.equals(type)) {
-            String sourceEntryPath = DOMUtils.getAttribute(ele,
-                    ATTR_RESOURCE_ID);
-            if (sourceEntryPath != null) {
-                try {
-                    String targetEntryPath = InternalHyperlinkUtils
-                            .importAttachment(sourceEntryPath, sourceWorkbook,
-                                    targetWorkbook);
-                    DOMUtils.setAttribute(ele, ATTR_RESOURCE_ID,
-                            targetEntryPath);
-                } catch (IOException e) {
-                }
-            }
-        }
-    }
-
-    private static void replaceId(Element ele, CloneData data,
-            String category) {
-        String oldId = DOMUtils.getAttribute(ele, ATTR_ID);
-        String newId = Core.getIdFactory().createId();
-        DOMUtils.replaceId(ele, newId);
-        if (oldId != null && data.getString(category, oldId) == null) {
-            data.putString(category, oldId, newId);
-        }
-    }
-
-    private static void replaceTopicRef(final Element e, final String attrName,
-            final CloneData data) {
-        String oldRefId = DOMUtils.getAttribute(e, attrName);
-        if (oldRefId == null)
-            return;
-
-        String newRefId = data.getString(ICloneData.WORKBOOK_COMPONENTS,
-                oldRefId);
-        if (newRefId == null) {
-            data.addCloneDataListener(ICloneData.WORKBOOK_COMPONENTS, oldRefId,
-                    new ICloneDataListener() {
-                        public void objectCloned(Object source, Object cloned) {
-                        }
-
-                        public void stringCloned(String category, String source,
-                                String cloned) {
-                            DOMUtils.setAttribute(e, attrName, cloned);
-                            data.removeCloneDataListener(source, this);
-                        }
-                    });
-        } else {
-            DOMUtils.setAttribute(e, attrName, newRefId);
-        }
-    }
-
-//    private static void replaceStyle(WorkbookImpl targetWorkbook,
-//            final Element styledEle, IWorkbook sourceWorkbook,
-//            final CloneData data) {
-//        replaceStyle(targetWorkbook, styledEle, ATTR_STYLE_ID, sourceWorkbook,
-//                data);
-//    }
-//
-    private static void replaceStyle(WorkbookImpl targetWorkbook,
-            final Element styledEle, String styleTag, IWorkbook sourceWorkbook,
-            final CloneData data) {
-        String styleId = styledEle.getAttribute(styleTag);
-        IStyle sourceStyle = sourceWorkbook.getStyleSheet().findStyle(styleId);
-        String sourceStyleId = sourceStyle == null ? null : sourceStyle.getId();
-        String targetStyleId;
-        if (sourceStyle != null) {
-            IStyle targetStyle = importStyle(
-                    (StyleSheetImpl) targetWorkbook.getStyleSheet(),
-                    (StyleImpl) sourceStyle,
-                    (StyleSheetImpl) sourceWorkbook.getStyleSheet(), data);
-            targetStyleId = targetStyle == null ? null : targetStyle.getId();
-        } else {
-            IStyle targetStyle = (IStyle) data.get(sourceStyle);
-            targetStyleId = targetStyle == null ? null : targetStyle.getId();
-        }
-        if (targetStyleId == null) {
-            styledEle.removeAttribute(styleTag);
-        } else {
-            styledEle.setAttribute(styleTag, targetStyleId);
-        }
-        if (sourceStyleId != null && targetStyleId != null) {
-            data.putString(ICloneData.STYLESHEET_COMPONENTS, sourceStyleId,
-                    targetStyleId);
-        }
-
-//        String oldStyleId = DOMUtils.getAttribute(styledEle, styleTag);
-//        if (oldStyleId == null)
-//            return;
-//
-//        String newStyleId = data.getString(oldStyleId);
-//        if (newStyleId != null || data.isCloned(oldStyleId)) {
-//            DOMUtils.setAttribute(styledEle, styleTag, newStyleId);
-//            return;
-//        }
-//
-//        IStyleSheet sourceStyleSheet = sourceWorkbook.getStyleSheet();
-//        IStyle sourceStyle = sourceStyleSheet.findStyle(oldStyleId);
-//        if (sourceStyle != null) {
-//            Properties sourceContents = getCachedSourceStyleContents(
-//                    sourceStyle, targetWorkbook, sourceWorkbook, data);
-//            if (!sourceContents.isEmpty()) {
-//                IStyleSheet targetStyleSheet = targetWorkbook.getStyleSheet();
-//                IStyle targetStyle = findSimilarStyle(sourceContents,
-//                        targetStyleSheet, data);
-//                if (targetStyle == null) {
-//                    targetStyle = createStyle(sourceContents, sourceStyle
-//                            .getType(), targetStyleSheet, targetWorkbook,
-//                            sourceWorkbook, data);
-//                }
-//                newStyleId = targetStyle.getId();
-//            }
-//        }
-//        DOMUtils.setAttribute(styledEle, styleTag, newStyleId);
-//        data.put(oldStyleId, newStyleId);
-    }
-
-//    private static IStyle createStyle(Properties contents, String styleType,
-//            IStyleSheet targetStyleSheet, WorkbookImpl targetWorkbook,
-//            IWorkbook sourceWorkbook, CloneData data) {
-//        IStyle newStyle = targetStyleSheet.createStyle(styleType);
-//        Enumeration<?> keys = contents.propertyNames();
-//        while (keys.hasMoreElements()) {
-//            String key = (String) keys.nextElement();
-//            String value = contents.getProperty(key);
-//            if (HyperlinkUtils.isAttachmentURL(value)) {
-//                value = cloneUrl(targetWorkbook, value, sourceWorkbook, data);
-//            }
-//            newStyle.setProperty(key, value);
-//        }
-//        targetStyleSheet.addStyle(newStyle, IStyleSheet.NORMAL_STYLES);
-//        return newStyle;
-//    }
-//
-//    private static IStyle findSimilarStyle(Properties sourceContents,
-//            IStyleSheet targetStyleSheet, CloneData data) {
-//        for (IStyle style : targetStyleSheet.getAllStyles()) {
-//            Properties targetContents = getCachedStyleContents(style, data);
-//            if (targetContents.equals(sourceContents))
-//                return style;
-//        }
-//        return null;
-//    }
-//
-//    private static Properties getCachedSourceStyleContents(IStyle style,
-//            WorkbookImpl targetWorkbook, IWorkbook sourceWorkbook,
-//            CloneData data) {
-//        Properties map = (Properties) data.getCache(style);
-//        if (map == null) {
-//            map = new Properties();
-//            Iterator<Property> it = style.properties();
-//            while (it.hasNext()) {
-//                Property p = it.next();
-//                map.setProperty(p.key, p.value);
-//            }
-//            data.cache(style, map);
-//        }
-//        return map;
-//    }
-//
-//    private static Properties getCachedStyleContents(IStyle style,
-//            CloneData data) {
-//        Properties map = (Properties) data.getCache(style);
-//        if (map == null) {
-//            map = new Properties();
-//            Iterator<Property> it = style.properties();
-//            while (it.hasNext()) {
-//                Property p = it.next();
-//                map.setProperty(p.key, p.value);
-//            }
-//            data.cache(style, map);
-//        }
-//        return map;
-//    }
-
-//    private static String cloneUrl(WorkbookImpl targetWorkbook,
-//            String sourceUrl, IWorkbook sourceWorkbook, CloneData data) {
-//        String clonedUrl = data.getString(sourceUrl);
-//        if (clonedUrl != null || data.isCloned(sourceUrl))
-//            return clonedUrl;
-//
-//        if (HyperlinkUtils.isAttachmentURL(sourceUrl)) {
-//            try {
-//                clonedUrl = InternalHyperlinkUtils.importAttachmentURL(
-//                        sourceUrl, sourceWorkbook, targetWorkbook);
-//            } catch (IOException e) {
-//            }
-//        } else if (HyperlinkUtils.isInternalURL(sourceUrl)) {
-//            String sourceId = HyperlinkUtils.toElementID(sourceUrl);
-//
-//        } else {
-//            clonedUrl = sourceUrl;
-//        }
-//
-//        data.put(sourceUrl, clonedUrl);
-//        return clonedUrl;
-//    }
-
-    private static void replaceHyperlink(WorkbookImpl targetWorkbook,
-            final Element ele, final String attr, IWorkbook sourceWorkbook,
-            final CloneData data) {
-        final String sourceUrl = DOMUtils.getAttribute(ele, attr);
-        if (sourceUrl != null) {
-            String clonedUrl = data.getString(ICloneData.URLS, sourceUrl);
-            boolean async = false;
-            if (clonedUrl == null
-                    && !data.isCloned(ICloneData.URLS, sourceUrl)) {
-                if (HyperlinkUtils.isAttachmentURL(sourceUrl)) {
-                    try {
-                        clonedUrl = InternalHyperlinkUtils.importAttachmentURL(
-                                sourceUrl, sourceWorkbook, targetWorkbook);
-                    } catch (IOException e) {
-                    }
-                } else if (HyperlinkUtils.isInternalURL(sourceUrl)) {
-                    String sourceId = HyperlinkUtils.toElementID(sourceUrl);
-                    if (!data.isCloned(ICloneData.WORKBOOK_COMPONENTS,
-                            sourceId)) {
-                        async = true;
-                        data.addCloneDataListener(
-                                ICloneData.WORKBOOK_COMPONENTS, sourceId,
-                                new ICloneDataListener() {
-                                    public void objectCloned(Object source,
-                                            Object cloned) {
-                                    }
-
-                                    public void stringCloned(String category,
-                                            String source, String cloned) {
-                                        String targetUrl = cloned == null ? null
-                                                : HyperlinkUtils
-                                                        .toInternalURL(cloned);
-                                        data.putString(ICloneData.URLS,
-                                                sourceUrl, targetUrl);
-                                        DOMUtils.setAttribute(ele, attr,
-                                                targetUrl);
-                                        data.removeCloneDataListener(source,
-                                                this);
-                                    }
-                                });
-                    } else {
-                        String targetId = data.getString(
-                                ICloneData.WORKBOOK_COMPONENTS, sourceId);
-                        clonedUrl = HyperlinkUtils.toInternalURL(targetId);
-                    }
-                } else {
-                    clonedUrl = sourceUrl;
-                }
-                if (!async)
-                    data.putString(ICloneData.URLS, sourceUrl, clonedUrl);
-            }
-            if (!async)
-                DOMUtils.setAttribute(ele, attr, clonedUrl);
-        }
-    }
-
-    private static void replaceTopicHyperlink(WorkbookImpl targetWorkbook,
-            Element topicEle, IWorkbook sourceWorkbook, CloneData data) {
-        replaceHyperlink(targetWorkbook, topicEle, ATTR_HREF, sourceWorkbook,
-                data);
-//        String oldUrl = DOMUtils.getAttribute(topicEle, ATTR_HREF);
-//        if (oldUrl != null) {
-//            String newUrl = cloneUrl(targetWorkbook, oldUrl, sourceWorkbook,
-//                    data);
-//            DOMUtils.setAttribute(topicEle, ATTR_HREF, newUrl);
-//        }
-    }
-
-    private static void replaceExtensionWithIdAttr(WorkbookImpl targetWorkbook,
-            final Element ele, final String attr, IWorkbook sourceWorkbook,
-            CloneData data) {
-        String sourceId = DOMUtils.getAttribute(ele, attr);
-
-        if (sourceId != null) {
-            if (!data.isCloned(ICloneData.WORKBOOK_COMPONENTS, sourceId)) {
-                data.addCloneDataListener(ICloneData.WORKBOOK_COMPONENTS,
-                        sourceId, new ICloneDataListener() {
-                            public void stringCloned(String category,
-                                    String source, String cloned) {
-                                DOMUtils.setAttribute(ele, attr, cloned);
-                            }
-
-                            public void objectCloned(Object source,
-                                    Object cloned) {
-                            }
-                        });
-            } else {
-                String targetId = null;
-                targetId = data.getString(ICloneData.WORKBOOK_COMPONENTS,
-                        sourceId);
-                if (targetId == null) {
-                    ele.removeAttribute(attr);
-                } else {
-                    ele.setAttribute(attr, targetId);
-                }
-            }
-        }
-
-    }
-
-    private static void replaceImageUrl(WorkbookImpl targetWorkbook,
-            Element imgEle, IWorkbook sourceWorkbook, CloneData data) {
-        replaceHyperlink(targetWorkbook, imgEle, ATTR_SRC, sourceWorkbook,
-                data);
-//        String oldUrl = DOMUtils.getAttribute(imgEle, ATTR_SRC);
-//        if (oldUrl != null) {
-//            String newUrl = cloneUrl(targetWorkbook, oldUrl, sourceWorkbook,
-//                    data);
-//            DOMUtils.setAttribute(imgEle, ATTR_SRC, newUrl);
-//        }
-    }
-
-    private static void replaceMarkerRef(WorkbookImpl targetWorkbook,
-            Element ele, IWorkbook sourceWorkbook, CloneData data) {
-        String oldMarkerId = DOMUtils.getAttribute(ele, ATTR_MARKER_ID);
-        if (oldMarkerId != null) {
-            String newMarkerId = cloneMarkerId(targetWorkbook, oldMarkerId,
-                    sourceWorkbook, data);
-            DOMUtils.setAttribute(ele, ATTR_MARKER_ID, newMarkerId);
-        }
-    }
-
-    private static String cloneMarkerId(WorkbookImpl targetWorkbook,
-            String sourceMarkerId, IWorkbook sourceWorkbook, CloneData data) {
-        String clonedMarkerId = data
-                .getString(ICloneData.MARKERSHEET_COMPONENTS, sourceMarkerId);
-        if (clonedMarkerId != null || data
-                .isCloned(ICloneData.MARKERSHEET_COMPONENTS, sourceMarkerId))
-            return clonedMarkerId;
-
-        //When id equals,adopt override strategy.
-
-        IMarkerSheet sourceMarkerSheet = sourceWorkbook.getMarkerSheet();
-        MarkerSheetImpl targetMarkerSheet = (MarkerSheetImpl) targetWorkbook
-                .getMarkerSheet();
-        targetMarkerSheet.importFrom(sourceMarkerSheet);
-
-//        IMarkerSheet sourceMarkerSheet = sourceWorkbook.getMarkerSheet();
-//        IMarker sourceMarker = sourceMarkerSheet.getMarker(sourceMarkerId);
-//        if (sourceMarker != null) {
-//            MarkerSheetImpl targetMarkerSheet = (MarkerSheetImpl) targetWorkbook
-//                    .getMarkerSheet();
-//            IMarker existingMarker = targetMarkerSheet
-//                    .getMarker(sourceMarkerId);
-//            if (existingMarker == null) {
-//                IMarker clonedMarker = cloneMarker(targetWorkbook,
-//                        targetMarkerSheet, sourceMarkerId, sourceMarker,
-//                        sourceMarkerSheet, data);
-//                if (clonedMarker != null) {
-//                    clonedMarkerId = clonedMarker.getId();
-//                }
-//            }
-//        }
-        if (clonedMarkerId == null) {
-            clonedMarkerId = sourceMarkerId;
-        }
-        data.putString(ICloneData.MARKERSHEET_COMPONENTS, sourceMarkerId,
-                clonedMarkerId);
-        return clonedMarkerId;
     }
 
     private static IMarker cloneMarker(WorkbookImpl targetWorkbook,
@@ -688,14 +232,14 @@ public class WorkbookUtilsImpl {
         if (sourceResource != null) {
             //IMarkerResource targetResource = targetMarker.getResource();
             try {
-                InputStream is = sourceResource.getInputStream();
+                InputStream is = sourceResource.openInputStream();
                 if (is != null) {
                     try {
                         String targetPath = ArchiveConstants.PATH_MARKERS
                                 + targetMarker.getResourcePath();
                         IFileEntry entry = targetWorkbook.getManifest()
                                 .createFileEntry(targetPath);
-                        OutputStream out = entry.getOutputStream();
+                        OutputStream out = entry.openOutputStream();
                         if (out != null) {
                             FileUtils.transfer(is, out, true);
                         }
@@ -970,8 +514,11 @@ public class WorkbookUtilsImpl {
                     .getFileEntry(HyperlinkUtils.toAttachmentPath(sourceURL));
             if (sourceEntry == null)
                 return (String) cache(data, sourceURL, sourceURL);
-            sourceInputStream = sourceEntry.getInputStream();
-            sourcePath = sourceEntry.getPath();
+            try {
+                sourceInputStream = sourceEntry.openInputStream();
+                sourcePath = sourceEntry.getPath();
+            } catch (IOException e) {
+            }
         }
 
         String newPath = Core.getIdFactory().createId()

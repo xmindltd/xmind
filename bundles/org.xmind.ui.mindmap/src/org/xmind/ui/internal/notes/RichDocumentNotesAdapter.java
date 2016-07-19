@@ -22,7 +22,9 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.xmind.core.IFileEntry;
+import org.xmind.core.IHtmlNotesContent;
 import org.xmind.core.INotes;
 import org.xmind.core.INotesContent;
 import org.xmind.core.IPlainNotesContent;
@@ -48,7 +50,12 @@ public class RichDocumentNotesAdapter implements IAdaptable {
         this.workbook = topic.getOwnedWorkbook();
         INotes notes = topic.getNotes();
         INotesContent content = notes.getContent(INotes.HTML);
-        if (content == null)
+        boolean showHTMLContent = false;
+        if (content instanceof IHtmlNotesContent) {
+            showHTMLContent = !((IHtmlNotesContent) content).getParagraphs().isEmpty();
+
+        }
+        if (!showHTMLContent)
             content = notes.getContent(INotes.PLAIN);
         this.content = content;
     }
@@ -92,28 +99,49 @@ public class RichDocumentNotesAdapter implements IAdaptable {
     }
 
     public Image getImageFromUrl(String uri) {
+        if (HyperlinkUtils.isFileUrl(uri))
+            return getImageFromFilePath(HyperlinkUtils.trimFileUrlContent(uri));
         return getImageFromEntryPath(HyperlinkUtils.toAttachmentPath(uri));
     }
 
-    private Image getImageFromEntryPath(String path) {
-        Image image = null;
-        if (images != null) {
-            image = images.get(path);
-            if (image != null)
-                return image;
+    public Image getImageFromFilePath(String path) {
+        Image image = getRegisteredImage(path);
+        if (image == null) {
+            image = new Image(Display.getDefault(), path);
+            registerImage(path, image);
         }
-        IFileEntry entry = workbook.getManifest().getFileEntry(path);
-        if (entry != null) {
-            image = AttachmentImageDescriptor.createFromEntry(workbook, entry)
-                    .createImage(false);
-            if (image != null) {
-                if (images == null) {
-                    images = new HashMap<String, Image>();
-                }
-                images.put(path, image);
+        return image;
+    }
+
+    private Image getImageFromEntryPath(String path) {
+        Image image = getRegisteredImage(path);
+        if (image == null) {
+            IFileEntry entry = workbook.getManifest().getFileEntry(path);
+            if (entry != null) {
+                image = AttachmentImageDescriptor
+                        .createFromEntry(workbook, entry).createImage(false);
+                registerImage(path, image);
             }
         }
         return image;
+    }
+
+    private void registerImage(String path, Image image) {
+        if (image != null) {
+            if (images == null) {
+                images = new HashMap<String, Image>();
+            }
+            images.put(path, image);
+        }
+    }
+
+    private Image getRegisteredImage(String path) {
+        if (images != null) {
+            Image image = images.get(path);
+            if (image != null)
+                return image;
+        }
+        return null;
     }
 
     public Image createImageFromFile(String absolutePath) {

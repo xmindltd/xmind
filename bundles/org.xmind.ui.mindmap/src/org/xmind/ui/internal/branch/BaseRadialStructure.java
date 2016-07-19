@@ -34,8 +34,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
 
         boolean right;
 
-        public RadiationInsertion(IBranchPart parent, int index,
-                Dimension size, boolean right) {
+        public RadiationInsertion(IBranchPart parent, int index, Dimension size,
+                boolean right) {
             super(parent, index, size);
             this.right = right;
         }
@@ -150,8 +150,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
         return ((IReferencedFigure) branch.getFigure()).getReference();
     }
 
-    protected void doFillPlusMinus(IBranchPart branch,
-            IPlusMinusPart plusMinus, LayoutInfo info) {
+    protected void doFillPlusMinus(IBranchPart branch, IPlusMinusPart plusMinus,
+            LayoutInfo info) {
         Point ref = info.getReference();
         IFigure fig = plusMinus.getFigure();
         Rectangle topicBounds = info.getCheckedClientArea();
@@ -204,8 +204,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
         Point parentRef = getReference(branch);
         Point childRef = key.getFigure().getReference();
         Rectangle childBounds = key.getFigure().getBounds();
-        Point childAnc = RadialUtils.isLeft(parentRef.x, childRef.x) ? childBounds
-                .getRight() : childBounds.getLeft();
+        Point childAnc = RadialUtils.isLeft(parentRef.x, childRef.x)
+                ? childBounds.getRight() : childBounds.getLeft();
         int d = (int) childAnc.getDistance(parentRef);
         Dimension ovalSize = getRadialData(branch).getOvalSize();
         int r = Math.max(ovalSize.width, ovalSize.height);
@@ -317,8 +317,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
 
     protected RadiationInsertion getCurrentInsertion(IBranchPart branch) {
         IInsertion insertion = super.getCurrentInsertion(branch);
-        return insertion instanceof RadiationInsertion ? (RadiationInsertion) insertion
-                : null;
+        return insertion instanceof RadiationInsertion
+                ? (RadiationInsertion) insertion : null;
     }
 
     public int getQuickMoveOffset(IBranchPart branch, IBranchPart child,
@@ -431,8 +431,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
             int delta = getTopicSize(subBranches.get(index)).width / 2
                     - inventSize.width / 2;
             int deltaX = index < right ? -delta : delta;
-            return getReference(subBranches.get(index))
-                    .getTranslated(deltaX, 0);
+            return getReference(subBranches.get(index)).getTranslated(deltaX,
+                    0);
         }
         return calcInsertPosition(branch, child, key);
     }
@@ -442,8 +442,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
         int y = -(getMinorSpacing(branch) * 3 / 4 + 8) * 4;
         int x = getRadialData(branch).getX(y, true);
 
-        return getReference(branch).getTranslated(x, y).getTranslated(
-                key.getInvent().getSize().width / 2, 0);
+        return getReference(branch).getTranslated(x, y)
+                .getTranslated(key.getInvent().getSize().width / 2, 0);
     }
 
     protected boolean isWithinThreshold(IBranchPart subBranch) {
@@ -453,8 +453,12 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
 
     protected int getBranchWeight(IBranchPart branch) {
         // 10 minorSpacing
-        return branch.getFigure().getPreferredSize().height + (10 * 3 / 4 + 8)
-                * 2;
+        if (branch == null)
+            return 0;
+        IFigure figure = branch.getFigure();
+        if (figure == null)
+            return 0;
+        return figure.getPreferredSize().height + (10 * 3 / 4 + 8) * 2;
     }
 
     @Override
@@ -469,8 +473,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
         if (isRightOrUp)
             x = (oriBounds.x + assBounds.x) / 2 + inventSize.width / 2;
         else
-            x = (oriBounds.right() + assBounds.right()) / 2 - inventSize.width
-                    / 2;
+            x = (oriBounds.right() + assBounds.right()) / 2
+                    - inventSize.width / 2;
 
         int y = (oriBounds.bottom() + assBounds.y) / 2;
 
@@ -481,18 +485,19 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
 
         Rectangle bounds = figure.getBounds();
         if (isRightOrUp) {
-            if (bounds.contains(x - inventSize.width / 2, y - inventSize.height
-                    / 2)
-                    || bounds.contains(x - inventSize.width / 2, y
-                            + inventSize.height / 2))
-                return loc.getTranslated(bounds.right()
-                        - (loc.x - inventSize.width / 2)
-                        + getMajorSpacing(parent), 0);
+            if (bounds.contains(x - inventSize.width / 2,
+                    y - inventSize.height / 2)
+                    || bounds.contains(x - inventSize.width / 2,
+                            y + inventSize.height / 2))
+                return loc.getTranslated(
+                        bounds.right() - (loc.x - inventSize.width / 2)
+                                + getMajorSpacing(parent),
+                        0);
         } else {
-            if (bounds.contains(x + inventSize.width / 2, y - inventSize.height
-                    / 2)
-                    || bounds.contains(x + inventSize.width / 2, y
-                            + inventSize.height / 2))
+            if (bounds.contains(x + inventSize.width / 2,
+                    y - inventSize.height / 2)
+                    || bounds.contains(x + inventSize.width / 2,
+                            y + inventSize.height / 2))
                 return loc.getTranslated((loc.x - inventSize.width / 2)
                         - bounds.x - getMajorSpacing(parent), 0);
         }
@@ -516,8 +521,8 @@ public abstract class BaseRadialStructure extends AbstractBranchStructure
         int halfWeight = (rightWeight + leftWeight) / 2;
 
         return (newRightWeight <= (newRightWeight + leftWeight) / 2)
-                || (rightWeight <= leftWeight && (newRightWeight - halfWeight > halfWeight
-                        - rightWeight));
+                || (rightWeight <= leftWeight && (newRightWeight
+                        - halfWeight > halfWeight - rightWeight));
     }
 
 }

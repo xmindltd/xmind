@@ -51,7 +51,6 @@ import org.xmind.ui.blackbox.BlackBox;
 import org.xmind.ui.blackbox.BlackBoxManager;
 import org.xmind.ui.blackbox.IBlackBoxMap;
 import org.xmind.ui.blackbox.IBlackBoxVersion;
-import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.FontUtils;
@@ -466,9 +465,9 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
         try {
             IWorkbook workbook = Core.getWorkbookBuilder()
                     .loadFromFile(reversionFile);
-            workbook.setFile(map.getSource());
-            IEditorInput input = MME.createLoadedEditorInput(
-                    new File(map.getSource()).getName(), workbook);
+            IEditorInput input = MindMapUI.getEditorInputFactory()
+                    .createEditorInputForPreLoadedWorkbook(workbook,
+                            new File(map.getSource()).getName());
             getSite().getPage().openEditor(input, MindMapUI.MINDMAP_EDITOR_ID);
             if (workbook instanceof ICoreEventSource2) {
                 ((ICoreEventSource2) workbook).registerOnceCoreEventListener(

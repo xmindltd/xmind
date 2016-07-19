@@ -14,8 +14,8 @@
 package org.xmind.ui.mindmap;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +27,9 @@ import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.util.FileUtils;
+import org.xmind.core.io.DirectoryStorage;
+import org.xmind.core.io.IStorage;
+import org.xmind.core.util.CloneHandler;
 
 public class MindMapExtractor {
 
@@ -43,13 +45,17 @@ public class MindMapExtractor {
 
     private IWorkbook result;
 
-    private String tempLocation;
+    private IStorage tempStorage;
 
     public MindMapExtractor(IMindMapViewer viewer) {
-        this(viewer, newTempLocation());
+        this(viewer, newTempStorage());
     }
 
     public MindMapExtractor(IMindMapViewer viewer, String tempLocation) {
+        this(viewer, new DirectoryStorage(new File(tempLocation)));
+    }
+
+    public MindMapExtractor(IMindMapViewer viewer, IStorage tempStorage) {
         this.sourceSheet = viewer.getSheet();
         this.sourceTopic = viewer.getCentralTopic();
         List<IRelationshipPart> relParts = viewer.getSheetPart()
@@ -58,32 +64,27 @@ public class MindMapExtractor {
         for (IRelationshipPart relPart : relParts) {
             this.sourceRels.add(relPart.getRelationship());
         }
-        this.tempLocation = tempLocation;
+        this.tempStorage = tempStorage;
     }
 
-    public IWorkbook extract() {
+    public IWorkbook extract() throws IOException {
         if (result == null) {
-            result = Core.getWorkbookBuilder().createWorkbook();
+            result = Core.getWorkbookBuilder().createWorkbook(tempStorage);
             result.getMarkerSheet().setParentSheet(
                     MindMapUI.getResourceManager().getUserMarkerSheet());
-            result.setTempLocation(tempLocation);
-
-            ICloneData cloneResult = result.clone(Arrays.asList(sourceSheet));
-
-            ISheet newSheet = (ISheet) cloneResult.get(sourceSheet);
+            CloneHandler cloner = new CloneHandler()
+                    .withWorkbooks(sourceSheet.getOwnedWorkbook(), result);
+            ISheet newSheet = (ISheet) cloner.cloneObject(sourceSheet);
             result.addSheet(newSheet);
             result.removeSheet(result.getPrimarySheet());
 
-            String newTopicId = cloneResult.getString(
-                    ICloneData.WORKBOOK_COMPONENTS, sourceTopic.getId());
-            ITopic newRootTopic = result.findTopic(newTopicId);
-            if (newRootTopic != null)
-                newSheet.replaceRootTopic(newRootTopic);
+            ITopic newRootTopic = (ITopic) cloner.cloneObject(sourceTopic);
+            newSheet.replaceRootTopic(newRootTopic);
 
             Set<String> newRelIds = new HashSet<String>(sourceRels.size());
             for (IRelationship sr : sourceRels) {
-                String newRelId = cloneResult.getString(
-                        ICloneData.WORKBOOK_COMPONENTS, sr.getId());
+                String newRelId = cloner.getMapper()
+                        .getString(ICloneData.WORKBOOK_COMPONENTS, sr.getId());
                 if (newRelId != null)
                     newRelIds.add(newRelId);
             }
@@ -100,16 +101,32 @@ public class MindMapExtractor {
     }
 
     public void delete() {
-        FileUtils.delete(new File(tempLocation));
+        tempStorage.clear();
     }
 
-    private static String newTempLocation() {
+    @Deprecated
+    public String getTempLocation() {
+        if (tempStorage instanceof DirectoryStorage)
+            return ((DirectoryStorage) tempStorage).getFullPath();
+        return null;
+    }
+
+    /**
+     * @return the tempStorage
+     */
+    public IStorage getTempStorage() {
+        return tempStorage;
+    }
+
+    private static IStorage newTempStorage() {
         if (DefaultDirectory == null) {
             DefaultDirectory = Core.getWorkspace().getTempDir(SUBDIR_EXPORT);
         }
         String fileName = Core.getIdFactory().createId()
                 + MindMapUI.FILE_EXT_XMIND_TEMP;
-        return new File(DefaultDirectory, fileName).getAbsolutePath();
+        File dir = new File(DefaultDirectory, fileName);
+        dir.mkdirs();
+        return new DirectoryStorage(dir);
     }
 
 }

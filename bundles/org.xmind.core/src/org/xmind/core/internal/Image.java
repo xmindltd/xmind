@@ -20,9 +20,9 @@ import org.xmind.core.ITopic;
 public abstract class Image extends AbstractWorkbookComponent
         implements IImage {
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == ITitled.class || adapter == ITopic.class) {
-            return getParent();
+            return adapter.cast(getParent());
         }
 
         return super.getAdapter(adapter);

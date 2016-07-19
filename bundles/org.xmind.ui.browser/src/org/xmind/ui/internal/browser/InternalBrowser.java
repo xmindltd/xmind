@@ -26,6 +26,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
+import org.xmind.core.command.Command;
+import org.xmind.core.command.CommandJob;
+import org.xmind.core.command.ICommand;
 import org.xmind.ui.browser.IBrowser;
 
 public class InternalBrowser implements IBrowser {
@@ -67,6 +70,14 @@ public class InternalBrowser implements IBrowser {
     }
 
     public void openURL(String url) throws PartInitException {
+        ICommand command = Command.parseURI(url);
+        if (command != null) {
+            new CommandJob(command, null).schedule();
+            return;
+        }
+
+        url = BrowserUtil.normalizeURL(url);
+
         try {
             doOpenURL(url);
         } catch (PartInitException e) {
@@ -115,7 +126,8 @@ public class InternalBrowser implements IBrowser {
         return input;
     }
 
-    private void hookPart(final IWorkbenchPage page, IWorkbenchPart editorPart) {
+    private void hookPart(final IWorkbenchPage page,
+            IWorkbenchPart editorPart) {
         listener = new IPartListener() {
             public void partActivated(IWorkbenchPart part) {
             }
@@ -159,14 +171,11 @@ public class InternalBrowser implements IBrowser {
     }
 
     protected IWebBrowser createWorkbenchBrowser() throws PartInitException {
-        return PlatformUI
-                .getWorkbench()
-                .getBrowserSupport()
-                .createBrowser(
-                        IWorkbenchBrowserSupport.AS_EDITOR
-                                | IWorkbenchBrowserSupport.LOCATION_BAR
-                                | IWorkbenchBrowserSupport.NAVIGATION_BAR,
-                        getClientId(), name, tooltip);
+        return PlatformUI.getWorkbench().getBrowserSupport().createBrowser(
+                IWorkbenchBrowserSupport.AS_EDITOR
+                        | IWorkbenchBrowserSupport.LOCATION_BAR
+                        | IWorkbenchBrowserSupport.NAVIGATION_BAR,
+                getClientId(), name, tooltip);
     }
 
     public void setName(String name) {

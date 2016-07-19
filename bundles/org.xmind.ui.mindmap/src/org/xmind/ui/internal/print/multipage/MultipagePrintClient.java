@@ -48,7 +48,6 @@ import org.xmind.gef.image.FigureRenderer;
 import org.xmind.gef.image.IExportSourceProvider;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.print.PageSetupDialog.Entries;
 import org.xmind.ui.internal.print.PrintConstants;
 import org.xmind.ui.internal.print.PrintUtils;
 import org.xmind.ui.mindmap.GhostShellProvider;
@@ -154,10 +153,15 @@ public class MultipagePrintClient extends FigureRenderer {
     private void print(IProgressMonitor monitor) {
         Properties properties = new Properties();
         properties.set(IMindMapViewer.VIEWER_GRADIENT, Boolean.FALSE);
-        String plusMinusVisibility = settings
-                .get(PrintConstants.PLUS_MINUS_VISIBILITY);
-        properties.set(IMindMapViewer.PLUS_MINUS_VISIBILITY,
-                Entries.getPropertiesValue(plusMinusVisibility));
+
+        //set plus minus visibility
+        boolean plusVisible = getBoolean(settings, PrintConstants.PLUS_VISIBLE,
+                PrintConstants.DEFAULT_PLUS_VISIBLE);
+        boolean minusVisible = getBoolean(settings,
+                PrintConstants.MINUS_VISIBLE,
+                PrintConstants.DEFAULT_MINUS_VISIBLE);
+        properties.set(IMindMapViewer.PLUS_VISIBLE, plusVisible);
+        properties.set(IMindMapViewer.MINUS_VISIBLE, minusVisible);
 
         GhostShellProvider shell = new GhostShellProvider(
                 parentShell.getDisplay());
@@ -172,6 +176,16 @@ public class MultipagePrintClient extends FigureRenderer {
                 .expand(new Insets(margin)));
 
         internalPrint(monitor);
+    }
+
+    private boolean getBoolean(IDialogSettings settings, String key,
+            boolean defaultValue) {
+        boolean value = defaultValue;
+        if (settings.get(key) != null) {
+            value = settings.getBoolean(key);
+        }
+
+        return value;
     }
 
     private void internalPrint(IProgressMonitor monitor) {
@@ -315,7 +329,7 @@ public class MultipagePrintClient extends FigureRenderer {
             gc.setClipping((org.eclipse.swt.graphics.Rectangle) null);
 
             //draw border using adapted bounds
-            boolean hasBorder = !settings.getBoolean(PrintConstants.NO_BORDER);
+            boolean hasBorder = settings.getBoolean(PrintConstants.BORDER);
             if (hasBorder) {
                 gc.setLineWidth(1);
                 gc.setForeground(

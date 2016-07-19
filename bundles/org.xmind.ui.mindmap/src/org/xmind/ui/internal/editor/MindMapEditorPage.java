@@ -23,8 +23,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -32,17 +30,13 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextActivation;
-import org.eclipse.ui.contexts.IContextService;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
-import org.xmind.gef.IEditDomainListener;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.ISelectionStack;
 import org.xmind.gef.SelectionStack;
@@ -58,7 +52,6 @@ import org.xmind.gef.service.IRevealService;
 import org.xmind.gef.service.IShadowService;
 import org.xmind.gef.service.ImageRegistryService;
 import org.xmind.gef.service.ShadowService;
-import org.xmind.gef.tool.ITool;
 import org.xmind.gef.ui.actions.ActionRegistry;
 import org.xmind.gef.ui.actions.CopyAction;
 import org.xmind.gef.ui.actions.IActionRegistry;
@@ -102,7 +95,6 @@ import org.xmind.ui.internal.actions.InsertSubtopicAction;
 import org.xmind.ui.internal.actions.InsertTopicAction;
 import org.xmind.ui.internal.actions.InsertTopicBeforeAction;
 import org.xmind.ui.internal.actions.ModifyHyperlinkAction;
-import org.xmind.ui.internal.actions.NewSheetFromTemplateDialogAction;
 import org.xmind.ui.internal.actions.OpenHyperlinkAction;
 import org.xmind.ui.internal.actions.RemoveAllStylesAction;
 import org.xmind.ui.internal.actions.ResetPositionAction;
@@ -138,16 +130,11 @@ import org.xmind.ui.util.MindMapUtils;
 
 @SuppressWarnings("deprecation")
 public class MindMapEditorPage extends GraphicalEditorPage
-        implements ICoreEventListener, IColorProvider, IEditDomainListener,
-        IPropertyChangeListener, FocusListener {
+        implements ICoreEventListener, IColorProvider, IPropertyChangeListener {
 
     private ISelectionStack selectionStack = null;
 
     private ICoreEventRegister eventRegister = null;
-
-    private IContextActivation contextActivation = null;
-
-    private IContextService contextService = null;
 
     private IPreferenceStore prefStore = null;
 
@@ -168,8 +155,7 @@ public class MindMapEditorPage extends GraphicalEditorPage
 
     protected void createViewerControl(final IGraphicalViewer viewer,
             Composite parent) {
-        Control control = ((MindMapViewer) viewer).createControl(parent);
-        control.addFocusListener(this);
+        ((MindMapViewer) viewer).createControl(parent);
         imeSupport = new IMESupport(this, viewer);
     }
 
@@ -177,6 +163,7 @@ public class MindMapEditorPage extends GraphicalEditorPage
         super.createContentPopupMenu(control);
 
         control.addListener(SWT.MenuDetect, new Listener() {
+
             private Menu oldPopupMenu;
             private boolean defaultMenuVisible = true;
             private Menu defaultMenu;
@@ -432,22 +419,6 @@ public class MindMapEditorPage extends GraphicalEditorPage
         contextService.setActive(true);
     }
 
-    public void setEditDomain(EditDomain domain) {
-        if (getEditDomain() != null) {
-            getEditDomain().removeEditDomainListener(this);
-            deactivateContext();
-        }
-        super.setEditDomain(domain);
-        if (getEditDomain() != null) {
-            getEditDomain().addEditDomainListener(this);
-            changeContext(getEditDomain().getActiveTool());
-        }
-    }
-
-    public void activeToolChanged(ITool oldTool, ITool newTool) {
-        changeContext(newTool);
-    }
-
     public void setActive(boolean active) {
         boolean oldActive = isActive();
         super.setActive(active);
@@ -457,66 +428,6 @@ public class MindMapEditorPage extends GraphicalEditorPage
                 getEditDomain().handleRequest(GEF.REQ_CANCEL, getViewer());
             }
         }
-    }
-
-    protected void changeContext(ITool newTool) {
-        if (!isActive())
-            return;
-
-        deactivateContext();
-        activateContext(newTool == null ? null : newTool.getContextId());
-    }
-
-    protected void changeContext(String contextId) {
-        if (!isActive())
-            return;
-        deactivateContext();
-        activateContext(contextId);
-    }
-
-    private void activateContext(String contextId) {
-        if (contextId == null)
-            return;
-        contextService = (IContextService) getParentEditor().getSite()
-                .getService(IContextService.class);
-        if (contextService != null) {
-            contextActivation = contextService.activateContext(contextId);
-        }
-    }
-
-    private void deactivateContext() {
-        if (contextService != null && contextActivation != null) {
-            contextService.deactivateContext(contextActivation);
-        }
-        contextService = null;
-        contextActivation = null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.FocusListener#focusGained(org.eclipse.swt.events
-     * .FocusEvent)
-     */
-    public void focusGained(FocusEvent e) {
-        e.display.asyncExec(new Runnable() {
-            public void run() {
-                if (isActive())
-                    changeContext(getEditDomain().getActiveTool());
-            }
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.FocusListener#focusLost(org.eclipse.swt.events
-     * .FocusEvent)
-     */
-    public void focusLost(FocusEvent e) {
-        changeContext((ITool) null);
     }
 
     protected void initPageActions(IActionRegistry actionRegistry) {
@@ -720,10 +631,10 @@ public class MindMapEditorPage extends GraphicalEditorPage
         actionRegistry.addAction(cancelHyperlinkAction);
         addSelectionAction(cancelHyperlinkAction);
 
-        NewSheetFromTemplateDialogAction newSheetFromTemplateAction = new NewSheetFromTemplateDialogAction(
-                this);
-        actionRegistry.addAction(newSheetFromTemplateAction);
-        addSelectionAction(newSheetFromTemplateAction);
+//        NewSheetFromTemplateDialogAction newSheetFromTemplateAction = new NewSheetFromTemplateDialogAction(
+//                this);
+//        actionRegistry.addAction(newSheetFromTemplateAction);
+//        addSelectionAction(newSheetFromTemplateAction);
 
         addAlignmentAction(PositionConstants.LEFT, actionRegistry);
         addAlignmentAction(PositionConstants.CENTER, actionRegistry);
@@ -763,7 +674,6 @@ public class MindMapEditorPage extends GraphicalEditorPage
             selectionStack.setSelectionProvider(null);
             selectionStack = null;
         }
-        deactivateContext();
         super.dispose();
     }
 
@@ -777,6 +687,7 @@ public class MindMapEditorPage extends GraphicalEditorPage
 
     public void handleCoreEvent(final CoreEvent event) {
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+
             public void run() {
                 String type = event.getType();
                 if (Core.TitleText.equals(type)) {

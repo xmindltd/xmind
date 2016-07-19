@@ -14,8 +14,10 @@
 package org.xmind.cathy.internal;
 
 import java.io.File;
-import java.io.IOException;
 
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -26,17 +28,13 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
-import org.osgi.framework.Bundle;
+import org.eclipse.ui.internal.registry.IWorkbenchRegistryConstants;
 import org.xmind.core.Core;
-import org.xmind.core.IWorkspace;
 import org.xmind.core.internal.dom.DOMConstants;
-import org.xmind.core.util.FileUtils;
+import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.ui.internal.MindMapUIPlugin;
-import org.xmind.ui.internal.statushandlers.IErrorReporter;
+import org.xmind.ui.internal.app.IApplicationValidator;
 import org.xmind.ui.prefs.PrefConstants;
-
-import net.xmind.signin.internal.XMindNetErrorReporter;
-import net.xmind.signin.internal.XMindUpdater;
 
 /**
  * This class controls all aspects of the application's execution
@@ -79,7 +77,7 @@ public class CathyApplication implements IApplication {
 
         String name = pref.getString(PrefConstants.AUTHOR_INFO_NAME);
 
-        if (name == null)
+        if (name == null || "".equals(name)) //$NON-NLS-1$
             name = System.getProperty("user.name"); //$NON-NLS-1$
         if (name != null)
             System.setProperty(DOMConstants.AUTHOR_NAME, name);
@@ -92,36 +90,27 @@ public class CathyApplication implements IApplication {
             System.setProperty(DOMConstants.AUTHOR_ORG,
                     pref.getString(PrefConstants.AUTHOR_INFO_ORG));
 
-        // Configure the default error reporter.
-        IErrorReporter.Default.setDelegate(new XMindNetErrorReporter());
-
         // Set Cathy product as the workbook creator.
         Core.getWorkbookBuilder().setCreator("XMind", buildId); //$NON-NLS-1$
-
-        preHandleLastOpenedFiles();
-
-        // Check if there's already a running XMind instance:
-        if (shouldExitEarly()) {
-            // Log all application arguments to local disk to exchange
-            // between running XMind instances:
-            logApplicationArgs();
-            return EXIT_OK;
-        }
 
         // Create the default display instance.
         Display display = PlatformUI.createDisplay();
 
         try {
+            // Install global OpenDocument listener:
+            OpenDocumentQueue.getInstance().hook(display);
+
             // Check if we are in beta and should quit due to beta expiry.
             if (new BetaVerifier(display).shouldExitAfterBetaExpired())
                 return EXIT_OK;
 
-            // Install global OpenDocument listener:
-            OpenDocumentQueue.getInstance().hook(display);
-
-            // Check if there's previously downloaded software updates:
-            if (checkSoftwareUpdateOnStart())
+            // Check if this app session should exit early:
+            if (shouldExitEarly(context)) {
+                // Log all application arguments to local disk to exchange
+                // between running XMind instances:
+                logApplicationArgs();
                 return EXIT_OK;
+            }
 
             // Log all application arguments to local disk to exchange
             // between running XMind instances:
@@ -139,34 +128,55 @@ public class CathyApplication implements IApplication {
             WorkbenchPlugin.getDefault().getPreferenceStore()
                     .setValue(IPreferenceConstants.WORKBENCH_SAVE_INTERVAL, 0);
 
-            // Launch workbench and get return code:
-            int returnCode = PlatformUI.createAndRunWorkbench(display,
-                    new CathyWorkbenchAdvisor());
+            try {
+                captureAppSessionInfo(
+                        CathyPlugin.getDefault().getUsageDataCollector(),
+                        context, buildId);
 
-            if (returnCode == PlatformUI.RETURN_RESTART) {
-                // Restart:
-                return EXIT_RESTART;
+                // Launch workbench and get return code:
+                int returnCode = PlatformUI.createAndRunWorkbench(display,
+                        new CathyWorkbenchAdvisor());
+
+                if (returnCode == PlatformUI.RETURN_RESTART) {
+                    // Restart:
+                    return EXIT_RESTART;
+                }
+
+                // Quit:
+                return EXIT_OK;
+            } finally {
+                CathyPlugin.getDefault().getUsageDataCollector().put(
+                        "ShutDownTime", //$NON-NLS-1$
+                        System.currentTimeMillis());
             }
-
-            // Quit:
-            return EXIT_OK;
         } finally {
             display.dispose();
         }
     }
 
-    private void preHandleLastOpenedFiles() throws IOException {
-        IWorkspace workspace = Core.getWorkspace();
-        String opened = workspace.getTempFile(IWorkspace.FILE_OPENED);
-        String recovery = workspace.getTempFile(IWorkspace.FILE_TO_RECOVER);
-        File recoveryFile = new File(recovery);
-        if (recoveryFile.exists() && recoveryFile.isFile())
-            recoveryFile.delete();
-
-        File openedFile = new File(opened);
-        if (openedFile.exists()) {
-            FileUtils.copy(opened, recovery);
-        }
+    /**
+     * @param sampler
+     * @param context
+     * @param buildId
+     */
+    private void captureAppSessionInfo(IUsageDataSampler sampler,
+            IApplicationContext context, String buildId) {
+        sampler.put("StartUpTime", //$NON-NLS-1$
+                System.currentTimeMillis());
+        sampler.put("AppId", //$NON-NLS-1$
+                context.getBrandingApplication());
+        sampler.put("BuildId", buildId); //$NON-NLS-1$
+        sampler.put("DistributionId", //$NON-NLS-1$
+                System.getProperty("org.xmind.product.distribution.id", //$NON-NLS-1$
+                        null));
+        sampler.put("NL", Platform.getNL()); //$NON-NLS-1$
+        sampler.put("OS", Platform.getOS()); //$NON-NLS-1$
+        sampler.put("Arch", Platform.getOSArch()); //$NON-NLS-1$
+        sampler.put("OSName", System.getProperty("os.name", null)); //$NON-NLS-1$ //$NON-NLS-2$
+        sampler.put("OSVersion", System.getProperty("os.version", null)); //$NON-NLS-1$ //$NON-NLS-2$
+        sampler.put("Country", System.getProperty("user.country", null)); //$NON-NLS-1$ //$NON-NLS-2$
+        sampler.put("JavaVersion", System.getProperty("java.version", null)); //$NON-NLS-1$ //$NON-NLS-2$
+        sampler.put("JavaVendor", System.getProperty("java.vendor", null)); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private static String calculateBuildId(IApplicationContext context) {
@@ -223,22 +233,32 @@ public class CathyApplication implements IApplication {
         }
     }
 
-    private boolean shouldExitEarly() throws Exception {
-        Bundle bundle = CathyPlugin.getDefault().getBundle();
-        try {
-            Class clazz = bundle
-                    .loadClass("org.xmind.cathy.internal.ApplicationValidator"); //$NON-NLS-1$
-            if (IApplicationValidator.class.isAssignableFrom(clazz)) {
-                return ((IApplicationValidator) clazz.newInstance())
-                        .shouldApplicationExitEarly();
+    private boolean shouldExitEarly(IApplicationContext appContext)
+            throws Exception {
+        IExtensionPoint extPoint = Platform.getExtensionRegistry()
+                .getExtensionPoint(
+                        "org.xmind.ui.toolkit.applicationValidators"); //$NON-NLS-1$
+        if (extPoint != null) {
+            for (IExtension ext : extPoint.getExtensions()) {
+                for (IConfigurationElement validatorElement : ext
+                        .getConfigurationElements()) {
+                    if ("applicationValidator" //$NON-NLS-1$
+                            .equals(validatorElement.getName())) {
+                        Object validator = validatorElement
+                                .createExecutableExtension(
+                                        IWorkbenchRegistryConstants.ATT_CLASS);
+                        if (validator instanceof IApplicationValidator
+                                && ((IApplicationValidator) validator)
+                                        .shouldApplicationExitEarly(
+                                                appContext)) {
+                            return true;
+                        }
+                    }
+                }
             }
-        } catch (ClassNotFoundException e) {
         }
-        return false;
-    }
 
-    private boolean checkSoftwareUpdateOnStart() {
-        return XMindUpdater.checkSoftwareUpdateOnStart();
+        return false;
     }
 
     /**

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_心</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="1.40106824%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#EF5350" offset="0%"></stop>
+            <stop stop-color="#E53935" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="0" width="16" height="16" rx="2"></rect>
+        <path d="M8.01049121,13.5034776 L7.18061809,12.7596295 C4.23313767,10.1279852 2.28722827,8.39233964 2.28722827,6.26222922 C2.28722827,4.5265837 3.6722579,3.16286222 5.43502289,3.16286222 C6.43087064,3.16286222 7.38665555,3.61931445 8.01049121,4.34062168 C8.63432687,3.61931445 9.59011179,3.16286222 10.5859595,3.16286222 C12.3487245,3.16286222 13.7337542,4.5265837 13.7337542,6.26222922 C13.7337542,8.39233964 11.7878448,10.1279852 8.84036434,12.7652647 L8.01049121,13.5034776" id="path-3"></path>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(0.000000, -19.000000)">
+            <g id="sym_心" transform="translate(0.000000, 19.000000)">
+                <g id="Rectangle-370-Copy-7">
+                    <use fill="#EE432F" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <g id="心">
+                    <use fill="#EE432F" xlink:href="#path-3"></use>
+                    <use fill="#FFFFFF" xlink:href="#path-3"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

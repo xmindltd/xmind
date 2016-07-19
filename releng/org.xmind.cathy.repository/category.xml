@@ -1,30 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature id="org.xmind.cathy.platform.feature" version="3.6.1.qualifier">
+   <feature id="org.xmind.cathy.platform.feature" version="0.0.0">
       <category name="org.xmind.cathy.repository"/>
    </feature>
-   <feature id="org.xmind.hebe.feature" version="3.6.1.qualifier">
+   <feature id="org.xmind.hebe.feature" version="0.0.0">
       <category name="org.xmind.cathy.repository"/>
    </feature>
-   <feature id="org.xmind.cathy.feature" version="3.6.1.qualifier">
+   <feature id="org.xmind.cathy.feature" version="0.0.0">
       <category name="org.xmind.cathy.repository"/>
    </feature>
-   <feature id="net.xmind.workbench.feature" version="3.6.1.qualifier">
-      <category name="org.xmind.cathy.repository"/>
-   </feature>
-   <feature id="org.xmind.share.biggerplate.feature" version="3.6.1.qualifier">
-      <category name="org.xmind.cathy.repository"/>
-   </feature>
-   <feature id="org.xmind.share.evernote.feature" version="3.6.1.qualifier">
-      <category name="org.xmind.cathy.repository"/>
-   </feature>
-   <feature id="org.xmind.share.localnetwork.feature" version="3.6.1.qualifier">
-      <category name="org.xmind.cathy.repository"/>
-   </feature>
-   <feature id="org.xmind.share.xmindnet.feature" version="3.6.1.qualifier">
-      <category name="org.xmind.cathy.repository"/>
-   </feature>
-   <feature id="org.xmind.graphicsio.feature" version="3.6.1.qualifier">
+   <feature id="org.xmind.graphicsio.feature" version="0.0.0">
       <category name="org.xmind.cathy.repository"/>
    </feature>
    <category-def name="org.xmind.cathy.repository" label="XMind"/>

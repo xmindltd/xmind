@@ -22,8 +22,8 @@ import org.xmind.gef.Disposable;
 /**
  * @author Brian Sun
  */
-public abstract class CommandStackBase extends Disposable implements
-        ICommandStack {
+public abstract class CommandStackBase extends Disposable
+        implements ICommandStack {
 
     public static int DEFAULT_UNDO_LIMIT = 20;
 
@@ -114,9 +114,8 @@ public abstract class CommandStackBase extends Disposable implements
     private void fireEvent(Command command, int preStatus,
             List<ICommandStackListener> pendingCommandStackListeners) {
         for (Object listener : pendingCommandStackListeners.toArray()) {
-            ((ICommandStackListener) listener)
-                    .handleCommandStackEvent(new CommandStackEvent(this,
-                            command, preStatus));
+            ((ICommandStackListener) listener).handleCommandStackEvent(
+                    new CommandStackEvent(this, command, preStatus));
         }
     }
 

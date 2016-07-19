@@ -9,17 +9,20 @@ import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Image;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.ui.gallery.GalleryViewer;
+import org.xmind.ui.viewers.ImageCachedLabelProvider;
 
 public class StructureListContentProvider
         implements IStructuredContentProvider {
@@ -76,14 +79,83 @@ public class StructureListContentProvider
 
     }
 
+    static class StructureDescriptor {
+        private String id;
+        private String value;
+        private String name;
+        private ImageDescriptor icon;
+
+        public StructureDescriptor(String id, String value, String name,
+                ImageDescriptor icon) {
+            super();
+            Assert.isNotNull(id);
+            Assert.isNotNull(value);
+            this.id = id;
+            this.value = value;
+            this.name = name;
+            this.icon = icon;
+        }
+
+        public int hashCode() {
+            return id.hashCode();
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+
+        public ImageDescriptor getIcon() {
+            return this.icon;
+        }
+
+        public boolean equals(Object obj) {
+            if (obj == this)
+                return true;
+            if (obj == null || !(obj instanceof StructureDescriptor))
+                return false;
+            StructureDescriptor that = (StructureDescriptor) obj;
+            return this.id.equals(that.id);
+        }
+
+    }
+
+    static class StructureListLabelProvider extends ImageCachedLabelProvider {
+
+        @Override
+        public String getText(Object element) {
+            if (element instanceof StructureDescriptor)
+                return ((StructureDescriptor) element).getName();
+            return super.getText(element);
+        }
+
+        @Override
+        protected Image createImage(Object element) {
+            if (element instanceof StructureDescriptor) {
+                ImageDescriptor icon = ((StructureDescriptor) element)
+                        .getIcon();
+                if (icon != null)
+                    return icon.createImage();
+            }
+            return null;
+        }
+    }
+
     private ContentSource source = null;
 
-    private List<BlankTemplateDescriptor> templates = new ArrayList<BlankTemplateDescriptor>();
+    private List<StructureDescriptor> structureDescriptors = new ArrayList<StructureListContentProvider.StructureDescriptor>();
 
     private Dimension iconSizeHints = new Dimension();
 
     public void dispose() {
-        templates.clear();
+        structureDescriptors.clear();
         source = null;
     }
 
@@ -94,7 +166,7 @@ public class StructureListContentProvider
             return;
 
         source = newSource;
-        templates.clear();
+        structureDescriptors.clear();
         iconSizeHints = new Dimension();
 
         if (source != null) {
@@ -122,8 +194,9 @@ public class StructureListContentProvider
     public Object[] getElements(Object inputElement) {
         ContentSource inputSource = toContentSource(inputElement);
         if (inputSource == source
-                || (inputSource != null && inputSource.equals(source)))
-            return templates.toArray();
+                || (inputSource != null && inputSource.equals(source))) {
+            return structureDescriptors.toArray();
+        }
         return new Object[0];
     }
 
@@ -210,10 +283,9 @@ public class StructureListContentProvider
             }
         }
 
-        BlankTemplateDescriptor template = new BlankTemplateDescriptor(id,
-                structureClass, name);
-        template.setImage(icon);
-        templates.add(template);
+        StructureDescriptor structureDescriptor = new StructureDescriptor(id,
+                structureClass, name, icon);
+        structureDescriptors.add(structureDescriptor);
     }
 
     private void readGlobalAttributes(Element element) {
@@ -233,10 +305,6 @@ public class StructureListContentProvider
 
     public static final ContentSource getDefaultInput() {
         return new ContentSource(CONTENT_URI, NLS_PATH_BASE);
-    }
-
-    public List<BlankTemplateDescriptor> getTemplates() {
-        return templates;
     }
 
 }

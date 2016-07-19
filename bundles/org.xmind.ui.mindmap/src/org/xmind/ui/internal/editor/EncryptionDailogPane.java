@@ -14,8 +14,6 @@
 
 package org.xmind.ui.internal.editor;
 
-import java.io.IOException;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -29,16 +27,11 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.xmind.core.CoreException;
-import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.mindmap.IMindMapImages;
-import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class EncryptionDailogPane extends DialogPane {
-
-    private IWorkbookRef ref;
 
     private Text oldPasswordInputBox;
 
@@ -56,16 +49,14 @@ public class EncryptionDailogPane extends DialogPane {
 
     private Image blankIcon;
 
-    public EncryptionDailogPane(IWorkbookRef ref) {
-        this.ref = ref;
-    }
+    private String password;
 
     private Image getDoneIcon() {
         if (getContainer() == null || getContainer().isDisposed())
             return null;
         if (doneIcon == null || doneIcon.isDisposed()) {
-            ImageDescriptor img = MindMapUI.getImages().get(
-                    IMindMapImages.DONE, true);
+            ImageDescriptor img = MindMapUI.getImages().get(IMindMapImages.DONE,
+                    true);
             if (img != null) {
                 doneIcon = img.createImage(getContainer().getDisplay());
             }
@@ -77,8 +68,8 @@ public class EncryptionDailogPane extends DialogPane {
         if (getContainer() == null || getContainer().isDisposed())
             return null;
         if (undoneIcon == null || undoneIcon.isDisposed()) {
-            ImageDescriptor img = MindMapUI.getImages().get(
-                    IMindMapImages.DONE, false);
+            ImageDescriptor img = MindMapUI.getImages().get(IMindMapImages.DONE,
+                    false);
             if (img != null) {
                 undoneIcon = img.createImage(getContainer().getDisplay());
             }
@@ -90,8 +81,8 @@ public class EncryptionDailogPane extends DialogPane {
         if (getContainer() == null || getContainer().isDisposed())
             return null;
         if (blankIcon == null || blankIcon.isDisposed()) {
-            ImageDescriptor img = MindMapUI.getImages().get(
-                    IMindMapImages.BLANK);
+            ImageDescriptor img = MindMapUI.getImages()
+                    .get(IMindMapImages.BLANK);
             if (img != null) {
                 blankIcon = img.createImage(getContainer().getDisplay());
             }
@@ -153,8 +144,8 @@ public class EncryptionDailogPane extends DialogPane {
     private void createMessageIcon(Composite parent) {
         Label iconLabel = new Label(parent, SWT.NONE);
         iconLabel.setBackground(parent.getBackground());
-        iconLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        iconLabel.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         Image image = getMessageIcon(iconLabel);
         iconLabel.setImage(image);
     }
@@ -170,8 +161,8 @@ public class EncryptionDailogPane extends DialogPane {
     }
 
     private void createMessageBoard(Composite parent) {
-        Text messageBoard = new Text(parent, SWT.READ_ONLY | SWT.MULTI
-                | SWT.WRAP);
+        Text messageBoard = new Text(parent,
+                SWT.READ_ONLY | SWT.MULTI | SWT.WRAP);
         messageBoard.setBackground(parent.getBackground());
         applyFont(messageBoard);
 
@@ -198,12 +189,8 @@ public class EncryptionDailogPane extends DialogPane {
         gridLayout.horizontalSpacing = 3;
         area.setLayout(gridLayout);
 
-        IWorkbook workbook = ref.getWorkbook();
-        if (workbook != null) {
-            String oldPassword = workbook.getPassword();
-            if (oldPassword != null && !"".equals(oldPassword)) { //$NON-NLS-1$
-                createOldPasswordInputBox(area);
-            }
+        if (hasPassword()) {
+            createOldPasswordInputBox(area);
         }
 
         createNewPasswordInputBox(area);
@@ -225,21 +212,21 @@ public class EncryptionDailogPane extends DialogPane {
     private void createOldPasswordInputBox(Composite parent) {
         Label assistMessageBox = new Label(parent, SWT.WRAP);
         assistMessageBox.setBackground(parent.getBackground());
-        assistMessageBox.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING,
-                true, false));
+        assistMessageBox.setLayoutData(
+                new GridData(SWT.FILL, SWT.BEGINNING, true, false));
         ((GridData) assistMessageBox.getLayoutData()).horizontalSpan = 3;
         assistMessageBox
                 .setText(MindMapMessages.EncryptDialogPane_assist_message);
 
         Label label = new Label(parent, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        label.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         label.setText(MindMapMessages.EncryptDialogPane_oldpassword_text);
         label.setBackground(parent.getBackground());
         applyFont(label);
 
-        oldPasswordInputBox = new Text(parent, SWT.BORDER | SWT.PASSWORD
-                | SWT.SINGLE);
+        oldPasswordInputBox = new Text(parent,
+                SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
         applyFont(oldPasswordInputBox);
 
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -254,8 +241,8 @@ public class EncryptionDailogPane extends DialogPane {
 
         oldPasswordVerificationLabel = new Label(parent, SWT.NONE);
         oldPasswordVerificationLabel.setBackground(parent.getBackground());
-        oldPasswordVerificationLabel.setLayoutData(new GridData(SWT.END,
-                SWT.CENTER, false, false));
+        oldPasswordVerificationLabel
+                .setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
         oldPasswordVerificationLabel.setImage(getDoneIcon());
 
         Label sep = new Label(parent, SWT.NONE);
@@ -266,8 +253,8 @@ public class EncryptionDailogPane extends DialogPane {
 
     private void createNewPasswordInputBox(Composite parent) {
         Label label = new Label(parent, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        label.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         String text;
         if (oldPasswordInputBox == null) {
             text = MindMapMessages.EncryptDialogPane_password_text;
@@ -278,8 +265,8 @@ public class EncryptionDailogPane extends DialogPane {
         label.setBackground(parent.getBackground());
         applyFont(label);
 
-        newPasswordInputBox = new Text(parent, SWT.BORDER | SWT.PASSWORD
-                | SWT.SINGLE);
+        newPasswordInputBox = new Text(parent,
+                SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
         applyFont(newPasswordInputBox);
 
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -301,14 +288,14 @@ public class EncryptionDailogPane extends DialogPane {
 
     private void createVerifyPasswordInputBox(Composite parent) {
         Label label = new Label(parent, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                false));
+        label.setLayoutData(
+                new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
         label.setText(MindMapMessages.EncryptDialogPane_confirm_text);
         label.setBackground(parent.getBackground());
         applyFont(label);
 
-        verifyNewPasswordInputBox = new Text(parent, SWT.BORDER | SWT.PASSWORD
-                | SWT.SINGLE);
+        verifyNewPasswordInputBox = new Text(parent,
+                SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
         applyFont(verifyNewPasswordInputBox);
 
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -323,8 +310,8 @@ public class EncryptionDailogPane extends DialogPane {
 
         newPasswordVerificationLabel = new Label(parent, SWT.NONE);
         newPasswordVerificationLabel.setBackground(parent.getBackground());
-        newPasswordVerificationLabel.setLayoutData(new GridData(SWT.END,
-                SWT.CENTER, false, false));
+        newPasswordVerificationLabel
+                .setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
         newPasswordVerificationLabel.setImage(getDoneIcon());
     }
 
@@ -346,25 +333,19 @@ public class EncryptionDailogPane extends DialogPane {
 
     private void verify() {
         boolean oldPasswordVerified = false;
-        IWorkbook workbook = ref.getWorkbook();
-        if (workbook != null) {
-            String oldPassword = workbook.getPassword();
-            if (oldPassword == null || "".equals(oldPassword)) { //$NON-NLS-1$
-                oldPasswordVerified = !"".equals(newPasswordInputBox.getText()); //$NON-NLS-1$
-            } else if (oldPasswordInputBox != null) {
-                oldPasswordVerified = oldPassword != null
-                        && oldPassword.equals(oldPasswordInputBox.getText());
-                oldPasswordVerificationLabel
-                        .setImage(oldPasswordVerified ? getDoneIcon()
-                                : getUndoneIcon());
-            }
+        if (!hasPassword()) {
+            oldPasswordVerified = !"".equals(newPasswordInputBox.getText()); //$NON-NLS-1$
+        } else if (oldPasswordInputBox != null) {
+            oldPasswordVerified = testsPassword(oldPasswordInputBox.getText());
+            oldPasswordVerificationLabel.setImage(
+                    oldPasswordVerified ? getDoneIcon() : getUndoneIcon());
         }
         boolean newPasswordVerified = ((oldPasswordInputBox != null //
                 || !"".equals(newPasswordInputBox.getText()))) //$NON-NLS-1$
-                && newPasswordInputBox.getText().equals(
-                        verifyNewPasswordInputBox.getText());
-        newPasswordVerificationLabel
-                .setImage(newPasswordVerified ? getDoneIcon() : getUndoneIcon());
+                && newPasswordInputBox.getText()
+                        .equals(verifyNewPasswordInputBox.getText());
+        newPasswordVerificationLabel.setImage(
+                newPasswordVerified ? getDoneIcon() : getUndoneIcon());
         setOKButtonEnabled(oldPasswordVerified && newPasswordVerified);
     }
 
@@ -386,19 +367,11 @@ public class EncryptionDailogPane extends DialogPane {
         return true;
     }
 
-    private void setPassword(String password) {
-        if ("".equals(password)) { //$NON-NLS-1$
-            password = null;
+    protected void setPassword(String newPassword) {
+        if ("".equals(newPassword)) { //$NON-NLS-1$
+            newPassword = null;
         }
-        IWorkbook workbook = ref.getWorkbook();
-        if (workbook != null) {
-            workbook.setPassword(password);
-            try {
-                workbook.saveTemp();
-            } catch (IOException e) {
-            } catch (CoreException e) {
-            }
-        }
+        this.password = newPassword;
     }
 
     @Override
@@ -421,6 +394,18 @@ public class EncryptionDailogPane extends DialogPane {
                 && !newPasswordInputBox.isDisposed()) {
             newPasswordInputBox.setFocus();
         }
+    }
+
+    protected String getPassword() {
+        return this.password;
+    }
+
+    protected boolean hasPassword() {
+        return false;
+    }
+
+    protected boolean testsPassword(String password) {
+        return false;
     }
 
 }

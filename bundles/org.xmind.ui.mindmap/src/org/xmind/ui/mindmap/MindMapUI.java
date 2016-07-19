@@ -19,7 +19,6 @@ import org.xmind.gef.GEF;
 import org.xmind.gef.dnd.IDndSupport;
 import org.xmind.gef.part.IPartFactory;
 import org.xmind.gef.service.IPlaybackProvider;
-import org.xmind.ui.IEditorHistory;
 import org.xmind.ui.branch.IBranchPolicyManager;
 import org.xmind.ui.decorations.IDecorationFactory;
 import org.xmind.ui.decorations.IDecorationManager;
@@ -83,6 +82,8 @@ public class MindMapUI {
     public static final String CONTEXT_MINDMAP_TEXTEDIT = "org.xmind.ui.context.mindmap.textEdit"; //$NON-NLS-1$
 
     public static final String CONTEXT_MINDMAP_TRAVERSE = "org.xmind.ui.context.mindmap.traverse"; //$NON-NLS-1$
+
+    public static final String CONTEXT_PAGETITLE_EDIT = "org.xmind.ui.context.mindmap.pagetitle"; //$NON-NLS-1$
 
     /*
      * Roles:
@@ -174,6 +175,7 @@ public class MindMapUI {
     public static final String TOOL_EDIT_TOPIC_TITLE = "org.xmind.ui.tool.editTopicTitle"; //$NON-NLS-1$
     public static final String TOOL_EDIT_LABEL = "org.xmind.ui.tool.editLabel"; //$NON-NLS-1$
     public static final String TOOL_EDIT_LEGEND_ITEM = "org.xmind.ui.tool.editLegendItem"; //$NON-NLS-1$
+    public static final String TOOL_EDIT_SHEET_TITLE = "org.xmind.ui.tool.editSheetTitle"; //$NON-NLS-1$
 
     public static final String POLICY_DELETABLE = "org.xmind.ui.editPolicy.deletable"; //$NON-NLS-1$
     public static final String POLICY_EDITABLE = "org.xmind.ui.editPolicy.editable"; //$NON-NLS-1$
@@ -210,7 +212,6 @@ public class MindMapUI {
     /**
      * Request parameter prefix used to identify a style property parameter in a
      * 'modify style' request, e.g., <code>'styleProperty.line-width'</code>.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>String</code></dd>
@@ -221,7 +222,6 @@ public class MindMapUI {
     /**
      * Request parameter prefix used to identify a property parameter in a
      * 'move'/'create' request, e.g., <code>'property.title'</code>.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>Object</code></dd>
@@ -232,7 +232,6 @@ public class MindMapUI {
     /**
      * Request parameter: the preferred command label of a 'modify style'
      * request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>String</code></dd>
@@ -281,7 +280,6 @@ public class MindMapUI {
     /**
      * Request parameter: objects to be put in the range of a 'modify range'
      * request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>a array of <code>Object</code> (<code>Object[]</code>)</dd>
@@ -291,7 +289,6 @@ public class MindMapUI {
 
     /**
      * Request parameter: whether or not to make a copy of the source.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>Boolean</code></dd>
@@ -301,7 +298,6 @@ public class MindMapUI {
 
     /**
      * Request parameter: whether or not to make a free move.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>Boolean</code></dd>
@@ -312,7 +308,6 @@ public class MindMapUI {
     /**
      * Request parameter: the numbering format of the 'modify numbering'
      * request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>String</code></dd>
@@ -323,7 +318,6 @@ public class MindMapUI {
     /**
      * Request parameter: the numbering separator of the 'modify numbering'
      * request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>String</code></dd>
@@ -334,7 +328,6 @@ public class MindMapUI {
     /**
      * Request parameter: the numbering prefix of the 'modify numbering'
      * request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>String</code></dd>
@@ -345,7 +338,6 @@ public class MindMapUI {
     /**
      * Request parameter: the numbering suffix of the 'modify numbering'
      * request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>String</code></dd>
@@ -356,7 +348,6 @@ public class MindMapUI {
     /**
      * Request parameter: the parent numbering prepending value of the 'modify
      * numbering' request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd><code>Boolean</code></dd>
@@ -377,7 +368,6 @@ public class MindMapUI {
 
     /**
      * Request parameter: the new node part of a 'move relationship' request.
-     * 
      * <dl>
      * <dt>Values:</dt>
      * <dd>an {@link org.xmind.gef.part.IPart}</dd>
@@ -387,7 +377,7 @@ public class MindMapUI {
 
 //    /**
 //     * Request parameter: the new angle of a 'move relationship' request.
-//     * 
+//     *
 //     * <dl>
 //     * <dt>Values:</dt>
 //     * <dd><code>Double</code></dd>
@@ -397,7 +387,7 @@ public class MindMapUI {
 //
 //    /**
 //     * Request parameter: the new amount of a 'move relationship' request.
-//     * 
+//     *
 //     * <dl>
 //     * <dt>Values:</dt>
 //     * <dd><code>Double</code></dd>
@@ -445,14 +435,14 @@ public class MindMapUI {
 
     /**
      * Point id for the source anchor of a relationship (value=<code>1</code>).
-     * 
+     *
      * @see org.xmind.ui.internal.mindmap.RelationshipPart#getPointId(org.eclipse.draw2d.geometry.Point)
      */
     public static final int SOURCE_ANCHOR = 1;
 
     /**
      * Point id for the target anchor of a relationship (value=<code>2</code>).
-     * 
+     *
      * @see org.xmind.ui.internal.mindmap.RelationshipPart#getPointId(org.eclipse.draw2d.geometry.Point)
      */
     public static final int TARGET_ANCHOR = 2;
@@ -460,7 +450,7 @@ public class MindMapUI {
     /**
      * Point id for the source control point of a relationship (value=
      * <code>3</code>).
-     * 
+     *
      * @see org.xmind.ui.internal.mindmap.RelationshipPart#getPointId(org.eclipse.draw2d.geometry.Point)
      */
     public static final int SOURCE_CONTROL_POINT = 3;
@@ -468,7 +458,7 @@ public class MindMapUI {
     /**
      * Point id for the target control point of a relationship (value=
      * <code>4</code>).
-     * 
+     *
      * @see org.xmind.ui.internal.mindmap.RelationshipPart#getPointId(org.eclipse.draw2d.geometry.Point)
      */
     public static final int TARGET_CONTROL_POINT = 4;
@@ -628,7 +618,6 @@ public class MindMapUI {
      * 'workbookClose'). In XMind, a workbook is closed when all editors
      * associated with it are closed. This event is dispatched after the last
      * such editor is closed.
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IWorkbook}</dd>
@@ -707,6 +696,7 @@ public class MindMapUI {
         return InternalMindMapUI.getDefault().getEditPolicyManager();
     }
 
+    @Deprecated
     public static IWorkbookRefManager getWorkbookRefManager() {
         return InternalMindMapUI.getDefault().getWorkbookRefManager();
     }
@@ -719,8 +709,18 @@ public class MindMapUI {
         return InternalMindMapUI.getDefault().getNumberSeparatorManager();
     }
 
-    public static IEditorHistory getEditorHistory() {
+    /**
+     * @return
+     * @deprecated Use
+     *             <code>serviceLocator.getService(org.xmind.ui.editor.IEditorHistory.class)</code>
+     */
+    @Deprecated
+    public static org.xmind.ui.IEditorHistory getEditorHistory() {
         return InternalMindMapUI.getDefault().getEditorHistory();
+    }
+
+    public static IEditorInputFactory getEditorInputFactory() {
+        return InternalMindMapUI.getDefault().getEditorInputFactory();
     }
 
 }

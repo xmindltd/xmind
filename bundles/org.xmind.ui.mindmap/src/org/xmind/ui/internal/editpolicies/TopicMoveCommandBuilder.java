@@ -28,14 +28,12 @@ import org.xmind.core.IRelationship;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.ITopicRange;
-import org.xmind.core.comment.IComment;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.draw2d.IReferencedFigure;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.commands.AddBoundaryCommand;
-import org.xmind.ui.commands.AddCommentCommand;
 import org.xmind.ui.commands.AddSummaryCommand;
 import org.xmind.ui.commands.AddTopicCommand;
 import org.xmind.ui.commands.CloneTopicCommand;
@@ -56,7 +54,6 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
         public String oldType;
         public Point newPosition;
         public boolean needsReorganize;
-        public List<IComment> comments;
     }
 
     private static final List<ITopic> EMPTY_TOPICS = Collections.emptyList();
@@ -177,8 +174,6 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
                     cacheOldRangedTopics(range, info.oldParent);
                 }
             }
-            info.comments = topic.getOwnedWorkbook().getCommentManager()
-                    .getComments(topic);
             deleteTopic(topic, true);
         }
         return info;
@@ -210,13 +205,6 @@ public class TopicMoveCommandBuilder extends DeleteCommandBuilder {
                     ITopicRange range = rangesToMove.iterator().next();
                     moveRange(range, range.getParent());
                     rangesToMove.remove(range);
-                }
-            }
-            if (info.comments != null) {
-                for (IComment comment : info.comments) {
-                    if (comment != null) {
-                        add(new AddCommentCommand(topic, comment), false);
-                    }
                 }
             }
         }

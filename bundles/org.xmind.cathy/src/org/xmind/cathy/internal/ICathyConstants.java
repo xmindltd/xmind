@@ -74,6 +74,9 @@ public interface ICathyConstants {
      */
     public static final String COMMAND_TOGGLE_DASHBOARD = "org.xmind.ui.command.toggleDashboard"; //$NON-NLS-1$
     public static final String COMMAND_SHOW_DASHBOARD = "org.xmind.ui.command.showDashboard"; //$NON-NLS-1$
+    public static final String COMMAND_RECENTFILE_PIN = "org.xmind.ui.command.pinRecentFile"; //$NON-NLS-1$
+    public static final String COMMAND_RECENTFILE_UNPIN = "org.xmind.ui.command.unpinRecentFile"; //$NON-NLS-1$
+    public static final String COMMAND_RECENTFILE_CLEAR = "org.xmind.ui.command.clearRecentFile"; //$NON-NLS-1$
 
     /*
      * Command Parameter Ids
@@ -91,4 +94,15 @@ public interface ICathyConstants {
     public static final String DASHBOARD_PAGE_NEW = "org.xmind.ui.part.dashboard.new"; //$NON-NLS-1$
     public static final String DASHBOARD_PAGE_RECENT = "org.xmind.ui.part.dashboard.recent"; //$NON-NLS-1$
 
+    /*
+     * Popup Menu Ids
+     */
+    public static final String POPUP_RECENTFILE = "org.xmind.ui.popup.recentFile"; //$NON-NLS-1$
+
+    /*
+     * Helper Ids
+     */
+    public static final String HELPER_RECENTFILE_PIN = "org.xmind.ui.helper.recentFile.pin"; //$NON-NLS-1$
+    public static final String HELPER_RECENTFILE_DELETE = "org.xmind.ui.helper.recentFile.delete"; //$NON-NLS-1$
+    public static final String HELPER_RECENTFILE_CLEAR = "org.xmind.ui.helper.recentFile.clear"; //$NON-NLS-1$
 }

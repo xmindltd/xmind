@@ -26,26 +26,14 @@ import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.properties.StyledPropertySectionPart;
 import org.xmind.ui.style.Styles;
 
-public class SheetAdvancedStylePropertySectionPart extends
-        StyledPropertySectionPart {
-
-    private Button multiLineColorsCheck;
+public class SheetAdvancedStylePropertySectionPart
+        extends StyledPropertySectionPart {
 
     private Button taperedLinesCheck;
 
     private Button gradientColorCheck;
 
     protected void createContent(Composite parent) {
-        multiLineColorsCheck = new Button(parent, SWT.CHECK);
-        multiLineColorsCheck.setText(PropertyMessages.MultiLineColors_text);
-        multiLineColorsCheck.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent e) {
-                changeRainbowColor();
-            }
-
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
 
         taperedLinesCheck = new Button(parent, SWT.CHECK);
         taperedLinesCheck.setText(PropertyMessages.TaperedLines_text);
@@ -81,17 +69,6 @@ public class SheetAdvancedStylePropertySectionPart extends
         sendRequest(request);
     }
 
-    private void changeRainbowColor() {
-        Request request = createStyleRequest(CommandMessages.Command_ToggleMultiLineColors);
-        if (multiLineColorsCheck.getSelection()) {
-            addStyle(request, Styles.MultiLineColors,
-                    Styles.DEFAULT_MULTI_LINE_COLORS);
-        } else {
-            addStyle(request, Styles.MultiLineColors, Styles.NONE);
-        }
-        sendRequest(request);
-    }
-
     private void changeTaperedLines() {
         Request request = createStyleRequest(CommandMessages.Command_ToggleTaperedLines);
         if (taperedLinesCheck.getSelection()) {
@@ -103,11 +80,7 @@ public class SheetAdvancedStylePropertySectionPart extends
     }
 
     protected void doRefresh() {
-        if (multiLineColorsCheck != null && !multiLineColorsCheck.isDisposed()) {
-            String value = getStyleValue(Styles.MultiLineColors, null);
-            multiLineColorsCheck.setSelection(value != null
-                    && !Styles.NONE.equals(value));
-        }
+
         if (taperedLinesCheck != null && !taperedLinesCheck.isDisposed()) {
             String value = getStyleValue(Styles.LineTapered, null);
             taperedLinesCheck.setSelection(value != null
@@ -128,13 +101,12 @@ public class SheetAdvancedStylePropertySectionPart extends
 
     public void dispose() {
         super.dispose();
-        multiLineColorsCheck = null;
         taperedLinesCheck = null;
         gradientColorCheck = null;
     }
 
     public void setFocus() {
-        multiLineColorsCheck.setFocus();
+        taperedLinesCheck.setFocus();
     }
 
 }

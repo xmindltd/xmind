@@ -43,7 +43,7 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.dom.SheetImpl;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.actions.DeleteNotesAction;
@@ -706,7 +706,7 @@ public class SheetNotesViewer
     private void hookSheet() {
         if (notesEventRegister == null)
             notesEventRegister = new CoreEventRegister(
-                    ((SheetImpl) sheet).getCoreEventSupport(), this);
+                    sheet.getAdapter(ICoreEventSupport.class), this);
         notesEventRegister.register(Core.TopicNotes);
     }
 
@@ -720,7 +720,7 @@ public class SheetNotesViewer
     private void hookTitle() {
         if (titleEventRegister == null)
             titleEventRegister = new CoreEventRegister(
-                    ((SheetImpl) sheet).getCoreEventSupport(), this);
+                    sheet.getAdapter(ICoreEventSupport.class), this);
         titleEventRegister.register(Core.TitleText);
     }
 

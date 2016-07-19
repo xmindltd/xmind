@@ -85,7 +85,8 @@ public class SortTopicCommandBuilder extends DeleteCommandBuilder {
     }
 
     public void sort(ITopic parent) {
-        List<ITopic> children = parent.getChildren(ITopic.ATTACHED);
+        List<ITopic> children = new ArrayList<ITopic>(
+                parent.getChildren(ITopic.ATTACHED));
         if (children.isEmpty())
             return;
         cacheRelationships(parent);

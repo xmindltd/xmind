@@ -27,6 +27,7 @@ import org.xmind.gef.event.MouseDragEvent;
 import org.xmind.gef.part.IGraphicalEditPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.service.IFeedbackService;
+import org.xmind.ui.internal.svgsupport.SVGImageFigure;
 import org.xmind.ui.mindmap.IMarkerPart;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.ITopicPart;
@@ -49,10 +50,19 @@ public class MarkerMoveTool extends DummyMoveTool {
     protected IFigure createDummy() {
         Layer layer = getTargetViewer().getLayer(GEF.LAYER_PRESENTATION);
         if (layer != null) {
-            SizeableImageFigure dummy = new SizeableImageFigure(
-                    ((IMarkerPart) getSource()).getImage());
-            dummy.setStretched(true);
-            dummy.setConstrained(true);
+            IMarkerPart part = (IMarkerPart) getSource();
+            IFigure dummy;
+            if (part.getSVGData() == null) {
+                dummy = new SizeableImageFigure(part.getImage());
+                ((SizeableImageFigure) dummy).setStretched(true);
+                ((SizeableImageFigure) dummy).setConstrained(true);
+            } else {
+                dummy = new SVGImageFigure(part.getSVGData());
+                ((SVGImageFigure) dummy).setManager(part.getResourceManager());
+                ((SVGImageFigure) dummy).setStretched(true);
+                ((SVGImageFigure) dummy).setConstrained(true);
+            }
+
             dummy.setBounds(getSource().getFigure().getBounds());
             layer.add(dummy);
             return dummy;
@@ -62,8 +72,8 @@ public class MarkerMoveTool extends DummyMoveTool {
 
     protected void start() {
         super.start();
-        feedbackService = (IFeedbackService) getTargetViewer().getService(
-                IFeedbackService.class);
+        feedbackService = (IFeedbackService) getTargetViewer()
+                .getService(IFeedbackService.class);
     }
 
     protected void onMoving(Point currentPos, MouseDragEvent me) {
@@ -77,8 +87,8 @@ public class MarkerMoveTool extends DummyMoveTool {
                 if (newParent != null) {
                     SelectionFigure selection = feedbackService
                             .addSelection(newParent.getFigure());
-                    selection.setPreselectionColor(ColorUtils
-                            .getColor(MindMapUI.COLOR_WARNING));
+                    selection.setPreselectionColor(
+                            ColorUtils.getColor(MindMapUI.COLOR_WARNING));
                     selection.setPreselectionFillAlpha(0);
                     selection.setPreselectionFillColor(null);
                     selection.setPreselected(true);

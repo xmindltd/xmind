@@ -74,7 +74,7 @@
 			<topic-properties border-line-color="#EECF1D" border-line-width="0pt" callout-shape-class="org.xmind.calloutTopicShape.balloon.ellipse" fo:color="#FFFFFF" fo:font-family="Open Sans" fo:font-size="11pt" fo:font-style="italic" svg:fill="#E7D21F"/>
 		</style>
 		<style id="36f1moqdocmiloqg31i5frabkv" name="" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/3a4piundnj5sv8ck9veaajc0d2.png" svg:fill="#FFFFFF" svg:opacity="0.1"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/3a4piundnj5sv8ck9veaajc0d2.png" svg:fill="#FFFFFF" svg:opacity="0.1"/>
 		</style>
 		<style id="3lc1r7oha566404c18iul7fdnq" name="" type="topic">
 			<topic-properties fo:color="#4960A6" fo:font-family="Verdana" fo:font-weight="normal" svg:fill="none"/>
@@ -122,7 +122,7 @@
 			<topic-properties border-line-color="#FFEA47" fo:color="#FFEA47" fo:font-family="Open Sans" fo:font-weight="bold" line-class="org.xmind.branchConnection.curve" line-color="#FFEA47" shape-class="org.xmind.topicShape.roundedRect" svg:fill="none"/>
 		</style>
 		<style id="0pd4ha846udpsgn11iqcpsquui" name="" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/1hdjldh6fren63lcb0ib8e4274.jpg" svg:opacity="1.0"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/1hdjldh6fren63lcb0ib8e4274.jpg" svg:opacity="1.0"/>
 		</style>
 		<style id="46bho314k8ehn09ovra63thlet" name="" type="topic">
 			<topic-properties border-line-color="#4AE6F2" fo:color="#4AE6F2" fo:font-family="Verdana" fo:font-size="11pt" fo:font-style="italic" svg:fill="none"/>
@@ -179,7 +179,7 @@
 			<topic-properties border-line-color="#030303" border-line-width="4pt" fo:color="#030303" fo:font-family="Arvo" fo:font-weight="normal" fo:text-transform="uppercase" line-class="org.xmind.branchConnection.straight" line-color="#004080" line-width="3pt" shape-class="org.xmind.topicShape.underline" svg:fill="none"/>
 		</style>
 		<style id="313q1ls7gnal6h9cb4bip4n0eq" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/1t6e6lub2d37a5rau9fbvgat7d.png" color-gradient="none" line-tapered="tapered" multi-line-colors="none" svg:opacity="0.43"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/1t6e6lub2d37a5rau9fbvgat7d.png" color-gradient="none" line-tapered="tapered" multi-line-colors="none" svg:opacity="0.43"/>
 		</style>
 		<style id="15l4o2jgl3i4ejjp5mt8vkhfgp" type="topic">
 			<topic-properties border-line-color="#030303" border-line-width="3pt" fo:color="#C74E43" fo:font-family="Roboto" fo:font-style="italic" fo:font-weight="bold" fo:text-transform="lowercase" line-width="3pt" svg:fill="#FFFFFF"/>
@@ -290,7 +290,7 @@
 			<topic-properties border-line-color="#102E2B" border-line-width="0pt" fo:color="#FFFFFF" fo:font-family="Raleway" fo:font-size="20pt" fo:font-weight="bold" line-class="org.xmind.branchConnection.curve" line-color="#1C4F4A" line-width="3pt" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#23615C"/>
 		</style>
 		<style id="4md83a8jqveoncfm0c2093hlh1" name="" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/0bq0f5gfipor6kpheuimvgdsct.png" svg:fill="#FFFFFF" svg:opacity="0.08"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/0bq0f5gfipor6kpheuimvgdsct.png" svg:fill="#FFFFFF" svg:opacity="0.08"/>
 		</style>
 		<style id="6f1n5usgmf5l119h7nnr22su0s" name="" type="topic">
 			<topic-properties border-line-color="#543E4E" border-line-width="0pt" callout-shape-class="org.xmind.calloutTopicShape.balloon.roundedRect" fo:color="#543E4E" fo:font-family="Verdana" fo:font-style="italic" fo:font-weight="normal" svg:fill="#B4ACBB"/>
@@ -320,7 +320,7 @@
 			<topic-properties border-line-color="#FFFFFF" border-line-width="1pt" fo:color="#EDCCA1" fo:font-family="Roboto Slab" fo:font-weight="normal" fo:text-transform="uppercase" line-class="org.xmind.branchConnection.curve" line-color="#FFFFFF" line-width="1pt" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#030303"/>
 		</style>
 		<style id="1ekdp1iaibn708gvrgi0uilqoj" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/0blprld1cennpngtiieoo5cj48.png" svg:fill="#000000" svg:opacity="0.1"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/0blprld1cennpngtiieoo5cj48.png" svg:fill="#000000" svg:opacity="0.1"/>
 		</style>
 		<style id="5dlsjn9l78rmmqee3too46esjh" type="topic">
 			<topic-properties border-line-color="#FFFFFF" callout-shape-class="org.xmind.calloutTopicShape.balloon.rectangle" fo:font-family="Raleway" fo:font-style="italic" fo:text-transform="lowercase" svg:fill="#FFFFFF"/>
@@ -353,7 +353,7 @@
 			<topic-properties border-line-color="#030303" border-line-width="0pt" callout-shape-class="org.xmind.calloutTopicShape.balloon.roundedRect" fo:color="#FFFFFF" fo:font-family="Open Sans" fo:font-size="13pt" fo:font-style="italic" fo:font-weight="bold" fo:text-decoration="normal" fo:text-transform="lowercase" svg:fill="#F49544"/>
 		</style>
 		<style id="31js2kdofilkr6pnod95tetd9i" name="" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/13nbfks65iuumejlh1mdsbpjbv.png" svg:fill="#FEF9EE" svg:opacity=".8"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/13nbfks65iuumejlh1mdsbpjbv.png" svg:fill="#FEF9EE" svg:opacity=".8"/>
 		</style>
 		<style id="6bkrqp33pvgq0sdb4olgcmpf1g" name="" type="topic">
 			<topic-properties border-line-width="6pt" fo:color="#2063A0" fo:font-family="Open Sans" fo:font-size="10pt" fo:font-style="italic" fo:font-weight="bold" fo:text-align="left" fo:text-decoration="none" fo:text-transform="lowercase" shape-class="org.xmind.topicShape.underline" svg:fill="none"/>
@@ -437,7 +437,7 @@
 			<topic-properties border-line-color="#FFFFFF" border-line-width="1pt" fo:color="#FFFFFF" fo:font-family="Roboto Slab" fo:font-size="18pt" fo:font-weight="bold" fo:text-align="center" fo:text-transform="capitalize" line-class="org.xmind.branchConnection.curve" line-color="#1F1400" line-width="2pt" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#1C1C1C"/>
 		</style>
 		<style id="35i4j7i1cvl2vm3emofa323g22" name="" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/1ajkkqfsu79gtbd788th0bagii.png" color-gradient="none" line-tapered="none" multi-line-colors="none" svg:fill="#C44512" svg:opacity="0.05"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/1ajkkqfsu79gtbd788th0bagii.png" color-gradient="none" line-tapered="none" multi-line-colors="none" svg:fill="#C44512" svg:opacity="0.05"/>
 		</style>
 		<style id="7urido42cshfeuic7esarlj879" name="" type="topic">
 			<topic-properties border-line-color="#151515" border-line-width="1pt" callout-shape-class="org.xmind.calloutTopicShape.balloon.roundedRect" fo:color="#151515" fo:font-family="Roboto" fo:font-style="italic" line-class="org.xmind.branchConnection.roundedElbow" svg:fill="#E36D11"/>
@@ -659,7 +659,7 @@
 			<topic-properties border-line-color="#FFFFFF" border-line-width="1pt" fo:color="#FFFFFF" fo:font-family="Open Sans" fo:font-size="18pt" fo:font-weight="bold" fo:text-align="center" fo:text-transform="manual" line-class="org.xmind.branchConnection.straight" line-color="#FFFFFF" line-width="1pt" shape-class="org.xmind.topicShape.roundedRect" svg:fill="none"/>
 		</style>
 		<style id="2nkf7rmnnnshitioua9euq4reu" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/3eoo54itkbbt6osro6m0qtohoh.png" color-gradient="none" line-tapered="none" multi-line-colors="none" svg:fill="#2B9AF3" svg:opacity="0.1"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/3eoo54itkbbt6osro6m0qtohoh.png" color-gradient="none" line-tapered="none" multi-line-colors="none" svg:fill="#2B9AF3" svg:opacity="0.1"/>
 		</style>
 		<style id="10ec4trg0v87tpnqnpse6du72a" type="topic">
 			<topic-properties border-line-color="#FAC50A" border-line-width="1pt" callout-shape-class="org.xmind.calloutTopicShape.balloon.roundedRect" fo:color="#FAC50A" fo:font-family="Open Sans" fo:font-size="10pt" fo:font-style="italic" line-class="org.xmind.branchConnection.roundedElbow" line-color="#2C2C2C" line-width="2pt" svg:fill="none"/>
@@ -773,7 +773,7 @@
 			<topic-properties border-line-color="#C7604D" border-line-width="0pt" fo:color="#FFFFFF" fo:font-family="Georgia" fo:font-style="italic" fo:font-weight="bold" line-class="org.xmind.branchConnection.curve" line-color="#C3664F" line-width="2pt" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#C81435"/>
 		</style>
 		<style id="20uh4r9h3pg7k6tjhj67s00id4" name="" type="map">
-			<map-properties background="platform:/plugin/org.xmind.ui.resources/wallpaper/1f8ptb5pjn9ujj4vefr246j8qd.png" color-gradient="none" line-tapered="none" multi-line-colors="none" svg:fill="#CBD9E9" svg:opacity="0.49"/>
+			<map-properties background="platform:/plugin/org.xmind.ui/$nl$/wallpaper/1f8ptb5pjn9ujj4vefr246j8qd.png" color-gradient="none" line-tapered="none" multi-line-colors="none" svg:fill="#CBD9E9" svg:opacity="0.49"/>
 		</style>
 		<style id="0vhs367nad7bgvqk8m97s2uao6" name="" type="topic">
 			<topic-properties border-line-color="#D21E16" border-line-width="1pt" callout-shape-class="org.xmind.calloutTopicShape.balloon.roundedRect" fo:color="#FFFFFF" fo:font-family="Georgia" fo:font-size="12pt" fo:font-style="italic" fo:font-weight="normal" line-class="org.xmind.branchConnection.roundedElbow" svg:fill="#F1622C"/>

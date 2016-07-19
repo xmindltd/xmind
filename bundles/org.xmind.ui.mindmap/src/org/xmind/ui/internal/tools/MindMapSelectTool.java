@@ -27,6 +27,10 @@ import static org.xmind.ui.mindmap.MindMapUI.TOOL_CREATE_RELATIONSHIP;
 import static org.xmind.ui.mindmap.MindMapUI.TOOL_CREATE_SUMMARY;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,6 +46,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -52,12 +57,21 @@ import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.internal.WorkbenchMessages;
+import org.xmind.core.Core;
+import org.xmind.core.IFileEntry;
 import org.xmind.core.IImage;
+import org.xmind.core.IManifest;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.marker.IMarker;
+import org.xmind.core.marker.IMarkerGroup;
+import org.xmind.core.marker.IMarkerRef;
+import org.xmind.core.marker.IMarkerSheet;
+import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
@@ -85,8 +99,11 @@ import org.xmind.gef.tool.ITool;
 import org.xmind.gef.tool.SelectTool;
 import org.xmind.ui.branch.IBranchDoubleClickSupport;
 import org.xmind.ui.branch.IBranchMoveSupport;
-import org.xmind.ui.internal.actions.GroupMarkers;
+import org.xmind.ui.commands.DeleteMarkerCommand;
+import org.xmind.ui.internal.actions.ReplaceMarkerAction;
+import org.xmind.ui.internal.actions.ViewerAction;
 import org.xmind.ui.internal.editor.IMESupport;
+import org.xmind.ui.internal.mindmap.BoundaryPart;
 import org.xmind.ui.internal.mindmap.IconTipPart;
 import org.xmind.ui.internal.mindmap.InfoItemIconPart;
 import org.xmind.ui.internal.protocols.FilePathParser;
@@ -102,6 +119,7 @@ import org.xmind.ui.mindmap.ILegendItemPart;
 import org.xmind.ui.mindmap.ILegendPart;
 import org.xmind.ui.mindmap.IMarkerPart;
 import org.xmind.ui.mindmap.IMindMap;
+import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.INumberingPart;
 import org.xmind.ui.mindmap.IPlusMinusPart;
 import org.xmind.ui.mindmap.IRelationshipPart;
@@ -109,6 +127,7 @@ import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMap;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.util.Logger;
 import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.viewers.SWTUtils;
 
@@ -425,13 +444,27 @@ public class MindMapSelectTool extends SelectTool {
         IWorkbook workbook = topic.getOwnedWorkbook();
         if (workbook == null)
             return null;
-        String hiberLoc = workbook.getTempLocation();
+
+        String hiberLoc = Core.getWorkspace()
+                .getAbsolutePath(".temp-attachments"); //$NON-NLS-1$
         if (hiberLoc == null)
             return null;
 
         File hiberDir = new File(hiberLoc);
         if (!hiberDir.isDirectory())
             return null;
+
+        IManifest manifest = workbook.getManifest();
+        IFileEntry fileEntry = manifest.getFileEntry(path);
+        try {
+            InputStream is = fileEntry.openInputStream();
+            OutputStream os = new FileOutputStream(hiberLoc);
+            FileUtils.transfer(is, os);
+        } catch (IOException e) {
+            Logger.log(e,
+                    "Failed to transfer attachment to temp-attachments dir."); //$NON-NLS-1$
+            return null;
+        }
 
         File attFile = new File(hiberDir, path);
         if (!attFile.exists())
@@ -1140,10 +1173,7 @@ public class MindMapSelectTool extends SelectTool {
             return;
 
         MenuManager menuManager = new MenuManager();
-        GroupMarkers markersItem = new GroupMarkers();
-        markersItem.setSourceMarkerRef(target.getMarkerRef());
-        markersItem.setSelectionProvider(getTargetViewer());
-        menuManager.add(markersItem);
+        fillMarkerGroup(menuManager, target.getMarkerRef(), getTargetViewer());
         final Menu menu = menuManager
                 .createContextMenu(getTargetViewer().getControl());
         Point p = getTargetViewer().computeToDisplay(
@@ -1166,6 +1196,66 @@ public class MindMapSelectTool extends SelectTool {
                 menu.setVisible(true);
             }
         });
+    }
+
+    /**
+     * @param menuManager
+     * @param markerRef
+     * @param targetViewer
+     */
+    private static void fillMarkerGroup(MenuManager menuManager,
+            final IMarkerRef markerRef, IGraphicalViewer targetViewer) {
+        final Set<String> addedMarkerIds = new HashSet<String>();
+
+        fillMarkerGroup(menuManager, markerRef, targetViewer,
+                markerRef.getOwnedWorkbook().getMarkerSheet(), addedMarkerIds);
+
+        fillMarkerGroup(menuManager, markerRef, targetViewer,
+                MindMapUI.getResourceManager().getUserMarkerSheet(),
+                addedMarkerIds);
+
+        menuManager.add(new Separator());
+
+        ViewerAction deleteAction = new ViewerAction(targetViewer) {
+            @Override
+            public void run() {
+                executeCommand(new DeleteMarkerCommand(markerRef));
+            }
+        };
+        deleteAction.setText(WorkbenchMessages.Workbench_delete);
+        deleteAction.setToolTipText(WorkbenchMessages.Workbench_deleteToolTip);
+        deleteAction.setImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        deleteAction.setDisabledImageDescriptor(
+                MindMapUI.getImages().get(IMindMapImages.DELETE, false));
+        menuManager.add(deleteAction);
+    }
+
+    private static void fillMarkerGroup(MenuManager menuManager,
+            IMarkerRef sourceMarkerRef, IGraphicalViewer targetViewer,
+            IMarkerSheet markerSheet, Set<String> addedMarkerIds) {
+        IMarker sourceMarker = markerSheet
+                .findMarker(sourceMarkerRef.getMarkerId());
+        if (sourceMarker == null)
+            return;
+
+        IMarkerGroup group = sourceMarker.getParent();
+        if (group == null)
+            return;
+
+        List<IMarker> visibleMarkers = new ArrayList<IMarker>();
+        for (IMarker marker : group.getMarkers())
+            if (!marker.isHidden())
+                visibleMarkers.add(marker);
+
+        for (IMarker targetMarker : visibleMarkers) {
+            if (addedMarkerIds.contains(targetMarker.getId()))
+                continue;
+
+            menuManager.add(new ReplaceMarkerAction(targetViewer,
+                    sourceMarkerRef, targetMarker));
+            addedMarkerIds.add(targetMarker.getId());
+        }
     }
 
     protected Request createNavScrollRequest(int state, int key) {
@@ -1258,6 +1348,19 @@ public class MindMapSelectTool extends SelectTool {
             return false;
         ((IGraphicalViewer) viewer).center(center);
         return true;
+    }
+
+    @Override
+    protected void handleEditRequest(Request request) {
+        IPart source = request.getPrimaryTarget();
+        if (source instanceof BoundaryPart) {
+            BoundaryPart boundary = (BoundaryPart) source;
+            if (boundary.isPolygonShape(boundary.getFigure())) {
+                return;
+            }
+        }
+
+        super.handleEditRequest(request);
     }
 
 }

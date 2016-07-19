@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>star_oran</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFB300" offset="0%"></stop>
+            <stop stop-color="#FFAB00" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="star" transform="translate(-21.000000, 0.000000)" fill="url(#linearGradient-1)">
+            <polygon id="star_oran" points="29.0022506 12.7804179 24.2999686 15.2525539 25.1980245 10.0164859 21.3937984 6.30828194 26.6511096 5.54434992 29.0022506 0.780417898 31.3533916 5.54434992 36.6107027 6.30828194 32.8064766 10.0164859 33.7045326 15.2525539"></polygon>
+        </g>
+    </g>
+</svg>

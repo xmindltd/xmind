@@ -14,22 +14,24 @@
 package org.xmind.core.internal;
 
 import org.xmind.core.INamed;
+import org.xmind.core.ISheet;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerRef;
 
 public abstract class MarkerRef extends AbstractWorkbookComponent
         implements IMarkerRef {
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == INamed.class)
-            return getMarker();
+            return adapter.cast(getMarker());
 
         return super.getAdapter(adapter);
     }
 
     public String getDescription() {
-        String description = getOwnedSheet().getLegend()
-                .getMarkerDescription(getMarkerId());
+        ISheet sheet = getOwnedSheet();
+        String description = sheet == null ? null
+                : sheet.getLegend().getMarkerDescription(getMarkerId());
         if (description != null)
             return description;
         IMarker marker = getMarker();

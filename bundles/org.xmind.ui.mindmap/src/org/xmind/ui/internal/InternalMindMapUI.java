@@ -24,9 +24,11 @@ import org.xmind.ui.decorations.IDecorationManager;
 import org.xmind.ui.internal.branch.BranchPolicyManager;
 import org.xmind.ui.internal.decorations.DecorationManager;
 import org.xmind.ui.internal.editor.WorkbookRefManager;
+import org.xmind.ui.internal.mindmap.EditorInputFactory;
 import org.xmind.ui.internal.protocols.ProtocolManager;
 import org.xmind.ui.mindmap.ICategoryManager;
 import org.xmind.ui.mindmap.IEditPolicyManager;
+import org.xmind.ui.mindmap.IEditorInputFactory;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.INumberFormatManager;
 import org.xmind.ui.mindmap.INumberSeparatorManager;
@@ -35,6 +37,11 @@ import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.IWorkbookRefManager;
 import org.xmind.ui.prefs.PrefConstants;
 
+/**
+ * 
+ * @author Frank Shaka
+ */
+@SuppressWarnings("deprecation")
 public class InternalMindMapUI {
 
     private static InternalMindMapUI instance = null;
@@ -59,8 +66,6 @@ public class InternalMindMapUI {
 
     private IEditPolicyManager editPolicyManager;
 
-//    private IWorkbookRefManager workbookRefManager;
-
     private IMindMapImages images;
 
     private INumberFormatManager numberFormatManager;
@@ -69,7 +74,21 @@ public class InternalMindMapUI {
 
     private IEditorHistory editorHistory;
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    private IWorkbookRefManager workbookRefManager;
+
+    private EditorInputFactory editorInputFactory;
+
     private InternalMindMapUI() {
+    }
+
+    public static InternalMindMapUI getDefault() {
+        if (instance == null)
+            instance = new InternalMindMapUI();
+        return instance;
     }
 
     public IPartFactory getMindMapPartFactory() {
@@ -180,11 +199,15 @@ public class InternalMindMapUI {
         return editPolicyManager;
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public IWorkbookRefManager getWorkbookRefManager() {
-//        if (workbookRefManager == null) {
-//            workbookRefManager = new WorkbookRefManager();
-//        }
-        return WorkbookRefManager.getInstance();
+        if (workbookRefManager == null) {
+            workbookRefManager = new WorkbookRefManager();
+        }
+        return workbookRefManager;
     }
 
     public IMindMapImages getImages() {
@@ -212,10 +235,11 @@ public class InternalMindMapUI {
         return editorHistory;
     }
 
-    public static InternalMindMapUI getDefault() {
-        if (instance == null)
-            instance = new InternalMindMapUI();
-        return instance;
+    public IEditorInputFactory getEditorInputFactory() {
+        if (editorInputFactory == null) {
+            editorInputFactory = new EditorInputFactory();
+        }
+        return editorInputFactory;
     }
 
 }

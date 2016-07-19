@@ -16,7 +16,7 @@ package org.xmind.ui.internal.actions;
 import org.eclipse.jface.action.Action;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.tabfolder.PageTitleEditor;
+import org.xmind.ui.internal.editor.MindMapPageTitleEditor;
 
 public class RenameSheetAction extends Action {
 
@@ -36,8 +36,8 @@ public class RenameSheetAction extends Action {
         if (page == null)
             return;
 
-        PageTitleEditor titleEditor = (PageTitleEditor) page.getParentEditor()
-                .getAdapter(PageTitleEditor.class);
+        MindMapPageTitleEditor titleEditor = (MindMapPageTitleEditor) page
+                .getParentEditor().getAdapter(MindMapPageTitleEditor.class);
         if (titleEditor != null) {
             titleEditor.startEditing(page.getIndex());
         }

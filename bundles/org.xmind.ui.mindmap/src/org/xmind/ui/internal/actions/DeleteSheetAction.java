@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.xmind.core.ISheet;
-import org.xmind.core.comment.IComment;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.ui.actions.EditorAction;
@@ -25,9 +24,7 @@ import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.commands.CommandMessages;
-import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.commands.DeleteSheetCommand;
-import org.xmind.ui.internal.comments.CommentsUtils;
 
 public class DeleteSheetAction extends EditorAction {
 
@@ -61,14 +58,6 @@ public class DeleteSheetAction extends EditorAction {
         DeleteSheetCommand command = new DeleteSheetCommand(sheet);
         command.setLabel(CommandMessages.Command_DeleteSheet);
         commands.add(command);
-
-        List<IComment> comments = CommentsUtils
-                .getAllCommentsOfSheetAndChildren(sheet);
-        for (IComment comment : comments) {
-            DeleteCommentCommand deleteCommentCommand = new DeleteCommentCommand(
-                    comment);
-            commands.add(deleteCommentCommand);
-        }
 
         saveAndRun(new CompoundCommand(CommandMessages.Command_DeleteSheet,
                 commands));

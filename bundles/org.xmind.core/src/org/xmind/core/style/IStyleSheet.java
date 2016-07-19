@@ -111,9 +111,11 @@ public interface IStyleSheet extends IAdaptable {
 
     /**
      * 
+     * 
      * @param out
      * @throws IOException
      * @throws CoreException
+     * @deprecated Save with owner workbook
      */
     void save(OutputStream out) throws IOException, CoreException;
 

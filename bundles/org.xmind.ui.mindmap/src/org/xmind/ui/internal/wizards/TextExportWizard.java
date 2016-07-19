@@ -77,12 +77,11 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
             protected IStatus run(IProgressMonitor monitor) {
                 monitor.beginTask(null, 100);
 
-                monitor.subTask(WizardMessages.TextExportPage_GeneratePreview_CollectingMapInfo);
+                monitor.subTask(
+                        WizardMessages.TextExportPage_GeneratePreview_CollectingMapInfo);
                 IExporter exporter = createExporter();
                 if (exporter == null) {
-                    return new Status(
-                            IStatus.CANCEL,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.CANCEL, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.TextExportPage_GeneratePreview_NoContent);
                 }
                 monitor.worked(10);
@@ -92,9 +91,7 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
                 PrintStream ps = createPrintStream(out);
                 ((TextExporter) exporter).setPrintStream(ps);
                 if (!exporter.canStart()) {
-                    return new Status(
-                            IStatus.CANCEL,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.CANCEL, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.TextExportPage_GeneratePreview_NoContent);
                 }
 
@@ -107,17 +104,14 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
                 try {
                     exporter.start(display, null);
                 } catch (InvocationTargetException e1) {
-                    return new Status(
-                            IStatus.CANCEL,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.CANCEL, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.TextExportPage_GeneratePreview_Canceled);
                 }
 
                 try {
                     while (exporter.hasNext()) {
                         if (monitor.isCanceled()) {
-                            return new Status(
-                                    IStatus.CANCEL,
+                            return new Status(IStatus.CANCEL,
                                     MindMapUIPlugin.PLUGIN_ID,
                                     WizardMessages.TextExportPage_GeneratePreview_Canceled);
                         }
@@ -138,9 +132,7 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
                         }
                     }
                 } catch (Throwable e) {
-                    return new Status(
-                            IStatus.CANCEL,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.CANCEL, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.TextExportPage_GeneratePreview_Canceled);
                 } finally {
                     ps.close();
@@ -153,9 +145,7 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
                 try {
                     exporter.end();
                 } catch (InvocationTargetException e) {
-                    return new Status(
-                            IStatus.CANCEL,
-                            MindMapUIPlugin.PLUGIN_ID,
+                    return new Status(IStatus.CANCEL, MindMapUIPlugin.PLUGIN_ID,
                             WizardMessages.TextExportPage_GeneratePreview_Canceled);
                 }
 
@@ -204,8 +194,8 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
             createPreviewGroup(composite);
 
             Control fileGroup = createFileControls(composite);
-            fileGroup.setLayoutData(new GridData(GridData.FILL, GridData.FILL,
-                    true, false));
+            fileGroup.setLayoutData(
+                    new GridData(GridData.FILL, GridData.FILL, true, false));
         }
 
         private void createPreviewGroup(Composite parent) {
@@ -217,8 +207,8 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
             previewControl = new Text(group, SWT.MULTI | SWT.BORDER
                     | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
             previewControl.setEditable(false);
-            previewControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    true));
+            previewControl.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, true));
 
             generatePreview();
         }
@@ -243,8 +233,8 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
             dialog.setFilterNames(new String[] {
                     WizardMessages.TextExportPage_FileDialog_TextFile,
                     WizardMessages.ExportPage_FileDialog_AllFiles });
-            dialog.setFilterExtensions(new String[] { FILTER_TEXT,
-                    FILTER_ALL_FILES });
+            dialog.setFilterExtensions(
+                    new String[] { FILTER_TEXT, FILTER_ALL_FILES });
             return dialog;
         }
 
@@ -260,10 +250,10 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
 
     public TextExportWizard() {
         setWindowTitle(WizardMessages.TextExportWizard_windowTitle);
-        setDefaultPageImageDescriptor(MindMapUI.getImages().getWizBan(
-                IMindMapImages.WIZ_EXPORT));
-        setDialogSettings(MindMapUIPlugin.getDefault().getDialogSettings(
-                DIALOG_SETTINGS_SECTION_ID));
+        setDefaultPageImageDescriptor(
+                MindMapUI.getImages().getWizBan(IMindMapImages.WIZ_EXPORT));
+        setDialogSettings(MindMapUIPlugin.getDefault()
+                .getDialogSettings(DIALOG_SETTINGS_SECTION_ID));
     }
 
     protected void addValidPages() {
@@ -271,14 +261,18 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
     }
 
     protected void doExport(IProgressMonitor monitor, Display display,
-            Shell parentShell) throws InvocationTargetException,
-            InterruptedException {
+            Shell parentShell)
+                    throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ExportToTextCount"); //$NON-NLS-1$
+
         monitor.beginTask(null, 100);
 
         monitor.subTask(WizardMessages.Export_Initializing);
         IExporter exporter = createExporter();
         if (exporter == null) {
-            page.setErrorMessage(WizardMessages.TextExportPage_NoContentToExport_message);
+            page.setErrorMessage(
+                    WizardMessages.TextExportPage_NoContentToExport_message);
             throw new InterruptedException();
         }
         monitor.worked(10);
@@ -301,7 +295,8 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
                 try {
                     ((TextExporter) exporter).setPrintStream(ps);
                     if (!exporter.canStart()) {
-                        page.setErrorMessage(WizardMessages.TextExportPage_NoContentToExport_message);
+                        page.setErrorMessage(
+                                WizardMessages.TextExportPage_NoContentToExport_message);
                         throw new InterruptedException();
                     }
 

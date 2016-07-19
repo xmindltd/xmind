@@ -284,6 +284,8 @@ public class SpellingHelper
 
     private static Map<Integer, Line> lineCache = new HashMap<Integer, Line>();
 
+    private ISpellCheckerVisitor visitor = null;
+
     public SpellingHelper(ISpellingSupport support, ITextViewer viewer) {
         this.support = support;
         this.viewer = viewer;
@@ -318,14 +320,17 @@ public class SpellingHelper
         control.addListener(SWT.Paint, this);
         control.addListener(SWT.Dispose, this);
         final Display display = Display.getCurrent();
-        SpellCheckerAgent.visitSpellChecker(new ISpellCheckerVisitor() {
+
+        visitor = new ISpellCheckerVisitor() {
             public void handleWith(SpellChecker spellChecker) {
                 if (control == null || control.isDisposed() || disposed)
                     return;
                 SpellingHelper.this.spellChecker = spellChecker;
                 check(display);
             }
-        });
+        };
+        SpellCheckerAgent.visitSpellChecker(visitor);
+        SpellCheckerAgent.addListener(visitor);
     }
 
     /**
@@ -333,6 +338,7 @@ public class SpellingHelper
      */
     private void addToDict(final Display display, final SpellCheckEvent range) {
         SpellCheckerAgent.visitSpellChecker(new ISpellCheckerVisitor() {
+            //This listener is just to get value from a long time delay.
             public void handleWith(SpellChecker spellChecker) {
                 if (!isActive())
                     return;
@@ -461,6 +467,7 @@ public class SpellingHelper
     }
 
     private void deactivate() {
+        SpellCheckerAgent.removeListener(visitor);
         if (viewer != null) {
             viewer.removeTextListener(this);
             viewer = null;

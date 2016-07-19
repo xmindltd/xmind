@@ -9,7 +9,6 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextViewer;
@@ -43,25 +42,21 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.part.IContributedContentsView;
 import org.eclipse.ui.part.ViewPart;
 import org.xmind.core.Core;
+import org.xmind.core.IComment;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
-import org.xmind.core.comment.IComment;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.dom.SheetImpl;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
-import org.xmind.ui.internal.actions.FindReplaceAction;
 import org.xmind.ui.internal.comments.CommentTextViewer;
-import org.xmind.ui.internal.comments.CommentsConstants;
 import org.xmind.ui.internal.comments.CommentsSelectionProvider;
 import org.xmind.ui.internal.comments.CommentsViewActionBarContributor;
 import org.xmind.ui.internal.comments.ICommentTextViewerContainer;
 import org.xmind.ui.internal.comments.ICommentsActionBarContributor;
 import org.xmind.ui.internal.comments.SheetCommentsViewer;
-import org.xmind.ui.internal.findreplace.IFindReplaceOperationProvider;
-import org.xmind.ui.internal.notes.NotesFindReplaceOperationProvider;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.resources.ColorUtils;
 
@@ -161,13 +156,13 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
 
     private List<TextAction> textActions = new ArrayList<TextAction>(7);
 
-    private IWorkbenchAction findReplaceAction;
-
     private IGraphicalEditor contributingEditor;
 
     private ITopicPart currentTopicPart;
 
     private ICoreEventRegister commentEventRegister;
+
+    private ICoreEventRegister globalEventRegister;
 
     private ScrolledComposite sc;
 
@@ -180,8 +175,6 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
     private Control control;
 
     private ControlListener controlListener;
-
-    private NotesFindReplaceOperationProvider commentsOperationProvider = null;
 
     private IHandlerActivation commitHandlerActivation;
 
@@ -222,8 +215,8 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
     }
 
     private void saveComment() {
-        if (contentComposite != null && !contentComposite.isDisposed()) {
-            contentComposite.forceFocus();
+        if (contentViewer != null) {
+            contentViewer.save();
         }
     }
 
@@ -315,8 +308,11 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
         if (sheet != null) {
             if (commentEventRegister == null)
                 commentEventRegister = new CoreEventRegister(
-                        ((SheetImpl) sheet).getCoreEventSupport(), this);
-            commentEventRegister.register(Core.TopicComments);
+                        sheet.getAdapter(ICoreEventSupport.class), this);
+            commentEventRegister.register(Core.CommentAdd);
+            commentEventRegister.register(Core.CommentRemove);
+
+            registerGlobalEvent();
         }
     }
 
@@ -324,6 +320,21 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
         if (commentEventRegister != null) {
             commentEventRegister.unregisterAll();
             commentEventRegister = null;
+        }
+        unRegisterGlobalEvent();
+    }
+
+    private void registerGlobalEvent() {
+        globalEventRegister = new CoreEventRegister(
+                sheet.getOwnedWorkbook().getAdapter(ICoreEventSupport.class),
+                this);
+        globalEventRegister.register(Core.CommentContent);
+    }
+
+    private void unRegisterGlobalEvent() {
+        if (globalEventRegister != null) {
+            globalEventRegister.unregisterAll();
+            globalEventRegister = null;
         }
     }
 
@@ -388,11 +399,6 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
                 ITextOperationTarget.PASTE);
         addGlobalTextAction(actionBars, window, ActionFactory.SELECT_ALL,
                 ITextOperationTarget.SELECT_ALL);
-
-        IWorkbenchAction action = ActionFactory.FIND.create(window);
-        workbenchActions.put(action.getId(), action);
-        actionBars.setGlobalActionHandler(action.getId(),
-                findReplaceAction = new FindReplaceAction(window));
     }
 
     private void addGlobalTextAction(IActionBars actionBars,
@@ -430,10 +436,6 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
 
         super.dispose();
 
-        if (findReplaceAction != null) {
-            findReplaceAction.dispose();
-            findReplaceAction = null;
-        }
         if (workbenchActions != null) {
             for (IWorkbenchAction action : workbenchActions.values()) {
                 action.dispose();
@@ -453,16 +455,6 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
     public Object getAdapter(Class adapter) {
         if (adapter == IContributedContentsView.class) {
             return this;
-        } else if (adapter == IFindReplaceOperationProvider.class) {
-            if (commentsOperationProvider == null) {
-                commentsOperationProvider = new NotesFindReplaceOperationProvider(
-                        this);
-            }
-            return commentsOperationProvider;
-        } else if (adapter == IFindReplaceTarget.class) {
-            return getImplementation() == null ? null
-                    : getImplementation().getTextViewer()
-                            .getFindReplaceTarget();
         } else if (adapter == ITextViewer.class) {
             return getImplementation() == null ? null
                     : getImplementation().getTextViewer();
@@ -577,21 +569,24 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
     }
 
     public void handleCoreEvent(final CoreEvent event) {
+        final String type = event.getType();
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
             public void run() {
-                String eventType = event.getType();
-                if (Core.TopicComments.equals(eventType)
-                        && !contentComposite.isDisposed()) {
-                    //if popup is showing, don't refresh when create comment.
-                    Object commentsPopupShown = control
-                            .getData(CommentsConstants.COMMENTS_POPUP_SHOWN);
-                    if (commentsPopupShown.equals(Boolean.TRUE)) {
-                        if (event.getOldValue() == null
-                                && "".equals(event.getNewValue())) { //$NON-NLS-1$
-                            return;
+                if (!contentComposite.isDisposed()) {
+                    if (Core.CommentAdd.equals(type)
+                            || Core.CommentRemove.equals(type)) {
+                        update();
+                    } else if (Core.CommentContent.equals(type)) {
+                        IComment comment = (IComment) event.getSource();
+                        Object source = comment.getOwnedWorkbook()
+                                .getElementById(comment.getObjectId());
+                        if ((source instanceof ITopic
+                                && ((ITopic) source).getOwnedSheet() == sheet)
+                                || source instanceof ISheet
+                                        && source == sheet) {
+                            update();
                         }
                     }
-                    update();
                 }
             }
         });
@@ -653,6 +648,16 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
 
     public Control getControl() {
         return control;
+    }
+
+    @Override
+    public void createComment(String objectId) {
+        contentViewer.createNewComment(objectId);
+    }
+
+    @Override
+    public void cancelCreateComment() {
+        contentViewer.cancelCreateNewComment();
     }
 
 }

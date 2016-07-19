@@ -97,22 +97,23 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
         getProperties().set(VIEWER_RENDER_TEXT_AS_PATH, false);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == IMindMap.class)
-            return getMindMap();
-        if (adapter == ISheet.class)
-            return getSheet();
-        if (adapter == ITopic.class)
-            return getCentralTopic();
-        if (adapter == ISheetPart.class)
-            return getSheetPart();
-        if (adapter == IBranchPart.class)
-            return getCentralBranchPart();
-        if (adapter == ITopicPart.class)
-            return getCentralTopicPart();
-        if (adapter == IWorkbook.class) {
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IMindMap.class.equals(adapter))
+            return adapter.cast(getMindMap());
+        if (ISheet.class.equals(adapter))
+            return adapter.cast(getSheet());
+        if (ITopic.class.equals(adapter))
+            return adapter.cast(getCentralTopic());
+        if (ISheetPart.class.equals(adapter))
+            return adapter.cast(getSheetPart());
+        if (IBranchPart.class.equals(adapter))
+            return adapter.cast(getCentralBranchPart());
+        if (ITopicPart.class.equals(adapter))
+            return adapter.cast(getCentralTopicPart());
+        if (IWorkbook.class.equals(adapter)) {
             ISheet sheet = getSheet();
-            return sheet == null ? null : sheet.getOwnedWorkbook();
+            return adapter
+                    .cast(sheet == null ? null : sheet.getOwnedWorkbook());
         }
         return super.getAdapter(adapter);
     }

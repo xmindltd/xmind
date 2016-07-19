@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 3.7 (28169) - http://www.bohemiancoding.com/sketch -->
+    <title>sym_损</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FF9800" offset="0%"></stop>
+            <stop stop-color="#F57C00" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="0" y="0" width="16" height="16" rx="2"></rect>
+        <path d="M7.44661518,10.5820182 L7.44661518,12.4829517 C7.39430209,13.3391026 7.64455658,14.0616105 8.17899836,14.0609144 C9.10932294,14.0595223 9.0831664,13.3210051 9.0831664,13.3210051 C9.24858885,10.700348 11.7016484,9.88596048 11.7016484,9.88596048 L11.7016484,4.31749911 L11.375752,4.27434353 C9.53331008,4.27434352 9.75950056,2.93235396 7.94757668,2.92538377 C5.53703426,2.91611078 3.7722282,2.92023627 2.97827039,4.76045709 C2.67324325,5.46744338 2.5115119,6.44543469 2.5115119,7.79778747 C2.5115119,9.7787676 3.42840475,10.5820182 4.24349916,10.5820182 L7.44661518,10.5820182 Z M12.3459419,4.37784435 L14.0669564,4.37784435 L14.0669564,9.70353315 L12.3459419,9.70353315 L12.3459419,4.37784435 Z M13.2063877,8.7352261 C13.4100641,8.7352261 13.5751765,8.57265391 13.5751765,8.37211095 C13.5751765,8.171568 13.4100641,8.00899581 13.2063877,8.00899581 C13.0027112,8.00899581 12.8375989,8.171568 12.8375989,8.37211095 C12.8375989,8.57265391 13.0027112,8.7352261 13.2063877,8.7352261 Z" id="path-3"></path>
+    </defs>
+    <g id="最终稿2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="symbols2" transform="translate(-96.000000, -39.000000)">
+            <g id="sym_损" transform="translate(96.000000, 39.000000)">
+                <g id="Rectangle-370-Copy-16">
+                    <use fill="#FFCC80" xlink:href="#path-2"></use>
+                    <use fill="url(#linearGradient-1)" xlink:href="#path-2"></use>
+                </g>
+                <g id="Combined-Shape" transform="translate(8.289234, 8.492580) scale(-1, 1) translate(-8.289234, -8.492580) ">
+                    <use fill="#FFCC80" xlink:href="#path-3"></use>
+                    <use fill="#FFFFFF" xlink:href="#path-3"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -23,11 +23,11 @@ import org.xmind.core.CoreException;
 import org.xmind.core.IChecksumStream;
 
 /**
- * @author MANGOSOFT
+ * @author Frank Shaka
  * 
  */
-public class ChecksumInputStream extends FilterInputStream implements
-        IChecksumStream {
+public class ChecksumInputStream extends FilterInputStream
+        implements IChecksumStream {
 
     private Digest digest;
 

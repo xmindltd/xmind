@@ -17,6 +17,20 @@
             properties="type"
             type="org.xmind.core.style.IStyleSheet">
       </propertyTester>
+      <propertyTester
+            class="org.xmind.ui.internal.editor.WorkbookRefPropertyTester"
+            id="org.xmind.ui.propertyTester.workbookRef"
+            namespace="org.xmind.ui.editor.workbookRef"
+            properties="uri,uriScheme"
+            type="org.xmind.ui.mindmap.IWorkbookRef">
+      </propertyTester>
+      <propertyTester
+            class="org.xmind.ui.internal.ShareOptionRegistryPropertyTester"
+            id="org.xmind.ui.propertyTester.shareOptionRegistry"
+            namespace="org.xmind.ui.shareOptionRegistry"
+            properties="hasOptions"
+            type="java.lang.Object">
+      </propertyTester>
    </extension>
 
    <extension
@@ -31,16 +45,13 @@
             class="org.xmind.ui.internal.editor.FileEditorInputFactory"
             id="org.xmind.ui.WorkbookEditorInputFactory">
       </factory>
+      <factory
+            class="org.xmind.ui.internal.editor.MindMapEditorInputFactory"
+            id="org.xmind.ui.MindMapEditorInputFactory">
+      </factory>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
-      <factory
-            adaptableType="org.xmind.core.IAdaptable"
-            class="org.xmind.ui.internal.CoreUIAdapterFactory">
-         <adapter
-               type="org.eclipse.ui.IActionFilter">
-         </adapter>
-      </factory>
       <factory
             adaptableType="org.xmind.core.ITopic"
             class="org.xmind.ui.internal.TopicBranchAdapterFactory">
@@ -56,5 +67,14 @@
             class="org.xmind.ui.internal.MindMapContributedContentPageFactory"
             types="outline,properties,org.xmind.ui.views.overview,org.xmind.ui.views.revisions,org.xmind.ui.views.metadata">
       </pageFactory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <serviceFactory
+            factoryClass="org.xmind.ui.internal.MindMappingServiceFactory">
+         <service
+               serviceClass="org.xmind.ui.editor.IEditorHistory">
+         </service>
+      </serviceFactory>
    </extension>
 </plugin>

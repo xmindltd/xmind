@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="contributedContentsViews" name="%extension-point.name" schema="schema/contributedContentsViews.exsd"/>
+   <extension-point id="applicationValidators" name="Application Validators" schema="schema/applicationValidators.exsd"/>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
@@ -165,13 +166,6 @@
             </and>
          </enabledWhen>
       </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.statusHandlers">
-      <statusHandler
-            class="org.xmind.ui.internal.statushandlers.CathyStatusHandler"
-            id="org.xmind.ui.statusHandler">
-      </statusHandler>
    </extension>
 
 </plugin>

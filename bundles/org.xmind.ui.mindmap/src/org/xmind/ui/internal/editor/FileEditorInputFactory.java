@@ -23,12 +23,13 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
+import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
 /**
  * 
  * @author Frank Shaka
- * 
+ * @deprecated See {@link MindMapEditorInputFactory}
  */
 public class FileEditorInputFactory implements IElementFactory {
 
@@ -44,12 +45,8 @@ public class FileEditorInputFactory implements IElementFactory {
     public IAdaptable createElement(IMemento memento) {
         String path = memento.getString(TAG_PATH);
         if (path != null) {
-            try {
-                return MME.createFileEditorInput(path);
-            } catch (CoreException e) {
-                Logger.log(e);
-                return null;
-            }
+            return MindMapUI.getEditorInputFactory()
+                    .createEditorInputForFile(new File(path));
         }
 
         // For backward compatability
@@ -75,84 +72,9 @@ public class FileEditorInputFactory implements IElementFactory {
      */
     private IEditorInput createResourceFileEditorInput(String resourcePath)
             throws CoreException {
-        IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-                new Path(resourcePath));
-        return MME.createFileEditorInput(file);
+        IFile file = ResourcesPlugin.getWorkspace().getRoot()
+                .getFile(new Path(resourcePath));
+        return MindMapUI.getEditorInputFactory()
+                .createEditorInput(file.getLocationURI());
     }
-
-    public static String getFactoryId() {
-        return ID;
-    }
-
-    /**
-     * Save the file editor input to the memeneto. Only the 'path' attribute
-     * will be saved.
-     * 
-     * @param memento
-     * @param input
-     */
-    static void saveState(IMemento memento, FileEditorInput input) {
-        File file = input.getFile();
-        memento.putString(TAG_PATH, file.getAbsolutePath());
-    }
-
-//    private static final String ID_FACTORY = "org.xmind.ui.WorkbookEditorInputFactory"; //$NON-NLS-1$
-//
-//    private static final String TAG_ABSOLUTE_PATH = "path"; //$NON-NLS-1$
-//
-//    private static final String TAG_RESOURCE_PATH = "resourcePath"; //$NON-NLS-1$
-
-//    public IAdaptable createElement(IMemento memento) {
-//        String resPath = memento.getString(TAG_RESOURCE_PATH);
-//        if (resPath != null) {
-//            IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-//                    new Path(resPath));
-//            if (file != null) {
-//                try {
-//                    IWorkbook workbook = Core.getWorkbookBuilder()
-//                            .loadFromStream(
-//                                    file.getContents(),
-//                                    MindMapUI.getWorkbookRefManager()
-//                                            .createTempLocation());
-//                    return new WorkbookEditorInput(workbook, file);
-//                } catch (Exception e) {
-//                    Logger.log(e);
-//                }
-//            }
-//        }
-//
-//        String path = memento.getString(TAG_ABSOLUTE_PATH);
-//        if (path != null) {
-//            File file = new File(path);
-//            if (file.exists() && file.canRead()) {
-//                try {
-//                    IWorkbook workbook = Core.getWorkbookBuilder()
-//                            .loadFromFile(file);
-//                    return new WorkbookEditorInput(workbook, path);
-//                } catch (Throwable e) {
-//                    Logger.log(e);
-//                }
-//            }
-//        }
-//
-//        return null;
-//    }
-//
-//    public static String getFactoryId() {
-//        return ID_FACTORY;
-//    }
-//
-//    public static void saveState(IMemento memento, WorkbookEditorInput input) {
-//        String path = input.getFile();
-//        if (path != null) {
-//            memento.putString(TAG_ABSOLUTE_PATH, path);
-//        }
-//        IFile resFile = input.getResourceFile();
-//        if (resFile != null) {
-//            memento.putString(TAG_RESOURCE_PATH, resFile.getFullPath()
-//                    .toString());
-//        }
-//
-//    }
-
 }

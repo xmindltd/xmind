@@ -59,22 +59,24 @@ public class MindMapRevealService extends ZoomingAndPanningRevealService {
     }
 
     public void centerOnCentralTopic() {
-        final ITopicPart centralTopic = (ITopicPart) getViewer().getAdapter(
-                ITopicPart.class);
+        final ITopicPart centralTopic = (ITopicPart) getViewer()
+                .getAdapter(ITopicPart.class);
         if (centralTopic == null)
             return;
-        centerOnCentralTopic(centralTopic);
+//        centerOnCentralTopic(centralTopic);
         ((GraphicalViewer) getViewer()).getLightweightSystem()
                 .getUpdateManager().runWithUpdate(new Runnable() {
                     public void run() {
-                        centerOnCentralTopic(centralTopic);
-                        final Canvas canvas = getViewer().getCanvas();
-                        canvas.addListener(SWT.Paint, new Listener() {
-                            public void handleEvent(Event event) {
-                                canvas.removeListener(SWT.Paint, this);
-                                centerOnCentralTopic(centralTopic);
-                            }
-                        });
+                        if (getViewer().getFocused() == null) {
+                            centerOnCentralTopic(centralTopic);
+                            final Canvas canvas = getViewer().getCanvas();
+                            canvas.addListener(SWT.Paint, new Listener() {
+                                public void handleEvent(Event event) {
+                                    canvas.removeListener(SWT.Paint, this);
+                                    centerOnCentralTopic(centralTopic);
+                                }
+                            });
+                        }
                     }
                 });
     }
@@ -82,10 +84,11 @@ public class MindMapRevealService extends ZoomingAndPanningRevealService {
     private void centerOnCentralTopic(ITopicPart centralTopic) {
         boolean selected = getViewer().getProperties().getBoolean(
                 IMindMapViewer.VIEWER_SELECT_CENTRALTOPIC, Boolean.TRUE);
-        if (selected)
+        if (selected) {
             getViewer().setSelection(new StructuredSelection(centralTopic),
                     false);
-        getViewer().center(centralTopic.getFigure().getBounds());
+            getViewer().center(centralTopic.getFigure().getBounds());
+        }
     }
 
 }

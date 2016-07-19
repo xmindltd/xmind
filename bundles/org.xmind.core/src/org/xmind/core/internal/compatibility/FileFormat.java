@@ -16,27 +16,19 @@ package org.xmind.core.internal.compatibility;
 import java.io.IOException;
 
 import org.xmind.core.CoreException;
+import org.xmind.core.internal.dom.DeserializerImpl;
 import org.xmind.core.internal.dom.WorkbookImpl;
-import org.xmind.core.io.IInputSource;
-import org.xmind.core.io.IStorage;
-import org.xmind.core.util.IXMLLoader;
 
 public abstract class FileFormat {
 
-    protected IInputSource source;
+    protected DeserializerImpl deserializer;
 
-    protected IXMLLoader loader;
-
-    protected IStorage storage;
-
-    public FileFormat(IInputSource source, IXMLLoader loader, IStorage storage) {
+    public FileFormat(DeserializerImpl deserializer) {
         super();
-        this.source = source;
-        this.loader = loader;
-        this.storage = storage;
+        this.deserializer = deserializer;
     }
 
-    public abstract boolean identifies() throws CoreException;
+    public abstract boolean identifies() throws CoreException, IOException;
 
     public abstract WorkbookImpl load() throws CoreException, IOException;
 
