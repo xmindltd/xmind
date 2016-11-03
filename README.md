@@ -51,34 +51,6 @@ And, by the way...
 -   If you're using an OS *other than* Windows and encounter compiling errors
     in plugin `org.xmind.cathy.win32`, just delete it from the workspace.
 
-How To Build Executable RCP Product
------------------------------------
-
-1.  Download and install [JDK v1.8 or higher](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
-1.  Download and install [Eclipse SDK v4.6 or higher](http://download.eclipse.org/eclipse/downloads/).
-1.  Download and install [Maven v3.3 or higher](http://maven.apache.org/).
-1.  Open Terminal on Mac/Linux (or cmd.exe on Windows), and execute these
-    *magical* commands (you may have to replace some paths to meet your
-    environment):
-
-    ```
-    cd /the/path/to/github/xmind
-    mvn clean verify
-    /the/path/to/eclipse -nosplash -consoleLog -application org.eclipse.equinox.p2.director -repository file:/the/path/to/github/xmind/releng/org.xmind.product/target/repository/ -installIU org.xmind.cathy.product -profile XMindProfile -roaming -destination /the/path/to/target/xmind -p2.os win32|macosx|linux -p2.ws win32|cocoa|gtk -p2.arch x86|x86_64
-    ```
-
-    For all available options of the *p2 director application* and what they
-    mean, see [Eclipse Help](http://help.eclipse.org/mars/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html).
-
-1.  You should now see an executable XMind application in the
-    `/the/path/to/target/xmind` directory.
-
-And, by the way...
-
--   Don't try building a macOS application or Linux package on a *Windows*
-    platform, because doing so will make the application lack of *executable*
-    file permission.
-
 How To Contribute
 -----------------
 
