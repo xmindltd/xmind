@@ -20,6 +20,8 @@ import org.xmind.gef.service.IViewerService;
 
 public interface IDrillDownTraceService extends IViewerService {
 
+    void init(List<ITopic> centralTopics);
+
     List<ITopic> getCentralTopics();
 
     ITopic getCurrentCentralTopic();

@@ -7,11 +7,6 @@ import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.ui.editor.GraphicalEditorPagePopupPreviewHelper;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class MindMapEditorPagePopupPreviewHelper
         extends GraphicalEditorPagePopupPreviewHelper {
 

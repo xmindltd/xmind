@@ -508,6 +508,9 @@ public class ColumnStructure extends AbstractBranchStructure implements
             ParentSearchKey key) {
         Column2 col = getColumn(branch);
         Cell2 cell = col.findCell(key.getCursorPos());
+        if (cell == null) {
+            return calcFirstChildPosition(branch, key);
+        }
 
         List<Item2> items = cell.getItems();
 
@@ -528,10 +531,9 @@ public class ColumnStructure extends AbstractBranchStructure implements
 
         int deltaY = (insSize.height + sub.getFigure().getSize().height) / 2;
 
-        return getFigureLocation(sub.getFigure())
-                .getTranslated(
-                        (inventSize.width - sub.getTopicPart().getFigure()
-                                .getSize().width) / 2,
+        return getFigureLocation(sub.getFigure()).getTranslated(
+                (inventSize.width
+                        - sub.getTopicPart().getFigure().getSize().width) / 2,
                 index == items.size() ? deltaY : -deltaY);
     }
 

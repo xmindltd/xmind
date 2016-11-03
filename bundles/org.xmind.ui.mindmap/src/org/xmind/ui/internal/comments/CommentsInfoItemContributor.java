@@ -15,6 +15,7 @@ import org.xmind.core.IComment;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.CompoundCommand;
@@ -25,12 +26,13 @@ import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.mindmap.AbstractInfoItemContributor;
 import org.xmind.ui.mindmap.IInfoPart;
-import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.TextFormatter;
 
 public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
+
+    private static final String PRESENTATION_VIERWER_CLASS_NAME = "PresentationViewer"; //$NON-NLS-1$
 
     private static class ShowCommentsAction extends Action {
 
@@ -44,6 +46,13 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
         }
 
         public void run() {
+            if (topicPart == null || topicPart.getSite() == null
+                    || topicPart.getSite().getViewer() == null
+                    || topicPart.getSite().getViewer().getClass()
+                            .getSimpleName()
+                            .equals(PRESENTATION_VIERWER_CLASS_NAME))
+                return;
+
             if (!topicPart.getStatus().isActive())
                 return;
 
@@ -116,6 +125,10 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
             ICoreEventRegister register) {
         register.register(Core.CommentAdd);
         register.register(Core.CommentRemove);
+
+        register.setNextSupport(
+                topic.getOwnedWorkbook().getAdapter(ICoreEventSupport.class));
+        register.register(Core.CommentContent);
     }
 
     private void removeComments(ITopicPart topicPart) {
@@ -149,6 +162,7 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
 
         IAction editCommentsAction = createAction(topicPart, topic);
         editCommentsAction.setText(MindMapMessages.ModifyMenu);
+        editCommentsAction.setImageDescriptor(null);
         actions.add(editCommentsAction);
 
         IAction deleteCommentsAction = new Action(
@@ -159,8 +173,7 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
             };
         };
         deleteCommentsAction.setId("org.xmind.ui.removeComments"); //$NON-NLS-1$
-        deleteCommentsAction.setImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        deleteCommentsAction.setImageDescriptor(null);
         actions.add(deleteCommentsAction);
 
         return actions;

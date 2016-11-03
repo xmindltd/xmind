@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
@@ -425,6 +426,8 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     private ViewerSorter sorter = null;
 
+    private ViewerComparator comparator = null;
+
     private ISelectionSupport selectionSupport = null;
 
     private Properties properties = null;
@@ -606,7 +609,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.IViewer#setCursor(org.eclipse.swt.graphics.Cursor)
      */
     public void setCursor(Cursor cursor) {
@@ -649,6 +651,10 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
         return sorter;
     }
 
+    public ViewerComparator getComparator() {
+        return comparator;
+    }
+
     public void removeFilter(ViewerFilter filter) {
         if (filter == null || filters == null || filters.isEmpty())
             return;
@@ -679,6 +685,14 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
                 || (sorter != null && sorter.equals(this.sorter)))
             return;
         this.sorter = sorter;
+        refresh();
+    }
+
+    public void setComparator(ViewerComparator comparator) {
+        if (comparator == this.comparator
+                || (comparator != null && comparator.equals(this.comparator)))
+            return;
+        this.comparator = comparator;
         refresh();
     }
 
@@ -763,7 +777,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @seeorg.xmind.gef.IViewer#setPartSearchCondition(org.xmind.gef.IViewer.
      * IPartSearchCondition)
      */
@@ -773,7 +786,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.IViewer#getPartSearchCondition()
      */
     public IPartSearchCondition getPartSearchCondition() {
@@ -853,7 +865,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.viewers.IPostSelectionProvider#
      * addPostSelectionChangedListener
      * (org.eclipse.jface.viewers.ISelectionChangedListener)
@@ -865,7 +876,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.viewers.IPostSelectionProvider#
      * removePostSelectionChangedListener
      * (org.eclipse.jface.viewers.ISelectionChangedListener)
@@ -906,11 +916,11 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
                         AbstractViewer.this, selection);
                 getListenerSupport().fireEvent(POST_SELECTION_CHANGED_KEY,
                         new IEventDispatcher() {
-                    public void dispatch(Object listener) {
-                        ((ISelectionChangedListener) listener)
-                                .selectionChanged(event);
-                    }
-                });
+                            public void dispatch(Object listener) {
+                                ((ISelectionChangedListener) listener)
+                                        .selectionChanged(event);
+                            }
+                        });
                 postSelectionChangedEventScheduled = false;
             }
         });
@@ -918,7 +928,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.IViewer#addFocusedChangedListener(org.eclipse.jface.viewers
      * .ISelectionChangedListener)
@@ -930,7 +939,6 @@ public abstract class AbstractViewer extends Viewer implements IViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.IViewer#removeFocusedChangedListener(org.eclipse.jface.
      * viewers.ISelectionChangedListener)

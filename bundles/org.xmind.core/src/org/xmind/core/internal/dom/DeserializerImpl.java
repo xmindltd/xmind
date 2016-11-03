@@ -18,6 +18,7 @@ package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.zip.ArchiveConstants.COMMENTS_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.META_XML;
+import static org.xmind.core.internal.zip.ArchiveConstants.PATH_EXTENSIONS;
 import static org.xmind.core.internal.zip.ArchiveConstants.PATH_MARKER_SHEET;
 import static org.xmind.core.internal.zip.ArchiveConstants.STYLES_XML;
 
@@ -40,6 +41,7 @@ import org.xmind.core.IMeta;
 import org.xmind.core.IRevisionRepository;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.IWorkbookExtensionManager;
 import org.xmind.core.internal.AbstractSerializingBase;
 import org.xmind.core.internal.compatibility.Compatibility;
 import org.xmind.core.internal.zip.ArchiveConstants;
@@ -170,13 +172,7 @@ public class DeserializerImpl extends AbstractSerializingBase
                 || usesWorkbookStorageAsInputSource;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.xmind.core.IDeserializer#deserialize(org.xmind.core.util.
-     * IProgressReporter)
-     */
-    public void deserialize(IProgressReporter reporter)
+    public void deserializeManifest(IProgressReporter reporter)
             throws IOException, CoreException, IllegalStateException {
         if (inputStream != null) {
             ZipInputStream zin = new ZipInputStream(inputStream);
@@ -196,6 +192,18 @@ public class DeserializerImpl extends AbstractSerializingBase
                 ArchiveConstants.MANIFEST_XML);
         manifest = new ManifestImpl(manifestDoc, storage);
         manifest.setStreamNormalizer(getEntryStreamNormalizer());
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.xmind.core.IDeserializer#deserialize(org.xmind.core.util.
+     * IProgressReporter)
+     */
+    public void deserialize(IProgressReporter reporter)
+            throws IOException, CoreException, IllegalStateException {
+        if (manifest == null)
+            deserializeManifest(reporter);
 
         /// Check if it's in old format
         WorkbookImpl compatibleWorkbook = Compatibility
@@ -249,6 +257,20 @@ public class DeserializerImpl extends AbstractSerializingBase
                             new WorkbookMarkerResourceProvider(workbook));
             markerSheet.setManifest(manifest);
             workbook.setMarkerSheet(markerSheet);
+        }
+
+        /// load extensions
+        IWorkbookExtensionManager m = ((IWorkbook) workbook)
+                .getAdapter(IWorkbookExtensionManager.class);
+        if (m instanceof WorkbookExtensionManagerImpl) {
+            WorkbookExtensionManagerImpl extManager = (WorkbookExtensionManagerImpl) m;
+            for (String provider : extManager.getProviders()) {
+                Document extDoc = loadDocumentFromEntry(PATH_EXTENSIONS + //
+                        provider + ".xml"); //$NON-NLS-1$
+                if (extDoc != null) {
+                    extManager.createExtension(provider, extDoc);
+                }
+            }
         }
 
         /// load comments.xml
@@ -409,7 +431,7 @@ public class DeserializerImpl extends AbstractSerializingBase
         return document;
     }
 
-    protected ManifestImpl getManifest() {
+    public ManifestImpl getManifest() {
         return manifest;
     }
 

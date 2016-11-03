@@ -31,6 +31,10 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.xmind.core.Core;
 import org.xmind.core.IBoundary;
 import org.xmind.core.IControlPoint;
@@ -51,6 +55,8 @@ import org.xmind.core.util.FileUtils;
 import org.xmind.gef.draw2d.SizeableImageFigure;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ResizeConstants;
+import org.xmind.gef.ui.editor.IGraphicalEditor;
+import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.gallery.GalleryViewer;
 import org.xmind.ui.gallery.IDecorationContext;
@@ -80,9 +86,13 @@ public class ThemeLabelProvider extends LabelProvider
 
         public static final ThemePreviewImageProviderManager INSTANCE = new ThemePreviewImageProviderManager();
 
-        private Map<IStyle, Image> images = new HashMap<IStyle, Image>();
+        private Map<String, Map<IStyle, Image>> imageGroups = new HashMap<String, Map<IStyle, Image>>();
 
-        private Map<IStyle, ThemePreviewImageLoader> loaders = new HashMap<IStyle, ThemeLabelProvider.ThemePreviewImageLoader>();
+        private Map<String, Map<IStyle, ThemePreviewImageLoader>> loaderGroups = new HashMap<String, Map<IStyle, ThemePreviewImageLoader>>();
+
+//        private Map<IStyle, Image> images = new HashMap<IStyle, Image>();
+//
+//        private Map<IStyle, ThemePreviewImageLoader> loaders = new HashMap<IStyle, ThemeLabelProvider.ThemePreviewImageLoader>();
 
         private ListenerList listeners = new ListenerList();
 
@@ -94,10 +104,14 @@ public class ThemeLabelProvider extends LabelProvider
                 super.done(event);
                 ThemePreviewImageLoader loader = (ThemePreviewImageLoader) event
                         .getJob();
-                loaders.remove(loader.getTheme());
+                Map<IStyle, ThemePreviewImageLoader> loaderGroup = loaderGroups
+                        .get(loader.getStructureClass());
+                if (loaderGroup != null && !loaderGroup.isEmpty())
+                    loaderGroup.remove(loader.getTheme());
                 Image image = loader.getPreviewImage();
                 if (image != null) {
-                    setPreviewImage(loader.getTheme(), image);
+                    setPreviewImage(loader.getTheme(),
+                            loader.getStructureClass(), image);
                 }
             }
         };
@@ -174,20 +188,29 @@ public class ThemeLabelProvider extends LabelProvider
             }
         }
 
-        public Image getThemePreviewImage(IStyle theme) {
-            Image image;
+        public Image getThemePreviewImage(IStyle theme, String structureClass) {
+            Image image = null;
 
-            image = images.get(theme);
+            Map<IStyle, Image> imageGroup = imageGroups.get(structureClass);
+            if (imageGroup != null)
+                image = imageGroup.get(theme);
             if (image != null)
                 return image;
 
-            if (!loaders.containsKey(theme)) {
+            Map<IStyle, ThemePreviewImageLoader> loaderGroup = loaderGroups
+                    .get(structureClass);
+            if (loaderGroup == null) {
+                loaderGroup = new HashMap<IStyle, ThemeLabelProvider.ThemePreviewImageLoader>();
+                loaderGroups.put(structureClass, loaderGroup);
+            }
+            if (!loaderGroup.containsKey(theme)) {
+//            if (!loaders.containsKey(theme)) {
                 ThemePreviewImageLoader loader = new ThemePreviewImageLoader(
-                        theme, Display.getCurrent());
+                        theme, structureClass, Display.getCurrent());
                 loader.setRule(this);
                 loader.setSystem(true);
                 loader.addJobChangeListener(loaderListener);
-                loaders.put(theme, loader);
+                loaderGroup.put(theme, loader);
                 MindMapUIPlugin.getDefault().registerJob(loader);
                 loader.schedule();
             }
@@ -196,53 +219,75 @@ public class ThemeLabelProvider extends LabelProvider
         }
 
         private void deletePreviewImageCacheForTheme(IStyle theme) {
-            File cacheFile = getPreviewImageCacheFileForTheme(theme);
-            if (cacheFile.exists()) {
-                cacheFile.delete();
-            }
+            for (String structureClass : imageGroups.keySet()) {
+                File cacheFile = getPreviewImageCacheFileForTheme(theme,
+                        structureClass);
+                if (cacheFile.exists()) {
+                    cacheFile.delete();
+                }
 
-            deletePreviewImageCacheInMemory(theme);
+                deletePreviewImageCacheInMemory(theme, structureClass);
+            }
         }
 
-        private void deletePreviewImageCacheInMemory(final IStyle theme) {
+        private void deletePreviewImageCacheInMemory(final IStyle theme,
+                String structureClass) {
             Display display = null;
 
-            final Image image = images.remove(theme);
-            if (image != null) {
-                display = (Display) image.getDevice();
-                if (!display.isDisposed()) {
-                    display.asyncExec(new Runnable() {
-                        public void run() {
-                            Display display = Display.getCurrent();
-                            if (!display.isDisposed()) {
-                                display.asyncExec(new Runnable() {
-                                    public void run() {
-                                        image.dispose();
-                                    }
-                                });
+//            final Image image = images.remove(theme);
+            Map<IStyle, Image> imageGroup = imageGroups.get(structureClass);
+            if (imageGroup != null && !imageGroup.isEmpty()) {
+                final Image image = imageGroup.remove(theme);
+                if (image != null) {
+                    display = (Display) image.getDevice();
+                    if (!display.isDisposed()) {
+                        display.asyncExec(new Runnable() {
+                            public void run() {
+                                Display display = Display.getCurrent();
+                                if (!display.isDisposed()) {
+                                    display.asyncExec(new Runnable() {
+                                        public void run() {
+                                            image.dispose();
+                                        }
+                                    });
+                                }
                             }
+                        });
+                    }
+                }
+
+            }
+
+//            final ThemePreviewImageLoader loader = loaders.remove(theme);
+            Map<IStyle, ThemePreviewImageLoader> loaderGroup = loaderGroups
+                    .get(structureClass);
+            if (loaderGroup != null && !loaderGroup.isEmpty()) {
+                final ThemePreviewImageLoader loader = loaderGroup
+                        .remove(theme);
+                if (loader != null) {
+                    loader.cancel();
+                }
+
+                if (display != null && !display.isDisposed()) {
+                    display.syncExec(new Runnable() {
+
+                        public void run() {
+                            fireThemePreviewImageChanged(theme);
                         }
                     });
                 }
             }
-
-            final ThemePreviewImageLoader loader = loaders.remove(theme);
-            if (loader != null) {
-                loader.cancel();
-            }
-
-            if (display != null && !display.isDisposed()) {
-                display.syncExec(new Runnable() {
-                    public void run() {
-                        fireThemePreviewImageChanged(theme);
-                    }
-                });
-            }
         }
 
-        private void setPreviewImage(final IStyle theme, Image image) {
+        private void setPreviewImage(final IStyle theme, String structureClass,
+                Image image) {
             Display display = null;
-            final Image oldImage = images.put(theme, image);
+            Map<IStyle, Image> imageGroup = imageGroups.get(structureClass);
+            if (imageGroup == null) {
+                imageGroup = new HashMap<IStyle, Image>();
+                imageGroups.put(structureClass, imageGroup);
+            }
+            final Image oldImage = imageGroup.put(theme, image);
             if (oldImage != null) {
                 display = (Display) oldImage.getDevice();
                 if (!display.isDisposed()) {
@@ -264,9 +309,11 @@ public class ThemeLabelProvider extends LabelProvider
             display = (Display) image.getDevice();
             if (!display.isDisposed()) {
                 display.syncExec(new Runnable() {
+
                     public void run() {
                         fireThemePreviewImageChanged(theme);
                     }
+
                 });
             }
         }
@@ -285,14 +332,18 @@ public class ThemeLabelProvider extends LabelProvider
 
         private IStyle theme;
 
+        private String structureClass;
+
         private Display display;
 
         private Image previewImage;
 
-        public ThemePreviewImageLoader(IStyle theme, Display display) {
+        public ThemePreviewImageLoader(IStyle theme, String structureClass,
+                Display display) {
             super(NLS.bind(MindMapMessages.ThemeLabel_LoadTheme,
                     theme.getName()));
             this.theme = theme;
+            this.structureClass = structureClass;
             this.display = display;
             this.previewImage = null;
         }
@@ -369,11 +420,11 @@ public class ThemeLabelProvider extends LabelProvider
         }
 
         private Image createPreviewImage() {
-            return createPreviewImageForTheme(theme, display);
+            return createPreviewImageForTheme(theme, structureClass, display);
         }
 
         private File getPreviewImageCacheFile() {
-            return getPreviewImageCacheFileForTheme(theme);
+            return getPreviewImageCacheFileForTheme(theme, structureClass);
         }
 
         public Image getPreviewImage() {
@@ -382,6 +433,10 @@ public class ThemeLabelProvider extends LabelProvider
 
         public IStyle getTheme() {
             return theme;
+        }
+
+        public String getStructureClass() {
+            return structureClass;
         }
 
     }
@@ -437,7 +492,15 @@ public class ThemeLabelProvider extends LabelProvider
 
     }
 
+    private String structureClass;
+
     public ThemeLabelProvider() {
+        ThemePreviewImageProviderManager.INSTANCE
+                .addThemePreviewImageListener(this);
+    }
+
+    public ThemeLabelProvider(String structureClass) {
+        this.structureClass = structureClass;
         ThemePreviewImageProviderManager.INSTANCE
                 .addThemePreviewImageListener(this);
     }
@@ -455,8 +518,13 @@ public class ThemeLabelProvider extends LabelProvider
     public Image getImage(Object element) {
         if (element instanceof IStyle
                 && IStyle.THEME.equals(((IStyle) element).getType())) {
+
             return ThemePreviewImageProviderManager.INSTANCE
-                    .getThemePreviewImage((IStyle) element);
+                    .getThemePreviewImage((IStyle) element,
+                            (structureClass == null
+                                    || "".equals(structureClass)) //$NON-NLS-1$
+                                            ? getCurrentCentralStructure()
+                                            : structureClass);
         }
         return super.getImage(element);
     }
@@ -472,7 +540,8 @@ public class ThemeLabelProvider extends LabelProvider
         fireLabelProviderChanged(new LabelProviderChangedEvent(this, theme));
     }
 
-    private static File getPreviewImageCacheFileForTheme(IStyle theme) {
+    private static File getPreviewImageCacheFileForTheme(IStyle theme,
+            String structureClass) {
         File root = MindMapUIPlugin.getDefault().getStateLocation().toFile();
         File cacheDir = new File(root, THEME_PREVIEWS_DIR);
         String themeId = theme.getId();
@@ -486,13 +555,14 @@ public class ThemeLabelProvider extends LabelProvider
         } else {
             parentId = "other"; //$NON-NLS-1$
         }
-        String fileName = String.format("%s-%s.png", parentId, themeId); //$NON-NLS-1$
+        String fileName = String.format("%s-%s-%s.png", parentId, //$NON-NLS-1$
+                structureClass, themeId);
         return new File(cacheDir, fileName);
     }
 
     private static Image createPreviewImageForTheme(IStyle theme,
-            Display display) {
-        IWorkbook workbook = createTemplateWorkbook();
+            String structureClass, Display display) {
+        IWorkbook workbook = createTemplateWorkbook(structureClass);
         IStyle appliedTheme = workbook.getStyleSheet().importStyle(theme);
         if (appliedTheme != null) {
             workbook.getPrimarySheet().setThemeId(appliedTheme.getId());
@@ -520,7 +590,7 @@ public class ThemeLabelProvider extends LabelProvider
         return image[0];
     }
 
-    private static IWorkbook createTemplateWorkbook() {
+    private static IWorkbook createTemplateWorkbook(String structureClass) {
         IStorage tempStorage = new ByteArrayStorage();
         IWorkbook workbook = Core.getWorkbookBuilder()
                 .createWorkbook(tempStorage);
@@ -528,7 +598,9 @@ public class ThemeLabelProvider extends LabelProvider
 
         ITopic rootTopic = sheet.getRootTopic();
         rootTopic.setTitleText(MindMapMessages.TitleText_CentralTopic);
-        rootTopic.setStructureClass("org.xmind.ui.map.clockwise"); //$NON-NLS-1$
+        rootTopic.setStructureClass(
+                (structureClass == null || "".equals(structureClass)) //$NON-NLS-1$
+                        ? "org.xmind.ui.map.clockwise" : structureClass); //$NON-NLS-1$
 
         ITopic mainTopic1 = workbook.createTopic();
         mainTopic1
@@ -628,5 +700,36 @@ public class ThemeLabelProvider extends LabelProvider
             }
         }
         return defaultImage;
+    }
+
+    private String getCurrentCentralStructure() {
+        if (this.structureClass != null && !"".equals(this.structureClass)) //$NON-NLS-1$
+            return this.structureClass;
+
+        String defaultStructureClass = "org.xmind.ui.map.clockwise"; //$NON-NLS-1$
+        IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow();
+        if (activeWorkbenchWindow == null)
+            return defaultStructureClass;
+
+        IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
+        if (activePage == null)
+            return defaultStructureClass;
+
+        IEditorPart activeEditor = activePage.getActiveEditor();
+        if (activeEditor == null || !(activeEditor instanceof IGraphicalEditor))
+            return defaultStructureClass;
+
+        IGraphicalEditorPage page = ((IGraphicalEditor) activeEditor)
+                .getActivePageInstance();
+        if (page == null)
+            return defaultStructureClass;
+
+        ISheet sheet = (ISheet) page.getAdapter(ISheet.class);
+        if (sheet == null)
+            return defaultStructureClass;
+
+        ITopic topic = sheet.getRootTopic();
+        return topic.getStructureClass();
     }
 }

@@ -20,6 +20,7 @@ import org.xmind.gef.IViewer;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.tools.StyleCopyPasteTool;
 import org.xmind.ui.mindmap.IMindMap;
+import org.xmind.ui.style.Styles;
 import org.xmind.ui.util.MindMapUtils;
 
 public class CopyStyleHandler extends AbstractHandler {
@@ -57,6 +58,11 @@ public class CopyStyleHandler extends AbstractHandler {
         IStyle defaultStyle = getDefaultStyle(element, part);
         if (defaultStyle != null)
             setProperties(style, defaultStyle);
+
+        String bg = style.getProperty(Styles.Background);
+        if (bg != null && !"".equals(bg)) //$NON-NLS-1$
+            style.setProperty(Styles.Background, ""); //$NON-NLS-1$
+
         IWorkbook workbook = Core.getWorkbookBuilder().createWorkbook();
         IStyle importStyle = workbook.getStyleSheet().importStyle(style);
         tool.setSourceStyle(importStyle);

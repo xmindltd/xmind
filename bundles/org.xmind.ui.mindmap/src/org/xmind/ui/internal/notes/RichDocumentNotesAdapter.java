@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IHtmlNotesContent;
@@ -33,6 +34,7 @@ import org.xmind.core.IWorkbook;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.ui.internal.AttachmentImageDescriptor;
 import org.xmind.ui.internal.dialogs.DialogMessages;
+import org.xmind.ui.resources.ImageUtils;
 import org.xmind.ui.richtext.IRichDocument;
 import org.xmind.ui.richtext.ImagePlaceHolder;
 
@@ -52,7 +54,8 @@ public class RichDocumentNotesAdapter implements IAdaptable {
         INotesContent content = notes.getContent(INotes.HTML);
         boolean showHTMLContent = false;
         if (content instanceof IHtmlNotesContent) {
-            showHTMLContent = !((IHtmlNotesContent) content).getParagraphs().isEmpty();
+            showHTMLContent = !((IHtmlNotesContent) content).getParagraphs()
+                    .isEmpty();
 
         }
         if (!showHTMLContent)
@@ -108,6 +111,10 @@ public class RichDocumentNotesAdapter implements IAdaptable {
         Image image = getRegisteredImage(path);
         if (image == null) {
             image = new Image(Display.getDefault(), path);
+            ImageData data = image.getImageData();
+            if (data.width > 280)
+                image = ImageUtils.createScaledImage(image, 280,
+                        data.height * 280 / data.width);
             registerImage(path, image);
         }
         return image;
@@ -120,6 +127,10 @@ public class RichDocumentNotesAdapter implements IAdaptable {
             if (entry != null) {
                 image = AttachmentImageDescriptor
                         .createFromEntry(workbook, entry).createImage(false);
+                ImageData data = image.getImageData();
+                if (data.width > 280)
+                    image = ImageUtils.createScaledImage(image, 280,
+                            data.height * 280 / data.width);
                 registerImage(path, image);
             }
         }

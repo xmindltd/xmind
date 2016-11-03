@@ -6,7 +6,7 @@
          <meta.schema plugin="org.xmind.ui" id="workbookRefFactories" name="Workbook Reference Factories"/>
       </appInfo>
       <documentation>
-
+         
       </documentation>
    </annotation>
 
@@ -23,21 +23,21 @@
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
-
+                  
                </documentation>
             </annotation>
          </attribute>
          <attribute name="id" type="string">
             <annotation>
                <documentation>
-
+                  
                </documentation>
             </annotation>
          </attribute>
          <attribute name="name" type="string">
             <annotation>
                <documentation>
-
+                  
                </documentation>
                <appInfo>
                   <meta.attribute translatable="true"/>
@@ -55,7 +55,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-
+                  
                </documentation>
                <appInfo>
                   <meta.attribute kind="java"/>
@@ -70,7 +70,7 @@
          <attribute name="scheme" type="string" use="required">
             <annotation>
                <documentation>
-
+                  
                </documentation>
             </annotation>
          </attribute>
@@ -82,7 +82,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         3.6.50
+         3.6.2
       </documentation>
    </annotation>
 

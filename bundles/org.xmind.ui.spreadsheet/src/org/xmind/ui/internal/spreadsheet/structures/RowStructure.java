@@ -518,6 +518,9 @@ public class RowStructure extends AbstractBranchStructure implements
             ParentSearchKey key) {
         Row row = getRow(branch);
         Cell cell = row.findCell(key.getCursorPos());
+        if (cell == null) {
+            return calcFirstChildPosition(branch, key);
+        }
 
         List<Item> items = cell.getItems();
 
@@ -542,10 +545,9 @@ public class RowStructure extends AbstractBranchStructure implements
 
         int deltaY = (insSize.height + sub.getFigure().getSize().height) / 2;
 
-        return getFigureLocation(sub.getFigure())
-                .getTranslated(
-                        (inventSize.width - sub.getTopicPart().getFigure()
-                                .getSize().width) / 2,
+        return getFigureLocation(sub.getFigure()).getTranslated(
+                (inventSize.width
+                        - sub.getTopicPart().getFigure().getSize().width) / 2,
                 itemIndex == items.size() ? deltaY : -deltaY);
     }
 

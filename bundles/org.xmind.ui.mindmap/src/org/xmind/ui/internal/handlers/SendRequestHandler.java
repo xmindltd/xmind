@@ -63,6 +63,7 @@ public abstract class SendRequestHandler extends AbstractHandler
     }
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
+        collectUsage();
         sendRequest(this.requestType, getViewer(event));
         return null;
     }
@@ -79,6 +80,15 @@ public abstract class SendRequestHandler extends AbstractHandler
             return;
 
         editDomain.handleRequest(requestType, viewer);
+    }
+
+    private void collectUsage() {
+        if (requestType == null)
+            return;
+        if ("create_callout".equals(requestType)) {
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase("InsertCalloutCount"); //$NON-NLS-1$
+        }
     }
 
 }

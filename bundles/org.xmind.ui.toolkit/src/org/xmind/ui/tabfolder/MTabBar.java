@@ -360,6 +360,7 @@ public class MTabBar extends Composite {
             size = new Point(width + trimWidth, height + trimHeight);
         }
         Rectangle trimmed = computeTrim(0, 0, size.x, size.y);
+
         return new Point(trimmed.width, trimmed.height);
     }
 
@@ -770,19 +771,47 @@ public class MTabBar extends Composite {
                     item.imageBounds.y += textAreaSize.y + item.vSpacing;
                 }
             } else {
-                item.imageBounds.x = contentX
-                        + (imageAreaSize.x - imageSize.x) / 2;
-                item.imageBounds.y = contentY
-                        + (contentHeight - imageSize.y) / 2;
-                item.textBounds.x = contentX
-                        + (textAreaSize.x - textSize.x) / 2;
-                item.textBounds.y = contentY
-                        + (textAreaSize.y - textSize.y) / 2;
+//                item.imageBounds.x = contentX
+//                        + (imageAreaSize.x - imageSize.x) / 2;
+//                item.imageBounds.y = contentY
+//                        + (contentHeight - imageSize.y) / 2;
+//                item.textBounds.x = contentX
+//                        + (textAreaSize.x - textSize.x) / 2;
+//                item.textBounds.y = contentY
+//                        + (textAreaSize.y - textSize.y) / 2;
+//                if (imageLeading) {
+//                    item.textBounds.x += imageAreaSize.x + item.hSpacing;
+//                } else {
+//                    item.imageBounds.x += textAreaSize.x + item.hSpacing;
+//                }
                 if (imageLeading) {
-                    item.textBounds.x += imageAreaSize.x + item.hSpacing;
+                    item.imageBounds.x = contentX;
+                    item.imageBounds.y = contentY
+                            + (contentHeight - imageSize.y) / 2;
+                    item.imageBounds.width = imageAreaSize.x;
+                    item.imageBounds.height = imageSize.y;
+                    item.textBounds.x = contentX + item.imageBounds.width
+                            + item.hSpacing;
+                    item.textBounds.y = item.imageBounds.y;
+                    item.textBounds.width = item.contentBounds.width
+                            - item.imageBounds.width - item.hSpacing;
+                    item.textBounds.height = item.imageBounds.height;
+//                    System.out.println("imageBouns:" + item.imageBounds + "-->"
+//                            + "textBounds:" + item.textBounds
+//                            + " contentBounds:" + item.contentBounds);
                 } else {
-                    item.imageBounds.x += textAreaSize.x + item.hSpacing;
+                    item.textBounds.x = contentX;
+                    item.textBounds.y = contentY;
+                    item.textBounds.width = imageAreaSize.x;
+                    item.textBounds.height = item.contentBounds.height;
+                    item.imageBounds.x = contentX + item.textBounds.width
+                            + item.hSpacing;
+                    item.imageBounds.y = contentY;
+                    item.imageBounds.width = item.contentBounds.width
+                            - item.imageBounds.width - item.hSpacing;
+                    item.imageBounds.height = item.contentBounds.height;
                 }
+                return;
             }
 
             item.imageBounds.width = imageSize.x;
@@ -986,23 +1015,40 @@ public class MTabBar extends Composite {
         gc.setFont(item.font);
         Point textSize = gc.textExtent(text);
 
+        IStyleProvider styles = getStyleProvider();
+        int textAlign = styles.getTextAlign(item, MTabBarItem.TEXT_ALIGN,
+                SWT.CENTER);
+
+        Transform t = new Transform(gc.getDevice());
         float scaleX = Math.min(1, ((float) dest.width) / textSize.x);
         float scaleY = Math.min(1, ((float) dest.height) / textSize.y);
         float scale = Math.min(scaleX, scaleY);
         float offsetX = dest.x + ((float) dest.width) / 2;
         float offsetY = dest.y + ((float) dest.height) / 2;
-        float offsetX2 = -((float) textSize.x) / 2;
+        float offsetX2 = 0;
         float offsetY2 = -((float) textSize.y) / 2;
+
+        switch (textAlign) {
+        case SWT.LEFT:
+            offsetX2 = -dest.width / 2 + item.hSpacing * 5;
+            break;
+        case SWT.CENTER:
+            offsetX2 = -((float) textSize.x) / 2;
+            break;
+        case SWT.RIGHT:
+            offsetX2 = -dest.width / 2 + (dest.width - textSize.x) / 2;
+            break;
+        }
+
+        t.translate(offsetX, offsetY);
+        t.scale(scale, scale);
+        t.translate(offsetX2, offsetY2 / scale);
 
         Transform oldTransform = new Transform(gc.getDevice());
         try {
             gc.getTransform(oldTransform);
 
-            Transform t = new Transform(gc.getDevice());
             try {
-                t.translate(offsetX, offsetY);
-                t.scale(scale, scale);
-                t.translate(offsetX2, offsetY2);
                 gc.setTransform(t);
                 gc.drawText(text, 0, 0, true);
             } finally {
@@ -1161,6 +1207,18 @@ public class MTabBar extends Composite {
         e.x = event.x;
         e.y = event.y;
         target.notifyListeners(SWT.Selection, e);
+    }
+
+    @Override
+    public void setBounds(int x, int y, int width, int height) {
+        // TODO Auto-generated method stub
+        super.setBounds(x, y, width, height);
+    }
+
+    @Override
+    public void setBounds(Rectangle rect) {
+        // TODO Auto-generated method stub
+        super.setBounds(rect);
     }
 
 }

@@ -12,11 +12,6 @@ import org.eclipse.ui.IPersistable;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IWorkbookRef;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class MindMapEditorInputFactory implements IElementFactory {
 
     public static final String ID = "org.xmind.ui.MindMapEditorInputFactory"; //$NON-NLS-1$
@@ -25,18 +20,17 @@ public class MindMapEditorInputFactory implements IElementFactory {
     private static final String TAG_STATE = "state"; //$NON-NLS-1$
 
     public IAdaptable createElement(IMemento memento) {
-        URI uri = null;
         String uriString = memento.getString(TAG_URI);
-        if (uriString != null) {
-            try {
-                uri = new URI(uriString);
-            } catch (URISyntaxException e) {
-                MindMapUIPlugin.getDefault().getLog()
-                        .log(new Status(IStatus.ERROR,
-                                MindMapUIPlugin.PLUGIN_ID,
-                                "Invalid URI: " + uriString, e)); //$NON-NLS-1$
-                return null;
-            }
+        if (uriString == null)
+            return null;
+
+        URI uri;
+        try {
+            uri = new URI(uriString);
+        } catch (URISyntaxException e) {
+            MindMapUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
+                    MindMapUIPlugin.PLUGIN_ID, "Invalid URI: " + uriString, e)); //$NON-NLS-1$
+            return null;
         }
 
         IMemento state = memento.getChild(TAG_STATE);
@@ -47,10 +41,6 @@ public class MindMapEditorInputFactory implements IElementFactory {
                 return new MindMapEditorInput(workbookRef);
             }
         }
-
-        if (uri == null)
-            return null;
-
         return new MindMapEditorInput(uri);
     }
 

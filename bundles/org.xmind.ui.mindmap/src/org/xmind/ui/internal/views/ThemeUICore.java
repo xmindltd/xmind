@@ -28,11 +28,10 @@ import org.xmind.ui.util.Logger;
 import org.xml.sax.SAXException;
 
 /**
- * 
  * @author Ren Siu
  * @since 3.6.50
  */
-class ThemeUICore {
+public class ThemeUICore {
 
     protected class ThemeUIGroup {
 

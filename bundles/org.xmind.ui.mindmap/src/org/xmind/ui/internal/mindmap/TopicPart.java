@@ -76,7 +76,6 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
 /**
- * 
  * @author MANGOSOFT
  */
 public class TopicPart extends NodePart implements ITopicPart {
@@ -133,7 +132,8 @@ public class TopicPart extends NodePart implements ITopicPart {
                     return -2000
                             + (grouplist.indexOf(pMarkerGroup) - qSheet
                                     .getMarkerGroups().indexOf(qMarkerGroup))
-                            * 100 + pMarkerGroup.getMarkers().indexOf(pMarker)
+                                    * 100
+                            + pMarkerGroup.getMarkers().indexOf(pMarker)
                             - qMarkerGroup.getMarkers().indexOf(qMarker);
                 return 2000
                         + (grouplist.indexOf(pMarkerGroup) - qSheet
@@ -240,7 +240,6 @@ public class TopicPart extends NodePart implements ITopicPart {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.part.GraphicalEditPart#containsPoint(org.eclipse.draw2d
      * .geometry.Point)
@@ -428,16 +427,15 @@ public class TopicPart extends NodePart implements ITopicPart {
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter.isAssignableFrom(ITopic.class))
-            return getTopic();
+            return adapter.cast(getTopic());
         if (adapter == TitleTextPart.class || adapter == ITitleTextPart.class)
-            return getTitle();
+            return adapter.cast(getTitle());
         if (adapter == IBranchPart.class)
-            return getOwnerBranch();
+            return adapter.cast(getOwnerBranch());
         if (adapter == IActionRegistry.class)
-            return getActionRegistry();
+            return adapter.cast(getActionRegistry());
         return super.getAdapter(adapter);
     }
 
@@ -472,6 +470,7 @@ public class TopicPart extends NodePart implements ITopicPart {
                 register.register(Core.NumberingSuffix);
                 register.register(Core.NumberPrepending);
                 register.register(Core.NumberingSeparator);
+                register.register(Core.NumberingDepth);
             }
         }
 
@@ -500,7 +499,8 @@ public class TopicPart extends NodePart implements ITopicPart {
                 || Core.NumberingPrefix.equals(type)
                 || Core.NumberingSuffix.equals(type)
                 || Core.NumberPrepending.equals(type)
-                || Core.NumberingSeparator.equals(type)) {
+                || Core.NumberingSeparator.equals(type)
+                || Core.NumberingDepth.equals(type)) {
             treeRefresh();
         } else {
             super.handleCoreEvent(event);

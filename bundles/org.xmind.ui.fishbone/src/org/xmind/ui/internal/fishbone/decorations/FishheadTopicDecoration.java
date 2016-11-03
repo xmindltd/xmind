@@ -15,7 +15,6 @@ package org.xmind.ui.internal.fishbone.decorations;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Insets;
-import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.xmind.gef.draw2d.geometry.Geometry;
 import org.xmind.gef.draw2d.geometry.IPrecisionTransformer;

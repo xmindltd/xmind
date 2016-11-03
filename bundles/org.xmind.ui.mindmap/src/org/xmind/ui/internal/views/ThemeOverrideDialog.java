@@ -3,6 +3,9 @@ package org.xmind.ui.internal.views;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -17,13 +20,18 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.prefs.PrefConstants;
+import org.xmind.ui.resources.ColorUtils;
 
 class ThemeOverrideDialog extends Dialog {
 
     private Button rememberCheck;
 
+    private ResourceManager resources;
+
     protected ThemeOverrideDialog(Shell parentShell) {
         super(parentShell);
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                parentShell);
     }
 
     @Override
@@ -96,9 +104,9 @@ class ThemeOverrideDialog extends Dialog {
     private void createPrefLink(Composite parent) {
         Hyperlink prefLink = new Hyperlink(parent, SWT.SINGLE);
         prefLink.setText(Messages.ThemesView_Dialog_PrefLink);
-        prefLink.setUnderlined(true);
+        prefLink.setUnderlined(false);
         prefLink.setForeground(
-                parent.getDisplay().getSystemColor(SWT.COLOR_BLUE));
+                resources.createColor(ColorUtils.toDescriptor("#0082F9"))); //$NON-NLS-1$
 
         prefLink.addHyperlinkListener(new HyperlinkAdapter() {
             @Override
@@ -109,6 +117,7 @@ class ThemeOverrideDialog extends Dialog {
                         .open();
             }
         });
+        prefLink.getParent().setFocus();
     }
 
     @Override

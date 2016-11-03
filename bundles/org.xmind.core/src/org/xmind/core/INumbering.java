@@ -23,6 +23,8 @@ public interface INumbering extends IAdaptable, ITopicComponent {
 
     String getSeparator();
 
+    String getDepth();
+
     boolean prependsParentNumbers();
 
     void setFormat(String format);
@@ -33,6 +35,8 @@ public interface INumbering extends IAdaptable, ITopicComponent {
 
     void setSeparator(String separator);
 
+    void setDepth(String depth);
+
     void setPrependsParentNumbers(boolean prepend);
 
     String getParentFormat();
@@ -42,5 +46,9 @@ public interface INumbering extends IAdaptable, ITopicComponent {
     String getParentSeparator();
 
     String getComputedSeparator();
+
+    int getComputedDepth();
+
+    boolean isInherited(int min);
 
 }

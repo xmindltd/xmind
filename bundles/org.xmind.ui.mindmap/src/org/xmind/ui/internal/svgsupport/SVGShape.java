@@ -5,16 +5,19 @@ import java.util.Map;
 
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.PathData;
 import org.eclipse.swt.graphics.Pattern;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.w3c.dom.Element;
 import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.graphics.Path;
 
+@SuppressWarnings("restriction")
 abstract class SVGShape implements SVGDefinition, Cloneable {
 
     public static final PrecisionRectangle INVALID_RECT = new PrecisionRectangle(
@@ -88,6 +91,14 @@ abstract class SVGShape implements SVGDefinition, Cloneable {
         if (rect == INVALID_RECT) {
             float[] rectNums = new float[4];
             path.getBounds(rectNums);
+            if (Util.isWindows()) {
+                float[] autoScaleDown = DPIUtil.autoScaleDown(rectNums);
+                rectNums[0] = autoScaleDown[0];
+                rectNums[1] = autoScaleDown[1];
+                rectNums[2] = autoScaleDown[2];
+                rectNums[3] = autoScaleDown[3];
+            }
+
             correctRect = new PrecisionRectangle(rectNums[0], rectNums[1],
                     rectNums[2], rectNums[3]);
         } else {

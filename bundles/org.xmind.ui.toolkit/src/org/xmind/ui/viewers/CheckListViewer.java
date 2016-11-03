@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.util.OpenStrategy;
@@ -77,26 +78,26 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
             bar = new Composite(parent, SWT.NO_FOCUS);
             bar.setBackground(parent.getBackground());
             bar.setData(this);
-            GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(5,
-                    5, 1, 1).applyTo(bar);
+            GridLayoutFactory.fillDefaults().numColumns(3)
+                    .extendedMargins(5, 5, 1, 1).applyTo(bar);
 
             checkbox = new Button(bar, SWT.CHECK);
             checkbox.setText(""); //$NON-NLS-1$
             checkbox.setBackground(bar.getBackground());
-            GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).applyTo(
-                    checkbox);
+            GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+                    .applyTo(checkbox);
 
             imageLabel = new Label(bar, SWT.NONE);
             imageLabel.setImage(null);
             imageLabel.setBackground(bar.getBackground());
-            GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).applyTo(
-                    imageLabel);
+            GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER)
+                    .applyTo(imageLabel);
 
             textLabel = new Label(bar, SWT.NONE);
             textLabel.setText(""); //$NON-NLS-1$
             textLabel.setBackground(bar.getBackground());
-            GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL,
-                    SWT.CENTER).applyTo(textLabel);
+            GridDataFactory.fillDefaults().grab(true, false)
+                    .align(SWT.FILL, SWT.CENTER).applyTo(textLabel);
 
             addControlListeners();
         }
@@ -134,18 +135,21 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
                             selectSingle();
                         } else {
                             userSelect(event);
-                            if ((OpenStrategy.getOpenMethod() & OpenStrategy.SINGLE_CLICK) != 0) {
+                            if ((OpenStrategy.getOpenMethod()
+                                    & OpenStrategy.SINGLE_CLICK) != 0) {
                                 userOpen(event);
                             }
                         }
                         break;
                     case SWT.MouseDoubleClick:
-                        if (OpenStrategy.getOpenMethod() == OpenStrategy.DOUBLE_CLICK) {
+                        if (OpenStrategy
+                                .getOpenMethod() == OpenStrategy.DOUBLE_CLICK) {
                             userOpen(event);
                         }
                         break;
                     case SWT.MouseHover:
-                        if ((OpenStrategy.getOpenMethod() & OpenStrategy.SELECT_ON_HOVER) != 0) {
+                        if ((OpenStrategy.getOpenMethod()
+                                & OpenStrategy.SELECT_ON_HOVER) != 0) {
                             userSelect(event);
                         }
                         break;
@@ -280,16 +284,15 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
 
     protected static Color getSelectionBackground() {
         if (selectionBackground == null) {
-            selectionBackground = Display.getCurrent().getSystemColor(
-                    SWT.COLOR_LIST_SELECTION);
+            selectionBackground = ColorConstants.lightBlue;
         }
         return selectionBackground;
     }
 
     protected static Color getSelectionTextColor() {
         if (selectionTextColor == null) {
-            selectionTextColor = Display.getCurrent().getSystemColor(
-                    SWT.COLOR_LIST_SELECTION_TEXT);
+            selectionTextColor = Display.getCurrent()
+                    .getSystemColor(SWT.COLOR_BLACK);
         }
         return selectionTextColor;
     }
@@ -435,8 +438,8 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
 
     protected CheckItem listAdd(String string, Image image, int index) {
         CheckItem newItem = new CheckItem(this, list);
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(
-                newItem.getControl());
+        GridDataFactory.fillDefaults().grab(true, false)
+                .applyTo(newItem.getControl());
         newItem.setImage(image);
         newItem.setText(string);
         list.layout();
@@ -695,7 +698,6 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
      * @param element
      * @return String. Return the emptyString if the labelProvider returns null
      *         for the text.
-     * 
      * @since 3.1
      */
     private String getLabelProviderText(ILabelProvider labelProvider,
@@ -779,8 +781,8 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
      * 
      * @param index
      *            the zero-based index
-     * @return the element at the given index, or <code>null</code> if the
-     *         index is out of range
+     * @return the element at the given index, or <code>null</code> if the index
+     *         is out of range
      */
     public Object getElementAt(int index) {
         if (index >= 0 && index < listMap.size()) {
@@ -1017,10 +1019,9 @@ public class CheckListViewer extends StructuredViewer implements ICheckable {
     /**
      * The list viewer implementation of this <code>Viewer</code> framework
      * method ensures that the given label provider is an instance of
-     * <code>ILabelProvider</code>.
-     * 
-     * <b>The optional interfaces {@link IColorProvider} and
-     * {@link IFontProvider} have no effect for this type of viewer</b>
+     * <code>ILabelProvider</code>. <b>The optional interfaces
+     * {@link IColorProvider} and {@link IFontProvider} have no effect for this
+     * type of viewer</b>
      */
     public void setLabelProvider(IBaseLabelProvider labelProvider) {
         Assert.isTrue(labelProvider instanceof ILabelProvider);

@@ -31,7 +31,10 @@ public class XToolBarManagerRenderer extends ToolBarManagerRenderer {
         Control renderedCtrl = newTB;
         MUIElement parentElement = element.getParent();
         if (parentElement instanceof MTrimBar) {
-            element.getTags().add(IPresentationEngine.DRAGGABLE);
+            //default can't be draggable
+//            if (!element.getTags().contains(IPresentationEngine.NO_MOVE)) {
+//                element.getTags().add(IPresentationEngine.DRAGGABLE);
+//            }
 
             setCSSInfo(element, newTB);
 
@@ -43,8 +46,12 @@ public class XToolBarManagerRenderer extends ToolBarManagerRenderer {
             CSSRenderingUtils cssUtils = parentContext
                     .get(CSSRenderingUtils.class);
             if (cssUtils != null) {
-                renderedCtrl = (Composite) cssUtils.frameMeIfPossible(newTB,
-                        null, vertical, true);
+                MUIElement modelElement = (MUIElement) newTB
+                        .getData(AbstractPartRenderer.OWNING_ME);
+                boolean draggable = ((modelElement != null) && (modelElement
+                        .getTags().contains(IPresentationEngine.DRAGGABLE)));
+                renderedCtrl = cssUtils.frameMeIfPossible(newTB, null, vertical,
+                        draggable);
             }
         }
 

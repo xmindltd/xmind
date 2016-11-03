@@ -19,11 +19,6 @@ import org.xmind.ui.internal.RegistryConstants;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.wizards.ISaveWizard;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class SaveWizardManager implements IRegistryEventListener {
 
     public static class SaveWizardDescriptor {

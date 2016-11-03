@@ -72,9 +72,10 @@ public class ScalableEditPolicy extends AbstractEditPolicy {
         return null;
     }
 
-    protected void preserveCenter(final Runnable action, IGraphicalViewer viewer) {
-        PrecisionPoint center = viewer == null ? null : new PrecisionPoint(
-                viewer.getCenterPoint());
+    protected void preserveCenter(final Runnable action,
+            IGraphicalViewer viewer) {
+        PrecisionPoint center = viewer == null ? null
+                : new PrecisionPoint(viewer.getCenterPoint());
         if (center != null && viewer != null) {
             center.scale(1 / viewer.getZoomManager().getScale());
         }
@@ -126,11 +127,8 @@ public class ScalableEditPolicy extends AbstractEditPolicy {
         if (viewer == null)
             return;
 
-        preserveCenter(new Runnable() {
-            public void run() {
-                viewer.getZoomManager().actualSize();
-            }
-        }, viewer);
+        viewer.getZoomManager().actualSize();
+        viewer.center(0, 0);
     }
 
     /**
@@ -168,11 +166,12 @@ public class ScalableEditPolicy extends AbstractEditPolicy {
         IFigure viewport = ((IGraphicalViewer) viewer).getCanvas()
                 .getViewport();
         Dimension viewportSize = getViewportSize(viewer, viewport, zoomManager);
-        bounds.getCenter().scale(zoomManager.getScale());
         zoomManager.fitScale(viewportSize, bounds.getSize());
+        bounds.getCenter().scale(zoomManager.getScale());
         viewport.getUpdateManager().runWithUpdate(new Runnable() {
             public void run() {
-                viewer.center(bounds.getCopy().scale(zoomManager.getScale()));
+                viewer.center(
+                        bounds.getCopy().scale(zoomManager.getScale() * 2));
             }
         });
     }

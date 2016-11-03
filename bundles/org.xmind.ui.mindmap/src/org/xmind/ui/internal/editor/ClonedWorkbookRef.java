@@ -19,7 +19,6 @@ import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IWorkbookRef;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -44,7 +43,16 @@ public class ClonedWorkbookRef extends AbstractWorkbookRef {
 
     @Override
     public String getName() {
-        return null;
+        String path = getSourceWorkbookURI().getPath();
+        int suffixIndex = path.lastIndexOf("."); //$NON-NLS-1$
+        if (suffixIndex > 0) {
+            path = path.substring(0, suffixIndex);
+        }
+        int nameIndex = path.lastIndexOf("/"); //$NON-NLS-1$
+        if (nameIndex > 0 && nameIndex < path.length() - 1) {
+            path = path.substring(nameIndex + 1);
+        }
+        return path;
     }
 
     @Override
@@ -79,12 +87,11 @@ public class ClonedWorkbookRef extends AbstractWorkbookRef {
 
     private IWorkbook doCloneWorkbook(IProgressMonitor monitor,
             IWorkbook sourceWorkbook)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         try {
             IWorkbook workbook = Core.getWorkbookBuilder()
                     .createWorkbook(getTempStorage());
-            ISerializer serializer = Core.getWorkbookBuilder()
-                    .newSerializer();
+            ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
             serializer.setWorkbook(workbook);
             serializer.setWorkbookStorageAsOutputTarget();
             serializer.setEntryStreamNormalizer(getEncryptionHandler());

@@ -16,13 +16,16 @@ package org.xmind.gef.draw2d.decoration;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.gef.draw2d.graphics.Path;
 
+@SuppressWarnings("restriction")
 public abstract class PathConnectionDecoration extends
         AbstractConnectionDecoration implements IConnectionDecorationEx {
 
@@ -95,9 +98,17 @@ public abstract class PathConnectionDecoration extends
         route(figure, shape);
         float[] bounds = new float[4];
         shape.getBounds(bounds);
+        if (Util.isWindows()) {
+            float[] autoScaleDown = DPIUtil.autoScaleDown(bounds);
+            bounds[0] = autoScaleDown[0];
+            bounds[1] = autoScaleDown[1];
+            bounds[2] = autoScaleDown[2];
+            bounds[3] = autoScaleDown[3];
+        }
         shape.dispose();
-        return PrecisionRectangle.toDraw2DRectangle(bounds[0], bounds[1],
-                bounds[2], bounds[3]).expand(getLineWidth(), getLineWidth());
+        return PrecisionRectangle
+                .toDraw2DRectangle(bounds[0], bounds[1], bounds[2], bounds[3])
+                .expand(getLineWidth(), getLineWidth());
     }
 
 }

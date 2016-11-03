@@ -17,8 +17,10 @@ import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Path;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.geometry.PrecisionDimension;
 import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
@@ -26,6 +28,7 @@ import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 /**
  * @author Frank Shaka
  */
+@SuppressWarnings("restriction")
 public class PathFigure extends Shape {
 
     private static final float[] _bounds = new float[4];
@@ -105,6 +108,14 @@ public class PathFigure extends Shape {
     public Dimension getPreferredSize(int wHint, int hHint) {
         if (path != null) {
             path.getBounds(_bounds);
+            if (Util.isWindows()) {
+                float[] autoScaleDown = DPIUtil.autoScaleDown(_bounds);
+                _bounds[0] = autoScaleDown[0];
+                _bounds[1] = autoScaleDown[1];
+                _bounds[2] = autoScaleDown[2];
+                _bounds[3] = autoScaleDown[3];
+            }
+
             PrecisionDimension pSize = new PrecisionDimension(_bounds[2],
                     _bounds[3]);
             double halfLine = getLineWidth() * 0.5d + 1.0;
@@ -118,6 +129,13 @@ public class PathFigure extends Shape {
         if (path == null)
             return new Rectangle();
         path.getBounds(_bounds);
+        if (Util.isWindows()) {
+            float[] autoScaleDown = DPIUtil.autoScaleDown(_bounds);
+            _bounds[0] = autoScaleDown[0];
+            _bounds[1] = autoScaleDown[1];
+            _bounds[2] = autoScaleDown[2];
+            _bounds[3] = autoScaleDown[3];
+        }
         PrecisionRectangle pRect = new PrecisionRectangle(_bounds[0],
                 _bounds[1], _bounds[2], _bounds[3]);
         double halfLine = getLineWidth() * 0.5d;

@@ -79,4 +79,9 @@ public class ArchiveConstants {
      */
     public static final String COMMENTS_XML = "comments.xml"; //$NON-NLS-1$
 
+    /**
+     * 
+     */
+    public static final String PATH_EXTENSIONS = "extensions/"; //$NON-NLS-1$
+
 }

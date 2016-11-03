@@ -22,6 +22,7 @@ import org.xmind.ui.util.IStyleProvider;
 public class MTabBarItem extends Item {
 
     public static final String TEXT = IStyleProvider.TEXT;
+    public static final String TEXT_ALIGN = IStyleProvider.TEXT_ALIGN;
     public static final String IMAGE = IStyleProvider.IMAGE;
     public static final String FILL = IStyleProvider.FILL;
     public static final String MARGIN = IStyleProvider.MARGIN;

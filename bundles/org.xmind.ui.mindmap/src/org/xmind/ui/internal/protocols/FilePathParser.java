@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
  * @author Karelun Huang
  */
 public class FilePathParser {
@@ -209,10 +208,9 @@ public class FilePathParser {
     }
 
     /*
-     * ECMA 3, 15.1.3 URI Handling Function Properties
-     * 
-     * The following are implementations of the algorithms given in the ECMA
-     * specification for the hidden functions 'Encode' and 'Decode'.
+     * ECMA 3, 15.1.3 URI Handling Function Properties The following are
+     * implementations of the algorithms given in the ECMA specification for the
+     * hidden functions 'Encode' and 'Decode'.
      */
     private static String encode(String str, boolean fullUri) {
         byte[] utf8buf = null;
@@ -502,6 +500,8 @@ public class FilePathParser {
         List<PathDisambiguator> paths = new ArrayList<PathDisambiguator>();
         for (int i = 0; i < inputURIs.length; i++) {
             URI uri = inputURIs[i];
+            if (uri == null)
+                continue;
             String uriValue = uri.toString();
             if (FilePathParser.isFileURI(uriValue)) {
                 String path = FilePathParser.toPath(uriValue);

@@ -81,9 +81,9 @@ public class LegendImpl extends Legend implements ICoreEventSource {
                 || getImplementation() == null;
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
         return super.getAdapter(adapter);
     }
 
@@ -99,7 +99,8 @@ public class LegendImpl extends Legend implements ICoreEventSource {
 
     private void checkImplementation() {
         Element implementation = getImplementation();
-        if (!implementation.hasAttributes() && !implementation.hasChildNodes()) {
+        if (!implementation.hasAttributes()
+                && !implementation.hasChildNodes()) {
             sheetElement.removeChild(implementation);
         }
     }
@@ -115,8 +116,8 @@ public class LegendImpl extends Legend implements ICoreEventSource {
     public boolean isVisible() {
         Element implementation = getImplementation();
         if (implementation != null) {
-            return DOMConstants.VAL_VISIBLE.equals(implementation
-                    .getAttribute(DOMConstants.ATTR_VISIBILITY));
+            return DOMConstants.VAL_VISIBLE.equals(
+                    implementation.getAttribute(DOMConstants.ATTR_VISIBILITY));
         }
         return false;
     }
@@ -218,8 +219,8 @@ public class LegendImpl extends Legend implements ICoreEventSource {
             if (description != null)
                 return description;
         }
-        IMarker marker = getOwnedWorkbook().getMarkerSheet().findMarker(
-                markerId);
+        IMarker marker = getOwnedWorkbook().getMarkerSheet()
+                .findMarker(markerId);
         if (marker != null)
             return marker.getName();
         return ""; //$NON-NLS-1$
@@ -279,8 +280,8 @@ public class LegendImpl extends Legend implements ICoreEventSource {
             Iterator<Element> it = DOMUtils.childElementIterByTag(itemsEle,
                     DOMConstants.TAG_MARKER_DESCRIPTION);
             if (it.hasNext()) {
-                ArrayList<String> list = new ArrayList<String>(itemsEle
-                        .getChildNodes().getLength());
+                ArrayList<String> list = new ArrayList<String>(
+                        itemsEle.getChildNodes().getLength());
                 while (it.hasNext()) {
                     Element item = it.next();
                     String markerId = DOMUtils.getAttribute(item,
@@ -302,7 +303,8 @@ public class LegendImpl extends Legend implements ICoreEventSource {
                 listener);
     }
 
-    protected void fireValueChange(String type, Object oldValue, Object newValue) {
+    protected void fireValueChange(String type, Object oldValue,
+            Object newValue) {
         getCoreEventSupport().dispatchValueChange(this, type, oldValue,
                 newValue);
     }

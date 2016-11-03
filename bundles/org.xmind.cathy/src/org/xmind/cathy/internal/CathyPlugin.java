@@ -43,6 +43,11 @@ import org.xmind.ui.internal.app.ApplicationConstants;
 import org.xmind.ui.internal.statushandlers.DefaultErrorReporter;
 import org.xmind.ui.internal.statushandlers.IErrorReporter;
 
+/*---- BAD BOY HANDSOME DEBUT, DO NOT TOUCH ME ----*/
+/*---- BEGIN IMPORT ----*/
+/*---- END IMPORT ----*/
+/*---- BAD BOY PERFECT CURTAIN CALL, DO NOT TOUCH ME ----*/
+
 /**
  * The main plugin class to be used in the desktop.
  */
@@ -152,7 +157,7 @@ public class CathyPlugin extends AbstractUIPlugin {
     /**
      * Online help page.
      */
-    public static final String ONLINE_HELP_URL = "http://www.xmind.net/xmind/help/"; //$NON-NLS-1$
+    public static final String ONLINE_HELP_URL = "https://www.xmind.net/xmind/help"; //$NON-NLS-1$
 
     /**
      * Boolean value:<br>
@@ -198,6 +203,11 @@ public class CathyPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
 
+        /*---- BAD BOY HANDSOME DEBUT, DO NOT TOUCH ME ----*/
+        /*---- BEGIN INSERT ----*/
+        /*---- END INSERT ----*/
+        /*---- BAD BOY PERFECT CURTAIN CALL, DO NOT TOUCH ME ----*/
+
         usageDataSampler = IUsageDataSampler.NULL;
         errorReporter = DefaultErrorReporter.getInstance();
         licenseAgent = new LicenseAgentProxy();
@@ -225,7 +235,7 @@ public class CathyPlugin extends AbstractUIPlugin {
             }
         };
 
-        activateNetworkSettings();
+//        activateNetworkSettings();
 
         activateXMindCore();
 
@@ -270,7 +280,7 @@ public class CathyPlugin extends AbstractUIPlugin {
         plugin = null;
     }
 
-    private void activateNetworkSettings() {
+    public void activateNetworkSettings() {
         Bundle networkPlugin = Platform.getBundle("org.eclipse.core.net"); //$NON-NLS-1$
         if (networkPlugin != null) {
             try {

@@ -6,7 +6,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
-import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.internal.utils.CommandUtils;
 
 @Deprecated
 public class ShowRevisionsActionDelegate implements IEditorActionDelegate {
@@ -21,7 +21,9 @@ public class ShowRevisionsActionDelegate implements IEditorActionDelegate {
             return;
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
-                editor.getSite().getPage().showView(MindMapUI.VIEW_REVISIONS);
+                CommandUtils.executeCommand(
+                        "org.xmind.ui.command.editingHistory", //$NON-NLS-1$
+                        editor.getSite().getWorkbenchWindow());
             }
         });
 

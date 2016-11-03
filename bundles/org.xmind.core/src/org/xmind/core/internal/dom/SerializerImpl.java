@@ -17,6 +17,7 @@ import static org.xmind.core.internal.zip.ArchiveConstants.COMMENTS_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.CONTENT_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.MANIFEST_XML;
 import static org.xmind.core.internal.zip.ArchiveConstants.META_XML;
+import static org.xmind.core.internal.zip.ArchiveConstants.PATH_EXTENSIONS;
 import static org.xmind.core.internal.zip.ArchiveConstants.PATH_MARKER_SHEET;
 import static org.xmind.core.internal.zip.ArchiveConstants.PATH_REVISIONS;
 import static org.xmind.core.internal.zip.ArchiveConstants.REVISIONS_XML;
@@ -28,6 +29,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
@@ -50,6 +52,8 @@ import org.xmind.core.IRevisionManager;
 import org.xmind.core.IRevisionRepository;
 import org.xmind.core.ISerializer;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.IWorkbookExtension;
+import org.xmind.core.IWorkbookExtensionManager;
 import org.xmind.core.internal.AbstractSerializingBase;
 import org.xmind.core.internal.zip.ArchiveConstants;
 import org.xmind.core.internal.zip.ZipStreamOutputTarget;
@@ -322,6 +326,16 @@ public class SerializerImpl extends AbstractSerializingBase
         } else {
             tempManifest.deleteFileEntry(COMMENTS_XML);
             serializedEntryPaths.add(COMMENTS_XML);
+        }
+
+        /// save extensions
+        IWorkbookExtensionManager extensionManager = ((IWorkbook) workbook)
+                .getAdapter(IWorkbookExtensionManager.class);
+        List<IWorkbookExtension> exts = extensionManager.getExtensions();
+        for (IWorkbookExtension ext : exts) {
+            String providerName = ext.getProviderName();
+            String path = PATH_EXTENSIONS + providerName + ".xml"; //$NON-NLS-1$
+            serializeXML(ext, path);
         }
 
         /// save revisions

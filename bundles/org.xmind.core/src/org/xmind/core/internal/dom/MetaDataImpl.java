@@ -28,7 +28,6 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @deprecated
- * 
  * @author Frank Shaka
  */
 public class MetaDataImpl extends MetaData {
@@ -59,9 +58,9 @@ public class MetaDataImpl extends MetaData {
         return DOMUtils.toString(implementation);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return getImplementation();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getImplementation());
         return super.getAdapter(adapter);
     }
 

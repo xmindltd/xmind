@@ -24,8 +24,8 @@ import org.xmind.ui.mindmap.IDrillDownTraceListener;
 import org.xmind.ui.mindmap.IDrillDownTraceService;
 import org.xmind.ui.mindmap.IMindMap;
 
-public class DrillDownTraceService extends GraphicalViewerService implements
-        IDrillDownTraceService {
+public class DrillDownTraceService extends GraphicalViewerService
+        implements IDrillDownTraceService {
 
     private List<ITopic> centralTopics = new ArrayList<ITopic>();
 
@@ -39,6 +39,13 @@ public class DrillDownTraceService extends GraphicalViewerService implements
     }
 
     protected void deactivate() {
+    }
+
+    @Override
+    public void init(List<ITopic> centralTopics) {
+        if (centralTopics != null && centralTopics.size() != 0) {
+            this.centralTopics.addAll(centralTopics);
+        }
     }
 
     public List<ITopic> getCentralTopics() {
@@ -77,8 +84,8 @@ public class DrillDownTraceService extends GraphicalViewerService implements
                 ITopic t = centralTopics.get(i);
                 if (t.equals(topic)) {
                     while (centralTopics.size() > i + 1) {
-                        ITopic removed = centralTopics.remove(centralTopics
-                                .size() - 1);
+                        ITopic removed = centralTopics
+                                .remove(centralTopics.size() - 1);
                         changed |= removed != null;
                     }
                     if (changed)

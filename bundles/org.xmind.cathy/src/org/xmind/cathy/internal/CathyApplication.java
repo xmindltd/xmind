@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.cathy.internal;
 
+import java.awt.Toolkit;
 import java.io.File;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -100,6 +101,12 @@ public class CathyApplication implements IApplication {
             // Install global OpenDocument listener:
             OpenDocumentQueue.getInstance().hook(display);
 
+            /// Activate network proxy settings. On Linux, we need a 
+            /// UI environment to show a dialog for retrieving the master
+            /// password of the secure storage containing proxy server
+            /// credentials.
+            CathyPlugin.getDefault().activateNetworkSettings();
+
             // Check if we are in beta and should quit due to beta expiry.
             if (new BetaVerifier(display).shouldExitAfterBetaExpired())
                 return EXIT_OK;
@@ -177,6 +184,13 @@ public class CathyApplication implements IApplication {
         sampler.put("Country", System.getProperty("user.country", null)); //$NON-NLS-1$ //$NON-NLS-2$
         sampler.put("JavaVersion", System.getProperty("java.version", null)); //$NON-NLS-1$ //$NON-NLS-2$
         sampler.put("JavaVendor", System.getProperty("java.vendor", null)); //$NON-NLS-1$ //$NON-NLS-2$
+        sampler.put("ScreenWidth", //$NON-NLS-1$
+                Toolkit.getDefaultToolkit().getScreenSize().width);
+        sampler.put("ScreenHeight", //$NON-NLS-1$
+                Toolkit.getDefaultToolkit().getScreenSize().height);
+        sampler.put("ScreenResolution", //$NON-NLS-1$
+                Toolkit.getDefaultToolkit().getScreenResolution());
+
     }
 
     private static String calculateBuildId(IApplicationContext context) {

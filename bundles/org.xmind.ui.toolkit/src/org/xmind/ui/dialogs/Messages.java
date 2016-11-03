@@ -18,7 +18,6 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class Messages extends NLS {
 
@@ -30,6 +29,11 @@ public class Messages extends NLS {
     public static String Notification_closeButton_text;
 
     public static String NotificationDialog_MoreLink_defaultText;
+
+    public static String ViewModelPart_MenuBar_toolTip;
+
+    public static String FullRichTextAction_FontViewer_toolTip;
+    public static String FullRichTextAction_FontSizeViewer_toolTip;
 
     static {
         // initialize resource bundle

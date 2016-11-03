@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product
-      name="XMind"
-      uid="org.xmind.cathy.product"
-      id="org.xmind.cathy.product"
-      application="org.xmind.cathy.application"
-      version="3.6.51.qualifier"
-      useFeatures="true"
-      includeLaunchers="true">
+<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.0.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.xmind.cathy/icons/about.png"/>
@@ -22,21 +15,28 @@
 
    <launcherArgs>
       <programArgs>--launcher.defaultAction
-openFile</programArgs>
+openFile
+      </programArgs>
+      <programArgsMac>-eclipse.keyring
+@user.home/.xmind/secure_storage_macosx
+      </programArgsMac>
+      <programArgsWin>-eclipse.keyring
+@user.home/.xmind/secure_storage_win32
+      </programArgsWin>
+      <programArgsLinux>-eclipse.keyring
+@user.home/.xmind/secure_storage_linux
+      </programArgsLinux>
       <vmArgs>-Dfile.encoding=UTF-8
       </vmArgs>
-      <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread
+      </vmArgsMac>
       <vmArgsWin>-Xms128m
 -Xmx1024m
--XX:MaxPermSize=256m</vmArgsWin>
+-XX:MaxPermSize=256m
+      </vmArgsWin>
    </launcherArgs>
 
-   <windowImages
-      i16="/org.xmind.cathy/icons/xmind.16.png"
-      i32="/org.xmind.cathy/icons/xmind.32.png"
-      i48="/org.xmind.cathy/icons/xmind.48.png"
-      i64="/org.xmind.cathy/icons/xmind.64.png"
-      i128="/org.xmind.cathy/icons/xmind.128.png"/>
+   <windowImages i16="/org.xmind.cathy/icons/xmind.16.png" i32="/org.xmind.cathy/icons/xmind.32.png" i48="/org.xmind.cathy/icons/xmind.48.png" i64="/org.xmind.cathy/icons/xmind.64.png" i128="/org.xmind.cathy/icons/xmind.128.png" i256="/org.xmind.cathy/icons/xmind.256.png"/>
 
    <splash
       location="org.xmind.cathy" />
@@ -67,15 +67,19 @@ openFile</programArgs>
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
-
-      <property name="osgi.instance.area" value="@user.home/.xmind/workspace-cathy"/>
-      <property name="osgi.configuration.area" value="@user.home/.xmind/configuration"/>
-      <property name="osgi.requiredJavaVersion" value="1.7" />
       <property name="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
-
-      <!-- Specify 'UTF-8' as the default file encoding to prevent
-      exporting pptx using Aspose from encountering with encoding errors. -->
-      <property name="file.encoding" value="UTF-8"/>
+      <property name="org.xmind.ui.seawind.encryptionEnabled" value="false" />
+      <property name="osgi.configuration.area" value="@user.home/.xmind/configuration" />
+      <property name="osgi.instance.area" value="@user.home/.xmind/workspace-cathy" />
+      <property name="osgi.requiredJavaVersion" value="1.8" />
+      <property name="osgi.signedcontent.support" value="all" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

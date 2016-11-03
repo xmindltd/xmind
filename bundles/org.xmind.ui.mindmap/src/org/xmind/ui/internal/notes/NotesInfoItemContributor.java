@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.core.Core;
@@ -20,7 +21,9 @@ import org.xmind.ui.actions.DelegatingAction;
 import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.commands.DeleteNotesCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.mindmap.BranchPart;
+import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.internal.e4models.IModelConstants;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.AbstractInfoItemContributor;
 import org.xmind.ui.mindmap.IInfoPart;
 import org.xmind.ui.mindmap.IMindMapImages;
@@ -28,6 +31,8 @@ import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class NotesInfoItemContributor extends AbstractInfoItemContributor {
+
+    private static final String PRESENTATION_VIERWER_CLASS_NAME = "PresentationViewer"; //$NON-NLS-1$
 
     private static class ShowNotesAction extends Action {
 
@@ -43,24 +48,33 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
         }
 
         public void run() {
+            if (topicPart == null || topicPart.getSite() == null
+                    || topicPart.getSite().getViewer() == null
+                    || topicPart.getSite().getViewer().getClass()
+                            .getSimpleName()
+                            .equals(PRESENTATION_VIERWER_CLASS_NAME))
+                return;
+
             if (!topicPart.getStatus().isActive())
                 return;
 
-            IWorkbenchWindow window = PlatformUI.getWorkbench()
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase("UseNotesCount"); //$NON-NLS-1$
+
+            final IWorkbenchWindow window = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow();
             if (window == null)
                 return;
 
-            NotesPopup popup = new NotesPopup(window,
-                    ((BranchPart) topicPart.getParent()).getTopicPart(), true,
-                    false);
-            popup.open();
+            Display.getCurrent().asyncExec(new Runnable() {
+                public void run() {
+                    E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART,
+                            window, IModelConstants.PART_ID_NOTES, null,
+                            IModelConstants.PART_STACK_ID_RIGHT);
+                }
+            });
         }
     }
-
-    private static final int NOTES_LENGTH = 24;
-
-    private static final int MININUM = 4;
 
     public IAction createAction(ITopicPart topicPart, ITopic topic) {
         INotes notes = topic.getNotes();
@@ -76,7 +90,7 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
             if (action != null)
                 action = new DelegatingAction(action);
         }
-        if (action == null)
+        if (action == null || action.getImageDescriptor() == null)
             action = new ShowNotesAction(topicPart);
 
         INotesContent content = notes.getContent(INotes.PLAIN);
@@ -86,6 +100,9 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
                 text = text.substring(0, 500) + "...\n..."; //$NON-NLS-1$
             action.setToolTipText(text);
         }
+
+        action.setEnabled(true);
+
         return action;
     }
 
@@ -95,17 +112,10 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
             return null;
 
         INotesContent content = notes.getContent(INotes.PLAIN);
-        if (content instanceof IPlainNotesContent) {
-            String text = ((IPlainNotesContent) content).getTextContent()
+        if (content instanceof IPlainNotesContent)
+            return ((IPlainNotesContent) content).getTextContent()
                     .replaceAll("\r\n|\r|\n", " "); //$NON-NLS-1$ //$NON-NLS-2$
-            if (text.length() < MININUM)
-                return text;
-            return text
-                    .substring(0,
-                            (text.length() - MININUM) < NOTES_LENGTH
-                                    ? (text.length() - MININUM) : NOTES_LENGTH)
-                    + "..."; //$NON-NLS-1$
-        }
+
         return null;
     }
 
@@ -156,6 +166,7 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
         IAction editNotesAction = createAction(topicPart, topic);
 
         editNotesAction.setText(MindMapMessages.ModifyMenu);
+        editNotesAction.setImageDescriptor(null);
         IAction deleteNotesAction = new Action(
                 MindMapMessages.InfoItem_Delete_text) {
             @Override
@@ -164,8 +175,7 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
             };
         };
         deleteNotesAction.setId("org.xmind.ui.removeNotes"); //$NON-NLS-1$
-        deleteNotesAction.setImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        deleteNotesAction.setImageDescriptor(null);
 
         actions.add(editNotesAction);
         actions.add(deleteNotesAction);

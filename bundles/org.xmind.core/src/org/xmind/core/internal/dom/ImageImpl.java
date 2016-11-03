@@ -21,7 +21,6 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_IMG;
 import static org.xmind.core.internal.dom.NumberUtils.safeParseInt;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
@@ -61,11 +60,11 @@ public class ImageImpl extends Image implements ICoreEventSource {
         return DOMUtils.toString(getImageElement());
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Node.class || adapter == Element.class)
-            return getImageElement();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getImageElement());
         return super.getAdapter(adapter);
     }
 
@@ -109,7 +108,8 @@ public class ImageImpl extends Image implements ICoreEventSource {
         Element img = getImageElement();
         if (img == null)
             return UNSPECIFIED;
-        return safeParseInt(DOMUtils.getAttribute(img, ATTR_WIDTH), UNSPECIFIED);
+        return safeParseInt(DOMUtils.getAttribute(img, ATTR_WIDTH),
+                UNSPECIFIED);
     }
 
     private Element ensureImageElement() {
@@ -194,7 +194,6 @@ public class ImageImpl extends Image implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {

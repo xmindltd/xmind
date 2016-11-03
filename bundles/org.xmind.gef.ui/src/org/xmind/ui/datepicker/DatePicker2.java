@@ -33,7 +33,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -62,7 +61,6 @@ import org.xmind.ui.viewers.SWTUtils;
 
 /**
  * A viewer to pick a date on the calendar.
- * 
  */
 public class DatePicker2 extends Viewer {
 
@@ -510,7 +508,6 @@ public class DatePicker2 extends Viewer {
      *            instance (cannot be null)
      * @param style
      *            the style of control to construct
-     * 
      * @see SWT#SIMPLE
      * @see SWT#DROP_DOWN
      * @see SWT#CANCEL
@@ -1039,8 +1036,9 @@ public class DatePicker2 extends Viewer {
         updateDayFigures(datePanel.getChildren(), currentYear, currentMonth);
         monthFigure.setMonth(currentMonth);
         yearFigure.setYear(currentYear);
-        todayFigure.setText(NLS.bind(Messages.TodayPattern,
-                String.format("%1$tb %1$te, %1$tY", today))); //$NON-NLS-1$
+        todayFigure.setText(Messages.TodayPattern);
+//        todayFigure.setText(NLS.bind(Messages.TodayPattern,
+//                String.format("%1$tb %1$te, %1$tY", today))); //$NON-NLS-1$
     }
 
     private void updateDayFigures(List dayFigures, int year, int month) {

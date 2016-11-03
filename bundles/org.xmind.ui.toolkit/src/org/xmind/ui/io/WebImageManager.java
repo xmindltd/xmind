@@ -15,24 +15,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.xmind.ui.internal.ToolkitPlugin;
 
 /**
- * 
  * @author Shawn Liu
  * @since 3.6.50
  */
 public class WebImageManager {
 
     public static interface WebImageCallback {
-
-        void handleWith(ImageDescriptor image);
-    }
-
-    public static interface WebImageCallback2 {
 
         void handleWith(String imagePath);
     }
@@ -61,49 +52,6 @@ public class WebImageManager {
 
     public void requestWebImage(final String imageUrl,
             final WebImageCallback callback) {
-        if (callback == null) {
-            return;
-        }
-
-        if (imageUrl == null) {
-            callback.handleWith(null);
-            return;
-        }
-
-        //get image from web
-        Job job = new Job("") { //$NON-NLS-1$
-
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                monitor.beginTask(null, 100);
-                String imageFilePath = createWebImageFile(imageUrl);
-
-                if (imageFilePath == null || imageFilePath.equals("")) { //$NON-NLS-1$
-                    callback.handleWith(null);
-                    return Status.OK_STATUS;
-                }
-
-                Image image_0 = new Image(Display.getCurrent(), imageFilePath);
-                new File(imageFilePath).delete();
-
-                ImageDescriptor imageDesc = null;
-                if (image_0 != null) {
-                    imageDesc = ImageDescriptor.createFromImage(image_0);
-                }
-                callback.handleWith(imageDesc);
-
-                monitor.worked(100);
-                return Status.OK_STATUS;
-            }
-        };
-
-        job.setSystem(true);
-        job.setUser(false);
-        job.schedule();
-    }
-
-    public void requestWebImage(final String imageUrl,
-            final WebImageCallback2 callback) {
         if (callback == null) {
             return;
         }

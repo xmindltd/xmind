@@ -24,14 +24,20 @@ public class MindMapMiniBarContributor extends MiniBarContributor {
 
     private MiniZoomContribution zoomContribution;
 
+    private OverviewCheckContribution overviewCheckContribution;
+
     protected void init(IMiniBar bar) {
         zoomContribution = new MiniZoomContribution(getEditor());
+        overviewCheckContribution = new OverviewCheckContribution();
         super.init(bar);
     }
 
     public void contributeToToolBar(IToolBarManager toolBar) {
         toolBar.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         toolBar.add(new Separator(ActionConstants.GROUP_FILTER));
+        toolBar.add(new Separator(ActionConstants.GROUP_ZOOM));
+        if (overviewCheckContribution != null)
+            toolBar.add(overviewCheckContribution);
         toolBar.add(new Separator(ActionConstants.GROUP_ZOOM));
         if (zoomContribution != null)
             toolBar.add(zoomContribution);
@@ -41,6 +47,11 @@ public class MindMapMiniBarContributor extends MiniBarContributor {
         if (zoomContribution != null) {
             zoomContribution.dispose();
             zoomContribution = null;
+        }
+
+        if (overviewCheckContribution != null) {
+            overviewCheckContribution.dispose();
+            overviewCheckContribution = null;
         }
         super.dispose();
     }

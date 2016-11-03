@@ -60,7 +60,6 @@ public class Styles {
      * recommended that the {@link #LineColor} property value be used instead.
      * Typically this property is used on a branch to define colors for
      * connections from the branch's node to its children nodes.
-     * 
      * <p>
      * Example:
      * </p>
@@ -70,7 +69,6 @@ public class Styles {
      * <pre>
      * &lt;line-properties multi-line-colors=&quot;#ff0000 #00ff00 #0000ff&quot; /&gt;
      * </pre>
-     * 
      * </p>
      * <p>
      * Lines with default line color:
@@ -78,7 +76,6 @@ public class Styles {
      * <pre>
      * &lt;line-properties multi-line-colors=&quot;default&quot; /&gt;
      * </pre>
-     * 
      * </p>
      * <p>
      * ATTN: Used to use <i>rainbowcolor</i> property and <code>boolean</code>
@@ -102,7 +99,6 @@ public class Styles {
      * <pre>
      * &lt;line-properties line-width=&quot;1px&quot;/&gt;
      * </pre>
-     * 
      * </p>
      */
     public static final String LineWidth = DOMConstants.ATTR_LINE_WIDTH;
@@ -115,7 +111,6 @@ public class Styles {
      * <pre>
      * &lt;line-properties line-tapered=&quot;tapered&quot;/&gt;
      * </pre>
-     * 
      * </p>
      * <p>
      * ATTN: Used to use the <i>'spinylines'</i> property and
@@ -551,7 +546,7 @@ public class Styles {
 
     public static final String LEGEND_LINE_COLOR = "#dddddd"; //$NON-NLS-1$
 
-    public static final String DEF_YELLOWBOX_FILL_COLOR = "#edf9cc"; //$NON-NLS-1$
+    public static final String DEF_YELLOWBOX_FILL_COLOR = "#fff8b6"; //$NON-NLS-1$
 
     public static final String YELLOWBOX_TEXT_COLOR = "#333333"; //$NON-NLS-1$
 

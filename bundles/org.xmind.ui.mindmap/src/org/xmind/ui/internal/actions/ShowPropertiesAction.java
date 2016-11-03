@@ -15,10 +15,10 @@ package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
-import org.xmind.ui.util.Logger;
+import org.xmind.ui.internal.e4models.IModelConstants;
+import org.xmind.ui.internal.utils.E4Utils;
 
 public class ShowPropertiesAction extends Action implements IWorkbenchAction {
 
@@ -34,12 +34,9 @@ public class ShowPropertiesAction extends Action implements IWorkbenchAction {
         if (window == null)
             return;
 
-        try {
-            window.getActivePage()
-                    .showView("org.eclipse.ui.views.PropertySheet"); //$NON-NLS-1$
-        } catch (PartInitException e) {
-            Logger.log(e);
-        }
+        E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART, window,
+                IModelConstants.PART_ID_PROPERTIES, null,
+                IModelConstants.PART_STACK_ID_RIGHT);
     }
 
     public void dispose() {

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.e4.ui.workbench.renderers.swt.TrimmedPartLayout;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -57,7 +58,8 @@ public class XTrimmedPartLayout extends TrimmedPartLayout {
 
         // 'Top' spans the entire area
         if (top != null && top.isVisible()) {
-            Point topSize = top.computeSize(caRect.width, SWT.DEFAULT, true);
+            Point topSize = top.computeSize(
+                    caRect.width - (Util.isMac() ? 12 : 0), SWT.DEFAULT, true); /// -12 for mac margin
             caRect.y += topSize.y;
             caRect.height -= topSize.y;
 
@@ -194,6 +196,18 @@ public class XTrimmedPartLayout extends TrimmedPartLayout {
 
     @Override
     public Composite getTrimComposite(Composite parent, int side) {
+        if (side == SWT.RIGHT) {
+            if (right == null) {
+                right = new Composite(parent, SWT.NONE);
+                right.setLayout(new XRightTrimBarLayout());
+                right.addDisposeListener(new DisposeListener() {
+                    public void widgetDisposed(DisposeEvent e) {
+                        right = null;
+                    }
+                });
+            }
+            return right;
+        }
         Composite trim = super.getTrimComposite(parent, side);
         if (trim != null && clientArea != null && !clientArea.isDisposed()) {
             trim.setVisible(clientArea.isVisible());

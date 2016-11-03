@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.xmind.core.runtime.tests;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Vendor: %Bundle-Vendor
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
- org.xmind.core.runtime;bundle-version="[3.6.0,3.7.0)"
+ org.xmind.core.runtime;bundle-version="[3.7.0,3.8.0)"

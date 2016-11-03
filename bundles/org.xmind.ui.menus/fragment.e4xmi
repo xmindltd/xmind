@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_VhrC4P0hEeSFCalzBJpRhw">
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_VhrC4P0hEeSFCalzBJpRhw">
+  <imports xsi:type="commands:Command" xmi:id="_R7DbAENWEeaUkq_67huL6g" elementId="org.xmind.ui.command.toggleModelPart"/>
+  <imports xsi:type="commands:Command" xmi:id="_QKxvkIC0Eeak_br5gl15Ow" elementId="org.xmind.ui.command.showPopover"/>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_Rssd8P04EeSFCalzBJpRhw" featurename="children" parentElementId="org.eclipse.ui.main.toolbar" positionInList="after:org.xmind.ui.toolbar.edit">
     <elements xsi:type="menu:ToolBar" xmi:id="_A8W6sEVtEeWqKcBDsQEnrw" elementId="org.xmind.ui.toolbar.mindmap">
-      <children xsi:type="menu:ToolBarSeparator" xmi:id="_Cod3MEVtEeWqKcBDsQEnrw" elementId="start" visible="false"/>
       <children xsi:type="menu:DirectToolItem" xmi:id="_Epx1UEY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic" label="%toolbar.topic.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/topic.png" tooltip="%toolbar.topic.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
         <menu xmi:id="_Epx1UUY2EeWIUIBrCUBfAw" elementId="org.xmind.ui.toolbar.mindmap.topic.menu">
           <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1UkY2EeWIUIBrCUBfAw" elementId="start" visible="false"/>
@@ -10,7 +11,6 @@
           <children xsi:type="menu:MenuSeparator" xmi:id="_Epx1VEY2EeWIUIBrCUBfAw" elementId="end" visible="false"/>
         </menu>
       </children>
-      <children xsi:type="menu:ToolBarSeparator" xmi:id="_D34QoEVtEeWqKcBDsQEnrw" elementId="additions" visible="false"/>
       <children xsi:type="menu:DirectToolItem" xmi:id="_BNaDACuFEeW589Z25pk4Ag" elementId="org.xmind.ui.toolbar.mindmap.insert" label="%toolbar.insert.label" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/insert.png" tooltip="%toolbar.insert.tooltip" contributionURI="bundleclass://org.xmind.ui.toolkit/org.xmind.ui.internal.e4handlers.ShowPullDownMenuToolItem">
         <menu xmi:id="_Ppi8cCuFEeW589Z25pk4Ag" elementId="org.xmind.ui.toolbar.mindmap.insert.menu">
           <children xsi:type="menu:MenuSeparator" xmi:id="_TfPxoEVuEeWqKcBDsQEnrw" elementId="start" visible="false"/>
@@ -18,7 +18,50 @@
           <children xsi:type="menu:MenuSeparator" xmi:id="_TjFIwEVuEeWqKcBDsQEnrw" elementId="end" visible="false"/>
         </menu>
       </children>
-      <children xsi:type="menu:ToolBarSeparator" xmi:id="_eH8EEEVtEeWqKcBDsQEnrw" elementId="end" visible="false"/>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_iqNVYENVEeaUkq_67huL6g" featurename="children" parentElementId="org.xmind.ui.rightTrimBar.toolbar.begining">
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_I2b_4ENWEeaUkq_67huL6g" elementId="org.xmind.ui.menus.handledtoolitem.outline" label="%handledtoolitem.label.outline" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_outline.png" tooltip="%handledtoolitem.tooltip.outline" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_outline.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_outline_selected.png"/>
+      <parameters xmi:id="_YV_eIENWEeaUkq_67huL6g" elementId="org.xmind.ui.rightTrimBar.cp.partId.outline" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.outline"/>
+      <parameters xmi:id="_gLgo4ENWEeaUkq_67huL6g" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.outline" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
+    </elements>
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_yB4ScEPjEeaDWL8gD_vEUA" elementId="org.xmind.ui.menus.handledtoolitem.peoperties" label="%handledtoolitem.label.format" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_properties.png" tooltip="%handledtoolitem.tooltip.format" selected="true" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_properties.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_properties_selected.png"/>
+      <parameters xmi:id="_yB4ScUPjEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partId.peoperties" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.properties"/>
+      <parameters xmi:id="_yB4SckPjEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.properties" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
+    </elements>
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_HS9DYEPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.menus.handledtoolitem.image" label="%handledtoolitem.label.image" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_image.png" tooltip="%handledtoolitem.tooltip.image" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_image.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_image_selected.png"/>
+      <parameters xmi:id="_HS9DYUPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partId.image" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.image"/>
+      <parameters xmi:id="_HS9DYkPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.image" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
+    </elements>
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_9o3k8JsdEeaWM9softeOMA" elementId="org.xmind.ui.menus.handledtoolitem.marker" label="%handledtoolitem.label.marker" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_markers.png" tooltip="%handledtoolitem.tooltip.marker" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_markers.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_markers_selected.png"/>
+      <parameters xmi:id="_Oia8AJseEeaWM9softeOMA" elementId="org.xmind.ui.menus.parameter.marker" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.markers"/>
+      <parameters xmi:id="_PD0Y4JseEeaWM9softeOMA" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.marker" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
+    </elements>
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_HfWgoEPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.menus.handledtoolitem.theme" label="%handledtoolitem.label.themes" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_themes.png" tooltip="%handledtoolitem.tooltip.themes" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_themes.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_themes_selected.png"/>
+      <parameters xmi:id="_HfXHsEPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partId.theme" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.themes"/>
+      <parameters xmi:id="_HfXHsUPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.theme" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
+    </elements>
+    <elements xsi:type="menu:HandledToolItem" xmi:id="_HjcWcEPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.menus.handledtoolitem.notes" label="%handledtoolitem.label.notes" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_notes.png" tooltip="%handledtoolitem.tooltip.notes" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_notes.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_notes_selected.png"/>
+      <parameters xmi:id="_HjcWcUPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partId.notes" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.notes"/>
+      <parameters xmi:id="_HjcWckPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.notes" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
+    </elements>
+    <elements xsi:type="menu:HandledToolItem" xmi:id="__defcEPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.menus.handledtoolitem.comment" label="%handledtoolitem.label.comments" iconURI="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_comments.png" tooltip="%handledtoolitem.tooltip.comments" command="_R7DbAENWEeaUkq_67huL6g">
+      <persistedState key="unselectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_comments.png"/>
+      <persistedState key="selectedIconURI" value="platform:/plugin/org.xmind.ui.menus/icons/toolbar/e/sidebar_comments_selected.png"/>
+      <parameters xmi:id="__defcUPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partId.comment" name="org.xmind.ui.commandParameter.modelPart.partId" value="org.xmind.ui.modelPart.comments"/>
+      <parameters xmi:id="__defckPkEeaDWL8gD_vEUA" elementId="org.xmind.ui.rightTrimBar.cp.partStackId.comment" name="org.xmind.ui.commandParameter.modelPart.partStackId" value="org.xmind.ui.stack.right"/>
     </elements>
   </fragments>
 </fragment:ModelFragments>

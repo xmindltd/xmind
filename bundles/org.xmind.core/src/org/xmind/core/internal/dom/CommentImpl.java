@@ -21,7 +21,6 @@ import static org.xmind.core.internal.dom.DOMConstants.ATTR_OBJECT_ID;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_CONTENT;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.IComment;
 import org.xmind.core.IWorkbook;
@@ -33,7 +32,6 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author Frank Shaka
- *
  */
 public class CommentImpl implements IComment, ICoreEventSource {
 
@@ -41,11 +39,15 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     private final Element implementation;
 
+    private CommentManagerImpl ownedCommentManager;
+
     /**
      * 
      */
-    public CommentImpl(WorkbookImpl ownerWorkbook, Element implementation) {
+    public CommentImpl(WorkbookImpl ownerWorkbook,
+            CommentManagerImpl ownedCommentManager, Element implementation) {
         this.ownerWorkbook = ownerWorkbook;
+        this.ownedCommentManager = ownedCommentManager;
         this.implementation = implementation;
     }
 
@@ -58,13 +60,12 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IAdaptable#getAdapter(java.lang.Class)
      */
     public <T> T getAdapter(Class<T> adapter) {
         if (IWorkbook.class.equals(adapter))
             return adapter.cast(getOwnedWorkbook());
-        if (Node.class.equals(adapter) || Element.class.equals(adapter))
+        if (adapter.isAssignableFrom(Element.class))
             return adapter.cast(implementation);
         if (ICoreEventSupport.class.equals(adapter))
             return adapter.cast(getCoreEventSupport());
@@ -73,7 +74,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#getOwnedWorkbook()
      */
     public IWorkbook getOwnedWorkbook() {
@@ -82,7 +82,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
@@ -91,7 +90,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     public int compareTo(IComment that) {
@@ -100,7 +98,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IComment#getObjectId()
      */
     public String getObjectId() {
@@ -109,7 +106,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IComment#getAuthor()
      */
     public String getAuthor() {
@@ -118,7 +114,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IComment#getTime()
      */
     public long getTime() {
@@ -129,7 +124,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IComment#getContent()
      */
     public String getContent() {
@@ -138,7 +132,6 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IComment#setContent(java.lang.String)
      */
     public void setContent(String content) {
@@ -150,11 +143,11 @@ public class CommentImpl implements IComment, ICoreEventSource {
         DOMUtils.setText(implementation, TAG_CONTENT, content);
         getCoreEventSupport().dispatchValueChange(this, Core.CommentContent,
                 oldContent, content);
+        updateModificationInfo();
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.event.ICoreEventSource#registerCoreEventListener(java.lang
      * .String, org.xmind.core.event.ICoreEventListener)
@@ -167,11 +160,16 @@ public class CommentImpl implements IComment, ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.event.ICoreEventSource#getCoreEventSupport()
      */
     public ICoreEventSupport getCoreEventSupport() {
         return ownerWorkbook.getCoreEventSupport();
+    }
+
+    protected void updateModificationInfo() {
+        if (ownedCommentManager != null) {
+            ownedCommentManager.updateModificationInfo();
+        }
     }
 
 }

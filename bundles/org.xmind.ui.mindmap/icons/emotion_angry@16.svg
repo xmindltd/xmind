@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.4.2 (15855) - http://www.bohemiancoding.com/sketch -->
+    <title>Oval 43 Copy 16</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path id="path-1" d="M8,16.9755858 C12.418278,16.9755858 16,13.3938638 16,8.97558576 C16,4.55730776 12.418278,0.975585762 8,0.975585762 C3.581722,0.975585762 0,4.55730776 0,8.97558576 C0,13.3938638 3.581722,16.9755858 8,16.9755858 Z"></path>
+        <path id="path-2" d="M6.20019531,7.01065344 C6.00567627,7.32936793 5.68507611,7.3456086 5.4416374,7.3393451 C5.23223292,7.33395727 3.66811292,6.26342985 3.36870496,6.00798477 C3.069297,5.7525397 3.01866826,5.58643529 2.92722001,5.1750658 C2.86173338,4.88048171 2.92721989,4.60025768 2.92721989,4.60025768 C2.92721989,4.60025768 3.71618012,5.22711704 4.66951214,5.68564008 C6.41522216,6.52527229 6.60009765,5.84653176 6.5098877,6.24573867 C6.41967775,6.64494558 6.39471435,6.69193895 6.20019531,7.01065344 Z"></path>
+        <path id="path-3" d="M9.72663121,7.01065344 C9.92115025,7.32936793 10.2417504,7.3456086 10.4851891,7.3393451 C10.6945936,7.33395727 12.2587136,6.26342985 12.5581216,6.00798477 C12.8575295,5.7525397 12.9081583,5.58643529 12.9996065,5.1750658 C13.0650931,4.88048171 12.9996066,4.60025768 12.9996066,4.60025768 C12.9996066,4.60025768 12.2106464,5.22711704 11.2573144,5.68564008 C9.51160435,6.52527229 9.32672887,5.84653176 9.41693882,6.24573867 C9.50714877,6.64494558 9.53211216,6.69193895 9.72663121,7.01065344 Z"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Group" sketch:type="MSLayerGroup" transform="translate(0.000000, -1.000000)">
+            <g id="Oval-43-Copy-16">
+                <use fill="#D66F35" fill-rule="evenodd" sketch:type="MSShapeGroup" xlink:href="#path-1"></use>
+                <use fill="none" xlink:href="#path-1"></use>
+            </g>
+            <g id="Path-92-Copy-12">
+                <use fill="#8B572A" fill-rule="evenodd" sketch:type="MSShapeGroup" xlink:href="#path-2"></use>
+                <use fill="none" xlink:href="#path-2"></use>
+            </g>
+            <g id="Path-92-Copy-13">
+                <use fill="#8B572A" fill-rule="evenodd" sketch:type="MSShapeGroup" xlink:href="#path-3"></use>
+                <use fill="none" xlink:href="#path-3"></use>
+            </g>
+            <path d="M2.42592824,6.9371601 C2.10983047,7.11807105 1.97377494,7.86510106 2.42592824,8.69949754 C2.87808153,9.53389403 3.64208557,10.746583 4.25638306,10.6954013 C4.87068054,10.6442196 7.06425342,9.20869568 6.73541467,8.69949753 C6.40657592,8.19029938 2.742026,6.75624914 2.42592824,6.9371601 Z" id="Path-106" stroke="#B82436" stroke-width="0.5" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+            <path d="M13.8428759,6.9371601 C14.1589737,7.11807105 14.2950292,7.86510106 13.8428759,8.69949754 C13.3907226,9.53389403 12.6267186,10.746583 12.0124211,10.6954013 C11.3981236,10.6442196 9.20455073,9.20869568 9.53338948,8.69949753 C9.86222823,8.19029938 13.5267782,6.75624914 13.8428759,6.9371601 Z" id="Path-106-Copy" stroke="#B82436" stroke-width="0.5" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
+            <rect id="Rectangle-133" stroke="#B82436" stroke-width="0.5" fill="#FFFFFF" sketch:type="MSShapeGroup" x="5.71361226" y="12.1532332" width="5" height="2.42424242"></rect>
+        </g>
+    </g>
+</svg>

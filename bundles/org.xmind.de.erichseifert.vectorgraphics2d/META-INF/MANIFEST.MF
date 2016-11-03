@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.de.erichseifert.vectorgraphics2d;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: %providerName
 Export-Package: org.xmind.de.erichseifert.vectorgraphics2d,

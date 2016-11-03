@@ -59,4 +59,43 @@ public abstract class Numbering extends AbstractWorkbookComponent
         return getParentSeparator();
     }
 
+    public int getComputedDepth() {
+        String nf = getNumberFormat();
+        String noneFormat = "org.xmind.numbering.none"; //$NON-NLS-1$
+
+        if (noneFormat.equals(nf))
+            return -1;
+
+        String dv = getDepth();
+        if (dv != null)
+            return Integer.parseInt(dv);
+
+        if (isInherited(1))
+            return getParent().getParent().getNumbering().getComputedDepth()
+                    - 1;
+        else if (getNumberFormat() != null)
+            return 3;
+
+        return -1;
+    }
+
+    public boolean isInherited(int min) {
+        ITopic topic = getParent();
+        if (!ITopic.ATTACHED.equals(topic.getType()))
+            return false;
+
+        if (getDepth() != null)
+            return false;
+
+        if ("org.xmind.numbering.none".equals(getNumberFormat())) //$NON-NLS-1$
+            return false;
+
+        ITopic parentTopic = topic.getParent();
+        if (parentTopic == null)
+            return false;
+
+        int pd = parentTopic.getNumbering().getComputedDepth();
+        return pd > min;
+    }
+
 }

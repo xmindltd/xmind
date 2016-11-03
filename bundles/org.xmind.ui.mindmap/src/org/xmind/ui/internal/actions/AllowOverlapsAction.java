@@ -15,6 +15,7 @@ package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.prefs.PrefConstants;
 
 public class AllowOverlapsAction extends BooleanPrefAction {
@@ -24,6 +25,13 @@ public class AllowOverlapsAction extends BooleanPrefAction {
         setId("org.xmind.ui.allowOverlaps"); //$NON-NLS-1$
         setText(MindMapMessages.AllowOverlaps_text);
         setToolTipText(MindMapMessages.AllowOverlaps_toolTip);
+    }
+
+    @Override
+    public void run() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("AllowOverlapCount"); //$NON-NLS-1$
+        super.run();
     }
 
 }

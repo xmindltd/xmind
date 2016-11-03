@@ -33,8 +33,8 @@ import org.xmind.gef.status.StatusEvent;
 import org.xmind.gef.tool.ISourceTool;
 import org.xmind.ui.mindmap.IImagePart;
 
-public class ImageResizeTool extends FeedbackResizeTool implements ISourceTool,
-        IStatusListener {
+public class ImageResizeTool extends FeedbackResizeTool
+        implements ISourceTool, IStatusListener {
 
     private static final int MIN_IMAGE_WIDTH = 2;
 
@@ -43,6 +43,7 @@ public class ImageResizeTool extends FeedbackResizeTool implements ISourceTool,
     private IImagePart source;
 
     public ImageResizeTool() {
+        setKeepRatio(true);
         getStatus().addStatusListener(this);
     }
 
@@ -69,8 +70,8 @@ public class ImageResizeTool extends FeedbackResizeTool implements ISourceTool,
         if (layer != null) {
             Image sourceImage = ((IImagePart) getSource()).getImage();
             Rectangle sourceBounds = getSource().getFigure().getBounds();
-            Image image = new Image(sourceImage.getDevice(),
-                    sourceBounds.width, sourceBounds.height);
+            Image image = new Image(sourceImage.getDevice(), sourceBounds.width,
+                    sourceBounds.height);
             GC gc = new GC(image);
             try {
                 gc.setAntialias(SWT.ON);
@@ -131,7 +132,7 @@ public class ImageResizeTool extends FeedbackResizeTool implements ISourceTool,
 
     public void statusChanged(StatusEvent event) {
         if (event.key == GEF.ST_SHIFT_PRESSED) {
-            setKeepRatio(event.newValue);
+            setKeepRatio(!event.newValue);
             updateArea(getResultArea(), getCursorPosition(), null);
         }
     }

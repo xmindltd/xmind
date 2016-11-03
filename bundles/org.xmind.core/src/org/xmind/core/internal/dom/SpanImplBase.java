@@ -56,11 +56,12 @@ public abstract class SpanImplBase extends AbstractWorkbookComponent
         return implementation.toString();
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || (adapter == Element.class
-                && implementation instanceof Element))
-            return implementation;
-
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class)
+                && implementation instanceof Element)
+            return adapter.cast(implementation);
+        if (adapter.isAssignableFrom(Node.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 

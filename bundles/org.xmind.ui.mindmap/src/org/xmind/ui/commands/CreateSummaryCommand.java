@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Assert;
 import org.xmind.core.ISummary;
 import org.xmind.core.IWorkbook;
 import org.xmind.gef.command.CreateCommand;
+import org.xmind.ui.internal.MindMapUIPlugin;
 
 public class CreateSummaryCommand extends CreateCommand {
 
@@ -41,4 +42,10 @@ public class CreateSummaryCommand extends CreateCommand {
         return summary;
     }
 
+    @Override
+    public void execute() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("InsertSummaryCount"); //$NON-NLS-1$
+        super.execute();
+    }
 }

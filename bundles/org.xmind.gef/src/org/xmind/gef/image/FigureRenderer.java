@@ -23,6 +23,7 @@ import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.xmind.gef.draw2d.graphics.ScaledGraphics;
 
 /**
@@ -92,12 +93,16 @@ public class FigureRenderer implements IRenderer {
         return figures;
     }
 
+    public void render(GC gc) {
+        render(gc, (Image) null);
+    }
+
     /*
      * (non-Javadoc)
      * 
      * @see org.xmind.gef.image.IRenderer#render(org.eclipse.swt.graphics.GC)
      */
-    public void render(GC gc) {
+    public void render(GC gc, Image watermark) {
         if (figures == null)
             return;
 
@@ -114,6 +119,8 @@ public class FigureRenderer implements IRenderer {
                     figure.paint(graphics);
                     graphics.restoreState();
                 }
+
+                drawWatermarkImage(graphics, watermark);
             } finally {
                 graphics.popState();
             }
@@ -122,6 +129,21 @@ public class FigureRenderer implements IRenderer {
                 graphicsStack.pop().dispose();
             }
         }
+    }
+
+    private void drawWatermarkImage(Graphics graphics, Image watermark) {
+        if (watermark == null || watermark.isDisposed()) {
+            return;
+        }
+
+        graphics.setAlpha(0x19);
+
+        double scale = getScale() > 0 ? getScale() : 1;
+        int x = bounds.x + bounds.width
+                - (int) (watermark.getBounds().width * scale);
+        int y = bounds.y + bounds.height
+                - (int) (watermark.getBounds().height * scale);
+        graphics.drawImage(watermark, x, y);
     }
 
     /**

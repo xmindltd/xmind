@@ -16,8 +16,10 @@ package org.xmind.ui.gallery;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.Viewport;
+import org.xmind.gef.IViewer;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.gef.ui.internal.SpaceCollaborativeEngine;
 import org.xmind.gef.util.Properties;
 
 public class ContentPaneDecorator extends Decorator {
@@ -29,7 +31,8 @@ public class ContentPaneDecorator extends Decorator {
     public void decorate(IGraphicalPart part, IFigure figure) {
         super.decorate(part, figure);
         ContentPane contentPane = (ContentPane) part.getFigure();
-        Properties properties = part.getSite().getViewer().getProperties();
+        IViewer viewer = part.getSite().getViewer();
+        Properties properties = viewer.getProperties();
         boolean horizontal = properties.getBoolean(GalleryViewer.Horizontal,
                 false);
         boolean wrap = properties.getBoolean(GalleryViewer.Wrap, false);
@@ -44,6 +47,13 @@ public class ContentPaneDecorator extends Decorator {
         contentPane.setHorizontal(horizontal);
         contentPane.setWrap(wrap);
         contentPane.setBorder(new MarginBorder(layout.getMargins()));
+
+        SpaceCollaborativeEngine sce = (SpaceCollaborativeEngine) properties
+                .get(GalleryViewer.ContentPaneSpaceCollaborativeEngine);
+        if (sce != null) {
+            sce.register(viewer, contentPane);
+            contentPane.setSpaceCollaborativeEngine(sce);
+        }
 
         Viewport viewport = findViewport(contentPane);
         if (viewport != null) {

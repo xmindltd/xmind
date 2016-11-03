@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.Assert;
 import org.xmind.core.IBoundary;
 import org.xmind.core.IWorkbook;
 import org.xmind.gef.command.CreateCommand;
+import org.xmind.ui.internal.MindMapUIPlugin;
 
 public class CreateBoundaryCommand extends CreateCommand {
 
@@ -39,6 +40,13 @@ public class CreateBoundaryCommand extends CreateCommand {
     protected Object create() {
         canCreate();
         return boundary;
+    }
+
+    @Override
+    public void execute() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("InsertBoundaryCount"); //$NON-NLS-1$
+        super.execute();
     }
 
 }

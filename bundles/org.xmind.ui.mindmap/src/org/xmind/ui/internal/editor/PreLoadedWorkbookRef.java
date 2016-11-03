@@ -76,7 +76,7 @@ public class PreLoadedWorkbookRef extends AbstractWorkbookRef {
     @Override
     protected IWorkbook doLoadWorkbookFromTempStorage(IProgressMonitor monitor,
             IStorage tempStorage)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         IWorkbook workbook = super.doLoadWorkbookFromTempStorage(monitor,
                 tempStorage);
 

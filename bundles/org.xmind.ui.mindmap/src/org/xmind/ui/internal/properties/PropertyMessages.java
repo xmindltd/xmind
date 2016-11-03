@@ -52,6 +52,7 @@ public class PropertyMessages extends NLS {
     public static String Prefix_toolTip;
     public static String Suffix_toolTip;
     public static String Separator_label;
+    public static String Depth_label;
     public static String RelationshipShape_toolTip;
     public static String BeginArrowShape_toolTip;
     public static String EndArrowShape_toolTip;

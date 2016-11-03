@@ -13,12 +13,18 @@
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.xmind.core.ITopic;
+import org.xmind.core.util.FileUtils;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
@@ -35,6 +41,10 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
 public class InsertImageAction extends PageAction implements ISelectionAction {
+
+    private static final String PNG_FORMAT = "png"; //$NON-NLS-1$
+    private static final String JPG_FORMAT = "jpg"; //$NON-NLS-1$
+    private static final String JPEG_FORMAT = "jpeg"; //$NON-NLS-1$
 
     public InsertImageAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.INSERT_IMAGE.getId(), page);
@@ -77,7 +87,16 @@ public class InsertImageAction extends PageAction implements ISelectionAction {
         if (path == null)
             return;
 
+        String lowerPath = path.toLowerCase();
+        boolean converted = false;
+        if (lowerPath.endsWith(JPG_FORMAT) || lowerPath.endsWith(JPEG_FORMAT)) {
+            path = convertJpegToPng(path);
+            converted = true;
+        }
         insertImage(path, topicPart, viewer, domain);
+        if (converted) {
+            FileUtils.delete(new File(path));
+        }
     }
 
     protected void insertImage(String path, IPart topicPart, IViewer viewer,
@@ -91,6 +110,18 @@ public class InsertImageAction extends PageAction implements ISelectionAction {
 
     public void setSelection(ISelection selection) {
         setEnabled(MindMapUtils.isSingleTopic(selection));
+    }
+
+    private final static String convertJpegToPng(String jpg) {
+        try {
+            BufferedImage source = ImageIO.read(new File(jpg));
+            String png = jpg.substring(0, jpg.lastIndexOf('.') - 1)
+                    + PNG_FORMAT;
+            ImageIO.write(source, PNG_FORMAT, new File(png));
+            return png;
+        } catch (Exception e) {
+            return jpg;
+        }
     }
 
 }

@@ -61,6 +61,7 @@ import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.ITopicRange;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.dom.NumberUtils;
+import org.xmind.core.internal.dom.StyleSheetImpl;
 import org.xmind.core.io.DirectoryStorage;
 import org.xmind.core.io.IInputSource;
 import org.xmind.core.io.IStorage;
@@ -73,6 +74,7 @@ import org.xmind.core.style.IStyled;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.imports.ImportMessages;
 import org.xmind.ui.internal.imports.ImporterUtils;
 import org.xmind.ui.internal.protocols.FilePathParser;
@@ -357,6 +359,8 @@ public class MindManagerImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ImportFromMindManagerCount"); //$NON-NLS-1$
         getMonitor().beginTask(null, 100);
         try {
             getMonitor()
@@ -396,6 +400,7 @@ public class MindManagerImporter extends MindMapImporter
         } finally {
             clearTempStorage();
         }
+        postBuilded();
     }
 
     private Document readContents() throws Exception {
@@ -558,7 +563,7 @@ public class MindManagerImporter extends MindMapImporter
 
     private void loadLegendMarkers(Element markersEle, ILegend legend,
             String markerEleName, String iconEleName, String iconAttrName)
-                    throws InterruptedException {
+            throws InterruptedException {
         checkInterrupted();
         Iterator<Element> it = children(markersEle, markerEleName);
         while (it.hasNext()) {
@@ -731,7 +736,7 @@ public class MindManagerImporter extends MindMapImporter
 
     private void loadThemeColor(Element parentEle, boolean fill,
             boolean fillAlpha, boolean line, String type, String styleFamily)
-                    throws InterruptedException {
+            throws InterruptedException {
         checkInterrupted();
         Element colorEle = child(parentEle, "ap:DefaultColor"); //$NON-NLS-1$
         if (colorEle == null)
@@ -795,7 +800,7 @@ public class MindManagerImporter extends MindMapImporter
 
     private void loadTopicTheme(Element parentEle, String shapeEleName,
             String shapeAttrName, String styleFamily)
-                    throws InterruptedException {
+            throws InterruptedException {
         checkInterrupted();
         loadThemeColor(parentEle, true, false, true, IStyle.TOPIC, styleFamily);
         loadThemeTextStyle(parentEle, styleFamily);
@@ -822,7 +827,7 @@ public class MindManagerImporter extends MindMapImporter
 
     private void loadThemeTopicShape(Element parentEle, String shapeEleName,
             String shapeAttrName, String styleFamily)
-                    throws InterruptedException {
+            throws InterruptedException {
         checkInterrupted();
         if (shapeEleName == null)
             shapeEleName = "ap:DefaultSubTopicShape"; //$NON-NLS-1$
@@ -1450,7 +1455,7 @@ public class MindManagerImporter extends MindMapImporter
 
     private void loadHtmlNotes(Element notesGroupEle, Element htmlEle,
             IHtmlNotesContent content, String bookmarks)
-                    throws InterruptedException {
+            throws InterruptedException {
         NotesImporter notesImporter = new NotesImporter(content);
         notesImporter.addText(bookmarks);
         notesImporter.loadFrom(notesGroupEle, htmlEle);
@@ -1925,8 +1930,11 @@ public class MindManagerImporter extends MindMapImporter
     }
 
     private IStyleSheet getTempStyleSheet() {
-        if (tempStyleSheet == null)
+        if (tempStyleSheet == null) {
             tempStyleSheet = Core.getStyleSheetBuilder().createStyleSheet();
+            ((StyleSheetImpl) tempStyleSheet)
+                    .setManifest(getTargetWorkbook().getManifest());
+        }
         return tempStyleSheet;
     }
 

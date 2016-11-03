@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.mindmap;
 
@@ -18,12 +15,21 @@ import java.util.List;
 
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Layout;
 import org.xmind.core.IRelationship;
 import org.xmind.core.IRelationshipEnd;
 import org.xmind.core.ISheet;
@@ -40,6 +46,7 @@ import org.xmind.gef.part.IPart;
 import org.xmind.gef.part.IRootPart;
 import org.xmind.gef.service.IRevealService;
 import org.xmind.ui.commands.ModifyFoldedCommand;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.figures.BranchFigure;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IMindMap;
@@ -47,9 +54,51 @@ import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.MindMapUtils;
 
-public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
+public class MindMapViewer extends GraphicalViewer
+        implements IMindMapViewer, IPropertyChangeListener {
+
+    public static final int OVERVIEW_WIDTH = 300;
+
+    public static final int OVERVIEW_HEIGHT = 180;
+
+    private class OverviewLayout extends Layout {
+
+        @Override
+        protected Point computeSize(Composite composite, int wHint, int hHint,
+                boolean flushCache) {
+            if (wHint < 0 || hHint < 0) {
+                Control[] children = composite.getChildren();
+                int w = Math.max(0, wHint);
+                int h = Math.max(0, hHint);
+                for (int i = 0; i < children.length; i++) {
+                    Control child = children[i];
+                    Point childSize = child.getSize();
+                    w = Math.max(w, childSize.x);
+                    h = Math.max(h, childSize.y);
+                }
+            }
+
+            return new Point(wHint, hHint);
+        }
+
+        @Override
+        protected void layout(Composite composite, boolean flushCache) {
+            org.eclipse.swt.graphics.Rectangle area = composite.getParent()
+                    .getClientArea();
+            Control[] children = composite.getChildren();
+            if (children.length == 2) {
+                children[1].setBounds(area);
+
+                children[0].setBounds(area.x + area.width - OVERVIEW_WIDTH,
+                        area.y + area.height - OVERVIEW_HEIGHT, OVERVIEW_WIDTH,
+                        OVERVIEW_HEIGHT);
+            }
+        }
+
+    }
 
     protected class MindMapSelectionSupport extends GraphicalSelectionSupport {
 
@@ -90,11 +139,17 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
 
     private boolean inputChangedOnSelectionChanged = false;
 
+    private Composite overviewContainer;
+
+    private IPreferenceStore ps;
+
     public MindMapViewer() {
         setDndSupport(MindMapUI.getMindMapDndSupport());
         setPartFactory(MindMapUI.getMindMapPartFactory());
         setRootPart(new MindMapRootPart());
         getProperties().set(VIEWER_RENDER_TEXT_AS_PATH, false);
+
+        ps = MindMapUIPlugin.getDefault().getPreferenceStore();
     }
 
     public <T> T getAdapter(Class<T> adapter) {
@@ -119,11 +174,49 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
     }
 
     protected Control internalCreateControl(Composite parent, int style) {
-        FigureCanvas fc = (FigureCanvas) super.internalCreateControl(parent,
+        Composite container = new Composite(parent, SWT.NONE);
+        container.setLayout(new OverviewLayout());
+        container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        Composite composite = createOverview(container);
+
+        FigureCanvas fc = (FigureCanvas) super.internalCreateControl(container,
                 style);
         fc.setScrollBarVisibility(FigureCanvas.ALWAYS);
         fc.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+
+        final Overview overview = new Overview(composite, fc, this);
+
+        composite.setVisible(ps.getBoolean(PrefConstants.SHOW_OVERVIEW));
+        ps.removePropertyChangeListener(this);
+        ps.addPropertyChangeListener(this);
+
+        composite.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                overview.dispose();
+                if (ps != null) {
+                    ps = null;
+                }
+            }
+        });
         return fc;
+    }
+
+    private Composite createOverview(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 0;
+        composite.setLayout(layout);
+
+        overviewContainer = composite;
+
+        return composite;
     }
 
     protected ISelectionSupport createSelectionSupport() {
@@ -159,7 +252,6 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.AbstractViewer#fireFocusedPartChanged()
      */
     @Override
@@ -237,7 +329,6 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.GraphicalViewer#setSelectionOnInputChanged(org.eclipse.
      * jface.viewers.ISelection)
@@ -326,6 +417,27 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
         if (element instanceof ISummary)
             element = ((ISummary) element).getTopic();
         return super.findPart(element);
+    }
+
+    @Override
+    public void propertyChange(final PropertyChangeEvent event) {
+        if (overviewContainer == null || overviewContainer.isDisposed())
+            return;
+
+        overviewContainer.getDisplay().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                setOverviewVisible(event.getProperty());
+            }
+
+        });
+    }
+
+    private void setOverviewVisible(String id) {
+        if (PrefConstants.SHOW_OVERVIEW.equals(id)) {
+            overviewContainer.setVisible(ps.getBoolean(id));
+        }
     }
 
 }

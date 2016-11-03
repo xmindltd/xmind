@@ -14,11 +14,9 @@
 package org.xmind.ui.internal.properties;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -28,14 +26,16 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 import org.xmind.core.Core;
 import org.xmind.core.INumbering;
 import org.xmind.core.ITopic;
@@ -43,7 +43,8 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.gef.Request;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
-import org.xmind.ui.mindmap.IMindMapImages;
+import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.INumberFormatDescriptor;
 import org.xmind.ui.mindmap.INumberSeparatorDescriptor;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -51,105 +52,10 @@ import org.xmind.ui.properties.MindMapPropertySectionPartBase;
 import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.viewers.MComboViewer;
 
-public class NumberingPropertySectionPart extends
-        MindMapPropertySectionPartBase {
+public class NumberingPropertySectionPart
+        extends MindMapPropertySectionPartBase {
 
-//    private static class BalanceLayout extends Layout {
-//
-//        public Control left;
-//
-//        public Control center;
-//
-//        public Control right;
-//
-//        public int spacing = 3;
-//
-//        protected Point computeSize(Composite composite, int wHint, int hHint,
-//                boolean flushCache) {
-//            Point size = new Point(0, 0);
-//            if (wHint >= 0)
-//                size.x = wHint;
-//            if (hHint >= 0)
-//                size.y = hHint;
-//            if (wHint < 0 || hHint < 0) {
-//                Point centerSize;
-//                if (center == null) {
-//                    centerSize = null;
-//                } else {
-//                    centerSize = center.computeSize(SWT.DEFAULT, hHint,
-//                            flushCache);
-//                }
-//                Point leftSize;
-//                Point rightSize;
-//                if (left != null || right != null) {
-//                    leftSize = left == null ? null : left.computeSize(
-//                            SWT.DEFAULT, hHint, flushCache);
-//                    rightSize = right == null ? null : right.computeSize(
-//                            SWT.DEFAULT, hHint, flushCache);
-//                } else {
-//                    leftSize = null;
-//                    rightSize = null;
-//                }
-//                if (hHint < 0) {
-//                    if (centerSize != null)
-//                        size.y = Math.max(size.y, centerSize.y);
-//                    if (leftSize != null)
-//                        size.y = Math.max(size.y, leftSize.y);
-//                    if (rightSize != null)
-//                        size.y = Math.max(size.y, rightSize.y);
-//                }
-//                if (wHint < 0) {
-//                    int width = 0;
-//                    if (leftSize != null)
-//                        width = Math.max(width, leftSize.x);
-//                    if (rightSize != null)
-//                        width = Math.max(width, rightSize.x);
-//                    if (centerSize != null)
-//                        width += centerSize.x;
-//                    size.x = Math.max(size.x, width);
-//                }
-//            }
-//
-//            // avoid using default width or height
-//            size.x = Math.max(1, size.x);
-//            size.y = Math.max(1, size.y);
-//            return size;
-//        }
-//
-//        protected void layout(Composite composite, boolean flushCache) {
-//            Rectangle area = composite.getClientArea();
-//            if (center != null) {
-//                if (left != null || right != null) {
-//                    Point centerSize = center.computeSize(SWT.DEFAULT,
-//                            area.height, flushCache);
-//                    int maxCenterWidth = area.width - spacing * 2 - 20;
-//                    int centerWidth = Math.min(centerSize.x, maxCenterWidth);
-//                    center.setBounds(area.x + (area.width - centerWidth) / 2,
-//                            area.y, centerWidth, area.height);
-//                    int sideWidth = (area.width - spacing * 2 - centerSize.x) / 2;
-//                    if (left != null)
-//                        left.setBounds(area.x, area.y, sideWidth, area.height);
-//                    if (right != null)
-//                        right.setBounds(area.x + area.width - sideWidth,
-//                                area.y, sideWidth, area.height);
-//                } else {
-//                    center.setBounds(area);
-//                }
-//            } else if (left != null) {
-//                int sideWidth = Math.max(0, area.width
-//                        - (right == null ? 0 : spacing)) / 2;
-//                left.setBounds(area.x, area.y, sideWidth, area.height);
-//                if (right != null)
-//                    right.setBounds(area.x + area.width - sideWidth, area.y,
-//                            sideWidth, area.height);
-//            } else if (right != null) {
-//                int rightWidth = Math.max(0, area.width / 2);
-//                right.setBounds(area.x + area.width - rightWidth, area.y,
-//                        rightWidth, area.height);
-//            }
-//        }
-//
-//    }
+    private static final Object INHERIT = new Object();
 
     private class NumberFormatLabelProvider extends LabelProvider {
         public String getText(Object element) {
@@ -179,8 +85,22 @@ public class NumberingPropertySectionPart extends
         }
     }
 
-    private class NumberFormatSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class NumberDepthLabelProvider extends LabelProvider {
+        @Override
+        public String getText(Object element) {
+            if (INHERIT.equals(element))
+                return MindMapMessages.NumberingProperty_NumberDepthLabelProvider_Inherit_text;
+            if (element instanceof String) {
+                String depth = (String) element;
+                return NLS.bind("{0} {1}", depth, //$NON-NLS-1$
+                        MindMapMessages.NumberingProperty_NumberDepthLabelProvider_Levels_text);
+            }
+            return super.getText(element);
+        }
+    }
+
+    private class NumberFormatSelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             if (isRefreshing())
@@ -189,14 +109,17 @@ public class NumberingPropertySectionPart extends
             Object o = ((IStructuredSelection) event.getSelection())
                     .getFirstElement();
             if (o instanceof INumberFormatDescriptor) {
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("NumberingTypeCount:" //$NON-NLS-1$
+                                + ((INumberFormatDescriptor) o).getId());
                 changeNumberFormat(((INumberFormatDescriptor) o).getId());
             }
         }
 
     }
 
-    private class SeparatorFormatSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class SeparatorFormatSelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             if (isRefreshing())
@@ -204,6 +127,7 @@ public class NumberingPropertySectionPart extends
 
             Object o = ((IStructuredSelection) event.getSelection())
                     .getFirstElement();
+
             if (o instanceof INumberSeparatorDescriptor) {
                 changeNumberSeparator(((INumberSeparatorDescriptor) o).getId());
             }
@@ -212,32 +136,34 @@ public class NumberingPropertySectionPart extends
 
     }
 
-    private class PrependingAction extends Action {
+    private class NumberDepthSelectionChangedListener
+            implements ISelectionChangedListener {
 
-        public PrependingAction() {
-            super(null, AS_CHECK_BOX);
-            setImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.NUMBERING_INHERIT, true));
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.NUMBERING_INHERIT, false));
-            setToolTipText(PropertyMessages.PrependNumbering_toolTip);
-            setChecked(true);
-        }
+        @Override
+        public void selectionChanged(SelectionChangedEvent event) {
+            if (isRefreshing())
+                return;
 
-        public void run() {
-            changePrepending(isChecked());
+            Object o = ((IStructuredSelection) event.getSelection())
+                    .getFirstElement();
+
+            if (INHERIT == o) {
+                changeNumberDepth(null);
+            } else if (o instanceof String) {
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("NumberDepthCount" + o); //$NON-NLS-1$
+                changeNumberDepth((String) o);
+            }
         }
     }
 
     private MComboViewer formatViewer;
 
-    private IAction prependingAction;
+    private Button tieredCheck;
 
-    private Label separatorLabel;
+    private MComboViewer depthViewer;
 
     private MComboViewer separatorViewer;
-
-    private Composite line3;
 
     private Text prefixInput;
 
@@ -245,48 +171,49 @@ public class NumberingPropertySectionPart extends
 
     private Text numberLabel;
 
-    private Composite line2;
-
     protected void createContent(Composite parent) {
-        Composite line1 = new Composite(parent, SWT.NONE);
-        line1.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
-                false));
-        GridLayout layout1 = new GridLayout(2, false);
-        layout1.marginWidth = 0;
-        layout1.marginHeight = 0;
-        layout1.horizontalSpacing = 3;
-        layout1.verticalSpacing = 3;
-        line1.setLayout(layout1);
-        createLineContent1(line1);
+        Composite line1 = createLine(parent);
+        line1.setLayout(generateGridLayout(1));
+        createNumberingFormatLine(line1);
 
-        line3 = new Composite(parent, SWT.NONE);
-        line3.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
-                false));
-        GridLayout layout3 = new GridLayout(2, false);
-        layout3.marginWidth = 0;
-        layout3.marginHeight = 0;
-        layout3.verticalSpacing = 0;
-        layout3.horizontalSpacing = 3;
-        line3.setLayout(layout3);
-        createLineContent3(line3);
+        Composite line2 = createLine(parent);
+        line2.setLayout(generateGridLayout(1));
+        createTieredCheckLine(line2);
 
-        line2 = new Composite(parent, SWT.NONE);
-        line2.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
-                false));
-        GridLayout layout2 = new GridLayout(3, false);
-        layout2.marginWidth = 0;
-        layout2.marginHeight = 0;
-        layout2.verticalSpacing = 0;
-        layout2.horizontalSpacing = 3;
-        line2.setLayout(layout2);
-        createLineContent2(line2);
+        Composite line3 = createLine(parent);
+        line3.setLayout(generateGridLayout(2));
+        createNumberingDepthLine(line3);
+
+        Composite line4 = createLine(parent);
+        line4.setLayout(generateGridLayout(2));
+        createNumberingSeparatorLine(line4);
+
+        Composite line5 = createLine(parent);
+        line5.setLayout(generateGridLayout(3));
+        createPrefixAndSuffixLine(line5);
         prefixInput.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         numberLabel
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
         suffixInput.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     }
 
-    private void createLineContent1(Composite parent) {
+    private GridLayout generateGridLayout(int cols) {
+        GridLayout gridLayout = new GridLayout(cols, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.horizontalSpacing = 3;
+        gridLayout.verticalSpacing = 3;
+        return gridLayout;
+    }
+
+    private Composite createLine(Composite parent) {
+        Composite line = new Composite(parent, SWT.NONE);
+        line.setLayoutData(
+                new GridData(GridData.FILL, GridData.FILL, true, false));
+        return line;
+    }
+
+    private void createNumberingFormatLine(Composite parent) {
         formatViewer = new MComboViewer(parent, MComboViewer.NORMAL);
         formatViewer.getControl().setLayoutData(
                 new GridData(GridData.FILL, GridData.FILL, true, false));
@@ -297,8 +224,8 @@ public class NumberingPropertySectionPart extends
         List<Object> list = new ArrayList<Object>(descriptors.size() + 1);
         Object separator = new Object();
         INumberFormatDescriptor defaultDescriptor = MindMapUI
-                .getNumberFormatManager().getDescriptor(
-                        MindMapUI.DEFAULT_NUMBER_FORMAT);
+                .getNumberFormatManager()
+                .getDescriptor(MindMapUI.DEFAULT_NUMBER_FORMAT);
         for (INumberFormatDescriptor desc : descriptors) {
             if (desc != null && defaultDescriptor != null
                     && desc != defaultDescriptor) {
@@ -311,24 +238,17 @@ public class NumberingPropertySectionPart extends
         }
         formatViewer.setSeparatorImitation(separator);
         formatViewer.setInput(list);
-        formatViewer
-                .addSelectionChangedListener(new NumberFormatSelectionChangedListener());
-
-        prependingAction = new PrependingAction();
-        ToolBarManager bar = new ToolBarManager(SWT.FLAT);
-        bar.add(prependingAction);
-        ToolBar barControl = bar.createControl(parent);
-        barControl.setLayoutData(new GridData(GridData.END, GridData.CENTER,
-                false, false));
+        formatViewer.addSelectionChangedListener(
+                new NumberFormatSelectionChangedListener());
     }
 
-    private void createLineContent3(Composite parent) {
-        separatorLabel = new Label(parent, SWT.NONE);
+    private void createNumberingSeparatorLine(Composite parent) {
+        Label separatorLabel = new Label(parent, SWT.NONE);
         separatorLabel.setText(PropertyMessages.Separator_label);
 
         separatorViewer = new MComboViewer(parent, MComboViewer.NORMAL);
-        separatorViewer.getControl().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, true, false));
+        separatorViewer.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         separatorViewer.setContentProvider(new ArrayContentProvider());
         separatorViewer.setLabelProvider(new NumberSeparatorLabelProvider());
         List<INumberSeparatorDescriptor> descriptions = MindMapUI
@@ -336,8 +256,8 @@ public class NumberingPropertySectionPart extends
         List<Object> list = new ArrayList<Object>(descriptions.size() + 1);
         Object separator = new Object();
         INumberSeparatorDescriptor defautDescriptor = MindMapUI
-                .getNumberSeparatorManager().getDescriptor(
-                        MindMapUI.DEFAULT_NUMBER_SEPARATOR);
+                .getNumberSeparatorManager()
+                .getDescriptor(MindMapUI.DEFAULT_NUMBER_SEPARATOR);
         if (defautDescriptor != null) {
             list.add(defautDescriptor);
             list.add(separator);
@@ -350,15 +270,15 @@ public class NumberingPropertySectionPart extends
         }
         separatorViewer.setSeparatorImitation(separator);
         separatorViewer.setInput(list);
-        separatorViewer
-                .addSelectionChangedListener(new SeparatorFormatSelectionChangedListener());
+        separatorViewer.addSelectionChangedListener(
+                new SeparatorFormatSelectionChangedListener());
 
     }
 
-    private void createLineContent2(Composite parent) {
+    private void createPrefixAndSuffixLine(Composite parent) {
         prefixInput = new Text(parent, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
-        prefixInput.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                true, false));
+        prefixInput.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, true, false));
         prefixInput.setToolTipText(PropertyMessages.Prefix_toolTip);
         Listener eventHandler = new Listener() {
             public void handleEvent(Event event) {
@@ -379,21 +299,55 @@ public class NumberingPropertySectionPart extends
         prefixInput.addListener(SWT.FocusOut, eventHandler);
         prefixInput.addListener(SWT.FocusIn, eventHandler);
 
-        numberLabel = new Text(parent, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY
-                | SWT.CENTER);
-        numberLabel.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                false, false));
+        numberLabel = new Text(parent,
+                SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY | SWT.CENTER);
+        numberLabel.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, false, false));
         numberLabel.setEditable(false);
-        numberLabel.setBackground(numberLabel.getDisplay().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND));
+        numberLabel.setBackground(numberLabel.getDisplay()
+                .getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 
         suffixInput = new Text(parent, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
-        suffixInput.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                true, false));
+        suffixInput.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, true, false));
         suffixInput.setToolTipText(PropertyMessages.Suffix_toolTip);
         suffixInput.addListener(SWT.DefaultSelection, eventHandler);
         suffixInput.addListener(SWT.FocusOut, eventHandler);
         suffixInput.addListener(SWT.FocusIn, eventHandler);
+    }
+
+    private void createTieredCheckLine(Composite parent) {
+        tieredCheck = new Button(parent, SWT.CHECK);
+        tieredCheck.setText(MindMapMessages.NumberingProperty_TieredCheck_text);
+        tieredCheck.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                changePrepending(tieredCheck.getSelection());
+            }
+        });
+    }
+
+    private void createNumberingDepthLine(Composite parent) {
+        Label label = new Label(parent, SWT.NONE);
+        label.setText(PropertyMessages.Depth_label);
+
+        depthViewer = new MComboViewer(parent, MComboViewer.NORMAL);
+        depthViewer.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+        depthViewer.setContentProvider(new ArrayContentProvider());
+        depthViewer.setLabelProvider(new NumberDepthLabelProvider());
+        @SuppressWarnings("nls")
+        String[] values = new String[] { "1", "2", "3", "4", "5", "6", "7", "8",
+                "9", "10" };
+        List<Object> input = new ArrayList<Object>(values.length + 1);
+        input.addAll(Arrays.asList(values));
+        Object sep = new Object();
+        input.add(sep);
+        input.add(INHERIT);
+        depthViewer.setSeparatorImitation(sep);
+        depthViewer.setInput(input);
+        depthViewer.addSelectionChangedListener(
+                new NumberDepthSelectionChangedListener());
     }
 
     public void setFocus() {
@@ -405,14 +359,12 @@ public class NumberingPropertySectionPart extends
     public void dispose() {
         super.dispose();
         formatViewer = null;
-        prependingAction = null;
         prefixInput = null;
         numberLabel = null;
         suffixInput = null;
-        line2 = null;
-        separatorLabel = null;
         separatorViewer = null;
-        line3 = null;
+        depthViewer = null;
+        tieredCheck = null;
     }
 
     protected void doRefresh() {
@@ -430,51 +382,76 @@ public class NumberingPropertySectionPart extends
                 numbering = null;
             }
             boolean hasFormat = false;
-            if (formatViewer != null && !formatViewer.getControl().isDisposed()) {
-                String format = numbering == null ? null : numbering
-                        .getComputedFormat();
+            if (formatViewer != null
+                    && !formatViewer.getControl().isDisposed()) {
+                String format = numbering == null ? null
+                        : numbering.getComputedFormat();
                 if (format == null) {
+                    format = MindMapUI.DEFAULT_NUMBER_FORMAT;
+                } else if (parent.getNumbering().getNumberFormat() == null
+                        && !topic.getNumbering().isInherited(0)) {
                     format = MindMapUI.DEFAULT_NUMBER_FORMAT;
                 } else {
                     hasFormat = !MindMapUI.DEFAULT_NUMBER_FORMAT.equals(format);
                 }
                 INumberFormatDescriptor descriptor = MindMapUI
                         .getNumberFormatManager().getDescriptor(format);
-                formatViewer
-                        .setSelection(descriptor == null ? StructuredSelection.EMPTY
+                formatViewer.setSelection(
+                        descriptor == null ? StructuredSelection.EMPTY
                                 : new StructuredSelection(descriptor));
+            }
+            if (depthViewer != null && !depthViewer.getControl().isDisposed()) {
+                Object select = INHERIT;
+                if (numbering != null) {
+                    if (numbering.getDepth() != null)
+                        select = numbering.getDepth();
+                    else if (numbering.getNumberFormat() != null
+                            && !numbering.isInherited(1))
+                        select = "3"; //$NON-NLS-1$
+
+                    depthViewer.setSelection(new StructuredSelection(select));
+
+                    if (MindMapUI.DEFAULT_NUMBER_FORMAT
+                            .equals(numbering.getNumberFormat())) {
+                        depthViewer.setEnabled(false);
+                    } else {
+                        depthViewer
+                                .setEnabled(numbering.getNumberFormat() != null
+                                        || topic.getNumbering().isInherited(0));
+                    }
+                }
             }
             if (separatorViewer != null
                     && !separatorViewer.getControl().isDisposed()) {
-                String separator = numbering == null ? null : numbering
-                        .getComputedSeparator();
+                String separator = numbering == null ? null
+                        : numbering.getComputedSeparator();
                 if (separator == null)
                     separator = MindMapUI.DEFAULT_NUMBER_SEPARATOR;
                 INumberSeparatorDescriptor descriptor = MindMapUI
                         .getNumberSeparatorManager().getDescriptor(separator);
-                separatorViewer
-                        .setSelection(descriptor == null ? StructuredSelection.EMPTY
+                separatorViewer.setSelection(
+                        descriptor == null ? StructuredSelection.EMPTY
                                 : new StructuredSelection(descriptor));
             }
-            if (prependingAction != null) {
-                prependingAction.setChecked(numbering != null
-                        && numbering.prependsParentNumbers());
+            if (tieredCheck != null) {
+                tieredCheck.setSelection(
+                        numbering != null && numbering.prependsParentNumbers());
             }
             if (prefixInput != null && !prefixInput.isDisposed()) {
-                String prefix = numbering == null ? null : numbering
-                        .getPrefix();
+                String prefix = numbering == null ? null
+                        : numbering.getPrefix();
                 prefixInput.setText(prefix == null ? "" : prefix); //$NON-NLS-1$
             }
             if (suffixInput != null && !suffixInput.isDisposed()) {
-                String suffix = numbering == null ? null : numbering
-                        .getSuffix();
+                String suffix = numbering == null ? null
+                        : numbering.getSuffix();
                 suffixInput.setText(suffix == null ? "" : suffix); //$NON-NLS-1$
             }
             if (numberLabel != null && !numberLabel.isDisposed()) {
                 String number;
-                number = MindMapUtils.getNumberingText(topic, hasFormat ? null
-                        : MindMapUI.PREVIEW_NUMBER_FORMAT, hasFormat ? null
-                        : MindMapUI.DEFAULT_NUMBER_SEPARATOR);
+                number = MindMapUtils.getNumberingText(topic,
+                        hasFormat ? null : MindMapUI.PREVIEW_NUMBER_FORMAT,
+                        hasFormat ? null : MindMapUI.DEFAULT_NUMBER_SEPARATOR);
                 if (number == null || "".equals(number)) { //$NON-NLS-1$
                     numberLabel.setText(" "); //$NON-NLS-1$
                 } else {
@@ -490,9 +467,6 @@ public class NumberingPropertySectionPart extends
                     numberLabel.setForeground(numberLabel.getDisplay()
                             .getSystemColor(SWT.COLOR_DARK_GRAY));
                 }
-            }
-            if (line2 != null && !line2.isDisposed()) {
-                line2.layout();
             }
         }
     }
@@ -513,6 +487,7 @@ public class NumberingPropertySectionPart extends
             register.register(Core.NumberingSuffix);
             register.register(Core.NumberPrepending);
             register.register(Core.NumberingSeparator);
+            register.register(Core.NumberingDepth);
         }
     }
 
@@ -555,7 +530,13 @@ public class NumberingPropertySectionPart extends
             }
         }
         sendRequest(fillTargets(new Request(MindMapUI.REQ_MODIFY_NUMBERING))
-                .setParameter(MindMapUI.PARAM_NUMBERING_SEPARATOR, separatorId));
+                .setParameter(MindMapUI.PARAM_NUMBERING_SEPARATOR,
+                        separatorId));
+    }
+
+    private void changeNumberDepth(String depth) {
+        sendRequest(fillTargets(new Request(MindMapUI.REQ_MODIFY_NUMBERING))
+                .setParameter(MindMapUI.PARAM_NUMBERING_DEPTH, depth));
     }
 
     private void changePrepending(boolean prepend) {

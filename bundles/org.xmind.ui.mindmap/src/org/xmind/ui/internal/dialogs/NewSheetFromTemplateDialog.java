@@ -31,6 +31,7 @@ import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.wizards.TemplateLabelProvider;
 import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.ITemplate;
+import org.xmind.ui.mindmap.ITemplateGroup;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class NewSheetFromTemplateDialog extends Dialog
@@ -132,7 +133,10 @@ public class NewSheetFromTemplateDialog extends Dialog
     private List<ITemplate> loadTemplatesViewerInput() {
         ArrayList<ITemplate> templates = new ArrayList<ITemplate>();
         IResourceManager resourceManager = MindMapUI.getResourceManager();
-        templates.addAll(resourceManager.getSystemTemplates());
+//        templates.addAll(resourceManager.getSystemTemplates());
+        List<ITemplateGroup> groups = resourceManager.getSystemTemplateGroups();
+        for (ITemplateGroup group : groups)
+            templates.addAll(group.getTemplates());
         templates.addAll(resourceManager.getUserTemplates());
         return templates;
     }

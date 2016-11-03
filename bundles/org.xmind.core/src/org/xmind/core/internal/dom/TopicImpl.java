@@ -79,7 +79,6 @@ import org.xmind.core.util.Point;
 
 /**
  * @author briansun
- * 
  */
 public class TopicImpl extends Topic implements ICoreEventSource {
 
@@ -136,11 +135,11 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         return "TPC#" + getId() + "(" + getTitleText() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Element.class || adapter == Node.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -1152,14 +1151,24 @@ public class TopicImpl extends Topic implements ICoreEventSource {
             ((SummaryImpl) s).addNotify(workbook, this);
         }
         extensionsAddNotify(workbook);
-        ((CommentManagerImpl) workbook.getCommentManager())
-                .objectAddNotify(getId(), this);
+
+        boolean isRevising = (workbook.getAdaptableRegistry()
+                .getAdaptableByNode(sheet.getImplementation()) != sheet);
+        if (!isRevising) {
+            ((CommentManagerImpl) workbook.getCommentManager())
+                    .objectAddNotify(getId(), this);
+        }
     }
 
     protected void removeNotify(WorkbookImpl workbook, SheetImpl sheet,
             TopicImpl parent) {
-        ((CommentManagerImpl) workbook.getCommentManager())
-                .objectRemoveNotify(getId(), this);
+        boolean isRevising = (workbook.getAdaptableRegistry()
+                .getAdaptableByNode(sheet.getImplementation()) != sheet);
+        if (!isRevising) {
+            ((CommentManagerImpl) workbook.getCommentManager())
+                    .objectRemoveNotify(getId(), this);
+        }
+
         extensionsRemoveNotify(workbook);
         for (ISummary s : getSummaries()) {
             ((SummaryImpl) s).removeNotify(workbook, this);

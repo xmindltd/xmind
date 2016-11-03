@@ -6,15 +6,15 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.xmind.core.ISheet;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.views.NotesView;
+import org.xmind.ui.internal.e4models.NotesPart;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class ShowAllNotesAction extends Action {
 
-    private NotesView notesView;
+    private NotesPart notesPart;
 
-    public ShowAllNotesAction(NotesView notesView) {
-        this.notesView = notesView;
+    public ShowAllNotesAction(NotesPart notesPart) {
+        this.notesPart = notesPart;
 
         setId("org.xmind.ui.action.showAllNotes"); //$NON-NLS-1$
         setText(MindMapMessages.ShowAllNotes_text);
@@ -28,10 +28,10 @@ public class ShowAllNotesAction extends Action {
     }
 
     private void reveal() {
-        if (notesView == null) {
+        if (notesPart == null) {
             return;
         }
-        IGraphicalEditor editor = (IGraphicalEditor) notesView
+        IGraphicalEditor editor = (IGraphicalEditor) notesPart
                 .getContributingPart();
         if (editor == null) {
             return;

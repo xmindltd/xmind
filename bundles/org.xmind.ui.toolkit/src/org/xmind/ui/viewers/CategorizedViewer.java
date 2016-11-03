@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -52,7 +53,8 @@ import org.xmind.ui.forms.WidgetFactory;
 
 public abstract class CategorizedViewer extends StructuredViewer {
 
-    public static final Object DEFAULT_CATEGORY = new String(Messages.CategorizedViewer_UnknownCategory);
+    public static final Object DEFAULT_CATEGORY = new String(
+            Messages.CategorizedViewer_UnknownCategory);
 
     private static final Object[] EMPTY_ARRAY = new Object[0];
 
@@ -91,7 +93,16 @@ public abstract class CategorizedViewer extends StructuredViewer {
     private ScrolledForm createContainer(Composite parent, int style) {
         if (factory == null)
             factory = createWidgetFactory(parent.getDisplay());
-        ScrolledForm container = factory.createScrolledForm(parent);
+
+        ScrolledForm form = new ScrolledForm(parent,
+                SWT.V_SCROLL | SWT.LEFT_TO_RIGHT);
+        form.setExpandHorizontal(true);
+        form.setExpandVertical(true);
+        form.setBackground(parent.getBackground());
+        form.setForeground(parent.getForeground());
+        form.setFont(JFaceResources.getHeaderFont());
+        container = form;
+
         configureContainer(container);
         return container;
     }
@@ -387,8 +398,16 @@ public abstract class CategorizedViewer extends StructuredViewer {
         Control content = createSectionContent(section, category);
         Assert.isNotNull(content);
         section.setClient(content);
+        configureSection(section, category);
 
         return section;
+    }
+
+    protected void configureSection(Section section, Object category) {
+        section.setTitleBarBackground(
+                section.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        section.setTitleBarBorderColor(
+                section.getDisplay().getSystemColor(SWT.COLOR_WHITE));
     }
 
     protected Object getSectionLayoutData(Section section, Object category) {

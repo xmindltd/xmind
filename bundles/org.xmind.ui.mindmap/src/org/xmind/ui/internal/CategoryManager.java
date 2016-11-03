@@ -50,7 +50,8 @@ public class CategoryManager implements ICategoryManager {
 //                name = ""; //$NON-NLS-1$
 //        }
 
-        Category(String id, String objectClass, String elementType, String name) {
+        Category(String id, String objectClass, String elementType,
+                String name) {
             this.id = id;
             this.objectClass = objectClass;
             this.name = name;
@@ -72,9 +73,9 @@ public class CategoryManager implements ICategoryManager {
         public boolean belongsToThisCategory(Object o) {
             boolean belongs = Expressions.isInstanceOf(o, objectClass);
             if (belongs && o instanceof ITopic) {
-                belongs = belongs
-                        && (((ITopic) o).getType().equals(elementType) || DEFAULT_TYPE
-                                .equals(elementType));
+                belongs = belongs && (((ITopic) o).getType() != null)
+                        && (((ITopic) o).getType().equals(elementType)
+                                || DEFAULT_TYPE.equals(elementType));
             }
             return belongs;
         }
@@ -89,7 +90,7 @@ public class CategoryManager implements ICategoryManager {
 
     private String[] categoryIds = null;
 
-    /* package */CategoryManager() {
+    /* package */ CategoryManager() {
     }
 
 //    public String getElementType(Object element) {
@@ -134,11 +135,11 @@ public class CategoryManager implements ICategoryManager {
         register(new Category(MindMapUI.CATEGORY_SUMMARY,
                 "org.xmind.core.ITopic", ITopic.SUMMARY, //$NON-NLS-1$
                 MindMapMessages.Category_Summary));
-        register(new Category(MindMapUI.CATEGORY_TOPIC,
-                "org.xmind.core.ITopic", Category.DEFAULT_TYPE, //$NON-NLS-1$
+        register(new Category(MindMapUI.CATEGORY_TOPIC, "org.xmind.core.ITopic", //$NON-NLS-1$
+                Category.DEFAULT_TYPE,
                 MindMapMessages.Category_Topic));
-        register(new Category(MindMapUI.CATEGORY_SHEET,
-                "org.xmind.core.ISheet", Category.DEFAULT_TYPE, //$NON-NLS-1$
+        register(new Category(MindMapUI.CATEGORY_SHEET, "org.xmind.core.ISheet", //$NON-NLS-1$
+                Category.DEFAULT_TYPE,
                 MindMapMessages.Category_Sheet));
         register(new Category(MindMapUI.CATEGORY_BOUNDARY,
                 "org.xmind.core.IBoundary", Category.DEFAULT_TYPE, //$NON-NLS-1$
@@ -149,8 +150,8 @@ public class CategoryManager implements ICategoryManager {
         register(new Category(MindMapUI.CATEGORY_MARKER,
                 "org.xmind.core.marker.IMarkerRef", Category.DEFAULT_TYPE, //$NON-NLS-1$ 
                 MindMapMessages.Category_Marker));
-        register(new Category(MindMapUI.CATEGORY_IMAGE,
-                "org.xmind.core.IImage", Category.DEFAULT_TYPE, //$NON-NLS-1$ 
+        register(new Category(MindMapUI.CATEGORY_IMAGE, "org.xmind.core.IImage", //$NON-NLS-1$
+                Category.DEFAULT_TYPE,
                 MindMapMessages.Category_Image));
 //        if (Platform.isRunning()) {
 //            readRegistry(Platform.getExtensionRegistry(), MindMapUI.PLUGIN_ID,

@@ -1,6 +1,9 @@
 package org.xmind.ui.internal.mindmap;
 
+import org.eclipse.draw2d.IFigure;
 import org.xmind.core.ITopic;
+import org.xmind.gef.IGraphicalViewer;
+import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.internal.decorators.InfoItemContentDecorator;
 import org.xmind.ui.mindmap.IInfoPart;
@@ -42,6 +45,14 @@ public class InfoItemContentPart extends TitleTextPart {
     protected void updateView() {
         super.updateView();
         updateToolTip();
+    }
+
+    @Override
+    protected IFigure createFigure() {
+        boolean useAdvancedRenderer = getSite().getViewer().getProperties()
+                .getBoolean(IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH, false);
+        return new RotatableWrapLabel(getContent(), useAdvancedRenderer
+                ? RotatableWrapLabel.ADVANCED : RotatableWrapLabel.NORMAL);
     }
 
 }

@@ -13,32 +13,30 @@
  *******************************************************************************/
 package org.xmind.ui.internal.notes;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.ui.IViewPart;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.findreplace.AbstractFindReplaceOperationProvider;
 import org.xmind.ui.mindmap.ITopicPart;
 
 /**
- * 
  * @author Karelun huang
  */
-public class NotesFindReplaceOperationProvider extends
-        AbstractFindReplaceOperationProvider {
+public class NotesFindReplaceOperationProvider
+        extends AbstractFindReplaceOperationProvider {
 
-    private IViewPart view;
+    private IAdaptable view;
 
 //    private boolean findingInEditor = false;
 
-    public NotesFindReplaceOperationProvider(IViewPart view) {
+    public NotesFindReplaceOperationProvider(IAdaptable view) {
         this.view = view;
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.findreplace.IFindReplaceOperationProvider#
      * getContextName()
      */
@@ -53,7 +51,6 @@ public class NotesFindReplaceOperationProvider extends
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.findreplace.IFindReplaceOperationProvider#
      * getContextName(int, org.eclipse.swt.graphics.Font)
      */
@@ -88,11 +85,14 @@ public class NotesFindReplaceOperationProvider extends
 
     private boolean findInNotes(IFindReplaceTarget target, String toFind) {
         if (target != null && target.canPerformFind()) {
-            int offset = target.findAndSelect(
-                    isForward() ? target.getSelection().x
-                            + target.getSelection().y
-                            : target.getSelection().x - 1, toFind, isForward(),
-                    isCaseSensitive(), isWholeWord());
+            int offset = target
+                    .findAndSelect(
+                            isForward()
+                                    ? target.getSelection().x
+                                            + target.getSelection().y
+                                    : target.getSelection().x - 1,
+                            toFind, isForward(), isCaseSensitive(),
+                            isWholeWord());
             return offset >= 0;
         }
         return false;
@@ -126,8 +126,8 @@ public class NotesFindReplaceOperationProvider extends
     @Override
     protected boolean replaceAll(String toFind, String toReplaceWith) {
         IFindReplaceTarget target = getFindReplaceTarget();
-        boolean found = target.findAndSelect(0, toFind, true,
-                isCaseSensitive(), isWholeWord()) >= 0;
+        boolean found = target.findAndSelect(0, toFind, true, isCaseSensitive(),
+                isWholeWord()) >= 0;
         if (found) {
             while (replaceInNotes(target, toFind, toReplaceWith)) {
             }
@@ -172,7 +172,6 @@ public class NotesFindReplaceOperationProvider extends
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.findreplace.AbstractFindReplaceOperationProvider
      * #understandsPatameter(int)

@@ -25,13 +25,11 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.GEF;
 import org.xmind.gef.Request;
 import org.xmind.gef.part.IGraphicalEditPart;
 import org.xmind.gef.part.IPart;
 import org.xmind.ui.mindmap.ILabelPart;
-import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.texteditor.ContentProposalAdapter;
@@ -58,7 +56,8 @@ public class LabelEditTool extends MindMapEditToolBase {
             return JFaceResources.getDefaultFont();
         }
 
-        protected Rectangle calcPreferredBounds(IFigure figure, Rectangle bounds) {
+        protected Rectangle calcPreferredBounds(IFigure figure,
+                Rectangle bounds) {
             if (label == null || figure != label.getFigure()) {
                 bounds = bounds.getTranslated(0, bounds.height);
                 if (prefHeight < 0) {
@@ -88,7 +87,6 @@ public class LabelEditTool extends MindMapEditToolBase {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.tool.EditTool#canEdit(org.xmind.gef.part.IGraphicalEditPart
      * )
@@ -107,8 +105,8 @@ public class LabelEditTool extends MindMapEditToolBase {
     protected String getInitialText(IPart source) {
         if (label != null)
             return label.getLabelText();
-        return MindMapUtils.getLabelText(((ITopicPart) source).getTopic()
-                .getLabels());
+        return MindMapUtils
+                .getLabelText(((ITopicPart) source).getTopic().getLabels());
     }
 
     protected Request createTextRequest(IPart source, IDocument document) {
@@ -150,8 +148,8 @@ public class LabelEditTool extends MindMapEditToolBase {
         if (contentProposalAdapter == null) {
             contentProposalAdapter = new FloatingTextEditorContentAssistAdapter(
                     editor, proposalProvider);
-            contentProposalAdapter
-                    .setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+            contentProposalAdapter.setProposalAcceptanceStyle(
+                    ContentProposalAdapter.PROPOSAL_REPLACE);
             contentProposalAdapter.setPopupSize(new Point(180, 80));
             final Image labelImage = createLabelProposalImage();
             if (labelImage != null) {
@@ -175,8 +173,7 @@ public class LabelEditTool extends MindMapEditToolBase {
     }
 
     private Image createLabelProposalImage() {
-        return MindMapUI.getImages().get(IMindMapImages.LABEL, true)
-                .createImage(false, Display.getCurrent());
+        return null;
     }
 
 }

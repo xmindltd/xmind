@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
@@ -56,6 +53,7 @@ import org.xmind.core.ISheet;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbookComponentRefManager;
+import org.xmind.core.IWorkbookExtensionManager;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
@@ -76,7 +74,6 @@ import org.xmind.core.util.IStyleRefCounter;
 
 /**
  * @author briansun
- * 
  */
 public class WorkbookImpl extends Workbook
         implements ICoreEventSource, ICoreEventSource2, INodeAdaptableFactory {
@@ -105,6 +102,8 @@ public class WorkbookImpl extends Workbook
 
     private RevisionRepositoryImpl revisionRepository = null;
 
+    private WorkbookExtensionManagerImpl extensionManager;
+
     /**
      * @param implementation
      */
@@ -114,7 +113,6 @@ public class WorkbookImpl extends Workbook
     }
 
     /**
-     * 
      * @param implementation
      * @param manifest
      */
@@ -195,36 +193,37 @@ public class WorkbookImpl extends Workbook
         return "Workbook{" + hashCode() + "}"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == IStorage.class)
-            return getStorage();
-        if (adapter == IEntryStreamNormalizer.class)
-            return manifest.getStreamNormalizer();
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Document.class || adapter == Node.class)
-            return implementation;
-        if (adapter == Element.class)
-            return getWorkbookElement();
-        if (adapter == IMarkerSheet.class)
-            return getMarkerSheet();
-        if (adapter == IManifest.class)
-            return getManifest();
-        if (adapter == ICoreEventSupport.class)
-            return getCoreEventSupport();
-        if (adapter == INodeAdaptableFactory.class)
-            return this;
-        if (adapter == INodeAdaptableProvider.class)
-            return getAdaptableRegistry();
-        if (adapter == IMarkerRefCounter.class)
-            return getMarkerRefCounter();
-        if (adapter == IStyleRefCounter.class)
-            return getStyleRefCounter();
-        if (adapter == IWorkbookComponentRefManager.class)
-            return getElementRefCounter();
-        if (adapter == IRevisionRepository.class)
-            return getRevisionRepository();
-
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IStorage.class.equals(adapter))
+            return adapter.cast(getStorage());
+        if (IEntryStreamNormalizer.class.equals(adapter))
+            return adapter.cast(manifest.getStreamNormalizer());
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Document.class))
+            return adapter.cast(implementation);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getWorkbookElement());
+        if (IMarkerSheet.class.equals(adapter))
+            return adapter.cast(getMarkerSheet());
+        if (IManifest.class.equals(adapter))
+            return adapter.cast(getManifest());
+        if (ICoreEventSupport.class.equals(adapter))
+            return adapter.cast(getCoreEventSupport());
+        if (INodeAdaptableFactory.class.equals(adapter))
+            return adapter.cast(this);
+        if (INodeAdaptableProvider.class.equals(adapter))
+            return adapter.cast(getAdaptableRegistry());
+        if (IMarkerRefCounter.class.equals(adapter))
+            return adapter.cast(getMarkerRefCounter());
+        if (IStyleRefCounter.class.equals(adapter))
+            return adapter.cast(getStyleRefCounter());
+        if (IWorkbookComponentRefManager.class.equals(adapter))
+            return adapter.cast(getElementRefCounter());
+        if (IRevisionRepository.class.equals(adapter))
+            return adapter.cast(getRevisionRepository());
+        if (IWorkbookExtensionManager.class.equals(adapter))
+            return adapter.cast(getWorkbookExtensionManager());
         return super.getAdapter(adapter);
     }
 
@@ -522,7 +521,6 @@ public class WorkbookImpl extends Workbook
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbook#importElement(org.xmind.core.IAdaptable)
      */
     public IAdaptable importElement(IAdaptable source) {
@@ -545,7 +543,6 @@ public class WorkbookImpl extends Workbook
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbook#findElementById(java.lang.String,
      * org.xmind.core.IAdaptable)
      */
@@ -613,7 +610,6 @@ public class WorkbookImpl extends Workbook
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.event.ICoreEventSource2#hasOnceListeners(java.lang.String)
      */
@@ -737,7 +733,6 @@ public class WorkbookImpl extends Workbook
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbook#setPassword(java.lang.String)
      */
     @Deprecated
@@ -747,7 +742,6 @@ public class WorkbookImpl extends Workbook
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbook#getPassword()
      */
     @Deprecated
@@ -777,7 +771,6 @@ public class WorkbookImpl extends Workbook
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbook#getCommentManager()
      */
     public org.xmind.core.ICommentManager getCommentManager() {
@@ -837,6 +830,14 @@ public class WorkbookImpl extends Workbook
         for (IMarker marker : group.getMarkers()) {
             handleMarkerManagement(marker, added);
         }
+    }
+
+    private IWorkbookExtensionManager getWorkbookExtensionManager() {
+        if (extensionManager == null) {
+            extensionManager = new WorkbookExtensionManagerImpl();
+            extensionManager.setOwnedWorkbook(this);
+        }
+        return extensionManager;
     }
 
 }

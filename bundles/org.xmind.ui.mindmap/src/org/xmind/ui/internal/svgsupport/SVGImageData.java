@@ -27,15 +27,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * 
  * @author Enki Xiong
- *
  */
 public class SVGImageData {
     private boolean isInit;
     private boolean documentContainError = false;
     private String filePath;
     private Dimension size = new Dimension(-1, -1);
+    private static final Dimension INVALID_DIMENSION = new Dimension(-1, -1);
     private List<SVGShape> list;
 
     public SVGImageData(String filePath) {
@@ -185,12 +184,14 @@ public class SVGImageData {
      */
 
     public ImageData createImage(Dimension imageSize, RGB background) {
+        if (imageSize != null && imageSize.equals(INVALID_DIMENSION)) {
+            if (size.equals(INVALID_DIMENSION))
+                init();
+            imageSize = size;
+        }
 
-        Display device = Display.getDefault();
-        if (imageSize == null || imageSize.width <= 0 || imageSize.height <= 0)
-            imageSize = new Dimension(16, 16);
-
-        Image image = new Image(device, imageSize.width, imageSize.height);
+        Image image = new Image(Display.getDefault(), imageSize.width,
+                imageSize.height);
         Rectangle rect = new Rectangle(0, 0, imageSize.width, imageSize.height);
         paintImage(image, rect, background);
 
@@ -212,7 +213,6 @@ public class SVGImageData {
 
         GC gc = new GC(image);
         SWTGraphics graphics = new SWTGraphics(gc);
-
         paintFigure(graphics, paintArea, null, background);
 
         graphics.dispose();
@@ -262,7 +262,11 @@ public class SVGImageData {
 
         boolean isNewManager = false;
         if (manager == null) {
-            manager = new LocalResourceManager(JFaceResources.getResources());
+            ResourceManager resources = JFaceResources.getResources();
+            resources = resources == null
+                    ? JFaceResources.getResources(Display.getDefault())
+                    : resources;
+            manager = new LocalResourceManager(resources);
             isNewManager = true;
         }
 
@@ -276,6 +280,9 @@ public class SVGImageData {
 
         setResourceManager(manager);
         paint(graphics, Display.getDefault());
+
+        /// reset scale for export
+        graphics.scale(1.0f);
 
         if (isNewManager)
             manager.dispose();

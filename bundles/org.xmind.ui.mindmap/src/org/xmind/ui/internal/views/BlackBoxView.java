@@ -151,7 +151,7 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
         public Image getImage(Object element) {
             if (element instanceof IBlackBoxMap) {
                 ImageDescriptor image = MindMapUI.getImages()
-                        .get(IMindMapImages.XMIND_ICON);
+                        .get(IMindMapImages.XMIND_FILE_ICON);
                 if (image != null)
                     return image.createImage();
             }

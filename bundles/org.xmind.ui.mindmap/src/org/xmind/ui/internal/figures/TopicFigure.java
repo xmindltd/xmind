@@ -18,6 +18,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.LayoutManager;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.swt.SWT;
 import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.draw2d.IMinimizable;
 import org.xmind.gef.draw2d.IReferenceDescriptor;
@@ -29,16 +30,19 @@ import org.xmind.gef.draw2d.IRotatableReferencedLayout;
 import org.xmind.gef.draw2d.IShadowedFigure;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.draw2d.ITitledFigure;
+import org.xmind.gef.draw2d.ITransparentableFigure;
 import org.xmind.gef.draw2d.decoration.IShadowedDecoration;
 import org.xmind.gef.draw2d.geometry.PrecisionDimension;
 import org.xmind.gef.draw2d.geometry.PrecisionInsets;
 import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.geometry.PrecisionRotator;
+import org.xmind.gef.draw2d.graphics.AlphaGraphics;
+import org.xmind.gef.draw2d.graphics.GrayedGraphics;
 import org.xmind.ui.decorations.ITopicDecoration;
 
 public class TopicFigure extends DecoratedShapeFigure
         implements ITitledFigure, IMinimizable, IShadowedFigure,
-        IRotatableReferencedFigure, IRelayerableFigure {
+        IRotatableReferencedFigure, IRelayerableFigure, ITransparentableFigure {
 
     protected static final int FLAG_MINIMIZED = MAX_FLAG << 1;
     protected static final int FLAG_RELAYERED = MAX_FLAG << 2;
@@ -50,6 +54,9 @@ public class TopicFigure extends DecoratedShapeFigure
     private ITextFigure title = null;
 
     private PrecisionRotator rotator = null;
+
+    private int selfAlpha = 0xff;
+    private int treeAlpha = 0xff;
 
     public ITextFigure getTitle() {
         return title;
@@ -207,6 +214,72 @@ public class TopicFigure extends DecoratedShapeFigure
         if (isRelayered())
             return;
 
-        super.paint(graphics);
+        if (getMainAlpha() < 0xff) {
+            AlphaGraphics ag = new AlphaGraphics(graphics);
+            ag.setMainAlpha(getMainAlpha());
+            ag.setAlpha(graphics.getAlpha());
+            try {
+                doPaint(ag);
+            } finally {
+                ag.dispose();
+            }
+        } else {
+            doPaint(graphics);
+        }
     }
+
+    private void doPaint(Graphics graphics) {
+        if (isEnabled()) {
+            super.paint(graphics);
+        } else {
+            GrayedGraphics gg = new GrayedGraphics(graphics);
+            try {
+                super.paint(gg);
+            } finally {
+                gg.dispose();
+            }
+        }
+    }
+
+    protected void paintFigure(Graphics graphics) {
+        if (getSubAlpha() < 0xff) {
+            AlphaGraphics ag = new AlphaGraphics(graphics);
+            ag.setMainAlpha(getSubAlpha());
+            try {
+                doPaintFigure(ag);
+            } finally {
+                ag.dispose();
+            }
+        } else {
+            doPaintFigure(graphics);
+        }
+    }
+
+    private void doPaintFigure(Graphics graphics) {
+        graphics.setAntialias(SWT.ON);
+        super.paintFigure(graphics);
+    }
+
+    public int getMainAlpha() {
+        return treeAlpha;
+    }
+
+    public int getSubAlpha() {
+        return selfAlpha;
+    }
+
+    public void setMainAlpha(int alpha) {
+        if (alpha == this.treeAlpha)
+            return;
+        this.treeAlpha = alpha;
+        repaint();
+    }
+
+    public void setSubAlpha(int alpha) {
+        if (alpha == this.selfAlpha)
+            return;
+        this.selfAlpha = alpha;
+        repaint();
+    }
+
 }

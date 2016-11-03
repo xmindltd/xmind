@@ -28,6 +28,7 @@ public class DialogMessages extends NLS {
     public static String DeleteEditingHistory_text;
     public static String DeletePreviewImage_text;
     public static String ReduceFileSize_text;
+    public static String ReduceAndSave_text;
 
     public static String CommonDialogTitle;
     public static String Open_title;

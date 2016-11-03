@@ -35,6 +35,7 @@ public class WorkbookImporter extends MindMapImporter {
         } catch (Exception e) {
             throw new InvocationTargetException(e);
         }
+        postBuilded();
     }
 
 }

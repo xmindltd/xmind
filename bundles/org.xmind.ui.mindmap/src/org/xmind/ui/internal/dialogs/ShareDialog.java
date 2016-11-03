@@ -83,7 +83,6 @@ public class ShareDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.dialogs.Dialog#create()
      */
     @Override
@@ -94,7 +93,6 @@ public class ShareDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.
      * Shell)
@@ -151,7 +149,8 @@ public class ShareDialog extends Dialog {
                 .getOptionsByCategory(RegistryConstants.VAL_CATEGORY_POPULAR);
         for (ShareOption option : options) {
             createShareItem(composite, option.getLabel(),
-                    option.getImage().createImage(), option.getId(), 3, 8);
+                    (Image) resources.get(option.getImage()), option.getId(), 3,
+                    8);
         }
     }
 
@@ -194,7 +193,8 @@ public class ShareDialog extends Dialog {
                 .getOptionsByCategory(RegistryConstants.VAL_CATEGORY_NORMAL);
         for (ShareOption option : options) {
             createShareItem(composite, option.getLabel(),
-                    option.getImage().createImage(), option.getId(), 0, 5);
+                    (Image) resources.get(option.getImage()), option.getId(), 0,
+                    5);
         }
     }
 

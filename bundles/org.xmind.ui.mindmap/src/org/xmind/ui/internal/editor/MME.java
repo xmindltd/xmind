@@ -345,7 +345,7 @@ public class MME {
                 window.getActivePage()
                         .openEditor(MindMapUI.getEditorInputFactory()
                                 .createEditorInputForFile(new File(path)),
-                        MindMapUI.MINDMAP_EDITOR_ID);
+                                MindMapUI.MINDMAP_EDITOR_ID);
                 ret[0] = true;
             }
         });

@@ -51,11 +51,11 @@ public class BoundaryImpl extends Boundary implements ICoreEventSource {
         return implementation;
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Node.class || adapter == Element.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 

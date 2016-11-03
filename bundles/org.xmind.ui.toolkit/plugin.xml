@@ -3,13 +3,14 @@
 <plugin>
    <extension-point id="contributedContentsViews" name="%extension-point.name" schema="schema/contributedContentsViews.exsd"/>
    <extension-point id="applicationValidators" name="Application Validators" schema="schema/applicationValidators.exsd"/>
+   <extension-point id="preferencePageSections" name="Preference Page Sections" schema="schema/preferencePageSections.exsd"/>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="org.xmind.ui.properties.PropertyEditingEntryPropertyTester"
             id="org.xmind.ui.propertyTester.propertyEditingEntry"
             namespace="org.xmind.ui.properties.editingEntry"
-            properties="editable,resettable,isPropertySet"
+            properties="editable,resettable,isPropertySet,isTextOperation"
             type="org.xmind.ui.properties.IPropertyEditingEntry">
       </propertyTester>
       <propertyTester
@@ -78,6 +79,22 @@
                      type="org.xmind.ui.properties.IPropertyEditingEntry">
                   <test
                         property="org.xmind.ui.properties.editingEntry.isPropertySet">
+                  </test>
+               </adapt>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id=" org.xmind.ui.expression.selectionContainsTextOperationPropertyEditingEntries">
+         <with
+               variable="selection">
+            <iterate
+                  ifEmpty="false"
+                  operator="or">
+               <adapt
+                     type="org.xmind.ui.properties.IPropertyEditingEntry">
+                  <test
+                        property="org.xmind.ui.properties.editingEntry.isTextOperation">
                   </test>
                </adapt>
             </iterate>

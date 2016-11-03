@@ -56,8 +56,8 @@ public interface IResourceManager {
     /**
      * Finds a resource located at the specified URI.
      * <p>
-     * The URI must be of the specification: <strong>
-     * <code>schema:path</code> </strong>:
+     * The URI must be of the specification: <strong> <code>schema:path</code>
+     * </strong>:
      * <ul>
      * <li><strong><code>marker:system/GROUP_ID/MARKER_ID</code></strong>
      * returns a {@link IMarker} representing a marker in the system marker
@@ -165,9 +165,12 @@ public interface IResourceManager {
      */
     String toResourceURI(Object resource);
 
+    @Deprecated
     List<ITemplate> getSystemTemplates();
 
     List<ITemplate> getUserTemplates();
+
+    List<ITemplateGroup> getSystemTemplateGroups();
 
     boolean isSystemTemplate(ITemplate template);
 

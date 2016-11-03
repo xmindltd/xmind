@@ -180,8 +180,11 @@ public class InfoItemIconPart extends MindMapPartBase
     private void updateImage() {
         ImageDescriptor oldImageDescriptor = imageRef == null ? null
                 : imageRef.getImageDescriptor();
-        ImageDescriptor newImageDescriptor = action == null ? null
-                : action.getImageDescriptor();
+        ImageDescriptor newImageDescriptor = null;
+        if (action != null)
+            newImageDescriptor = action.isEnabled()
+                    ? action.getImageDescriptor()
+                    : action.getDisabledImageDescriptor();
         if (oldImageDescriptor != newImageDescriptor
                 && (oldImageDescriptor == null
                         || !oldImageDescriptor.equals(newImageDescriptor))) {
@@ -206,6 +209,7 @@ public class InfoItemIconPart extends MindMapPartBase
     protected void updateView() {
         super.updateView();
         updateToolTip();
+        updateImage();
     }
 
     protected IFigure createToolTip() {
@@ -235,12 +239,9 @@ public class InfoItemIconPart extends MindMapPartBase
                     RotatableWrapLabel description = new RotatableWrapLabel(
                             tooltip, RotatableWrapLabel.NORMAL);
                     description.setTextAlignment(PositionConstants.LEFT);
-                    description
-                            .setPrefWidth(
-                                    Math.min(
-                                            Display.getCurrent()
-                                                    .getClientArea().width / 3,
-                                            350));
+                    description.setPrefWidth(Math.min(
+                            Display.getCurrent().getClientArea().width / 3,
+                            128));
                     description.setFont(FontUtils.getRelativeHeight(
                             JFaceResources.DEFAULT_FONT, -1));
                     description.setForegroundColor(ColorConstants.gray);

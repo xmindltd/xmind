@@ -1,18 +1,19 @@
 /* ******************************************************************************
  * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
+ *
  * This file is a part of XMind 3. XMind releases 3 and
  * above are dual-licensed under the Eclipse Public License (EPL),
  * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
+ * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
  * See http://www.xmind.net/license.html for details.
- * 
+ *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.editor;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -113,6 +114,7 @@ import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSource2;
+import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.IEditDomainListener;
@@ -136,6 +138,7 @@ import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.blackbox.BlackBox;
 import org.xmind.ui.commands.ModifyFoldedCommand;
 import org.xmind.ui.commands.MoveSheetCommand;
+import org.xmind.ui.editor.EditorHistoryItem;
 import org.xmind.ui.editor.IEditorHistory;
 import org.xmind.ui.editor.PageTitleTabFolderRenderer;
 import org.xmind.ui.internal.MindMapMessages;
@@ -287,33 +290,6 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         }
     }
 
-    protected class MindMapEditorBackCover extends DialogPaneContainer {
-
-        @Override
-        public boolean close() {
-            boolean ret = super.close();
-            if (ret) {
-                if (pageBook != null && !pageBook.isDisposed()) {
-                    pageBook.showPage(pageContainer);
-                    if (isEditorActive()) {
-                        MindMapEditor.this.setFocus();
-                    }
-                }
-            }
-            return ret;
-        }
-
-        @Override
-        protected void showDialog(IDialogPane dialog) {
-            pageBook.showPage(getControl());
-            if (isEditorActive()) {
-                MindMapEditor.this.setFocus();
-            }
-            super.showDialog(dialog);
-        }
-
-    }
-
     private class MindMapEditorSelectionProvider
             extends MultiPageSelectionProvider {
 
@@ -353,6 +329,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
 
     private ICoreEventRegister workbookEventRegister = null;
 
+    private ICoreEventRegister globalEventRegister = null;
+
     private MindMapPageTitleEditor pageTitleEditor = null;
 
     private PageMoveHelper pageMoveHelper = null;
@@ -388,8 +366,6 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         }
     };
 
-    private MindMapEditorBackCover backCover = null;
-
     private IWordContextProvider wordContextProvider = null;
 
     private boolean skipNextPreviewImage = false;
@@ -405,6 +381,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
     private ISelectionListener selectionListener;
 
     private boolean ignoreFileChanged = false;
+
+    private IEditorLayoutManager layoutManager = null;
 
     private IContextActivation toolContextActivation = null;
 
@@ -492,14 +470,11 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             IContextService cs = getSite().getService(IContextService.class);
             cs.deactivateContext(contextActivation);
         }
-        if (backCover != null) {
-            backCover.dispose();
-            backCover = null;
-        }
         disposeData();
         super.dispose();
         deactivateFileNotifier();
         workbookEventRegister = null;
+        globalEventRegister = null;
         pageTitleEditor = null;
         pageMoveHelper = null;
         findReplaceOperationProvider = null;
@@ -509,6 +484,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
 
         // release reference to the workbook reference object
         this.workbookRef = null;
+        layoutManager = null;
     }
 
     @Override
@@ -551,11 +527,9 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         pageBookData.right = new FormAttachment(100, 0);
         pageBook.setLayoutData(pageBookData);
 
-        backCover = new MindMapEditorBackCover();
-        backCover.init(getSite());
-        backCover.createControl(pageBook);
-
         pageContainer = new Composite(pageBook, SWT.NONE);
+        layoutManager = new EditorLayoutManager(pageContainer);
+        layoutManager.setActiveLayout(new DefaultEditorLayout());
         IContextService cs = getSite().getService(IContextService.class);
         contextActivation = cs.activateContext(MindMapUI.CONTEXT_MINDMAP);
         return pageContainer;
@@ -599,11 +573,16 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             workbookLoaded();
         } else if (workbookRef != null) {
             final IWorkbookRef theWorkbookRef = workbookRef;
-            loadWorkbook(theWorkbookRef);
+            Display.getCurrent().asyncExec(new Runnable() {
+                @Override
+                public void run() {
+                    loadWorkbook(theWorkbookRef, 0);
+                }
+            });
         }
     }
 
-    private void loadWorkbook(final IWorkbookRef workbookRef) {
+    private void loadWorkbook(final IWorkbookRef workbookRef, int times) {
         IEncryptable encryptable = workbookRef.getAdapter(IEncryptable.class);
         if (encryptable != null && !encryptable.hasPassword()) {
             /// make sure setPassword is called to prevent the default password dialog
@@ -631,7 +610,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                     String message = passwordTried
                             ? MindMapMessages.MindMapEditor_passwordPrompt_message1
                             : MindMapMessages.MindMapEditor_passwordPrompt_message2;
-                    openDecryptionDialog(workbookRef, message);
+                    openDecryptionDialog(workbookRef, message, times);
                     passwordTried = true;
                     return;
                 }
@@ -641,8 +620,21 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             Throwable cause = e.getTargetException();
             if (cause == null)
                 cause = e;
-            showError(cause,
-                    workbookRef.getAdapter(ErrorSupportProvider.class));
+
+            if (cause instanceof FileNotFoundException) {
+                Display.getDefault().asyncExec(new Runnable() {
+                    public void run() {
+                        MessageDialog.openWarning(
+                                Display.getDefault().getActiveShell(),
+                                MindMapMessages.MindMapEditor_Warning_FileNotFoundDialog_title,
+                                MindMapMessages.WorkbookHistoryItem_FileMissingMessage);
+                    }
+                });
+                asyncClose();
+            } else {
+                showError(cause,
+                        workbookRef.getAdapter(ErrorSupportProvider.class));
+            }
             return;
         } catch (InterruptedException e) {
             // canceled
@@ -654,45 +646,30 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
     }
 
     private void openDecryptionDialog(final IWorkbookRef workbookRef,
-            String message) {
-        DecryptionDialogPane decryptionDialogPane = new DecryptionDialogPane() {
+            String message, int times) {
+        final int nextTime = times + 1;
+        final IEncryptable encryptable = workbookRef
+                .getAdapter(IEncryptable.class);
 
-            @Override
-            protected boolean okPressed() {
-                boolean result = super.okPressed();
+        new DecryptionDialog(Display.getCurrent().getActiveShell(),
+                workbookRef.getName(), encryptable.getPasswordHint(), times) {
+            protected void okPressed() {
+                super.okPressed();
 
-                if (result) {
-                    IEncryptable encryptable = workbookRef
-                            .getAdapter(IEncryptable.class);
-                    if (encryptable == null) {
-                        /// TODO prompt error?
-                        return result;
-                    }
+                encryptable.setPassword(getPassword());
+                loadWorkbook(workbookRef, nextTime);
+            };
 
-                    encryptable.setPassword(getPassword());
-                    loadWorkbook(workbookRef);
-                }
+            protected void handleShellCloseEvent() {
+                super.handleShellCloseEvent();
+                asyncClose();
+            };
 
-                return result;
-            }
-
-            /*
-             * (non-Javadoc)
-             * @see
-             * org.xmind.ui.internal.editor.DecryptionDialogPane#cancelPressed()
-             */
-            @Override
-            protected boolean cancelPressed() {
-                boolean result = super.cancelPressed();
-                if (result) {
-                    asyncClose();
-                }
-                return result;
-            }
-        };
-        decryptionDialogPane.setContent(message, false);
-        backCover.open(decryptionDialogPane);
-
+            protected void cancelPressed() {
+                super.cancelPressed();
+                asyncClose();
+            };
+        }.open();
     }
 
     private CoreException getCoreException(Throwable e) {
@@ -724,19 +701,16 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                 MindMapMessages.LoadWorkbookJob_errorDialog_title, exception));
         statusAdapter.setProperty(IStatusAdapterConstants.TIMESTAMP_PROPERTY,
                 Long.valueOf(System.currentTimeMillis()));
-//        statusAdapter.setProperty(RuntimeErrorDialog.DIALOG_EXTENSION, this);
-//        StatusManager.getManager().handle(statusAdapter,
-//                StatusManager.BLOCK | StatusManager.SHOW);
-        ErrorDialogPane2 pane = new ErrorDialogPane2(statusAdapter,
+        ErrorDialog errorDialog = new ErrorDialog(
+                Display.getCurrent().getActiveShell(), statusAdapter,
                 supportProvider);
-        pane.setCloseCallback(new Runnable() {
-
+        errorDialog.setCloseCallback(new Runnable() {
             @Override
             public void run() {
                 asyncClose();
             }
         });
-        backCover.open(pane);
+        errorDialog.open();
     }
 
     protected void createActions(IActionRegistry actionRegistry) {
@@ -1069,6 +1043,14 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         return workbookRef.getWorkbook();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter == IEditorLayoutManager.class)
+            return (T) layoutManager;
+        return super.getAdapter(adapter);
+    }
+
     @Override
     protected <T> T getEditorAdapter(Class<T> adapter) {
         if (workbookRef != null) {
@@ -1097,7 +1079,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             }
             return adapter.cast(wordContextProvider);
         } else if (adapter == IDialogPaneContainer.class) {
-            return adapter.cast(backCover);
+//            return adapter.cast(backCover);
         }
         return super.getEditorAdapter(adapter);
     }
@@ -1110,13 +1092,20 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         workbookEventRegister.register(Core.SheetMove);
         workbookEventRegister.register(Core.PasswordChange);
         workbookEventRegister.register(Core.WorkbookPreSaveOnce);
-        workbookEventRegister.register(Core.SheetSettings);
+
+        globalEventRegister = new CoreEventRegister(
+                workbook.getAdapter(ICoreEventSupport.class), this);
+        globalEventRegister.register(Core.SheetSettings);
     }
 
     protected void uninstallModelListener() {
         if (workbookEventRegister != null) {
             workbookEventRegister.unregisterAll();
             workbookEventRegister = null;
+        }
+        if (globalEventRegister != null) {
+            globalEventRegister.unregisterAll();
+            globalEventRegister = null;
         }
     }
 
@@ -1217,11 +1206,11 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         if (workbookRef != null) {
             workbookRef.setActiveContext(editingContext);
         }
-        if (backCover != null && backCover.isOpen()) {
-            backCover.setFocus();
-        } else {
-            super.setFocus();
-        }
+//        if (backCover != null && backCover.isOpen()) {
+//            backCover.setFocus();
+//        } else {
+        super.setFocus();
+//        }
     }
 
     public void openEncryptionDialog() {
@@ -1229,13 +1218,9 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             return;
 
         final IWorkbookRef theWorkbookRef = workbookRef;
-        backCover.open(new EncryptionDailogPane() {
 
-            /*
-             * (non-Javadoc)
-             * @see
-             * org.xmind.ui.internal.editor.EncryptionDailogPane#hasPassword()
-             */
+        new EncryptionDialog(Display.getCurrent().getActiveShell()) {
+
             @Override
             protected boolean hasPassword() {
                 IEncryptable encryptable = theWorkbookRef
@@ -1243,12 +1228,6 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                 return encryptable != null && encryptable.hasPassword();
             }
 
-            /*
-             * (non-Javadoc)
-             * @see
-             * org.xmind.ui.internal.editor.EncryptionDailogPane#testsPassword(
-             * java.lang.String)
-             */
             @Override
             protected boolean testsPassword(String password) {
                 IEncryptable encryptable = theWorkbookRef
@@ -1257,25 +1236,22 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                         && encryptable.testsPassword(password);
             }
 
-            /*
-             * (non-Javadoc)
-             * @see
-             * org.xmind.ui.internal.editor.EncryptionDailogPane#okPressed()
-             */
             @Override
-            protected boolean okPressed() {
-                boolean result = super.okPressed();
-                if (result) {
+            protected void okPressed() {
+                boolean verified = verify();
+
+                super.okPressed();
+
+                if (verified) {
                     IEncryptable encryptable = theWorkbookRef
                             .getAdapter(IEncryptable.class);
                     if (encryptable != null) {
                         encryptable.setPassword(getPassword());
+                        encryptable.setPasswordHint(getHintMessage());
                     }
                 }
-                return result;
             }
-
-        });
+        }.open();
     }
 
     public ISelectionProvider getSelectionProvider() {
@@ -1329,7 +1305,12 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         passwordTried = false;
         if (pageBook == null || pageBook.isDisposed())
             return;
-        backCover.close();
+
+        // TODO
+        pageBook.showPage(pageContainer);
+        if (isEditorActive())
+            setFocus();
+
         Assert.isTrue(getWorkbook() != null);
         createPages();
         if (isEditorActive()) {
@@ -1424,31 +1405,73 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
     }
 
     private void recordEditorHistory() {
-        if (workbookRef.getURI() != null
-                && "file".equalsIgnoreCase(workbookRef.getURI().getScheme())) { //$NON-NLS-1$
-            editorHistory.add(workbookRef.getURI());
-            IManifest manifest = getWorkbook().getManifest();
-            if (manifest != null) {
-                IFileEntry thumbnailEntry = manifest
-                        .getFileEntry("Thumbnails/thumbnail.png"); //$NON-NLS-1$
-                if (thumbnailEntry != null) {
-                    try {
-                        InputStream input = thumbnailEntry.openInputStream();
-                        try {
-                            editorHistory.saveThumbnailData(
-                                    workbookRef.getURI(), input);
-                        } finally {
-                            input.close();
-                        }
-                    } catch (IOException e) {
-                        MindMapUIPlugin.getDefault().getLog().log(new Status(
-                                IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
-                                "Failed to record preview image for editor history", //$NON-NLS-1$
-                                e));
-                    }
-                }
+
+        if (workbookRef.getURI() == null || workbookRef.getName() == null)
+            return;
+        URI uri = workbookRef.getURI();
+
+        //only local file or seawind file can record it history.
+        if (!uri.getScheme().equalsIgnoreCase("file") //$NON-NLS-1$
+                && !uri.getScheme().equalsIgnoreCase("seawind")) //$NON-NLS-1$
+            return;
+
+        InputStream input = null;
+        try {
+            try {
+                if (uri.getScheme().equalsIgnoreCase("file")) { //$NON-NLS-1$
+                    input = getThumbnailStreamForLocal();
+                } else
+                    input = getThumbnailStreamFor(workbookRef);
+                if (input == null)
+                    return;
+                editorHistory.add(workbookRef.getURI(), new EditorHistoryItem(
+                        workbookRef.getName(), System.currentTimeMillis()));
+                editorHistory.saveThumbnailData(workbookRef.getURI(), input);
+            } finally {
+                if (input != null)
+                    input.close();
             }
+        } catch (IOException e) {
+            MindMapUIPlugin.getDefault().getLog()
+                    .log(new Status(IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
+                            "Failed to record preview image for editor history", //$NON-NLS-1$
+                            e));
         }
+    }
+
+    private InputStream getThumbnailStreamForLocal() throws IOException {
+        IManifest manifest = getWorkbook().getManifest();
+        if (manifest != null) {
+            IFileEntry thumbnailEntry = manifest
+                    .getFileEntry("Thumbnails/thumbnail.png"); //$NON-NLS-1$
+            if (thumbnailEntry != null)
+                return thumbnailEntry.openInputStream();
+        }
+        return null;
+    }
+
+    private InputStream getThumbnailStreamFor(IWorkbookRef workbookRef) {
+        if (workbookRef == null)
+            return null;
+
+        List<ISheet> sheets = workbookRef.getWorkbook().getSheets();
+        if (sheets.isEmpty())
+            return null;
+
+        ISheet sheet = sheets.get(0);
+        try {
+            return workbookRef.getPreviewImageData(sheet.getId(), null);
+        } catch (IOException e) {
+            MindMapUIPlugin.log(e, String.format(
+                    "Failed to load preview image for sheet 'workbooks/%s/sheets/%s'", //$NON-NLS-1$
+                    sheet.getParent().toString(), sheet.getId()));
+        } catch (SWTException e) {
+            MindMapUIPlugin.log(e, String.format(
+                    "Failed to load preview image for sheet 'workbooks/%s/sheets/%s'", //$NON-NLS-1$
+                    sheet.getParent().toString(), sheet.getId()));
+        }
+
+        return null;
     }
 
     public void doSaveAs() {
@@ -1476,6 +1499,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                 recordEditorHistory();
                 return;
             }
+
             try {
                 runner.run(true, true, new IRunnableWithProgress() {
 
@@ -1484,6 +1508,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                             throws InvocationTargetException,
                             InterruptedException {
                         newWorkbookRef.open(monitor);
+                        newWorkbookRef.save(monitor);
                     }
                 });
             } catch (InterruptedException e) {
@@ -1609,18 +1634,9 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             runner.run(true, true, new IRunnableWithProgress() {
 
                 @Override
-                public void run(final IProgressMonitor monitor)
+                public void run(IProgressMonitor monitor)
                         throws InvocationTargetException, InterruptedException {
-
-                    safeRun(monitor, true, new IRunnableWithProgress() {
-
-                        @Override
-                        public void run(IProgressMonitor monitor)
-                                throws InvocationTargetException,
-                                InterruptedException {
-                            newWorkbookRef.open(monitor);
-                        }
-                    });
+                    newWorkbookRef.open(monitor);
                 }
             });
         } catch (InvocationTargetException e) {
@@ -1796,6 +1812,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                 }
             });
         }
+
     }
 
     private void runInUI(final Runnable runnable) {

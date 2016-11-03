@@ -46,9 +46,9 @@ public class CommentsPopupActionBarContributor
         }
     }
 
-    private class GotoCommentsViewAction extends CommentAction {
+    private class GotoCommentsPartAction extends CommentAction {
 
-        public GotoCommentsViewAction(IGraphicalEditor editor) {
+        public GotoCommentsPartAction(IGraphicalEditor editor) {
             super(editor);
             setId("org.xmind.ui.action.gotoCommentsView"); //$NON-NLS-1$
             setText(MindMapMessages.EditInCommentsView_text);
@@ -107,7 +107,7 @@ public class CommentsPopupActionBarContributor
                     targetEditor, commentsPopup);
             addAction(showNextTopicCommentsAction);
 
-            gotoCommentsViewAction = new GotoCommentsViewAction(targetEditor);
+            gotoCommentsViewAction = new GotoCommentsPartAction(targetEditor);
             addAction(gotoCommentsViewAction);
         }
 

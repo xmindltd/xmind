@@ -23,8 +23,8 @@ import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
 
-public class TileAction extends RequestAction implements
-        IPropertyChangeListener {
+public class TileAction extends RequestAction
+        implements IPropertyChangeListener {
 
     private IPreferenceStore prefStore;
 
@@ -49,6 +49,13 @@ public class TileAction extends RequestAction implements
         if (PrefConstants.OVERLAPS_ALLOWED.equals(event.getProperty())) {
             setEnabled(((Boolean) event.getNewValue()).booleanValue());
         }
+    }
+
+    @Override
+    public void run() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("TileCount"); //$NON-NLS-1$
+        super.run();
     }
 
 }

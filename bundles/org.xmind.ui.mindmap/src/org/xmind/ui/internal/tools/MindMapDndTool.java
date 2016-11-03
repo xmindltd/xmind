@@ -52,7 +52,8 @@ public class MindMapDndTool extends GraphicalTool {
 
     private class RoundedRectDecoration extends PathShapeDecoration {
 
-        public Insets getPreferredInsets(IFigure figure, int width, int height) {
+        public Insets getPreferredInsets(IFigure figure, int width,
+                int height) {
             int lineWidth = getLineWidth();
             return new Insets(lineWidth, lineWidth, lineWidth, lineWidth);
         }
@@ -179,8 +180,9 @@ public class MindMapDndTool extends GraphicalTool {
     protected boolean handleDragOver(DragDropEvent de) {
         if (acceptEvent(de)) {
             if (dummy != null) {
-                key = new ParentSearchKey(null, (IReferencedFigure) dummy
-                        .getBranch().getTopicPart().getFigure(),
+                key = new ParentSearchKey(
+                        null, (IReferencedFigure) dummy.getBranch()
+                                .getTopicPart().getFigure(),
                         getCursorPosition());
                 key.setFeedback(dummy.getBranch());
                 targetParent = updateTargetParent();
@@ -195,8 +197,8 @@ public class MindMapDndTool extends GraphicalTool {
     }
 
     private IBranchPart updateTargetParent() {
-        return getParentSearcher().searchTargetParent(
-                getTargetViewer().getRootPart(), key);
+        return getParentSearcher()
+                .searchTargetParent(getTargetViewer().getRootPart(), key);
     }
 
     private void updateWithParent(IBranchPart parent) {
@@ -212,7 +214,8 @@ public class MindMapDndTool extends GraphicalTool {
 
     private void updateInventVisible(IBranchPart parent) {
         if (invent != null)
-            invent.setVisible(parent != null);
+            invent.setVisible(parent != null && !parent.getTopicPart()
+                    .getFigure().containsPoint(getCursorPosition()));
     }
 
     private void updateInventPosition(Point cursorPosition) {
@@ -231,7 +234,8 @@ public class MindMapDndTool extends GraphicalTool {
         }
     }
 
-    private Point calcInsertionPosition(IBranchPart parent, ParentSearchKey key) {
+    private Point calcInsertionPosition(IBranchPart parent,
+            ParentSearchKey key) {
         UpdateManager um = key.getFigure().getUpdateManager();
         if (um != null)
             um.performValidation();
@@ -318,8 +322,8 @@ public class MindMapDndTool extends GraphicalTool {
                     .getAdapter(ISheetPart.class);
         }
         req.setPrimaryTarget(target);
-        ITopicPart targetTopic = targetParent == null ? null : targetParent
-                .getTopicPart();
+        ITopicPart targetTopic = targetParent == null ? null
+                : targetParent.getTopicPart();
         if (targetTopic != null) {
             req.setParameter(GEF.PARAM_PARENT, targetTopic);
             int targetIndex = -1;
@@ -335,8 +339,8 @@ public class MindMapDndTool extends GraphicalTool {
         }
         req.setParameter(GEF.PARAM_DROP_OPERATION, de.detail);
         if (targetParent != null) {
-            IStructure structure = targetParent.getBranchPolicy().getStructure(
-                    targetParent);
+            IStructure structure = targetParent.getBranchPolicy()
+                    .getStructure(targetParent);
             if (structure instanceof IMovableBranchStructureExtension) {
                 ((IMovableBranchStructureExtension) structure)
                         .decorateMoveInRequest(targetParent, key, null, req);
@@ -372,11 +376,10 @@ public class MindMapDndTool extends GraphicalTool {
                                     BusyIndicator.showWhile(
                                             Display.getCurrent(),
                                             new Runnable() {
-                                                public void run() {
-                                                    getDomain().handleRequest(
-                                                            req);
-                                                }
-                                            });
+                                        public void run() {
+                                            getDomain().handleRequest(req);
+                                        }
+                                    });
                                 }
                             });
                         }

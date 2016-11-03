@@ -26,7 +26,6 @@ import static org.xmind.core.internal.dom.NumberUtils.safeParseInt;
 import java.util.Iterator;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
@@ -83,13 +82,13 @@ public class ControlPointImpl extends ControlPoint implements ICoreEventSource {
         return "CP{" + index + "," + parent.toString() + "}"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Node.class || adapter == Element.class)
-            return getImplementation();
-        if (adapter == IRelationship.class)
-            return parent;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getImplementation());
+        if (IRelationship.class.equals(adapter))
+            return adapter.cast(parent);
         return super.getAdapter(adapter);
     }
 

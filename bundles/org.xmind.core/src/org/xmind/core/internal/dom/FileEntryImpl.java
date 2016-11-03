@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionData;
 import org.xmind.core.IEntryStreamNormalizer;
@@ -72,9 +71,9 @@ public class FileEntryImpl extends FileEntry {
         return implementation.getAttribute(ATTR_FULL_PATH);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -239,7 +238,6 @@ public class FileEntryImpl extends FileEntry {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IFileEntry#iterSubEntries()
      */
     public Iterator<IFileEntry> iterSubEntries() {
@@ -267,7 +265,6 @@ public class FileEntryImpl extends FileEntry {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IFileEntry#getEncryptionData()
      */
     public IEncryptionData getEncryptionData() {
@@ -287,7 +284,6 @@ public class FileEntryImpl extends FileEntry {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IFileEntry#createEncryptionData()
      */
     public IEncryptionData createEncryptionData() {
@@ -303,7 +299,6 @@ public class FileEntryImpl extends FileEntry {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IFileEntry#deleteEncryptionData()
      */
     public void deleteEncryptionData() {

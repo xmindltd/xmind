@@ -8,7 +8,6 @@ import org.xmind.ui.mindmap.ITemplate;
 import org.xmind.ui.mindmap.IWorkbookRef;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */

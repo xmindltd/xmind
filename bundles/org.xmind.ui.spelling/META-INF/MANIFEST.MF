@@ -2,15 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.spelling;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Activator: org.xmind.ui.internal.spelling.SpellingPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  net.sourceforge.jazzy,
- org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)",
- org.xmind.ui.browser;bundle-version="[3.6.0,3.7.0)",
- org.xmind.core.usagedata;bundle-version="[3.6.50,3.7.0)"
+ org.xmind.ui.toolkit;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.ui.browser;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.core.usagedata;bundle-version="[3.7.0,3.8.0)"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: org.xmind.ui,

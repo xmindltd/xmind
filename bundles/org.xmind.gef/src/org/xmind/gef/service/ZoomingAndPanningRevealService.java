@@ -87,13 +87,14 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
             double intervals = INTERVALS;
             if (elapsedSteps < 0) {
                 elapsedSteps = 0;
-                intervals += 20;
+                intervals += 10;
             } else {
-                intervals += (((double) (currentTime - startTime - INTERVALS
-                        * elapsedSteps)) / elapsedSteps);
+                intervals += (((double) (currentTime - startTime
+                        - INTERVALS * elapsedSteps)) / elapsedSteps);
             }
 
-            int remainingSteps = (int) ((remainingTime + intervals - 1) / intervals);
+            int remainingSteps = (int) ((remainingTime + intervals - 1)
+                    / intervals);
             if (remainingSteps <= 0) {
                 finish();
                 return;
@@ -118,7 +119,7 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
 
     }
 
-    private static final int INTERVALS = 30;
+    private static final int INTERVALS = 20;
 
     private int duration = 200;
 
@@ -297,34 +298,39 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
             List<IGraphicalPart> toReveal, Rectangle revealBounds,
             double targetScale) {
         Rectangle clientArea = getViewerClientArea();
+        revealBounds.expand(getSpacing(), getSpacing());
         if (shouldReveal(revealBounds, clientArea)) {
-            revealBounds.expand(getSpacing(), getSpacing());
             int dx = 0;
             int dy = 0;
-            int margin = 20;
+            int margin = 50;
+            int offsetH = clientArea.getBottom().y - clientArea.getCenter().y;
+            int offsetV = clientArea.getRight().x - clientArea.getCenter().x;
             if (revealBounds.width > clientArea.width)
-                dx = revealBounds.getCenter().x - clientArea.getCenter().x;
+                dx = revealBounds.x - clientArea.getCenter().x;
             else if (revealBounds.x < clientArea.x)
-                dx = revealBounds.x - clientArea.x - margin;
+                dx = revealBounds.x + offsetV - margin - getSpacing();
             else if (revealBounds.right() > clientArea.right())
-                dx = revealBounds.right() - clientArea.right() + margin;
+                dx = revealBounds.right() - offsetV + margin + getSpacing();
+
             if (revealBounds.height > clientArea.height)
-                dy = revealBounds.getCenter().y - clientArea.getCenter().y;
+                dy = revealBounds.y - clientArea.getCenter().y;
             else if (revealBounds.y < clientArea.y)
-                dy = revealBounds.y - clientArea.y - margin;
+                dy = revealBounds.y + offsetH - margin - getSpacing();
             else if (revealBounds.bottom() > clientArea.bottom())
-                dy = revealBounds.bottom() - clientArea.bottom() + margin;
+                dy = revealBounds.bottom() - offsetH + margin + getSpacing();
             return getViewerCenterPoint(getViewerScale()).translate(dx, dy);
         }
         return null;
     }
 
-    protected boolean shouldReveal(Rectangle revealBounds, Rectangle clientArea) {
+    protected boolean shouldReveal(Rectangle revealBounds,
+            Rectangle clientArea) {
         if (isShouldRevealOnIntersection()) {
             return !clientArea.contains(revealBounds)
                     && !revealBounds.contains(clientArea);
         }
-        return !revealBounds.intersects(clientArea);
+        return clientArea.bottom() < revealBounds.bottom()
+                || clientArea.getTop().y > revealBounds.y;
     }
 
     protected Rectangle getViewerClientArea() {
@@ -356,7 +362,8 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
     protected List<IGraphicalPart> collectPartsToReveal(ISelection selection) {
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection ss = (IStructuredSelection) selection;
-            List<IGraphicalPart> list = new ArrayList<IGraphicalPart>(ss.size());
+            List<IGraphicalPart> list = new ArrayList<IGraphicalPart>(
+                    ss.size());
             for (Object o : ss.toList()) {
                 IGraphicalPart p = getViewer().findGraphicalPart(o);
                 if (p != null && !exclude(p)) {
@@ -387,25 +394,25 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
     }
 
     protected void revealJobFinished(List<IGraphicalPart> toReveal) {
-        Rectangle revealBounds = getRevealBounds(toReveal);
-        if (revealBounds != null) {
-            double targetScale = calcTargetScale(toReveal, revealBounds);
-            PrecisionPoint targetCenter = calcTargetCenter(toReveal,
-                    revealBounds, targetScale);
-            if (targetScale > 0) {
-                getViewer().getZoomManager().setScale(targetScale);
-            }
-            if (targetCenter != null) {
-                getViewer().center(
-                        targetCenter.getScaled(getViewerScale())
-                                .toRoundedDraw2DPoint());
-            }
-        }
+
+//        Rectangle revealBounds = getRevealBounds(toReveal);
+//        if (revealBounds != null) {
+//            double targetScale = calcTargetScale(toReveal, revealBounds);
+//            PrecisionPoint targetCenter = calcTargetCenter(toReveal,
+//                    revealBounds, targetScale);
+//            if (targetScale > 0) {
+//                getViewer().getZoomManager().setScale(targetScale);
+//            }
+//            if (targetCenter != null) {
+//                getViewer().center(targetCenter.getScaled(getViewerScale())
+//                        .toRoundedDraw2DPoint());
+//            }
+//        }
         revealingFinished(new RevealEvent(this, toReveal));
     }
 
-    protected void doStep(List<IGraphicalPart> toReveal,
-            Rectangle revealBounds, int remainingSteps) {
+    protected void doStep(List<IGraphicalPart> toReveal, Rectangle revealBounds,
+            int remainingSteps) {
         double scale = getViewerScale();
         PrecisionPoint center = getViewerCenterPoint(scale);
         double targetScale = calcTargetScale(toReveal, revealBounds);
@@ -416,6 +423,7 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
             double remainingScale = targetScale - scale;
             double stepScale = remainingScale / remainingSteps;
             scale += stepScale;
+            getViewer().getZoomManager().setScale(scale);
         }
 
         if (targetCenter != null) {
@@ -425,14 +433,8 @@ public abstract class ZoomingAndPanningRevealService extends BaseRevealService {
             double stepY = verticalOffset / remainingSteps;
             center.x += stepX;
             center.y += stepY;
-        }
-
-        if (targetScale > 0) {
-            getViewer().getZoomManager().setScale(scale);
-        }
-        if (targetCenter != null) {
-            getViewer().center(
-                    center.getScaled(getViewerScale()).toRoundedDraw2DPoint());
+            getViewer().center(targetCenter.getScaled(getViewerScale())
+                    .toRoundedDraw2DPoint());
         }
     }
 

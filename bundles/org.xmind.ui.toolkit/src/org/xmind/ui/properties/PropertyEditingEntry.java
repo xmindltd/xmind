@@ -136,7 +136,6 @@ public class PropertyEditingEntry
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.properties.IPropertyEditingEntry#isPropertySet()
      */
     public boolean isPropertySet() {
@@ -584,15 +583,10 @@ public class PropertyEditingEntry
             if (valueText == null)
                 valueText = ""; //$NON-NLS-1$
             valueLayout.setText(valueText);
-            valueLayout
-                    .setStyle(
-                            new TextStyle(
-                                    valueFont == null ? canvas.getFont()
-                                            : valueFont,
-                                    valueColor == null ? canvas.getForeground()
-                                            : valueColor,
-                                    null),
-                            0, valueText.length());
+            valueLayout.setStyle(new TextStyle(
+                    valueFont == null ? canvas.getFont() : valueFont,
+                    valueColor == null ? canvas.getForeground() : valueColor,
+                    null), 0, valueText.length());
         }
 //        canvas.layout(true);
         canvas.redraw();
@@ -762,6 +756,11 @@ public class PropertyEditingEntry
             Object value = transfer.getPropertyValueFromClipboard(propertyId);
             source.setPropertyValue(propertyId, value);
         }
+    }
+
+    @Override
+    public boolean isTextOperation() {
+        return descriptor.isTextOperation();
     }
 
 }

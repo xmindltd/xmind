@@ -26,6 +26,11 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Display;
+import org.xmind.gef.draw2d.geometry.Geometry;
+import org.xmind.gef.draw2d.geometry.PrecisionPoint;
+import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.gef.draw2d.graphics.Path;
 import org.xmind.gef.graphicalpolicy.IStructure;
 import org.xmind.ui.branch.IBranchStructureExtension;
@@ -80,6 +85,43 @@ public class PolygonBoundaryDecoration extends AbstractBoundaryDecoration {
         } else {
             shape.addRectangle(box);
         }
+    }
+
+    public PrecisionPoint getAnchorLocation(IFigure figure, double refX,
+            double refY, double expansion) {
+        Rectangle bounds = figure.getBounds();
+        PrecisionPoint p1 = new PrecisionPoint(bounds.x + bounds.width / 2,
+                bounds.y + bounds.height / 2);
+
+        PrecisionPoint p2 = Geometry.getChopBoxLocation(refX, refY,
+                getOutlineBox(figure), expansion);
+
+        return calcAnchorLocation(figure, p1, p2);
+    }
+
+    private PrecisionPoint calcAnchorLocation(IFigure figure, PrecisionPoint p1,
+            PrecisionPoint p2) {
+        if (p1.getDistance(p2) < (getLineWidth() == 0 ? 1 : getLineWidth()))
+            return p2;
+
+        PrecisionPoint p3 = new PrecisionPoint((p1.x + p2.x) / 2,
+                (p1.y + p2.y) / 2);
+        if (containsPoint(figure, (float) p3.x, (float) p3.y))
+            return calcAnchorLocation(figure, p3, p2);
+        else
+            return calcAnchorLocation(figure, p1, p3);
+    }
+
+    private boolean containsPoint(IFigure figure, float x, float y) {
+        checkValidation(figure);
+        GC gc = GraphicsUtils.getAdvanced().getGC();
+        gc.setLineWidth(getCheckingLineWidth());
+        Path shape = new Path(Display.getCurrent());
+        sketch(figure, shape, getOutlineBox(figure), FILL);
+        boolean ret = shape.contains(x, y, gc, false);
+        shape.close();
+        shape.dispose();
+        return ret;
     }
 
     protected List<Point> calcPathPoints(Rectangle box,
@@ -481,19 +523,19 @@ public class PolygonBoundaryDecoration extends AbstractBoundaryDecoration {
     }
 
     private void addAllTopics(IBranchPart branch, List<ITopicPart> topics) {
-        List<IBranchPart> subs = branch.getSubBranches();
-        List<IBranchPart> callouts = branch.getCalloutBranches();
-        if (subs.isEmpty() && callouts.isEmpty())
-            return;
-
-        for (IBranchPart sub : subs) {
+        for (IBranchPart sub : branch.getSubBranches()) {
             topics.add(sub.getTopicPart());
             addAllTopics(sub, topics);
         }
 
-        for (IBranchPart callout : callouts) {
+        for (IBranchPart callout : branch.getCalloutBranches()) {
             topics.add(callout.getTopicPart());
             addAllTopics(callout, topics);
+        }
+
+        for (IBranchPart summary : branch.getSummaryBranches()) {
+            topics.add(summary.getTopicPart());
+            addAllTopics(summary, topics);
         }
     }
 

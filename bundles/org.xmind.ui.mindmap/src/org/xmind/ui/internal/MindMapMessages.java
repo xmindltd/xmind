@@ -163,13 +163,13 @@ public class MindMapMessages extends NLS {
     public static String DeleteStyleHandler_DeleteStytles;
 
     public static String DeleteStyleHandler_DeleteStytlesConfirm;
-    public static String DeleteStyleHandler_MessageDialog_description;
+    public static String DeleteStyle_MessageDialog_description;
 
-    public static String DeleteStyleHandler_MessageDialog_styles;
+    public static String DeleteStyle_MessageDialog_styles;
 
-    public static String DeleteStyleHandler_MessageDialog_themes;
+    public static String DeleteStyle_MessageDialog_themes;
 
-    public static String DeleteStyleHandler_MessageDialog_title;
+    public static String DeleteStyles_MessageDialog_title;
 
     public static String Delete_OtherSheets_text;
     public static String Delete_OtherSheets_toolTip;
@@ -237,7 +237,6 @@ public class MindMapMessages extends NLS {
     public static String Markers_text;
     public static String ModifyHyperlink_text;
     public static String ModifyHyperlink_toolTip;
-
     public static String ModifySheetTabColorCommand_label;
     public static String ImportWorkbook_text;
     public static String ImportWorkbook_toolTip;
@@ -267,6 +266,7 @@ public class MindMapMessages extends NLS {
     public static String LoadWorkbookJob_errorDialog_title;
 
     public static String LoadWorkbookJob_errorDialog_Pre_message;
+
     public static String LocalFileWorkbookRef_changeDialog_cancel_button;
 
     public static String LocalFileWorkbookRef_changeDialog_message;
@@ -349,7 +349,6 @@ public class MindMapMessages extends NLS {
     public static String SaveAsTemplate_text;
     public static String SaveAsTemplate_toolTip;
     public static String SaveAsTemplateHandler_inputDialog_message;
-
     public static String SaveAsTemplateHandler_inputDialog_title;
 
     public static String SaveSheetAs_text;
@@ -430,6 +429,10 @@ public class MindMapMessages extends NLS {
 
     public static String AllowOverlaps_toolTip;
 
+    public static String AllowManualLayout_text;
+
+    public static String AllowManualLayout_toolTip;
+
     public static String BackgroundWorkbookSaver_SaveWorkbook_taskName;
 
     public static String BackgroundWorkbookSaver_SavingWorkbook_taskNamePattern;
@@ -497,6 +500,10 @@ public class MindMapMessages extends NLS {
     public static String RevisionsView_TimeColumn_text;
 
     public static String RevisionPage_ShowDetails_message;
+
+    public static String RevisionView_DateTimeColumn_text;
+
+    public static String RevisionView_VersionColumn_text;
 
     public static String DefaultOverviewPage_message;
     public static String DefaultRevisionsPage_message;
@@ -608,9 +615,9 @@ public class MindMapMessages extends NLS {
     public static String DuplicateSheet_text;
     public static String DuplicateSheet_toolTip;
     public static String CopySheet_text;
-    public static String PasswordProvider_askPassword_message;
-
     public static String PasteSheet_text;
+
+    public static String PasswordProvider_askPassword_message;
 
     public static String RemoveAllStyles_text;
     public static String RemoveAllStyles_tooltip;
@@ -651,6 +658,115 @@ public class MindMapMessages extends NLS {
     public static String MultipageSetupDialog_showMinusCheck_text;
 
     public static String WorkbookMetadata_ModifyAuthorInfo;
+
+    public static String EditorHistoryItem_defaultName;
+
+    public static String SheetCommentViewer_Insert_button;
+    public static String SheetCommentViewer_Insert_hyperlink;
+
+    public static String BlackBoxDialog_title;
+
+    public static String ProgressDialog_NullContet_message;
+    public static String ProgressDialog_ShowSystem_check;
+    public static String ProgressDialog_RemoveAll_hyperlink;
+
+    public static String WorkbookMetaInspectorDialog_message;
+
+    public static String WorkbookRevisionDialog_title;
+    public static String WorkbookRevisionDialog_Disable_hyperlink;
+
+    public static String OpenLocalFileHandler_MessageDialog_title;
+
+    public static String LocalImageModelPage_title;
+    public static String LocalImageModelPage_ImageSection_description;
+    public static String LocalImageModelPage_Insert_button;
+
+    public static String DecryptionDialog_title;
+    public static String DecryptionDialog_message;
+    public static String DecryptionDialog_FileName_label;
+    public static String DecryptionDialog_FileName_untitled;
+    public static String DecryptionDialog_Password_label;
+    public static String DecryptionDialog_WarningLabel_text;
+    public static String DecryptionDialog_Hint_label;
+
+    public static String EncrptionDialog_ChangePassword_title;
+    public static String EncryptionDialog_SetPassword_title;
+    public static String EncryptionDialog_ChangePassword_message;
+    public static String EncryptionDialog_SetPassword_message;
+    public static String EncryptionDialog_ButtonBar_Set_button;
+    public static String EncryptionDialog_HintInput_label;
+    public static String EncryptionDialog_Warning_NotMatch_label;
+    public static String EncryptionDialog_Warning_NotCorrect_label;
+
+    public static String MindMapEditor_Warning_FileNotFoundDialog_title;
+
+    public static String MindMapEditorInput_Workbook_Untitled_title;
+
+    public static String OverviewCheck_Overview_ON;
+    public static String OverviewCheck_Overview_OFF;
+
+    public static String OutlineIndexPart_ShowWorkbookAction_text;
+    public static String OutlineIndexPart_ShowWorkbookAction_toolTip;
+    public static String OutlineIndexPart_ShowCurrentSheetAction_text;
+    public static String OutlineIndexPart_ShowCurrentSheetAction_toolTip;
+    public static String OutlineIndexPart_DefaultPage_message;
+
+    public static String OutlineType_None;
+    public static String OutlineType_Markers;
+    public static String OutlineType_Labels;
+    public static String OutlineType_StartDate;
+    public static String OutlineType_EndDate;
+    public static String OutlineType_Assignee;
+
+    public static String OutlineViewer_StartDate_col;
+    public static String OutlineViewer_EndData_col;
+    public static String OutlineViewer_Task_col;
+
+    public static String ThemePrefPage_ThemeEditor_label;
+
+    public static String NumberingProperty_NumberDepthLabelProvider_Inherit_text;
+    public static String NumberingProperty_NumberDepthLabelProvider_Levels_text;
+    public static String NumberingProperty_TieredCheck_text;
+
+    public static String PropertiesPart_DefaultPage_message;
+
+    public static String MarkerResourceManagerViewer_AddSection_title;
+
+    public static String ResourceManagerPart_title;
+    public static String ResourceManagerPart_message;
+
+    public static String StyleResourceManager_Editor_button;
+
+    public static String StyleResourceManagerViewer_Topic;
+    public static String StyleResourceManagerViewer_Boundary;
+    public static String StyleResourceManagerViewer_Map;
+    public static String StyleResourceManagerViewer_Paragraph;
+    public static String StyleResourceManagerViewer_Relationship;
+    public static String StyleResourceManagerViewer_Summary;
+    public static String StyleResourceManagerViewer_Text;
+    public static String StyleResourceManagerViewer_Theme;
+    public static String StyleResourceManagerViewer_AddSection_title;
+
+    public static String TemplateResourceManagerPage_Import_button;
+    public static String TemplateResourceManagerPage_Delete_ConfirmDialog_title;
+    public static String TemplateResourceManagerPage_Delete_ConfirmDialog_message;
+    public static String TemplateResourceManagerPage_AddTemplates_label;
+    public static String TemplateResourceManagerPage_TemplateFilterName_label;
+    public static String TemplateResourceManagerPage_AddTemplates_tooltip;
+
+    public static String TemplateResourceManagerViewer_SystemGroup_name;
+    public static String TemplateResourceManagerViewer_UserGroup_name;
+
+    public static String ThemeResourceManagerPage_New_button;
+    public static String ThemeResourceManagerPage_Edit_button;
+
+    public static String ResourceUtil_Copy_name;
+    public static String ResourceUtil_Duplicate_name;
+
+    public static String ThemeGroupCore_UserGroup_name;
+    public static String ThemeGroupCore_DefaultGroup_name;
+
+    public static String ExportPage_Categore_Recent_name;
 
     static {
         // initialize resource bundle

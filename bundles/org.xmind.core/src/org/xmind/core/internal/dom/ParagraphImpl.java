@@ -16,7 +16,6 @@ package org.xmind.core.internal.dom;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.IParagraph;
 import org.xmind.core.ISpan;
 import org.xmind.core.IWorkbook;
@@ -83,10 +82,9 @@ public class ParagraphImpl extends AbstractWorkbookComponent
         getOwner().updateModifiedTime();
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return implementation;
-
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -110,7 +108,6 @@ public class ParagraphImpl extends AbstractWorkbookComponent
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {

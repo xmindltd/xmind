@@ -18,6 +18,7 @@ import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -30,6 +31,13 @@ public class EditLabelAction extends RequestAction implements ISelectionAction {
 
     public void setSelection(ISelection selection) {
         setEnabled(MindMapUtils.isSingleTopic(selection));
+    }
+
+    @Override
+    public void run() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("InsertLabelCount"); //$NON-NLS-1$
+        super.run();
     }
 
 }

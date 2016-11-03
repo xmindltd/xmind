@@ -13,7 +13,7 @@
    <element name="extension">
       <annotation>
          <appInfo>
-            <meta.element />
+            <meta.element deprecated="true" />
          </appInfo>
       </annotation>
       <complexType>

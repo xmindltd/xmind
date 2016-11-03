@@ -6,16 +6,37 @@
       <wizard
             category="org.xmind.ui.importWizards"
             class="org.xmind.ui.internal.imports.mm.MindManagerImportWizard"
-            icon="icons/importmm.gif"
+            icon="icons/importmm.png"
             id="org.xmind.ui.import.MindManager"
             name="%importWizard.mindmanager.name">
       </wizard>
       <wizard
             category="org.xmind.ui.importWizards"
             class="org.xmind.ui.internal.imports.freemind.FreeMindImportWizard"
-            icon="icons/importfreemind.gif"
+            icon="icons/importfreemind.png"
             id="org.xmind.ui.import.FreeMind"
             name="%importWizard.freemind.name">
+      </wizard>
+      <wizard
+            category="org.xmind.ui.importWizards"
+            class="org.xmind.ui.internal.imports.opml.OpmlImportWizard"
+            icon="icons/importopml.png"
+            id="org.xmind.ui.import.OPML"
+            name="%importWizard.opml.name">
+      </wizard>
+      <wizard
+            category="org.xmind.ui.importWizards"
+            class="org.xmind.ui.internal.imports.lighten.LightenImportWizard"
+            icon="icons/import_lighten.png"
+            id="org.xmind.ui.imports.Lighten"
+            name="%importWizard.lighten.name">
+      </wizard>
+      <wizard
+            category="org.xmind.ui.importWizards"
+            class="org.xmind.ui.internal.imports.novamind.NovaMindImportWizard"
+            icon="icons/import_nmind.png"
+            id="org.xmind.ui.imports.NovaMind"
+            name="%importWizard.novamind.name">
       </wizard>
       <!--
       <wizard

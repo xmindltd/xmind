@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.IMetaData;
 import org.xmind.core.IWorkbook;
@@ -81,13 +80,13 @@ public class MetaImpl extends Meta implements ICoreEventSource {
         return DOMUtils.toString(implementation);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Node.class || adapter == Document.class)
-            return implementation;
-        if (adapter == ElementRegistry.class)
-            return getElementRegistry();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Document.class))
+            return adapter.cast(implementation);
+        if (ElementRegistry.class.equals(adapter))
+            return adapter.cast(getElementRegistry());
         return super.getAdapter(adapter);
     }
 
@@ -105,7 +104,6 @@ public class MetaImpl extends Meta implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
@@ -165,7 +163,6 @@ public class MetaImpl extends Meta implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IMeta#getKeyPaths()
      */
     public Set<String> getKeyPaths() {
@@ -261,7 +258,6 @@ public class MetaImpl extends Meta implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.event.ICoreEventSource#getCoreEventSupport()
      */
     public ICoreEventSupport getCoreEventSupport() {
@@ -270,7 +266,6 @@ public class MetaImpl extends Meta implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.event.ICoreEventSource#registerCoreEventListener(java.
      * lang.String, org.xmind.core.event.ICoreEventListener)

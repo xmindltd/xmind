@@ -6,11 +6,6 @@ import org.eclipse.ui.IMemento;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.IWorkbookRefFactory;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class TempWorkbookRefFactory implements IWorkbookRefFactory {
 
     public static final String URI_SCHEME = "xmind-temp"; //$NON-NLS-1$

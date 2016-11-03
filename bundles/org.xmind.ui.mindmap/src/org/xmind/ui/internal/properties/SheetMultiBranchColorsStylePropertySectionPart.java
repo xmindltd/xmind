@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.Request;
 import org.xmind.ui.commands.CommandMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.properties.StyledPropertySectionPart;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.viewers.ImageCachedLabelProvider;
@@ -178,6 +179,8 @@ public class SheetMultiBranchColorsStylePropertySectionPart
         multiLineColorsCheck.setText("Multi Branch Color"); //$NON-NLS-1$
         multiLineColorsCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("ToggleMultiColorCount"); //$NON-NLS-1$
                 multiLineColorsSelectionViewer.setEnabled(
                         !multiLineColorsSelectionViewer.isEnabled());
                 if (multiLineColorsSelectionViewer.isEnabled()) {

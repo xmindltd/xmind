@@ -19,6 +19,8 @@ package org.xmind.core.internal.security;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_ALGORITHM_NAME;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_ITERATION_COUNT;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_KEY_DERIVATION_NAME;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_KEY_IV;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_KEY_SIZE;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_SALT;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_ALGORITHM;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_KEY_DERIVATION;
@@ -26,16 +28,24 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_KEY_DERIVATION;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.Random;
 
-import org.bouncycastle.crypto.BufferedBlockCipher;
-import org.bouncycastle.crypto.CipherParameters;
-import org.bouncycastle.crypto.PBEParametersGenerator;
-import org.bouncycastle.crypto.digests.MD5Digest;
-import org.bouncycastle.crypto.engines.AESEngine;
-import org.bouncycastle.crypto.generators.PKCS12ParametersGenerator;
-import org.bouncycastle.crypto.modes.CBCBlockCipher;
-import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.xmind.core.Core;
 import org.xmind.core.CoreException;
 import org.xmind.core.IEncryptionData;
@@ -55,9 +65,11 @@ import org.xmind.core.io.ChecksumVerifiedInputStream;
 public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
 
     private static final String ALGORITHM_NAME = "AES/CBC/PKCS5Padding"; //$NON-NLS-1$
-    private static final String KEY_DERIVATION_ALGORITHM_NAME = "PKCS12"; //$NON-NLS-1$
+    private static final String OLD37_KEY_DERIVATION_ALGORITHM_NAME = "PKCS12"; //$NON-NLS-1$
+    private static final String KEY_DERIVATION_ALGORITHM_NAME = "PBKDF2WithHmacSHA512"; //$NON-NLS-1$
     private static final String KEY_DERIVATION_ITERATION_COUNT = "1024"; //$NON-NLS-1$
     private static final String CHECKSUM_TYPE = "MD5"; //$NON-NLS-1$
+    private static final String KEY_DERIVATION_SIZE = "128"; //$NON-NLS-1$
 
     /**
      * The randomizer
@@ -80,7 +92,6 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IEntryStreamNormalizer#normalizeOutputStream(java.io.
      * OutputStream, org.xmind.core.IFileEntry)
      */
@@ -96,10 +107,14 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
         encData.setAttribute(generateSalt(), TAG_KEY_DERIVATION, ATTR_SALT);
         encData.setAttribute(KEY_DERIVATION_ITERATION_COUNT, TAG_KEY_DERIVATION,
                 ATTR_ITERATION_COUNT);
+        encData.setAttribute(KEY_DERIVATION_SIZE, TAG_KEY_DERIVATION,
+                ATTR_KEY_SIZE);
+        encData.setAttribute(generateIV(), TAG_KEY_DERIVATION, ATTR_KEY_IV);
         encData.setChecksumType(CHECKSUM_TYPE);
 
-        BufferedBlockCipher cipher = createCipher(true, encData, password);
-        OutputStream out = new BlockCipherOutputStream(stream, cipher);
+        boolean oldEncrptWay = beforeEncrpt37(encData);
+        Cipher cipher = createCipher(true, oldEncrptWay, encData, password);
+        OutputStream out = new CipherOutputStream(stream, cipher);
         if (encData.getChecksumType() != null) {
             out = new ChecksumTrackingOutputStream(encData,
                     new ChecksumOutputStream(out));
@@ -107,9 +122,14 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
         return out;
     }
 
+    private boolean beforeEncrpt37(IEncryptionData encData) {
+        String keyAlgoName = encData.getAttribute(TAG_KEY_DERIVATION,
+                ATTR_KEY_DERIVATION_NAME);
+        return OLD37_KEY_DERIVATION_ALGORITHM_NAME.equals(keyAlgoName);
+    }
+
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IEntryStreamNormalizer#normalizeInputStream(java.io.
      * InputStream, org.xmind.core.IFileEntry)
      */
@@ -119,8 +139,9 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
         if (encData == null)
             return stream;
 
-        BufferedBlockCipher cipher = createCipher(false, encData, password);
-        InputStream in = new BlockCipherInputStream(stream, cipher);
+        boolean oldEncrptWay = beforeEncrpt37(encData);
+        Cipher oldCipher = createCipher(false, oldEncrptWay, encData, password);
+        InputStream in = new CipherInputStream(stream, oldCipher);
         if (encData.getChecksumType() != null) {
             in = new ChecksumVerifiedInputStream(new ChecksumInputStream(in),
                     encData.getChecksum());
@@ -128,33 +149,72 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
         return in;
     }
 
-    private BufferedBlockCipher createCipher(boolean encrypt,
+    private Cipher createCipher(boolean encrypt, boolean oldWay,
             IEncryptionData encData, String password) throws CoreException {
         checkEncryptionData(encData);
-
-        // Create a parameter generator
-        PKCS12ParametersGenerator paramGen = new PKCS12ParametersGenerator(
-                new MD5Digest());
-
-        // Get the password bytes
-        byte[] pwBytes = password == null ? new byte[0]
-                : PBEParametersGenerator
-                        .PKCS12PasswordToBytes(password.toCharArray());
-
-        // Initialize the parameter generator with password bytes, 
-        // salt and iteration counts
-        paramGen.init(pwBytes, getSalt(encData), getIterationCount(encData));
-
-        // Generate a parameter
-        CipherParameters param = paramGen.generateDerivedParameters(128);
-
-        // Create a block cipher
-        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(
-                new CBCBlockCipher(new AESEngine()));
-
-        // Initialize the block cipher
-        cipher.init(encrypt, param);
+        Key aesKey = createKey(oldWay, encData, password);
+        byte[] iv = getIV(encData);
+        IvParameterSpec ivParameter = new IvParameterSpec(iv);
+        Cipher cipher = null;
+        try {
+            cipher = Cipher.getInstance(ALGORITHM_NAME);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM, e);
+        } catch (NoSuchPaddingException e) {
+            throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM, e);
+        }
+        try {
+            cipher.init(encrypt ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE,
+                    aesKey, ivParameter);
+        } catch (InvalidKeyException e) {
+            throw new CoreException(Core.ERROR_WRONG_PASSWORD, e);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM, e);
+        }
         return cipher;
+    }
+
+    private Key createKey(boolean old, IEncryptionData encData, String password)
+            throws CoreException {
+        byte[] key = old ? getOldKeyByte(encData, password)
+                : getKeyByte(encData, password);
+        return new SecretKeySpec(key, "AES"); //$NON-NLS-1$
+    }
+
+    private byte[] getKeyByte(IEncryptionData encData, String password)
+            throws CoreException {
+        SecretKeyFactory keyFactory = null;
+        try {
+            keyFactory = SecretKeyFactory
+                    .getInstance(KEY_DERIVATION_ALGORITHM_NAME);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM, e);
+        }
+
+        KeySpec keySpec = new PBEKeySpec(password.toCharArray(),
+                getSalt(encData), getIterationCount(encData),
+                getKeySize(encData));
+        try {
+            return keyFactory.generateSecret(keySpec).getEncoded();
+        } catch (InvalidKeySpecException e) {
+            throw new CoreException(Core.ERROR_WRONG_PASSWORD, e);
+        }
+    }
+
+    private byte[] getOldKeyByte(IEncryptionData encData, String password)
+            throws CoreException {
+        PKCS12KeyGenerator keyGen = null;
+        try {
+            keyGen = new PKCS12KeyGenerator(MessageDigest.getInstance("MD5")); //$NON-NLS-1$
+        } catch (NoSuchAlgorithmException e) {
+            throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM, e);
+        }
+        byte[] pwBytes = password == null ? new byte[0]
+                : PKCS12KeyGenerator
+                        .PKCS12PasswordToBytes(password.toCharArray());
+        keyGen.init(pwBytes, getSalt(encData), getIterationCount(encData));
+        byte[] key = keyGen.generateDerivedKey(getKeySize(encData));
+        return key;
     }
 
     private void checkEncryptionData(IEncryptionData encData)
@@ -166,8 +226,9 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
 
         String keyAlgoName = encData.getAttribute(TAG_KEY_DERIVATION,
                 ATTR_KEY_DERIVATION_NAME);
-        if (keyAlgoName == null
-                || !KEY_DERIVATION_ALGORITHM_NAME.equals(keyAlgoName))
+        if (keyAlgoName == null || !(KEY_DERIVATION_ALGORITHM_NAME
+                .equals(keyAlgoName)
+                || OLD37_KEY_DERIVATION_ALGORITHM_NAME.equals(keyAlgoName)))
             throw new CoreException(Core.ERROR_FAIL_INIT_CRYPTOGRAM);
     }
 
@@ -183,9 +244,25 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
         return Base64.base64ToByteArray(saltString);
     }
 
+    private byte[] getIV(IEncryptionData encData) throws CoreException {
+        String ivString = encData.getAttribute(TAG_KEY_DERIVATION, ATTR_KEY_IV);
+        if (ivString == null) {
+            return new byte[16];
+        }
+        return Base64.base64ToByteArray(ivString);
+    }
+
+    private int getKeySize(IEncryptionData encData) throws CoreException {
+        String keySizeString = encData.getAttribute(TAG_KEY_DERIVATION,
+                ATTR_KEY_SIZE);
+        if (keySizeString == null) {
+            return Integer.parseInt(KEY_DERIVATION_SIZE);
+        }
+        return Integer.parseInt(keySizeString);
+    }
+
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -200,7 +277,6 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -218,8 +294,18 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
         return Base64.byteArrayToBase64(generateSaltBytes());
     }
 
+    private static String generateIV() {
+        return Base64.byteArrayToBase64(generateIVBytes());
+    }
+
     private static byte[] generateSaltBytes() {
         byte[] bytes = new byte[8];
+        getRandom().nextBytes(bytes);
+        return bytes;
+    }
+
+    private static byte[] generateIVBytes() {
+        byte[] bytes = new byte[16];
         getRandom().nextBytes(bytes);
         return bytes;
     }

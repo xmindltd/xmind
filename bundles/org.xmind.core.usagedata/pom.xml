@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xmind.cathy.plugins</groupId>
     <artifactId>org.xmind.core.usagedata</artifactId>
-    <version>3.6.51-SNAPSHOT</version>
+    <version>3.7.0-SNAPSHOT</version>
     <packaging>eclipse-plugin</packaging>
     <parent>
         <groupId>org.xmind.releng</groupId>
         <artifactId>org.xmind.cathy.releng</artifactId>
-        <version>3.6.51-SNAPSHOT</version>
+        <version>3.7.0-SNAPSHOT</version>
         <relativePath>../../</relativePath>
     </parent>
 </project>

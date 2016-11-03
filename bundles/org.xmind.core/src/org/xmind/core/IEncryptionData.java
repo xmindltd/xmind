@@ -14,7 +14,7 @@
 package org.xmind.core;
 
 /**
- * @author Frank Shaka
+ * @author frankshaka
  * 
  */
 public interface IEncryptionData extends IAdaptable {

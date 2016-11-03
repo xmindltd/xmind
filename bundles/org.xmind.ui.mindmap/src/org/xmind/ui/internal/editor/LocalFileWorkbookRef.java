@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPage;
@@ -63,8 +64,10 @@ import org.xmind.ui.blackbox.BlackBox;
 import org.xmind.ui.blackbox.IBlackBoxMap;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.internal.dialogs.BlackBoxDialog;
+import org.xmind.ui.internal.handlers.OpenBlackBoxDialogHandler;
 import org.xmind.ui.internal.protocols.FilePathParser;
-import org.xmind.ui.internal.views.BlackBoxView;
+import org.xmind.ui.internal.utils.CommandUtils;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -74,7 +77,6 @@ import org.xmind.ui.util.ImageFormat;
 import org.xmind.ui.util.Logger;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -159,7 +161,6 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.ui.statushandlers.AbstractStatusAreaProvider#
          * createSupportArea(org.eclipse.swt.widgets.Composite,
          * org.eclipse.ui.statushandlers.StatusAdapter)
@@ -217,16 +218,25 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
         private void showBlackBoxView() {
             final File damagedFile = getFile();
             if (PlatformUI.isWorkbenchRunning()) {
-                IWorkbenchWindow window = PlatformUI.getWorkbench()
+                final IWorkbenchWindow window = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow();
                 if (window != null) {
                     final IWorkbenchPage page = window.getActivePage();
                     if (page != null) {
                         SafeRunner.run(new SafeRunnable() {
                             public void run() throws Exception {
-                                BlackBoxView blackBoxView = (BlackBoxView) page
-                                        .showView(MindMapUI.VIEW_BLACKBOX);
-                                blackBoxView.setDamagedFile(damagedFile);
+                                CommandUtils.executeCommand(
+                                        "org.xmind.ui.dialog.openBlackBoxDialog", //$NON-NLS-1$
+                                        window);
+
+                                //set damaged file.
+                                Object data = Display.getCurrent()
+                                        .getActiveShell().getData(
+                                                OpenBlackBoxDialogHandler.BLACK_BOX_DIALOG_DATA_KEY);
+                                if (data instanceof BlackBoxDialog) {
+                                    BlackBoxDialog dialog = (BlackBoxDialog) data;
+                                    dialog.setDamagedFile(damagedFile);
+                                }
                             }
                         });
                     }
@@ -253,7 +263,6 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.editor.AbstractWorkbookRef#getAdapter(java.lang.
      * Class)
@@ -268,7 +277,6 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.editor.AbstractWorkbookRef#getSaveWizardId()
      */
     @Override
@@ -332,7 +340,6 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.ui.editor.Editable#getModificationTime()
      */
     @Override
@@ -357,7 +364,12 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
                     stream = new FileInputStream(file);
                     deserializer.setInputStream(stream);
                 }
-                deserializer.deserialize(new ProgressReporter(monitor));
+                ProgressReporter reporter = new ProgressReporter(monitor);
+                deserializer.deserializeManifest(reporter);
+                String passwordHint = deserializer.getManifest()
+                        .getPasswordHint();
+                getEncryptable().setPasswordHint(passwordHint);
+                deserializer.deserialize(reporter);
             } finally {
                 if (stream != null) {
                     stream.close();
@@ -381,14 +393,14 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
     @Override
     protected void doSaveWorkbookToURI(IProgressMonitor monitor,
             IWorkbook workbook, URI uri)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         doSaveWorkbookToURIFromSource(monitor, workbook, uri, null, null);
     }
 
     protected void doSaveWorkbookToURIFromSource(IProgressMonitor monitor,
             IWorkbook workbook, URI uri, IWorkbookRef source,
             IWorkbook sourceWorkbook)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         final Set<String> encryptionIgnoredEntries = new HashSet<String>();
 
         boolean previewSaved = false;
@@ -441,6 +453,17 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
         serializer.setEntryStreamNormalizer(getEncryptionHandler());
         serializer.setEncryptionIgnoredEntries(encryptionIgnoredEntries
                 .toArray(new String[encryptionIgnoredEntries.size()]));
+
+        /// set password hint to manifest
+        String passwordHint = getEncryptable().getPasswordHint();
+        if (passwordHint == null && source != null) {
+            IEncryptable encryptable = source.getAdapter(IEncryptable.class);
+            if (encryptable != null) {
+                passwordHint = encryptable.getPasswordHint();
+            }
+        }
+        if (passwordHint != null)
+            workbook.getManifest().setPasswordHint(passwordHint);
         try {
             OutputStream stream = null;
             try {
@@ -484,7 +507,7 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
      */
     private void savePreviewImage(IWorkbook workbook,
             final Set<String> encryptionIgnoredEntries)
-                    throws InvocationTargetException {
+            throws InvocationTargetException {
         IMindMapPreviewGenerator previewGenerator = findPreviewGenerator();
         if (previewGenerator != null) {
             ImageFormat previewFormat = ImageFormat.PNG;
@@ -571,9 +594,12 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
         IEncryptable sourceEncryptable = source.getAdapter(IEncryptable.class);
         if (sourceEncryptable != null && sourceEncryptable.hasPassword()
                 && sourceEncryptable instanceof WorkbookRefEncryptable) {
+//            getEncryptable()
+//                    .setEncryptor(((WorkbookRefEncryptable) sourceEncryptable)
+//                            .getEncryptor());
+            getEncryptable().setPassword(sourceEncryptable.getPassword());
             getEncryptable()
-                    .setEncryptor(((WorkbookRefEncryptable) sourceEncryptable)
-                            .getEncryptor());
+                    .setPasswordHint(sourceEncryptable.getPasswordHint());
         }
 
         doClearTempStorageBeforeImport(subMonitor.newChild(5), storage);
@@ -595,7 +621,7 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
     protected void doClearTempStorageBeforeImport(IProgressMonitor monitor,
             IStorage storage)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         storage.clear();
     }
 
@@ -606,7 +632,7 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
     protected IWorkbook doCloneWorkbookForImport(IProgressMonitor monitor,
             IWorkbook sourceWorkbook, URI sourceURI, IStorage storage)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         try {
             IWorkbook workbook = Core.getWorkbookBuilder()
                     .createWorkbook(storage);

@@ -36,6 +36,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -44,6 +45,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IEditorActionBarContributor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.xmind.gef.EditDomain;
@@ -259,6 +262,7 @@ public abstract class GraphicalEditor extends EditorPart
      *         <code>null</code>.
      */
     protected Composite createContainerParent(Composite parent) {
+        parent.setLayout(new FillLayout());
         return parent;
     }
 
@@ -621,12 +625,19 @@ public abstract class GraphicalEditor extends EditorPart
             activePage.setFocus();
         }
 
-        IEditorActionBarContributor contributor = getEditorSite()
-                .getActionBarContributor();
-        if (contributor != null
-                && contributor instanceof GraphicalEditorActionBarContributor) {
-            ((GraphicalEditorActionBarContributor) contributor)
-                    .setActivePage(activePage);
+        IWorkbenchPage page = getSite().getPage();
+        if (page != null) {
+            //Only when this part is current active part, configure editor by use of active editor page.
+            IWorkbenchPart currentActivePart = page.getActivePart();
+            if (currentActivePart == this) {
+                IEditorActionBarContributor contributor = getEditorSite()
+                        .getActionBarContributor();
+                if (contributor != null
+                        && contributor instanceof GraphicalEditorActionBarContributor) {
+                    ((GraphicalEditorActionBarContributor) contributor)
+                            .setActivePage(activePage);
+                }
+            }
         }
 
         ISelectionProvider selectionProvider = getSite().getSelectionProvider();

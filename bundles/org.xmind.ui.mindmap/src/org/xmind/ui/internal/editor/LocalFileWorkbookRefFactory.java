@@ -8,11 +8,6 @@ import org.eclipse.ui.IMemento;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.IWorkbookRefFactory;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class LocalFileWorkbookRefFactory implements IWorkbookRefFactory {
 
     private Map<IWorkbookRef, URI> reversedCache = new WeakHashMap<IWorkbookRef, URI>();
@@ -25,7 +20,7 @@ public class LocalFileWorkbookRefFactory implements IWorkbookRefFactory {
             return null;
 
         for (IWorkbookRef wr : reversedCache.keySet()) {
-            if (uri.equals(wr.getURI()) && !wr.isInState(IWorkbookRef.CLOSED))
+            if (uri.equals(wr.getURI()))
                 return wr;
         }
 

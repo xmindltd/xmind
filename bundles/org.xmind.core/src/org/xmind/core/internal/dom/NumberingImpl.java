@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.core.internal.dom;
 
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_DEPTH;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_FORMAT;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_NUMBER_SEPARATOR;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_PREPENDING_NUMBERS;
@@ -22,7 +23,6 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_SUFFIX;
 import static org.xmind.core.internal.dom.DOMConstants.VAL_NONE;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
@@ -49,11 +49,11 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         return DOMUtils.getFirstChildElementByTag(topicElement, TAG_NUMBERING);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Node.class || adapter == Element.class)
-            return getNumberingElement();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getNumberingElement());
         return super.getAdapter(adapter);
     }
 
@@ -96,6 +96,13 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         return getText(TAG_SUFFIX);
     }
 
+    public String getDepth() {
+        Element e = getNumberingElement();
+        if (e == null)
+            return null;
+        return DOMUtils.getAttribute(e, ATTR_NUMBER_DEPTH);
+    }
+
     public boolean prependsParentNumbers() {
         Element e = getNumberingElement();
         if (e == null)
@@ -118,7 +125,6 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
@@ -135,8 +141,8 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
                 }
             }
         } else {
-            Element e = DOMUtils
-                    .ensureChildElement(topicElement, TAG_NUMBERING);
+            Element e = DOMUtils.ensureChildElement(topicElement,
+                    TAG_NUMBERING);
             e.setAttribute(key, value);
         }
     }
@@ -162,8 +168,8 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
                 }
             }
         } else {
-            Element e = DOMUtils
-                    .ensureChildElement(topicElement, TAG_NUMBERING);
+            Element e = DOMUtils.ensureChildElement(topicElement,
+                    TAG_NUMBERING);
             Element t = DOMUtils.ensureChildElement(e, key);
             t.setTextContent(value);
         }
@@ -206,6 +212,14 @@ public class NumberingImpl extends Numbering implements ICoreEventSource {
         setAttribute(ATTR_NUMBER_SEPARATOR, separator);
         String newValue = getSeparator();
         fireValueChange(Core.NumberingSeparator, oldValue, newValue);
+        ownedTopic.updateModificationInfo();
+    }
+
+    public void setDepth(String depth) {
+        String oldValue = String.valueOf(getComputedDepth());
+        setAttribute(ATTR_NUMBER_DEPTH, depth);
+        String newValue = String.valueOf(getComputedDepth());
+        fireValueChange(Core.NumberingDepth, oldValue, newValue);
         ownedTopic.updateModificationInfo();
     }
 

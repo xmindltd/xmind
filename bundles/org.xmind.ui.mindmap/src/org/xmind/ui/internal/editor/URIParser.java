@@ -9,11 +9,6 @@ import java.util.Iterator;
 
 import org.eclipse.core.runtime.Assert;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public final class URIParser {
 
     private URIParser() {

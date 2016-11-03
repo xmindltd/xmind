@@ -38,4 +38,8 @@ public class StyleProvider implements IStyleProvider {
     public void setColor(String key, RGB value) {
     }
 
+    public int getTextAlign(Object widget, String key, int defaultValue) {
+        return defaultValue;
+    }
+
 }

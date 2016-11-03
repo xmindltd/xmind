@@ -87,7 +87,7 @@ public class SummaryDecorator extends Decorator {
                 ISummaryPart summary = (ISummaryPart) part;
                 decorateAnchors(figure, decoration, summary);
             }
-            decoration.setVisible(figure, true);
+            decoration.setVisible(figure, figure.isVisible());
         }
 
         figure.setVisible(isSummaryVisible(part));

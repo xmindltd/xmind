@@ -301,6 +301,7 @@ public abstract class AbstractBranchConnection extends PathConnectionDecoration
             } finally {
                 graphics.popState();
                 shape.close();
+                shape.dispose();
             }
             return;
         }

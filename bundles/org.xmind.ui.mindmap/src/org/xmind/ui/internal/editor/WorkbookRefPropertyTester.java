@@ -5,18 +5,16 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.runtime.Assert;
+import org.xmind.gef.ui.editor.Editable;
 import org.xmind.ui.mindmap.IWorkbookRef;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class WorkbookRefPropertyTester extends PropertyTester {
 
     private static final String P_URI = "uri"; //$NON-NLS-1$
 
     private static final String P_URI_SCHEME = "uriScheme"; //$NON-NLS-1$
+
+    private static final String P_EXIST = "exist"; //$NON-NLS-1$
 
     public WorkbookRefPropertyTester() {
     }
@@ -38,6 +36,14 @@ public class WorkbookRefPropertyTester extends PropertyTester {
             URI uri = workbookRef.getURI();
             return testStringValue(uri == null ? null : uri.getScheme(),
                     expectedValue);
+        } else if (P_EXIST.equals(property)) {
+            boolean exists = ((Editable) workbookRef).exists();
+            if (expectedValue == null || expectedValue.equals("") //$NON-NLS-1$
+                    || expectedValue.equals(Boolean.TRUE.toString())) {
+                return exists;
+            } else if (expectedValue.equals(Boolean.FALSE.toString())) {
+                return !exists;
+            }
         }
 
         Assert.isTrue(false, "Unrecognized property: " + property); //$NON-NLS-1$

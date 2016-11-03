@@ -1,12 +1,15 @@
-/*
- * *****************************************************************************
- * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
- * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
- * License (EPL), which is available at
- * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
- * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
- * initial API and implementation
+/* ******************************************************************************
+ * Copyright (c) 2006-2012 XMind Ltd. and others.
+ * 
+ * This file is a part of XMind 3. XMind releases 3 and
+ * above are dual-licensed under the Eclipse Public License (EPL),
+ * which is available at http://www.eclipse.org/legal/epl-v10.html
+ * and the GNU Lesser General Public License (LGPL), 
+ * which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details.
+ * 
+ * Contributors:
+ *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
@@ -43,18 +46,16 @@ public class InsertParentTopicAction extends RequestAction
     public void setSelection(ISelection selection) {
         setEnabled(MindMapUtils.isSingleTopic(selection)
                 && !MindMapUtils.hasCentralTopic(selection, getViewer())
-                && !MindMapUtils.hasSuchElements(selection,
-                        MindMapUI.CATEGORY_SUMMARY));
+                && !MindMapUtils.hasSummary(selection, getViewer()));
         if (MindMapUtils.isSingleTopic(selection)) {
             setEnabled(!MindMapUtils.hasCentralTopic(selection, getViewer())
-                    && !MindMapUtils.hasSuchElements(selection,
-                            MindMapUI.CATEGORY_SUMMARY));
+                    && !MindMapUtils.hasSummary(selection, getViewer()));
         } else if (MindMapUtils.isAllSuchElements(selection,
                 MindMapUI.CATEGORY_TOPIC)) {
             List<ITopic> topics = getAllTopics(selection);
             if (topics == null || topics.size() == 0
                     || containsCentralTopic(topics)
-                    || containsSummeryTopic(topics)) {
+                    || containsSummaryTopic(topics)) {
                 setEnabled(false);
             } else {
                 setEnabled(isAllBrothers(
@@ -121,21 +122,22 @@ public class InsertParentTopicAction extends RequestAction
         return topic.getOwnedSheet().getRootTopic() == topic;
     }
 
-    private boolean containsSummeryTopic(List<ITopic> topics) {
-        if (topics == null || topics.size() == 0)
+    private boolean containsSummaryTopic(List<ITopic> topics) {
+        if (topics == null || topics.isEmpty())
             return false;
 
-        for (ITopic topic : topics) {
-            if (isSummaryTopic(topic))
+        for (ITopic t : topics) {
+            if (isSummary(t))
                 return true;
         }
 
         return false;
     }
 
-    private boolean isSummaryTopic(ITopic topic) {
+    private boolean isSummary(ITopic topic) {
         if (topic == null)
             return false;
+
         return ITopic.SUMMARY.equals(topic.getType());
     }
 

@@ -10,10 +10,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
@@ -40,6 +43,13 @@ public class ReduceFileSizeDialog extends Dialog {
 
     protected Control createDialogArea(Composite parent) {
         Composite composite = (Composite) super.createDialogArea(parent);
+        Label title = new Label(composite, SWT.NONE);
+        title.setText(DialogMessages.ReduceFileSize_text);
+        FontData fontData = title.getFont().getFontData()[0];
+        Font font = new Font(Display.getDefault(), new FontData(
+                fontData.getName(), fontData.getHeight() + 2, SWT.BOLD));
+        title.setFont(font);
+
         Label label = new Label(composite, SWT.WRAP);
         label.setText(DialogMessages.ReduceFileSize_Advise_text);
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -51,13 +61,24 @@ public class ReduceFileSizeDialog extends Dialog {
         editingHistoryCheckbox.setSelection(true);
         editingHistoryCheckbox
                 .setText(DialogMessages.DeleteEditingHistory_text);
+        GridData ehcGridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+        ehcGridData.widthHint = 380;
+        ehcGridData.heightHint = SWT.DEFAULT;
+        ehcGridData.horizontalIndent = 20;
+        ehcGridData.verticalIndent = 10;
+        editingHistoryCheckbox.setLayoutData(ehcGridData);
         previewImageCheckbox = new Button(composite, SWT.CHECK);
         previewImageCheckbox.setText(DialogMessages.DeletePreviewImage_text);
+        GridData picGridData = new GridData(SWT.FILL, SWT.FILL, true, false);
+        picGridData.widthHint = 380;
+        picGridData.heightHint = SWT.DEFAULT;
+        picGridData.horizontalIndent = 20;
+        previewImageCheckbox.setLayoutData(picGridData);
 
         SelectionListener listener = new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                getButton(IDialogConstants.OK_ID).setEnabled(
-                        editingHistoryCheckbox.getSelection()
+                getButton(IDialogConstants.OK_ID)
+                        .setEnabled(editingHistoryCheckbox.getSelection()
                                 || previewImageCheckbox.getSelection());
             }
         };
@@ -106,6 +127,14 @@ public class ReduceFileSizeDialog extends Dialog {
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText(DialogMessages.ReduceFileSize_text);
+    }
+
+    protected void createButtonsForButtonBar(Composite parent) {
+        // create OK and Cancel buttons by default
+        createButton(parent, IDialogConstants.OK_ID,
+                DialogMessages.ReduceAndSave_text, true);
+        createButton(parent, IDialogConstants.CANCEL_ID,
+                IDialogConstants.CANCEL_LABEL, false);
     }
 
 }

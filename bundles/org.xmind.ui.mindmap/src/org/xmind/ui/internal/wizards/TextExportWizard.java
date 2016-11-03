@@ -262,7 +262,7 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
 
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
-                    throws InvocationTargetException, InterruptedException {
+            throws InvocationTargetException, InterruptedException {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
                 .increase("ExportToTextCount"); //$NON-NLS-1$
 
@@ -366,6 +366,13 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
 
     protected String getSuggestedFileName() {
         return super.getSuggestedFileName() + EXT_TEXT_FILE;
+    }
+
+    @Override
+    protected boolean doExport() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ExportToTxtCount"); //$NON-NLS-1$
+        return super.doExport();
     }
 
 }

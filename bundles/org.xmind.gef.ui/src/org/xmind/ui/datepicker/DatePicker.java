@@ -2,6 +2,8 @@ package org.xmind.ui.datepicker;
 
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.DAY_OF_WEEK;
+import static java.util.Calendar.HOUR_OF_DAY;
+import static java.util.Calendar.MINUTE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.SATURDAY;
 import static java.util.Calendar.SUNDAY;
@@ -11,15 +13,19 @@ import static org.eclipse.jface.resource.JFaceResources.DEFAULT_FONT;
 import java.util.Calendar;
 import java.util.List;
 
+import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.Cursors;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.GridData;
 import org.eclipse.draw2d.GridLayout;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
+import org.eclipse.draw2d.LineBorder;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.draw2d.Viewport;
+import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener2;
@@ -32,8 +38,13 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -44,6 +55,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.xmind.ui.dialogs.PopupDialog;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
@@ -66,7 +78,13 @@ public class DatePicker extends Viewer {
             Messages.Monday, Messages.Tuesday, Messages.Wednesday,
             Messages.Thursday, Messages.Friday, Messages.Saturday };
 
+    public static final int TIME_12 = 12;
+
+    public static final int TIME_24 = 24;
+
     public static final int CORNER = 8;
+
+    public static final int LOAD_TIMEPICKER = 1 << 3;
 
     private static final int FUTURE_YEARS = 7;
 
@@ -88,6 +106,8 @@ public class DatePicker extends Viewer {
 
     private static final String CANCEL = "#D80000"; //$NON-NLS-1$
 
+    private static final String TIME = "#5D5D5D"; //$NON-NLS-1$
+
     protected static final int NORMAL_ALPHA = 0xff;
 
     protected static final int SIBLING_MONTH_ALPHA = 0x20;
@@ -96,10 +116,14 @@ public class DatePicker extends Viewer {
 
     protected static final int TOTAL_DAYS = 42;
 
-    protected class EventHandler implements MouseListener, MouseMotionListener,
-            Listener {
+    protected class EventHandler
+            implements MouseListener, MouseMotionListener, Listener {
 
         private boolean dayPressed = false;
+
+        private BaseFigure pretarget = null;
+
+        private FigureCanvas canvas;
 
         private BaseFigure target = null;
 
@@ -130,9 +154,10 @@ public class DatePicker extends Viewer {
                 dayPressed = false;
                 if (target != null) {
                     final BaseFigure eventTarget = target;
+                    final BaseFigure eventPreTarget = pretarget;
                     target.setPressed(false);
                     target = null;
-                    selected(eventTarget);
+                    selected(eventTarget, eventPreTarget);
                 }
             } else if (event.type == SWT.MouseWheel) {
                 if (event.count == 0)
@@ -159,6 +184,107 @@ public class DatePicker extends Viewer {
 
         public void mouseDoubleClicked(MouseEvent me) {
             // do nothing
+            BaseFigure source = (BaseFigure) me.getSource();
+            if (source instanceof HourFigure
+                    || source instanceof MinutesFigure) {
+                startEditing(source);
+            }
+        }
+
+        private void startEditing(final BaseFigure source) {
+            canvas = getDatePicker();
+            final Text editor = new Text(getDatePicker(),
+                    SWT.SINGLE | SWT.BORDER);
+            editor.setFont(source.getFont());
+            editor.setText(source.getText());
+            //set location of editor
+            Rectangle bounds = source.getBounds();
+            Viewport viewport = canvas.getViewport();
+            int x = bounds.x - viewport.getClientArea().x;
+            int y = bounds.y - viewport.getClientArea().y;
+
+            Point size = editor.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+            editor.setBounds(x, y + (bounds.height - size.y) / 2, bounds.width,
+                    size.y);
+
+            canvas.layout();
+
+            editor.selectAll();
+            editor.setFocus();
+            //focus out
+            final Listener mouseDownFilter = new Listener() {
+
+                public void handleEvent(Event event) {
+                    if (event.widget != editor) {
+                        finishEditingTime(editor, source);
+                    }
+                }
+            };
+
+            editor.getDisplay().addFilter(SWT.MouseDown, mouseDownFilter);
+            editor.addDisposeListener(new DisposeListener() {
+
+                public void widgetDisposed(DisposeEvent e) {
+                    editor.getDisplay().removeFilter(SWT.MouseDown,
+                            mouseDownFilter);
+                }
+            });
+
+            editor.addKeyListener(new KeyListener() {
+
+                public void keyReleased(KeyEvent e) {
+                }
+
+                public void keyPressed(KeyEvent e) {
+                    if (e.keyCode == SWT.CR) {
+                        finishEditingTime(editor, source);
+                    }
+                }
+            });
+
+            editor.addTraverseListener(new TraverseListener() {
+
+                public void keyTraversed(TraverseEvent e) {
+                    if (e.detail == SWT.TRAVERSE_ESCAPE) {
+                        e.doit = false;
+                        cancelEditingTime(editor);
+                    }
+                }
+            });
+        }
+
+        private void cancelEditingTime(Text editor) {
+            editor.dispose();
+            canvas.layout();
+        }
+
+        private void finishEditingTime(Text editor, BaseFigure source) {
+            String newValue = editor.getText().trim();
+            String oldValue = source.getText().trim();
+            if ("".equals(newValue) || null == newValue //$NON-NLS-1$
+                    || newValue.equals(oldValue)) {
+                disposeEditor(editor, source);
+                if (!"12".equals(newValue)) //$NON-NLS-1$
+                    return;
+            }
+            int value = -1;
+            try {
+                value = Integer.parseInt(newValue);
+                if (source instanceof HourFigure)
+                    changeHourOrMinutes(false, value, currentMinutes);
+                if (source instanceof MinutesFigure)
+                    changeHourOrMinutes(false, currentHour, value);
+            } catch (NumberFormatException e) {
+//                e.printStackTrace();
+            }
+            disposeEditor(editor, source);
+        }
+
+        private void disposeEditor(Text editor, BaseFigure source) {
+            updateSelection();
+            source.setBorder(null);
+            editor.dispose();
+            canvas.layout();
         }
 
         public void mouseDragged(MouseEvent me) {
@@ -182,6 +308,12 @@ public class DatePicker extends Viewer {
                         yearFigure.setPreselected(true);
                         lastYear.getContent().setVisible(true);
                         nextYear.getContent().setVisible(true);
+                    } else if (source == todayFigure) {
+                        todayFigure.setFont(
+                                FontUtils.getRelativeHeight(DEFAULT_FONT, 0));
+                        todayFigure.setForegroundColor(
+                                ColorUtils.getColor(CANCEL));
+                        return;
                     }
                     source.setPreselected(true);
                 }
@@ -207,6 +339,12 @@ public class DatePicker extends Viewer {
                         yearFigure.setPreselected(false);
                         lastYear.getContent().setVisible(false);
                         nextYear.getContent().setVisible(false);
+                    } else if (source == todayFigure) {
+                        todayFigure.setFont(
+                                FontUtils.getRelativeHeight(DEFAULT_FONT, 0));
+                        todayFigure
+                                .setForegroundColor(ColorUtils.getColor(TEXT));
+                        return;
                     }
                     source.setPreselected(false);
                 }
@@ -223,12 +361,18 @@ public class DatePicker extends Viewer {
 
         public void mousePressed(MouseEvent me) {
             BaseFigure source = (BaseFigure) me.getSource();
-            source.setPressed(true);
-            source.setPreselected(false);
+            if (source != todayFigure) {
+                source.setPressed(true);
+                source.setPreselected(false);
+            }
             if (source instanceof DayFigure) {
                 dayPressed = true;
             } else {
                 target = source;
+            }
+            if (source instanceof HourFigure
+                    || source instanceof MinutesFigure) {
+                startEditing(source);
             }
         }
 
@@ -240,17 +384,19 @@ public class DatePicker extends Viewer {
                     daySelected((DayFigure) me.getSource());
                 }
                 source.setPreselected(true);
+            } else if (source instanceof HourFigure
+                    || source instanceof MinutesFigure) {
+                pretarget = source;
             } else {
                 if (!source.isSelected()) {
-                    source.setPreselected(true);
+                    if (source != todayFigure)
+                        source.setPreselected(true);
                 }
             }
         }
-
     }
 
     private class DropdownDatePicker extends PopupDialog {
-
         public DropdownDatePicker(Shell parent) {
             super(parent, SWT.NO_TRIM, true, false, false, false, false, null,
                     null);
@@ -423,11 +569,31 @@ public class DatePicker extends Viewer {
 
     }
 
-    private int style;
+    private int style;          //mark the style of datepicker
+
+    private int type = TIME_12; //  TIME_12 or TIME_24   mark the type of time 12 Hour or 24 Hour.
 
     private Control control;
 
     private FigureCanvas datePicker;
+
+    private BaseFigure timePicker;
+
+    private HourFigure hourFigure;
+
+    private MinutesFigure minutesFigure;
+
+//    private BaseFigure okButton;
+//
+//    private BaseFigure cancelButton;
+
+//    private BaseFigure figure;
+
+    private BaseFigure timeLabel;
+
+    private ArrowFigure beforeTime;
+
+    private ArrowFigure afterTime;
 
     private MButton placeholder;
 
@@ -440,6 +606,10 @@ public class DatePicker extends Viewer {
     private int currentMonth;
 
     private int currentYear;
+
+    private int currentHour;
+
+    private int currentMinutes;
 
     private Calendar selection;
 
@@ -490,7 +660,6 @@ public class DatePicker extends Viewer {
      *            instance (cannot be null)
      * @param style
      *            the style of control to construct
-     * 
      * @see SWT#SIMPLE
      * @see SWT#DROP_DOWN
      * @see SWT#CANCEL
@@ -503,6 +672,8 @@ public class DatePicker extends Viewer {
         this.today = today;
         this.currentMonth = today.get(MONTH);
         this.currentYear = today.get(YEAR);
+        this.currentHour = today.get(HOUR_OF_DAY);
+        this.currentMinutes = today.get(MINUTE);
         this.style = style;
         if ((style & SWT.DROP_DOWN) != 0) {
             createPlaceholder(parent);
@@ -588,7 +759,8 @@ public class DatePicker extends Viewer {
     public void setDateSelection(Calendar date, boolean reveal) {
         changeDate(date);
         if (reveal && date != null) {
-            changeCalendar(date.get(YEAR), date.get(MONTH));
+            changeCalendar(date.get(YEAR), date.get(MONTH),
+                    date.get(HOUR_OF_DAY), date.get(MINUTE));
         }
         update();
     }
@@ -605,23 +777,49 @@ public class DatePicker extends Viewer {
         });
     }
 
+    /**
+     * Shows the drop-down date picker ,and compute the size by the control.
+     */
     private void showDropdown() {
         placeholder.setForceFocus(true);
         createDropdownDatePicker();
         dropdownDatePicker.open();
         Shell shell = dropdownDatePicker.getShell();
+        int x = placeholder.getControl().getBounds().width;
+        x = x < 230 ? 230 : x;   //set the datepicker min width is 250px
+        x = x > 250 ? 250 : x;   //set the datepicker max width is 280px
+        shell.setSize(x, x + 30);
         if (shell != null && !shell.isDisposed()) {
             shell.addListener(SWT.Dispose, new Listener() {
                 public void handleEvent(Event event) {
                     if (placeholder != null
                             && !placeholder.getControl().isDisposed()) {
                         placeholder.setForceFocus(false);
+                        updateSelection();
+                        closeDatePicker();
                     }
                 }
+
             });
         } else {
             placeholder.setForceFocus(false);
         }
+    }
+
+    private void closeDatePicker() {
+        if (firingSelectionChange)
+            return;
+        firingSelectionChange = true;
+        if (dropdownDatePicker != null) {
+            control.getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    dropdownDatePicker.close();
+                }
+            });
+        }
+        fireSelectionChanged(
+                new SelectionChangedEvent(DatePicker.this, getSelection()));
+        firingSelectionChange = false;
     }
 
     /**
@@ -630,6 +828,16 @@ public class DatePicker extends Viewer {
      */
     public void open() {
         showDropdown();
+    }
+
+    public void close() {
+        if (dropdownDatePicker != null) {
+            control.getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    dropdownDatePicker.close();
+                }
+            });
+        }
     }
 
     private void createDropdownDatePicker() {
@@ -674,11 +882,15 @@ public class DatePicker extends Viewer {
         createDaysPanel(container);
         createSeparator(container);
         createBottomPanel(container);
+//        createSeparator(container);
+//        createOkAndCancel(container);
+
     }
 
     private void createTopPanel(IFigure parent) {
         IFigure panel = new Layer();
-        GridData panelConstraint = new GridData(SWT.FILL, SWT.FILL, true, false);
+        GridData panelConstraint = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
         parent.add(panel, panelConstraint);
 
         GridLayout panelLayout = new GridLayout(12, true);
@@ -716,6 +928,7 @@ public class DatePicker extends Viewer {
         return figure;
     }
 
+    @SuppressWarnings("deprecation")
     private ArrowFigure createArrowFigure(IFigure parent, int orientation) {
         ArrowFigure arrow = new ArrowFigure();
         arrow.setOrientation(orientation);
@@ -728,6 +941,7 @@ public class DatePicker extends Viewer {
         return arrow;
     }
 
+    @SuppressWarnings("deprecation")
     private void createSeparator(IFigure parent) {
         HorizontalLine line = new HorizontalLine();
         line.setMargin(3);
@@ -737,9 +951,11 @@ public class DatePicker extends Viewer {
         parent.add(line, constraint);
     }
 
+    @SuppressWarnings("deprecation")
     private void createWeekPanel(IFigure parent) {
         IFigure panel = new Layer();
-        GridData panelConstraint = new GridData(SWT.FILL, SWT.FILL, true, false);
+        GridData panelConstraint = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
         parent.add(panel, panelConstraint);
         GridLayout panelLayout = new GridLayout(7, true);
         panelLayout.horizontalSpacing = 0;
@@ -747,6 +963,7 @@ public class DatePicker extends Viewer {
         panelLayout.marginHeight = 0;
         panelLayout.marginWidth = 0;
         panel.setLayoutManager(panelLayout);
+        @SuppressWarnings("deprecation")
         Font symbolFont = FontUtils.getRelativeHeight(DEFAULT_FONT, -2);
         for (int i = 0; i < 7; i++) {
             TextLayer symbol = new TextLayer();
@@ -781,32 +998,50 @@ public class DatePicker extends Viewer {
 
     private void createBottomPanel(IFigure parent) {
         boolean hasCancel = (style & SWT.CANCEL) != 0;
+        boolean hasTimePicker = (style & LOAD_TIMEPICKER) != 0;
+
         IFigure panel = new Layer();
-        GridData panelConstraint = new GridData(SWT.FILL, SWT.FILL, true, false);
+        GridData panelConstraint = new GridData(SWT.FILL, SWT.FILL, true,
+                false);
         parent.add(panel, panelConstraint);
-        GridLayout panelLayout = new GridLayout(hasCancel ? 2 : 1, false);
+
+        int cols = 0;
+        cols = hasCancel ? 2 : 1;
+        cols = hasTimePicker ? cols + 2 : cols;
+
+        GridLayout panelLayout = new GridLayout(cols, false);
         panelLayout.horizontalSpacing = 0;
         panelLayout.verticalSpacing = 0;
-        panelLayout.marginHeight = 0;
-        panelLayout.marginWidth = 0;
+        panelLayout.marginHeight = 10;
+        panelLayout.marginWidth = 5;
+
         panel.setLayoutManager(panelLayout);
 
         todayFigure = createTodayFigure(panel);
+
+        if (hasTimePicker) {
+            timePicker = createTimeFigure(panel);
+//            createUpAndDown(panel);
+            timeLabel = createLabelOfTime(panel);
+        }
         if (hasCancel) {
             cancelFigure = createCancelFigure(panel);
         }
     }
 
+    @SuppressWarnings("deprecation")
     private BaseFigure createTodayFigure(IFigure parent) {
         BaseFigure figure = new BaseFigure();
-        figure.setFont(FontUtils.getRelativeHeight(DEFAULT_FONT, -2));
-        figure.setForegroundColor(ColorUtils.getColor(TODAY));
-        GridData constraint = new GridData(SWT.FILL, SWT.FILL, true, true);
+        figure.setFont(FontUtils.getRelativeHeight(DEFAULT_FONT, 0));
+        figure.setForegroundColor(ColorUtils.getColor(TEXT));
+        GridData constraint = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         parent.add(figure, constraint);
+
         eventHandler.attach(figure);
         return figure;
     }
 
+    @SuppressWarnings("deprecation")
     private BaseFigure createCancelFigure(IFigure parent) {
         BaseFigure figure = new BaseFigure();
         figure.setText(" X "); //$NON-NLS-1$
@@ -816,6 +1051,143 @@ public class DatePicker extends Viewer {
         parent.add(figure, constraint);
         eventHandler.attach(figure);
         return figure;
+    }
+
+    @SuppressWarnings("deprecation")
+    private BaseFigure createTimeFigure(IFigure parent) {
+        BaseFigure figure = new BaseFigure();
+        figure.setFont(FontUtils.getRelativeHeight(DEFAULT_FONT, -1));
+        figure.setForegroundColor(ColorConstants.white);
+        figure.setBackgroundColor(ColorConstants.white);
+        figure.setOpaque(true);
+        GridData constraint = new GridData(SWT.FILL, SWT.FILL, false, false);
+        figure.setLayoutManager(new XYLayout());
+        parent.add(figure, constraint);
+
+        IFigure panel = new Layer();
+        figure.add(panel, new Rectangle(0, 2, 60, 20));
+        panel.setBorder(new LineBorder(ColorConstants.lightGray, 1));
+        panel.setForegroundColor(ColorConstants.white);
+        XYLayout layout = new XYLayout();
+
+        panel.setLayoutManager(layout);
+        hourFigure = createHourFigure(panel);
+        BaseFigure point = createPointFigure(panel);
+        minutesFigure = createMinutesFigure(panel);
+        panel.add(hourFigure, new Rectangle(0, 0, 25, 18));
+        panel.add(point, new Rectangle(26, 0, 3, 18));
+        panel.add(minutesFigure, new Rectangle(31, 0, 25, 18));
+        return figure;
+    }
+
+    @SuppressWarnings("deprecation")
+    private BaseFigure createPointFigure(IFigure parent) {
+        BaseFigure figure = new BaseFigure();
+        figure.setSize(3, 18);
+        figure.setText(" : "); //$NON-NLS-1$
+        figure.setForegroundColor(ColorUtils.getColor(TIME));
+        parent.add(figure);
+        return figure;
+    }
+
+//    private IFigure createHourAndMinutesPanel(IFigure parent) {
+//        IFigure panel = new Layer();
+//        panel.setSize(32, 16);
+//        GridData constraint = new GridData(SWT.FILL, SWT.FILL, true, false);
+//        constraint.horizontalSpan = 3;
+//        parent.add(panel, constraint);
+//        ToolbarLayout layout = new ToolbarLayout();
+//        layout.setSpacing(0);
+//        panel.setLayoutManager(layout);
+//        return panel;
+//    }
+
+    @SuppressWarnings("deprecation")
+    private HourFigure createHourFigure(IFigure parent) {
+        HourFigure figure = new HourFigure();
+        figure.setHour(currentHour, type);
+        figure.setTextCandidates(new String[] { " 00 " }); //$NON-NLS-1$
+        figure.setForegroundColor(ColorUtils.getColor(TIME));
+        eventHandler.attach(figure);
+        return figure;
+    }
+
+    @SuppressWarnings("deprecation")
+    private MinutesFigure createMinutesFigure(IFigure parent) {
+        MinutesFigure figure = new MinutesFigure();
+        figure.setMinutes(currentMinutes);
+        figure.setTextCandidates(new String[] { " 00 " }); //$NON-NLS-1$
+        figure.setForegroundColor(ColorUtils.getColor(TIME));
+        eventHandler.attach(figure);
+        return figure;
+    }
+
+    @SuppressWarnings("deprecation")
+    private BaseFigure createLabelOfTime(IFigure parent) {
+        BaseFigure figure = new BaseFigure();
+        figure.setText(getTimeLabel());
+        figure.setFont(FontUtils.getRelativeHeight(DEFAULT_FONT, -1));
+        figure.setForegroundColor(ColorUtils.getColor(TEXT));
+        figure.setCursor(Cursors.ARROW);
+        GridData constraint = new GridData(SWT.FILL, SWT.FILL, false, true);
+        parent.add(figure, constraint);
+        return figure;
+    }
+
+//    private void createOkAndCancel(IFigure parent) {
+//        IFigure panel = new Layer();
+//        GridData panelConstraint = new GridData(SWT.CENTER, SWT.FILL, true,
+//                false);
+//        parent.add(panel, panelConstraint);
+//        GridLayout panelLayout = new GridLayout(4, true);
+//        panelLayout.horizontalSpacing = 10;
+//        panelLayout.verticalSpacing = 0;
+//        panelLayout.marginHeight = 5;
+//        panelLayout.marginWidth = 5;
+//        panelLayout.verticalSpacing = 5;
+//        panel.setLayoutManager(panelLayout);
+//        cancelButton = createCancel(panel);
+//        createLabel(panel);
+//        createLabel(panel);
+//        okButton = createOk(panel);
+//    }
+
+//    private void createLabel(IFigure parent) {
+//        BaseFigure figure = new BaseFigure();
+//        GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+//        parent.add(figure, data);
+//    }
+//
+//    private BaseFigure createOk(IFigure parent) {
+//        BaseFigure figure = new BaseFigure();
+//        figure.setText("OK");
+//        figure.setOpaque(true);
+//        figure.setBackgroundColor(ColorConstants.white);
+//        figure.setBorder(new LineBorder(ColorConstants.lightGray));
+//        figure.setFont(FontUtils.getRelativeHeight(DEFAULT_FONT, -2));
+//        parent.add(figure, new GridData(SWT.FILL, SWT.FILL, false, false));
+//        eventHandler.attach(figure);
+//        return figure;
+//    }
+
+//    private BaseFigure createCancel(IFigure parent) {
+//        BaseFigure figure = new BaseFigure();
+//        figure.setText("CANCEL");
+//        figure.setBackgroundColor(ColorConstants.white);
+//        figure.setOpaque(true);
+//        figure.setFont(FontUtils.getRelativeHeight(DEFAULT_FONT, -2));
+//        figure.setBorder(new LineBorder(ColorConstants.lightGray));
+//        parent.add(figure, new GridData(SWT.FILL, SWT.FILL, false, false));
+//        eventHandler.attach(figure);
+//        return figure;
+//    }
+
+    private String getTimeLabel() {
+        if (currentHour >= 0 && currentHour < 12)
+            return Messages.DatePicker_Time_AM_text;
+        else if (currentHour >= 12 && currentHour < 24)
+            return Messages.DatePicker_Time_PM_text;
+        return ""; //$NON-NLS-1$
     }
 
     private Calendar getSelectedDate() {
@@ -832,13 +1204,17 @@ public class DatePicker extends Viewer {
                 && date1.get(YEAR) == date2.get(YEAR);
     }
 
-    protected void changeCalendar(int newYear, int newMonth) {
-        changeCalendar(newYear, newMonth, false);
+    protected void changeCalendar(int newYear, int newMonth, int newHour,
+            int newMinutes) {
+        changeCalendar(newYear, newMonth, newHour, newMinutes, false);
     }
 
-    protected void changeCalendar(int newYear, int newMonth, boolean smooth) {
+    //change the ui of canlendar
+    protected void changeCalendar(int newYear, int newMonth, int hours,
+            int minutes, boolean smooth) {
         boolean calendarChanged = newMonth != currentMonth
-                || newYear != currentYear;
+                || newYear != currentYear || currentHour != hours
+                || currentMinutes != minutes;
         if (!calendarChanged)
             return;
         if (smooth) {
@@ -851,9 +1227,13 @@ public class DatePicker extends Viewer {
             }
             currentYear = newYear;
             currentMonth = newMonth;
+            currentHour = hours;
+            currentMinutes = minutes;
         } else {
             currentYear = newYear;
             currentMonth = newMonth;
+            currentHour = hours;
+            currentMinutes = minutes;
             if (datePicker != null) {
                 updateCalendar();
             }
@@ -866,8 +1246,11 @@ public class DatePicker extends Viewer {
         updateDayFigures(datePanel.getChildren(), currentYear, currentMonth);
         monthFigure.setMonth(currentMonth);
         yearFigure.setYear(currentYear);
-        todayFigure.setText(NLS.bind(Messages.TodayPattern,
-                String.format("%1$tb %1$te, %1$tY", today))); //$NON-NLS-1$
+        hourFigure.setHour(currentHour, type);
+        minutesFigure.setMinutes(currentMinutes);
+//        todayFigure.setText(NLS.bind(Messages.TodayPattern,
+//                String.format("%1$tb %1$te, %1$tY", today))); //$NON-NLS-1$
+        todayFigure.setText(Messages.TodayPattern);
     }
 
     private void updateDayFigures(List dayFigures, int year, int month) {
@@ -880,8 +1263,10 @@ public class DatePicker extends Viewer {
             dayFigure.setDate(date);
             updateDayFigure(dayFigure, year, month);
         }
+
     }
 
+    @SuppressWarnings("deprecation")
     void updateDayFigure(DayFigure figure, int year, int month) {
         figure.setFont(FontUtils.getBold(DEFAULT_FONT));
         Calendar date = figure.getDate();
@@ -903,10 +1288,14 @@ public class DatePicker extends Viewer {
         if (datePicker != null) {
             for (Object figure : datePanel.getChildren()) {
                 DayFigure dayFigure = (DayFigure) figure;
-                dayFigure.setSelected(isSameDay(dayFigure.getDate(),
-                        getSelectedDate()));
+                dayFigure.setSelected(
+                        isSameDay(dayFigure.getDate(), getSelectedDate()));
             }
         }
+//        if (null != hourFigure && null != selection)
+//            selection.set(HOUR_OF_DAY, hourFigure.getHour());
+//        if (null != minutesFigure && null != selection)
+//            selection.set(MINUTE, minutesFigure.getMinutes());
         if (placeholder != null) {
             String text = getLabelProvider().getText(selection);
             placeholder.setText(text);
@@ -981,7 +1370,8 @@ public class DatePicker extends Viewer {
         return start + (end - start) * current / total;
     }
 
-    protected void selected(final BaseFigure target) {
+    protected void selected(final BaseFigure target,
+            final BaseFigure pretarget) {
         if (target instanceof MonthFigure) {
             target.setSelected(true);
             showMonthPopup();
@@ -1000,6 +1390,18 @@ public class DatePicker extends Viewer {
             nextYearSelected(true);
         } else if (target == cancelFigure) {
             cancelSelected();
+        } else if (target == beforeTime) {
+//            beforeTimeSelected(true, pretarget);
+        } else if (target == afterTime) {
+//            afterTimeSelected(true, pretarget);
+        } else if (target instanceof HourFigure) {
+            if (null != minutesFigure)
+                minutesFigure.setSelected(false);
+            hourSelected((HourFigure) target);
+        } else if (target instanceof MinutesFigure) {
+            if (null != hourFigure)
+                hourFigure.setSelected(false);
+            minuteSelected((MinutesFigure) target);
         }
     }
 
@@ -1074,52 +1476,161 @@ public class DatePicker extends Viewer {
     }
 
     protected void monthSelected(int month) {
-        changeCalendar(currentYear, month);
+        changeCalendar(currentYear, month, currentHour, currentMinutes);
     }
 
     protected void yearSelected(int year) {
-        changeCalendar(year, currentMonth);
+        changeCalendar(year, currentMonth, currentHour, currentMinutes);
     }
 
     protected void daySelected(DayFigure day) {
         Calendar date = day.getDate();
-        changeDate(date);
         if (date != null && date.get(MONTH) != currentMonth) {
-            changeCalendar(date.get(YEAR), date.get(MONTH), true);
+            changeCalendar(date.get(YEAR), date.get(MONTH),
+                    date.get(HOUR_OF_DAY), date.get(MINUTE), true);
         }
+        if (null != date && date.get(HOUR_OF_DAY) != currentHour) {
+            changeHourOrMinutes(true, date.get(HOUR_OF_DAY), date.get(MINUTE));
+        }
+        selection = date;
+        changeDate(date);
+    }
+
+    protected void hourSelected(HourFigure hour) {
+        hour.setSelected(true);
+    }
+
+    protected void minuteSelected(MinutesFigure minute) {
+        minute.setSelected(true);
     }
 
     protected void todaySelected() {
         changeDate(today);
-        changeCalendar(today.get(YEAR), today.get(MONTH));
+        changeCalendar(today.get(YEAR), today.get(MONTH),
+                today.get(HOUR_OF_DAY), today.get(MINUTE));
     }
 
     protected void lastMonthSelected(boolean smooth) {
         if (currentMonth <= 0) {
-            changeCalendar(currentYear - 1, 11, smooth);
+            changeCalendar(currentYear - 1, 11, currentHour, currentMinutes,
+                    smooth);
         } else {
-            changeCalendar(currentYear, currentMonth - 1, smooth);
+            changeCalendar(currentYear, currentMonth - 1, currentHour,
+                    currentMinutes, smooth);
         }
     }
 
     protected void nextMonthSelected(boolean smooth) {
         if (currentMonth >= 11) {
-            changeCalendar(currentYear + 1, 0, smooth);
+            changeCalendar(currentYear + 1, 0, currentHour, currentMinutes,
+                    smooth);
         } else {
-            changeCalendar(currentYear, currentMonth + 1, smooth);
+            changeCalendar(currentYear, currentMonth + 1, currentHour,
+                    currentMinutes, smooth);
         }
     }
 
     protected void lastYearSelected(boolean smooth) {
-        changeCalendar(currentYear - 1, currentMonth, smooth);
+        changeCalendar(currentYear - 1, currentMonth, currentHour,
+                currentMinutes, smooth);
     }
 
     protected void nextYearSelected(boolean smooth) {
-        changeCalendar(currentYear + 1, currentMonth, smooth);
+        changeCalendar(currentYear + 1, currentMonth, currentHour,
+                currentMinutes, smooth);
     }
 
     protected void cancelSelected() {
         changeDate(null);
+    }
+
+//    protected void beforeTimeSelected(boolean smooth, BaseFigure target) {
+//        if (target instanceof HourFigure) {
+//            changeHourOrMinutes(smooth, currentHour - 1, currentMinutes);
+//        } else if (target instanceof MinutesFigure)
+//            changeHourOrMinutes(smooth, currentHour, currentMinutes - 1);
+//    }
+//
+//    protected void afterTimeSelected(boolean smooth, BaseFigure target) {
+//        if (target instanceof HourFigure)
+//            changeHourOrMinutes(smooth, currentHour + 1, currentMinutes);
+//        else if (target instanceof MinutesFigure)
+//            changeHourOrMinutes(smooth, currentHour, currentMinutes + 1);
+//    }
+
+    protected void changeHourOrMinutes(boolean smooth, int newHour,
+            int newMinutes) {
+
+        freshTimePicker(newHour, newMinutes);
+
+        if (selection != null) {
+            selection.set(HOUR_OF_DAY, newHour);
+            selection.set(MINUTE, newMinutes);
+            changeDate(selection);
+        }
+
+        update();
+    }
+
+    private void freshTimePicker(int newHour, int newMinutes) {
+        boolean hourChanged = newHour != currentHour;
+        boolean minuteChanged = newMinutes != currentMinutes;
+        if (!hourChanged && !minuteChanged)
+            return;
+
+        newHour = resetHour(newHour);
+        newMinutes = resetMinutes(newMinutes);
+        if (null != timePicker) {
+            if (null != hourFigure && hourChanged) {
+                if (!validateHour(newHour))
+                    return;
+                if (newHour >= 12)
+                    timeLabel.setText(Messages.DatePicker_Time_AM_text);
+                else if (newHour < 12)
+                    timeLabel.setText(Messages.DatePicker_Time_PM_text);
+                currentHour = newHour;
+                hourFigure.setHour(newHour, type);  //default type = 12 hours every day.
+            }
+            if (null != minutesFigure && minuteChanged) {
+                if (!validateMinutes(newMinutes))
+                    return;
+                currentMinutes = newMinutes;
+                minutesFigure.setMinutes(newMinutes);
+            }
+        }
+    }
+
+    private int resetHour(int hour) {
+        if (hour > 23) {
+            return 0;
+        }
+        if (hour < 0 && type == TIME_24) {
+            hour = 23;
+        } else if (hour < 0 && type == TIME_12) {
+            hour = 11;
+        }
+        return hour;
+    }
+
+    private int resetMinutes(int minutes) {
+        if (minutes > 59) {
+            minutes = 0;
+        } else if (minutes < 0) {
+            minutes = 59;
+        }
+        return minutes;
+    }
+
+    private boolean validateHour(int hour) {
+        if (hour >= 0 && hour <= 23)
+            return true;
+        return false;
+    }
+
+    private boolean validateMinutes(int minutes) {
+        if (minutes >= 0 && minutes < 60)
+            return true;
+        return false;
     }
 
     protected void rollMonth(int count) {
@@ -1127,30 +1638,21 @@ public class DatePicker extends Viewer {
         temp.set(YEAR, currentYear);
         temp.set(MONTH, currentMonth);
         temp.add(MONTH, count);
-        changeCalendar(temp.get(YEAR), temp.get(MONTH), true);
+        changeCalendar(temp.get(YEAR), temp.get(MONTH), temp.get(HOUR_OF_DAY),
+                temp.get(MINUTE), true);
     }
 
+    //send the selectionChanged event ,inform all listeners.
     protected void changeDate(Calendar date) {
         this.selection = date;
         updateSelection();
-
         if (firingSelectionChange)
             return;
+
         firingSelectionChange = true;
-        if (dropdownDatePicker != null) {
-            control.getDisplay().asyncExec(new Runnable() {
-                public void run() {
-                    dropdownDatePicker.close();
-                }
-            });
-        }
-        fireSelectionChanged(new SelectionChangedEvent(DatePicker.this,
-                getSelection()));
+        fireSelectionChanged(
+                new SelectionChangedEvent(DatePicker.this, getSelection()));
         firingSelectionChange = false;
-//        control.getDisplay().asyncExec(new Runnable() {
-//            public void run() {
-//            }
-//        });
     }
 
     @Override
@@ -1190,5 +1692,4 @@ public class DatePicker extends Viewer {
         }
         return date;
     }
-
 }

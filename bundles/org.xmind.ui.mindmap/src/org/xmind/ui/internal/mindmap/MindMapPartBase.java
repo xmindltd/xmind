@@ -34,8 +34,8 @@ import org.xmind.ui.mindmap.ICacheManager;
 import org.xmind.ui.mindmap.ISelectionFeedbackHelper;
 import org.xmind.ui.util.MindMapUtils;
 
-public abstract class MindMapPartBase extends GraphicalEditPart implements
-        IAnimatablePart {
+public abstract class MindMapPartBase extends GraphicalEditPart
+        implements IAnimatablePart {
 
     private ICoreEventRegister eventRegister = null;
 
@@ -64,7 +64,8 @@ public abstract class MindMapPartBase extends GraphicalEditPart implements
             graphicalPolicyActivated = false;
         }
         this.graphicalPolicy = graphicalPolicy;
-        if (hasFigure() && graphicalPolicy != null && !graphicalPolicyActivated) {
+        if (hasFigure() && graphicalPolicy != null
+                && !graphicalPolicyActivated) {
             graphicalPolicy.activate(this);
             graphicalPolicyActivated = true;
         }
@@ -146,18 +147,18 @@ public abstract class MindMapPartBase extends GraphicalEditPart implements
     }
 
     protected IAnimationService getAnimationService() {
-        return (IAnimationService) getSite().getViewer().getService(
-                IAnimationService.class);
+        return (IAnimationService) getSite().getViewer()
+                .getService(IAnimationService.class);
     }
 
     protected IFeedbackService getFeedbackService() {
-        return (IFeedbackService) getSite().getViewer().getService(
-                IFeedbackService.class);
+        return (IFeedbackService) getSite().getViewer()
+                .getService(IFeedbackService.class);
     }
 
     protected IShadowService getShadowService() {
-        return (IShadowService) getSite().getViewer().getService(
-                IShadowService.class);
+        return (IShadowService) getSite().getViewer()
+                .getService(IShadowService.class);
     }
 
     protected void onActivated() {
@@ -275,19 +276,19 @@ public abstract class MindMapPartBase extends GraphicalEditPart implements
         return cacheManager;
     }
 
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IGraphicalPolicy.class)
-            return getGraphicalPolicy();
+            return adapter.cast(getGraphicalPolicy());
         if (adapter == IStyleSelector.class)
-            return getGraphicalPolicy().getStyleSelector(this);
+            return adapter.cast(getGraphicalPolicy().getStyleSelector(this));
         if (adapter == IStructure.class)
-            return getGraphicalPolicy().getStructure(this);
+            return adapter.cast(getGraphicalPolicy().getStructure(this));
         if (adapter == ISelectionFeedbackHelper.class)
-            return getSelectionFeedbackHelper();
+            return adapter.cast(getSelectionFeedbackHelper());
         if (adapter == IFeedback.class)
-            return getFeedback();
+            return adapter.cast(getFeedback());
         if (adapter == ICacheManager.class)
-            return getCacheManager();
+            return adapter.cast(getCacheManager());
         return super.getAdapter(adapter);
     }
 

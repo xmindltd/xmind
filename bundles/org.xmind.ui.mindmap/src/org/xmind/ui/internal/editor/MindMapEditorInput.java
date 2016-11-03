@@ -14,11 +14,6 @@ import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class MindMapEditorInput implements IEditorInput, IPersistableElement {
 
     private URI uri;
@@ -78,7 +73,7 @@ public class MindMapEditorInput implements IEditorInput, IPersistableElement {
     }
 
     public ImageDescriptor getImageDescriptor() {
-        return MindMapUI.getImages().get(IMindMapImages.XMIND_ICON);
+        return MindMapUI.getImages().get(IMindMapImages.XMIND_FILE_ICON);
     }
 
     public String getName() {
@@ -86,7 +81,7 @@ public class MindMapEditorInput implements IEditorInput, IPersistableElement {
         if (wr != null) {
             String workbookName = wr.getName();
             if (workbookName == null)
-                return MindMapMessages.MindMapEditorInput_default_name;
+                return MindMapMessages.MindMapEditorInput_Workbook_Untitled_title;
             return workbookName;
         }
 

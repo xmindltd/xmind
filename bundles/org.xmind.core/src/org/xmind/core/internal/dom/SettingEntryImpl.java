@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
@@ -80,9 +79,9 @@ public class SettingEntryImpl extends SettingEntry {
         return DOMUtils.isOrphanNode(implementation);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return getImplementation();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getImplementation());
         return super.getAdapter(adapter);
     }
 

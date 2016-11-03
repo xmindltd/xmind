@@ -38,16 +38,19 @@ public class ColorPropertyDescriptor extends PropertyDescriptor {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.xmind.ui.properties.PropertyDescriptor#createPropertyEditor(org.eclipse
-     * .swt.widgets.Composite)
+     * @see org.xmind.ui.properties.PropertyDescriptor#createPropertyEditor(org.
+     * eclipse .swt.widgets.Composite)
      */
     @Override
     public PropertyEditor createPropertyEditor(Composite parent) {
         ColorPropertyEditor editor = new ColorPropertyEditor(configurer);
         editor.create(parent);
         return editor;
+    }
+
+    @Override
+    public boolean isTextOperation() {
+        return true;
     }
 
 }

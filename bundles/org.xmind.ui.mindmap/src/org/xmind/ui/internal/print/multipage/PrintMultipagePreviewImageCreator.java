@@ -28,7 +28,6 @@ import org.xmind.ui.mindmap.MindMapExportViewer;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.mindmap.MindMapViewerExportSourceProvider;
 import org.xmind.ui.resources.ColorUtils;
-import org.xmind.ui.wizards.ExportContants;
 
 public class PrintMultipagePreviewImageCreator {
 

@@ -1,5 +1,7 @@
 package org.xmind.cathy.internal;
 
+import org.eclipse.e4.ui.internal.workbench.swt.AbstractPartRenderer;
+
 public interface ICathyConstants {
 
     /*
@@ -9,6 +11,10 @@ public interface ICathyConstants {
     public static final String TAG_SHOW_DASHBOARD = "CathyShowDashboard"; //$NON-NLS-1$
     public static final String TAG_EDITOR = "Editor"; //$NON-NLS-1$
     public static final String TAG_FORCE_TEXT = "FORCE_TEXT"; //$NON-NLS-1$
+
+    public static final String TAG_TRIMBAR_LAYOUT_BEGINING = "TrimBarLayout:begining"; //$NON-NLS-1$
+    public static final String TAG_TRIMBAR_LAYOUT_CENTER = "TrimBarLayout:center"; //$NON-NLS-1$
+    public static final String TAG_TRIMBAR_LAYOUT_END = "TrimBarLayout:end"; //$NON-NLS-1$
 
     /*
      * Element Ids
@@ -20,6 +26,8 @@ public interface ICathyConstants {
     public static final String ID_PRIMARY_EDITOR_STACK = "org.eclipse.e4.primaryDataStack"; //$NON-NLS-1$ 
     public static final String ID_MAIN_TOOLBAR = "org.eclipse.ui.main.toolbar"; //$NON-NLS-1$
     public static final String ID_STATUS_BAR = "org.eclipse.ui.trim.status"; //$NON-NLS-1$
+    public static final String ID_TRIMBAR_RIGHT = "org.xmind.ui.trimbar.right"; //$NON-NLS-1$
+    public static final String ID_PARTSTACK_RIGHT = "org.xmind.ui.stack.right"; //$NON-NLS-1$
     public static final String ID_DASHBOARD_PART = "org.xmind.cathy.part.dashboard"; //$NON-NLS-1$
     public static final String ID_TOOL_ITEM_TOGGLE_DASHBOARD = "org.xmind.ui.toolbar.dashboard.toggle"; //$NON-NLS-1$
 
@@ -78,6 +86,10 @@ public interface ICathyConstants {
     public static final String COMMAND_RECENTFILE_UNPIN = "org.xmind.ui.command.unpinRecentFile"; //$NON-NLS-1$
     public static final String COMMAND_RECENTFILE_CLEAR = "org.xmind.ui.command.clearRecentFile"; //$NON-NLS-1$
 
+    public static final String COMMAND_TEMPLATE_DUPLICATE = "org.xmind.ui.command.template.duplicate"; //$NON-NLS-1$
+    public static final String COMMAND_TEMPLATE_RENAME = "org.xmind.ui.command.template.rename"; //$NON-NLS-1$
+    public static final String COMMAND_TEMPLATE_DELETE = "org.xmind.ui.command.template.delete"; //$NON-NLS-1$
+
     /*
      * Command Parameter Ids
      */
@@ -86,6 +98,7 @@ public interface ICathyConstants {
     /*
      * Data Keys
      */
+    public static final String DATA_PART_OF_WIDGET = AbstractPartRenderer.OWNING_ME;
     public static final String DATA_DASHBOARD_SELECTED_PAGE_ID = "org.xmind.ui.part.dashboard.selectedPageId"; //$NON-NLS-1$
 
     /*
@@ -100,9 +113,16 @@ public interface ICathyConstants {
     public static final String POPUP_RECENTFILE = "org.xmind.ui.popup.recentFile"; //$NON-NLS-1$
 
     /*
+     * Popup Menu Ids
+     */
+    public static final String POPUP_TEMPLATE = "org.xmind.ui.popup.template"; //$NON-NLS-1$
+
+    /*
      * Helper Ids
      */
     public static final String HELPER_RECENTFILE_PIN = "org.xmind.ui.helper.recentFile.pin"; //$NON-NLS-1$
     public static final String HELPER_RECENTFILE_DELETE = "org.xmind.ui.helper.recentFile.delete"; //$NON-NLS-1$
     public static final String HELPER_RECENTFILE_CLEAR = "org.xmind.ui.helper.recentFile.clear"; //$NON-NLS-1$
+
+    public static final String HELPER_TEMPLATE_RENAME = "org.xmind.ui.helper.template.rename"; //$NON-NLS-1$
 }

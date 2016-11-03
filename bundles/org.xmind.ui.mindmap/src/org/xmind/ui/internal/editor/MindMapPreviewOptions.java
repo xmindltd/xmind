@@ -18,7 +18,7 @@ package org.xmind.ui.internal.editor;
 
 /**
  * @author Frank Shaka
- * @since 3.6.50
+ *
  */
 public class MindMapPreviewOptions {
 

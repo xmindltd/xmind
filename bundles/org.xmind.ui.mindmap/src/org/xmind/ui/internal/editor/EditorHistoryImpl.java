@@ -14,11 +14,12 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.ui.services.IDisposable;
+import org.xmind.ui.editor.EditorHistoryItem;
 import org.xmind.ui.editor.IEditorHistory;
+import org.xmind.ui.editor.IEditorHistoryItem;
 import org.xmind.ui.internal.editor.IEditorHistoryLoader.IEditorHistoryLoaderCallback;
 
 /**
- * 
  * @author Ren Siu
  * @author Frank Shaka
  * @since 3.6.50
@@ -33,6 +34,8 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
 
     private final Map<URI, URI> inputToThumbnail;
 
+    private final Map<URI, IEditorHistoryItem> editorHistoryItems;
+
     private final ListenerList listeners;
 
     public EditorHistoryImpl(IEditorHistoryLoader loader) {
@@ -41,6 +44,7 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
         this.pinnedInputURIs = new ArrayList<URI>();
         this.inputToThumbnail = new HashMap<URI, URI>();
         this.listeners = new ListenerList();
+        this.editorHistoryItems = new HashMap<URI, IEditorHistoryItem>();
         init();
     }
 
@@ -61,6 +65,13 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
             public void inputURILoaded(URI inputURI) {
                 unpinnedInputURIs.add(inputURI);
             }
+
+            @Override
+            public void editorHistoryItemsLoaded(URI inputURI,
+                    IEditorHistoryItem item) {
+                editorHistoryItems.put(inputURI, item);
+            }
+
         });
         while (unpinnedInputURIs.size() > MAX_UNPINNED_SIZE) {
             unpinnedInputURIs.remove(unpinnedInputURIs.size() - 1);
@@ -106,6 +117,9 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
         if (inputURI == null)
             return;
 
+        this.add(inputURI, new EditorHistoryItem(inputURI.getScheme(),
+                System.currentTimeMillis()));
+
         boolean pinned = pinnedInputURIs.contains(inputURI);
 
         remove(inputURI);
@@ -146,6 +160,8 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
         //REMOVE THUMBNAIL
         removeThumbnail(inputURI);
 
+        removeEditorHistoryItem(inputURI);
+
         if (oldPinnedSize != pinnedInputURIs.size()
                 || oldUnpinnedSize != unpinnedInputURIs.size()) {
             fireChanged();
@@ -167,6 +183,7 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
         int oldSize = unpinnedInputURIs.size();
         for (URI unpinnedInputURI : unpinnedInputURIs) {
             removeThumbnail(unpinnedInputURI);
+            removeEditorHistoryItem(unpinnedInputURI);
         }
         unpinnedInputURIs.clear();
         if (oldSize != unpinnedInputURIs.size()) {
@@ -193,11 +210,47 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
         inputToThumbnail.put(inputURI, thumbnailURI);
 
         fireChanged();
-
     }
 
     public URI getThumbnail(URI inputURI) {
         return inputToThumbnail.get(inputURI);
+    }
+
+    @Override
+    public void add(URI inputURI, IEditorHistoryItem item) {
+        if (inputURI == null)
+            return;
+
+        boolean pinned = pinnedInputURIs.contains(inputURI);
+        remove(inputURI);
+
+        if (pinned) {
+            pinnedInputURIs.add(0, inputURI);
+        } else {
+            unpinnedInputURIs.add(0, inputURI);
+            while (unpinnedInputURIs.size() > MAX_UNPINNED_SIZE) {
+                unpinnedInputURIs.remove(unpinnedInputURIs.size() - 1);
+            }
+        }
+
+        removeEditorHistoryItem(inputURI);
+        editorHistoryItems.put(inputURI, item);
+
+        fireChanged();
+    }
+
+    private void removeEditorHistoryItem(URI inputURI) {
+        // do remove EditorHistoryItem by uri.
+        IEditorHistoryItem historyItemUri = editorHistoryItems.get(inputURI);
+        if (historyItemUri != null) {
+            historyItemUri = null;
+        }
+        editorHistoryItems.remove(inputURI);
+    }
+
+    @Override
+    public IEditorHistoryItem getItem(URI inputURI) {
+        return editorHistoryItems.get(inputURI);
     }
 
     public void pin(URI inputURI) {
@@ -238,7 +291,6 @@ public final class EditorHistoryImpl implements IEditorHistory, IDisposable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.services.IDisposable#dispose()
      */
     @Override

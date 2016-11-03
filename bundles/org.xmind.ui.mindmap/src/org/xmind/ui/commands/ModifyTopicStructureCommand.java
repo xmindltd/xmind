@@ -22,6 +22,7 @@ import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.gef.command.ModifyCommand;
+import org.xmind.ui.internal.MindMapUIPlugin;
 
 public class ModifyTopicStructureCommand extends ModifyCommand {
 
@@ -32,7 +33,8 @@ public class ModifyTopicStructureCommand extends ModifyCommand {
 
     private Map<ITopicExtension, String> extToRightNum = new HashMap<ITopicExtension, String>();
 
-    public ModifyTopicStructureCommand(ITopic source, String newStructureClass) {
+    public ModifyTopicStructureCommand(ITopic source,
+            String newStructureClass) {
         super(source, newStructureClass);
         ITopicExtension topicExtension = source
                 .getExtension(EXTENTION_UNBALANCEDSTRUCTURE);
@@ -95,9 +97,18 @@ public class ModifyTopicStructureCommand extends ModifyCommand {
                                 .setTextContent(rightNum);
                     }
                 }
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("StructureTypeCount:" + value); //$NON-NLS-1$
                 topic.setStructureClass((String) value);
             }
         }
+    }
+
+    @Override
+    public void execute() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ModifyStructureCount"); //$NON-NLS-1$
+        super.execute();
     }
 
 }

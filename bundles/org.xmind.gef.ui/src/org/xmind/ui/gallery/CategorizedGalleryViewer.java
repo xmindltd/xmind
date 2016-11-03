@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.gallery;
 
@@ -63,7 +60,7 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
 
     private static class DelegatingLabelProvider extends BaseLabelProvider
             implements ILabelProvider, IColorProvider, IFontProvider,
-            IToolTipProvider, IGraphicalToolTipProvider {
+            IToolTipProvider, IGraphicalToolTipProvider, ILabelDecorator {
 
         private IBaseLabelProvider labelProvider;
 
@@ -135,6 +132,15 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
                 return ((IGraphicalToolTipProvider) labelProvider)
                         .getToolTipFigure(element);
             return null;
+        }
+
+        @Override
+        public IFigure decorateFigure(IFigure figure, Object element,
+                IDecorationContext context) {
+            if (labelProvider instanceof ILabelDecorator)
+                return ((ILabelDecorator) labelProvider).decorateFigure(figure,
+                        element, context);
+            return figure;
         }
 
     }
@@ -212,7 +218,6 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
 
     protected Control createSectionContent(Composite parent, Object category) {
         hookSelectionClearer(parent);
-
         Composite wrap = getWidgetFactory().createComposite(parent, SWT.WRAP);
         hookSelectionClearer(wrap);
         GridLayout wrapLayout = new GridLayout(1, false);
@@ -269,10 +274,12 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
         return new GalleryViewer();
     }
 
-    protected void configureNestedViewer(GalleryViewer viewer, Object category) {
+    protected void configureNestedViewer(GalleryViewer viewer,
+            Object category) {
         viewer.setProperties(properties);
         viewer.setContentProvider(new ArrayContentProvider());
-        viewer.setLabelProvider(new DelegatingLabelProvider(getLabelProvider()));
+        viewer.setLabelProvider(
+                new DelegatingLabelProvider(getLabelProvider()));
         viewer.setFilters(getFilters());
         viewer.setSorter(getSorter());
         viewer.addSelectionChangedListener(viewerSelectionChangedListener);
@@ -280,16 +287,21 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
         viewer.setEditDomain(getEditDomain());
     }
 
-    protected void hookNestedViewerControl(GalleryViewer viewer, Object category) {
+    protected void hookNestedViewerControl(GalleryViewer viewer,
+            Object category) {
         // Disable scrolling feature of this viewer so that all
         // scroll events will pass through to the scrolled form:
         viewer.getCanvas().setScrollBarVisibility(FigureCanvas.NEVER);
         ScrollBar hBar = viewer.getCanvas().getHorizontalBar();
-        hBar.setEnabled(false);
-        hBar.setVisible(false);
+        if (hBar != null) {
+            hBar.setEnabled(false);
+            hBar.setVisible(false);
+        }
         ScrollBar vBar = viewer.getCanvas().getVerticalBar();
-        vBar.setEnabled(false);
-        vBar.setVisible(false);
+        if (vBar != null) {
+            vBar.setEnabled(false);
+            vBar.setVisible(false);
+        }
     }
 
     protected void reveal(Object category, final Object element) {
@@ -306,10 +318,10 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
                                 return;
 
                             IFigure fig = ((IGraphicalPart) part).getFigure();
-                            Point loc = viewer.computeToDisplay(fig.getBounds()
-                                    .getLocation(), true);
-                            loc = new Point(getContainer().toControl(loc.x,
-                                    loc.y));
+                            Point loc = viewer.computeToDisplay(
+                                    fig.getBounds().getLocation(), true);
+                            loc = new Point(
+                                    getContainer().toControl(loc.x, loc.y));
                             reveal(loc.x, loc.y - 10);
                         }
                     });
@@ -333,8 +345,8 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
         }
     }
 
-    protected void setSelectionToCategory(Object category,
-            ISelection selection, boolean reveal) {
+    protected void setSelectionToCategory(Object category, ISelection selection,
+            boolean reveal) {
         GalleryViewer viewer = viewers.get(category);
         if (viewer != null) {
             setSelectionToNestedViewer(viewer, selection, reveal);
@@ -388,7 +400,7 @@ public class CategorizedGalleryViewer extends CategorizedViewer {
         }
     }
 
-    public void setFilters(ViewerFilter[] filters) {
+    public void setFilters(ViewerFilter... filters) {
         super.setFilters(filters);
         for (GalleryViewer viewer : viewers.values()) {
             viewer.setFilters(filters);

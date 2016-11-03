@@ -15,6 +15,7 @@ package org.xmind.ui.internal.spreadsheet;
 
 import org.xmind.ui.branch.IBranchPolicy;
 import org.xmind.ui.branch.IBranchPolicyAdvisor;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ITopicPart;
 
@@ -28,6 +29,8 @@ public class SpreadsheetPolicyAdvisor implements IBranchPolicyAdvisor {
         for (IBranchPart child : branch.getSubBranches()) {
             child.getTopicPart().refresh();
         }
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("TrigSpreadSheetCount"); //$NON-NLS-1$
     }
 
     public void postDeactivate(IBranchPart branch, IBranchPolicy policy) {

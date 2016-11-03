@@ -20,6 +20,7 @@ import org.xmind.core.Core;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
+import org.xmind.ui.internal.protocols.WebProtocol;
 
 public class TopicTreePart extends MindMapTreePartBase {
 
@@ -45,12 +46,14 @@ public class TopicTreePart extends MindMapTreePartBase {
         return allChildren.toArray();
     }
 
-    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source,
+            ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
         register.register(Core.TitleText);
         register.register(Core.TopicAdd);
         register.register(Core.TopicRemove);
         register.register(Core.TopicHyperlink);
+        register.register(WebProtocol.WEB_ICON_EVENT_TYPE);
     }
 
     public void handleCoreEvent(CoreEvent event) {
@@ -61,10 +64,17 @@ public class TopicTreePart extends MindMapTreePartBase {
                     update();
                 }
             }, false);
-        } else if (Core.TopicAdd.equals(type) || Core.TopicRemove.equals(type)) {
+        } else if (Core.TopicAdd.equals(type)
+                || Core.TopicRemove.equals(type)) {
             runInUI(new Runnable() {
                 public void run() {
                     refresh();
+                }
+            }, false);
+        } else if (WebProtocol.WEB_ICON_EVENT_TYPE.equals(type)) {
+            runInUI(new Runnable() {
+                public void run() {
+                    setWidgetImage(getImage());
                 }
             }, false);
         } else {

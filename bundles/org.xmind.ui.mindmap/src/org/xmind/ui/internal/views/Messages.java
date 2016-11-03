@@ -44,6 +44,14 @@ public class Messages extends NLS {
     public static String ThemeUICore_group_default_name;
     public static String ThemeUICore_group_user_name;
 
+    public static String ThemesPopover_MoreTheme_label;
+    public static String ThemesPopover_ManagerTheme_label;
+    public static String ThemesPopover_Extract_Current_Theme_label;
+
+    public static String MarkersPopover_ManageMarkers_label;
+    public static String MarkersPopover_ImportMarkers_label;
+    public static String MarkersPopover_ExportMarkers_label;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

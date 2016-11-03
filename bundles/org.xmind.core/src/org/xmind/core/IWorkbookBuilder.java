@@ -166,7 +166,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromPath(String path, IStorage storage,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * Creates a workbook instance and loads its content from the specified
@@ -238,7 +238,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromFile(File file, IStorage storage,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * Creates a workbook instance and loads its content from the specified
@@ -331,7 +331,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromStream(InputStream in, IStorage storage,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * Creates a workbook instance and loads its content from the specified
@@ -374,7 +374,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromInputSource(IInputSource source,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * Creates a workbook instance and loads its content from the specified
@@ -405,7 +405,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromInputSource(IInputSource source, IStorage storage,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * Creates a new workbook instance and loads its content <em>directly</em>
@@ -469,7 +469,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromStorage(IStorage storage,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * Sets the default encryption handler to use for loadFromXXX methods.
@@ -506,7 +506,7 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromStream(InputStream in, String tempLocation,
             IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            throws IOException, CoreException;
 
     /**
      * @deprecated See {@link org.xmind.core.IDeserializer}

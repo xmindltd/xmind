@@ -1,20 +1,19 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.gef.draw2d;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,10 +25,12 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.TextStyle;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.geometry.PrecisionDimension;
@@ -46,6 +47,7 @@ import com.ibm.icu.text.BreakIterator;
 /**
  * @author Frank Shaka
  */
+@SuppressWarnings("restriction")
 public class RotatableWrapLabel extends Figure implements ITextFigure,
         IWrapFigure, IRotatableFigure, ITransparentableFigure {
 
@@ -99,6 +101,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     private PrecisionDimension nonRotatedPrefSize = null;
     private PrecisionInsets rotatedInsets = null;
     private int cachedWidthHint = -1;
+    private static Map<String, Integer> textToLabelWidth = new HashMap<String, Integer>();
 
     private PrecisionRotator rotator = new PrecisionRotator();
 
@@ -109,6 +112,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     }
 
     public RotatableWrapLabel(String text) {
+        setCachedPrefWidth(text);
         setText(text);
     }
 
@@ -117,6 +121,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     }
 
     public RotatableWrapLabel(String text, int renderStyle) {
+        setCachedPrefWidth(text);
         setText(text);
         this.renderStyle = renderStyle;
     }
@@ -346,7 +351,6 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.draw2d.IFigure#getPreferredSize(int, int)
      */
     @Override
@@ -414,7 +418,6 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     /**
      * @param wHint
-     * 
      * @return
      */
     protected String calculateAppliedText(double wHint) {
@@ -474,14 +477,18 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     private String getAbbreviatedText(String theText, Font f, double wHint) {
         String result = theText;
-        if (wHint > 0 && result.length() > 0
-                && getLooseTextSize(result, f).width > wHint) {
-            String remaining = result.substring(0, result.length() - 1);
-            result = remaining + ELLIPSE;
-            while (remaining.length() > 0
-                    && getLooseTextSize(result, f).width > wHint) {
-                remaining = remaining.substring(0, remaining.length() - 1);
-                result = remaining + ELLIPSE;
+        int textLength = result.length();
+        if (wHint > 0 && textLength > 0) {
+            textToLabelWidth.put(text, (int) wHint);
+            int textWidth = getLooseTextSize(result, f).width;
+            if (textWidth > wHint) {
+                int tructionPosition = (int) ((double) result.length()
+                        / (double) (textWidth) * (int) wHint);
+                if (tructionPosition < textLength)
+                    if (tructionPosition > ELLIPSE.length()) {
+                        tructionPosition -= ELLIPSE.length();
+                    }
+                return result.substring(0, tructionPosition) + ELLIPSE;
             }
         }
         return result;
@@ -496,7 +503,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      * @param f
      *            font used to draw the text string
      * @param w
-     *            width in pixles.
+     *            width in pixels.
      */
     protected int getLineWrapPosition(String s, Font f, double w) {
         // create an iterator for line breaking positions
@@ -536,7 +543,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
         return size;
     }
 
-    private String getShowText(String t, int textCase) {
+    protected String getShowText(String t, int textCase) {
         switch (textCase) {
         case GEF.MANUAL:
             return t;
@@ -552,8 +559,10 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     private String capitalize(String str) {
         StringBuffer stringbf = new StringBuffer();
-        Matcher m = Pattern
-                .compile("([^\\s])([^\\s]*)", Pattern.CASE_INSENSITIVE) //$NON-NLS-1$
+//        Matcher m = Pattern
+//                .compile("([^\\s])([^\\s]*)", Pattern.CASE_INSENSITIVE) //$NON-NLS-1$
+//                .matcher(str);
+        Matcher m = Pattern.compile("([a-z])([a-z]*)", Pattern.CASE_INSENSITIVE) //$NON-NLS-1$
                 .matcher(str);
         while (m.find()) {
             m.appendReplacement(stringbf,
@@ -592,6 +601,13 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
             Path p = new Path(Display.getCurrent());
             p.addString(s, 0, 0, f);
             p.getBounds(RECT);
+            if (Util.isWindows()) {
+                float[] autoScaleDown = DPIUtil.autoScaleDown(RECT);
+                RECT[0] = autoScaleDown[0];
+                RECT[1] = autoScaleDown[1];
+                RECT[2] = autoScaleDown[2];
+                RECT[3] = autoScaleDown[3];
+            }
             p.dispose();
             size.width = Math.max(size.width, (int) Math.ceil(RECT[2]));
             size.height = Math.max(size.height, (int) Math.ceil(RECT[3]));
@@ -611,7 +627,6 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      * Returns the area of the label's text.
      * 
      * @param wHint
-     * 
      * @return the area of this label's text
      */
     protected PrecisionRectangle getTextArea(int wHint) {
@@ -635,7 +650,6 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      * Calculates and returns the size of the Label's text.
      * 
      * @param wHint
-     * 
      * @return the size of the label's text, ignoring truncation
      */
     protected PrecisionDimension calculateTextSize(int wHint) {
@@ -902,6 +916,14 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
         Path shape = new Path(Display.getCurrent());
         shape.addString(token, 0, 0, f);
         shape.getBounds(RECT);
+        if (Util.isWindows()) {
+            float[] autoScaleDown = DPIUtil.autoScaleDown(RECT);
+            RECT[0] = autoScaleDown[0];
+            RECT[1] = autoScaleDown[1];
+            RECT[2] = autoScaleDown[2];
+            RECT[3] = autoScaleDown[3];
+        }
+
         float dx = (width - RECT[2]) / 2 - RECT[0];
         float dy = (height - RECT[3]) / 2 - RECT[1];
         if (Math.abs(dx) > 0.0000000001 || Math.abs(dy) > 0.0000000001) {
@@ -941,6 +963,12 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
 
     public String toString() {
         return "RotatableWrapLabl (" + getText() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private void setCachedPrefWidth(String text) {
+        Integer cached = textToLabelWidth.get(text);
+        if (cached != null)
+            this.prefWidth = cached;
     }
 
 }

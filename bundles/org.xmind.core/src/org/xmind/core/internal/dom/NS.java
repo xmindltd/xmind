@@ -26,6 +26,7 @@ public enum NS {
     Manifest("manifest", "urn:xmind:xmap:xmlns:manifest:1.0"), //$NON-NLS-1$ //$NON-NLS-2$
     Revision("revision", "urn:xmind:xmap:xmlns:revision:1.0"), //$NON-NLS-1$ //$NON-NLS-2$
     Assignee("assignee", "urn:xmind:xmap:xmlns:assignee:1.0"), //$NON-NLS-1$//$NON-NLS-2$
+    Stories("stories", "urn:xmind:xmap:xmlns:stories:1.0"), //$NON-NLS-1$//$NON-NLS-2$
 
     /* External Namespaces */
     Xhtml("xhtml", "http://www.w3.org/1999/xhtml"), //$NON-NLS-1$ //$NON-NLS-2$

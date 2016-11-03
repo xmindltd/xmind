@@ -310,11 +310,9 @@ public class SpreadsheetStructure extends AbstractBranchStructure
                 editTool.setTargetViewer(chartBranch.getSite().getViewer());
                 domain.setActiveTool(Spreadsheet.TOOL_EDIT_COLUMN_HEAD);
                 if (domain.getActiveTool() == editTool) {
-                    domain.handleRequest(
-                            new Request(GEF.REQ_EDIT)
-                                    .setPrimaryTarget(chartBranch)
-                                    .setViewer(
-                                            chartBranch.getSite().getViewer())
+                    domain.handleRequest(new Request(GEF.REQ_EDIT)
+                            .setPrimaryTarget(chartBranch)
+                            .setViewer(chartBranch.getSite().getViewer())
                             .setParameter(Spreadsheet.PARAM_CHART, chart)
                             .setParameter(Spreadsheet.PARAM_COLUMN_HEAD,
                                     colHead)
@@ -396,6 +394,9 @@ public class SpreadsheetStructure extends AbstractBranchStructure
         List<IBranchPart> subBranches = branch.getSubBranches();
 
         int index = calcInsIndex(branch, key, true);
+        if (subBranches.isEmpty()) {
+            return calcFirstChildPosition(branch, key);
+        }
 
         IBranchPart sub = index == subBranches.size()
                 ? subBranches.get(subBranches.size() - 1)
@@ -404,10 +405,9 @@ public class SpreadsheetStructure extends AbstractBranchStructure
         int deltaY = (key.getFigure().getSize().height
                 + sub.getFigure().getSize().height) / 2;
 
-        return getFigureLocation(sub.getFigure())
-                .getTranslated(
-                        (key.getInvent().getSize().width - sub.getTopicPart()
-                                .getFigure().getSize().width) / 2,
+        return getFigureLocation(sub.getFigure()).getTranslated(
+                (key.getInvent().getSize().width
+                        - sub.getTopicPart().getFigure().getSize().width) / 2,
                 index == subBranches.size()
                         ? deltaY + getMajorSpacing(branch) / 2 : -deltaY);
     }

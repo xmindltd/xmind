@@ -39,12 +39,13 @@ import org.xmind.ui.commands.ModifyTopicStructureCommand;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.properties.MindMapPropertySectionPartBase;
+import org.xmind.ui.resources.ImageDescriptorProvider;
 import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.viewers.ImageCachedLabelProvider;
 import org.xmind.ui.viewers.MComboViewer;
 
-public class StructurePropertySectionPart extends
-        MindMapPropertySectionPartBase {
+public class StructurePropertySectionPart
+        extends MindMapPropertySectionPartBase {
 
     private static final List<IBranchPolicyDescriptor> NO_BRANCH_POLICY = Collections
             .emptyList();
@@ -52,7 +53,7 @@ public class StructurePropertySectionPart extends
     private static final String FOLLOW = "org.xmind.ui.properties.structure.follow"; //$NON-NLS-1$
 
     private static class BranchPolicyLabelProvider extends
-            ImageCachedLabelProvider {
+            ImageCachedLabelProvider implements ImageDescriptorProvider {
 
         protected Image createImage(Object element) {
             if (element instanceof IBranchPolicyDescriptor) {
@@ -60,6 +61,15 @@ public class StructurePropertySectionPart extends
                 ImageDescriptor icon = desc.getIcon();
                 if (icon != null)
                     return icon.createImage(false);
+            }
+            return null;
+        }
+
+        @Override
+        public ImageDescriptor getImageDescriptor(Object element) {
+            if (element instanceof IBranchPolicyDescriptor) {
+                IBranchPolicyDescriptor desc = (IBranchPolicyDescriptor) element;
+                return desc.getIcon();
             }
             return null;
         }
@@ -77,8 +87,8 @@ public class StructurePropertySectionPart extends
         }
     }
 
-    private class BranchPolicySelectionChangedListener implements
-            ISelectionChangedListener {
+    private class BranchPolicySelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             if (isRefreshing())
@@ -108,12 +118,12 @@ public class StructurePropertySectionPart extends
         structureViewer = new MComboViewer(parent, SWT.NONE);
         structureViewer.getControl().setLayoutData(
                 new GridData(GridData.FILL, GridData.FILL, true, false));
-        structureViewer.getControl().setToolTipText(
-                PropertyMessages.Structure_toolTip);
+        structureViewer.getControl()
+                .setToolTipText(PropertyMessages.Structure_toolTip);
         structureViewer.setContentProvider(new ArrayContentProvider());
         structureViewer.setLabelProvider(new BranchPolicyLabelProvider());
-        structureViewer
-                .addSelectionChangedListener(new BranchPolicySelectionChangedListener());
+        structureViewer.addSelectionChangedListener(
+                new BranchPolicySelectionChangedListener());
     }
 
     public void setFocus() {
@@ -225,8 +235,8 @@ public class StructurePropertySectionPart extends
         }
         if (branchPolicyId != null) {
             IBranchPolicyDescriptor descriptor = MindMapUI
-                    .getBranchPolicyManager().getBranchPolicyDescriptor(
-                            branchPolicyId);
+                    .getBranchPolicyManager()
+                    .getBranchPolicyDescriptor(branchPolicyId);
             if (descriptor != null) {
                 return new StructuredSelection(descriptor);
             }
@@ -241,8 +251,8 @@ public class StructurePropertySectionPart extends
         for (Object o : getSelectedElements()) {
             if (!(o instanceof ITopic))
                 return false;
-            IBranchPart branch = MindMapUtils.findBranch(getGraphicalPart(o,
-                    viewer));
+            IBranchPart branch = MindMapUtils
+                    .findBranch(getGraphicalPart(o, viewer));
             if (branch == null || !isFollowParentStructure(branch))
                 return false;
         }

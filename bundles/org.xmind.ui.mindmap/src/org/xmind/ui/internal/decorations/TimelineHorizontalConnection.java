@@ -76,6 +76,7 @@ public class TimelineHorizontalConnection extends AbstractBranchConnection {
             } finally {
                 graphics.popState();
                 shape.close();
+                shape.dispose();
             }
             return;
 

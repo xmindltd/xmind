@@ -21,7 +21,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
@@ -82,6 +81,7 @@ public class EditorPrefPage extends FieldEditorPreferencePage
         Composite parent = createGroup(
                 PrefMessages.EditorPage_TopicPositioning_title);
         addAllowOverlapsField(createFieldContainer(parent));
+        addAllowManualLayoutField(createFieldContainer(parent));
         addAllowFreePositionField(createFieldContainer(parent));
 
         Label descriptionLabel = new Label(parent, SWT.WRAP);
@@ -163,6 +163,12 @@ public class EditorPrefPage extends FieldEditorPreferencePage
                 parent));
     }
 
+    private void addAllowManualLayoutField(Composite parent) {
+        addField(new BooleanFieldEditor(PrefConstants.MANUAL_LAYOUT_ALLOWED,
+                PrefMessages.EditorPage_TopicPositioning_AllowManualLayout,
+                parent));
+    }
+
     private void addAllowFreePositionField(Composite parent) {
         addField(new BooleanFieldEditor(PrefConstants.FREE_POSITION_ALLOWED,
                 PrefMessages.EditorPage_TopicPositioning_AllowFreePosition,
@@ -171,13 +177,13 @@ public class EditorPrefPage extends FieldEditorPreferencePage
 
     private void addZoomField() {
         if (getPreferenceStore().getInt(PrefConstants.ZOOM_VALUE) == 0) {
-            int width = Display.getCurrent().getBounds().width;
-            if (width < 1366)
-                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 100);
-            else if (width <= 1920)
-                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 120);
-            else
-                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 150);
+//            int width = Display.getCurrent().getBounds().width;
+//            if (width < 1366)
+            getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 100);
+//            else if (width <= 1920)
+//                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 120);
+//            else
+//                getPreferenceStore().setValue(PrefConstants.ZOOM_VALUE, 150);
         }
 
         addField(new IntegerFieldEditor(PrefConstants.ZOOM_VALUE,

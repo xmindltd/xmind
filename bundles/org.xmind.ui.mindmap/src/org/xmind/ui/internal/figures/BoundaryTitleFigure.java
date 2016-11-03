@@ -3,9 +3,7 @@ package org.xmind.ui.internal.figures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
-import org.eclipse.draw2d.PositionConstants;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.swt.graphics.Font;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
@@ -88,7 +86,7 @@ public class BoundaryTitleFigure extends RotatableWrapLabel {
         wHint = wHint - 5;
         List<String> buffer = new ArrayList<String>();
         theText = theText.trim();
-        if (getLooseTextSize(theText, f).width < wHint) {
+        if (getShowLooseTextSize(theText, f).width < wHint) {
             buffer.add(theText);
             return buffer.toArray(new String[buffer.size()]);
         }
@@ -100,7 +98,7 @@ public class BoundaryTitleFigure extends RotatableWrapLabel {
             if (lines[i].equals(NULLSTR)) {
                 lines[i] = ONESPACE;
             }
-            if (getLooseTextSize(lines[i], f).width >= wHint) {
+            if (getShowLooseTextSize(lines[i], f).width >= wHint) {
                 if (cachedString.trim() != NULLSTR) {
                     buffer.add(cachedString.trim());
                     cachedString = NULLSTR;
@@ -110,7 +108,7 @@ public class BoundaryTitleFigure extends RotatableWrapLabel {
                 continue;
             }
             appendString = cachedString + lines[i];
-            if (getLooseTextSize(appendString, f).width >= wHint) {
+            if (getShowLooseTextSize(appendString, f).width >= wHint) {
                 if (cachedString.trim() != NULLSTR) {
                     buffer.add(cachedString.trim());
                 }
@@ -133,11 +131,11 @@ public class BoundaryTitleFigure extends RotatableWrapLabel {
         while (wHint > 0 && !token.equals(NULLSTR)) {
             boolean isLastSnip = true;
             String current = token;
-            while (getLooseTextSize(current, f).width >= wHint) {
+            while (getShowLooseTextSize(current, f).width >= wHint) {
                 isLastSnip = false;
                 current = current.substring(0, current.length() - 1);
             }
-            if (getLooseTextSize(current, f).width < wHint && !isLastSnip) {
+            if (getShowLooseTextSize(current, f).width < wHint && !isLastSnip) {
                 buffer.add(token.substring(0, current.length()).trim());
                 token = token.substring(current.length());
             } else
@@ -155,31 +153,13 @@ public class BoundaryTitleFigure extends RotatableWrapLabel {
         return sb.toString();
     }
 
-    protected void paintText(Graphics graphics, String text,
-            PrecisionRectangle textArea, Font f) {
-        float textWidth = (float) textArea.width - PADDING * 2;
-        float y = (float) textArea.y + PADDING;
-        final int wrapAlignment = getTextAlignment();
-
-        float x = (float) textArea.x + PADDING;
-        Dimension tokenSize = getLooseTextSize(text, f);
-        float tokenWidth = tokenSize.width;
-        float tokenHeight = tokenSize.height;
-
-        switch (wrapAlignment) {
-        case PositionConstants.CENTER:
-            x += (textWidth - tokenWidth) / 2;
-            break;
-        case PositionConstants.RIGHT:
-            x += textWidth - tokenWidth - H_MARGIN;
-            break;
-        }
-
-        paintText(graphics, text, x + H_MARGIN / 2, y + V_MARGIN / 2,
-                tokenWidth, tokenHeight, f);
+    private Dimension getShowLooseTextSize(String s, Font f) {
+        int textCase = getTextCase();
+        s = getShowText(s, textCase);
+        return getLooseTextSize(s, f);
     }
 
-    public BoundaryFigure getBoundary() {
+    private BoundaryFigure getBoundary() {
         return boundary;
     }
 

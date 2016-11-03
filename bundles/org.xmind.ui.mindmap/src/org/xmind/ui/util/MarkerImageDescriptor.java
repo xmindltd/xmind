@@ -19,8 +19,12 @@ import java.io.InputStream;
 
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageDataProvider;
 import org.eclipse.swt.graphics.RGB;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerRef;
@@ -68,6 +72,33 @@ public class MarkerImageDescriptor extends ImageDescriptor {
     }
 
     @Override
+    public Image createImage(boolean returnMissingImageOnError, Device device) {
+        Image image = null;
+        try {
+            image = new Image(device, new ImageDataProvider() {
+                @Override
+                public ImageData getImageData(int zoom) {
+                    return MarkerImageDescriptor.this.getImageData(zoom);
+                }
+            });
+        } catch (SWTException e) {
+            if (e.code != SWT.ERROR_INVALID_IMAGE) {
+                throw e;
+            }
+        } catch (IllegalArgumentException e) {
+            // fall through
+        }
+        if (image == null && returnMissingImageOnError) {
+            try {
+                image = new Image(device, DEFAULT_IMAGE_DATA);
+            } catch (SWTException nextException) {
+                return null;
+            }
+        }
+        return image;
+    }
+
+    @Override
     public ImageData getImageData() {
 
         String svgPath = getMarker() == null ? null : getMarker().getSVGPath();
@@ -76,22 +107,40 @@ public class MarkerImageDescriptor extends ImageDescriptor {
                 || (svgPath == null || "".equals(svgPath)); //$NON-NLS-1$
 
         if (createImageDataByStream)
-            return createImageDataByStream();
+            return createImageDataByStream(100);
         else {
-            return createImageDataBySVG();
+            return createImageDataBySVG(100);
         }
     }
 
-    private ImageData createImageDataBySVG() {
+    private ImageData getImageData(int zoom) {
+        if (zoom > 100) {
+            String svgPath = getMarker() == null ? null
+                    : getMarker().getSVGPath();
 
-        String filePath = RESOURCE_URL_PREFIX + getMarker().getSVGPath();
-        SVGImageData data = new SVGReference(filePath).getSVGData();
+            boolean createImageDataByStream = createByStream
+                    || (svgPath == null || "".equals(svgPath)); //$NON-NLS-1$
 
-        return data.createImage(new Dimension(maxWidth, maxHeigh), background);
+            if (createImageDataByStream)
+                return createImageDataByStream(200);
+            else {
+                return createImageDataBySVG(200);
+            }
+        } else {
+            return getImageData();
+        }
     }
 
-    private ImageData createImageDataByStream() {
-        InputStream in = getStream();
+    private ImageData createImageDataBySVG(int zoom) {
+        int width = zoom / 100 * maxWidth;
+        int height = zoom / 100 * maxHeigh;
+        String filePath = RESOURCE_URL_PREFIX + getMarker().getSVGPath();
+        SVGImageData data = new SVGReference(filePath).getSVGData();
+        return data.createImage(new Dimension(width, height), background);
+    }
+
+    private ImageData createImageDataByStream(int zoom) {
+        InputStream in = getStream(zoom);
         ImageData result = null;
         if (in != null) {
             try {
@@ -154,7 +203,7 @@ public class MarkerImageDescriptor extends ImageDescriptor {
         return marker;
     }
 
-    private InputStream getStream() {
+    private InputStream getStream(int zoom) {
         IMarker m = getMarker();
         if (m == null)
             return null;
@@ -165,13 +214,17 @@ public class MarkerImageDescriptor extends ImageDescriptor {
 
         IMarkerVariation variation = getMarkerVariation(res);
 
-        InputStream in;
-        if (variation == null) {
-            in = res.getInputStream();
-        } else {
-            in = res.getInputStream(variation);
-            if (in == null)
-                in = res.getInputStream();
+        InputStream in = null;
+        try {
+            if (variation == null) {
+                in = res.openInputStream(zoom);
+            } else {
+                in = res.openInputStream(variation, zoom);
+                if (in == null)
+                    in = res.openInputStream(zoom);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         if (in == null)
             return null;
@@ -251,9 +304,13 @@ public class MarkerImageDescriptor extends ImageDescriptor {
 
     public static ImageDescriptor createFromMarker(IMarker marker, int maxWidth,
             int maxHeigh, boolean createByStream) {
+        if (createByStream)
+            return createFromMarker(marker, maxWidth, maxHeigh);
+
         MarkerImageDescriptor descriptor = (MarkerImageDescriptor) createFromMarker(
                 marker, maxWidth, maxHeigh);
         descriptor.setCreateByStream(createByStream);
+
         return descriptor;
     }
 

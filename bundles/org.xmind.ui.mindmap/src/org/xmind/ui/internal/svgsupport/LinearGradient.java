@@ -8,9 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * 
  * @author Enki Xiong
- *
  */
 class LinearGradient implements SVGDefinition {
 
@@ -106,7 +104,7 @@ class LinearGradient implements SVGDefinition {
         if (opacity != null && !opacity.equals("")) //$NON-NLS-1$
             stop.setOpacity(Float.valueOf(opacity));
         stop.setOffset(
-                Integer.parseInt(ele.getAttribute(SVGDefinitionConstants.OFFSET)
+                Float.parseFloat(ele.getAttribute(SVGDefinitionConstants.OFFSET)
                         .split(SVGDefinitionConstants.HUNDRED_PERCENT)[0]));
         return stop;
     }

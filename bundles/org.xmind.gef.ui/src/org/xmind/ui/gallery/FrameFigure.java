@@ -21,10 +21,12 @@ import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LayoutManager;
 import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.PositionConstants;
+import org.eclipse.draw2d.StackLayout;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
+import org.xmind.gef.GEF;
 import org.xmind.gef.draw2d.AdvancedToolbarLayout;
 import org.xmind.gef.draw2d.ITextFigure;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
@@ -60,6 +62,7 @@ public class FrameFigure extends Figure {
     private ShadowedLayer contentLayer;
 
     private int titlePlacement = PositionConstants.TOP;
+    private Layer contentCover;
 
     /**
      * 
@@ -84,7 +87,12 @@ public class FrameFigure extends Figure {
         title.setForegroundColor(ColorConstants.black);
         titleContainer.add(title, FrameBorderLayout.TOP);
 
+        Layer contentPane = new Layer();
+        contentPane.setLayoutManager(new StackLayout());
+        add(contentPane, FrameBorderLayout.CENTER);
+
         contentContainer = new Layer();
+        contentPane.add(contentContainer);
         AdvancedToolbarLayout contentContainerLayout = new AdvancedToolbarLayout(
                 true);
         contentContainerLayout
@@ -94,11 +102,22 @@ public class FrameFigure extends Figure {
         contentContainerLayout
                 .setInnerMinorAlignment(AdvancedToolbarLayout.ALIGN_CENTER);
         contentContainer.setLayoutManager(contentContainerLayout);
-        add(contentContainer, FrameBorderLayout.CENTER);
 
         contentLayer = new ShadowedLayer();
         contentLayer.setBorderColor(ColorUtils.getColor(170, 170, 170));
         contentContainer.add(contentLayer);
+
+        contentCover = new Layer();
+        AdvancedToolbarLayout presentationLayout = new AdvancedToolbarLayout(
+                true);
+        presentationLayout
+                .setMajorAlignment(AdvancedToolbarLayout.ALIGN_CENTER);
+        presentationLayout
+                .setMinorAlignment(AdvancedToolbarLayout.ALIGN_CENTER);
+        presentationLayout
+                .setInnerMinorAlignment(AdvancedToolbarLayout.ALIGN_CENTER);
+        contentCover.setLayoutManager(presentationLayout);
+        contentPane.add(contentCover, GEF.LAYER_PRESENTATION);
     }
 
     public void setContentSize(Dimension size) {
@@ -137,6 +156,10 @@ public class FrameFigure extends Figure {
         graphics.fillRectangle(b);
     }
 
+    public Layer getContentCover() {
+        return contentCover;
+    }
+
     /**
      * @return the slide
      */
@@ -161,7 +184,6 @@ public class FrameFigure extends Figure {
     }
 
     /**
-     * 
      * @return one of {@link PositionConstants#TOP},
      *         {@link PositionConstants#BOTTOM}, {@link PositionConstants#LEFT},
      *         {@link PositionConstants#RIGHT}
@@ -171,7 +193,6 @@ public class FrameFigure extends Figure {
     }
 
     /**
-     * 
      * @param textPlacement
      *            one of {@link PositionConstants#TOP},
      *            {@link PositionConstants#BOTTOM},

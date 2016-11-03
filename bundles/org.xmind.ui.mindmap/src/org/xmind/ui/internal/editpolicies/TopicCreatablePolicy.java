@@ -33,6 +33,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.core.Core;
 import org.xmind.core.IBoundary;
@@ -569,9 +570,12 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
     private Dimension getImageSize(String path) {
         try {
             Image tempImage = new Image(Display.getCurrent(), path);
-            Rectangle size = tempImage.getBounds();
+            Rectangle imageBounds = tempImage.getBounds();
             tempImage.dispose();
-            return Geometry.getScaledConstrainedSize(size.width, size.height,
+            boolean needZoom = DPIUtil.getDeviceZoom() > 100;
+            int width = needZoom ? imageBounds.width / 2 : imageBounds.width;
+            int height = needZoom ? imageBounds.height / 2 : imageBounds.height;
+            return Geometry.getScaledConstrainedSize(width, height,
                     MindMapUI.IMAGE_INIT_WIDTH, MindMapUI.IMAGE_INIT_HEIGHT);
         } catch (Throwable e) {
         }
@@ -722,6 +726,9 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
             topics = MindMapUtils.filterOutDescendents(
                     MindMapUtils.getTopics(request.getTargets()), null);
             sort(topics);
+
+            if (!topics.isEmpty())
+                sourceTopic = topics.get(0);
 
             builder = new CreateTopicCommandBuilder(viewer,
                     request.getTargetCommandStack(), sourceTopic, reqType,

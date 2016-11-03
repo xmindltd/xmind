@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.protocols;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -58,6 +61,8 @@ public class AttachmentProtocol implements IProtocol {
         private String path;
 
         private String fileName;
+
+        private IWindowListener windowListener;
 
         public AttachmentAction(IWorkbenchWindow window, IWorkbook workbook,
                 String path, String fileName) {
@@ -104,6 +109,71 @@ public class AttachmentProtocol implements IProtocol {
                 ((ICoreEventSource2) workbook).registerOnceCoreEventListener(
                         Core.WorkbookPreSaveOnce, ICoreEventListener.NULL);
             }
+
+            //write temp file back to entry.
+            if (window != null) {
+                window.getWorkbench().addWindowListener(
+                        getWindowListener(fileEntry, hiberFile));
+            }
+
+            window.getActivePage().addPartListener(new IPartListener() {
+
+                @Override
+                public void partOpened(IWorkbenchPart part) {
+                }
+
+                @Override
+                public void partDeactivated(IWorkbenchPart part) {
+                }
+
+                @Override
+                public void partClosed(IWorkbenchPart part) {
+                    window.getWorkbench().removeWindowListener(
+                            getWindowListener(null, null));
+                }
+
+                @Override
+                public void partBroughtToTop(IWorkbenchPart part) {
+                }
+
+                @Override
+                public void partActivated(IWorkbenchPart part) {
+                }
+            });
+        }
+
+        private IWindowListener getWindowListener(final IFileEntry fileEntry,
+                final File hiberFile) {
+            if (windowListener == null) {
+                windowListener = new IWindowListener() {
+
+                    @Override
+                    public void windowOpened(IWorkbenchWindow window) {
+                    }
+
+                    @Override
+                    public void windowDeactivated(IWorkbenchWindow window) {
+                    }
+
+                    @Override
+                    public void windowClosed(IWorkbenchWindow window) {
+                    }
+
+                    @Override
+                    public void windowActivated(IWorkbenchWindow window) {
+                        try {
+                            InputStream is = new FileInputStream(hiberFile);
+                            OutputStream os = fileEntry.openOutputStream();
+                            FileUtils.transfer(is, os);
+                        } catch (IOException e) {
+                            Logger.log(e,
+                                    "Failed to transfer temp-attachments to attachment dir."); //$NON-NLS-1$
+                            return;
+                        }
+                    }
+                };
+            }
+            return windowListener;
         }
 
     }

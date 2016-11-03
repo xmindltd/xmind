@@ -25,6 +25,7 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.Util;
 import org.eclipse.swt.graphics.Cursor;
 import org.xmind.core.ISummary;
@@ -46,10 +47,12 @@ import org.xmind.gef.tool.ITool;
 import org.xmind.ui.branch.IInsertableBranchStructureExtension;
 import org.xmind.ui.branch.ILockableBranchStructureExtension;
 import org.xmind.ui.branch.IMovableBranchStructureExtension;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.tools.DummyMoveTool;
 import org.xmind.ui.tools.ITopicMoveToolHelper;
 import org.xmind.ui.tools.ParentSearchKey;
@@ -60,10 +63,10 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
 
     private class RoundedRectDecoration extends PathShapeDecoration {
 
-        public Insets getPreferredInsets(IFigure figure, int width, int height) {
+        public Insets getPreferredInsets(IFigure figure, int width,
+                int height) {
             int lineWidth = getLineWidth();
-            return new Insets(lineWidth, lineWidth, lineWidth,
-                    lineWidth);
+            return new Insets(lineWidth, lineWidth, lineWidth, lineWidth);
         }
 
         @Override
@@ -105,7 +108,16 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
     private int specialIndex = -1;
 
     public TopicMoveTool() {
+        initMoveTopicMoveTool();
         getStatus().addStatusListener(this);
+    }
+
+    private void initMoveTopicMoveTool() {
+        IPreferenceStore prefStore = MindMapUIPlugin.getDefault()
+                .getPreferenceStore();
+        boolean status = prefStore
+                .getBoolean(PrefConstants.MANUAL_LAYOUT_ALLOWED);
+        getStatus().setStatus(GEF.ST_FREE_MOVE_MODE, status);
     }
 
     public void setSource(IGraphicalEditPart source) {
@@ -211,8 +223,8 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
         DecoratedShapeFigure figure = new DecoratedShapeFigure();
         Point loc = getDummyStartLoc();
         if (loc != null)
-            figure.setLocation(loc.getTranslated(-INVENT_WIDTH / 2,
-                    -INVENT_HEIGHT / 2));
+            figure.setLocation(
+                    loc.getTranslated(-INVENT_WIDTH / 2, -INVENT_HEIGHT / 2));
         figure.setSize(INVENT_WIDTH, INVENT_HEIGHT);
         figure.setDecoration(new RoundedRectDecoration());
 
@@ -229,8 +241,8 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
             addDisabledPart(part);
         }
         List<ITopic> topics = MindMapUtils.getTopics(selectedParts);
-        Set<ITopicRange> ranges = MindMapUtils.findContainedRanges(topics,
-                true, false);
+        Set<ITopicRange> ranges = MindMapUtils.findContainedRanges(topics, true,
+                false);
         if (!ranges.isEmpty()) {
             for (ITopicRange r : ranges) {
                 ITopic st = ((ISummary) r).getTopic();
@@ -287,9 +299,10 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
         }
         super.onMoving(currentPos, me);
         if (branchDummy != null) {
-            key = new ParentSearchKey(getSourceTopic(),
-                    (IReferencedFigure) branchDummy.getBranch().getTopicPart()
-                            .getFigure(), currentPos);
+            key = new ParentSearchKey(
+                    getSourceTopic(), (IReferencedFigure) branchDummy
+                            .getBranch().getTopicPart().getFigure(),
+                    currentPos);
             key.setFeedback(branchDummy.getBranch());
             targetParent = updateTargetParent();
             if (specialIndex < 0) {
@@ -378,8 +391,8 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
             IPart parent = getSourceBranch().getParent();
             return parent instanceof IBranchPart ? (IBranchPart) parent : null;
         }
-        return getParentSearcher().searchTargetParent(
-                getTargetViewer().getRootPart(), key);
+        return getParentSearcher()
+                .searchTargetParent(getTargetViewer().getRootPart(), key);
     }
 
     private void updateWithParent(IBranchPart parent) {
@@ -412,9 +425,8 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
             this.helper = newHelper;
         }
         if (helper != null) {
-            helper.update(parent,
-                    isBranchMoved(parent, getSourceBranch(), key), key,
-                    specialIndex);
+            helper.update(parent, isBranchMoved(parent, getSourceBranch(), key),
+                    key, specialIndex);
         }
     }
 
@@ -453,11 +465,23 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
     }
 
     private boolean isFreeMove() {
+        if (isFreeMovePattern())
+            return true;
         if (isSpecialFreeMove())
             return true;
         if (Util.isMac())
             return getStatus().isStatus(GEF.ST_CONTROL_PRESSED);
         return getStatus().isStatus(GEF.ST_ALT_PRESSED);
+    }
+
+    private boolean isFreeMovePattern() {
+        ITopicPart topicPart = getSourceParentTopic();
+        ITopic topic = null;
+        if (topicPart != null)
+            topic = topicPart.getTopic();
+
+        return topic == null ? getStatus().isStatus(GEF.ST_FREE_MOVE_MODE)
+                : getStatus().isStatus(GEF.ST_FREE_MOVE_MODE) && topic.isRoot();
     }
 
     private boolean isCopyMove() {
@@ -524,6 +548,15 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
         unlockBranchStructures(getTargetViewer().getRootPart());
     }
 
+    protected void suspend() {
+        if (helper != null) {
+            helper.deactivate(getDomain(), getTargetViewer());
+            helper = null;
+        }
+        super.end();
+        destroyInvent();
+    }
+
     private void destroyInvent(IFigure invent) {
         if (invent.getParent() != null)
             invent.getParent().remove(invent);
@@ -546,7 +579,8 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
         if (!isFloatMove()) {
             index = getParentSearcher().getIndex(targetParentBranch, key);
             if (free) {
-                if (!isFreeable() && !isAlreadyFloat() && !isSpecialFreeMove()) {
+                if (!isFreeable() && !isAlreadyFloat()
+                        && !isSpecialFreeMove()) {
                     free = false;
                 }
             } else {
@@ -579,7 +613,8 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
 //        fillTargets(request, getTargetViewer(), false);
         request.setPrimaryTarget(getSourceTopic());
         request.setParameter(GEF.PARAM_POSITION, position);
-        request.setParameter(GEF.PARAM_POSITION_ABSOLUTE, getAbsolutePosition());
+        request.setParameter(GEF.PARAM_POSITION_ABSOLUTE,
+                getAbsolutePosition());
         request.setParameter(GEF.PARAM_POSITION_RELATIVE,
                 Boolean.valueOf(relative));
         request.setParameter(GEF.PARAM_PARENT, targetParent);

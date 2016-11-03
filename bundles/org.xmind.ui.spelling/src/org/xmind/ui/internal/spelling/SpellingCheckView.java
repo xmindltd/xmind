@@ -71,8 +71,8 @@ import com.swabunga.spell.event.StringWordTokenizer;
 
 /**
  * @author Frank Shaka
- * 
  */
+@Deprecated
 public class SpellingCheckView extends ViewPart
         implements IJobChangeListener, IPartListener {
 
@@ -204,7 +204,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#equals(java.lang.Object)
          */
         @Override
@@ -224,7 +223,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang
          * .Object)
@@ -244,7 +242,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang
          * .Object)
@@ -264,7 +261,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang
          * .Object)
@@ -282,7 +278,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.IStructuredContentProvider#getElements(
          * java.lang.Object)
@@ -297,7 +292,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.jface.viewers.IContentProvider#dispose()
          */
         public void dispose() {
@@ -305,7 +299,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse
          * .jface.viewers.Viewer, java.lang.Object, java.lang.Object)
@@ -323,7 +316,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java
          * .lang.Object, int)
@@ -355,7 +347,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.jface.viewers.BaseLabelProvider#dispose()
          */
         @Override
@@ -369,7 +360,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.
          * lang.Object, int)
@@ -412,7 +402,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.jface.viewers.IDoubleClickListener#doubleClick(org.
          * eclipse .jface.viewers.DoubleClickEvent)
          */
@@ -463,7 +452,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @seeorg.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
          * IProgressMonitor)
          */
@@ -552,7 +540,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see com.swabunga.spell.event.SpellCheckListener#spellingError(com.
          * swabunga .spell.event.SpellCheckEvent)
          */
@@ -598,7 +585,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.action.IMenuListener#menuAboutToShow(org.eclipse
          * .jface.action.IMenuManager)
@@ -626,7 +612,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse
          * .swt.events.DisposeEvent)
@@ -653,7 +638,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.jface.action.Action#run()
          */
         @Override
@@ -695,7 +679,6 @@ public class SpellingCheckView extends ViewPart
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.jface.action.Action#run()
          */
         @Override
@@ -727,7 +710,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.
      * widgets .Composite)
      */
@@ -898,7 +880,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
      */
     @Override
@@ -908,7 +889,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.part.WorkbenchPart#dispose()
      */
     @Override
@@ -921,7 +901,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.IJobChangeListener#aboutToRun(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
@@ -936,7 +915,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.IJobChangeListener#awake(org.eclipse.core
      * .runtime.jobs.IJobChangeEvent)
@@ -946,7 +924,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.IJobChangeListener#done(org.eclipse.core
      * .runtime.jobs.IJobChangeEvent)
@@ -965,7 +942,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.IJobChangeListener#running(org.eclipse.
      * core.runtime.jobs.IJobChangeEvent)
@@ -975,7 +951,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.IJobChangeListener#scheduled(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
@@ -985,7 +960,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.IJobChangeListener#sleeping(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
@@ -1003,7 +977,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
      */
@@ -1012,7 +985,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.
      * IWorkbenchPart )
      */
@@ -1021,7 +993,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
      */
@@ -1043,7 +1014,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.
      * IWorkbenchPart )
      */
@@ -1052,7 +1022,6 @@ public class SpellingCheckView extends ViewPart
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.ui.IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
      */

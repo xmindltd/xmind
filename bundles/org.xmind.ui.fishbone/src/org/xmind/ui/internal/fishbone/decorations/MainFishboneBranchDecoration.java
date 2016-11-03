@@ -76,15 +76,13 @@ public class MainFishboneBranchDecoration extends AbstractDecoration {
         PrecisionRectangle r = getChildrenBounds(figure);
         PrecisionRectangle b = hf.tr(getTopicBounds(ref));
         PrecisionPoint source = hf.rp(new PrecisionPoint(b.right() - 1, ref.y));
-        PrecisionPoint target = hf.rp(new PrecisionPoint(hf.tr(r).right(),
-                ref.y));
+        PrecisionPoint target = hf
+                .rp(new PrecisionPoint(hf.tr(r).right(), ref.y));
         double tailX = target.x
                 + (source.x < target.x ? MainFishboneBranchDecoration.TailLength
                         : -MainFishboneBranchDecoration.TailLength);
-        double tw = Math.max(
-                0,
-                Math.min(b.height / 2,
-                        Math.min(target.y - r.y, r.bottom() - target.y)));
+        double tw = Math.max(0, Math.min(b.height / 2,
+                Math.min(target.y - r.y, r.bottom() - target.y)));
 
         this.lineStart = source;
         this.lineEnd = target;
@@ -104,12 +102,12 @@ public class MainFishboneBranchDecoration extends AbstractDecoration {
         PrecisionRectangle r = null;
         ITopicPart topicPart = branch.getTopicPart();
         if (topicPart != null) {
-            r = Geometry.union(r, new PrecisionRectangle(topicPart.getFigure()
-                    .getBounds()));
+            r = Geometry.union(r,
+                    new PrecisionRectangle(topicPart.getFigure().getBounds()));
         }
         for (IBranchPart subBranch : branch.getSubBranches()) {
-            r = Geometry.union(r, new PrecisionRectangle(subBranch.getFigure()
-                    .getBounds()));
+            r = Geometry.union(r,
+                    new PrecisionRectangle(subBranch.getFigure().getBounds()));
         }
         if (r != null)
             return r;
@@ -148,7 +146,7 @@ public class MainFishboneBranchDecoration extends AbstractDecoration {
         if (lineColor == null)
             return;
 
-        int lineWidth = topicDecoration.getLineWidth();
+        int lineWidth = Math.max(1, topicDecoration.getLineWidth());
         int lineStyle = topicDecoration.getLineStyle();
 
         graphics.setAlpha(getAlpha());
@@ -158,12 +156,12 @@ public class MainFishboneBranchDecoration extends AbstractDecoration {
         Path shape = new Path(Display.getCurrent());
         if (branch.getConnections().isTapered()) {
             graphics.setLineWidth(lineWidth);
-            shape.moveTo((float) lineStart.x
-                    + (lineStart.x < lineEnd.x ? -1 : 1), (float) (lineStart.y
-                    - lineWidth * 5 - 0));
-            shape.lineTo((float) lineStart.x
-                    + (lineStart.x < lineEnd.x ? -1 : 1), (float) (lineStart.y
-                    + lineWidth * 5 + 0));
+            shape.moveTo(
+                    (float) lineStart.x + (lineStart.x < lineEnd.x ? -1 : 1),
+                    (float) (lineStart.y - lineWidth * 5 - 0));
+            shape.lineTo(
+                    (float) lineStart.x + (lineStart.x < lineEnd.x ? -1 : 1),
+                    (float) (lineStart.y + lineWidth * 5 + 0));
             shape.lineTo((float) lineEnd.x,
                     (float) (lineEnd.y + lineWidth * 0.5));
             shape.lineTo((float) lineEnd.x,

@@ -1,11 +1,15 @@
 package org.xmind.cathy.internal.dashboard;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.resource.ColorDescriptor;
@@ -14,39 +18,37 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.util.Util;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ToolBar;
+import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
+import org.xmind.ui.internal.dashboard.pages.IDashboardContext;
 import org.xmind.ui.internal.dashboard.pages.IDashboardPage;
-import org.xmind.ui.mindmap.ITemplate;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.tabfolder.MTabBar;
 import org.xmind.ui.tabfolder.MTabBarItem;
 import org.xmind.ui.util.StyleProvider;
 
-public class NewFileDashboardPage extends DashboardPage
-        implements ISelectionChangedListener {
+public class NewFileDashboardPage extends DashboardPage implements IAdaptable {
 
     private class SegmentBarStyleProvider extends StyleProvider {
         @Override
@@ -142,15 +144,29 @@ public class NewFileDashboardPage extends DashboardPage
     private Composite titleBar = null;
     private Composite rightBar = null;
     private MTabBar tabBar = null;
-    private ToolBar normalModeEditContainer = null;
-    private Control editModeContainer = null;
-
-    private boolean normalOrEditMode = true;
 
     private Composite pageContainer = null;
 
-    private ITemplate selectedTemplate = null;
-    private Action deleteTemplatesAction = null;
+    private List<IDashboardPage> pages = new ArrayList<IDashboardPage>();
+
+    @PostConstruct
+    private void init(IDashboardContext dashboardContext) {
+        NewFromStructuresDashboardPage structurePage = new NewFromStructuresDashboardPage();
+        structurePage.setTitle(WorkbenchMessages.DashboardBlankPage_name);
+        structurePage
+                .setDescription(WorkbenchMessages.DashboardBlankPage_message);
+        structurePage.setContext(dashboardContext);
+        pages.add(structurePage);
+
+        NewFromTemplatesDashboardPage templatePage = new NewFromTemplatesDashboardPage();
+        templatePage.setTitle(WorkbenchMessages.DashboardTemplatesPage_name);
+        templatePage.setDescription(
+                WorkbenchMessages.DashboardTemplatesPage_message);
+        templatePage.setContext(dashboardContext);
+        templatePage.registerAvailableCommands();
+        pages.add(templatePage);
+
+    }
 
     public void createControl(Composite parent) {
         final Composite composite = new Composite(parent, SWT.NONE);
@@ -178,12 +194,11 @@ public class NewFileDashboardPage extends DashboardPage
 
         this.control = composite;
 
-        addPage(new NewFromStructuresDashboardPage(),
-                WorkbenchMessages.DashboardBlankPage_name,
-                WorkbenchMessages.DashboardBlankPage_message);
-        addPage(new NewFromTemplatesDashboardPage(),
-                WorkbenchMessages.DashboardTemplatesPage_name,
-                WorkbenchMessages.DashboardTemplatesPage_message);
+        for (IDashboardPage page : pages) {
+            MTabBarItem item = new MTabBarItem(tabBar, SWT.RADIO);
+            item.setText(page.getTitle());
+            item.setData(page);
+        }
 
         setTitleBarComponentLayoutData();
 
@@ -196,8 +211,8 @@ public class NewFileDashboardPage extends DashboardPage
         // CAUTION: This depends on the fact that the size won't change.
         Point tabSize = tabBar.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         tabData.left = new FormAttachment(50, -tabSize.x / 2);
-        tabData.top = new FormAttachment(0, 0);
-        tabData.bottom = new FormAttachment(100, 0);
+        tabData.top = new FormAttachment(50, -tabSize.y / 2);
+        tabData.bottom = new FormAttachment(50, tabSize.y / 2);
         tabBar.setLayoutData(tabData);
 
         FormData rightData = new FormData();
@@ -207,24 +222,12 @@ public class NewFileDashboardPage extends DashboardPage
         rightBar.setLayoutData(rightData);
     }
 
-    private void addPage(IDashboardPage page, String title,
-            String description) {
-        page.setTitle(title);
-        page.setDescription(description);
-        page.setContext(getContext());
-
-        MTabBarItem item = new MTabBarItem(tabBar, SWT.RADIO);
-        item.setText(title);
-        item.setData(page);
-    }
-
     private Control createTitleBar(Composite parent) {
         titleBar = new Composite(parent, SWT.NONE);
         FormLayout titleBarLayout = new FormLayout();
-        titleBarLayout.marginLeft = 10;
-        titleBarLayout.marginRight = 10;
-        titleBarLayout.marginTop = 9;
-        titleBarLayout.marginBottom = 9;
+        titleBarLayout.marginWidth = 10;
+        titleBarLayout.marginHeight = 0;
+        titleBarLayout.marginRight = 15;
         titleBar.setLayout(titleBarLayout);
         titleBar.setForeground(parent.getForeground());
 //        titleBar.setBackground(parent.getBackground());
@@ -294,34 +297,53 @@ public class NewFileDashboardPage extends DashboardPage
 
     private Control createRightBar(Composite composite) {
         rightBar = new Composite(composite, SWT.NONE);
-        GridLayoutFactory.fillDefaults().numColumns(2).applyTo(rightBar);
+        GridLayoutFactory.fillDefaults().numColumns(1).applyTo(rightBar);
 
-        ToolBarManager normalModeToolBarManager = new ToolBarManager();
-        Action editModeAction = new Action(
-                WorkbenchMessages.NewFileDashboardPage_GoToEditTemplateMode_label) {
-            @Override
-            public void run() {
-                normalOrEditMode = false;
-                updateTitleBar();
-            }
-        };
-        editModeAction.setToolTipText(
-                WorkbenchMessages.NewFileDashboardPage_GoIntoTemplatesManagerMode_tooltip);
-        normalModeToolBarManager.add(editModeAction);
-        normalModeEditContainer = normalModeToolBarManager
-                .createControl(rightBar);
-        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER)
-                .applyTo(normalModeEditContainer);
-
-        editModeContainer = createEditModeContainer(rightBar);
-        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL)
-                .applyTo(editModeContainer);
+        createImportButton(rightBar);
 
         return rightBar;
     }
 
-    private Control createEditModeContainer(final Composite rightBar) {
-        ToolBarManager editModeToolBarManager = new ToolBarManager();
+    private void createImportButton(Composite parent) {
+        final Label importBtton = new Label(parent, SWT.NONE);
+        importBtton.setBackground(parent.getBackground());
+        importBtton.setToolTipText(
+                WorkbenchMessages.NewFileDashboardPage_Import_button);
+        importBtton.setImage((Image) resourceManager.get(
+                CathyPlugin.imageDescriptorFromPlugin(CathyPlugin.PLUGIN_ID,
+                        "dashboard/new/button_import.png"))); //$NON-NLS-1$
+        GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER)
+                .grab(true, true).applyTo(importBtton);
+
+        final IAction addTemplateAction = getAddTemplateAction();
+
+        importBtton.addListener(SWT.MouseDown, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                addTemplateAction.run();
+            }
+        });
+
+        importBtton.addMouseTrackListener(new MouseTrackAdapter() {
+
+            @Override
+            public void mouseExit(MouseEvent e) {
+                importBtton.setImage((Image) resourceManager.get(CathyPlugin
+                        .imageDescriptorFromPlugin(CathyPlugin.PLUGIN_ID,
+                                "dashboard/new/button_import.png"))); //$NON-NLS-1$
+            }
+
+            @Override
+            public void mouseEnter(MouseEvent e) {
+                importBtton.setImage((Image) resourceManager.get(CathyPlugin
+                        .imageDescriptorFromPlugin(CathyPlugin.PLUGIN_ID,
+                                "dashboard/new/button_import_hover.png"))); //$NON-NLS-1$
+            }
+        });
+    }
+
+    private IAction getAddTemplateAction() {
         Action addTemplateAction = new Action(
                 WorkbenchMessages.NewFileDashboardPage_AddTemplates_label) {
             @Override
@@ -352,43 +374,7 @@ public class NewFileDashboardPage extends DashboardPage
         addTemplateAction.setToolTipText(
                 WorkbenchMessages.NewFileDashboardPage_AddTemplates_tooltip);
 
-        deleteTemplatesAction = new Action(
-                WorkbenchMessages.NewFileDashboardPage_DeleteTemplate_label) {
-            @Override
-            public void run() {
-                deleteSelectedTemplate();
-            }
-        };
-        deleteTemplatesAction.setToolTipText(
-                WorkbenchMessages.NewFileDashboardPage_DeleteTemplate_tooltip);
-        deleteTemplatesAction.setEnabled(false);
-        Action exitEditModeAction = new Action(
-                WorkbenchMessages.NewFileDashboardPage_ExitEditTemplatesMode_label) {
-            @Override
-            public void run() {
-                normalOrEditMode = true;
-                updateTitleBar();
-            }
-        };
-        exitEditModeAction.setToolTipText(
-                WorkbenchMessages.NewFileDashboardPage_ExitEditMode_tooltip);
-        editModeToolBarManager.add(addTemplateAction);
-        editModeToolBarManager.add(deleteTemplatesAction);
-        editModeToolBarManager.add(exitEditModeAction);
-        return editModeToolBarManager.createControl(rightBar);
-    }
-
-    private void deleteSelectedTemplate() {
-        ITemplate template = selectedTemplate;
-        if (template != null) {
-            if (!MessageDialog.openConfirm(rightBar.getShell(),
-                    WorkbenchMessages.ConfirmDeleteTemplateDialog_title,
-                    NLS.bind(
-                            WorkbenchMessages.ConfirmDeleteTemplateDialog_message_withTemplateName,
-                            template.getName())))
-                return;
-            MindMapUI.getResourceManager().removeUserTemplate(template);
-        }
+        return addTemplateAction;
     }
 
     private Control createPageContainer(Composite parent) {
@@ -416,10 +402,6 @@ public class NewFileDashboardPage extends DashboardPage
         if (page != null) {
             if (page.getControl() == null) {
                 page.createControl(pageContainer);
-                if (page instanceof NewFromTemplatesDashboardPage) {
-                    ((NewFromTemplatesDashboardPage) page)
-                            .addSelectionChangedListener(this);
-                }
             }
             layout.topControl = page.getControl();
             pageContainer.layout(true);
@@ -427,25 +409,16 @@ public class NewFileDashboardPage extends DashboardPage
             updateTitleBar();
         }
 
+        getContext().setSelectionProvider(getAdapter(ISelectionProvider.class));
     }
 
     private void updateTitleBar() {
         MTabBarItem item = tabBar.getSelection();
         IDashboardPage page = (IDashboardPage) item.getData();
         if (page instanceof NewFromTemplatesDashboardPage) {
-            ((GridData) normalModeEditContainer
-                    .getLayoutData()).exclude = !normalOrEditMode;
-            normalModeEditContainer.setVisible(normalOrEditMode);
-            ((GridData) editModeContainer
-                    .getLayoutData()).exclude = normalOrEditMode;
-            editModeContainer.setVisible(!normalOrEditMode);
-            ((NewFromTemplatesDashboardPage) page).setState(normalOrEditMode);
+            rightBar.setVisible(true);
         } else if (page instanceof NewFromStructuresDashboardPage) {
-            normalOrEditMode = true;
-            ((GridData) normalModeEditContainer.getLayoutData()).exclude = true;
-            normalModeEditContainer.setVisible(false);
-            ((GridData) editModeContainer.getLayoutData()).exclude = true;
-            editModeContainer.setVisible(false);
+            rightBar.setVisible(false);
         }
         titleBar.layout(true);
     }
@@ -464,29 +437,14 @@ public class NewFileDashboardPage extends DashboardPage
         }
     }
 
-    public void selectionChanged(SelectionChangedEvent event) {
-        ITemplate template = findTemplate(event.getSelection());
-        setSelectedTemplate(template);
-    }
-
-    private ITemplate findTemplate(ISelection selection) {
-        if (selection instanceof IStructuredSelection) {
-            Object element = ((IStructuredSelection) selection)
-                    .getFirstElement();
-            if (element instanceof ITemplate) {
-                return (ITemplate) element;
-            }
+    public <T> T getAdapter(Class<T> adapter) {
+        MTabBarItem item = tabBar.getSelection();
+        IDashboardPage page = (IDashboardPage) item.getData();
+        if (page instanceof IAdaptable) {
+            return ((IAdaptable) page).getAdapter(adapter);
         }
+
         return null;
-    }
-
-    private void setSelectedTemplate(ITemplate template) {
-        this.selectedTemplate = template;
-        if (deleteTemplatesAction != null) {
-            boolean enabled = selectedTemplate != null && MindMapUI
-                    .getResourceManager().isUserTemplate(selectedTemplate);
-            deleteTemplatesAction.setEnabled(enabled);
-        }
     }
 
 }

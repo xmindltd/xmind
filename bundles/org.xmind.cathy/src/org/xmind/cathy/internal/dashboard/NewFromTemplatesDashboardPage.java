@@ -1,79 +1,33 @@
 package org.xmind.cathy.internal.dashboard;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.eclipse.draw2d.geometry.Dimension;
-import org.eclipse.draw2d.geometry.Insets;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
-import org.xmind.cathy.internal.WorkbenchMessages;
-import org.xmind.gef.EditDomain;
-import org.xmind.gef.GEF;
-import org.xmind.gef.event.KeyEvent;
-import org.xmind.gef.util.Properties;
-import org.xmind.ui.gallery.GalleryLayout;
-import org.xmind.ui.gallery.GallerySelectTool;
+import org.xmind.cathy.internal.ICathyConstants;
 import org.xmind.ui.gallery.GalleryViewer;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
-import org.xmind.ui.internal.wizards.TemplateLabelProvider;
-import org.xmind.ui.mindmap.IResourceManager;
+import org.xmind.ui.internal.dashboard.pages.IDashboardContext;
 import org.xmind.ui.mindmap.IResourceManagerListener;
 import org.xmind.ui.mindmap.ITemplate;
 import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.resources.ColorUtils;
 
 public class NewFromTemplatesDashboardPage extends DashboardPage
-        implements IResourceManagerListener {
+        implements IResourceManagerListener, IAdaptable {
 
-    private static final int FRAME_WIDTH = 225;
-    private static final int FRAME_HEIGHT = 130;
+    private CategorizedTemplateViewer viewer;
 
-    private class TemplateGallerySelectTool extends GallerySelectTool {
-        @Override
-        protected boolean handleKeyUp(KeyEvent ke) {
-            int state = ke.getState();
-            int key = ke.keyCode;
-            if (state == 0 && key == SWT.DEL) {
-                ISelection selection = viewer.getSelection();
-                if (selection instanceof IStructuredSelection) {
-                    Object element = ((IStructuredSelection) selection)
-                            .getFirstElement();
-                    if (element instanceof ITemplate) {
-                        ITemplate template = (ITemplate) element;
-                        if (MindMapUI.getResourceManager()
-                                .isUserTemplate(template)) {
-                            if (MessageDialog.openConfirm(
-                                    viewer.getControl().getShell(),
-                                    WorkbenchMessages.ConfirmDeleteTemplateDialog_title,
-                                    NLS.bind(
-                                            WorkbenchMessages.ConfirmDeleteTemplateDialog_message_withTemplateName,
-                                            template.getName()))) {
-                                MindMapUI.getResourceManager()
-                                        .removeUserTemplate(template);
-                            }
-                        }
-                    }
-                }
-            }
-            return super.handleKeyUp(ke);
-        }
-    }
-
-    private GalleryViewer viewer;
-    private boolean normalOrEditMode;
     private boolean templateOpening;
 
     public void setFocus() {
@@ -89,58 +43,69 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         super.dispose();
     }
 
-    public void setState(boolean normalOrEditMode) {
-        this.normalOrEditMode = normalOrEditMode;
-    }
-
     public void createControl(Composite parent) {
-        viewer = new GalleryViewer();
+        Composite container = new Composite(parent, SWT.NONE);
+        container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        EditDomain editDomain = new EditDomain();
-        editDomain.installTool(GEF.TOOL_SELECT,
-                new TemplateGallerySelectTool());
-        viewer.setEditDomain(editDomain);
+        GridLayout layout = new GridLayout();
+        layout.marginWidth = 0;
+        layout.marginLeft = 60;
+        layout.marginRight = 0;
+        layout.marginHeight = 7;
+        container.setLayout(layout);
 
-        Properties properties = viewer.getProperties();
-        properties.set(GalleryViewer.Horizontal, Boolean.TRUE);
-        properties.set(GalleryViewer.Wrap, Boolean.TRUE);
-        properties.set(GalleryViewer.TitlePlacement,
-                GalleryViewer.TITLE_BOTTOM);
-        properties.set(GalleryViewer.SingleClickToOpen, Boolean.TRUE);
-        properties.set(GalleryViewer.SolidFrames, true);
-        properties.set(GalleryViewer.FlatFrames, true);
-        properties.set(GalleryViewer.ImageConstrained, true);
-        properties.set(GalleryViewer.ImageStretched, true);
-        properties.set(GalleryViewer.Layout,
-                new GalleryLayout(GalleryLayout.ALIGN_CENTER,
-                        GalleryLayout.ALIGN_TOPLEFT, 10, 10,
-                        new Insets(5, 15, 5, 15)));
-        properties.set(GalleryViewer.FrameContentSize,
-                new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
-        properties.set(GalleryViewer.ContentPaneBorderWidth, 1);
-        properties.set(GalleryViewer.ContentPaneBorderColor,
-                ColorUtils.getColor("#cccccc"));
-
-        Control control = viewer.createControl(parent);
-        control.setBackground(parent.getBackground());
-        control.setForeground(parent.getForeground());
-
-        viewer.setLabelProvider(new TemplateLabelProvider());
-
-        viewer.setInput(getViewerInput());
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ShowTemplatesCount"); //$NON-NLS-1$
+        viewer = new CategorizedTemplateViewer(container);
+        Control control = viewer.getControl();
+        control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
         viewer.addOpenListener(new IOpenListener() {
             public void open(OpenEvent event) {
-                if (normalOrEditMode) {
-                    if (!templateOpening)
-                        handleTemplateSelected(event.getSelection());
+                if (!templateOpening) {
+                    handleTemplateSelected(event.getSelection());
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .increase("CreateWorkbookCount"); //$NON-NLS-1$
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .increase("CreateSheetCount"); //$NON-NLS-1$
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .increase("UseTemplatesCount"); //$NON-NLS-1$
                 }
             }
         });
 
         MindMapUI.getResourceManager().addResourceManagerListener(this);
 
-        setControl(control);
+        registerContextMenu(control);
+        setControl(container);
+    }
+
+    public void registerAvailableCommands() {
+        IDashboardContext context = getContext();
+
+        context.registerAvailableCommandId(
+                ICathyConstants.COMMAND_TEMPLATE_DUPLICATE);
+        context.registerAvailableCommandId(
+                ICathyConstants.COMMAND_TEMPLATE_RENAME);
+        context.registerAvailableCommandId(
+                ICathyConstants.COMMAND_TEMPLATE_DELETE);
+    }
+
+    private void registerContextMenu(Control control) {
+        getContext().registerContextMenu(control,
+                ICathyConstants.POPUP_TEMPLATE);
+
+        //add context menu for nested viewers' control.
+        Object input = viewer.getInput();
+        if (input instanceof Object[]) {
+            Object[] groups = (Object[]) viewer.getInput();
+            for (Object group : groups) {
+                GalleryViewer nestedViewer = viewer.getNestedViewer(group);
+                if (nestedViewer != null) {
+                    nestedViewer.getControl().setMenu(control.getMenu());
+                }
+            }
+        }
     }
 
     public void addSelectionChangedListener(
@@ -150,31 +115,15 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         }
     }
 
-    private List<ITemplate> getViewerInput() {
-        ArrayList<ITemplate> templates = new ArrayList<ITemplate>();
-        IResourceManager resourceManager = MindMapUI.getResourceManager();
-        templates.addAll(resourceManager.getSystemTemplates());
-        templates.addAll(resourceManager.getUserTemplates());
-        // move recently added template ahead
-        Collections.reverse(templates);
-        return templates;
-    }
-
     public void userTemplateAdded(ITemplate template) {
-        if (template instanceof ITemplate) {
-            if (viewer == null || viewer.getControl() == null
-                    || viewer.getControl().isDisposed())
-                return;
-            viewer.setInput(getViewerInput());
+        if (viewer != null) {
+            viewer.userTemplateAdded(template);
         }
     }
 
     public void userTemplateRemoved(ITemplate template) {
-        if (template instanceof ITemplate) {
-            if (viewer == null || viewer.getControl() == null
-                    || viewer.getControl().isDisposed())
-                return;
-            viewer.setInput(getViewerInput());
+        if (viewer != null) {
+            viewer.userTemplateRemoved(template);
         }
     }
 
@@ -207,6 +156,17 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         getContext().openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);
 
         templateOpening = false;
+    }
+
+    public <T> T getAdapter(Class<T> adapter) {
+        if (viewer != null) {
+            if (adapter.isAssignableFrom(viewer.getClass()))
+                return adapter.cast(viewer);
+            T obj = viewer.getAdapter(adapter);
+            if (obj != null)
+                return obj;
+        }
+        return null;
     }
 
 }

@@ -50,7 +50,6 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class RevisionManagerImpl extends RevisionManager
         implements ICoreEventSource, INodeAdaptableFactory {
@@ -94,11 +93,11 @@ public class RevisionManagerImpl extends RevisionManager
     }
 
     @Override
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Node.class || adapter == Document.class)
-            return getImplementation();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Document.class))
+            return adapter.cast(getImplementation());
         return super.getAdapter(adapter);
     }
 
@@ -312,7 +311,6 @@ public class RevisionManagerImpl extends RevisionManager
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.event.ICoreEventSource#getCoreEventSupport()
      */
     public ICoreEventSupport getCoreEventSupport() {
@@ -324,7 +322,6 @@ public class RevisionManagerImpl extends RevisionManager
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.event.ICoreEventSource#registerCoreEventListener(java.
      * lang.String, org.xmind.core.event.ICoreEventListener)

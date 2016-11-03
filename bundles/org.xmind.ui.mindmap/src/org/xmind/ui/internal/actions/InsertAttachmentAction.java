@@ -18,11 +18,12 @@ import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
-public class InsertAttachmentAction extends RequestAction implements
-        ISelectionAction {
+public class InsertAttachmentAction extends RequestAction
+        implements ISelectionAction {
 
     public InsertAttachmentAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.INSERT_ATTACHMENT.getId(), page,
@@ -32,6 +33,13 @@ public class InsertAttachmentAction extends RequestAction implements
     public void setSelection(ISelection selection) {
         setEnabled(MindMapUtils.matchesSelection(selection,
                 MindMapUI.CATEGORY_TOPIC, false));
+    }
+
+    @Override
+    public void run() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("AddAttachmentCount"); //$NON-NLS-1$
+        super.run();
     }
 
 }

@@ -29,8 +29,8 @@ import org.xmind.gef.draw2d.IUseTransparency;
 /**
  * @author Brian Sun
  */
-public abstract class GraphicalEditPart extends EditPart implements
-        IGraphicalEditPart {
+public abstract class GraphicalEditPart extends EditPart
+        implements IGraphicalEditPart {
 
     private IFigure figure = null;
 
@@ -55,7 +55,6 @@ public abstract class GraphicalEditPart extends EditPart implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.part.EditPart#onActivated()
      */
     @Override
@@ -132,18 +131,17 @@ public abstract class GraphicalEditPart extends EditPart implements
     /**
      * @see org.xmind.gef.part.Part#getAdapter(java.lang.Class)
      */
-    @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IFigure.class)
-            return getFigure();
+            return adapter.cast(getFigure());
         if (adapter == IUseTransparency.class) {
             IFigure f = getFigure();
             if (f instanceof IUseTransparency) {
-                return (IUseTransparency) f;
+                return adapter.cast(f);
             }
         }
         if (adapter == IDecorator.class)
-            return getDecorator();
+            return adapter.cast(getDecorator());
         return super.getAdapter(adapter);
     }
 
@@ -156,7 +154,6 @@ public abstract class GraphicalEditPart extends EditPart implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.part.IGraphicalEditPart#findAt(org.eclipse.draw2d.geometry
      * .Point, org.xmind.gef.IViewer.IPartSearchCondition)

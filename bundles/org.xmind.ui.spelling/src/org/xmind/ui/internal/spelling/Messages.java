@@ -67,6 +67,18 @@ public class Messages extends NLS {
     public static String CheckSpellingJob_name;
     public static String CheckSpellingJob_task_Scanning;
 
+    public static String SpellingCheckDialog_title;
+    public static String SpellingCheckDialog_description;
+    public static String SpellingCheckDialog_Result_NoDictionary_label;
+    public static String SpellingCheckDialog_Result_Ignore_button;
+    public static String SpellingCheckDialog_Result_IgnoreAll_button;
+    public static String SpellingCheckDialog_Result_AddToDictionary_button;
+    public static String SpellingCheckDialog_Result_Suggestions_label;
+    public static String SpellingCheckDialog_Result_Change_button;
+    public static String SpellingCheckDialog_Result_ChangeAll_button;
+    public static String SpellingCheckDialog_ButtonBar_Options_button;
+    public static String SpellingCheckDialog_Result_NoError_label;
+
     static {
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }

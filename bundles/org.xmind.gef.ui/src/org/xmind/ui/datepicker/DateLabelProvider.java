@@ -21,6 +21,7 @@ public class DateLabelProvider extends LabelProvider {
     }
 
     protected String getDateText(Calendar date) {
-        return String.format("%1$tF %1$tT", date); //$NON-NLS-1$
+//        return String.format("%1$tF %1$tT ", date); //$NON-NLS-1$   %1$tb %1$te, %1$tY"
+        return String.format("%1$tb %1$te, %1$tY", date); //$NON-NLS-1$
     }
 }

@@ -18,8 +18,10 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -74,7 +76,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
      * BundleContext )
      */
@@ -91,7 +92,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
      * BundleContext )
      */
@@ -120,6 +120,19 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
 
         plugin = null;
         super.stop(context);
+    }
+
+    public static void log(Throwable e, String message) {
+        if (message == null)
+            message = ""; //$NON-NLS-1$
+        MindMapUIPlugin instance = getDefault();
+        if (instance != null) {
+            Platform.getLog(instance.getBundle())
+                    .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
+        } else {
+            System.err.println(message);
+            e.printStackTrace();
+        }
     }
 
     public ICommandService getCommandService() {

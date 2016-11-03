@@ -17,7 +17,9 @@ package org.xmind.ui.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.jface.text.ITextViewer;
@@ -25,7 +27,8 @@ import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.xmind.core.IBoundary;
 import org.xmind.core.INotes;
 import org.xmind.core.IPlainNotesContent;
@@ -43,19 +46,22 @@ import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.IWordContext;
 import org.xmind.ui.IWordContextProvider;
+import org.xmind.ui.internal.e4models.IModelConstants;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class MindMapWordContextProvider implements IWordContextProvider {
 
     private class TopicWordContext implements IWordContext {
 
         private ITopic topic;
+
+        private static final String TYPE = "topic"; //$NON-NLS-1$
 
         public TopicWordContext(ITopic topic) {
             this.topic = topic;
@@ -74,18 +80,33 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(
-                    topic,
-                    replaceString(topic.getTitleText(), start, length,
-                            replacement));
+            return replaceText(topic, replaceString(topic.getTitleText(), start,
+                    length, replacement));
         }
 
         public void reveal() {
-            revealElement(topic);
+            revealElement(topic, false);
         }
 
         public void revealWord(int start, int length) {
             revealInvalidWord(topic, start, length, GEF.REQ_EDIT);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof TopicWordContext)
+                if (this.topic != null
+                        && this.topic.equals(((TopicWordContext) obj).topic))
+                    return true;
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result += result * topic.hashCode();
+            result += result * TYPE.hashCode();
+            return result;
         }
 
     }
@@ -93,6 +114,8 @@ public class MindMapWordContextProvider implements IWordContextProvider {
     private class LabelWordContext implements IWordContext {
 
         private ITopic topic;
+
+        private static final String TYPE = "label"; //$NON-NLS-1$
 
         public LabelWordContext(ITopic topic) {
             super();
@@ -113,15 +136,13 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(
-                    topic,
+            return replaceText(topic,
                     replaceString(MindMapUtils.getLabelText(topic.getLabels()),
                             start, length, replacement),
                     MindMapUI.REQ_MODIFY_LABEL);
         }
 
         public void reveal() {
-            editor.getSite().getPage().activate(editor);
             editor.getSite().getSelectionProvider()
                     .setSelection(new StructuredSelection(topic));
         }
@@ -129,11 +150,30 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         public void revealWord(int start, int length) {
             revealInvalidWord(topic, start, length, MindMapUI.REQ_EDIT_LABEL);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof LabelWordContext)
+                if (this.topic != null
+                        && this.topic.equals(((LabelWordContext) obj).topic))
+                    return true;
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result += result * topic.hashCode();
+            result += result * TYPE.hashCode();
+            return result;
+        }
     }
 
     private class NotesWordContext implements IWordContext {
 
         private ITopic topic;
+
+        private static final String TYPE = "notes"; //$NON-NLS-1$
 
         public NotesWordContext(ITopic topic) {
             super();
@@ -159,23 +199,30 @@ public class MindMapWordContextProvider implements IWordContextProvider {
 
         public boolean replaceWord(int start, int length, String replacement) {
             revealWord(start, length);
-            IViewPart view = editor.getSite().getPage()
-                    .findView(MindMapUI.VIEW_NOTES);
-            if (view != null) {
-                ITextViewer viewer = (ITextViewer) view
-                        .getAdapter(ITextViewer.class);
-                if (viewer != null) {
-                    String toFind = viewer.getTextWidget().getText(start,
-                            start + length - 1);
 
-                    IFindReplaceTarget target = (IFindReplaceTarget) view
-                            .getAdapter(IFindReplaceTarget.class);
-                    if (target != null) {
-                        int r = target.findAndSelect(start, toFind, true, true,
-                                false);
-                        if (r > -1) {
-                            target.replaceSelection(replacement);
-                            return true;
+            IWorkbenchWindow window = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow();
+            MPart part = E4Utils.findPart(window,
+                    IModelConstants.PART_ID_NOTES);
+
+            if (part != null) {
+                Object obj = part.getObject();
+                if (obj instanceof IAdaptable) {
+                    ITextViewer viewer = (ITextViewer) ((IAdaptable) obj)
+                            .getAdapter(ITextViewer.class);
+                    if (viewer != null) {
+                        String toFind = viewer.getTextWidget().getText(start,
+                                start + length - 1);
+
+                        IFindReplaceTarget target = (IFindReplaceTarget) ((IAdaptable) obj)
+                                .getAdapter(IFindReplaceTarget.class);
+                        if (target != null) {
+                            int r = target.findAndSelect(start, toFind, true,
+                                    true, false);
+                            if (r > -1) {
+                                target.replaceSelection(replacement);
+                                return true;
+                            }
                         }
                     }
                 }
@@ -184,27 +231,57 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public void reveal() {
-            revealElement(topic);
+            revealElement(topic, false);
             SafeRunner.run(new SafeRunnable() {
                 public void run() throws Exception {
-                    editor.getSite().getPage().showView(MindMapUI.VIEW_NOTES);
+                    IWorkbenchWindow window = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow();
+
+                    if (window != null)
+                        E4Utils.showPart(
+                                IModelConstants.COMMAND_SHOW_MODEL_PART, window,
+                                IModelConstants.PART_ID_NOTES, null,
+                                IModelConstants.PART_STACK_ID_RIGHT);
                 }
             });
         }
 
         public void revealWord(int start, int length) {
             reveal();
-            IViewPart view = editor.getSite().getPage()
-                    .findView(MindMapUI.VIEW_NOTES);
-            if (view != null) {
-                ITextViewer viewer = (ITextViewer) view
-                        .getAdapter(ITextViewer.class);
-                if (viewer != null) {
-                    viewer.setSelectedRange(start, length);
+
+            IWorkbenchWindow window = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow();
+            MPart part = E4Utils.findPart(window,
+                    IModelConstants.PART_ID_NOTES);
+
+            if (part != null) {
+                Object obj = part.getObject();
+                if (obj instanceof IAdaptable) {
+                    ITextViewer viewer = (ITextViewer) ((IAdaptable) obj)
+                            .getAdapter(ITextViewer.class);
+                    if (viewer != null) {
+                        viewer.setSelectedRange(start, length);
+                    }
                 }
             }
         }
 
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof NotesWordContext)
+                if (this.topic != null
+                        && this.topic.equals(((NotesWordContext) obj).topic))
+                    return true;
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 17;
+            result += result * topic.hashCode();
+            result += result * TYPE.hashCode();
+            return result;
+        }
     }
 
     private class BoundaryWordContext implements IWordContext {
@@ -228,18 +305,30 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(
-                    boundary,
-                    replaceString(boundary.getTitleText(), start, length,
-                            replacement));
+            return replaceText(boundary, replaceString(boundary.getTitleText(),
+                    start, length, replacement));
         }
 
         public void reveal() {
-            revealElement(boundary);
+            revealElement(boundary, false);
         }
 
         public void revealWord(int start, int length) {
             revealInvalidWord(boundary, start, length, GEF.REQ_EDIT);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof BoundaryWordContext)
+                if (this.boundary != null && this.boundary
+                        .equals(((BoundaryWordContext) obj).boundary))
+                    return true;
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 17 * boundary.hashCode();
         }
 
     }
@@ -265,18 +354,30 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
 
         public boolean replaceWord(int start, int length, String replacement) {
-            return replaceText(
-                    relationship,
-                    replaceString(relationship.getTitleText(), start, length,
-                            replacement));
+            return replaceText(relationship, replaceString(
+                    relationship.getTitleText(), start, length, replacement));
         }
 
         public void reveal() {
-            revealElement(relationship);
+            revealElement(relationship, false);
         }
 
         public void revealWord(int start, int length) {
             revealInvalidWord(relationship, start, length, GEF.REQ_EDIT);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof RelationshipWordContext)
+                if (this.relationship != null && this.relationship
+                        .equals(((RelationshipWordContext) obj).relationship))
+                    return true;
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 17 * relationship.hashCode();
         }
 
     }
@@ -292,7 +393,6 @@ public class MindMapWordContextProvider implements IWordContextProvider {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.IWordContextProvider#getWordContexts()
      */
     public List<IWordContext> getWordContexts() {
@@ -325,10 +425,6 @@ public class MindMapWordContextProvider implements IWordContextProvider {
         }
     }
 
-    private void revealElement(Object element) {
-        revealElement(element, true);
-    }
-
     private void revealElement(Object element, boolean makeActive) {
         if (makeActive) {
             editor.getSite().getPage().activate(editor);
@@ -346,10 +442,8 @@ public class MindMapWordContextProvider implements IWordContextProvider {
             EditDomain domain = page.getEditDomain();
             IPart part = viewer.findPart(element);
             if (part != null) {
-                Request request = new Request(reqType)
-                        .setPrimaryTarget(part)
-                        .setDomain(domain)
-                        .setViewer(viewer)
+                Request request = new Request(reqType).setPrimaryTarget(part)
+                        .setDomain(domain).setViewer(viewer)
                         .setParameter(GEF.PARAM_FOCUS, Boolean.FALSE)
                         .setParameter(GEF.PARAM_TEXT_SELECTION,
                                 new TextSelection(start, length));
@@ -385,5 +479,20 @@ public class MindMapWordContextProvider implements IWordContextProvider {
             String replacement) {
         return text.substring(0, start) + replacement
                 + text.substring(start + length);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MindMapWordContextProvider) {
+            MindMapWordContextProvider provider = (MindMapWordContextProvider) obj;
+            if (editor != null && editor.equals(provider.editor))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 17 * editor.hashCode();
     }
 }

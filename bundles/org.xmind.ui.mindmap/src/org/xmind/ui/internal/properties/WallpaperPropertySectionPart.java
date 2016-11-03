@@ -67,8 +67,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
         }
     }
 
-    private class OpacitySelectionChangedListener implements
-            ISelectionChangedListener {
+    private class OpacitySelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             int value = getOpacityValueFromScaleSelection(event.getSelection());
@@ -80,8 +80,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
     }
 
-    private class OpacityPostSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class OpacityPostSelectionChangedListener
+            implements ISelectionChangedListener {
 
         public void selectionChanged(SelectionChangedEvent event) {
             int value = getOpacityValueFromScaleSelection(event.getSelection());
@@ -97,10 +97,10 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
         public RemoveWallpaperAction() {
             super(null, AS_PUSH_BUTTON);
-            setImageDescriptor(MindMapUI.getImages().get(IMindMapImages.REMOVE,
-                    true));
-            setDisabledImageDescriptor(MindMapUI.getImages().get(
-                    IMindMapImages.REMOVE, false));
+            setImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.REMOVE, true));
+            setDisabledImageDescriptor(
+                    MindMapUI.getImages().get(IMindMapImages.REMOVE, false));
             setToolTipText(PropertyMessages.RemoveWallpaper_toolTip);
         };
 
@@ -127,8 +127,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
     protected void createContent(Composite parent) {
         Composite line1 = new Composite(parent, SWT.NONE);
-        line1.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true,
-                false));
+        line1.setLayoutData(
+                new GridData(GridData.FILL, GridData.FILL, true, false));
         GridLayout layout1 = new GridLayout(2, false);
         layout1.marginWidth = 0;
         layout1.marginHeight = 0;
@@ -137,8 +137,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
         createLineContent1(line1);
 
         opacityGroup = new Composite(parent, SWT.NONE);
-        opacityGroup.setLayoutData(new GridData(GridData.FILL, GridData.FILL,
-                true, false));
+        opacityGroup.setLayoutData(
+                new GridData(GridData.FILL, GridData.FILL, true, false));
         GridLayout layout2 = new GridLayout(4, false);
         layout2.marginWidth = 0;
         layout2.marginHeight = 0;
@@ -159,8 +159,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
                 new GridData(GridData.FILL, GridData.FILL, true, false));
         selectWallpaperWidget.setImage(getSelectWallpaperImage());
         selectWallpaperWidget.setText(PropertyMessages.SelectWallpaper_text);
-        selectWallpaperWidget.getControl().setToolTipText(
-                PropertyMessages.SelectWallpaper_toolTip);
+        selectWallpaperWidget.getControl()
+                .setToolTipText(PropertyMessages.SelectWallpaper_toolTip);
         selectWallpaperWidget.addOpenListener(new IOpenListener() {
             public void open(OpenEvent event) {
                 openSelectWallpaperDialog();
@@ -183,8 +183,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
         opacityInput = new Text(parent, SWT.BORDER | SWT.SINGLE | SWT.TRAIL);
         SWTUtils.makeNumeralInput(opacityLabel, false, false);
-        GridData inputData = new GridData(GridData.FILL, GridData.CENTER,
-                false, false);
+        GridData inputData = new GridData(GridData.FILL, GridData.CENTER, false,
+                false);
         inputData.widthHint = 25;
         opacityInput.setLayoutData(inputData);
         opacityInput.setTextLimit(3);
@@ -212,18 +212,18 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
         Label percentageLabel = new Label(parent, SWT.NONE);
         percentageLabel.setText("%"); //$NON-NLS-1$
-        percentageLabel.setLayoutData(new GridData(GridData.FILL,
-                GridData.CENTER, false, false));
+        percentageLabel.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, false, false));
 
         opacityScale = new SliderViewer(parent, SWT.HORIZONTAL);
         opacityScale.setLabelProvider(new OpacityLabelProvider());
         opacityScale.getControl().setLayoutData(
                 new GridData(GridData.FILL, GridData.CENTER, true, false));
         opacityScale.getControl().setBackground(parent.getBackground());
-        opacityScale
-                .addSelectionChangedListener(new OpacitySelectionChangedListener());
-        opacityScale
-                .addPostSelectionChangedListener(new OpacityPostSelectionChangedListener());
+        opacityScale.addSelectionChangedListener(
+                new OpacitySelectionChangedListener());
+        opacityScale.addPostSelectionChangedListener(
+                new OpacityPostSelectionChangedListener());
     }
 
     private void selectAllOpacityText(final boolean takeFocus) {
@@ -265,8 +265,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
     private Image getSelectWallpaperImage() {
         if (selectWallpaperImage == null || selectWallpaperImage.isDisposed()) {
-            ImageDescriptor icon = MindMapUI.getImages().get(
-                    IMindMapImages.INSERT_IMAGE, true);
+            ImageDescriptor icon = MindMapUI.getImages()
+                    .get(IMindMapImages.INSERT_IMAGE, true);
             if (icon != null) {
                 selectWallpaperImage = icon.createImage(false);
             }
@@ -276,8 +276,8 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
 
     private Image getOpacityImage() {
         if (opacityImage == null) {
-            ImageDescriptor icon = MindMapUI.getImages().get(
-                    IMindMapImages.OPAQUE);
+            ImageDescriptor icon = MindMapUI.getImages()
+                    .get(IMindMapImages.OPAQUE);
             if (icon != null) {
                 opacityImage = icon.createImage(false);
             }
@@ -328,12 +328,12 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
         double doubleValue = parseOpacityValue(value);
         doubleValue = Math.max(0, Math.min(1, doubleValue));
         if (opacityInput != null && !opacityInput.isDisposed()) {
-            opacityInput.setText(String.valueOf((int) Math
-                    .round(doubleValue * 100)));
+            opacityInput.setText(
+                    String.valueOf((int) Math.round(doubleValue * 100)));
         }
         if (opacityScale != null && !opacityScale.getControl().isDisposed()) {
-            opacityScale.setSelection(new StructuredSelection(Double
-                    .valueOf(doubleValue)));
+            opacityScale.setSelection(
+                    new StructuredSelection(Double.valueOf(doubleValue)));
         }
     }
 
@@ -376,13 +376,15 @@ public class WallpaperPropertySectionPart extends StyledPropertySectionPart {
     }
 
     private void removeWallpaper() {
-        Request request = createStyleRequest(CommandMessages.Command_ModifyWallpaper);
+        Request request = createStyleRequest(
+                CommandMessages.Command_ModifyWallpaper);
         addStyle(request, Styles.Background, ""); //$NON-NLS-1$
         sendRequest(request);
     }
 
     private void changeOpacity(int opacityValue) {
-        Request request = createStyleRequest(CommandMessages.Command_ModifyWallpaperOpacity);
+        Request request = createStyleRequest(
+                CommandMessages.Command_ModifyWallpaperOpacity);
         String value = String.valueOf((double) opacityValue * 1.0 / 100);
         addStyle(request, Styles.Opacity, value);
         sendRequest(request);

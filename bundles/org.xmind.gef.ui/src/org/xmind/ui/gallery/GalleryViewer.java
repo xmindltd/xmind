@@ -118,7 +118,6 @@ public class GalleryViewer extends GraphicalViewer
      * property does not work when the input contains no elements because the
      * selection will always be empty in this case.
      * </p>
-     * 
      * Values: true, false
      */
     public static final String EmptySelectionIgnored = "org.xmind.ui.gallery.emptySelectionIgnored"; //$NON-NLS-1$
@@ -136,6 +135,10 @@ public class GalleryViewer extends GraphicalViewer
     public static final String ContentPaneBorderWidth = "org.xmind.ui.gallery.contentPaneBorderWidth"; //$NON-NLS-1$
 
     public static final String ContentPaneBorderColor = "org.xmind.ui.gallery.contentPaneBorderColor"; //$NON-NLS-1$
+
+    public static final String ContentPaneSpaceCollaborativeEngine = "org.xmind.ui.gallery.contentPaneSpaceCollaborativeEngine"; //$NON-NLS-1$
+
+    public static final String HorizontalLayout = "org.xmind.ui.gallery.horizontalLayout"; //$NON-NLS-1$
 
     /**
      * Value for title placement 'top'.
@@ -161,6 +164,7 @@ public class GalleryViewer extends GraphicalViewer
             PositionConstants.RIGHT);
 
     public static final String POLICY_NAVIGABLE = "org.xmind.ui.gallery.editPolicy.navigable"; //$NON-NLS-1$
+    public static final String POLICY_MOVABLE = "org.xmind.ui.gallery.editPolicy.movable"; //$NON-NLS-1$
 
     private class GalleryLabelProviderListener
             implements ILabelProviderListener {

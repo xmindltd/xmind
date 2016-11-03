@@ -11,14 +11,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 
 /**
  * @author frankshaka
- * 
  */
 public class NewFromTemplateURLAction extends BaseNewFromTemplateAction {
 
     private URL url;
 
     /**
-     * 
      * @param window
      * @param resourcePath
      * @param name
@@ -34,7 +32,6 @@ public class NewFromTemplateURLAction extends BaseNewFromTemplateAction {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.actions.BaseNewFromTemplateAction#getTemplateStream
      * (org.eclipse.swt.widgets.Shell)

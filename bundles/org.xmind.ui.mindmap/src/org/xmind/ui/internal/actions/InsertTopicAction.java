@@ -1,12 +1,15 @@
-/*
- * *****************************************************************************
- * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
- * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
- * License (EPL), which is available at
- * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
- * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
- * initial API and implementation
+/* ******************************************************************************
+ * Copyright (c) 2006-2012 XMind Ltd. and others.
+ * 
+ * This file is a part of XMind 3. XMind releases 3 and
+ * above are dual-licensed under the Eclipse Public License (EPL),
+ * which is available at http://www.eclipse.org/legal/epl-v10.html
+ * and the GNU Lesser General Public License (LGPL), 
+ * which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details.
+ * 
+ * Contributors:
+ *     XMind Ltd. - initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
@@ -21,17 +24,17 @@ import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
-public class InsertTopicAction extends RequestAction
-        implements ISelectionAction {
+public class InsertTopicAction extends RequestAction implements
+        ISelectionAction {
 
     public InsertTopicAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.INSERT_TOPIC.getId(), page, GEF.REQ_CREATE);
         setText(MindMapMessages.InsertTopic_text);
         setToolTipText(MindMapMessages.InsertTopic_toolTip);
-        setImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.INSERT_AFTER, true));
-        setDisabledImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.INSERT_AFTER, false));
+        setImageDescriptor(MindMapUI.getImages().get(
+                IMindMapImages.INSERT_AFTER, true));
+        setDisabledImageDescriptor(MindMapUI.getImages().get(
+                IMindMapImages.INSERT_AFTER, false));
     }
 
     public void setSelection(ISelection selection) {
@@ -39,8 +42,7 @@ public class InsertTopicAction extends RequestAction
     }
 
     private boolean isCreatable(ISelection selection) {
-        return (MindMapUtils.isSingleTopic(selection) && !MindMapUtils
-                .hasSuchElements(selection, MindMapUI.CATEGORY_SUMMARY))
+        return MindMapUtils.isSingleTopic(selection)
                 || MindMapUtils.matchesSelection(selection,
                         MindMapUI.CATEGORY_RELATIONSHIP, true);
 //            return true;

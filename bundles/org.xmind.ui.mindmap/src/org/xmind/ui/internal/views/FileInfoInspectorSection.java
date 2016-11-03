@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -33,11 +32,11 @@ import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.internal.dom.NumberUtils;
-import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.internal.utils.CommandUtils;
 import org.xmind.ui.util.MindMapUtils;
 
-public class FileInfoInspectorSection extends InspectorSection implements
-        ICoreEventListener {
+public class FileInfoInspectorSection extends InspectorSection
+        implements ICoreEventListener {
 
     private ICoreEventRegister register;
 
@@ -87,8 +86,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (estimateSizeLabel == null)
             estimateSizeLabel = new Label(item, SWT.NONE);
-        estimateSizeLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        estimateSizeLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         estimateSizeLabel.setText(getSize());
         return item;
     }
@@ -100,8 +99,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (wordsCountLabel == null)
             wordsCountLabel = new Label(item, SWT.NONE);
-        wordsCountLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        wordsCountLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         wordsCountLabel.setText(getWordsCount());
         return item;
     }
@@ -113,8 +112,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (topicsCountLabel == null)
             topicsCountLabel = new Label(item, SWT.NONE);
-        topicsCountLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        topicsCountLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         topicsCountLabel.setText(getTopicsCount());
         return item;
     }
@@ -131,8 +130,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (revisions == null)
             revisions = new Hyperlink(item, SWT.NONE);
-        revisions.setForeground(Display.getCurrent().getSystemColor(
-                SWT.COLOR_BLUE));
+        revisions.setForeground(
+                Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
         revisions.setUnderlined(true);
         revisions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         revisions.setText(getRevisions());
@@ -150,11 +149,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
                 if (window != null) {
                     IWorkbenchPage page = window.getActivePage();
                     if (page != null)
-                        try {
-                            page.showView(MindMapUI.VIEW_REVISIONS);
-                        } catch (PartInitException e1) {
-                            e1.printStackTrace();
-                        }
+                        CommandUtils.executeCommand(
+                                "org.xmind.ui.command.editingHistory", window); //$NON-NLS-1$
                 }
             }
         });
@@ -167,8 +163,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (modifyTimeLabel == null)
             modifyTimeLabel = new Label(item, SWT.NONE);
-        modifyTimeLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        modifyTimeLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         modifyTimeLabel.setText(getModifiedTime());
         return item;
     }
@@ -180,8 +176,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (modifyByLabel == null)
             modifyByLabel = new Label(item, SWT.NONE);
-        modifyByLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        modifyByLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         modifyByLabel.setText(getModifiedBy());
         return item;
     }
@@ -193,8 +189,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
 
         if (createdTimeLabel == null)
             createdTimeLabel = new Label(item, SWT.NONE);
-        createdTimeLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        createdTimeLabel
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         createdTimeLabel.setText(getCreatedTime());
         return item;
     }
@@ -416,7 +412,8 @@ public class FileInfoInspectorSection extends InspectorSection implements
             refreshEstimateSize();
         } else if (Core.WorkbookSave.equals(type)) {
             refreshEstimateSize();
-        } else if (Core.TopicAdd.equals(type) || Core.TopicRemove.equals(type)) {
+        } else if (Core.TopicAdd.equals(type)
+                || Core.TopicRemove.equals(type)) {
             refreshTopicsCount();
             refreshWordsCount();
         } else if (Core.TitleText.equals(type) || Core.TopicNotes.equals(type)

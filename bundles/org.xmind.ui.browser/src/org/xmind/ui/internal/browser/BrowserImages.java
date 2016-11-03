@@ -26,7 +26,7 @@ public class BrowserImages {
 
     public static final String PATH_DISABLED = PATH_ICONS + "d/"; //$NON-NLS-1$
 
-    public static final String XMIND = PATH_ICONS + "xmind.16.gif"; //$NON-NLS-1$
+    public static final String XMIND = PATH_ICONS + "xmind.16.png"; //$NON-NLS-1$
 
     public static final String BROWSER = PATH_ICONS + "browser.gif"; //$NON-NLS-1$
 
@@ -47,8 +47,8 @@ public class BrowserImages {
     public static ImageDescriptor getImageDescriptor(String path) {
         ImageDescriptor img = cache.get(path);
         if (img == null) {
-            img = BrowserPlugin.imageDescriptorFromPlugin(
-                    BrowserPlugin.PLUGIN_ID, path);
+            img = BrowserPlugin
+                    .imageDescriptorFromPlugin(BrowserPlugin.PLUGIN_ID, path);
             if (img != null)
                 cache.put(path, img);
         }

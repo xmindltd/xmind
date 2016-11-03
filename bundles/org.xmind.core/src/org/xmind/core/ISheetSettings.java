@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 
  * @author Jason Wong
- * @since 3.6.50
  */
 public interface ISheetSettings extends IAdaptable, ISheetComponent {
 

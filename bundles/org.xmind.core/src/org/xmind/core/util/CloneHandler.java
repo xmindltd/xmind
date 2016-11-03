@@ -16,6 +16,9 @@
  */
 package org.xmind.core.util;
 
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_OBJECT_ID;
+import static org.xmind.core.internal.dom.DOMConstants.ATTR_RESOURCE_PATH;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,6 +57,9 @@ import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.IWorkbookExtension;
+import org.xmind.core.IWorkbookExtensionElement;
+import org.xmind.core.IWorkbookExtensionManager;
 import org.xmind.core.internal.CloneData;
 import org.xmind.core.internal.zip.ArchiveConstants;
 import org.xmind.core.marker.IMarker;
@@ -204,13 +210,25 @@ public class CloneHandler {
             targetAllTopics.addAll(sheet.getRootTopic().getAllChildren());
         }
 
+        IWorkbookExtensionManager sourceExtensionManager = sourceWorkbook
+                .getAdapter(IWorkbookExtensionManager.class);
+        IWorkbookExtensionManager targetExtensionManager = targetWorkbook
+                .getAdapter(IWorkbookExtensionManager.class);
+        if (sourceExtensionManager != null && targetExtensionManager != null) {
+            for (IWorkbookExtension sourceExtension : sourceExtensionManager
+                    .getExtensions()) {
+                IWorkbookExtension targetExtension = targetExtensionManager
+                        .createExtension(sourceExtension.getProviderName());
+                copyWorkbookExtension(sourceExtension, targetExtension);
+            }
+        }
+
         fixInternalHyperlinkFor(targetAllTopics);
     }
 
     /**
      * Clones a source object into the target container (e.g. workbook or style
      * sheet, etc.). Currently only these kinds of objects can be cloned:
-     * 
      * <ul>
      * <li>{@link org.xmind.core.ISheet} (require sourceWorkbook/targetWorkbook)
      * </li>
@@ -365,7 +383,7 @@ public class CloneHandler {
         IMarkerRef targetMarkerRef;
         IMarker sourceMarker = sourceMarkerRef.getMarker();
         if (sourceMarker == null) {
-            targetMarkerRef = null;
+            targetMarkerRef = sourceMarkerRef;
         } else {
             IMarker targetMarker = findOrCloneMarker(sourceMarker);
             if (targetMarker == null) {
@@ -596,6 +614,8 @@ public class CloneHandler {
                 .setSeparator(sourceTopic.getNumbering().getSeparator());
         targetTopic.getNumbering().setPrependsParentNumbers(
                 sourceTopic.getNumbering().prependsParentNumbers());
+        targetTopic.getNumbering()
+                .setDepth(sourceTopic.getNumbering().getDepth());
 
         INotesContent sourcePlainContent = sourceTopic.getNotes()
                 .getContent(INotes.PLAIN);
@@ -672,8 +692,7 @@ public class CloneHandler {
 
     private void copyHtmlNotesContent(IHtmlNotesContent sourceNotesContent,
             IHtmlNotesContent targetNotesContent) throws IOException {
-        List<IParagraph> paragraphs = sourceNotesContent.getParagraphs();
-        for (IParagraph sourceParagraph : paragraphs) {
+        for (IParagraph sourceParagraph : sourceNotesContent.getParagraphs()) {
             IParagraph targetParagraph = targetNotesContent.createParagraph();
             targetParagraph
                     .setStyleId(convertStyleId(sourceParagraph.getStyleId()));
@@ -691,8 +710,9 @@ public class CloneHandler {
                 targetSpan = spanFactory.createTextSpan(
                         ((ITextSpan) sourceSpan).getTextContent());
             } else if (sourceSpan instanceof IImageSpan) {
-                targetSpan = spanFactory
-                        .createImageSpan(((IImageSpan) sourceSpan).getSource());
+                String source = ((IImageSpan) sourceSpan).getSource();
+                String newImageSource = convertHyperlink(source);
+                targetSpan = spanFactory.createImageSpan(newImageSource);
             } else if (sourceSpan instanceof IHyperlinkSpan) {
                 targetSpan = spanFactory.createHyperlinkSpan(
                         ((IHyperlinkSpan) sourceSpan).getHref());
@@ -771,10 +791,15 @@ public class CloneHandler {
         mapper.putString(ICloneData.WORKBOOK_COMPONENTS, sourceRel.getId(),
                 targetRel.getId());
         targetRel.setTitleText(sourceRel.getTitleText());
-        targetRel.setEnd1Id(mapper.getString(ICloneData.WORKBOOK_COMPONENTS,
-                sourceRel.getEnd1Id()));
-        targetRel.setEnd2Id(mapper.getString(ICloneData.WORKBOOK_COMPONENTS,
-                sourceRel.getEnd2Id()));
+
+        String end1Id = mapper.getString(ICloneData.WORKBOOK_COMPONENTS,
+                sourceRel.getEnd1Id());
+        targetRel.setEnd1Id(end1Id == null ? sourceRel.getEnd1Id() : end1Id);
+
+        String end2Id = mapper.getString(ICloneData.WORKBOOK_COMPONENTS,
+                sourceRel.getEnd2Id());
+        targetRel.setEnd2Id(end2Id == null ? sourceRel.getEnd2Id() : end2Id);
+
         targetRel.setStyleId(convertStyleId(sourceRel.getStyleId()));
 
         copyControlPointContents(sourceRel, targetRel, 0);
@@ -791,7 +816,8 @@ public class CloneHandler {
 
         IControlPoint targetControlPoint = targetRel.getControlPoint(index);
         if (sourceControlPoint.hasPosition()) {
-            targetControlPoint.setPosition(sourceControlPoint.getPosition());
+            Point position = sourceControlPoint.getPosition();
+            targetControlPoint.setPosition(new Point(position.x, position.y));
         }
         if (sourceControlPoint.hasPolarAngle()) {
             targetControlPoint
@@ -800,6 +826,44 @@ public class CloneHandler {
         if (sourceControlPoint.hasPolarAmount()) {
             targetControlPoint
                     .setPolarAmount(sourceControlPoint.getPolarAmount());
+        }
+    }
+
+    private void copyWorkbookExtension(IWorkbookExtension sourceExt,
+            IWorkbookExtension targetExt) throws IOException {
+        for (IResourceRef ref : sourceExt.getResourceRefs()) {
+            if (IResourceRef.FILE_ENTRY.equals(ref.getType())) {
+                String targetEntryPath = convertEntryPath(ref.getResourceId());
+                if (targetEntryPath != null) {
+                    targetExt.addResourceRef(
+                            targetExt.getOwnedWorkbook().createResourceRef(
+                                    IResourceRef.FILE_ENTRY, targetEntryPath));
+                }
+            }
+        }
+
+        copyWorkbookExtensionElement(sourceExt.getContent(),
+                targetExt.getContent());
+    }
+
+    private void copyWorkbookExtensionElement(
+            IWorkbookExtensionElement sourceEle,
+            IWorkbookExtensionElement targetEle) throws IOException {
+        targetEle.setTextContent(sourceEle.getTextContent());
+        for (String key : sourceEle.getAttributeKeys()) {
+            String value = sourceEle.getAttribute(key);
+            if (ATTR_RESOURCE_PATH.equals(key)) {
+                value = convertEntryPath(value);
+            } else if (ATTR_OBJECT_ID.equals(key)) {
+                value = mapper.getString(ICloneData.WORKBOOK_COMPONENTS, value);
+            }
+            targetEle.setAttribute(key, value);
+        }
+
+        for (IWorkbookExtensionElement sourceE : sourceEle.getChildren()) {
+            IWorkbookExtensionElement targetE = targetEle
+                    .createChild(sourceE.getName());
+            copyWorkbookExtensionElement(sourceE, targetE);
         }
     }
 

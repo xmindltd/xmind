@@ -3,6 +3,7 @@ package org.xmind.ui.internal.decorations;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.draw2d.geometry.PrecisionDimension;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
@@ -19,6 +20,8 @@ public class CloudTopicDecoration extends AbstractTopicDecoration {
     private static final float scaleRight = 0.16f;
     private static final float scaleTop = 0.22f;
     private static final float scaleBottom = 0.27f;
+
+    private static final float RATIO = 2.5f;
 
     private String svgPath;
 
@@ -96,13 +99,14 @@ public class CloudTopicDecoration extends AbstractTopicDecoration {
         sketch(figure, shape, getOutlineBox(figure), FILL);
         boolean ret = shape.contains(x, y, gc, false);
         shape.close();
+        shape.dispose();
         return ret;
     }
 
     public Insets getPreferredInsets(IFigure figure, int width, int height) {
         float scaleWidth = 1 - scaleLeft - scaleRight;
         float scaleHeight = 1 - scaleTop - scaleBottom;
-        return new Insets(
+        Insets insets = new Insets(
                 (int) ((height + getTopMargin() + getLineWidth()) / scaleHeight
                         * scaleTop),
                 (int) ((width + getLeftMargin() + getLineWidth()) / scaleWidth
@@ -111,6 +115,32 @@ public class CloudTopicDecoration extends AbstractTopicDecoration {
                         / scaleHeight * scaleBottom),
                 (int) ((width + getRightMargin() + getLineWidth()) / scaleWidth
                         * scaleRight));
+
+        PrecisionDimension dimension = expandWHitAsRatio(
+                new PrecisionDimension(width + insets.left + insets.right,
+                        height + insets.top + insets.bottom));
+        Insets inset = new Insets();
+        inset.top = (int) ((dimension.height - height) * scaleTop
+                / (scaleTop + scaleBottom));
+        inset.left = (int) ((dimension.width - width) * scaleLeft
+                / (scaleLeft + scaleRight));
+        inset.bottom = (int) ((dimension.height - height) * scaleBottom
+                / (scaleTop + scaleBottom));
+        inset.right = (int) ((dimension.width - width) * scaleRight
+                / (scaleLeft + scaleRight));
+        return inset;
+    }
+
+    private PrecisionDimension expandWHitAsRatio(
+            PrecisionDimension whitDimension) {
+        PrecisionDimension dimension = whitDimension;
+        if (whitDimension.width > whitDimension.height * RATIO) {
+            dimension.height = (int) Math.ceil(whitDimension.width / RATIO);
+            dimension.width = (int) (dimension.height * RATIO);
+        } else if (whitDimension.width < whitDimension.height * RATIO) {
+            dimension.width = (int) Math.ceil(whitDimension.height * RATIO);
+        }
+        return dimension;
     }
 
 }

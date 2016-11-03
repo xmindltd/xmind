@@ -16,14 +16,17 @@ package org.xmind.ui.decorations;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.gef.draw2d.decoration.AbstractDecoration;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.geometry.PrecisionRectangle;
 import org.xmind.gef.draw2d.graphics.Path;
 
+@SuppressWarnings("restriction")
 public abstract class AbstractArrowDecoration extends AbstractDecoration
         implements IArrowDecoration {
 
@@ -98,9 +101,18 @@ public abstract class AbstractArrowDecoration extends AbstractDecoration
             Path shape = new Path(Display.getCurrent());
             sketch(figure, shape);
             shape.getBounds(RECT);
+            if (Util.isWindows()) {
+                float[] autoScaleDown = DPIUtil.autoScaleDown(RECT);
+                RECT[0] = autoScaleDown[0];
+                RECT[1] = autoScaleDown[1];
+                RECT[2] = autoScaleDown[2];
+                RECT[3] = autoScaleDown[3];
+            }
+
             shape.dispose();
-            return PrecisionRectangle.toDraw2DRectangle(RECT[0], RECT[1],
-                    RECT[2], RECT[3]).expand(getWidth(), getWidth());
+            return PrecisionRectangle
+                    .toDraw2DRectangle(RECT[0], RECT[1], RECT[2], RECT[3])
+                    .expand(getWidth(), getWidth());
         }
         return new PrecisionRectangle(getPosition(), getPosition())
                 .toDraw2DRectangle();

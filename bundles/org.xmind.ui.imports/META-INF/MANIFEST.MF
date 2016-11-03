@@ -2,17 +2,19 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.imports;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Activator: org.xmind.ui.internal.imports.ImportPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.xmind.core.io;bundle-version="[3.6.0,3.7.0)",
- org.xmind.ui;bundle-version="[3.6.0,3.7.0)",
- org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)"
+ org.xmind.core.io;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.ui;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.ui.toolkit;bundle-version="[3.7.0,3.8.0)"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: org.xmind.ui.internal.imports;x-internal:=true,
  org.xmind.ui.internal.imports.freemind;x-internal:=true,
  org.xmind.ui.internal.imports.mm;x-internal:=true
 Bundle-Localization: plugin
+Import-Package: org.json,
+ org.xmind.core.usagedata

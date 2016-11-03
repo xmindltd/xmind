@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- *
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL),
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- *
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.gef.ui.editor;
 
@@ -38,7 +35,6 @@ import org.xmind.gef.command.ICommandStackListener;
  * application should create its own subclass of <code>Editable</code> and
  * provide abilities to access actual content.
  * </p>
- *
  * <h2>Subclassing Notes</h2>
  * <ul>
  * <li>Each subclass <b>MUST</b> override {@link #doOpen(IProgressMonitor)
@@ -53,7 +49,6 @@ import org.xmind.gef.command.ICommandStackListener;
  * <li>Each subclass may override {@link #doClose(IProgressMonitor) doClose()}
  * to perform additional actions while closing the document.</li>
  * </ul>
- *
  *
  * @author Frank Shaka
  * @since 3.6.50
@@ -74,18 +69,17 @@ public abstract class Editable implements IEditable {
 
     private final List<IEditableCleaner> cleaners = new ArrayList<IEditableCleaner>();
 
-    private final ListenerList listenerManager = new ListenerList();
+    private final ListenerList<IPropertyChangeListener> listenerManager = new ListenerList<IPropertyChangeListener>();
 
     private int contentRefCount = 0;
-
-    private boolean wasDirty = false;
 
     private ICommandStackListener commandStackHook = new ICommandStackListener() {
 
         @Override
         public void handleCommandStackEvent(CommandStackEvent event) {
             if ((event.getStatus() & GEF.CS_UPDATED) != 0) {
-                checkDirty();
+                boolean isDirty = isDirty();
+                firePropertyChanged(PROP_DIRTY, false, isDirty);
             }
 
             doHandleCommandStackChange(event);
@@ -273,29 +267,40 @@ public abstract class Editable implements IEditable {
 
     @Override
     public void markDirtyWith(IEditableCleaner cleaner) {
+        boolean wasDirty = isDirty();
         synchronized (this.cleaners) {
             this.cleaners.add(cleaner);
         }
-        checkDirty();
+        boolean isDirty = isDirty();
+        if (wasDirty != isDirty) {
+            firePropertyChanged(PROP_DIRTY, wasDirty, isDirty);
+        }
     }
 
     @Override
     public void unmarkDirtyWith(IEditableCleaner cleaner) {
+        boolean wasDirty = isDirty();
         synchronized (this.cleaners) {
             this.cleaners.remove(cleaner);
         }
-        checkDirty();
+        boolean isDirty = isDirty();
+        if (wasDirty != isDirty) {
+            firePropertyChanged(PROP_DIRTY, wasDirty, isDirty);
+        }
     }
 
     /*
      * (non-Javadoc)
-     *
      * @see org.xmind.gef.ui.editor.IEditable#discardChanges()
      */
     @Override
     public void discardChanges() {
+        boolean wasDirty = isDirty();
         doDiscardChanges();
-        checkDirty();
+        boolean isDirty = isDirty();
+        if (wasDirty != isDirty) {
+            firePropertyChanged(PROP_DIRTY, wasDirty, isDirty);
+        }
     }
 
     protected void doDiscardChanges() {
@@ -400,7 +405,6 @@ public abstract class Editable implements IEditable {
 
     /**
      * Perform actual <em>open</em> operations.
-     *
      * <p>
      * This method is, by default, called by {@link #open(IProgressMonitor)} and
      * its default implementation from {@link Editable} does nothing but throws
@@ -460,6 +464,7 @@ public abstract class Editable implements IEditable {
             subMonitor.newChild(5);
             addState(SAVING);
             try {
+                boolean wasDirty = isDirty();
                 if (subMonitor.isCanceled())
                     throw new InterruptedException();
                 clean(subMonitor.newChild(5));
@@ -470,7 +475,10 @@ public abstract class Editable implements IEditable {
                 markSaved(subMonitor.newChild(5));
 
                 subMonitor.newChild(4);
-                checkDirty();
+                boolean isDirty = isDirty();
+                if (wasDirty != isDirty) {
+                    firePropertyChanged(PROP_DIRTY, wasDirty, isDirty);
+                }
             } finally {
                 subMonitor.setWorkRemaining(1);
                 subMonitor.newChild(1);
@@ -484,7 +492,6 @@ public abstract class Editable implements IEditable {
 
     /**
      * Perform actual <em>save</em> operations.
-     *
      * <p>
      * This method is, by default, called by {@link #save(IProgressMonitor)} and
      * its default implementation from {@link Editable} does nothing but throws
@@ -520,7 +527,6 @@ public abstract class Editable implements IEditable {
     /**
      * Called after the save operation has successfully completed. Typically
      * used to send notifications.
-     *
      * <p>
      * Subclasses may override and call <code>super.markSaved()</code>.
      * </p>
@@ -595,7 +601,6 @@ public abstract class Editable implements IEditable {
 
     /**
      * Perform actual <em>close</em> operations.
-     *
      * <p>
      * This method is, by default, called from {@link #close(IProgressMonitor)}
      * and its default implementation from {@link Editable} does nothing, so
@@ -628,7 +633,6 @@ public abstract class Editable implements IEditable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.ui.editor.IEditable#getMessages()
      */
     @Override
@@ -638,7 +642,6 @@ public abstract class Editable implements IEditable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.ui.editor.IEditable#addMessage(org.eclipse.jface.dialogs.
      * IMessageProvider)
@@ -655,7 +658,6 @@ public abstract class Editable implements IEditable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.ui.editor.IEditable#removeMessage(org.eclipse.jface.dialogs
      * .IMessageProvider)
@@ -668,15 +670,6 @@ public abstract class Editable implements IEditable {
             firePropertyChanged(PROP_MESSAGES, oldMessages,
                     new ArrayList<IInteractiveMessage>(messages));
         }
-    }
-
-    protected void checkDirty() {
-        boolean dirty = isDirty();
-        if (dirty == wasDirty)
-            return;
-
-        wasDirty = dirty;
-        firePropertyChanged(PROP_DIRTY, wasDirty, dirty);
     }
 
     protected void doHandleCommandStackChange(CommandStackEvent event) {

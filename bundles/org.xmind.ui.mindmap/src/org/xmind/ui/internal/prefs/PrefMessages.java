@@ -35,6 +35,7 @@ public class PrefMessages extends NLS {
     public static String EditorPage_UndoRedo_description;
     public static String EditorPage_TopicPositioning_title;
     public static String EditorPage_TopicPositioning_AllowOverlaps;
+    public static String EditorPage_TopicPositioning_AllowManualLayout;
     public static String EditorPage_TopicPositioning_AllowFreePosition;
     public static String EditorPage_TopicPositioning_FreePositioning_description;
     public static String EditorPage_Preview_text;

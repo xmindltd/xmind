@@ -32,6 +32,10 @@ import java.util.List;
  */
 public interface IManifest extends IWorkbookComponent, IAdaptable {
 
+    String getPasswordHint();
+
+    void setPasswordHint(String hint);
+
     /**
      * Lists all existing file entries that has at least one reference.
      * 

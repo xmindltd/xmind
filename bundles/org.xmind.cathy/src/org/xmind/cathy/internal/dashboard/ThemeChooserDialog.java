@@ -33,9 +33,16 @@ public class ThemeChooserDialog extends Dialog {
 
     private IStyle selectedTheme = null;
 
+    private String structureClass;
+
     protected ThemeChooserDialog(Shell parentShell) {
         super(parentShell);
         setShellStyle(getShellStyle() | SWT.SHEET);
+    }
+
+    protected ThemeChooserDialog(Shell parentShell, String structureClass) {
+        this(parentShell);
+        this.structureClass = structureClass;
     }
 
     @Override
@@ -108,7 +115,8 @@ public class ThemeChooserDialog extends Dialog {
 
             @Override
             protected void initGalleryViewer(GalleryViewer galleryViewerer) {
-                galleryViewerer.setLabelProvider(new ThemeLabelProvider());
+                galleryViewerer.setLabelProvider(
+                        new ThemeLabelProvider(structureClass));
                 EditDomain editDomain = new EditDomain();
                 editDomain.installTool(GEF.TOOL_SELECT,
                         new GallerySelectTool());

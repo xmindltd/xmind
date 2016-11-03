@@ -18,6 +18,7 @@ package org.xmind.core.util;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.xmind.core.util.IProgressReporter;
 
 /**
  * @author Frank Shaka

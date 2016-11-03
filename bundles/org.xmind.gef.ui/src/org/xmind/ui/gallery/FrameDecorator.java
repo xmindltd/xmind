@@ -72,7 +72,8 @@ public class FrameDecorator extends Decorator {
             IGraphicalToolTipProvider toolTipProvider = (IGraphicalToolTipProvider) labelProvider;
             IFigure toolTipFigure = toolTipProvider.getToolTipFigure(model);
             frame.setToolTip(toolTipFigure);
-        } else if (labelProvider instanceof IToolTipProvider) {
+        }
+        if (labelProvider instanceof IToolTipProvider) {
             IToolTipProvider toolTipProvider = (IToolTipProvider) labelProvider;
             String toolTip = toolTipProvider.getToolTip(model);
             if (toolTip == null || "".equals(toolTip)) { //$NON-NLS-1$
@@ -92,6 +93,7 @@ public class FrameDecorator extends Decorator {
             layer.setBorderAlpha(0xff);
             layer.setBorderColor((Color) color);
         }
+
     }
 
     private String getText(Object element, IBaseLabelProvider labelProvider) {

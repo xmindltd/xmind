@@ -44,6 +44,11 @@ import org.xmind.core.util.IProgressReporter;
  */
 public interface IDeserializer extends ISerializingBase {
 
+    IManifest getManifest();
+
+    void deserializeManifest(IProgressReporter reporter)
+            throws IOException, CoreException, IllegalStateException;
+
     /**
      * Returns the deserialized workbook.
      * 

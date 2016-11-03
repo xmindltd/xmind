@@ -31,12 +31,15 @@ public class PropertyEditingEntryPropertyTester extends PropertyTester {
                 return matchEntryResettable(entry, expectedValue);
             if (IPropertyEditingEntry.PROP_PROPERTY_SET.equals(property))
                 return matchIsPropertySet(entry, expectedValue);
+            if (IPropertyEditingEntry.PROP_TEXT_OPERATION.equals(property))
+                return matchIsTextOperation(entry, expectedValue);
         }
         Assert.isTrue(false);
         return false;
     }
 
-    private boolean matchEntryEditable(IPropertyEditingEntry entry, Object value) {
+    private boolean matchEntryEditable(IPropertyEditingEntry entry,
+            Object value) {
         boolean editable = entry.isEditable();
         if (value == null)
             return editable;
@@ -59,7 +62,8 @@ public class PropertyEditingEntryPropertyTester extends PropertyTester {
         return false;
     }
 
-    private boolean matchIsPropertySet(IPropertyEditingEntry entry, Object value) {
+    private boolean matchIsPropertySet(IPropertyEditingEntry entry,
+            Object value) {
         boolean propertySet = entry.isPropertySet();
         if (value == null)
             return propertySet;
@@ -67,6 +71,18 @@ public class PropertyEditingEntryPropertyTester extends PropertyTester {
             return Boolean.parseBoolean((String) value) == propertySet;
         if (value instanceof Boolean)
             return ((Boolean) value).booleanValue() == propertySet;
+        return false;
+    }
+
+    private boolean matchIsTextOperation(IPropertyEditingEntry entry,
+            Object value) {
+        boolean isTextOperation = entry.isTextOperation();
+        if (value == null)
+            return isTextOperation;
+        if (value instanceof String)
+            return Boolean.parseBoolean((String) value) == isTextOperation;
+        if (value instanceof Boolean)
+            return ((Boolean) value).booleanValue() == isTextOperation;
         return false;
     }
 

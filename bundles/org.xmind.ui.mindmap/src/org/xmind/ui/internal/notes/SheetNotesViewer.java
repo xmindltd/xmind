@@ -5,10 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -34,9 +38,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.core.Core;
+import org.xmind.core.IBoundary;
+import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
@@ -47,6 +52,8 @@ import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.actions.DeleteNotesAction;
+import org.xmind.ui.internal.e4models.IModelConstants;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
@@ -61,6 +68,10 @@ public class SheetNotesViewer
     private static final int EXTRA_WIDTH = 28;
 
     private ISheet sheet;
+
+    private IBoundary boundary;
+
+    private IRelationship relationship;
 
     private Composite composite;
 
@@ -99,6 +110,8 @@ public class SheetNotesViewer
     //storage the control of each note, used to handle mouseEnter and mouseClick event
     private List<Control> controls = new ArrayList<Control>();
 
+    private ResourceManager resources;
+
     public SheetNotesViewer(IGraphicalEditor editor) {
         this.editor = editor;
     }
@@ -106,6 +119,9 @@ public class SheetNotesViewer
     public Control createControl(Composite parent) {
         resetCollections();
         composite = new Composite(parent, SWT.NONE);
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                composite);
+
         composite.setBackground(
                 parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridLayout layout = new GridLayout();
@@ -280,8 +296,8 @@ public class SheetNotesViewer
         Label label = new Label(composite, SWT.NONE);
         label.setBackground(label.getParent().getBackground());
         label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-        label.setImage(MindMapUI.getImages().get("comment-empty-bg.png", true) //$NON-NLS-1$
-                .createImage());
+        label.setImage((Image) resources
+                .get(MindMapUI.getImages().get("notes-empty-bg.png", true))); //$NON-NLS-1$
 
         Composite composite2 = new Composite(composite, SWT.NONE);
         composite2.setBackground(composite2.getParent().getBackground());
@@ -298,7 +314,7 @@ public class SheetNotesViewer
         label2.setForeground(ColorUtils.getColor("#aaaaaa")); //$NON-NLS-1$
         label2.setLayoutData(
                 new GridData(SWT.CENTER, SWT.CENTER, false, false));
-        label2.setText(MindMapMessages.Comments_NoComments_text);
+        label2.setText(""); //$NON-NLS-1$
         label2.setFont(
                 FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 2));
 
@@ -479,8 +495,8 @@ public class SheetNotesViewer
         GridData data1 = new GridData(SWT.LEFT, SWT.CENTER, false, false);
         imageLabel.setLayoutData(data1);
         imageLabel.setBackground(c.getBackground());
-        Image image = MindMapUI.getImages().getTopicIcon(topic, true)
-                .createImage();
+        Image image = (Image) resources
+                .get(MindMapUI.getImages().getTopicIcon(topic, true));
         imageLabel.setImage(image);
 
         Label label = new Label(c, SWT.LEFT | SWT.HORIZONTAL);
@@ -623,12 +639,16 @@ public class SheetNotesViewer
 
     private void reveal(Composite composite) {
         MindMapUtils.reveal(editor, getCurrentTopic(composite));
-        try {
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                    .showView(MindMapUI.VIEW_NOTES);
-        } catch (PartInitException e1) {
-            e1.printStackTrace();
-        }
+        SafeRunner.run(new SafeRunnable() {
+
+            @Override
+            public void run() throws Exception {
+                E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART,
+                        PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+                        IModelConstants.PART_ID_NOTES, null,
+                        IModelConstants.PART_STACK_ID_RIGHT);
+            }
+        });
     }
 
     private void addMosuseListener(Control c, MouseListener ml) {
@@ -675,13 +695,36 @@ public class SheetNotesViewer
     }
 
     public void setInput(Object input) {
-        if (input instanceof ISheet && this.sheet != input) {
-            unhookSheet();
-            unhookTitle();
-            this.sheet = (ISheet) input;
-            hookTitle();
-            hookSheet();
-            update();
+        if (input instanceof ISheet || input instanceof IBoundary
+                || input instanceof IRelationship) {
+            ISheet sheet = null;
+            if (input instanceof ISheet) {
+                if (this.sheet == input)
+                    return;
+                sheet = (ISheet) input;
+            } else if (input instanceof IBoundary) {
+                if (this.boundary == input)
+                    return;
+                unhookBoundary();
+                this.boundary = (IBoundary) input;
+                sheet = boundary.getOwnedSheet();
+                hookBoundary();
+            } else if (input instanceof IRelationship) {
+                if (this.relationship == input)
+                    return;
+                unhookRelationship();
+                this.relationship = (IRelationship) input;
+                sheet = relationship.getOwnedSheet();
+                hookRelationship();
+            }
+            if (sheet != this.sheet) {
+                unhookSheet();
+                unhookTitle();
+                this.sheet = sheet;
+                hookTitle();
+                hookSheet();
+                update();
+            }
         }
     }
 
@@ -711,6 +754,34 @@ public class SheetNotesViewer
     }
 
     private void unhookSheet() {
+        if (notesEventRegister != null) {
+            notesEventRegister.unregisterAll();
+            notesEventRegister = null;
+        }
+    }
+
+    private void hookBoundary() {
+        if (notesEventRegister == null)
+            notesEventRegister = new CoreEventRegister(
+                    boundary.getAdapter(ICoreEventSupport.class), this);
+        notesEventRegister.register(Core.TopicNotes);
+    }
+
+    private void unhookBoundary() {
+        if (notesEventRegister != null) {
+            notesEventRegister.unregisterAll();
+            notesEventRegister = null;
+        }
+    }
+
+    private void hookRelationship() {
+        if (notesEventRegister == null)
+            notesEventRegister = new CoreEventRegister(
+                    relationship.getAdapter(ICoreEventSupport.class), this);
+        notesEventRegister.register(Core.TopicNotes);
+    }
+
+    private void unhookRelationship() {
         if (notesEventRegister != null) {
             notesEventRegister.unregisterAll();
             notesEventRegister = null;

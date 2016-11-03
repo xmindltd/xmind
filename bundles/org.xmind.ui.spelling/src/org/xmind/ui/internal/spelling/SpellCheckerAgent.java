@@ -160,8 +160,9 @@ public class SpellCheckerAgent {
                 .getInstance().getDescriptors()) {
             try {
                 if (descriptor.isEnabled()) {
-                    spellChecker.addDictionary(new SpellDictionaryHashMap(
-                            new InputStreamReader(descriptor.openStream())));
+                    spellChecker.addDictionary(
+                            new SpellDictionaryHashMap(new InputStreamReader(
+                                    descriptor.openStream(), "utf-16le"))); //$NON-NLS-1$
                 }
             } catch (IOException e) {
                 SpellingPlugin.log(e);
@@ -232,7 +233,8 @@ public class SpellCheckerAgent {
             throws IOException {
         InputStream dictStream = uri.openStream();
         try {
-            InputStreamReader dictReader = new InputStreamReader(dictStream);
+            InputStreamReader dictReader = new InputStreamReader(dictStream,
+                    "utf-8"); //$NON-NLS-1$
             try {
                 SpellDictionary dict = new SpellDictionaryHashMap(dictReader);
                 spellChecker.addDictionary(dict);

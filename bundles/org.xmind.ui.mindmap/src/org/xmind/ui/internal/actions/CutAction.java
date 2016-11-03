@@ -26,6 +26,7 @@ public class CutAction extends org.xmind.gef.ui.actions.CutAction {
 
     protected boolean canDelete(ISelection selection) {
         return !MindMapUtils.hasSuchElements(selection,
-                MindMapUI.CATEGORY_SHEET);
+                MindMapUI.CATEGORY_SHEET)
+                && !MindMapUtils.hasCentralTopic(selection, getViewer());
     }
 }

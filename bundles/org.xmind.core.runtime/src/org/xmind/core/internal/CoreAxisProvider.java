@@ -67,6 +67,14 @@ public class CoreAxisProvider implements IAxisProvider {
         return Collections.emptyList();
     }
 
+    public Object getParentNode(Object node) {
+        if (node instanceof ITopic) {
+            ITopic parent = ((ITopic) node).getParent();
+            return parent != null ? parent : ((ITopic) node).getOwnedSheet();
+        }
+        return null;
+    }
+
     public Object getAttribute(Object node, String name) {
         if (ATTR_TYPE.equals(name)) {
             if (node instanceof ITopic)

@@ -45,7 +45,6 @@ import org.xmind.core.util.IMarkerRefCounter;
 /**
  * @author Brian Sun
  * @author Frank Shaka
- * 
  */
 public class SheetImpl extends Sheet implements ICoreEventSource {
 
@@ -105,17 +104,17 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         return "SHT#" + getId() + "(" + getTitleText() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Element.class || adapter == Node.class) {
-            return implementation;
-        } else if (adapter == IMarkerRefCounter.class) {
-            return getMarkerRefCounter();
-        } else if (adapter == ILabelRefCounter.class) {
-            return getLabelRefCounter();
-        } else if (adapter == ICoreEventSupport.class) {
-            return getCoreEventSupport();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class)) {
+            return adapter.cast(implementation);
+        } else if (IMarkerRefCounter.class.equals(adapter)) {
+            return adapter.cast(getMarkerRefCounter());
+        } else if (ILabelRefCounter.class.equals(adapter)) {
+            return adapter.cast(getLabelRefCounter());
+        } else if (ICoreEventSupport.class.equals(adapter)) {
+            return adapter.cast(getCoreEventSupport());
         }
         return super.getAdapter(adapter);
     }
@@ -161,7 +160,6 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {

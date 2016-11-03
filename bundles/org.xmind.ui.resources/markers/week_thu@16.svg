@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
-    <title>Rectangle 76 Copy 27</title>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>week_thu copy</title>
     <desc>Created with Sketch.</desc>
     <defs>
-        <radialGradient cx="50%" cy="30.8898926%" fx="50%" fy="30.8898926%" r="69.1101074%" id="radialGradient-1">
-            <stop stop-color="#FFFFFF" stop-opacity="0.798431839" offset="0%"></stop>
-            <stop stop-color="#F1F1F1" stop-opacity="0.5" offset="100%"></stop>
-        </radialGradient>
-        <rect id="path-2" x="0" y="0" width="16" height="16" rx="3"></rect>
+        <linearGradient x1="50%" y1="49.4875397%" x2="50%" y2="51.3248063%" id="linearGradient-1">
+            <stop stop-color="#BD4ED0" offset="0%"></stop>
+            <stop stop-color="#AB47BC" offset="100%"></stop>
+        </linearGradient>
     </defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <g id="Rectangle-76-Copy-27">
-            <use fill="#DBDBDB" fill-rule="evenodd" sketch:type="MSShapeGroup" xlink:href="#path-2"></use>
-            <use fill="none" xlink:href="#path-2"></use>
-            <use fill="url(#radialGradient-1)" fill-rule="evenodd" xlink:href="#path-2"></use>
+    <g id="最终稿2.0" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="weeks-copy-2" transform="translate(-84.000000, 0.000000)">
+            <g id="week_thu" transform="translate(84.000000, 0.000000)">
+                <rect id="Rectangle-76-Copy-7" fill="url(#linearGradient-1)" x="0" y="0" width="16" height="16" rx="2"></rect>
+                <polygon id="T" fill="#FFFFFF" points="10.4802787 5.31569886 10.4802787 6.33523011 8.7576224 6.33523011 8.7576224 11.0735114 7.5466849 11.0735114 7.5466849 6.33523011 5.81621615 6.33523011 5.81621615 5.31569886"></polygon>
+            </g>
         </g>
-        <path d="M3.596,5.556 L6.74,5.556 L6.74,5.904 L5.372,5.904 L5.372,9.876 L4.964,9.876 L4.964,5.904 L3.596,5.904 L3.596,5.556 Z M7.268,9.876 L7.268,5.556 L7.628,5.556 L7.628,7.2 C7.77200072,7.04799924 7.92099923,6.92400048 8.075,6.828 C8.22900077,6.73199952 8.41399892,6.684 8.63,6.684 C8.82200096,6.684 8.99999918,6.71699967 9.164,6.783 C9.32800082,6.84900033 9.46599944,6.96399918 9.578,7.128 C9.65400038,7.24000056 9.69899993,7.35499941 9.713,7.473 C9.72700007,7.59100059 9.734,7.71399936 9.734,7.842 L9.734,9.876 L9.374,9.876 L9.374,7.848 C9.374,7.5679986 9.31200062,7.3580007 9.188,7.218 C9.06399938,7.0779993 8.85800144,7.008 8.57,7.008 C8.45799944,7.008 8.35600046,7.02499983 8.264,7.059 C8.17199954,7.09300017 8.08900037,7.13799972 8.015,7.194 C7.94099963,7.25000028 7.87800026,7.31399964 7.826,7.386 C7.77399974,7.45800036 7.73400014,7.5339996 7.706,7.614 C7.66999982,7.7140005 7.64800004,7.80999954 7.64,7.902 C7.63199996,7.99400046 7.628,8.09399946 7.628,8.202 L7.628,9.876 L7.268,9.876 Z M12.71,6.768 L13.07,6.768 L13.07,9.876 L12.71,9.876 L12.71,9.444 C12.6619998,9.50000028 12.6080003,9.5579997 12.548,9.618 C12.4879997,9.6780003 12.4190004,9.73299975 12.341,9.783 C12.2629996,9.83300025 12.1720005,9.87499983 12.068,9.909 C11.9639995,9.94300017 11.8440007,9.96 11.708,9.96 C11.499999,9.96 11.3260007,9.93100029 11.186,9.873 C11.0459993,9.81499971 10.9330004,9.73400052 10.847,9.63 C10.7609996,9.52599948 10.6990002,9.40500069 10.661,9.267 C10.6229998,9.12899931 10.604,8.97800082 10.604,8.814 L10.604,6.768 L10.964,6.768 L10.964,8.808 C10.964,9.07600134 11.0259994,9.28099929 11.15,9.423 C11.2740006,9.56500071 11.4779986,9.636 11.762,9.636 C11.9100007,9.636 12.0429994,9.60700029 12.161,9.549 C12.2790006,9.49099971 12.3779996,9.41000052 12.458,9.306 C12.5380004,9.20199948 12.5999998,9.07800072 12.644,8.934 C12.6880002,8.78999928 12.71,8.63200086 12.71,8.46 L12.71,6.768 Z" id="Thu-Copy" fill="#4A4A4A" sketch:type="MSShapeGroup"></path>
     </g>
 </svg>

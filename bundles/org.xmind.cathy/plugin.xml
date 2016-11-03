@@ -69,6 +69,10 @@
                 name="rendererFactoryUri"
                 value="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.renderer.XWorkbenchRendererFactory">
           </property>
+          <property
+                name="modelResourceHandler"
+                value="bundleclass://org.xmind.cathy/org.xmind.ui.internal.e4handlers.XResourceHandler">
+          </property>
       </product>
    </extension>
    <extension
@@ -80,26 +84,55 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="org.xmind.cathy.internal.GeneralPrefPage"
-            id="org.eclipse.ui.preferencePages.Workbench"
+            class="org.xmind.ui.preference.MultiSectionPreferencePage"
+      		id="org.xmind.ui.prefPage.General"
             name="%prefPage.general.name">
       </page>
+
       <page
-            category="org.eclipse.ui.preferencePages.Workbench"
+            class="org.xmind.ui.preference.MultiSectionPreferencePage"
+            id="org.xmind.ui.prefPage.Share"
+            name="%prefPage.share.name">
+      </page>
+      <page
+            class="org.xmind.ui.preference.MultiSectionPreferencePage"
+            id="org.xmind.ui.prefPage.Spelling"
+            name="%prefPage.spelling.name">
+      </page>
+      <page
+            class="org.xmind.ui.preference.MultiSectionPreferencePage"
+            id="org.xmind.ui.prefPage.Language"
+            name="%prefPage.language.name">
+      </page>
+      <page
+            class="org.xmind.ui.preference.MultiSectionPreferencePage"
+            id="org.xmind.ui.prefPage.Advanced"
+            name="%prefPage.advanced.name">
+      </page>
+      <page
             class="org.eclipse.ui.ExtensionFactory:newKeysPreferencePage"
-            id="org.eclipse.ui.preferencePages.Keys"
+            id="org.xmind.ui.prefPage.Keys"
             name="%prefPage.keys.name">
-         <keywordReference id="org.eclipse.ui.ide.keys"/>
+      </page>
+      <!--<page
+            class="org.xmind.cathy.internal.GeneralPrefPage"
+            id="org.xmind.ui.prefPage.General"
+            name="%prefPage.general.name">
       </page>
       <page
             class="org.xmind.cathy.internal.LanguagePrefPage"
             id="org.xmind.ui.LanguagePrefPage"
             name="%prefPage.language.name">
-      </page>
+      </page>-->
+      <!--<page
+            class="org.xmind.ui.preference.MultiSectionPreferencePage"
+            id="org.xmind.ui.ProxyPreferencePage"
+            name="Proxy">
+      </page>-->
       <!--
       <page
             name="%prefPage.appearance.name"
-            category="org.eclipse.ui.preferencePages.Workbench"
+            category="org.xmind.ui.prefPage.General"
             class="org.eclipse.ui.ExtensionFactory:colorsAndFontsPreferencePage"
             id="org.eclipse.ui.preferencePages.ColorsAndFonts">
       </page>
@@ -115,27 +148,11 @@
             name="%view.progress.name"
             restorable="true">
       </view>
-      <view
-            category="org.eclipse.ui"
-            class="org.xmind.ui.views.ContributedContentsView:outline"
-            icon="platform:/plugin/org.xmind.ui/icons/e/outline_co.gif"
-            id="org.eclipse.ui.views.ContentOutline"
-            name="%view.outline.name"
-            restorable="true">
-      </view>
-      <view
-            category="org.eclipse.ui"
-            class="org.xmind.ui.views.ContributedContentsView:properties"
-            icon="platform:/plugin/org.xmind.ui/icons/e/prop_ps.gif"
-            id="org.eclipse.ui.views.PropertySheet"
-            name="%view.properties.name"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="org.eclipse.ui.category.file"
+            categoryId="org.xmind.ui.category.cloud"
             description="%command.showHome.description"
             id="org.xmind.ui.command.showDashboard"
             name="%command.showHome.name">
@@ -146,7 +163,7 @@
          </commandParameter>
       </command>
       <command
-            categoryId="org.eclipse.ui.category.file"
+            categoryId="org.xmind.ui.category.cloud"
             description="%command.toggleHome.description"
             id="org.xmind.ui.command.toggleDashboard"
             name="%command.toggleHome.name">
@@ -226,6 +243,30 @@
       <handler
             class="org.xmind.cathy.internal.handlers.XMindHelpHandler"
             commandId="org.eclipse.ui.help.helpContents">
+         <activeWhen>
+            <with
+                  variable="activeWorkbenchWindow">
+               <instanceof
+                     value="org.eclipse.ui.IWorkbenchWindow">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.wizards.WizardHandler$Export"
+            commandId="org.eclipse.ui.file.export">
+         <activeWhen>
+            <with
+                  variable="activeWorkbenchWindow">
+               <instanceof
+                     value="org.eclipse.ui.IWorkbenchWindow">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
+            <handler
+            class="org.xmind.ui.internal.wizards.WizardHandler$Import"
+            commandId="org.eclipse.ui.file.import">
          <activeWhen>
             <with
                   variable="activeWorkbenchWindow">
@@ -601,7 +642,7 @@
             locationURI="menu:org.xmind.ui.file.recentMenu?after=additions.group">
          <command
                commandId="org.xmind.ui.command.showDashboard"
-               label="%command.showDashboard.label"
+               label="%command.showDashboard.name"
                style="push">
             <parameter
                   name="org.xmind.ui.command.showDashboard.pageId"
@@ -653,7 +694,7 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:edit?after=delete.group">
+            locationURI="menu:edit?before=delete.group">
          <command
                commandId="org.eclipse.ui.edit.delete"
                id="delete"
@@ -823,15 +864,14 @@
                icon="icons/toolbar/e/dashboard.png"
                id="org.xmind.ui.toolbar.dashboard.showDashboard"
                label="%toolbar.dashboard.home.label"
-               mode="FORCE_TEXT"
                style="push"
                tooltip="%toolbar.dashboard.home.tooltip">
          </command>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
-            locationURI="toolbar:org.xmind.ui.toolbar.edit?after=start">
-         <command
+         <control
+               class="org.xmind.ui.internal.SeparatorControlContribution">
+         </control>
+
+          <command
                commandId="org.eclipse.ui.file.save"
                disabledIcon="icons/toolbar/d/save.png"
                icon="icons/toolbar/e/save.png"
@@ -858,22 +898,28 @@
                style="push"
                tooltip="%toolbar.edit.redo.tooltip">
          </command>
+         <control
+               class="org.xmind.ui.internal.SeparatorControlContribution">
+         </control>
       </menuContribution>
    </extension>
    <extension
          id="recentFileContributions"
          point="org.eclipse.ui.commands">
       <command
+            categoryId="org.eclipse.ui.category.file"
             id="org.xmind.ui.command.pinRecentFile"
-            name="%command.pinRecent.name">
+            name="%command.pinRecentFile.name">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.file"
             id="org.xmind.ui.command.unpinRecentFile"
-            name="%command.unpinRecent.name">
+            name="%command.unpinRecentFile.name">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.file"
             id="org.xmind.ui.command.clearRecentFile"
-            name="%command.clearRecent.name">
+            name="%command.clearRecentFile.name">
       </command>
    </extension>
    <extension
@@ -963,7 +1009,7 @@
          <command
                commandId="org.xmind.ui.command.pinRecentFile"
                icon="icons/pin.png"
-               label="%command.pinThis.label"
+               label="%command.pinMap.name"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -972,7 +1018,7 @@
          <command
                commandId="org.xmind.ui.command.unpinRecentFile"
                icon="icons/pin.png"
-               label="%command.unpinThis.label"
+               label="%command.unpinMap.name"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -987,7 +1033,7 @@
          </command>
          <command
                commandId="org.xmind.ui.command.clearRecentFile"
-               label="%command.clearUnpinned.label"
+               label="%command.clearUnpinnedMap.name"
                style="push">
             <visibleWhen
                   checkEnabled="true">
@@ -1011,17 +1057,113 @@
                commandId="org.xmind.ui.command.showDashboard"
                icon="icons/menus/home.png"
                id="org.xmind.ui.window.dashboard.showDashboard"
-               label="%command.home.label"
+               label="%command.home.name"
                style="push">
+         </command>
+      </menuContribution>
+   </extension>
+  <extension
+            id="templatePropertyTester"
+            point="org.eclipse.core.expressions.propertyTesters">
+  <propertyTester
+        class="org.xmind.cathy.internal.dashboard.TemplatePropertyTester"
+        id="org.xmind.ui.propertyTester.template"
+        namespace="org.xmind.ui.template"
+        properties="system,user"
+        type="org.xmind.ui.mindmap.ITemplate">
+  </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            id="org.xmind.ui.command.template.duplicate"
+            name="%command.duplicateTemplate.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            id="org.xmind.ui.command.template.rename"
+            name="%command.renameTemplate.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            id="org.xmind.ui.command.template.delete"
+            name="%command.deleteTemplate.name">
+      </command>
+   </extension>
+   <extension
+         id="templateContributions"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.xmind.ui.popup.template">
+         <command
+               commandId="org.xmind.ui.command.template.rename"
+               label="%command.rename.name"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.ui.mindmap.ITemplate">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.template.duplicate"
+               label="%command.duplicate.name"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.ui.mindmap.ITemplate">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="org.xmind.ui.command.template.delete"
+               label="%command.delete.name"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.xmind.ui.mindmap.ITemplate">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
          </command>
       </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
+            categoryId="org.xmind.ui.category.cloud"
             id="org.xmind.ui.command.openCloudPage"
-            name="%command.openCloud.name">
+            name="%command.openCloudPage.name">
       </command>
+      <category
+            id="org.xmind.ui.category.cloud"
+            name="%category.cloud.name">
+      </category>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -1040,6 +1182,89 @@
       </key>
    </extension>
    <extension
+         id="templateContributions"
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.cathy.internal.handlers.DuplicateTemplateHandler"
+            commandId="org.xmind.ui.command.template.duplicate">
+      </handler>
+      <handler
+            class="org.xmind.cathy.internal.handlers.RenameTemplateHandler"
+            commandId="org.xmind.ui.command.template.rename">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <adapt
+                        type="org.xmind.ui.mindmap.ITemplate">
+                  </adapt>
+                  <test
+                        property="org.xmind.ui.template.user">
+                  </test>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.cathy.internal.handlers.DeleteTemplateHandler"
+            commandId="org.xmind.ui.command.template.delete">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <adapt
+                        type="org.xmind.ui.mindmap.ITemplate">
+                  </adapt>
+                  <test
+                        property="org.xmind.ui.template.user">
+                  </test>
+               </iterate>
+            </with>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.xmind.ui.toolkit.preferencePageSections">
+      <section
+            class="org.xmind.cathy.internal.StartupPreferencePageSection"
+            id="org.xmind.cathy.startup.preferencePageSection"
+            index="1"
+            label="%prefPage.section.startup.label"
+            pageId="org.xmind.ui.prefPage.General">
+      </section>
+      <section
+            class="org.xmind.cathy.internal.RecentFilesPreferencePageSection"
+            id="org.xmind.cathy.recentFilepreferencePageSection"
+            index="2"
+            label="%prefPage.section.fileList.label"
+            pageId="org.xmind.ui.prefPage.General">
+      </section>
+      <section
+            class="org.xmind.cathy.internal.SaveBackupPreferencePageSection"
+            id="org.xmind.cathy.saveBackupPreferencePageSection"
+            index="3"
+            label="%prefPage.section.saveBackup.label"
+            pageId="org.xmind.ui.prefPage.General">
+      </section>
+      <section
+            class="org.xmind.cathy.internal.LanguagePreferencePageSection"
+            id="org.xmind.cathy.languagePerferencePageSection"
+            index="1"
+            pageId="org.xmind.ui.prefPage.Language">
+      </section>
+      <!--<section
+            class="org.xmind.cathy.internal.ProxyPreferencePageSection"
+            id="org.xmind.cathy.proxyType"
+            index="1"
+            label="none"
+            pageId="org.xmind.ui.ProxyPreferencePage">
+      </section>-->
+   </extension>
+    <extension
          point="org.eclipse.ui.themes">
       <theme
             id="org.xmind.cathy.theme"

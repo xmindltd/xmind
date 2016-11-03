@@ -8,7 +8,7 @@
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_b8dC0ESPEeW5MZ3VuY9QmQ" elementId="additions" visible="false"/>
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_e1maMESPEeW5MZ3VuY9QmQ" elementId="end" visible="false"/>
       </children>
-      <children xsi:type="menu:ToolBar" xmi:id="_co-n0DZ8EeWGR43PHpD4Cg" elementId="org.xmind.ui.toolbar.edit">
+      <children xsi:type="menu:ToolBar" xmi:id="_co-n0DZ8EeWGR43PHpD4Cg" elementId="org.xmind.ui.toolbar.edit" visible="false">
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_ioeO4ESPEeW5MZ3VuY9QmQ" elementId="start" visible="false"/>
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_jo4jAESPEeW5MZ3VuY9QmQ" elementId="additions" visible="false"/>
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_kqRHgESPEeW5MZ3VuY9QmQ" elementId="end" visible="false"/>
@@ -44,11 +44,20 @@
         <tags>stretch</tags>
       </children>
       <children xsi:type="menu:ToolControl" xmi:id="_Sh3VEGuxEeSh8uGFjDTaww" elementId="org.eclipse.ui.HeapStatus" toBeRendered="false" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim"/>
-      <children xsi:type="menu:ToolControl" xmi:id="_NW0MgGuxEeSh8uGFjDTaww" elementId="org.eclipse.ui.ProgressBar" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim">
-        <tags>Draggable</tags>
-      </children>
+      <children xsi:type="menu:ToolControl" xmi:id="_NW0MgGuxEeSh8uGFjDTaww" elementId="org.eclipse.ui.ProgressBar" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.StandardTrim"/>
       <children xsi:type="menu:ToolControl" xmi:id="_C18bUCUoEeWi46W04S8NKQ" elementId="org.xmind.ui.toolcontrol.autobackup" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.AutoBackupIndicatorToolControl"/>
       <children xsi:type="menu:ToolControl" xmi:id="_0m1UcCUrEeWi46W04S8NKQ" elementId="org.xmind.ui.toolcontrol.sharingservicestatus" contributionURI="bundleclass://org.xmind.ui.sharing/org.xmind.ui.internal.sharing.SharingServiceStatusToolControl"/>
+    </trimBars>
+    <trimBars xmi:id="_hhwE4EMbEeaUAPB93OC16w" elementId="org.xmind.ui.trimbar.right" side="Right">
+      <children xsi:type="menu:ToolBar" xmi:id="_WeRgoEMsEeaUAPB93OC16w" elementId="org.xmind.ui.rightTrimBar.toolbar.begining">
+        <tags>TrimBarLayout:begining</tags>
+      </children>
+      <children xsi:type="menu:ToolBar" xmi:id="_qTsL4EMsEeaUAPB93OC16w" elementId="org.xmind.ui.rightTrimBar.toolbar.center">
+        <tags>TrimBarLayout:center</tags>
+      </children>
+      <children xsi:type="menu:ToolBar" xmi:id="_vfPDsEMsEeaUAPB93OC16w" elementId="org.xmind.ui.rightTrimBar.toolbar.end">
+        <tags>TrimBarLayout:end</tags>
+      </children>
     </trimBars>
   </children>
   <rootContext xmi:id="_Jw4SsDZ3EeWGR43PHpD4Cg" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="">
@@ -69,7 +78,7 @@
   <addons xmi:id="_ei-mZlkBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
   <addons xmi:id="_ei-mZ1kBEeSUmaJC4CQ7tw" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
   <addons xmi:id="_6rjy8GoeEeS4VdCI9jT02A" elementId="DnD Addon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.dndaddon.DnDAddon"/>
-  <addons xmi:id="_NMGV8GofEeS4VdCI9jT02A" elementId="MinMax Addon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.MinMaxAddon"/>
+  <addons xmi:id="_NMGV8GofEeS4VdCI9jT02A" elementId="XMinMaxAddon" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.ui.workbench.addons.minmax.MinMaxAddon"/>
   <addons xmi:id="_frfacDy6EeWaZuHeFLU7gA" elementId="org.xmind.cathy.addon.dashboardAutomation" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.dashboard.DashboardAutomationAddon"/>
   <addons xmi:id="_aUwWQECfEeWwKJv-3UIlVw" elementId="org.xmind.cathy.addon.commandLabelUpdater" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.CommandLabelUpdater"/>
   <addons xmi:id="_ibOB8EJeEeWw4ul6w49T4A" elementId="org.xmind.cathy.addon.saveCommandLabelUpdater" contributionURI="bundleclass://org.xmind.cathy/org.xmind.cathy.internal.SaveCommandLabelUpdater"/>

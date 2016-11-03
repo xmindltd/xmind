@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.internal;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.runtime.Assert;
@@ -86,6 +88,7 @@ import org.xmind.core.util.IPropertiesProvider;
 import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.IResourceManagerListener;
 import org.xmind.ui.mindmap.ITemplate;
+import org.xmind.ui.mindmap.ITemplateGroup;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
@@ -102,6 +105,8 @@ public class MindMapResourceManager implements IResourceManager {
 
     private static final String PATH_STYLES = "styles/"; //$NON-NLS-1$
 
+    private static final String PATH_STYLES_DIR = "$nl$/styles/"; //$NON-NLS-1$
+
     private static final String PATH_USER_STYLES = PATH_STYLES + "userStyles/"; //$NON-NLS-1$
 
     private static final String PATH_USER_THEMES = PATH_STYLES + "userThemes/"; //$NON-NLS-1$
@@ -112,17 +117,16 @@ public class MindMapResourceManager implements IResourceManager {
 
     private static final String DEFAULT_STYLES_XML = "defaultStyles.xml"; //$NON-NLS-1$
 
-    private static final String STYLES_XML = "styles.xml"; //$NON-NLS-1$
-
-    private static final String THEMES_XML = "themes.xml"; //$NON-NLS-1$
-
     private static final String STYLES = "styles"; //$NON-NLS-1$
 
     private static final String THEMES = "themes"; //$NON-NLS-1$
 
     private static final String EXT_PROPERTIES = ".properties"; //$NON-NLS-1$
 
+    private static final String EXT_XML = ".xml"; //$NON-NLS-1$
+
     private static final String SYS_TEMPLATES_DIR = "$nl$/templates/"; //$NON-NLS-1$
+
     private static final String SYS_TEMPLATES_XML_PATH = SYS_TEMPLATES_DIR
             + "templates.xml"; //$NON-NLS-1$
 
@@ -148,11 +152,27 @@ public class MindMapResourceManager implements IResourceManager {
         }
 
         public InputStream getInputStream() {
-            return getInputStreamForPath(getFullPath());
+            return getInputStreamForPath(getFullPath(), 100);
         }
 
-        private InputStream getInputStreamForPath(String fullPath) {
-            URL url = find(fullPath);
+        @Override
+        public InputStream openInputStream(int zoom) throws IOException {
+            return getInputStreamForPath(getFullPath(), zoom);
+        }
+
+        @Override
+        public InputStream openInputStream(IMarkerVariation variation, int zoom)
+                throws IOException {
+            return getInputStreamForPath(variation.getVariedPath(getFullPath()),
+                    zoom);
+        }
+
+        private InputStream getInputStreamForPath(String fullPath, int zoom) {
+            String xfullPath = getxPath(fullPath, zoom);
+            URL url = find(xfullPath);
+            if (url == null)
+                url = find(fullPath);
+
             if (url == null)
                 return null;
 
@@ -161,6 +181,17 @@ public class MindMapResourceManager implements IResourceManager {
             } catch (IOException e) {
             }
             return null;
+        }
+
+        private String getxPath(String path, int zoom) {
+            int dot = path.lastIndexOf('.');
+            if (dot != -1 && zoom > 100) {
+                String lead = path.substring(0, dot);
+                String tail = path.substring(dot);
+                String x = "@2x"; //$NON-NLS-1$ 
+                return lead + x + tail;
+            }
+            return path;
         }
 
         public OutputStream getOutputStream() {
@@ -196,15 +227,15 @@ public class MindMapResourceManager implements IResourceManager {
 
         @Override
         public InputStream getInputStream(IMarkerVariation variation) {
-            return getInputStreamForPath(
-                    variation.getVariedPath(getFullPath()));
+            return getInputStreamForPath(variation.getVariedPath(getFullPath()),
+                    100);
         }
 
         @Override
         public InputStream openInputStream(IMarkerVariation variation)
                 throws IOException {
             InputStream stream = getInputStreamForPath(
-                    variation.getVariedPath(getFullPath()));
+                    variation.getVariedPath(getFullPath()), 100);
             if (stream == null)
                 throw new FileNotFoundException();
             return stream;
@@ -244,7 +275,6 @@ public class MindMapResourceManager implements IResourceManager {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.marker.IMarkerResourceAllocator#
          * allocateMarkerResourcePath(java.io.InputStream, java.lang.String)
          */
@@ -270,13 +300,34 @@ public class MindMapResourceManager implements IResourceManager {
 
     private static class UserMarkerResource extends AbstractMarkerResource {
 
+        private final String JPG_FORMAT = "jpg"; //$NON-NLS-1$
+        private final String JPEG_FORMAT = "jpeg"; //$NON-NLS-1$
+        private final String PNG_FORMAT = "png"; //$NON-NLS-1$
+
         public UserMarkerResource(IMarker marker) {
             super(marker, PATH_USER_MARKERS);
         }
 
         private File getFile() {
-            return FileUtils.ensureFileParent(new File(
+            File origin = FileUtils.ensureFileParent(new File(
                     Core.getWorkspace().getAbsolutePath(getFullPath())));
+            String lowerFullPath = getFullPath().toLowerCase();
+            if (lowerFullPath.endsWith(JPEG_FORMAT)
+                    || lowerFullPath.endsWith(JPG_FORMAT)) {
+                try {
+                    String jpg = Core.getWorkspace()
+                            .getAbsolutePath(getFullPath());
+                    BufferedImage source = ImageIO.read(new File(jpg));
+                    String png = jpg.substring(0, jpg.lastIndexOf('.') - 1)
+                            + PNG_FORMAT;
+                    File pngFile = new File(png);
+                    ImageIO.write(source, PNG_FORMAT, pngFile);
+                    return pngFile;
+                } catch (Exception e) {
+                }
+            }
+
+            return origin;
         }
 
         public InputStream getInputStream() {
@@ -355,7 +406,6 @@ public class MindMapResourceManager implements IResourceManager {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.marker.IMarkerGroup#isEmpty()
          */
         @Override
@@ -449,7 +499,6 @@ public class MindMapResourceManager implements IResourceManager {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.IMarkerSheetManager#getSystemMarkerSheet()
      */
     public IMarkerSheet getSystemMarkerSheet() {
@@ -477,7 +526,6 @@ public class MindMapResourceManager implements IResourceManager {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.IMarkerSheetManager#getUserMarkerSheet()
      */
     public IMarkerSheet getUserMarkerSheet() {
@@ -569,7 +617,7 @@ public class MindMapResourceManager implements IResourceManager {
     }
 
     private IStyleSheet createSystemStyleSheet() {
-        URL url = find(PATH_STYLES, STYLES_XML);
+        URL url = find(PATH_STYLES, STYLES, EXT_XML);
         if (url != null) {
             try {
                 IStyleSheet sheet = Core.getStyleSheetBuilder()
@@ -673,7 +721,8 @@ public class MindMapResourceManager implements IResourceManager {
     }
 
     private IStyleSheet createSystemThemeSheet() {
-        URL url = find(PATH_STYLES, THEMES_XML);
+//        URL url = find(PATH_STYLES, THEMES_XML);
+        URL url = find(PATH_STYLES_DIR, THEMES, EXT_XML);
         if (url != null) {
             try {
                 IStyleSheet sheet = Core.getStyleSheetBuilder()
@@ -822,7 +871,6 @@ public class MindMapResourceManager implements IResourceManager {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.mindmap.IResourceManager#findResource(java.lang.String)
      */
     public Object findResource(String uri) {
@@ -911,7 +959,6 @@ public class MindMapResourceManager implements IResourceManager {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.mindmap.IResourceManager#toResourceURI(java.lang.Object)
      */
@@ -977,11 +1024,65 @@ public class MindMapResourceManager implements IResourceManager {
         return null;
     }
 
-    @Override
     public List<ITemplate> getSystemTemplates() {
         List<ITemplate> sysTemplates = new ArrayList<ITemplate>();
         loadSystemTemplates(sysTemplates);
         return sysTemplates;
+    }
+
+    public List<ITemplateGroup> getSystemTemplateGroups() {
+        List<ITemplateGroup> sysTemplateGroups = new ArrayList<ITemplateGroup>();
+        loadSystemTemplateGroups(sysTemplateGroups);
+        return sysTemplateGroups;
+    }
+
+    private void loadSystemTemplateGroups(
+            List<ITemplateGroup> sysTemplateGroups) {
+        Bundle bundle = Platform.getBundle(MindMapUI.PLUGIN_ID);
+        if (bundle == null)
+            return;
+
+        BundleResource listXMLResource = new BundleResource(bundle,
+                new Path(SYS_TEMPLATES_XML_PATH)).resolve();
+        if (listXMLResource == null) {
+            MindMapUIPlugin.getDefault().getLog()
+                    .log(new Status(IStatus.ERROR, MindMapUIPlugin.PLUGIN_ID,
+                            "Failed to locate system template xml: " //$NON-NLS-1$
+                                    + bundle.getSymbolicName() + "/" //$NON-NLS-1$
+                                    + SYS_TEMPLATES_XML_PATH));
+            return;
+        }
+
+        URL listXMLURL = listXMLResource.toPlatformURL();
+        Element element = getTemplateListElement(listXMLURL);
+        if (element == null)
+            return;
+
+        Properties properties = getTemplateListProperties(bundle);
+        Iterator<Element> categoryIt = DOMUtils.childElementIterByTag(element,
+                "category"); //$NON-NLS-1$
+
+        while (categoryIt.hasNext()) {
+            Element categoryEle = categoryIt.next();
+            String name = categoryEle.getAttribute("name"); //$NON-NLS-1$
+
+            if (name.startsWith("%")) { //$NON-NLS-1$
+                if (properties != null) {
+                    name = properties.getProperty(name.substring(1));
+                } else {
+                    name = null;
+                }
+            }
+
+            TemplateGroup templateGroup = new TemplateGroup(name);
+
+            Iterator<Element> templateIt = DOMUtils
+                    .childElementIterByTag(categoryEle, "template"); //$NON-NLS-1$
+            ArrayList<ITemplate> templates = new ArrayList<ITemplate>();
+            loadTemplates(templates, templateIt);
+            templateGroup.setTemplates(templates);
+            sysTemplateGroups.add(templateGroup);
+        }
     }
 
     private void loadSystemTemplates(List<ITemplate> templates) {
@@ -1005,9 +1106,13 @@ public class MindMapResourceManager implements IResourceManager {
         if (element == null)
             return;
 
-        java.util.Properties properties = getTemplateListProperties(bundle);
         Iterator<Element> it = DOMUtils.childElementIterByTag(element,
                 "template"); //$NON-NLS-1$
+        loadTemplates(templates, it);
+    }
+
+    private void loadTemplates(List<ITemplate> templates,
+            Iterator<Element> it) {
         while (it.hasNext()) {
             Element templateEle = it.next();
             String resource = templateEle.getAttribute("resource"); //$NON-NLS-1$
@@ -1030,7 +1135,8 @@ public class MindMapResourceManager implements IResourceManager {
             }
 
             if (!resourceURI.isAbsolute()) {
-                BundleResource templateResource = new BundleResource(bundle,
+                BundleResource templateResource = new BundleResource(
+                        Platform.getBundle(MindMapUI.PLUGIN_ID),
                         new Path(SYS_TEMPLATES_DIR + resource)).resolve();
                 try {
                     resourceURI = templateResource.toPlatformURL().toURI();
@@ -1043,13 +1149,7 @@ public class MindMapResourceManager implements IResourceManager {
             }
 
             String name = templateEle.getAttribute("name"); //$NON-NLS-1$
-            if (name.startsWith("%")) { //$NON-NLS-1$
-                if (properties != null) {
-                    name = properties.getProperty(name.substring(1));
-                } else {
-                    name = null;
-                }
-            }
+
             if (name == null || "".equals(name)) { //$NON-NLS-1$
                 name = FileUtils.getNoExtensionFileName(resource);
             }
@@ -1059,7 +1159,7 @@ public class MindMapResourceManager implements IResourceManager {
 
     private Properties getTemplateListProperties(Bundle bundle) {
         URL propURL = ResourceFinder.findResource(bundle, SYS_TEMPLATES_DIR,
-                "templates", ".properties"); //$NON-NLS-1$ //$NON-NLS-2$
+                "templates", EXT_PROPERTIES); //$NON-NLS-1$
         if (propURL == null) {
             MindMapUIPlugin.getDefault().getLog().log(new Status(
                     IStatus.WARNING, MindMapUIPlugin.PLUGIN_ID,
@@ -1219,7 +1319,7 @@ public class MindMapResourceManager implements IResourceManager {
 
         try {
             if (PlatformUI.isWorkbenchRunning()) {
-                PlatformUI.getWorkbench().getProgressService().run(true, true,
+                PlatformUI.getWorkbench().getProgressService().run(false, true,
                         runnable);
             } else {
                 runnable.run(new NullProgressMonitor());
@@ -1229,8 +1329,8 @@ public class MindMapResourceManager implements IResourceManager {
             return null;
         }
 
-        ITemplate template = new ClonedTemplate(templateURI,
-                userTemplateFile.getName());
+        ITemplate template = new ClonedTemplate(templateURI, FileUtils
+                .getNoExtensionFileName(userTemplateFile.getAbsolutePath()));
         fireUserTemplateAdded(template);
         return template;
     }
@@ -1315,7 +1415,15 @@ public class MindMapResourceManager implements IResourceManager {
     @Override
     public boolean isSystemTemplate(ITemplate template) {
         // TODO check source workbook URI to determine system template
-        return getSystemTemplates().contains(template);
+        boolean isSysTemplate = getSystemTemplates().contains(template);
+
+        List<ITemplateGroup> systemTemplateGroups = getSystemTemplateGroups();
+        for (ITemplateGroup group : systemTemplateGroups) {
+            if (group.getTemplates().contains(template))
+                return true;
+        }
+
+        return isSysTemplate;
     }
 
 }

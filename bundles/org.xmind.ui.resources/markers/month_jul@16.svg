@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
-    <title>Rectangle 76 Copy 36</title>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>month_jul copy</title>
     <desc>Created with Sketch.</desc>
     <defs>
-        <radialGradient cx="50%" cy="30.8898926%" fx="50%" fy="30.8898926%" r="69.1101074%" id="radialGradient-1">
-            <stop stop-color="#FFFFFF" stop-opacity="0.798431839" offset="0%"></stop>
-            <stop stop-color="#F1F1F1" stop-opacity="0.5" offset="100%"></stop>
-        </radialGradient>
-        <rect id="path-2" x="0" y="0" width="16" height="16" rx="3"></rect>
+        <rect id="path-1" x="0" y="0" width="16" height="16" rx="2"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="16" height="16" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
-            <stop stop-color="#66C5F7" stop-opacity="0.5" offset="0%"></stop>
-            <stop stop-color="#3182AD" stop-opacity="0.5" offset="100%"></stop>
+            <stop stop-color="#FFB300" offset="0%"></stop>
+            <stop stop-color="#FFAB00" offset="100%"></stop>
         </linearGradient>
-        <path d="M16,4 L16,3.0011077 C16,1.34900039 14.652611,0 12.9905224,0 L3.00947762,0 C1.33663106,0 0,1.34364168 0,3.0011077 L0,4 L16,4 Z" id="path-4"></path>
     </defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <g id="Rectangle-76-Copy-36">
-            <use fill="#DBDBDB" fill-rule="evenodd" sketch:type="MSShapeGroup" xlink:href="#path-2"></use>
-            <use fill="none" xlink:href="#path-2"></use>
-            <use fill="url(#radialGradient-1)" fill-rule="evenodd" xlink:href="#path-2"></use>
+    <g id="最终稿2.0" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="month-copy" transform="translate(-126.000000, 0.000000)">
+            <g id="month_jul" transform="translate(126.000000, 0.000000)">
+                <use id="Mask" stroke="#CFCFCF" mask="url(#mask-2)" stroke-width="0.8" fill="#FAFAFA" xlink:href="#path-1"></use>
+                <rect id="Rectangle-15" fill="url(#linearGradient-3)" x="0" y="0" width="16" height="5" rx="2"></rect>
+                <path d="M10.0721154,8.48926768 C9.90544788,8.653331 9.67367936,8.94564578 9.37680288,9.3662208 C9.07992639,9.78679582 8.83123096,10.2210363 8.63070913,10.6689552 C8.47185417,11.0205194 8.32862643,11.4502026 8.20102163,11.9580177 C8.07341682,12.4658327 8.00961538,12.8824952 8.00961538,13.2080177 L6.85336538,13.2080177 C6.88721971,12.1923876 7.22054971,11.1364086 7.85336538,10.0400489 C8.26222159,9.36035803 8.60466608,8.88640443 8.88070913,8.61817393 L6.05649038,8.61817393 L6.07211538,7.61817393 L10.0721154,7.61817393 L10.0721154,8.48926768 Z" id="7" fill="#6C6C6C"></path>
+            </g>
         </g>
-        <g id="Rectangle-98-Copy-18">
-            <use fill="#40A4DA" sketch:type="MSShapeGroup" xlink:href="#path-4"></use>
-            <use fill="url(#linearGradient-3)" xlink:href="#path-4"></use>
-        </g>
-        <path d="M4.54,10.7799652 C4.54,10.9159659 4.54499995,11.0499645 4.555,11.1819652 C4.56500005,11.3139659 4.59499975,11.4329647 4.645,11.5389652 C4.69500025,11.6449657 4.77299947,11.7299649 4.879,11.7939652 C4.98500053,11.8579655 5.13199906,11.8899652 5.32,11.8899652 C5.6000014,11.8899652 5.79699943,11.809966 5.911,11.6499652 C6.02500057,11.4899644 6.082,11.2579667 6.082,10.9539652 L6.082,7.8279652 L6.49,7.8279652 L6.49,10.9659652 C6.49,11.3859673 6.39200098,11.7069641 6.196,11.9289652 C5.99999902,12.1509663 5.6920021,12.2619652 5.272,12.2619652 C5.02799878,12.2619652 4.83200074,12.2209656 4.684,12.1389652 C4.53599926,12.0569648 4.42100041,11.9469659 4.339,11.8089652 C4.25699959,11.6709645 4.20200014,11.5129661 4.174,11.3349652 C4.14599986,11.1569643 4.132,10.9719662 4.132,10.7799652 L4.54,10.7799652 Z M9.538,9.0399652 L9.898,9.0399652 L9.898,12.1479652 L9.538,12.1479652 L9.538,11.7159652 C9.48999976,11.7719655 9.4360003,11.8299649 9.376,11.8899652 C9.3159997,11.9499655 9.24700039,12.0049649 9.169,12.0549652 C9.09099961,12.1049654 9.00000052,12.146965 8.896,12.1809652 C8.79199948,12.2149654 8.67200068,12.2319652 8.536,12.2319652 C8.32799896,12.2319652 8.1540007,12.2029655 8.014,12.1449652 C7.8739993,12.0869649 7.76100043,12.0059657 7.675,11.9019652 C7.58899957,11.7979647 7.52700019,11.6769659 7.489,11.5389652 C7.45099981,11.4009645 7.432,11.249966 7.432,11.0859652 L7.432,9.0399652 L7.792,9.0399652 L7.792,11.0799652 C7.792,11.3479665 7.85399938,11.5529645 7.978,11.6949652 C8.10200062,11.8369659 8.30599858,11.9079652 8.59,11.9079652 C8.73800074,11.9079652 8.87099941,11.8789655 8.989,11.8209652 C9.10700059,11.7629649 9.2059996,11.6819657 9.286,11.5779652 C9.3660004,11.4739647 9.42799978,11.3499659 9.472,11.2059652 C9.51600022,11.0619645 9.538,10.9039661 9.538,10.7319652 L9.538,9.0399652 Z M10.822,12.1479652 L10.822,7.8279652 L11.182,7.8279652 L11.182,12.1479652 L10.822,12.1479652 Z" id="Jul-Copy" fill="#4A4A4A" sketch:type="MSShapeGroup"></path>
     </g>
 </svg>

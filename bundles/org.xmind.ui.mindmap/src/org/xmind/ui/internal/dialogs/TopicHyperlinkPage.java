@@ -16,17 +16,16 @@ package org.xmind.ui.internal.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -40,13 +39,9 @@ import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.ui.dialogs.HyperlinkPage;
-import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.viewers.ImageCachedLabelProvider;
 
 /**
- * 
  * @author Frank Shaka
- * 
  */
 public class TopicHyperlinkPage extends HyperlinkPage {
 
@@ -90,11 +85,12 @@ public class TopicHyperlinkPage extends HyperlinkPage {
         public void dispose() {
         }
 
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        public void inputChanged(Viewer viewer, Object oldInput,
+                Object newInput) {
         }
     }
 
-    private class TopicPageLabelProvider extends ImageCachedLabelProvider {
+    private class TopicPageLabelProvider extends LabelProvider {
 
         public String getText(Object element) {
             if (element instanceof ITopic) {
@@ -111,18 +107,17 @@ public class TopicHyperlinkPage extends HyperlinkPage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.ui.viewers.ImageCachedLabelProvider#createImage(java.lang
          * .Object)
          */
-        protected Image createImage(Object element) {
-            ImageDescriptor icon = MindMapUI.getImages().getElementIcon(
-                    element, true);
-            if (icon == null)
-                return null;
-            return icon.createImage(false);
-        }
+//        protected Image createImage(Object element) {
+//            ImageDescriptor icon = MindMapUI.getImages().getElementIcon(element,
+//                    true);
+//            if (icon == null)
+//                return null;
+//            return icon.createImage(false);
+//        }
 
     }
 
@@ -184,11 +179,12 @@ public class TopicHyperlinkPage extends HyperlinkPage {
     private void createTopicViewer(Composite parent) {
 //        topicViewer = new TreeViewer(parent, SWT.SINGLE | SWT.BORDER);
         PatternFilter filter = new PatternFilter();
-        FilteredTree tree = new FilteredTree(parent, SWT.SINGLE | SWT.BORDER
-                | SWT.V_SCROLL | SWT.H_SCROLL, filter, true);
+        FilteredTree tree = new FilteredTree(parent,
+                SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL, filter,
+                true);
         topicViewer = tree.getViewer();
-        topicViewer.getControl().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, true, true));
+        topicViewer.getControl()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         topicViewer.setAutoExpandLevel(2);
 
         topicViewer.setContentProvider(new TopicPageContentProvider());

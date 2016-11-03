@@ -6,9 +6,9 @@ import java.net.URI;
 
 import org.eclipse.ui.services.IDisposable;
 import org.xmind.ui.editor.IEditorHistory;
+import org.xmind.ui.editor.IEditorHistoryItem;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -55,6 +55,16 @@ public class EditorHistoryProxy implements IEditorHistory, IDisposable {
     public void saveThumbnailData(URI inputURI, InputStream thumbnailData)
             throws IOException {
         this.history.saveThumbnailData(inputURI, thumbnailData);
+    }
+
+    @Override
+    public void add(URI uri, IEditorHistoryItem item) {
+        history.add(uri, item);
+    }
+
+    @Override
+    public IEditorHistoryItem getItem(URI inputURI) {
+        return history.getItem(inputURI);
     }
 
     public void pin(URI inputURI) {

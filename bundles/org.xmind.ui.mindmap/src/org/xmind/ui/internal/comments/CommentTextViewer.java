@@ -7,6 +7,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.text.DefaultTextDoubleClickStrategy;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -42,6 +44,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -65,17 +68,17 @@ import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.internal.dom.DOMConstants;
+import org.xmind.gef.command.Command;
 import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.commands.AddCommentCommand;
 import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.commands.ModifyCommentCommand;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.e4models.CommentsPart;
 import org.xmind.ui.internal.spelling.SpellingPlugin;
 import org.xmind.ui.internal.spellsupport.SpellingSupport;
-import org.xmind.ui.internal.views.CommentsView;
 import org.xmind.ui.resources.ColorUtils;
-import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.richtext.RichTextDamagerRepairer;
 import org.xmind.ui.richtext.RichTextScanner;
 import org.xmind.ui.texteditor.ISpellingActivation;
@@ -169,6 +172,8 @@ public class CommentTextViewer {
 
     private Menu contextMenu;
 
+    private ResourceManager resources;
+
     public CommentTextViewer(IComment comment, String objectId,
             IWorkbook workbook, ICommentsActionBarContributor contributor,
             ISelectionProvider selectionProvider,
@@ -182,18 +187,26 @@ public class CommentTextViewer {
         this.container = container;
         this.targetEditor = targetEditor;
 
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                container.getContentComposite());
+
         initColors();
     }
 
     private void initColors() {
         if (container instanceof CommentsPopup) {
             originalColor = CommentsPopup.BG_COLOR;
-            hoverColor = ColorUtils.getColor("#f0f0f0"); //$NON-NLS-1$
-            selectColor = ColorUtils.getColor("#eaeaea"); //$NON-NLS-1$
-        } else if (container instanceof CommentsView) {
-            originalColor = CommentsView.BG_COLOR;
-            hoverColor = ColorUtils.getColor("#f9f9f9"); //$NON-NLS-1$
-            selectColor = ColorUtils.getColor("#f5f5f5"); //$NON-NLS-1$
+            hoverColor = (Color) resources
+                    .get(ColorUtils.toDescriptor("#f0f0f0")); //$NON-NLS-1$
+            selectColor = (Color) resources
+                    .get(ColorUtils.toDescriptor("#eaeaea")); //$NON-NLS-1$
+        } else if (container instanceof CommentsPart) {
+            originalColor = (Color) resources
+                    .get(ColorUtils.toDescriptor(CommentsPart.BG_COLOR));
+            hoverColor = (Color) resources
+                    .get(ColorUtils.toDescriptor("#f9f9f9")); //$NON-NLS-1$
+            selectColor = (Color) resources
+                    .get(ColorUtils.toDescriptor("#f5f5f5")); //$NON-NLS-1$
         }
     }
 
@@ -216,6 +229,13 @@ public class CommentTextViewer {
                 handleControlDispose(e);
             }
         });
+
+        //restore last editing.
+        if (comment != null && comment == container.getEditingComment()) {
+            startEditing();
+            container.setModified(false);
+            container.setEditingComment(null);
+        }
 
         return control;
     }
@@ -241,7 +261,8 @@ public class CommentTextViewer {
 
         Composite marginComposite = new Composite(composite, SWT.NONE);
         marginComposite.setBackground(parent.getBackground());
-        marginComposite.setForeground(ColorUtils.getColor("#ffffff")); //$NON-NLS-1$
+        marginComposite.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
         marginComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         GridLayout layout2 = new GridLayout(1, false);
@@ -252,7 +273,8 @@ public class CommentTextViewer {
         createNullTextControl(marginComposite);
         createAddCommentActionBar(composite);
 
-        marginComposite.setBackground(ColorUtils.getColor("#298fca")); //$NON-NLS-1$
+        marginComposite.setBackground(
+                (Color) resources.get(ColorUtils.toDescriptor("#298fca"))); //$NON-NLS-1$
     }
 
     private void createNullTextControl(Composite parent) {
@@ -262,9 +284,9 @@ public class CommentTextViewer {
 
         StyledText text = textViewer.getTextWidget();
         text.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        text.setForeground(ColorUtils.getColor("#000000")); //$NON-NLS-1$
-        text.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 0));
+        text.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#000000"))); //$NON-NLS-1$
+        text.setFont(JFaceResources.getDefaultFont());
 
         GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
         gridData.horizontalIndent = 0;
@@ -331,9 +353,10 @@ public class CommentTextViewer {
             final IAction action) {
         final Hyperlink link = new Hyperlink(parent, SWT.NONE);
         link.setBackground(link.getParent().getBackground());
-        link.setForeground(ColorUtils.getColor("#1877bd")); //$NON-NLS-1$
-        link.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 1));
+        link.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#0082F9"))); //$NON-NLS-1$
+        link.setFont((Font) resources.get(
+                JFaceResources.getDefaultFontDescriptor().increaseHeight(1)));
         link.setText(text);
         link.setToolTipText(toolTip);
         link.setUnderlined(false);
@@ -385,7 +408,8 @@ public class CommentTextViewer {
 
         Composite marginComposite = new Composite(composite2, SWT.NONE);
         marginComposite.setBackground(parent.getBackground());
-        marginComposite.setForeground(ColorUtils.getColor("#ffffff")); //$NON-NLS-1$
+        marginComposite.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
         marginComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         GridLayout layout2 = new GridLayout(1, false);
@@ -425,9 +449,9 @@ public class CommentTextViewer {
 
         StyledText text = textViewer.getTextWidget();
         text.setBackground(parent.getBackground());
-        text.setForeground(ColorUtils.getColor("#45464a")); //$NON-NLS-1$
-        text.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 0));
+        text.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#45464a"))); //$NON-NLS-1$
+        text.setFont(JFaceResources.getDefaultFont());
 
         GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, true);
         gridData.minimumHeight = 22;
@@ -460,9 +484,10 @@ public class CommentTextViewer {
         timeLabel = new Label(parent, SWT.NONE);
         timeLabel.setAlignment(SWT.LEFT);
         timeLabel.setBackground(parent.getBackground());
-        timeLabel.setForeground(ColorUtils.getColor("#999999")); //$NON-NLS-1$
-        timeLabel.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, -1));
+        timeLabel.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#999999"))); //$NON-NLS-1$
+        timeLabel.setFont((Font) resources.get(
+                JFaceResources.getDefaultFontDescriptor().increaseHeight(-1)));
 
         GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, false);
         layoutData.horizontalIndent = 3;
@@ -820,8 +845,10 @@ public class CommentTextViewer {
                     if (!isLinkHovering) {
                         if (comment == null) {
                             addComment();
+                            container.setModified(true);
                         } else {
-                            saveComment();
+                            boolean modified = saveComment();
+                            container.setModified(modified);
                         }
                     }
                 }
@@ -832,12 +859,25 @@ public class CommentTextViewer {
     }
 
     private void startEditing() {
+        container.getContentComposite().forceFocus();
+
+        //store last editing.
+        if (container.isModified()) {
+            container.setModified(false);
+            container.setEditingComment(comment);
+            return;
+        }
+        if (control.isDisposed()) {
+            return;
+        }
+
         removeMouseFilter();
         setRecursiveBackgroundColor(control, originalColor, null);
-        getTextWidget().setForeground(ColorUtils.getColor("#000000")); //$NON-NLS-1$
+        getTextWidget().setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#000000"))); //$NON-NLS-1$
 
-        getTextWidget().getParent()
-                .setBackground(ColorUtils.getColor("#298fca")); //$NON-NLS-1$
+        getTextWidget().getParent().setBackground(
+                (Color) resources.get(ColorUtils.toDescriptor("#298fca"))); //$NON-NLS-1$
 
         CommentsUtils.removeRecursiveMouseListener(control, getMouseListener(),
                 null);
@@ -868,7 +908,8 @@ public class CommentTextViewer {
 
     private void cancelEditing() {
         setRecursiveBackgroundColor(control, originalColor, null);
-        getTextWidget().setForeground(ColorUtils.getColor("#45464a")); //$NON-NLS-1$
+        getTextWidget().setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#45464a"))); //$NON-NLS-1$
 
         CommentsUtils.addRecursiveMouseListener(control, getMouseListener(),
                 null);
@@ -893,24 +934,11 @@ public class CommentTextViewer {
         setEditable(false);
         addMouseFilter();
 
-        Display.getCurrent().timerExec(50, new Runnable() {
-
-            public void run() {
-                Display.getCurrent().asyncExec(new Runnable() {
-
-                    public void run() {
-                        if (container != null
-                                && container.getContentComposite() != null
-                                && !container.getContentComposite()
-                                        .isDisposed()) {
-                            container.getContentComposite().pack();
-                            container.getContentComposite().layout(true, true);
-                        }
-                    }
-                });
-            }
-        });
-
+        if (container != null && container.getContentComposite() != null
+                && !container.getContentComposite().isDisposed()) {
+            container.getContentComposite().pack();
+            container.getContentComposite().layout(true, true);
+        }
     }
 
     private void showControl() {
@@ -1175,7 +1203,13 @@ public class CommentTextViewer {
         final IDocument document = (IDocument) textViewer.getInput();
         if (document == null || document.get() == null
                 || document.get().equals("")) { //$NON-NLS-1$
-            container.cancelCreateComment();
+            Display.getCurrent().asyncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    container.cancelCreateComment();
+                }
+            });
             return false;
         }
 
@@ -1189,16 +1223,10 @@ public class CommentTextViewer {
 
         container.setLatestCreatedComment(comment);
 
-        //todo: maybe this timerExec is unnecessary.
-        Display.getCurrent().timerExec(40, new Runnable() {
+        final ICommandStack cs = targetEditor.getCommandStack();
+        Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
-
-                Display.getCurrent().asyncExec(new Runnable() {
-                    public void run() {
-                        ICommandStack cs = targetEditor.getCommandStack();
-                        cs.execute(cmd);
-                    }
-                });
+                cs.execute(cmd);
             }
         });
         return true;
@@ -1208,37 +1236,33 @@ public class CommentTextViewer {
         resetModified();
         isLinkHovering = false;
 
-        final ICommandStack cs = targetEditor.getCommandStack();
-
-        final IDocument document = (IDocument) textViewer.getDocument();
-        if (document == null || document.get() == null
-                || document.get().equals("")) { //$NON-NLS-1$
-            DeleteCommentCommand cmd = new DeleteCommentCommand(comment
-                    .getOwnedWorkbook().getElementById(comment.getObjectId()),
-                    comment);
-            cs.execute(cmd);
-            return true;
-        }
-
-        String oldContent = comment.getContent();
+        String oldContent = (comment == null ? null : comment.getContent());
+        IDocument document = (IDocument) textViewer.getDocument();
         String newContent = document.get();
-        if (newContent.equals(oldContent)) {
+        if (newContent != null && newContent.equals(oldContent)) {
             cancelEditing();
             return false;
         }
 
-        Display.getCurrent().timerExec(40, new Runnable() {
-            public void run() {
+        final ICommandStack cs = targetEditor.getCommandStack();
+        Command command = null;
 
-                Display.getCurrent().asyncExec(new Runnable() {
-                    public void run() {
-                        final ModifyCommentCommand cmd = new ModifyCommentCommand(
-                                comment.getOwnedWorkbook()
-                                        .getElementById(comment.getObjectId()),
-                                comment, document.get());
-                        cs.execute(cmd);
-                    }
-                });
+        if (document == null || document.get() == null
+                || document.get().equals("")) { //$NON-NLS-1$
+            command = new DeleteCommentCommand(comment.getOwnedWorkbook()
+                    .getElementById(comment.getObjectId()), comment);
+        } else {
+            command = new ModifyCommentCommand(comment.getOwnedWorkbook()
+                    .getElementById(comment.getObjectId()), comment,
+                    document.get());
+        }
+
+        final Command command_0 = command;
+        Display.getCurrent().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                cs.execute(command_0);
             }
         });
 

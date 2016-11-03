@@ -24,6 +24,7 @@ import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.CreateSheetCommand;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.editor.WorkbookEditorInput;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.style.StyleUtils;
@@ -42,6 +43,9 @@ public class CreateSheetAction extends EditorAction {
 
         editor = getEditor();
         if (editor != null) {
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase("CreateSheetCount`"); //$NON-NLS-1$
+
             IWorkbook workbook = (IWorkbook) editor.getAdapter(IWorkbook.class);
 
             if (workbook == null) {
@@ -71,11 +75,11 @@ public class CreateSheetAction extends EditorAction {
     }
 
     protected void decorateCreatedSheet(ISheet sheet) {
-        sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet, sheet
-                .getParent().getSheets().size()));
+        sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
+                sheet.getParent().getSheets().size()));
 
-        sheet.getRootTopic().setTitleText(
-                MindMapMessages.TitleText_CentralTopic);
+        sheet.getRootTopic()
+                .setTitleText(MindMapMessages.TitleText_CentralTopic);
         sheet.getRootTopic().setStructureClass("org.xmind.ui.map.unbalanced"); //$NON-NLS-1$
 
         IStyle theme = MindMapUI.getResourceManager().getDefaultTheme();

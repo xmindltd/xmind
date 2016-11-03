@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xmap-styles xmlns:fo="http://www.w3.org/1999/XSL/Format"
+	xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns="urn:xmind:xmap:xmlns:style:2.0">
+	<automatic-styles>
+<style id="17sntd5hl7s6j464ck33bhj1bg" name="%blue" type="topic">
+			<topic-properties border-line-color="#0D46AA" border-line-width="1pt" fo:color="#0A5CB9" fo:font-family="Microsoft YaHei" fo:font-size="13pt" fo:font-weight="normal" fo:text-transform="capitalize" line-width="1pt" svg:fill="#FFFFFF"/>
+		</style>
+		<style id="1b2flnpniaa0gkca03m3jmfdd7" name="%yellow" type="topic">
+			<topic-properties border-line-color="#FFEA47" fo:color="#FFEA47" fo:font-family="Microsoft YaHei" fo:font-weight="bold" line-class="org.xmind.branchConnection.curve" line-color="#FFEA47" shape-class="org.xmind.topicShape.roundedRect" svg:fill="none"/>
+		</style>
+		<style id="1mc1lljuudmaoj0l6o01d37gcn" name="%cloud" type="topic">
+			<topic-properties border-line-width="0pt" fo:color="#FFFFFF" fo:font-family="Microsoft YaHei" fo:font-size="16pt" shape-class="org.xmind.topicShape.cloud" svg:fill="#8EB4E3"/>
+		</style>
+		<style id="2iltl3d1segkh8uruam6q3v8hv" name="%orange" type="topic">
+			<topic-properties border-line-color="#F4A51C" border-line-width="0pt" fo:color="#1F1400" fo:font-family="Microsoft YaHei" fo:font-size="16pt" fo:text-transform="uppercase" line-width="2pt" shape-class="org.xmind.topicShape.ellipse" svg:fill="#F4A51C"/>
+		</style>
+		<style id="5ibdajrdklod47ngbl8c2u8dmg" name="%green" type="topic">
+			<topic-properties border-line-color="#038003" border-line-width="1pt" fo:color="#5B9B02" fo:font-family="Microsoft YaHei" fo:font-size="13pt" line-width="1pt" svg:fill="#FFFFFF"/>
+		</style>
+		<style id="0abcm14nbbacrq0i2nosg2bokr" name="%underline" type="topic">
+			<topic-properties border-line-color="#689993" border-line-width="4pt" fo:color="#2A2B35" fo:font-family="Microsoft YaHei" fo:font-size="18pt" line-width="2pt" shape-class="org.xmind.topicShape.underline" svg:fill="none"/>
+		</style>
+		<style id="4qbd727p6d0mk9grfuhlgaaql7" name="%gray" type="topic">
+			<topic-properties border-line-color="#13150D" border-line-width="3pt" fo:color="#1F1400" fo:font-family="Microsoft YaHei" fo:font-size="16pt" fo:text-transform="manual" line-width="1pt" shape-class="org.xmind.topicShape.rect" svg:fill="#797B73"/>
+		</style>
+		<style id="5eq5nhoban9rk60607lm541uq7" name="%darkBlue" type="topic">
+			<topic-properties border-line-color="#10555F" border-line-width="3pt" fo:color="#FFFFFF" fo:font-family="Microsoft YaHei" fo:font-size="16pt" line-width="1pt" svg:fill="#16737F"/>
+		</style>
+		<style id="3r0i6ejg7ufpppvrl0nlh0de6t" name="%parallelogram" type="topic">
+			<topic-properties border-line-color="#558ED5" border-line-width="1pt" fo:color="#C6D9F1" fo:font-family="Microsoft YaHei" fo:font-size="16pt" shape-class="org.xmind.topicShape.parallelogram" svg:fill="none"/>
+		</style>
+		<style id="5tupbbab0cjvuse2hj5j2ei7b4" name="%purple" type="topic">
+			<topic-properties border-line-color="#660366" border-line-width="3pt" fo:color="#E6B9B8" fo:font-family="Microsoft YaHei" fo:font-size="16pt" line-color="#660366" line-width="3pt" shape-class="org.xmind.topicShape.circle" svg:fill="none"/>
+		</style>
+		<style id="7abutegojqvk344c6uigttlv9n" name="%neonYellow" type="topic">
+			<topic-properties border-line-width="5pt" fo:color="#16737E" fo:font-family="Microsoft YaHei" fo:font-size="16pt" fo:font-weight="bold" line-class="org.xmind.branchConnection.curve" line-color="#0F3857" line-width="1pt" shape-class="org.xmind.topicShape.rect" svg:fill="#F6E229"/>
+		</style>
+		<style id="5hu7h60tt1144u4ckm85oahfev" name="%professional" type="topic">
+			<topic-properties border-line-color="#0083BF" border-line-width="1pt" fo:color="#FFFFFF" fo:font-family="Microsoft YaHei" fo:font-weight="normal" shape-class="org.xmind.topicShape.roundedRect" svg:fill="#0083BF"/>
+		</style>
+		<style id="2pai7t83f2351g9pvdaeomv9s7" name="%black" type="topic">
+			<topic-properties border-line-color="#030303" border-line-width="3pt" fo:color="#030303" fo:font-family="Microsoft YaHei" fo:text-transform="lowercase" line-class="org.xmind.branchConnection.curve" line-color="#030303" line-width="5pt" svg:fill="#FFFFFF"/>
+		</style>
+		<style id="5vcgpenb3jfkmregjnh26d6r3h" name="%blueandWhite" type="topic">
+			<topic-properties fo:color="#FFFFFF" fo:font-family="Microsoft YaHei" fo:text-transform="uppercase" shape-class="org.xmind.topicShape.diamond" svg:fill="#4960A6"/>
+		</style>
+<style id="4hpmo8bpft5docao9k98844l84" name="%gray" type="boundary">
+	<boundary-properties shape-class="org.xmind.boundaryShape.roundedRect" svg:fill="#F0ECEF" svg:opacity="0.5" line-pattern="dash-dot" line-color="#808080" line-width="1pt" fo:font-family="Microsoft YaHei" fo:font-size="14pt" fo:font-style="italic" fo:font-weight="normal" fo:text-decoration="none" fo:color="#999999" fo:text-align="center"/>
+</style>
+
+<style id="33qd8o9n9qh3lhbpfu3604nb5s" name="%ocean" type="boundary">
+	<boundary-properties shape-class="org.xmind.boundaryShape.waves" svg:fill="#9EB0CE" svg:opacity="0.76" line-pattern="dot" line-color="#A4C1EA" line-width="2pt" fo:font-family="Microsoft YaHei" fo:font-size="14pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#FFFF00" fo:text-align="center"/>
+</style>
+
+<style id="6g7qf8edbp895oijpjrmlkmlc0" name="%pink" type="boundary">
+	<boundary-properties shape-class="org.xmind.boundaryShape.scallops" svg:fill="#FF9D96" svg:opacity="0.8" line-pattern="dash-dot" line-color="#FF9D96" line-width="1pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#800A04" fo:text-align="center"/>
+</style>
+
+<style id="5m2rdlgeh4klm4ddneo06vj61n" name="%sky" type="boundary">
+	<boundary-properties shape-class="org.xmind.boundaryShape.tension" svg:fill="#CBDEFF" svg:opacity="0.7" line-pattern="dash-dot" line-color="#9EB0CE" line-width="1pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#666666" fo:text-align="center"/>
+</style>
+
+<style id="38tbahtcrst3br0g5k3pa0s9ai" name="%surprise" type="boundary">
+	<boundary-properties shape-class="org.xmind.boundaryShape.tension" svg:fill="#FBFAD8" svg:opacity="1" line-pattern="dash-dot" line-color="#CD853F" line-width="2pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#404040" fo:text-align="center"/>
+</style>
+
+<style id="69re7brcbqo6ruc78806ihumiq" name="%photoFrame" type="boundary">
+	<boundary-properties shape-class="org.xmind.boundaryShape.rect" svg:fill="#B0ECB9" svg:opacity="0.6" line-pattern="dash-dot" line-color="#739E73" line-width="4pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#739E73" fo:text-align="center"/>
+</style>
+
+<style id="41rug75j35bn1ej1k8klc5br6f" name="%clouds" type="boundary">
+	<boundary-properties line-color="#C8C8C8" line-pattern="solid" line-width="1pt" shape-class="org.xmind.boundaryShape.scallops" svg:opacity="0.5"/>
+</style>
+
+<style id="5vju6cu6ff47j3jf3e28hj7rq0" name="%lake" type="boundary">
+	<boundary-properties line-color="#A4C1EA" line-pattern="dash-dot-dot" line-width="2pt" shape-class="org.xmind.boundaryShape.waves" svg:fill="#136CC6" svg:opacity="0.76"/>
+</style>
+
+<style id="68a7qngqf87e8ou3hvgp3bsi04" name="%grassland" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.angled" arrow-begin-class="org.xmind.arrowShape.diamond" arrow-end-class="org.xmind.arrowShape.spearhead" line-pattern="dash" line-color="#40E0D0" line-width="2pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#40E0D0" fo:text-align="center"/>
+</style>
+
+<style id="2vum2af594e6l8r6mmn5c9kn9i" name="%ocean" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.curved" arrow-begin-class="org.xmind.arrowShape.square" arrow-end-class="org.xmind.arrowShape.triangle" line-pattern="dash" line-color="#9EB0CE" line-width="3pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#667A8C" fo:text-align="center"/>
+</style>
+
+<style id="2d609ml6cku3m15b1phh6stj2e" name="%tracing" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.curved" arrow-begin-class="org.xmind.arrowShape.square" arrow-end-class="org.xmind.arrowShape.triangle" line-pattern="dash-dot" line-color="#9EB0CE" line-width="1pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#666666" fo:text-align="center"/>
+</style>
+
+<style id="2d3isafr9d4jg4l02ovscrrpq3" name="%pink" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.curved" arrow-begin-class="org.xmind.arrowShape.herringbone" arrow-end-class="org.xmind.arrowShape.herringbone" line-pattern="solid" line-color="#FF9D96" line-width="3pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="normal" fo:text-decoration="none" fo:color="#FF9D96" fo:text-align="center"/>
+</style>
+
+<style id="6n7t2c4osrkqd9dcg3pmaq0tvm" name="%flow" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.straight" arrow-begin-class="org.xmind.arrowShape.none" arrow-end-class="org.xmind.arrowShape.triangle" line-pattern="solid" line-color="#000000" line-width="5pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="bold" fo:text-decoration="none" fo:color="#666666" fo:text-align="center"/>
+</style>
+
+<style id="5bvoee6f02f7tpcl7rluahslc8" name="%skyline" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.curved" arrow-begin-class="org.xmind.arrowShape.spearhead" arrow-end-class="org.xmind.arrowShape.spearhead" line-pattern="dot" line-color="#87cde5" line-width="2pt" fo:font-family="Microsoft YaHei" fo:font-size="13pt" fo:font-style="normal" fo:font-weight="bold" fo:text-decoration="none" fo:color="#739E73" fo:text-align="center"/>
+</style>
+
+<style id="529a8m3p31s7ksm61f8dr18723" name="%watchThis" type="relationship">
+	<relationship-properties shape-class="org.xmind.relationshipShape.curved" arrow-begin-class="org.xmind.arrowShape.none" arrow-end-class="org.xmind.arrowShape.none" line-pattern="solid" line-color="#FF0000" line-width="4pt" fo:font-family="Microsoft YaHei" fo:font-size="12pt" fo:font-style="normal" fo:font-weight="bold" fo:text-decoration="none" fo:color="#FF0000" fo:text-align="center"/>
+</style>
+
+<style id="6sth5oi765e7hr94bk242applo" name="%subway" type="relationship">
+	<relationship-properties arrow-begin-class="org.xmind.arrowShape.dot" arrow-end-class="org.xmind.arrowShape.dot" line-color="#745BAC" line-pattern="dash" line-width="2pt"/>
+</style>
+
+<style id="STY-cta9ox9ukvnc" name="%water" type="map">
+	<map-properties svg:fill="#BEDCE7" />
+</style>
+
+<style id="STY-dks0z7bzrenp" name="%wheat" type="map">
+	<map-properties svg:fill="#FBFAD8" />
+</style>
+
+<style id="STY-7ixuict0m202" name="%space" type="map">
+	<map-properties svg:fill="#000000" />
+</style>
+
+<style id="STY-sg8j0m2f0zy4" name="%blackboard" type="map">
+	<map-properties svg:fill="#404040" />
+</style>
+	</automatic-styles>
+</xmap-styles>

@@ -41,12 +41,11 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author Frank Shaka
- *
  */
 public class CommentManagerImpl
         implements ICommentManager, INodeAdaptableFactory {
 
-    private final WorkbookImpl ownerWorkbook;
+    private final WorkbookImpl ownedWorkbook;
 
     private final Document implementation;
 
@@ -59,7 +58,7 @@ public class CommentManagerImpl
      */
     public CommentManagerImpl(WorkbookImpl ownerWorkbook,
             Document implementation) {
-        this.ownerWorkbook = ownerWorkbook;
+        this.ownedWorkbook = ownerWorkbook;
         this.implementation = implementation;
         this.registry = new NodeAdaptableRegistry(implementation, this);
         this.pendingComments = new HashSet<CommentImpl>();
@@ -78,7 +77,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IAdaptable#getAdapter(java.lang.Class)
      */
     public <T> T getAdapter(Class<T> adapter) {
@@ -91,16 +89,14 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#getOwnedWorkbook()
      */
     public IWorkbook getOwnedWorkbook() {
-        return ownerWorkbook;
+        return ownedWorkbook;
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
@@ -118,7 +114,7 @@ public class CommentManagerImpl
                 if (ele.getParentNode() != p) {
                     p.appendChild(ele);
                     if (obj instanceof ICoreEventSource) {
-                        ownerWorkbook.getCoreEventSupport()
+                        ownedWorkbook.getCoreEventSupport()
                                 .dispatchTargetChange((ICoreEventSource) obj,
                                         Core.CommentAdd, c);
                     }
@@ -143,7 +139,7 @@ public class CommentManagerImpl
                         CommentImpl c = (CommentImpl) a;
                         pendingComments.add(c);
                         if (obj instanceof ICoreEventSource) {
-                            ownerWorkbook.getCoreEventSupport()
+                            ownedWorkbook.getCoreEventSupport()
                                     .dispatchTargetChange(
                                             (ICoreEventSource) obj,
                                             Core.CommentRemove, c);
@@ -158,7 +154,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICommentManager#createComment(java.lang.String, long,
      * java.lang.String)
      */
@@ -175,7 +170,7 @@ public class CommentManagerImpl
         DOMUtils.setAttribute(ele, ATTR_TIME, Long.toString(time));
         DOMUtils.setAttribute(ele, ATTR_OBJECT_ID, objectId);
 
-        CommentImpl c = new CommentImpl(ownerWorkbook, ele);
+        CommentImpl c = new CommentImpl(ownedWorkbook, this, ele);
         registry.register(c, ele);
         return c;
     }
@@ -187,7 +182,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICommentManager#addCommand(org.xmind.core.IComment)
      */
     public void addComment(IComment comment) {
@@ -201,7 +195,7 @@ public class CommentManagerImpl
         if (ele.getParentNode() == p)
             return;
 
-        Object obj = ownerWorkbook.getElementById(c.getObjectId());
+        Object obj = ownedWorkbook.getElementById(c.getObjectId());
         if (obj == null || isObjectOrphan(obj)) {
             /// associated object not exist,
             /// add comment to pending set
@@ -211,14 +205,14 @@ public class CommentManagerImpl
 
         p.appendChild(ele);
         if (obj instanceof ICoreEventSource) {
-            ownerWorkbook.getCoreEventSupport().dispatchTargetChange(
+            ownedWorkbook.getCoreEventSupport().dispatchTargetChange(
                     (ICoreEventSource) obj, Core.CommentAdd, c);
         }
+        updateModificationInfo();
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.ICommentManager#removeComment(org.xmind.core.IComment)
      */
@@ -238,16 +232,16 @@ public class CommentManagerImpl
 
         p.removeChild(ele);
 
-        Object obj = ownerWorkbook.getElementById(c.getObjectId());
+        Object obj = ownedWorkbook.getElementById(c.getObjectId());
         if (obj instanceof ICoreEventSource) {
-            ownerWorkbook.getCoreEventSupport().dispatchTargetChange(
+            ownedWorkbook.getCoreEventSupport().dispatchTargetChange(
                     (ICoreEventSource) obj, Core.CommentRemove, c);
         }
+        updateModificationInfo();
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICommentManager#getComments(java.lang.String)
      */
     public Set<IComment> getComments(String objectId) {
@@ -276,7 +270,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICommentManager#hasComments(java.lang.String)
      */
     public boolean hasComments(String objectId) {
@@ -305,7 +298,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICommentManager#getAllComments()
      */
     public Set<IComment> getAllComments() {
@@ -328,7 +320,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICommentManager#isEmpty()
      */
     public boolean isEmpty() {
@@ -350,7 +341,6 @@ public class CommentManagerImpl
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.internal.dom.INodeAdaptableFactory#createAdaptable(org.w3c
      * .dom.Node)
@@ -360,10 +350,16 @@ public class CommentManagerImpl
             Element ele = (Element) node;
             String tag = ele.getTagName();
             if (TAG_COMMENT.equals(tag)) {
-                return new CommentImpl(ownerWorkbook, ele);
+                return new CommentImpl(ownedWorkbook, this, ele);
             }
         }
         return null;
+    }
+
+    protected void updateModificationInfo() {
+        if (ownedWorkbook != null) {
+            ownedWorkbook.updateModificationInfo();
+        }
     }
 
 }

@@ -13,45 +13,11 @@
  *******************************************************************************/
 package org.xmind.core;
 
-import java.util.List;
-import java.util.Set;
-
-public interface ITopicExtensionElement extends IAdaptable, IWorkbookComponent {
+public interface ITopicExtensionElement extends IAdaptable, IWorkbookComponent,
+        IExtensionElement<ITopicExtensionElement> {
 
     ITopicExtension getExtension();
 
     ITopic getTopic();
-
-    List<ITopicExtensionElement> getChildren();
-
-    List<ITopicExtensionElement> getChildren(String elementName);
-
-    ITopicExtensionElement createChild(String elementName);
-
-    ITopicExtensionElement getCreatedChild(String elementName);
-
-    ITopicExtensionElement getFirstChild(String elementName);
-
-    ITopicExtensionElement getParent();
-
-    void addChild(ITopicExtensionElement child, int index);
-
-    void deleteChild(ITopicExtensionElement child);
-
-    void deleteChildren(String elementName);
-
-    void deleteChildren();
-
-    String getName();
-
-    Set<String> getAttributeKeys();
-
-    String getAttribute(String attrName);
-
-    void setAttribute(String attrName, String attrValue);
-
-    String getTextContent();
-
-    void setTextContent(String text);
 
 }

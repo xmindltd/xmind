@@ -21,10 +21,11 @@ import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 
-public class ResetPositionAction extends RequestAction implements
-        ISelectionAction {
+public class ResetPositionAction extends RequestAction
+        implements ISelectionAction {
 
     public ResetPositionAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.RESET_POSITION.getId(), page,
@@ -61,6 +62,13 @@ public class ResetPositionAction extends RequestAction implements
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public void run() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ResetPositionCount"); //$NON-NLS-1$
+        super.run();
     }
 
 }

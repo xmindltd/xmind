@@ -1,13 +1,9 @@
 package org.xmind.ui.internal.dashboard.pages;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.IEditorInput;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public interface IDashboardContext extends IAdaptable {
 
     /**
@@ -86,17 +82,17 @@ public interface IDashboardContext extends IAdaptable {
     void setPersistedState(String key, String value);
 
     /**
-     * 
      * @param key
      * @return
      */
     Object getContextVariable(String key);
 
     /**
-     * 
      * @param key
      * @return
      */
     <T> T getContextVariable(Class<T> key);
+
+    void setSelectionProvider(ISelectionProvider selectionProvider);
 
 }

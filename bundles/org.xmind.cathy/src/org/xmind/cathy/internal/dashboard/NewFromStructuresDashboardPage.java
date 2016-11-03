@@ -1,11 +1,16 @@
 package org.xmind.cathy.internal.dashboard;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.draw2d.geometry.Insets;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -15,18 +20,24 @@ import org.xmind.cathy.internal.dashboard.StructureListContentProvider.Structure
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
+import org.xmind.gef.ui.internal.SpaceCollaborativeEngine;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.mindmap.WorkbookInitializer;
 import org.xmind.ui.resources.ColorUtils;
 
-public class NewFromStructuresDashboardPage extends DashboardPage {
+@SuppressWarnings("restriction")
+public class NewFromStructuresDashboardPage extends DashboardPage
+        implements IAdaptable {
 
     private GalleryViewer viewer;
+
+    private ResourceManager resources;
 
     public void setFocus() {
         if (viewer != null && viewer.getControl() != null
@@ -36,6 +47,9 @@ public class NewFromStructuresDashboardPage extends DashboardPage {
     }
 
     public void createControl(Composite parent) {
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                parent);
+
         viewer = new GalleryViewer();
 
         EditDomain editDomain = new EditDomain();
@@ -52,12 +66,15 @@ public class NewFromStructuresDashboardPage extends DashboardPage {
         properties.set(GalleryViewer.FlatFrames, true);
         properties.set(GalleryViewer.ImageConstrained, true);
         properties.set(GalleryViewer.Layout,
-                new GalleryLayout(GalleryLayout.ALIGN_CENTER,
-                        GalleryLayout.ALIGN_TOPLEFT, 10, 10,
-                        new Insets(5, 15, 5, 15)));
+                new GalleryLayout(GalleryLayout.ALIGN_TOPLEFT,
+                        GalleryLayout.ALIGN_TOPLEFT, 30, 0,
+                        new Insets(10, 65, 20, 65)));
         properties.set(GalleryViewer.ContentPaneBorderWidth, 1);
         properties.set(GalleryViewer.ContentPaneBorderColor,
-                ColorUtils.getColor("#cccccc"));
+                (Color) resources.get(ColorUtils.toDescriptor("#cccccc"))); //$NON-NLS-1$
+
+        properties.set(GalleryViewer.ContentPaneSpaceCollaborativeEngine,
+                new SpaceCollaborativeEngine());
 
         Control control = viewer.createControl(parent);
         control.setBackground(parent.getBackground());
@@ -101,10 +118,17 @@ public class NewFromStructuresDashboardPage extends DashboardPage {
             return;
 
         final StructureDescriptor structure = (StructureDescriptor) selectedElement;
-        final IStyle theme = chooseTheme(viewer.getControl().getShell());
+        final IStyle theme = chooseTheme(viewer.getControl().getShell(),
+                structure.getValue());
         if (theme == null)
             return;
 
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("CreateWorkbookCount"); //$NON-NLS-1$
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("CreateSheetCount"); //$NON-NLS-1$
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("StructureTypeCount:" + structure.getValue()); //$NON-NLS-1$
         WorkbookInitializer initializer = WorkbookInitializer.getDefault()
                 .withStructureClass(structure.getValue()).withTheme(theme);
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()
@@ -112,12 +136,24 @@ public class NewFromStructuresDashboardPage extends DashboardPage {
         getContext().openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);
     }
 
-    private IStyle chooseTheme(Shell shell) {
-        ThemeChooserDialog dialog = new ThemeChooserDialog(shell);
+    private IStyle chooseTheme(Shell shell, String structureClass) {
+        ThemeChooserDialog dialog = new ThemeChooserDialog(shell,
+                structureClass);
         int result = dialog.open();
         if (result == ThemeChooserDialog.CANCEL)
             return null;
         return dialog.getSelectedTheme();
+    }
+
+    public <T> T getAdapter(Class<T> adapter) {
+        if (viewer != null) {
+            if (adapter.isAssignableFrom(viewer.getClass()))
+                return adapter.cast(viewer);
+            T obj = viewer.getAdapter(adapter);
+            if (obj != null)
+                return obj;
+        }
+        return null;
     }
 
 }

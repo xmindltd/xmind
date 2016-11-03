@@ -42,15 +42,20 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IFilter;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.services.IEvaluationService;
 import org.eclipse.ui.services.IServiceLocator;
+import org.xmind.core.Core;
+import org.xmind.core.CoreException;
 import org.xmind.core.IWorkbook;
 import org.xmind.gef.ui.editor.IEditable;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dialogs.SaveWizardDialog;
+import org.xmind.ui.internal.editor.DecryptionDialog;
+import org.xmind.ui.internal.editor.IEncryptable;
 import org.xmind.ui.internal.editor.SaveWizardManager.SaveWizardDescriptor;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.IWorkbookRefFactory;
@@ -71,7 +76,7 @@ public class SaveWorkbookAsHandler {
             @Named(IServiceConstants.ACTIVE_SELECTION) Object selection,
             @Optional IProgressService progressProvider,
             final @Optional IServiceLocator serviceLocator)
-                    throws InvocationTargetException {
+            throws InvocationTargetException {
         if (selection instanceof IStructuredSelection) {
             selection = ((IStructuredSelection) selection).getFirstElement();
         }
@@ -97,7 +102,6 @@ public class SaveWorkbookAsHandler {
     }
 
     /**
-     * 
      * @param context
      *            the context where this operation happens
      * @param workbookRef
@@ -112,12 +116,11 @@ public class SaveWorkbookAsHandler {
      * @return a new workbook ref that is filled with contents from the source
      *         workbook ref
      * @throws InvocationTargetException
-     *
      */
     public static IWorkbookRef saveWorkbookAs(ISaveContext context,
             final IWorkbookRef workbookRef, IRunnableContext runner,
             IFilter optionFilter, boolean onlyToLocal)
-                    throws InvocationTargetException {
+            throws InvocationTargetException {
         Assert.isLegal(context != null);
 
         Shell shell = context.getContextVariable(Shell.class);
@@ -245,23 +248,23 @@ public class SaveWorkbookAsHandler {
 
                 MessageDialog dialog = new MessageDialog(
 
-                shell,
+                        shell,
 
-                MindMapMessages.SaveWorkbookAsHandler_saveToOtherDialog_title,
+                        MindMapMessages.SaveWorkbookAsHandler_saveToOtherDialog_title,
 
-                null,
+                        null,
 
-                na.getMessage(),
+                        na.getMessage(),
 
-                MessageDialog.CONFIRM,
+                        MessageDialog.CONFIRM,
 
-                new String[] {
+                        new String[] {
 
-                        saveText,
+                                saveText,
 
-                        IDialogConstants.CANCEL_LABEL
+                                IDialogConstants.CANCEL_LABEL
 
-                }, 0
+                        }, 0
 
                 );
 
@@ -322,7 +325,7 @@ public class SaveWorkbookAsHandler {
                     public void run(IProgressMonitor monitor)
                             throws InvocationTargetException,
                             InterruptedException {
-                        doSaveAs(monitor, workbookRef, newWorkbookRef);
+                        doSaveAs(monitor, workbookRef, newWorkbookRef, 0);
                     }
                 });
             } catch (InterruptedException e) {
@@ -337,16 +340,72 @@ public class SaveWorkbookAsHandler {
 
     private static void doSaveAs(final IProgressMonitor monitor,
             final IWorkbookRef oldWorkbookRef,
-            final IWorkbookRef newWorkbookRef)
-                    throws InterruptedException, InvocationTargetException {
+            final IWorkbookRef newWorkbookRef, int times) {
         SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-        oldWorkbookRef.open(subMonitor.newChild(15));
         try {
+            oldWorkbookRef.open(subMonitor.newChild(15));
             newWorkbookRef.importFrom(subMonitor.newChild(80), oldWorkbookRef);
+        } catch (final InvocationTargetException e) {
+            CoreException coreEx = getCoreException(e);
+            if (coreEx != null) {
+                int errType = coreEx.getType();
+                if (errType == Core.ERROR_WRONG_PASSWORD) {
+                    openDecryptionDialog(oldWorkbookRef, newWorkbookRef,
+                            monitor,
+                            MindMapMessages.MindMapEditor_passwordPrompt_message2,
+                            times);
+                    return;
+                }
+                return;
+            }
+        } catch (InterruptedException e) {
+            return;
         } finally {
             subMonitor.setWorkRemaining(5);
-            oldWorkbookRef.close(subMonitor.newChild(5));
+            try {
+                oldWorkbookRef.close(subMonitor.newChild(5));
+            } catch (InvocationTargetException e) {
+            } catch (InterruptedException e) {
+            }
         }
+    }
+
+    private static CoreException getCoreException(Throwable e) {
+        if (e == null)
+            return null;
+        if (e instanceof CoreException)
+            return (CoreException) e;
+        return getCoreException(e.getCause());
+    }
+
+    private static void openDecryptionDialog(final IWorkbookRef oldWorkbookRef,
+            final IWorkbookRef newWorkbookRef, final IProgressMonitor monitor,
+            String message, final int times) {
+        final int nextTime = times + 1;
+        final IEncryptable encryptable = oldWorkbookRef
+                .getAdapter(IEncryptable.class);
+
+        Display.getDefault().asyncExec(new Runnable() {
+
+            public void run() {
+                new DecryptionDialog(Display.getDefault().getActiveShell(),
+                        oldWorkbookRef.getName(), encryptable.getPasswordHint(),
+                        times) {
+                    protected void okPressed() {
+                        super.okPressed();
+
+                        encryptable.setPassword(getPassword());
+                        doSaveAs(monitor, oldWorkbookRef, newWorkbookRef,
+                                nextTime);
+                    };
+
+                    protected void cancelPressed() {
+                        super.cancelPressed();
+                    };
+                }.open();
+
+            }
+        });
     }
 
     private static void sortLocationProviders(List<SaveWizardDescriptor> list) {

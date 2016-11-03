@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
 import org.xmind.gef.status.IStatusListener;
@@ -32,7 +32,6 @@ import org.xmind.gef.status.StatusEvent;
 
 /**
  * @author Administrator
- * 
  */
 public class Part implements IPart {
 
@@ -254,7 +253,7 @@ public class Part implements IPart {
 
     protected Object[] getSortedModelChildren(IViewer viewer, Object model,
             Object[] modelChildren) {
-        ViewerSorter sorter = viewer.getSorter();
+        ViewerComparator sorter = viewer.getComparator();
         if (sorter != null) {
             sorter.sort((Viewer) viewer, modelChildren);
         }
@@ -279,12 +278,11 @@ public class Part implements IPart {
     /**
      * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
      */
-    @SuppressWarnings("unchecked")
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IPartSite.class)
-            return getSite();
+            return adapter.cast(getSite());
         if (adapter == IPartStatus.class)
-            return getStatus();
+            return adapter.cast(getStatus());
         if (getModel() instanceof IAdaptable)
             return ((IAdaptable) getModel()).getAdapter(adapter);
         return null;

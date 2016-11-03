@@ -25,6 +25,10 @@ package org.xmind.ui.internal.editor;
  */
 public interface IEncryptable {
 
+    String getPasswordHint();
+
+    String getPassword();
+
     /**
      * Sets the password to be the given one.
      * 
@@ -33,6 +37,14 @@ public interface IEncryptable {
      *            indicate that no encryption should be used
      */
     void setPassword(String newPassword);
+
+    /**
+     * Sets the password to be the given one with hint message.
+     *
+     * @param hintMessage
+     *            a {@link String} of the password hint message
+     */
+    void setPasswordHint(String hintMessage);
 
     /**
      * Tests whether the given password equals the one this object has.

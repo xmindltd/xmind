@@ -16,12 +16,149 @@ package org.xmind.ui.gallery;
 import static org.xmind.ui.gallery.GalleryLayout.ALIGN_CENTER;
 import static org.xmind.ui.gallery.GalleryLayout.ALIGN_FILL;
 
+import java.util.Iterator;
+
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FlowLayout;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.LayoutManager;
+import org.eclipse.draw2d.geometry.Dimension;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.xmind.gef.draw2d.AdvancedToolbarLayout;
+import org.xmind.gef.ui.internal.SpaceCollaborativeEngine;
 
 public class ContentPane extends Figure {
+
+    private class ContentPaneFlowLayout extends FlowLayout {
+
+        /**
+         * Holds the necessary information for layout calculations.
+         */
+        private class WorkingData2 {
+            public Rectangle bounds[], area;
+            public IFigure row[];
+            public int rowHeight, rowWidth, rowCount, rowX, rowY, maxWidth;
+        }
+
+        private WorkingData2 data2 = null;
+
+        private int minorSpacing2 = 0;
+
+        public ContentPaneFlowLayout(boolean isHorizontal) {
+            super(isHorizontal);
+        }
+
+        public void setMinorSpacing2(int minorSpacing2) {
+            this.minorSpacing2 = minorSpacing2;
+        }
+
+        public int getMinorSpacing2() {
+            return minorSpacing2;
+        }
+
+        @Override
+        public void layout(IFigure parent) {
+            data2 = new WorkingData2();
+            Rectangle relativeArea = parent.getClientArea();
+            data2.area = transposer.t(relativeArea);
+
+            Iterator iterator = parent.getChildren().iterator();
+            int dx;
+
+            // Calculate the hints to be passed to children
+            int wHint = -1;
+            int hHint = -1;
+            if (isHorizontal())
+                wHint = parent.getClientArea().width;
+            else
+                hHint = parent.getClientArea().height;
+
+            initVariables2(parent);
+            initRow2();
+            while (iterator.hasNext()) {
+                IFigure f = (IFigure) iterator.next();
+                Dimension pref = transposer.t(getChildSize(f, wHint, hHint));
+                Rectangle r = new Rectangle(0, 0, pref.width, pref.height);
+
+                if (data2.rowCount > 0) {
+                    if (data2.rowWidth + pref.width > data2.maxWidth)
+                        layoutRow(parent);
+                }
+                r.x = data2.rowX;
+                r.y = data2.rowY;
+                dx = r.width + Math.max(getMinorSpacing(), getMinorSpacing2());
+                data2.rowX += dx;
+                data2.rowWidth += dx;
+                data2.rowHeight = Math.max(data2.rowHeight, r.height);
+                data2.row[data2.rowCount] = f;
+                data2.bounds[data2.rowCount] = r;
+                data2.rowCount++;
+            }
+            if (data2.rowCount != 0)
+                layoutRow(parent);
+            data2 = null;
+        }
+
+        @Override
+        protected void layoutRow(IFigure parent) {
+            int majorAdjustment = 0;
+            int minorAdjustment = 0;
+            int correctMajorAlignment = getMajorAlignment();
+            int correctMinorAlignment = getMinorAlignment();
+
+            majorAdjustment = data2.area.width - data2.rowWidth
+                    + Math.max(getMinorSpacing(), getMinorSpacing2());
+
+            switch (correctMajorAlignment) {
+            case ALIGN_TOPLEFT:
+                majorAdjustment = 0;
+                break;
+            case ALIGN_CENTER:
+                majorAdjustment /= 2;
+                break;
+            case ALIGN_BOTTOMRIGHT:
+                break;
+            }
+
+            for (int j = 0; j < data2.rowCount; j++) {
+                if (isStretchMinorAxis()) {
+                    data2.bounds[j].height = data2.rowHeight;
+                } else {
+                    minorAdjustment = data2.rowHeight - data2.bounds[j].height;
+                    switch (correctMinorAlignment) {
+                    case ALIGN_TOPLEFT:
+                        minorAdjustment = 0;
+                        break;
+                    case ALIGN_CENTER:
+                        minorAdjustment /= 2;
+                        break;
+                    case ALIGN_BOTTOMRIGHT:
+                        break;
+                    }
+                    data2.bounds[j].y += minorAdjustment;
+                }
+                data2.bounds[j].x += majorAdjustment;
+
+                setBoundsOfChild(parent, data2.row[j],
+                        transposer.t(data2.bounds[j]));
+            }
+            data2.rowY += getMajorSpacing() + data2.rowHeight;
+            initRow2();
+        }
+
+        private void initRow2() {
+            data2.rowX = 0;
+            data2.rowHeight = 0;
+            data2.rowWidth = 0;
+            data2.rowCount = 0;
+        }
+
+        private void initVariables2(IFigure parent) {
+            data2.row = new IFigure[parent.getChildren().size()];
+            data2.bounds = new Rectangle[data2.row.length];
+            data2.maxWidth = data2.area.width;
+        }
+    }
 
     private AdvancedToolbarLayout layout = null;
 
@@ -30,6 +167,8 @@ public class ContentPane extends Figure {
     private int minorAlign = -1;
 
     private int minorSpacing = -1;
+
+    private SpaceCollaborativeEngine spaceCollaborativeEngine = null;
 
     /**
      * 
@@ -46,7 +185,7 @@ public class ContentPane extends Figure {
     public ContentPane(boolean isHorizontal, boolean stretchMinorAxis,
             boolean wrap) {
         if (wrap) {
-            wrapLayout = new FlowLayout(isHorizontal);
+            wrapLayout = new ContentPaneFlowLayout(isHorizontal);
             wrapLayout.setStretchMinorAxis(stretchMinorAxis);
             wrapLayout.setMajorAlignment(FlowLayout.ALIGN_CENTER);
             wrapLayout.setMinorAlignment(FlowLayout.ALIGN_CENTER);
@@ -66,7 +205,7 @@ public class ContentPane extends Figure {
     }
 
     public void setLayoutManager(LayoutManager manager) {
-        // Do nothing to prevent external layout manager to be set.
+        // Do nothing to prevent external layout manager to be set. 
     }
 
     public boolean isHorizontal() {
@@ -100,14 +239,14 @@ public class ContentPane extends Figure {
                 int minorAlignment = getMinorAlignment();
                 int majorSpacing = getMajorSpacing();
                 int minorSpacing = getMinorSpacing();
-                wrapLayout = new FlowLayout(horizontal);
+                wrapLayout = new ContentPaneFlowLayout(horizontal);
                 wrapLayout.setMajorAlignment(majorAlignment);
                 wrapLayout.setMajorSpacing(majorSpacing);
                 wrapLayout.setMinorSpacing(minorSpacing);
                 boolean fill = minorAlignment == ALIGN_FILL;
                 wrapLayout.setStretchMinorAxis(fill);
-                wrapLayout.setMinorAlignment(fill ? ALIGN_CENTER
-                        : minorAlignment);
+                wrapLayout.setMinorAlignment(
+                        fill ? ALIGN_CENTER : minorAlignment);
             }
             super.setLayoutManager(wrapLayout);
         } else {
@@ -191,8 +330,25 @@ public class ContentPane extends Figure {
 
         this.minorSpacing = spacing;
         if (wrapLayout != null)
-            wrapLayout.setMinorSpacing(spacing);
+            ((ContentPaneFlowLayout) wrapLayout).setMinorSpacing2(spacing);
         revalidate();
+    }
+
+    @Override
+    public void invalidate() {
+        if (getSpaceCollaborativeEngine() != null) {
+            getSpaceCollaborativeEngine().refreshMinorSpace();
+        }
+        super.invalidate();
+    }
+
+    public SpaceCollaborativeEngine getSpaceCollaborativeEngine() {
+        return spaceCollaborativeEngine;
+    }
+
+    public void setSpaceCollaborativeEngine(
+            SpaceCollaborativeEngine spaceCollaborativeEngine) {
+        this.spaceCollaborativeEngine = spaceCollaborativeEngine;
     }
 
 }

@@ -133,7 +133,8 @@ public class NumberUtils {
      *            precision controller
      * @return a solution to the equation near the initial value
      */
-    public static double newton(double[] coefs, double x0, int max, double eps) {
+    public static double newton(double[] coefs, double x0, int max,
+            double eps) {
         if (coefs == null)
             throw new IllegalArgumentException("coefficient list is null"); //$NON-NLS-1$
         if (coefs.length <= 1)
@@ -214,9 +215,8 @@ public class NumberUtils {
             for (i = 0; i < symbols.length; i++) {
                 if (symbols[i].value <= n) {
                     int shift = i + (i % 2);
-                    if (i > 0
-                            && shift < symbols.length
-                            && (symbols[i - 1].value - symbols[shift].value) <= n) {
+                    if (i > 0 && shift < symbols.length && (symbols[i - 1].value
+                            - symbols[shift].value) <= n) {
                         sb.append(symbols[shift].name());
                         sb.append(symbols[i - 1].name());
                         n = n - symbols[i - 1].value + symbols[shift].value;
@@ -228,6 +228,48 @@ public class NumberUtils {
                     }
                 }
             }
+        }
+        return sb.toString();
+    }
+
+    @SuppressWarnings("nls")
+    public static String toSimpleChinese(int n) {
+        String num[] = { "零", "一", "二", "三", "四", "五", "六", "七", "八", "九" };
+        String xx[] = { "十", "百", "千" };
+        StringBuilder sb = new StringBuilder();
+        int bs = 0;
+        while ((int) (n / ((long) Math.pow(10, bs))) != 0) {
+            bs++;
+        }
+        if (bs > 4)
+            return "";
+        for (int i = bs - 1; i >= 0; i--) {
+            int index = (int) (n / Math.pow(10, i));
+            sb.append(num[index]);
+            if (index != 0 && i > 0)
+                sb.append(xx[i - 1]);
+            n -= index * Math.pow(10, i);
+        }
+        return sb.toString();
+    }
+
+    @SuppressWarnings("nls")
+    public static String toTraditionalChinese(int n) {
+        String num[] = { "零", "壹", "貳", "參", "肆", "伍", "陸", "柒", "捌", "玖" };
+        String xx[] = { "拾", "佰", "仟" };
+        StringBuilder sb = new StringBuilder();
+        int bs = 0;
+        while ((int) (n / ((long) Math.pow(10, bs))) != 0) {
+            bs++;
+        }
+        if (bs > 4)
+            return "";
+        for (int i = bs - 1; i >= 0; i--) {
+            int index = (int) (n / Math.pow(10, i));
+            sb.append(num[index]);
+            if (index != 0 && i > 0)
+                sb.append(xx[i - 1]);
+            n -= index * Math.pow(10, i);
         }
         return sb.toString();
     }

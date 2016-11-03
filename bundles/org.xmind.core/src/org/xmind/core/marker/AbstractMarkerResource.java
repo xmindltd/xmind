@@ -71,7 +71,6 @@ public abstract class AbstractMarkerResource implements IMarkerResource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.marker.IMarkerResource#getInputStream()
      */
     public InputStream getInputStream() {
@@ -84,9 +83,9 @@ public abstract class AbstractMarkerResource implements IMarkerResource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.marker.IMarkerResource#getOutputStream()
      */
+    @Deprecated
     public OutputStream getOutputStream() {
         try {
             return openOutputStream();
@@ -116,6 +115,16 @@ public abstract class AbstractMarkerResource implements IMarkerResource {
         return openInputStream();
     }
 
+    public InputStream openInputStream(int zoom) throws IOException {
+        return openInputStream();
+    }
+
+    public InputStream openInputStream(IMarkerVariation variation, int zoom)
+            throws IOException {
+        return openInputStream();
+    }
+
+    @Deprecated
     public OutputStream openOutputStream(IMarkerVariation variation)
             throws IOException {
         return openOutputStream();

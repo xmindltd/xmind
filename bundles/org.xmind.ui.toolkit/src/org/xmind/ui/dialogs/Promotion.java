@@ -1,5 +1,8 @@
 package org.xmind.ui.dialogs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.FontDescriptor;
@@ -9,8 +12,6 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseTrackListener;
@@ -35,7 +36,6 @@ import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.util.UITimer;
 
 /**
- * 
  * @author Shawn Liu
  * @since 3.6.50
  */
@@ -44,6 +44,8 @@ public class Promotion extends Dialog {
     private static final int MARGIN = 5;
 
     private static int STAY_DURATION = 5000;
+
+    private static List<Promotion> promotionList = new ArrayList<Promotion>();
 
     private String infoText;
 
@@ -56,6 +58,8 @@ public class Promotion extends Dialog {
     private int duration = STAY_DURATION;
 
     private ResourceManager resources;
+
+    private boolean isClosed = false;
 
     public Promotion(Shell parent, String infoText, IAction action,
             boolean isCenter) {
@@ -82,7 +86,16 @@ public class Promotion extends Dialog {
         Rectangle bounds = getParentShell().getBounds();
         int x = isCenter ? bounds.x + (bounds.width - size.x) / 2
                 : bounds.x + bounds.width - size.x - MARGIN;
-        return new Point(x, bounds.y + bounds.height - size.y - MARGIN);
+        int y = bounds.y + bounds.height - size.y - MARGIN;
+
+        if (promotionList.size() != 0) {
+            Dialog topDialog = promotionList.get(promotionList.size() - 1);
+            if (!topDialog.getShell().isDisposed()) {
+                y = topDialog.getShell().getBounds().y - size.y - 1;
+            }
+        }
+
+        return new Point(x, y);
     }
 
     @Override
@@ -109,17 +122,11 @@ public class Promotion extends Dialog {
 
     private void createImageSection(Composite parent) {
         Image image = null;
-        final Image imageToDispose;
         if (action != null) {
             ImageDescriptor imageDesc = action.getImageDescriptor();
             if (imageDesc != null) {
-                image = imageDesc.createImage(false);
-                imageToDispose = image;
-            } else {
-                imageToDispose = null;
+                image = (Image) resources.get(imageDesc);
             }
-        } else {
-            imageToDispose = null;
         }
 
         //get default image
@@ -159,14 +166,6 @@ public class Promotion extends Dialog {
                     true);
             iconLabel.setLayoutData(gridData3);
             iconLabel.setImage(image);
-
-            if (imageToDispose != null) {
-                iconLabel.addDisposeListener(new DisposeListener() {
-                    public void widgetDisposed(DisposeEvent e) {
-                        imageToDispose.dispose();
-                    }
-                });
-            }
 
             //create separator
             createSeperator(composite);
@@ -220,10 +219,10 @@ public class Promotion extends Dialog {
         close.setBackground(composite.getBackground());
         close.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 
-        final Image focusedImage = ToolkitImages.get("close.png", true) //$NON-NLS-1$
-                .createImage();
-        final Image noFocusedImage = ToolkitImages.get("close.png", false) //$NON-NLS-1$
-                .createImage();
+        final Image focusedImage = (Image) resources
+                .get(ToolkitImages.get("close.png", true)); //$NON-NLS-1$
+        final Image noFocusedImage = (Image) resources
+                .get(ToolkitImages.get("close.png", false)); //$NON-NLS-1$
 
         close.setImage(noFocusedImage);
 
@@ -254,6 +253,7 @@ public class Promotion extends Dialog {
             }
 
             public void mouseDown(MouseEvent e) {
+
                 close();
             }
 
@@ -334,11 +334,16 @@ public class Promotion extends Dialog {
             hyperlink.setBackground(composite.getBackground());
             hyperlink.setForeground(
                     (Color) resources.get(ColorUtils.toDescriptor("#4a90e2"))); //$NON-NLS-1$
-            hyperlink.setFont((Font) resources
-                    .get(FontDescriptor.createFrom(FontUtils.bold(
-                            FontUtils.relativeHeight(
-                                    hyperlink.getFont().getFontData(), 3),
-                            true))));
+            hyperlink
+                    .setFont(
+                            (Font) resources
+                                    .get(FontDescriptor.createFrom(
+                                            FontUtils.bold(
+                                                    FontUtils.relativeHeight(
+                                                            hyperlink.getFont()
+                                                                    .getFontData(),
+                                                            3),
+                                                    true))));
             hyperlink.setUnderlined(true);
             hyperlink.setText(action.getText());
 
@@ -351,6 +356,7 @@ public class Promotion extends Dialog {
                 }
 
                 public void linkActivated(HyperlinkEvent e) {
+
                     close();
                     action.run();
                 }
@@ -383,7 +389,6 @@ public class Promotion extends Dialog {
     }
 
     /**
-     * 
      * @param stayDuration
      *            the duration this dialog will stay on the screen, in
      *            milliseconds
@@ -400,6 +405,7 @@ public class Promotion extends Dialog {
             timer = new UITimer(duration, 0, 0, new SafeRunnable() {
 
                 public void run() {
+
                     close();
                     timer.cancel();
                     timer = null;
@@ -409,7 +415,37 @@ public class Promotion extends Dialog {
         }
         timer.run();
 
+        promotionList.add(this);
         return code;
     }
 
+    @Override
+    public boolean close() {
+        return closePromotion();
+    }
+
+    private synchronized boolean closePromotion() {
+
+        if (isClosed)
+            return false;
+        isClosed = true;
+
+        movePromotionLocation(promotionList.indexOf(this));
+        promotionList.remove(this);
+        return super.close();
+    }
+
+    private void movePromotionLocation(int index) {
+
+        if (promotionList.size() - 1 > index && -1 < index) {
+            for (int i = index + 1; i < promotionList.size(); i++) {
+                Promotion prom = promotionList.get(i);
+                prom.getShell()
+                        .setLocation(new Point(prom.getShell().getBounds().x,
+                                prom.getShell().getBounds().y
+                                        + prom.getInitialSize().y));
+            }
+        }
+
+    }
 }

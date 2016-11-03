@@ -30,8 +30,8 @@ import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.TopicExtension;
 import org.xmind.core.util.DOMUtils;
 
-public class TopicExtensionImpl extends TopicExtension implements
-        INodeAdaptableProvider {
+public class TopicExtensionImpl extends TopicExtension
+        implements INodeAdaptableProvider {
 
     private Element implementation;
 
@@ -101,9 +101,9 @@ public class TopicExtensionImpl extends TopicExtension implements
         return DOMUtils.isOrphanNode(implementation);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -129,9 +129,9 @@ public class TopicExtensionImpl extends TopicExtension implements
     public List<IResourceRef> getResourceRefs() {
         Element refsEle = getRefsElement();
         if (refsEle != null)
-            return DOMUtils.getChildList(refsEle,
-                    DOMConstants.TAG_RESOURCE_REF, ((WorkbookImpl) topic
-                            .getOwnedWorkbook()).getAdaptableRegistry());
+            return DOMUtils.getChildList(refsEle, DOMConstants.TAG_RESOURCE_REF,
+                    ((WorkbookImpl) topic.getOwnedWorkbook())
+                            .getAdaptableRegistry());
         return EMPTY_REFS;
     }
 

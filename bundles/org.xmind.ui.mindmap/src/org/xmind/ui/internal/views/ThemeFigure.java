@@ -238,6 +238,10 @@ public class ThemeFigure extends Figure {
         repaint();
     }
 
+    public Image getPreviewImage(IStyle theme) {
+        return getImageFromSource(theme, new Rectangle(0, 0, 200, 100));
+    }
+
 //    public boolean isDefault() {
 //        return isDefault;
 //    }
@@ -282,6 +286,9 @@ public class ThemeFigure extends Figure {
     }
 
     private Image getImageFromSource(IStyle theme, Rectangle r) {
+        if (this.theme != theme)
+            this.theme = theme;
+
         File root = MindMapUIPlugin.getDefault().getStateLocation().toFile();
         root = new File(root, ".themePreview"); //$NON-NLS-1$
 

@@ -23,6 +23,8 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -52,6 +54,7 @@ import org.xmind.gef.service.IRevealService;
 import org.xmind.gef.service.IShadowService;
 import org.xmind.gef.service.ImageRegistryService;
 import org.xmind.gef.service.ShadowService;
+import org.xmind.gef.tool.MoveTool;
 import org.xmind.gef.ui.actions.ActionRegistry;
 import org.xmind.gef.ui.actions.CopyAction;
 import org.xmind.gef.ui.actions.IActionRegistry;
@@ -155,8 +158,21 @@ public class MindMapEditorPage extends GraphicalEditorPage
 
     protected void createViewerControl(final IGraphicalViewer viewer,
             Composite parent) {
-        ((MindMapViewer) viewer).createControl(parent);
+        Control control = ((MindMapViewer) viewer).createControl(parent);
         imeSupport = new IMESupport(this, viewer);
+
+        control.addFocusListener(new FocusListener() {
+
+            public void focusLost(FocusEvent e) {
+                ((MindMapEditor) getParentEditor())
+                        .changeContext((String) null);
+            }
+
+            public void focusGained(FocusEvent e) {
+                ((MindMapEditor) getParentEditor())
+                        .changeContext(getEditDomain().getActiveTool());
+            }
+        });
     }
 
     protected void createContentPopupMenu(final Control control) {
@@ -253,7 +269,17 @@ public class MindMapEditorPage extends GraphicalEditorPage
     }
 
     public void propertyChange(PropertyChangeEvent event) {
-        if (PrefConstants.OVERLAPS_ALLOWED.equals(event.getProperty())) {
+        if (PrefConstants.MANUAL_LAYOUT_ALLOWED.equals(event.getProperty())) {
+            MoveTool moveTool = (MoveTool) getViewer().getEditDomain()
+                    .getTool(MindMapUI.TOOL_MOVE_TOPIC);
+            if (null != moveTool) {
+                IPreferenceStore prefStore = MindMapUIPlugin.getDefault()
+                        .getPreferenceStore();
+                boolean status = prefStore
+                        .getBoolean(PrefConstants.MANUAL_LAYOUT_ALLOWED);
+                moveTool.getStatus().setStatus(GEF.ST_FREE_MOVE_MODE, status);
+            }
+        } else if (PrefConstants.OVERLAPS_ALLOWED.equals(event.getProperty())) {
             ISheetPart sheet = ((IMindMapViewer) getViewer()).getSheetPart();
             if (sheet != null) {
                 sheet.getFigure().revalidate();

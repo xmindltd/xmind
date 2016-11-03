@@ -15,6 +15,7 @@ import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.dialogs.RevisionPreviewDialog;
 
+@Deprecated
 public class PreviewRevisionHandler extends AbstractHandler {
 
     public Object execute(ExecutionEvent event) throws ExecutionException {

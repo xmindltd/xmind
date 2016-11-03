@@ -28,6 +28,11 @@ public interface IMarkerResource {
 
     InputStream openInputStream(IMarkerVariation variation) throws IOException;
 
+    InputStream openInputStream(int zoom) throws IOException;
+
+    InputStream openInputStream(IMarkerVariation variation, int zoom)
+            throws IOException;
+
     /**
      * @deprecated Use
      *             {@link IMarkerSheet#allocateMarkerResource(InputStream, String)}

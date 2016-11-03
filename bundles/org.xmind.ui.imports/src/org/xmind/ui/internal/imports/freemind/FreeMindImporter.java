@@ -52,6 +52,7 @@ import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.style.IStyled;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.HyperlinkUtils;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.imports.ImportMessages;
 import org.xmind.ui.internal.imports.ImporterUtils;
 import org.xmind.ui.io.MonitoredInputStream;
@@ -235,6 +236,8 @@ public class FreeMindImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ImportFromFreeMindCount"); //$NON-NLS-1$
         try {
             DocumentBuilder builder = getDocumentBuilder();
             builder.setErrorHandler(this);
@@ -266,6 +269,7 @@ public class FreeMindImporter extends MindMapImporter
             idMap = null;
             styleMap = null;
         }
+        postBuilded();
     }
 
     private void dealTopicHyperlinks() {

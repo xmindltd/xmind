@@ -27,11 +27,6 @@ import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.IWorkbookRefFactory;
 import org.xmind.ui.mindmap.MindMapUI;
 
-/**
- * 
- * @author Frank Shaka
- * @since 3.6.50
- */
 public class WorkbookRefFactoryManager
         implements IWorkbookRefFactory, IRegistryEventListener {
 
@@ -99,14 +94,9 @@ public class WorkbookRefFactoryManager
 
     public synchronized IWorkbookRef createWorkbookRef(URI uri,
             IMemento state) {
-        if (uri == null && state != null) {
-            return PreLoadedWorkbookRef.createFromSavedState(state);
-        }
-
         IWorkbookRefFactory factory = getWorkbookRefFactoryForURI(uri);
         if (factory != null)
             return factory.createWorkbookRef(uri, state);
-
         return URLWorkbookRef.create(uri, state);
     }
 

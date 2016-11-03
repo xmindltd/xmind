@@ -15,7 +15,7 @@ public class ParallelogramTopicDecoration extends AbstractTopicDecoration {
             int purpose) {
         if (purpose == CHECK) {
             float halfLineWidth = getLineWidth() * 0.5f;
-            shape.moveTo(box.x - +box.height * SCALE + halfLineWidth,
+            shape.moveTo(box.x + box.height * SCALE - halfLineWidth,
                     box.y - halfLineWidth);
             shape.lineTo(box.x - halfLineWidth, box.bottom() + halfLineWidth);
             shape.lineTo(box.right() - box.height * SCALE + halfLineWidth,
@@ -39,63 +39,42 @@ public class ParallelogramTopicDecoration extends AbstractTopicDecoration {
                         + getLineWidth() + Math.round(height * SCALE) + 1);
     }
 
-    @Override
     public PrecisionPoint getAnchorLocation(IFigure figure, double refX,
             double refY, double expansion) {
-        boolean isVertical = false;
 
         Rectangle r = getOutlineBox(figure);
-        double centerX = r.x + 0.5 * r.width;
-        double centerY = r.y + 0.5 * r.height;
-        double dx = refX - centerX;
-        double dy = refY - centerY;
-
-        if (Math.abs(dx) >= 99)
-            if (expansion != 0.0) {
-                expansion += r.height * SCALE;
-            } else {
-                expansion += r.height * SCALE * 0.5;
-            }
-        if (Math.abs(dy) > 99)
-            isVertical = true;
+        double cx = r.x + 0.5f * r.width;
+        double cy = r.y + 0.5f * r.height;
+        double dx = refX - cx;
+        double dy = refY - cy;
 
         if (dx == 0)
             return new PrecisionPoint(refX,
                     (dy > 0) ? r.bottom() + expansion : r.y - expansion);
         if (dy == 0)
             return new PrecisionPoint(
-                    (dx > 0) ? r.right() - r.height * SCALE + expansion
-                            : r.x + r.height * SCALE - expansion,
+                    (dx > 0) ? r.right() - r.height * SCALE * SCALE + expansion
+                            : r.x + r.height * SCALE * SCALE - expansion,
                     refY);
 
-        double scale = 0.5
+        double scale = 0.5f
                 / Math.max(Math.abs(dx) / r.width, Math.abs(dy) / r.height);
 
-        dx *= scale;
-        dy *= scale;
-        double d = Math.hypot(dx, dy);
-        if (d != 0) {
-            double s = expansion / d;
-            dx += dx * s;
-            dy += dy * s;
-        }
-        centerX += dx;
-        centerY += dy;
+        dx = Math.round(dx *= scale);
+        dy = Math.round(dy *= scale);
 
-        if (isVertical)
-            return new PrecisionPoint(centerX, centerY);
+        if (Math.abs(dy) < r.height / 2 || ((dy >= r.height / 2
+                && dx > r.width / 2 - r.height / 2)
+                || (dy <= -r.height / 2 && dx < -r.width / 2 + r.height / 2))) {
+            dx = (dx > 0) ? dx - (r.height * SCALE + dy) * SCALE
+                    : dx + (r.height * SCALE - dy) * SCALE;
 
-        if (centerY >= r.y && centerY <= r.bottom()) {
-            if (dx > 0) {
-                double py = centerY - r.y;
-                centerX -= py * SCALE * 2;
-            } else {
-                double py = r.bottom() - centerY;
-                centerX += py * SCALE * 2;
-            }
         }
 
-        return new PrecisionPoint(centerX, centerY);
+        cx += dx;
+        cy += dy;
+
+        return new PrecisionPoint(cx, cy);
     }
 
 }

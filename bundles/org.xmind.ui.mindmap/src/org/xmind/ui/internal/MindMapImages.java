@@ -77,7 +77,6 @@ public class MindMapImages implements IMindMapImages {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.mindmap.IMindMapImages#getTopicIcon(org.xmind.core.ITopic,
      * boolean)
@@ -105,7 +104,6 @@ public class MindMapImages implements IMindMapImages {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.mindmap.IMindMapImages#getElementIcon(java.lang.Object)
      */
     public ImageDescriptor getElementIcon(Object element, boolean enabled) {
@@ -199,7 +197,9 @@ public class MindMapImages implements IMindMapImages {
             ImageData data = p.getImageData();
             if (data != null) {
                 if (Util.isMac())
-                    return ImageDescriptor.createFromImageData(data);
+                    return ImageUtils.scaleImage(Display.getCurrent(),
+                            ImageDescriptor.createFromImageData(data), 16, 16);
+
                 //fix bug: icon has black shadow in Windows.
                 String tempPath = getTempFileIconPath();
 

@@ -102,7 +102,6 @@ public class TopicTitleEditTool extends TitleEditTool {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.tool.EditTool#canEdit(org.xmind.gef.part.IGraphicalEditPart
      * )
@@ -144,25 +143,27 @@ public class TopicTitleEditTool extends TitleEditTool {
             return;
 
         locatingHandle = true;
-
         Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
-                if (widthHandle == null || getTargetViewer() == null
-                        || getTargetViewer().getControl() == null
-                        || getTargetViewer().getControl().isDisposed()
-                        || control.isDisposed())
-                    return;
+                try {
+                    if (widthHandle == null || getTargetViewer() == null
+                            || getTargetViewer().getControl() == null
+                            || getTargetViewer().getControl().isDisposed()
+                            || control.isDisposed())
+                        return;
 
-                if (width < 0 && control.getBounds().width > 500) {
-                    widthChanged = true;
-                    getHelper().setPrefWidth(500);
+                    if (width < 0 && control.getBounds().width > 500) {
+                        widthChanged = true;
+                        getHelper().setPrefWidth(500);
+                    }
+                    Rectangle bounds = new Rectangle(control.getBounds());
+                    Point loc = getTargetViewer()
+                            .computeToLayer(bounds.getLocation(), false);
+                    widthHandle.setBounds(new Rectangle(loc.x + bounds.width,
+                            loc.y, HANDLE_WIDTH, bounds.height));
+                } finally {
+                    locatingHandle = false;
                 }
-                Rectangle bounds = new Rectangle(control.getBounds());
-                Point loc = getTargetViewer().computeToLayer(
-                        bounds.getLocation(), false);
-                widthHandle.setBounds(new Rectangle(loc.x + bounds.width,
-                        loc.y, HANDLE_WIDTH, bounds.height));
-                locatingHandle = false;
             }
         });
     }
@@ -193,7 +194,8 @@ public class TopicTitleEditTool extends TitleEditTool {
     }
 
     @Override
-    protected boolean openEditor(FloatingTextEditor editor, IDocument document) {
+    protected boolean openEditor(FloatingTextEditor editor,
+            IDocument document) {
         boolean opened = super.openEditor(editor, document);
         mouseDownOnHandle = false;
         draggingHandle = false;
@@ -262,8 +264,9 @@ public class TopicTitleEditTool extends TitleEditTool {
     protected Request createTextRequest(IPart source, IDocument document) {
         Request request = super.createTextRequest(source, document);
         if (widthChanged) {
-            request.setParameter(MindMapUI.PARAM_PROPERTY_PREFIX
-                    + Core.TitleWidth, getHelper().getPrefWidth());
+            request.setParameter(
+                    MindMapUI.PARAM_PROPERTY_PREFIX + Core.TitleWidth,
+                    getHelper().getPrefWidth());
         }
         return request;
     }
@@ -283,9 +286,8 @@ public class TopicTitleEditTool extends TitleEditTool {
     }
 
     public IFigure findToolTip(IPart source, Point position) {
-        if (!mouseDownOnHandle
-                && !draggingHandle
-                && (widthHandle != null && handleContains(widthHandle, position))) {
+        if (!mouseDownOnHandle && !draggingHandle && (widthHandle != null
+                && handleContains(widthHandle, position))) {
             return new Label(MindMapMessages.ModifyWrapWidth_toolTip0);
         }
         return super.getToolTip(source, position);

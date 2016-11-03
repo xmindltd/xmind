@@ -72,9 +72,17 @@ import org.xmind.ui.viewers.SWTUtils;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class RevisionPreviewDialog extends Dialog {
+
+    private class RevisionMindMapViewer extends MindMapViewer {
+        protected Control internalCreateControl(Composite parent, int style) {
+            FigureCanvas canvas = new FigureCanvas(parent, style,
+                    getLightweightSystem());
+            canvas.setViewport(getViewport());
+            return canvas;
+        }
+    }
 
     private static final String USE_STORED_SIZE = "USE_STORED_SIZE"; //$NON-NLS-1$
 
@@ -88,14 +96,14 @@ public class RevisionPreviewDialog extends Dialog {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.gef.tool.AbstractTool#handleKeyDown(org.xmind.gef.event
          * .KeyEvent)
          */
         @Override
         protected boolean handleKeyDown(KeyEvent ke) {
-            if (SWTUtils.matchKey(ke.getState(), ke.keyCode, 0, SWT.ARROW_LEFT)) {
+            if (SWTUtils.matchKey(ke.getState(), ke.keyCode, 0,
+                    SWT.ARROW_LEFT)) {
                 asyncExec(new Runnable() {
                     public void run() {
                         setIndex(index - 1);
@@ -118,7 +126,6 @@ public class RevisionPreviewDialog extends Dialog {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.swt.widgets.Layout#computeSize(org.eclipse.swt.widgets
          * .Composite, int, int, boolean)
@@ -143,15 +150,13 @@ public class RevisionPreviewDialog extends Dialog {
 
         /*
          * (non-Javadoc)
-         * 
-         * @see
-         * org.eclipse.swt.widgets.Layout#layout(org.eclipse.swt.widgets.Composite
-         * , boolean)
+         * @see org.eclipse.swt.widgets.Layout#layout(org.eclipse.swt.widgets.
+         * Composite , boolean)
          */
         @Override
         protected void layout(Composite composite, boolean flushCache) {
             Rectangle area = composite.getClientArea();
-            int h = NavigationViewer.PREF_HEIGHT;
+            int h = NavigationViewer.BIG_HEIGHT + 20;
             pageBook.setBounds(area.x, area.y, area.width, area.height - h);
             navBar.getControl().setBounds(area.x, area.y + area.height - h,
                     area.width, h);
@@ -175,7 +180,6 @@ public class RevisionPreviewDialog extends Dialog {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
          */
@@ -206,7 +210,6 @@ public class RevisionPreviewDialog extends Dialog {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
          */
@@ -224,14 +227,13 @@ public class RevisionPreviewDialog extends Dialog {
         }
     }
 
-    private class NavigationSelectionChangedListener implements
-            ISelectionChangedListener {
+    private class NavigationSelectionChangedListener
+            implements ISelectionChangedListener {
 
         private ICancelable updater = null;
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged
          * (org.eclipse.jface.viewers.SelectionChangedEvent)
@@ -285,11 +287,13 @@ public class RevisionPreviewDialog extends Dialog {
 
     private Listener widgetListener = new Listener() {
         public void handleEvent(Event event) {
-            if ((event.type == SWT.Traverse && event.detail == SWT.TRAVERSE_ESCAPE)
-                    || (event.type == SWT.KeyDown && (SWTUtils.matchKey(
-                            event.stateMask, event.keyCode, 0, SWT.ESC) || SWTUtils
-                            .matchKey(event.stateMask, event.keyCode, 0,
-                                    SWT.SPACE)))) {
+            if ((event.type == SWT.Traverse
+                    && event.detail == SWT.TRAVERSE_ESCAPE)
+                    || (event.type == SWT.KeyDown
+                            && (SWTUtils.matchKey(event.stateMask,
+                                    event.keyCode, 0, SWT.ESC)
+                                    || SWTUtils.matchKey(event.stateMask,
+                                            event.keyCode, 0, SWT.SPACE)))) {
                 close();
             }
         }
@@ -313,7 +317,6 @@ public class RevisionPreviewDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.dialogs.Dialog#isResizable()
      */
     @Override
@@ -348,14 +351,14 @@ public class RevisionPreviewDialog extends Dialog {
 
     private void updateShellTitle(Object selection) {
         String sheetTitle = String.format("\"%s - %s\"", //$NON-NLS-1$
-                sourceSheet.getTitleText(), sourceSheet.getRootTopic()
-                        .getTitleText());
+                sourceSheet.getTitleText(),
+                sourceSheet.getRootTopic().getTitleText());
         String title;
         if (selection instanceof IRevision) {
-            title = NLS
-                    .bind(DialogMessages.RevisionPreviewDialog_Revision_titlePattern,
-                            String.valueOf(((IRevision) selection)
-                                    .getRevisionNumber()), sheetTitle);
+            title = NLS.bind(
+                    DialogMessages.RevisionPreviewDialog_Revision_titlePattern,
+                    String.valueOf(((IRevision) selection).getRevisionNumber()),
+                    sheetTitle);
         } else {
             title = NLS.bind(
                     DialogMessages.RevisionPreviewDialog_CurrentRevision_title,
@@ -366,15 +369,14 @@ public class RevisionPreviewDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.jface.dialogs.Dialog#createContents(org.eclipse.swt.widgets
      * .Composite)
      */
     @Override
     protected Control createContents(Composite parent) {
-        Color background = parent.getDisplay().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND);
+        Color background = parent.getDisplay()
+                .getSystemColor(SWT.COLOR_LIST_BACKGROUND);
         parent.setBackground(background);
 
         Composite container = new Composite(parent, SWT.NONE);
@@ -412,7 +414,14 @@ public class RevisionPreviewDialog extends Dialog {
         revisions.toArray(elements);
         elements[elements.length - 1] = sourceSheet;
         navBar.setInput(elements);
-        navBar.addSelectionChangedListener(new NavigationSelectionChangedListener());
+        navBar.addSelectionChangedListener(
+                new NavigationSelectionChangedListener());
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gridData.heightHint = 0;
+        gridData.verticalAlignment = 0;
+        gridData.verticalIndent = 0;
+        gridData.verticalSpan = 0;
+        navBar.getControl();
         hookWidget(navBar.getControl());
     }
 
@@ -453,7 +462,8 @@ public class RevisionPreviewDialog extends Dialog {
 
         Label label = new Label(composite, SWT.NONE);
         label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
-        label.setText(DialogMessages.RevisionPreviewDialog_CorruptedRevision_message);
+        label.setText(
+                DialogMessages.RevisionPreviewDialog_CorruptedRevision_message);
 
         return composite;
     }
@@ -468,7 +478,7 @@ public class RevisionPreviewDialog extends Dialog {
     }
 
     public MindMapViewer createViewer(Composite parent, ISheet sheet) {
-        MindMapViewer viewer = new MindMapViewer();
+        MindMapViewer viewer = new RevisionMindMapViewer();
         initViewer(viewer);
         viewer.createControl(parent);
         viewer.getCanvas().setScrollBarVisibility(FigureCanvas.AUTOMATIC);
@@ -495,8 +505,8 @@ public class RevisionPreviewDialog extends Dialog {
 
     @Override
     protected IDialogSettings getDialogBoundsSettings() {
-        return MindMapUIPlugin.getDefault().getDialogSettings(
-                "org.xmind.ui.RevisionsDialog"); //$NON-NLS-1$
+        return MindMapUIPlugin.getDefault()
+                .getDialogSettings("org.xmind.ui.RevisionsDialog"); //$NON-NLS-1$
     }
 
     protected Point getInitialSize() {
@@ -528,7 +538,6 @@ public class RevisionPreviewDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.window.Window#open()
      */
     @Override
@@ -618,7 +627,6 @@ public class RevisionPreviewDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.dialogs.Dialog#close()
      */
     @Override

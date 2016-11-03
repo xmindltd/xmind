@@ -339,7 +339,9 @@ public class RevisionsPage extends Page
         if (Core.RevisionAdd.equals(type) || Core.RevisionRemove.equals(type)) {
             asyncExec(new Runnable() {
                 public void run() {
-                    viewer.refresh();
+                    if (viewer != null) {
+                        viewer.refresh();
+                    }
                 }
             });
         } else if (Core.TitleText.equals(type)) {

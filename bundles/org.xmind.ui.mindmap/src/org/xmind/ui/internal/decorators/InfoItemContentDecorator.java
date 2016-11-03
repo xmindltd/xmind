@@ -3,7 +3,6 @@ package org.xmind.ui.internal.decorators;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Util;
-import org.eclipse.swt.graphics.Font;
 import org.xmind.gef.draw2d.RotatableWrapLabel;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
@@ -31,9 +30,9 @@ public class InfoItemContentDecorator extends Decorator {
         if (part instanceof InfoItemContentPart) {
             topicPart = ((InfoItemContentPart) part).getTopicPart();
             if (topicPart != null) {
-                Font topicFont = topicPart.getTitle().getTextFigure().getFont();
-                figure.setFont(FontUtils.getNewHeight(topicFont,
-                        Util.isMac() ? 10 : 8));
+                figure.setFont(
+                        FontUtils.getNewHeight(JFaceResources.getDefaultFont(),
+                                Util.isMac() ? 10 : 8));
             } else {
                 figure.setFont(JFaceResources.getDefaultFont());
             }
@@ -57,8 +56,8 @@ public class InfoItemContentDecorator extends Decorator {
         final IFigure figure = topicPart.getFigure();
         figure.getUpdateManager().runWithUpdate(new Runnable() {
             public void run() {
-                itemFigure.setPrefWidth((int) (((figure.getSize().width
-                        + figure.getClientArea().width) / 2) * 1.4 - 10));
+                itemFigure.setPrefWidth(Math.abs((int) (((figure.getSize().width
+                        + figure.getClientArea().width) / 2) * 1.1 - 10)));
             }
         });
 

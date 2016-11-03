@@ -27,4 +27,9 @@ public class TextPropertyDescriptor extends PropertyDescriptor {
         return editor;
     }
 
+    @Override
+    public boolean isTextOperation() {
+        return true;
+    }
+
 }

@@ -12,7 +12,7 @@
 	swt-shadow-visible:false;
 
 	/*corner radius */
-	swt-corner-radius:8px;
+	swt-corner-radius:0px;
 
 	/*selected tab color */
 	swt-selected-tab-fill:#ffffff 100%;
@@ -28,7 +28,7 @@
 
 	xmind-swt-image-visible:false;
 
-	xmind-swt-minimize-visible:true;
+	xmind-swt-minimize-visible:false;
 	xmind-swt-maximize-visible:false;
 
 	/*visibility of unselected tabs bg */
@@ -44,7 +44,10 @@
 	xmind-swt-minimize-image:url("platform:/plugin/org.xmind.cathy/icons/views/view_minimize.png");
 
 	/*tab height */
-	swt-tab-height:25px;
+	swt-tab-height:20px;
+	
+	xmind-swt-close-image:url("platform:/plugin/org.xmind.cathy/icons/views/close.png");
+	xmind-swt-close-hover-image:url("platform:/plugin/org.xmind.cathy/icons/views/close_hover.png");
 }
 
 .MPartStack.active{
@@ -56,14 +59,14 @@
 	swt-inner-keyline-color:#35a6d9;
 
 	swt-shadow-visible:false;
-	swt-corner-radius:8px;
+	swt-corner-radius:0px;
 	/*swt-selected-tab-fill:#35a6d9 100%;*/
 	xmind-swt-selected-tab-area-color:#35a6d9 100%;
 	xmind-swt-unselected-tabs-color:#35a6d9 #35a6d9 100%;
 	xmind-swt-hover-tab-color:#ffffff;
 	xmind-swt-image-visible:false;
 
-	xmind-swt-minimize-visible:true;
+	xmind-swt-minimize-visible:fasle;
 	xmind-swt-maximize-visible:false;
 
 	xmind-swt-minimize-image:url("platform:/plugin/org.xmind.cathy/icons/views/view_minimize.png");
@@ -73,7 +76,7 @@
 	 * xswt-chevron-visible:false;
 	 */
 
-	 swt-tab-height:25px;
+	 swt-tab-height:20px;
 }
 
 .MPartStack>CTabItem {
@@ -104,12 +107,12 @@
 
 #org-eclipse-ui-editorss .MPartStack{
 	xmind-swt-minimize-visible:false;
-	xmind-swt-maximize-visible:true;
+	xmind-swt-maximize-visible:false;
 }
 
 #org-eclipse-ui-editorss .MPartStack.active{
 	xmind-swt-minimize-visible:false;
-	xmind-swt-maximize-visible:true;
+	xmind-swt-maximize-visible:false;
 }
 
 #org-eclipse-ui-editorss .MArea{
@@ -132,6 +135,10 @@
 	background-color: #ffffff;
 }
 
+CTabFolder{
+	swt-simple:true;
+}
+
 ToolBar{
 	xmind-swt-view-menu-image:url("platform:/plugin/org.xmind.cathy/images/viewmenu.png");
 }
@@ -140,14 +147,14 @@ ToolBar{
  * Window
  **************************************************/
 Shell.MTrimmedWindow {
-	margin-top: 2px;
-	margin-right: 3px;
-	margin-bottom: 3px;
-	margin-left: 4px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
 }
 
 .MPartSashContainer {
-	xmind-sash-width : 5px;
+	xmind-sash-width : 0px;
 }
 
 /**************************************************

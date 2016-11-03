@@ -9,6 +9,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -68,7 +69,7 @@ public class SaveAsTemplateHandler extends AbstractHandler {
 
     private void importCustomTemplate(final Display display,
             final IEditorPart editor, final IWorkbook workbook, String name)
-                    throws ExecutionException {
+            throws ExecutionException {
         if (tempFolder == null) {
             tempFolder = new File(
                     Core.getWorkspace().getTempDir("transient-templates")); //$NON-NLS-1$
@@ -84,10 +85,10 @@ public class SaveAsTemplateHandler extends AbstractHandler {
             } catch (IOException e) {
             }
 
+        final IWorkbookRef tempWorkbookRef = MindMapUIPlugin.getDefault()
+                .getWorkbookRefFactory()
+                .createWorkbookRef(tempFile.toURI(), null);
         try {
-            final IWorkbookRef tempWorkbookRef = MindMapUIPlugin.getDefault()
-                    .getWorkbookRefFactory()
-                    .createWorkbookRef(tempFile.toURI(), null);
             if (tempWorkbookRef == null)
                 return;
 
@@ -111,6 +112,10 @@ public class SaveAsTemplateHandler extends AbstractHandler {
                         try {
                             tempWorkbookRef.importFrom(subMonitor.newChild(60),
                                     sourceWorkbookRef);
+
+                            /// Fix save as template, the thumbnail markers error
+                            tempWorkbookRef.open(monitor);
+                            tempWorkbookRef.save(monitor);
                         } finally {
                             sourceWorkbookRef.close(subMonitor.newChild(10));
                         }
@@ -143,6 +148,18 @@ public class SaveAsTemplateHandler extends AbstractHandler {
         } finally {
             if (tempFile.exists()) {
                 tempFile.delete();
+            }
+            if (tempWorkbookRef != null) {
+                try {
+                    tempWorkbookRef.close(new NullProgressMonitor());
+                } catch (InvocationTargetException e) {
+                    Throwable cause = e.getTargetException();
+                    if (cause == null)
+                        cause = e;
+                    throw new ExecutionException(cause.getMessage(), cause);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -24,6 +24,7 @@ import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -179,6 +180,8 @@ public class MultipageImagePreviewViewer {
 
     private Font footerFont;
 
+    private ResourceManager resources;
+
     private Listener eventHandler = new Listener() {
         public void handleEvent(Event event) {
             handleWidgetEvent(event);
@@ -190,6 +193,9 @@ public class MultipageImagePreviewViewer {
 
     public void createControl(Composite parent) {
         composite = new Composite(parent, SWT.NONE);
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                composite);
+
         GridLayout layout = new GridLayout();
         layout.marginHeight = 0;
         layout.marginWidth = 0;
@@ -943,10 +949,9 @@ public class MultipageImagePreviewViewer {
     }
 
     private Image getIcon(String path, boolean enabled) {
-        return MindMapUIPlugin
-                .imageDescriptorFromPlugin(MindMapUI.PLUGIN_ID,
-                        "icons/nav/" + (enabled ? "e/" : "d/") + path) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                .createImage();
+        return (Image) resources.get(
+                MindMapUIPlugin.imageDescriptorFromPlugin(MindMapUI.PLUGIN_ID,
+                        "icons/nav/" + (enabled ? "e/" : "d/") + path)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
 }

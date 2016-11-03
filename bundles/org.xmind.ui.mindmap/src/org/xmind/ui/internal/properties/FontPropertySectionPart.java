@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.properties;
 
@@ -31,13 +28,11 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
 import org.xmind.gef.GEF;
-import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
 import org.xmind.gef.graphicalpolicy.IStyleSelector;
@@ -47,21 +42,16 @@ import org.xmind.ui.color.ColorSelection;
 import org.xmind.ui.color.IColorSelection;
 import org.xmind.ui.color.PaletteContents;
 import org.xmind.ui.commands.CommandMessages;
-import org.xmind.ui.font.FontDialog;
-import org.xmind.ui.font.IFontChooser;
-import org.xmind.ui.font.IFontChooserListener;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IMindMapImages;
-import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.properties.StyledPropertySectionPart;
-import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.richtext.AlignmentGroup;
 import org.xmind.ui.richtext.TextCaseGroup;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.style.TextStyleData;
-import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.viewers.MComboViewer;
 
 public class FontPropertySectionPart extends StyledPropertySectionPart {
@@ -81,53 +71,8 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                     .getFirstElement();
             if (o instanceof String) {
                 changeFontName((String) o);
-            }
-        }
-
-    }
-
-    private class ChooseFontAction extends Action {
-
-        public ChooseFontAction() {
-            super(null,
-                    MindMapUI.getImages().get(IMindMapImages.TEXT_FONT, true));
-            setToolTipText(PropertyMessages.ChooseFont_toolTip);
-        }
-
-        public void run() {
-            if (currentTextStyle == null)
-                return;
-
-            FontDialog dialog = new FontDialog(
-                    getContainer().getContainerSite().getShell());
-
-            if (currentTextStyle != null) {
-                if (currentTextStyle.name != null)
-                    dialog.setFontName(currentTextStyle.name);
-                if (currentTextStyle.height > 0)
-                    dialog.setFontHeight(currentTextStyle.height);
-                dialog.setBold(currentTextStyle.bold);
-                dialog.setItalic(currentTextStyle.italic);
-                if (currentTextStyle.color != null)
-                    dialog.setColor(currentTextStyle.color);
-                dialog.setUnderline(currentTextStyle.underline);
-                dialog.setStrikeout(currentTextStyle.strikeout);
-            }
-
-            dialog.addFontChooserListener(new IFontChooserListener() {
-                public void fontChanged(IFontChooser source) {
-                    showTempFont(source);
-                }
-
-            });
-
-            int ret = dialog.open();
-            showTempFont(null);
-            if (ret == FontDialog.OK) {
-                changeFont(dialog.getFontName(), dialog.getFontHeight(),
-                        dialog.getBold(), dialog.getItalic(),
-                        dialog.getUnderline(), dialog.getStrikeout(),
-                        dialog.getColor());
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("FontChangeCount"); //$NON-NLS-1$
             }
         }
 
@@ -340,7 +285,7 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         Composite line1 = new Composite(parent, SWT.NONE);
         line1.setLayoutData(
                 new GridData(GridData.FILL, GridData.FILL, true, false));
-        GridLayout layout1 = new GridLayout(2, false);
+        GridLayout layout1 = new GridLayout(1, false);
         layout1.marginWidth = 0;
         layout1.marginHeight = 0;
         layout1.horizontalSpacing = 3;
@@ -392,11 +337,11 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
 //        };
 //        FontUtils.fetchAvailableFontNames(parent.getDisplay(), callback);
 
-        ToolBarManager fontBar = new ToolBarManager(SWT.FLAT);
-        fontBar.add(new ChooseFontAction());
-        ToolBar barControl = fontBar.createControl(parent);
-        barControl.setLayoutData(
-                new GridData(GridData.END, GridData.CENTER, false, false));
+//        ToolBarManager fontBar = new ToolBarManager(SWT.FLAT);
+//        fontBar.add(new ChooseFontAction());
+//        ToolBar barControl = fontBar.createControl(parent);
+//        barControl.setLayoutData(
+//                new GridData(GridData.END, GridData.CENTER, false, false));
     }
 
     private void createLineContent2(Composite parent) {
@@ -623,24 +568,6 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                         Styles.FontFamily, name));
     }
 
-    private void changeFont(String fontName, int fontHeight, boolean bold,
-            boolean italic, boolean underline, boolean strikeout, RGB color) {
-        Request req = createStyleRequest(CommandMessages.Command_ModifyFont);
-        if (fontName != null)
-            addStyle(req, Styles.FontFamily, fontName);
-        if (fontHeight > 0)
-            addStyle(req, Styles.FontSize, StyleUtils.addUnitPoint(fontHeight));
-        addStyle(req, Styles.FontWeight,
-                bold ? Styles.FONT_WEIGHT_BOLD : Styles.NORMAL);
-        addStyle(req, Styles.FontStyle,
-                italic ? Styles.FONT_STYLE_ITALIC : Styles.NORMAL);
-        addStyle(req, Styles.TextDecoration,
-                StyleUtils.toTextDecoration(underline, strikeout));
-        addStyle(req, Styles.TextColor,
-                color == null ? null : ColorUtils.toString(color));
-        sendRequest(req);
-    }
-
     private void changeFontSize(int fontHeight) {
         sendRequest(
                 addStyle(createStyleRequest(CommandMessages.Command_ModifyFont),
@@ -737,40 +664,4 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
         sendRequest(request);
     }
 
-    private void showTempFont(IFontChooser source) {
-        IGraphicalViewer viewer = getActiveViewer();
-        if (viewer == null)
-            return;
-
-        TextStyle textStyle;
-        if (source == null) {
-            textStyle = null;
-        } else {
-            textStyle = new TextStyle(
-                    FontUtils.getFont(source.getFontName(),
-                            source.getFontHeight(), source.getBold(),
-                            source.getItalic()),
-                    ColorUtils.getColor(source.getColor()), null);
-            textStyle.strikeout = source.getStrikeout();
-            textStyle.underline = source.getUnderline();
-        }
-        for (Object o : getSelectedElements()) {
-            IGraphicalPart part = getGraphicalPart(o, viewer);
-            if (part != null) {
-                IGraphicalPart p = part instanceof ITopicPart
-                        ? ((ITopicPart) part).getOwnerBranch() : part;
-//                (ITitleTextPart) part
-//                        .getAdapter(ITitleTextPart.class);
-                if (p != null) {
-                    if (textStyle == null) {
-                        MindMapUtils.flushCache(p, MindMapUI.CACHE_TEXT_STYLE);
-                    } else {
-                        MindMapUtils.setCache(p, MindMapUI.CACHE_TEXT_STYLE,
-                                textStyle);
-                    }
-                    p.refresh();
-                }
-            }
-        }
-    }
 }

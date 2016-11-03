@@ -26,4 +26,12 @@ public interface ICommentTextViewerContainer {
 
     void cancelCreateComment();
 
+    void setEditingComment(IComment comment);
+
+    IComment getEditingComment();
+
+    void setModified(boolean modified);
+
+    boolean isModified();
+
 }

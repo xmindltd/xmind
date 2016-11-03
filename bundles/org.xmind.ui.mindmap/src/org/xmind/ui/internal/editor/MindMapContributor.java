@@ -378,13 +378,27 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
     public void contributeToPagePopupMenu(IMenuManager menu) {
         menu.add(renameSheetAction);
         menu.add(new Separator());
+
         menu.add(copySheetAction);
+        if (isCopiedSheetAvailable()) {
+            menu.add(pasteSheetAction);
+        }
         menu.add(duplicateSheetAction);
-        menu.add(new Separator());
-        menu.add(saveSheetAsAction);
-        menu.add(new Separator());
         menu.add(deleteSheetAction);
         menu.add(deleteOtherSheetAction);
+        menu.add(new Separator());
+
+        menu.add(saveSheetAsAction);
+        menu.add(new Separator());
+
+        IAction createSheetAction = getActionRegistry()
+                .getAction(MindMapActionFactory.NEW_SHEET.getId());
+        menu.add(createSheetAction);
+        menu.add(new Separator(IWorkbenchActionConstants.NEW_EXT));
+
+        super.contributeToPagePopupMenu(menu);
+
+        //set delete actions state
         if (getSheetsCountOfCurrentWorkbook() < 2) {
             deleteSheetAction.setEnabled(false);
             deleteOtherSheetAction.setEnabled(false);
@@ -392,18 +406,6 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
             deleteSheetAction.setEnabled(true);
             deleteOtherSheetAction.setEnabled(true);
         }
-        menu.add(new Separator());
-        IAction createSheetAction = getActionRegistry()
-                .getAction(MindMapActionFactory.NEW_SHEET.getId());
-        menu.add(createSheetAction);
-        menu.add(new Separator(IWorkbenchActionConstants.NEW_EXT));
-        if (isCopiedSheetAvailable()) {
-            menu.add(new Separator());
-            menu.add(pasteSheetAction);
-        }
-        menu.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-
-        super.contributeToPagePopupMenu(menu);
     }
 
     private int getSheetsCountOfCurrentWorkbook() {

@@ -2,22 +2,28 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.toolkit;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Activator: org.xmind.ui.internal.ToolkitPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui;visibility:=reexport,
- org.eclipse.core.runtime,
- org.eclipse.core.expressions,
+ org.eclipse.core.runtime;visibility:=reexport,
+ org.eclipse.core.expressions;visibility:=reexport,
  org.eclipse.jface;visibility:=reexport,
  org.eclipse.jface.text;visibility:=reexport,
  org.eclipse.draw2d;visibility:=reexport,
  org.eclipse.ui.forms;visibility:=reexport,
- org.eclipse.e4.core.di,
- org.eclipse.e4.core.contexts,
- org.eclipse.e4.ui.di,
- org.eclipse.e4.ui.model.workbench,
- org.eclipse.e4.ui.workbench,
- org.eclipse.e4.ui.workbench.swt
+ org.eclipse.e4.core.di;visibility:=reexport,
+ org.eclipse.e4.core.contexts;visibility:=reexport,
+ org.eclipse.e4.ui.di;visibility:=reexport,
+ org.eclipse.e4.ui.model.workbench;visibility:=reexport,
+ org.eclipse.e4.ui.workbench;visibility:=reexport,
+ org.eclipse.e4.ui.workbench.swt;visibility:=reexport,
+ javax.annotation;visibility:=reexport,
+ org.eclipse.e4.ui.services;visibility:=reexport,
+ org.eclipse.e4.ui.workbench.renderers.swt;visibility:=reexport,
+ org.eclipse.osgi.services;visibility:=reexport,
+ org.eclipse.emf.ecore.change;visibility:=reexport,
+ org.eclipse.e4.core.commands
 Eclipse-LazyStart: true
 Export-Package: org.xmind.ui.animation,
  org.xmind.ui.color,
@@ -27,9 +33,11 @@ Export-Package: org.xmind.ui.animation,
  org.xmind.ui.internal;x-internal:=true,
  org.xmind.ui.internal.app;x-internal:=true,
  org.xmind.ui.internal.e4handlers;x-internal:=true,
+ org.xmind.ui.internal.e4models;x-internal:=true,
  org.xmind.ui.internal.handlers;x-internal:=true,
  org.xmind.ui.internal.statushandlers;x-internal:=true,
  org.xmind.ui.io,
+ org.xmind.ui.preference,
  org.xmind.ui.properties,
  org.xmind.ui.resources,
  org.xmind.ui.richtext,
@@ -38,6 +46,6 @@ Export-Package: org.xmind.ui.animation,
  org.xmind.ui.util,
  org.xmind.ui.viewers,
  org.xmind.ui.views
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature id="org.xmind.cathy.platform.feature" version="0.0.0">
+   <feature id="org.xmind.cathy.platform.feature" version="3.7.0.qualifier">
       <category name="org.xmind.cathy.repository"/>
    </feature>
-   <feature id="org.xmind.hebe.feature" version="0.0.0">
+   <feature id="org.xmind.hebe.feature" version="3.7.0.qualifier">
       <category name="org.xmind.cathy.repository"/>
    </feature>
-   <feature id="org.xmind.cathy.feature" version="0.0.0">
+   <feature id="org.xmind.cathy.feature" version="3.7.0.qualifier">
       <category name="org.xmind.cathy.repository"/>
    </feature>
-   <feature id="org.xmind.graphicsio.feature" version="0.0.0">
+   <feature id="org.xmind.graphicsio.feature" version="3.7.0.qualifier">
       <category name="org.xmind.cathy.repository"/>
    </feature>
    <category-def name="org.xmind.cathy.repository" label="XMind"/>

@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.properties;
 
@@ -21,6 +18,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
@@ -39,8 +37,8 @@ import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.gef.ui.properties.PropertySectionPart;
 import org.xmind.ui.style.StyleUtils;
 
-public abstract class MindMapPropertySectionPartBase extends
-        PropertySectionPart implements ICoreEventListener {
+public abstract class MindMapPropertySectionPartBase extends PropertySectionPart
+        implements ICoreEventListener {
 
     protected static final Object[] NO_ELEMENTS = new Object[0];
 
@@ -193,11 +191,21 @@ public abstract class MindMapPropertySectionPartBase extends
     }
 
     public void handleCoreEvent(final CoreEvent event) {
-        getContainer().getContainerSite().getWorkbenchWindow().getWorkbench()
-                .getDisplay().syncExec(new Runnable() {
-                    public void run() {
-                        refresh();
-                    }
-                });
+        if (getContainer().getContainerSite() != null) {
+            getContainer().getContainerSite().getWorkbenchWindow()
+                    .getWorkbench().getDisplay().syncExec(new Runnable() {
+                        public void run() {
+                            refresh();
+                        }
+                    });
+        } else {
+            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    refresh();
+                }
+            });
+        }
     }
 }

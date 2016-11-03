@@ -20,9 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+import org.xmind.ui.editor.IEditorHistoryItem;
+
 /**
  * @author Frank Shaka
- *
  */
 public interface IEditorHistoryLoader {
 
@@ -33,6 +34,8 @@ public interface IEditorHistoryLoader {
         void pinnedInputURILoaded(URI inputURI);
 
         void thumbnailURILoaded(URI inputURI, URI thumbnailURI);
+
+        void editorHistoryItemsLoaded(URI inputURI, IEditorHistoryItem item);
 
     }
 

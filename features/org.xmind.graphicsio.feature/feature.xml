@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.graphicsio.feature"
       label="Graphics IO Libraries"
-      version="3.6.51.qualifier"
+      version="3.7.0.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -34,14 +34,14 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
+         
    <plugin
 	     id="org.xmind.ui.exports.vector"
 	     download-size="0"
 	     install-size="0"
 	     version="0.0.0"
 	     unpack="false"/>
-
+         
    <plugin
 	     id="org.xmind.ui.exports.vector.svg"
 	     download-size="0"

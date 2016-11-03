@@ -6,7 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.bindings.Trigger;
@@ -39,9 +43,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchCommandConstants;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
@@ -60,12 +62,13 @@ import org.xmind.gef.ZoomManager;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
-import org.xmind.ui.internal.views.CommentsView;
+import org.xmind.ui.internal.e4models.CommentsPart;
+import org.xmind.ui.internal.e4models.IModelConstants;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
-import org.xmind.ui.util.Logger;
 
 public class CommentsPopup extends PopupDialog
         implements ICoreEventListener, ICommentTextViewerContainer {
@@ -212,6 +215,9 @@ public class CommentsPopup extends PopupDialog
         }
     }
 
+    @Inject
+    private EPartService partService;
+
     private IWorkbenchWindow window;
 
     private ITopicPart topicPart;
@@ -254,6 +260,10 @@ public class CommentsPopup extends PopupDialog
     private IComment latestCreatedComment;
 
     private IComment selectedComment;
+
+    private IComment editingComment;
+
+    private boolean modified;
 
     public CommentsPopup(IWorkbenchWindow window, ITopicPart topicPart,
             boolean showExtraActions) {
@@ -394,6 +404,9 @@ public class CommentsPopup extends PopupDialog
                         update();
                     } else if (Core.CommentContent.equals(type)) {
                         IComment comment = (IComment) event.getSource();
+                        if (comment.isOrphan()) {
+                            return;
+                        }
                         if (comment.getOwnedWorkbook().getElementById(
                                 comment.getObjectId()) == topic) {
                             update();
@@ -426,15 +439,12 @@ public class CommentsPopup extends PopupDialog
             saveComment();
         }
         //mark with CommentsView
-        IWorkbenchWindow window = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        if (window != null) {
-            IWorkbenchPage page = window.getActivePage();
-            if (page != null) {
-                CommentsView commentsView = (CommentsView) page
-                        .findView(MindMapUI.VIEW_COMMENTS);
-                if (commentsView != null) {
-                    Control control = commentsView.getControl();
+        if (partService != null) {
+            MPart part = partService.findPart(CommentsPart.PART_ID);
+            if (part.isVisible()) {
+                Object object = part.getObject();
+                if (object instanceof CommentsPart) {
+                    Control control = ((CommentsPart) object).getControl();
                     if (control != null && !control.isDisposed()) {
                         control.setData(CommentsConstants.COMMENTS_POPUP_SHOWN,
                                 false);
@@ -562,6 +572,8 @@ public class CommentsPopup extends PopupDialog
     private void update() {
         resetSelectedComment();
         updateComments();
+        setModified(false);
+        setEditingComment(null);
     }
 
     private void resetSelectedComment() {
@@ -611,15 +623,12 @@ public class CommentsPopup extends PopupDialog
             }
         }
         //mark with CommentsView
-        IWorkbenchWindow window = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow();
-        if (window != null) {
-            IWorkbenchPage page = window.getActivePage();
-            if (page != null) {
-                CommentsView commentsView = (CommentsView) page
-                        .findView(MindMapUI.VIEW_COMMENTS);
-                if (commentsView != null) {
-                    Control control = commentsView.getControl();
+        if (partService != null) {
+            MPart part = partService.findPart(CommentsPart.PART_ID);
+            if (part.isVisible()) {
+                Object object = part.getObject();
+                if (object instanceof CommentsPart) {
+                    Control control = ((CommentsPart) object).getControl();
                     if (control != null && !control.isDisposed()) {
                         control.setData(CommentsConstants.COMMENTS_POPUP_SHOWN,
                                 true);
@@ -668,6 +677,8 @@ public class CommentsPopup extends PopupDialog
 
     private void saveComment() {
         if (contentViewer != null) {
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase("AddCommentCount"); //$NON-NLS-1$
             contentViewer.save();
         }
     }
@@ -699,21 +710,14 @@ public class CommentsPopup extends PopupDialog
     public void gotoCommentsView() {
         Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
-                if (window == null)
+                if (window == null) {
                     return;
-
-                IWorkbenchPage workbenchPage = window.getActivePage();
-                if (workbenchPage == null)
-                    return;
-
-                close();
-                try {
-                    workbenchPage.showView(MindMapUI.VIEW_COMMENTS, null,
-                            IWorkbenchPage.VIEW_ACTIVATE);
-                } catch (PartInitException e) {
-                    Logger.log(e,
-                            "GotoCommentsViewAction failed to show Comments View."); //$NON-NLS-1$
                 }
+                close();
+
+                E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART,
+                        window, IModelConstants.PART_ID_COMMENTS, null,
+                        IModelConstants.PART_STACK_ID_RIGHT);
             }
         });
     }
@@ -788,6 +792,22 @@ public class CommentsPopup extends PopupDialog
     @Override
     public void cancelCreateComment() {
         contentViewer.cancelCreateNewComment();
+    }
+
+    public void setEditingComment(IComment editingComment) {
+        this.editingComment = editingComment;
+    }
+
+    public IComment getEditingComment() {
+        return editingComment;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+
+    public boolean isModified() {
+        return modified;
     }
 
 }

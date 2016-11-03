@@ -63,7 +63,8 @@ public class SashWidthHandler implements ICSSPropertyHandler {
             return null;
         }
 
-        Integer width = (Integer)sashLayout.getFieldValue(FIELD_SASH_WIDTH, (SashLayout)layout);
+        Integer width = (Integer) sashLayout.getFieldValue(FIELD_SASH_WIDTH,
+                (SashLayout) layout);
         return Integer.toString(width);
     }
 

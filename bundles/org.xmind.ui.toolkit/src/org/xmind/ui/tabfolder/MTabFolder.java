@@ -40,6 +40,10 @@ public class MTabFolder extends Composite {
     };
 
     public MTabFolder(Composite parent) {
+        this(parent, SWT.NONE);
+    }
+
+    public MTabFolder(Composite parent, int tabBarStyle) {
         super(parent, SWT.NONE);
 
         GridLayout layout = new GridLayout();
@@ -54,7 +58,7 @@ public class MTabFolder extends Composite {
         layout.makeColumnsEqualWidth = false;
         super.setLayout(layout);
 
-        this.tabBar = new MTabBar(this, SWT.NONE);
+        this.tabBar = new MTabBar(this, tabBarStyle);
         this.tabBar
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         this.tabBar.addListener(SWT.Selection, itemEventHandler);

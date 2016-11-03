@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
-    <title>Rectangle 76 Copy 28</title>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40 (33762) - http://www.bohemiancoding.com/sketch -->
+    <title>week_fri copy</title>
     <desc>Created with Sketch.</desc>
     <defs>
-        <radialGradient cx="50%" cy="30.8898926%" fx="50%" fy="30.8898926%" r="69.1101074%" id="radialGradient-1">
-            <stop stop-color="#FFFFFF" stop-opacity="0.798431839" offset="0%"></stop>
-            <stop stop-color="#F1F1F1" stop-opacity="0.5" offset="100%"></stop>
-        </radialGradient>
-        <rect id="path-2" x="0" y="0.0739825989" width="16" height="16" rx="3"></rect>
+        <linearGradient x1="50%" y1="48.7894238%" x2="50%" y2="53.1548813%" id="linearGradient-1">
+            <stop stop-color="#27AA9D" offset="30.2594866%"></stop>
+            <stop stop-color="#009688" offset="67.4685108%"></stop>
+        </linearGradient>
     </defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <g id="Rectangle-76-Copy-28">
-            <use fill="#DBDBDB" fill-rule="evenodd" sketch:type="MSShapeGroup" xlink:href="#path-2"></use>
-            <use fill="none" xlink:href="#path-2"></use>
-            <use fill="url(#radialGradient-1)" fill-rule="evenodd" xlink:href="#path-2"></use>
+    <g id="最终稿2.0" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="weeks-copy-2" transform="translate(-105.000000, 0.000000)">
+            <g id="week_fri" transform="translate(105.000000, 0.000000)">
+                <rect id="Rectangle-76-Copy-9" fill="url(#linearGradient-1)" x="0" y="0" width="16" height="16" rx="2"></rect>
+                <polygon id="F" fill="#FFFFFF" points="6.38468249 5.32134905 10.4667137 5.32134905 10.4667137 6.3330678 7.57999499 6.3330678 7.57999499 7.65728655 10.1073387 7.65728655 10.1073387 8.65728655 7.57999499 8.65728655 7.57999499 11.071349 6.38468249 11.071349"></polygon>
+            </g>
         </g>
-        <path d="M4.944,10 L4.944,5.68 L7.728,5.68 L7.728,6.028 L5.352,6.028 L5.352,7.588 L7.512,7.588 L7.512,7.936 L5.352,7.936 L5.352,10 L4.944,10 Z M8.646,10 L8.286,10 L8.286,6.892 L8.646,6.892 L8.646,7.474 L8.658,7.474 C8.7580005,7.22599876 8.88699921,7.05300049 9.045,6.955 C9.20300079,6.85699951 9.4119987,6.808 9.672,6.808 L9.672,7.198 C9.46799898,7.19399998 9.30000066,7.22599966 9.168,7.294 C9.03599934,7.36200034 8.93100039,7.45399942 8.853,7.57 C8.77499961,7.68600058 8.72100015,7.82299921 8.691,7.981 C8.66099985,8.13900079 8.646,8.30399914 8.646,8.476 L8.646,10 Z M10.32,10 L10.32,6.892 L10.68,6.892 L10.68,10 L10.32,10 Z M10.302,6.214 L10.302,5.68 L10.698,5.68 L10.698,6.214 L10.302,6.214 Z" id="Fri-Copy" fill="#4A4A4A" sketch:type="MSShapeGroup"></path>
     </g>
 </svg>

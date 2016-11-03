@@ -11,6 +11,7 @@ import java.util.Properties;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
@@ -102,10 +103,15 @@ public class DashboardContent {
         }
 
         // set primary selection
-        tabFolder.setSelection(findPrimarySelection());
+        MTabItem primarySelection = findPrimarySelection();
+        tabFolder.setSelection(primarySelection);
 
-        IDashboardPage page = getDashboardPage(tabFolder.getSelection());
+        IDashboardPage page = getDashboardPage(primarySelection);
         if (page != null) {
+            if (page.getControl() == null || page.getControl().isDisposed()) {
+                page.createControl(this.tabFolder.getBody());
+                primarySelection.setControl(page.getControl());
+            }
             handlePageSelected(page);
         }
     }
@@ -188,13 +194,14 @@ public class DashboardContent {
             // ignore errors caused contribution not found
             return null;
         }
-        Object contribution = cls.newInstance();
+
+        Object contribution = ContextInjectionFactory.make(cls,
+                part.getContext());
         if (!(contribution instanceof IDashboardPage))
             throw new IllegalArgumentException(
                     "Invalid contribution type: " + contribution); //$NON-NLS-1$
 
         final IDashboardPage page = (IDashboardPage) contribution;
-
         page.setContext(part);
 
         String label = readLabel(element);
@@ -209,8 +216,8 @@ public class DashboardContent {
         item.setText(page.getTitle());
         item.setImage(page.getImage());
 
-        page.createControl(this.tabFolder.getBody());
-        item.setControl(page.getControl());
+//        page.createControl(this.tabFolder.getBody());
+//        item.setControl(page.getControl());
 
         item.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
@@ -393,7 +400,7 @@ public class DashboardContent {
         return data instanceof IDashboardPage ? (IDashboardPage) data : null;
     }
 
-    private void handlePageSelected(final IDashboardPage page) {
+    protected void handlePageSelected(final IDashboardPage page) {
         ISelectionProvider selectionProvider = CathyPlugin.getAdapter(page,
                 ISelectionProvider.class);
         part.setSelectionProvider(selectionProvider);

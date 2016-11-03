@@ -356,6 +356,16 @@ public class MindMapUI {
     public static final String PARAM_NUMBERING_PREPENDING = "numbering.prepending"; //$NON-NLS-1$
 
     /**
+     * Request parameter: the numbering depth of the 'modify numbering' request.
+     *
+     * <dl>
+     * <dt>Values:</dt>
+     * <dd><code>String</code></dd>
+     * </dl>
+     */
+    public static final String PARAM_NUMBERING_DEPTH = "numbering.depth"; //$NON-NLS-1$
+
+    /**
      * Request parameter: the dragging point's id of a 'move relationship'
      * request.
      * <dl>

@@ -43,10 +43,14 @@ public class ImportMessages extends NLS {
     public static String MindManagerImporter_Hours;
 
     public static String FreeMindImportWizard_windowTitle;
-
     public static String FreeMindImportPage_title;
     public static String FreeMindImportPage_description;
     public static String FreeMindImportPage_FilterName;
+
+    public static String OpmlImportWizard_windowTitle;
+    public static String OpmlImportPage_title;
+    public static String OpmlImportPage_description;
+    public static String OpmlImportPage_FilterName;
 
     public static String WorkbookImportPage_FilterName;
 
@@ -55,6 +59,24 @@ public class ImportMessages extends NLS {
     public static String WorkbookImportWizard_windowTitle;
     public static String WorkbookImportPage_description;
     public static String WorkbookImportPage_NoTargetWorkbookWarning;
+
+    public static String LightenImportWizard_windowTitle;
+    public static String LightenImportPage_title;
+    public static String LightenImportPage_description;
+    public static String LightenImportPage_FilterName;
+
+    public static String NovaMindImporter_Duration_Years_label;
+    public static String NovaMindImporter_Duration_Months_label;
+    public static String NovaMindImporter_Duration_Weeks_label;
+    public static String NovaMindImporter_Duration_Hours_label;
+    public static String NovaMindImporter_Duration_Minutes_label;
+    public static String NovaMindImporter_Duration_Days_label;
+    public static String NovaMindImporter_Duration_label;
+    public static String NovaMindImporter_Resource_label;
+
+    public static String NovaMindImportPage_title;
+    public static String NovaMindImportPage_FileDialog_Filter_name;
+    public static String NovaMindImportWizard_windowTitle;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, ImportMessages.class);

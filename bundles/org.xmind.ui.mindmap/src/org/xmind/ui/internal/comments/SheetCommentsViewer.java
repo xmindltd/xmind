@@ -8,21 +8,38 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.xmind.core.Core;
 import org.xmind.core.IComment;
+import org.xmind.core.ICommentManager;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
@@ -32,12 +49,17 @@ import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.util.TopicIterator;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.e4models.CommentsPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
+import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.util.TextFormatter;
 
-public class SheetCommentsViewer implements ICoreEventListener {
+public class SheetCommentsViewer
+        implements ICoreEventListener, ISelectionChangedListener {
+
+    private ResourceManager resources;
 
     private ISheet input;
 
@@ -65,6 +87,18 @@ public class SheetCommentsViewer implements ICoreEventListener {
 
     private Control newCommentControl;
 
+    private Button insertButton;
+
+    private Hyperlink insertHyperlink;
+
+    private ITopic select;
+
+    private String creatingTargetId;
+
+    private Composite content;
+
+    private Composite parent;
+
     public SheetCommentsViewer(ISheet input,
             ICommentsActionBarContributor contributor,
             ISelectionProvider selectionProvider,
@@ -78,50 +112,50 @@ public class SheetCommentsViewer implements ICoreEventListener {
     }
 
     public void create(Composite parent) {
+        this.parent = parent;
         init();
-        createAllComments(parent, input);
+        createContent(parent, input);
+        restoreEditing();
     }
 
     private void init() {
         if (controls != null) {
             controls.clear();
+        } else {
+            controls = new ArrayList<CommentTextViewer>();
         }
         if (implementations != null) {
             implementations.clear();
+        } else {
+            implementations = new ArrayList<CommentTextViewer>();
         }
         if (topicViewers != null) {
             topicViewers.clear();
+        } else {
+            topicViewers = new HashMap<ITopic, TopicCommentsViewer>();
         }
     }
 
-    private Control createAllComments(Composite parent, ISheet sheet) {
-        container.getScrolledComposite().setExpandVertical(false);
+    private Composite createContent(Composite parent, ISheet sheet) {
         Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getBackground());
-        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        this.content = composite;
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                composite);
+        composite.setBackground(composite.getParent().getBackground());
+        GridData layoutData = new GridData(GridData.FILL_BOTH);
+        composite.setLayoutData(layoutData);
 
-        GridLayout gridLayout = new GridLayout(1, false);
-        gridLayout.marginWidth = 0;
-        gridLayout.marginHeight = 0;
-        gridLayout.marginTop = 9;
-        gridLayout.verticalSpacing = 18;
-        gridLayout.horizontalSpacing = 0;
-        composite.setLayout(gridLayout);
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        composite.setLayout(layout);
 
-        boolean showTopicsComments = createTopicsComments(composite,
-                sheet.getRootTopic());
-
-        boolean showSheetComments = sheet.getOwnedWorkbook().getCommentManager()
-                .getComments(sheet.getId()).size() != 0;
-        if (showTopicsComments && showSheetComments) {
-            createSeparatorLine(composite);
-        }
-        createSheetComments(composite, sheet);
-
-        //If have no comment, create null comment content.
-        if (!showTopicsComments && !showSheetComments) {
+        if (sheet == null || !existComment(sheet)) {
+            //If have no comment, create null comment content.
             container.getScrolledComposite().setExpandVertical(true);
-            createNullContentArea(parent);
+            createNullContentArea(composite);
+        } else {
+            createAllComments(composite, sheet);
         }
 
         composite.addDisposeListener(new DisposeListener() {
@@ -134,8 +168,85 @@ public class SheetCommentsViewer implements ICoreEventListener {
         return composite;
     }
 
+    private void restoreEditing() {
+        //restore last editing.
+        final CommentsPart part = (CommentsPart) container;
+        final String objectId = part.getInsertTarget();
+        if (objectId != null) {
+            Display.getCurrent().asyncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    insertComment(objectId);
+                    container.setModified(false);
+                    part.setInsertTarget(null);
+                }
+            });
+        }
+    }
+
+    private boolean existComment(ISheet sheet) {
+        if (sheet == null) {
+            return false;
+        }
+
+        if (creatingTargetId != null) {
+            return true;
+        }
+
+        ICommentManager commentManager = sheet.getOwnedWorkbook()
+                .getCommentManager();
+        if (commentManager.isEmpty()) {
+            return false;
+        }
+        if (commentManager.hasComments(sheet.getId())) {
+            return true;
+        }
+
+        TopicIterator ite = new TopicIterator(sheet.getRootTopic());
+        while (ite.hasNext()) {
+            ITopic topic = ite.next();
+            if (commentManager.hasComments(topic.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Control createAllComments(Composite parent, ISheet sheet) {
+        container.getScrolledComposite().setExpandVertical(false);
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        GridLayout gridLayout = new GridLayout(1, false);
+        gridLayout.marginWidth = 0;
+        gridLayout.marginHeight = 0;
+        gridLayout.marginTop = 9;
+        gridLayout.marginBottom = 29;
+        gridLayout.verticalSpacing = 18;
+        gridLayout.horizontalSpacing = 0;
+        composite.setLayout(gridLayout);
+
+        boolean showTopicsComments = createTopicsComments(composite,
+                sheet.getRootTopic());
+        if (showTopicsComments) {
+            createSeparatorLine(composite);
+        }
+
+        createSheetComments(composite, sheet);
+        boolean showSheetComments = sheet.getOwnedWorkbook().getCommentManager()
+                .getComments(sheet.getId()).size() != 0;
+        if (showSheetComments) {
+            createSeparatorLine(composite);
+        }
+
+        createInsertCommentHyperlink(composite);
+
+        return composite;
+    }
+
     /**
-     * 
      * @param parent
      * @param sheet
      * @return true if create not less than one comment, false otherwise.
@@ -145,8 +256,8 @@ public class SheetCommentsViewer implements ICoreEventListener {
         Iterator<ITopic> topicIt = new TopicIterator(root);
         while (topicIt.hasNext()) {
             ITopic topic = topicIt.next();
-            if (topic.getOwnedWorkbook().getCommentManager()
-                    .hasComments(topic.getId())) {
+            if (topic.getOwnedWorkbook().getCommentManager().hasComments(
+                    topic.getId()) || topic.getId().equals(creatingTargetId)) {
                 if (hasContent) {
                     createSeparatorLine(parent);
                 }
@@ -176,8 +287,13 @@ public class SheetCommentsViewer implements ICoreEventListener {
         topicViewer = new TopicCommentsViewer(topic, contributor,
                 selectionProvider, container, true, targetEditor);
         topicViewer.create(parent);
-        controls.addAll(topicViewer.getControls());
-        implementations.addAll(topicViewer.getImplementations());
+
+        if (topicViewer.getControls() != null) {
+            controls.addAll(topicViewer.getControls());
+        }
+        if (topicViewer.getImplementations() != null) {
+            implementations.addAll(topicViewer.getImplementations());
+        }
         topicViewers.put(topic, topicViewer);
     }
 
@@ -218,13 +334,14 @@ public class SheetCommentsViewer implements ICoreEventListener {
 
         titleLabel = new Label(composite, SWT.LEFT | SWT.HORIZONTAL);
         titleLabel.setBackground(parent.getBackground());
-        titleLabel.setForeground(ColorUtils.getColor("#353535")); //$NON-NLS-1$
+        titleLabel.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#353535"))); //$NON-NLS-1$
         GridData data = new GridData(SWT.CENTER, SWT.CENTER, true, false);
         data.horizontalIndent = 2;
         titleLabel.setLayoutData(data);
-
-        titleLabel.setFont(FontUtils.getBold(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 1)));
+        titleLabel.setFont((Font) resources
+                .get(FontDescriptor.createFrom(FontUtils.relativeHeight(
+                        titleLabel.getFont().getFontData(), 1))));
 
         titleLabel.setText(MindMapMessages.Comment_SHEET_text
                 + TextFormatter.removeNewLineCharacter(sheet.getTitleText()));
@@ -252,7 +369,8 @@ public class SheetCommentsViewer implements ICoreEventListener {
     private void createNullContentArea(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(composite.getParent().getBackground());
-        final GridData layoutData = new GridData(GridData.FILL_BOTH);
+        GridData layoutData = new GridData(GridData.FILL_BOTH);
+
         composite.setLayoutData(layoutData);
         GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
@@ -271,14 +389,14 @@ public class SheetCommentsViewer implements ICoreEventListener {
         GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
-        layout.verticalSpacing = 20;
+        layout.verticalSpacing = 25;
         composite.setLayout(layout);
 
         Label label = new Label(composite, SWT.NONE);
         label.setBackground(label.getParent().getBackground());
         label.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-        label.setImage(MindMapUI.getImages().get("comment-empty-bg.png", true) //$NON-NLS-1$
-                .createImage());
+        label.setImage((Image) resources
+                .get(MindMapUI.getImages().get("comment-empty-bg.png", true))); //$NON-NLS-1$
 
         Composite composite2 = new Composite(composite, SWT.NONE);
         composite2.setBackground(composite2.getParent().getBackground());
@@ -292,21 +410,162 @@ public class SheetCommentsViewer implements ICoreEventListener {
 
         Label label2 = new Label(composite2, SWT.NONE);
         label2.setBackground(label2.getParent().getBackground());
-        label2.setForeground(ColorUtils.getColor("#aaaaaa")); //$NON-NLS-1$
+        label2.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#aaaaaa"))); //$NON-NLS-1$
         label2.setLayoutData(
                 new GridData(SWT.CENTER, SWT.CENTER, false, false));
-        label2.setText(MindMapMessages.Comment_NoComments_text);
-        label2.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 2));
+        label2.setText(""); //$NON-NLS-1$
+        label2.setFont((Font) resources.get(FontDescriptor.createFrom(
+                FontUtils.relativeHeight(label2.getFont().getFontData(), 2))));
 
         Label label3 = new Label(composite2, SWT.NONE);
         label3.setBackground(label3.getParent().getBackground());
-        label3.setForeground(ColorUtils.getColor("#aaaaaa")); //$NON-NLS-1$
+        label3.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#aaaaaa"))); //$NON-NLS-1$
         label3.setLayoutData(
                 new GridData(SWT.CENTER, SWT.CENTER, false, false));
         label3.setText(MindMapMessages.Comment_FirstAdd_text);
-        label3.setFont(
-                FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 2));
+        label3.setFont((Font) resources.get(FontDescriptor.createFrom(
+                FontUtils.relativeHeight(label3.getFont().getFontData(), 2))));
+
+        createInsertButtonSection(composite);
+    }
+
+    private void createInsertButtonSection(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        composite.setLayoutData(gridData);
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.marginTop = 30;
+        layout.verticalSpacing = 0;
+        layout.horizontalSpacing = 0;
+        composite.setLayout(layout);
+
+        insertButton = new Button(composite, SWT.PUSH);
+        insertButton.setBackground(composite.getBackground());
+        GridData layoutData = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+        layoutData.widthHint = 90;
+        insertButton.setLayoutData(layoutData);
+        insertButton.setText(MindMapMessages.SheetCommentViewer_Insert_button);
+
+        insertButton.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                insertComment();
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+
+        //add selection listener.
+        if (this.targetEditor != null) {
+            this.targetEditor.getSite().getSelectionProvider()
+                    .addSelectionChangedListener(this);
+            setSelection(targetEditor.getSite().getSelectionProvider()
+                    .getSelection());
+        } else {
+            setSelection(null);
+        }
+    }
+
+    private void createInsertCommentHyperlink(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(parent.getBackground());
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        composite.setLayoutData(gridData);
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.marginLeft = 15;
+        layout.verticalSpacing = 0;
+        layout.horizontalSpacing = 0;
+        composite.setLayout(layout);
+
+        insertHyperlink = new Hyperlink(composite, SWT.NONE);
+        insertHyperlink.setBackground(composite.getBackground());
+        insertHyperlink.setForeground(
+                (Color) resources.get(ColorUtils.toDescriptor("#0082F9"))); //$NON-NLS-1$
+        GridData layoutData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        insertHyperlink.setLayoutData(layoutData);
+        insertHyperlink
+                .setText(MindMapMessages.SheetCommentViewer_Insert_hyperlink);
+
+        insertHyperlink.addListener(SWT.MouseDown, new Listener() {
+
+            @Override
+            public void handleEvent(Event event) {
+                insertComment();
+            }
+        });
+
+        //add selection listener.
+        if (this.targetEditor != null) {
+            this.targetEditor.getSite().getSelectionProvider()
+                    .addSelectionChangedListener(this);
+            setSelection(targetEditor.getSite().getSelectionProvider()
+                    .getSelection());
+        } else {
+            setSelection(null);
+        }
+    }
+
+    private void insertComment() {
+        if (select == null) {
+            return;
+        }
+        String targetId = select.getId();
+
+        //store last insert state.
+        if (container.isModified()) {
+            container.setModified(false);
+            ((CommentsPart) container).setInsertTarget(targetId);
+            return;
+        }
+
+        insertComment(targetId);
+    }
+
+    private void insertComment(String targetId) {
+        creatingTargetId = targetId;
+
+        Composite contentComposite = container.getContentComposite();
+        contentComposite.setRedraw(false);
+
+        content.dispose();
+
+        create(parent);
+
+        createNewComment(targetId);
+
+        contentComposite.pack();
+        contentComposite.setRedraw(true);
+
+        creatingTargetId = null;
+    }
+
+    private void update() {
+        Composite contentComposite = container.getContentComposite();
+        if (contentComposite == null || contentComposite.isDisposed()) {
+            return;
+        }
+
+        contentComposite.setRedraw(false);
+
+        content.dispose();
+
+        create(parent);
+
+        contentComposite.pack(true);
+        contentComposite.layout(true, true);
+        contentComposite.setRedraw(true);
     }
 
     private void registerControl(CommentTextViewer control) {
@@ -363,14 +622,31 @@ public class SheetCommentsViewer implements ICoreEventListener {
     }
 
     public void setTargetEditor(IGraphicalEditor targetEditor) {
-        if (this.targetEditor != targetEditor) {
-            if (topicViewer != null) {
-                topicViewer.setTargetEditor(targetEditor);
-            }
-            if (implementations != null) {
-                for (CommentTextViewer implementation : implementations) {
-                    implementation.setTargetEditor(targetEditor);
-                }
+        if (targetEditor == this.targetEditor) {
+            return;
+        }
+        if (this.targetEditor != null) {
+            this.targetEditor.getSite().getSelectionProvider()
+                    .removeSelectionChangedListener(this);
+        }
+
+        this.targetEditor = targetEditor;
+
+        if (this.targetEditor != null) {
+            this.targetEditor.getSite().getSelectionProvider()
+                    .addSelectionChangedListener(this);
+            setSelection(targetEditor.getSite().getSelectionProvider()
+                    .getSelection());
+        } else {
+            setSelection(null);
+        }
+
+        if (topicViewer != null) {
+            topicViewer.setTargetEditor(targetEditor);
+        }
+        if (implementations != null) {
+            for (CommentTextViewer implementation : implementations) {
+                implementation.setTargetEditor(targetEditor);
             }
         }
     }
@@ -411,9 +687,8 @@ public class SheetCommentsViewer implements ICoreEventListener {
         if (newCommentControl != null && !newCommentControl.isDisposed()) {
             newCommentControl.dispose();
             newCommentControl = null;
+            update();
         }
-
-        container.getContentComposite().pack();
     }
 
     public void save() {
@@ -421,6 +696,31 @@ public class SheetCommentsViewer implements ICoreEventListener {
         if (contentComposite != null && !contentComposite.isDisposed()) {
             contentComposite.forceFocus();
         }
+    }
+
+    @Override
+    public void selectionChanged(SelectionChangedEvent event) {
+        setSelection(event.getSelection());
+    }
+
+    private void setSelection(ISelection selection) {
+        boolean isSingleTopic = MindMapUtils.isSingleTopic(selection);
+        if (isSingleTopic) {
+            select = (ITopic) MindMapUtils
+                    .getAllSuchElements(selection, MindMapUI.CATEGORY_TOPIC)
+                    .get(0);
+        } else {
+            select = null;
+        }
+
+        if (insertButton != null && !insertButton.isDisposed()) {
+            insertButton.setEnabled(isSingleTopic);
+        }
+        if (insertHyperlink != null && !insertHyperlink.isDisposed()) {
+            insertHyperlink.setEnabled(isSingleTopic);
+        }
+
+        container.setModified(false);
     }
 
 }

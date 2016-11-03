@@ -96,8 +96,8 @@ public class RichTextEditViewer implements IRichTextEditViewer {
 
     protected Composite createControl(Composite parent, int textControlStyle) {
         Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WHITE));
+        composite.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridLayout layout = new GridLayout();
         layout.marginHeight = 0;
         layout.marginWidth = 0;
@@ -127,16 +127,16 @@ public class RichTextEditViewer implements IRichTextEditViewer {
             return null;
 
         contributor.init(this);
-        toolBarManager = new ToolBarManager(SWT.FLAT);
+        toolBarManager = new ToolBarManager(SWT.FLAT | SWT.WRAP);
+        ToolBar toolBar = toolBarManager.createControl(parent);
         contributor.fillToolBar(toolBarManager);
         parent.addListener(SWT.Resize, new Listener() {
             public void handleEvent(Event event) {
                 toolBarManager.update(true);
             }
         });
-        ToolBar toolBar = toolBarManager.createControl(parent);
-        toolBar.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
+        toolBar.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         toolBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         return toolBar;
     }
@@ -144,8 +144,8 @@ public class RichTextEditViewer implements IRichTextEditViewer {
     protected void createSeparator(Composite parent) {
         Label sep = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
         sep.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        sep.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
+        sep.setBackground(parent.getDisplay()
+                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
     }
 
     protected Control createTextControl(Composite parent, int style) {
@@ -155,8 +155,8 @@ public class RichTextEditViewer implements IRichTextEditViewer {
 
         Control textControl = textViewer.getControl();
         textControl.setBackground(parent.getBackground());
-        textControl.setForeground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_BLACK));
+        textControl.setForeground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
         GridData gridData = new GridData(GridData.FILL_BOTH);
         gridData.heightHint = 160;
         gridData.horizontalIndent = 2;
@@ -174,8 +174,8 @@ public class RichTextEditViewer implements IRichTextEditViewer {
     }
 
     private void initTextViewer(final TextViewer textViewer) {
-        textViewer
-                .addPostSelectionChangedListener(new ISelectionChangedListener() {
+        textViewer.addPostSelectionChangedListener(
+                new ISelectionChangedListener() {
                     public void selectionChanged(SelectionChangedEvent event) {
                         updateToolBar(event.getSelection());
                     }
@@ -217,8 +217,8 @@ public class RichTextEditViewer implements IRichTextEditViewer {
                 new RichTextScanner());
         reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
         reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
-        reconciler
-                .setDocumentPartitioning(IDocumentExtension3.DEFAULT_PARTITIONING);
+        reconciler.setDocumentPartitioning(
+                IDocumentExtension3.DEFAULT_PARTITIONING);
         reconciler.install(viewer);
     }
 
@@ -359,7 +359,8 @@ public class RichTextEditViewer implements IRichTextEditViewer {
         textViewer.setSelectedRange(selectionOffset, selectionLength);
     }
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+    public void addSelectionChangedListener(
+            ISelectionChangedListener listener) {
         textViewer.addSelectionChangedListener(listener);
     }
 

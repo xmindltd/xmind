@@ -3,7 +3,6 @@ package org.xmind.ui.wizards;
 import java.net.URI;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -25,8 +24,13 @@ public class SaveOptions {
 
     public SaveOptions proposalName(String proposalName) {
         SaveOptions that = copy();
-        that.proposalName = proposalName;
+        that.proposalName = trimName(proposalName);
         return that;
+    }
+
+    private String trimName(String name) {
+        return name.replaceAll("\\r\\n|\\n|\\r", // $NON-NLS-1$ //$NON-NLS-1$
+                " "); //$NON-NLS-1$
     }
 
     public String proposalName() {

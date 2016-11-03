@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.platform.feature"
       label="XMind Product Runtime Platform"
-      version="3.6.51.qualifier"
+      version="3.7.0.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -591,13 +591,6 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.runtime.compatibility.registry"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
          id="org.eclipse.equinox.simpleconfigurator.manipulator"
          download-size="0"
          install-size="0"
@@ -665,14 +658,6 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.core.filesystem.java7"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
          unpack="false"/>
 
    <plugin
@@ -917,6 +902,14 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
 
    <plugin
          id="org.tukaani.xz"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.security.ui"
+         os="linux"
          download-size="0"
          install-size="0"
          version="0.0.0"

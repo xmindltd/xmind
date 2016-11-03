@@ -35,8 +35,8 @@ import org.xmind.gef.util.Properties;
 import org.xmind.ui.exports.vector.graphics.GraphicsToGraphics2DAdaptor;
 import org.xmind.ui.internal.figures.SheetFigure;
 import org.xmind.ui.mindmap.GhostShellProvider;
+import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
-import org.xmind.ui.mindmap.MindMap;
 import org.xmind.ui.mindmap.MindMapExportViewer;
 import org.xmind.ui.viewers.ICompositeProvider;
 import org.xmind.ui.wizards.ExportContants;
@@ -102,7 +102,8 @@ public class SVGExporter extends Exporter {
 
             public void run() {
                 exportViewer = new MindMapExportViewer(compositeProvider,
-                        new MindMap(sheet), viewer.getProperties());
+                        viewer.getAdapter(IMindMap.class),
+                        viewer.getProperties());
                 Properties properties = exportViewer.getProperties();
                 initProperties(properties);
 

@@ -5,6 +5,8 @@ import java.util.List;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -22,7 +24,6 @@ import org.xmind.ui.internal.editor.SaveWizardManager.SaveWizardDescriptor;
 import org.xmind.ui.wizards.SaveOptions;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -33,6 +34,10 @@ public class SaveWizardDialog extends Dialog {
     private SaveWizardDescriptor targetWizard;
 
     private SaveOptions targetOptions;
+
+    private boolean prepareForSpace = false;
+
+    private Button defaultButton;
 
     public SaveWizardDialog(Shell parentShell,
             List<SaveWizardDescriptor> wizards,
@@ -98,8 +103,42 @@ public class SaveWizardDialog extends Dialog {
         text.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
-                targetOptions = targetOptions
-                        .proposalName(((Text) e.widget).getText());
+                String content = ((Text) e.widget).getText();
+                if (content.contains("\r")) { //$NON-NLS-1$
+                    content = content.replaceAll("\n\r", " "); //$NON-NLS-1$ //$NON-NLS-2$
+                } else {
+                    content = content.replaceAll("\n", " "); //$NON-NLS-1$ //$NON-NLS-2$
+                }
+                targetOptions = targetOptions.proposalName(content);
+            }
+        });
+
+        text.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.keyCode == SWT.SHIFT) {
+                    prepareForSpace = false;
+                    while (getShell().getDefaultButton() != defaultButton) {
+                        getShell().setDefaultButton(defaultButton);
+                    }
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.keyCode == SWT.SHIFT) {
+                    prepareForSpace = true;
+                    while (getShell().getDefaultButton() != null)
+                        getShell().setDefaultButton(null);
+                    getShell().update();
+                } else if (e.keyCode == SWT.CR) {
+                    if (prepareForSpace) {
+                        if (e.widget instanceof Text) {
+                            ((Text) e.widget).insert(" "); //$NON-NLS-1$
+                        }
+                    }
+                }
             }
         });
     }
@@ -154,7 +193,8 @@ public class SaveWizardDialog extends Dialog {
 
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, IDialogConstants.OK_ID, MindMapMessages.SaveWizardDialog_okButton_text, true);
+        defaultButton = createButton(parent, IDialogConstants.OK_ID,
+                MindMapMessages.SaveWizardDialog_okButton_text, true);
         createButton(parent, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
     }

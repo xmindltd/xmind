@@ -22,7 +22,6 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_STYLE_SHEET;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
@@ -41,10 +40,9 @@ import org.xmind.core.internal.ElementRegistry;
 import org.xmind.core.internal.StyleSheet;
 import org.xmind.core.internal.event.CoreEventSupport;
 import org.xmind.core.style.IStyle;
-import org.xmind.core.style.IStyleSheet;
+import org.xmind.core.util.CloneHandler;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.IPropertiesProvider;
-import org.xmind.core.util.Property;
 
 public class StyleSheetImpl extends StyleSheet implements INodeAdaptableFactory,
         ICoreEventSource, IPropertiesProvider {
@@ -77,25 +75,25 @@ public class StyleSheetImpl extends StyleSheet implements INodeAdaptableFactory,
         return implementation;
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == IManifest.class)
-            return manifest;
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == ElementRegistry.class)
-            return getElementRegistry();
-        if (adapter == ICoreEventSupport.class)
-            return getCoreEventSupport();
-        if (adapter == IPropertiesProvider.class)
-            return this;
-        if (adapter == Properties.class)
-            return getProperties();
-        if (adapter == INodeAdaptableFactory.class)
-            return this;
-        if (adapter == INodeAdaptableProvider.class)
-            return getNodeAdaptableProvider();
-        if (adapter == Document.class || adapter == Node.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IManifest.class.equals(adapter))
+            return adapter.cast(manifest);
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (ElementRegistry.class.equals(adapter))
+            return adapter.cast(getElementRegistry());
+        if (ICoreEventSupport.class.equals(adapter))
+            return adapter.cast(getCoreEventSupport());
+        if (IPropertiesProvider.class.equals(adapter))
+            return adapter.cast(this);
+        if (Properties.class.equals(adapter))
+            return adapter.cast(getProperties());
+        if (INodeAdaptableFactory.class.equals(adapter))
+            return adapter.cast(this);
+        if (INodeAdaptableProvider.class.equals(adapter))
+            return adapter.cast(getNodeAdaptableProvider());
+        if (adapter.isAssignableFrom(Document.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -274,33 +272,15 @@ public class StyleSheetImpl extends StyleSheet implements INodeAdaptableFactory,
     public IStyle importStyle(IStyle style) {
         if (style == null)
             return null;
-        if (style instanceof StyleImpl) {
-            StyleImpl s = (StyleImpl) style;
-            return WorkbookUtilsImpl.importStyle(this, s,
-                    (StyleSheetImpl) style.getOwnedStyleSheet());
-        }
-        return importStyleFromOtherImpl(style);
-    }
 
-    private IStyle importStyleFromOtherImpl(IStyle style) {
-        IStyle target = createStyle(style.getType());
-        Iterator<Property> sourcePropIt = style.properties();
-        while (sourcePropIt.hasNext()) {
-            Property sourceProperty = sourcePropIt.next();
-            target.setProperty(sourceProperty.key, sourceProperty.value);
+        try {
+            return (IStyle) new CloneHandler()
+                    .withStyleSheets(style.getOwnedStyleSheet(), this)
+                    .cloneObject(style);
+        } catch (IOException e) {
+            Core.getLogger().log(e);
         }
-        Iterator<Property> sourceDSIt = style.defaultStyles();
-        while (sourceDSIt.hasNext()) {
-            Property sourceDS = sourceDSIt.next();
-            target.setDefaultStyleId(sourceDS.key, sourceDS.value);
-        }
-        IStyleSheet sourceSheet = style.getOwnedStyleSheet();
-        if (sourceSheet != null) {
-            String group = sourceSheet.findOwnedGroup(style);
-            if (group != null)
-                addStyle(target, group);
-        }
-        return target;
+        return null;
     }
 
     public ICoreEventRegistration registerCoreEventListener(String type,

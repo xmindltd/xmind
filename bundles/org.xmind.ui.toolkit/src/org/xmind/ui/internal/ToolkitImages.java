@@ -28,31 +28,31 @@ public class ToolkitImages {
 
     public static final String PATH_DISABLED = PATH_ICONS + "d/"; //$NON-NLS-1$
 
-    public static final String ALIGN_CENTER = "align_center.gif"; //$NON-NLS-1$
+    public static final String ALIGN_CENTER = "align_center.png"; //$NON-NLS-1$
 
-    public static final String ALIGN_LEFT = "align_left.gif"; //$NON-NLS-1$
+    public static final String ALIGN_LEFT = "align_left.png"; //$NON-NLS-1$
 
-    public static final String ALIGN_RIGHT = "align_right.gif"; //$NON-NLS-1$
+    public static final String ALIGN_RIGHT = "align_right.png"; //$NON-NLS-1$
 
-    public static final String BACKGROUND = "background.gif"; //$NON-NLS-1$
+    public static final String BACKGROUND = "background.png"; //$NON-NLS-1$
 
-    public static final String BOLD = "bold.gif"; //$NON-NLS-1$
+    public static final String BOLD = "bold.png"; //$NON-NLS-1$
 
     public static final String FONT = "font.gif"; //$NON-NLS-1$
 
-    public static final String FOREGROUND = "foreground.gif"; //$NON-NLS-1$
+    public static final String FOREGROUND = "foreground.png"; //$NON-NLS-1$
 
-    public static final String INDENT = "indent.gif"; //$NON-NLS-1$
+    public static final String INDENT = "indent.png"; //$NON-NLS-1$
 
-    public static final String ITALIC = "italic.gif"; //$NON-NLS-1$
+    public static final String ITALIC = "italic.png"; //$NON-NLS-1$
 
-    public static final String OUTDENT = "outdent.gif"; //$NON-NLS-1$
+    public static final String OUTDENT = "outdent.png"; //$NON-NLS-1$
 
-    public static final String STRIKEOUT = "strikeout.gif"; //$NON-NLS-1$
+    public static final String STRIKEOUT = "strikeout.png"; //$NON-NLS-1$
 
-    public static final String UNDERLINE = "underline.gif"; //$NON-NLS-1$
+    public static final String UNDERLINE = "underline.png"; //$NON-NLS-1$
 
-    public static final String SLIDER_HANDLE = "slider_handle.gif"; //$NON-NLS-1$
+    public static final String SLIDER_HANDLE = "slider_handle.png"; //$NON-NLS-1$
 
     public static final String ZOOM_IN = "zoomin.gif"; //$NON-NLS-1$
 

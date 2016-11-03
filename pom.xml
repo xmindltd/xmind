@@ -5,21 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xmind.releng</groupId>
     <artifactId>org.xmind.cathy.releng</artifactId>
-    <version>3.6.51-SNAPSHOT</version>
+    <version>3.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <tycho.version>0.23.0</tycho.version>
         <tychoExtras.version>0.23.0</tychoExtras.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.5/R-4.5.1-201509040015</eclipse-repo.url>
-        <gef-repo.url>http://download.eclipse.org/tools/gef/updates/releases/3.10.1_gef-maintenance_1205</gef-repo.url>
+        <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</eclipse-repo.url>
+        <gef-repo.url>http://download.eclipse.org/tools/gef/updates/legacy/releases/3.10.1_gef-maintenance_1205</gef-repo.url>
         <xmind-orbit-repo.url>http://p2.xmind.net/updates/orbit/1.1.0</xmind-orbit-repo.url>
     </properties>
 
     <repositories>
         <repository>
-            <id>eclipse-4.5.1</id>
+            <id>eclipse-4.6</id>
             <url>${eclipse-repo.url}</url>
             <layout>p2</layout>
         </repository>

@@ -22,8 +22,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.xmind.core.Core;
 import org.xmind.core.ISheet;
+import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.style.IStyle;
+import org.xmind.core.style.IStyleSheet;
 import org.xmind.ui.internal.editor.MME;
+import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.util.MindMapUtils;
 
 public abstract class MindMapImporter {
 
@@ -79,6 +84,27 @@ public abstract class MindMapImporter {
 
     public abstract void build()
             throws InvocationTargetException, InterruptedException;
+
+    protected void postBuilded() {
+        initStyles();
+    }
+
+    private void initStyles() {
+        for (ISheet sheet : getTargetWorkbook().getSheets()) {
+            sheet.setThemeId(createAppliedTheme(getTargetWorkbook(),
+                    MindMapUI.getResourceManager().getDefaultTheme()).getId());
+
+            List<ITopic> topics = MindMapUtils.getAllTopics(sheet, true, true);
+            for (ITopic topic : topics) {
+                topic.setStyleId(null);
+            }
+        }
+    }
+
+    private IStyle createAppliedTheme(IWorkbook workbook, IStyle sourceTheme) {
+        IStyleSheet ss = workbook.getStyleSheet();
+        return ss.importStyle(sourceTheme);
+    }
 
     public List<ISheet> getTargetSheets() {
         return targetSheets;

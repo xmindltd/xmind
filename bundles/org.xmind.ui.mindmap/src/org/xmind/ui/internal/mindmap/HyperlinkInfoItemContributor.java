@@ -37,7 +37,6 @@ import org.xmind.ui.internal.actions.ModifyHyperlinkAction;
 import org.xmind.ui.internal.dialogs.DialogMessages;
 import org.xmind.ui.mindmap.AbstractInfoItemContributor;
 import org.xmind.ui.mindmap.IInfoPart;
-import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -155,8 +154,7 @@ public class HyperlinkInfoItemContributor extends AbstractInfoItemContributor {
             IAction modifyHyperlinkAction = new ModifyHyperlinkAction(page);
 
             modifyHyperlinkAction.setText(MindMapMessages.InfoItem_Modify_text);
-            modifyHyperlinkAction.setImageDescriptor(
-                    MindMapUI.getImages().get(IMindMapImages.HYPERLINK, true));
+            modifyHyperlinkAction.setImageDescriptor(null);
             actions.add(modifyHyperlinkAction);
         } else {
             IAction saveAttchmentAsAction = new Action(
@@ -177,8 +175,7 @@ public class HyperlinkInfoItemContributor extends AbstractInfoItemContributor {
             }
         };
         deleteHyperlinkAction.setId("org.xmind.ui.removeHyperlink"); //$NON-NLS-1$
-        deleteHyperlinkAction.setImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        deleteHyperlinkAction.setImageDescriptor(null);
         actions.add(deleteHyperlinkAction);
 
         return actions;

@@ -175,11 +175,11 @@ public class StyleImpl extends Style implements ICoreEventSource {
         return "STY#" + getId() + "(" + getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Element.class || adapter == Node.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -300,8 +300,8 @@ public class StyleImpl extends Style implements ICoreEventSource {
 
         String propEleName = getPropertiesElementName();
         if (styleId != null) {
-            Element p = DOMUtils
-                    .ensureChildElement(implementation, propEleName);
+            Element p = DOMUtils.ensureChildElement(implementation,
+                    propEleName);
             Element ds = findDefaultStyleElement(p, styleFamily);
             if (ds == null) {
                 ds = DOMUtils.createElement(p, TAG_DEFAULT_STYLE);
@@ -325,7 +325,8 @@ public class StyleImpl extends Style implements ICoreEventSource {
         }
     }
 
-    private Element findDefaultStyleElement(Element propEle, String styleFamily) {
+    private Element findDefaultStyleElement(Element propEle,
+            String styleFamily) {
         Iterator<Element> it = DOMUtils.childElementIterByTag(propEle,
                 TAG_DEFAULT_STYLE);
         while (it.hasNext()) {
@@ -393,7 +394,8 @@ public class StyleImpl extends Style implements ICoreEventSource {
                 newValue);
     }
 
-    private void firePropertyChange(String key, String oldValue, String newValue) {
+    private void firePropertyChange(String key, String oldValue,
+            String newValue) {
         getCoreEventSupport().dispatchTargetValueChange(this, Core.Property,
                 key, oldValue, newValue);
     }

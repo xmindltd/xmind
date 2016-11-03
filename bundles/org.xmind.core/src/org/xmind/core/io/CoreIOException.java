@@ -8,14 +8,14 @@ import org.xmind.core.CoreException;
  * This class simply wraps a {@link CoreException} into an {@link IOException}
  * so that, when performing I/O operations, core exceptions can be successfully
  * thrown and caught.
- *
+ * 
  * @author Frank Shaka
- * @since 3.6.50
+ * @since 3.6.2
  */
 public class CoreIOException extends IOException {
 
     /**
-     *
+     * 
      */
     private static final long serialVersionUID = -5617725226498169561L;
 

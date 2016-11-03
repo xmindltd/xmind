@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wizards>
+	<export-wizards>
+		<category id="recentlyUsed"></category>
+	    <category id="org.xmind.ui.exportWizards.image">
+	    	<wizard id="org.xmind.ui.ImageExportWizard" />
+	    	<wizard id="org.xmind.ui.exports.vector.exportpdfmap" />
+	    	<wizard id="org.xmind.ui.exports.vector.exportsvg" />
+	    </category>
+	    <category id="org.xmind.ui.exportWizards.document">
+	    	<wizard id="org.xmind.ui.OpmlExportWizard" />
+	    	<wizard id="org.xmind.ui.HtmlExportWizard" />
+	    	<wizard id="org.xmind.ui.aspose.export.word" />
+	    	<wizard id="org.xmind.ui.aspose.export.pdf" />
+	    	<wizard id="org.xmind.ui.aspose.export.odt" />
+	    	<wizard id="org.xmind.ui.aspose.export.rtf" />
+	    	<wizard id="org.xmind.ui.TextExportWizard" />
+	    </category>
+	    <category id="org.xmind.ui.exportWizards.presentation">
+	    	<wizard id="org.xmind.ui.aspose.export.ppt" />
+	    	<wizard id="org.xmind.ui.aspose.export.odp" />
+	    </category>
+	    <category id="org.xmind.ui.exportWizards.gantt">
+	    	<wizard id="org.xmind.ui.aspose.export.exportmpp" />
+	    </category>
+	    <category id="org.xmind.ui.exportWizards.spreadSheet">
+	    	<wizard id="org.xmind.ui.aspose.export.exportexcel" />
+	    	<wizard id="org.xmind.ui.aspose.export.exportcsv" />
+	    	<wizard id="org.xmind.ui.aspose.export.exportods" />
+	    </category>
+	    <category id="org.xmind.ui.exportWizards.other">
+	    	<wizard id="org.xmind.ui.export.lighten" />
+	    	<wizard id="org.xmind.ui.FreeMindExportWizard" />
+	    	<wizard id="org.xmind.ui.XMind2008ExportWizard" />
+	    	<wizard id="org.xmind.ui.export.mindmanager" />
+	    </category>
+	    <category id="org.xmind.ui.exportWizards"></category>
+	</export-wizards>
+	<import-wizards>
+	    <category id="org.xmind.ui.importWizards">
+	    	<wizard id="org.xmind.ui.imports.Lighten" />
+	    	<wizard id="org.xmind.ui.imports.NovaMind" />
+	    	<wizard id="org.xmind.ui.import.OPML" />
+	    	<wizard id="org.xmind.ui.import.FreeMind" />
+	    	<wizard id="org.xmind.ui.aspose.import.document" />
+	    	<wizard id="org.xmind.ui.import.MindManager" />
+	    	<wizard id="org.xmind.ui.XMind2008ImportWizard" />
+	    </category>
+	</import-wizards>
+</wizards>

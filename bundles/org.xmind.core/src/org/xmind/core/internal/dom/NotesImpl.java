@@ -18,7 +18,6 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_NOTES;
 import java.util.Iterator;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.INotesContent;
 import org.xmind.core.ISheet;
@@ -29,7 +28,6 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author briansun
- * 
  */
 public class NotesImpl extends Notes {
 
@@ -63,9 +61,9 @@ public class NotesImpl extends Notes {
         return DOMUtils.toString(getNotesElement());
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return getNotesElement();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getNotesElement());
         return super.getAdapter(adapter);
     }
 
@@ -104,8 +102,8 @@ public class NotesImpl extends Notes {
             return;
 
         Element notesEle = getNotesElement();
-        Element oldContentEle = notesEle == null ? null : DOMUtils
-                .getFirstChildElementByTag(notesEle, format);
+        Element oldContentEle = notesEle == null ? null
+                : DOMUtils.getFirstChildElementByTag(notesEle, format);
         INotesContent oldContent = oldContentEle == null ? null
                 : getNotesContent(oldContentEle);
 
@@ -200,7 +198,6 @@ public class NotesImpl extends Notes {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {

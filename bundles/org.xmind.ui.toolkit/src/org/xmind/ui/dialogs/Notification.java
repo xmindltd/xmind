@@ -69,9 +69,18 @@ public class Notification extends Dialog {
 
     private ResourceManager resources;
 
+    private boolean noButton;
+
     public Notification(Shell parent, String infoText, IAction action,
             Rectangle bounds, boolean isCenter, boolean isLong,
             boolean isInfoHyperlink, String infoTooltip) {
+        this(parent, infoText, action, bounds, isCenter, isLong,
+                isInfoHyperlink, infoTooltip, false);
+    }
+
+    public Notification(Shell parent, String infoText, IAction action,
+            Rectangle bounds, boolean isCenter, boolean isLong,
+            boolean isInfoHyperlink, String infoTooltip, boolean noButton) {
         super(parent);
         this.infoText = infoText;
         this.action = action;
@@ -79,6 +88,7 @@ public class Notification extends Dialog {
         this.isLong = isLong;
         this.isInfoHyperlink = isInfoHyperlink;
         this.infoTooltip = infoTooltip;
+        this.noButton = noButton;
 
         //initial bounds
         if (bounds == null) {
@@ -146,7 +156,7 @@ public class Notification extends Dialog {
         gridData.heightHint = 64;
         composite.setLayoutData(gridData);
 
-        GridLayout gridLayout = new GridLayout(3, false);
+        GridLayout gridLayout = new GridLayout(noButton ? 2 : 3, false);
         gridLayout.marginWidth = 0;
         gridLayout.marginHeight = 0;
         gridLayout.horizontalSpacing = 0;
@@ -154,30 +164,26 @@ public class Notification extends Dialog {
 
         createImageSection(composite);
         createInfoSection(composite);
-        createButtonsSection(composite);
+        if (!noButton) {
+            createButtonsSection(composite);
+        }
 
         return composite;
     }
 
     private void createImageSection(Composite parent) {
         Image image = null;
-        final Image imageToDispose;
         if (action != null) {
             ImageDescriptor icon = action.getImageDescriptor();
             if (icon != null) {
-                image = icon.createImage(false);
-                imageToDispose = image;
-            } else {
-                imageToDispose = null;
+                image = (Image) resources.get(icon);
             }
-        } else {
-            imageToDispose = null;
         }
 
         //get default image
         if (image == null) {
-            image = ToolkitImages.get("notification-default-small.png") //$NON-NLS-1$
-                    .createImage();
+            image = (Image) resources
+                    .get(ToolkitImages.get("notification-default-small.png")); //$NON-NLS-1$
         }
 
         Composite composite = new Composite(parent, SWT.NONE);
@@ -192,14 +198,6 @@ public class Notification extends Dialog {
         GridData gridData2 = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         iconLabel.setLayoutData(gridData2);
         iconLabel.setImage(image);
-
-        if (imageToDispose != null) {
-            iconLabel.addDisposeListener(new DisposeListener() {
-                public void widgetDisposed(DisposeEvent e) {
-                    imageToDispose.dispose();
-                }
-            });
-        }
     }
 
     private void createInfoSection(Composite parent) {
@@ -333,7 +331,7 @@ public class Notification extends Dialog {
                         .get(FontDescriptor.createFrom(FontUtils.bold(
                                 FontUtils.relativeHeight(
                                         close.getFont().getFontData(), -1),
-                        true))));
+                                true))));
         close.setText(Messages.Notification_closeButton_text);
 
         composite2.setCursor(
@@ -410,11 +408,10 @@ public class Notification extends Dialog {
             actionButton.setLayoutData(
                     new GridData(SWT.CENTER, SWT.CENTER, true, true));
 
-            actionButton
-                    .setFont((Font) resources
-                            .get(FontDescriptor.createFrom(FontUtils.bold(
-                                    FontUtils.relativeHeight(actionButton
-                                            .getFont().getFontData(), -1),
+            actionButton.setFont((Font) resources
+                    .get(FontDescriptor.createFrom(FontUtils.bold(
+                            FontUtils.relativeHeight(
+                                    actionButton.getFont().getFontData(), -1),
                             true))));
             actionButton.setText(action.getText());
 
@@ -457,7 +454,6 @@ public class Notification extends Dialog {
     }
 
     /**
-     * 
      * @param stayDuration
      *            the duration this dialog will stay on the screen, in
      *            milliseconds

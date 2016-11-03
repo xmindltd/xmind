@@ -36,17 +36,16 @@ public class NewFromMoreTemplateAction extends BaseNewFromTemplateAction {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.actions.BaseNewFromTemplateAction#getTemplateStream
      * (org.eclipse.swt.widgets.Shell)
      */
     protected InputStream getTemplateStream(Shell shell) throws Exception {
         FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-        dialog
-                .setFilterExtensions(new String[] { "*" + MindMapUI.FILE_EXT_TEMPLATE }); //$NON-NLS-1$
-        dialog
-                .setFilterNames(new String[] { DialogMessages.TemplateFilterName });
+        dialog.setFilterExtensions(
+                new String[] { "*" + MindMapUI.FILE_EXT_TEMPLATE }); //$NON-NLS-1$
+        dialog.setFilterNames(
+                new String[] { DialogMessages.TemplateFilterName });
         String path = dialog.open();
         if (path == null)
             return null;

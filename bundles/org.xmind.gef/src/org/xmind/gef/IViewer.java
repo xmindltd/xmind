@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.IInputSelectionProvider;
 import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.graphics.Cursor;
@@ -34,8 +35,8 @@ import org.xmind.gef.util.Properties;
 /**
  * @author Brian Sun
  */
-public interface IViewer extends IAdaptable, IInputSelectionProvider,
-        IPostSelectionProvider {
+public interface IViewer
+        extends IAdaptable, IInputSelectionProvider, IPostSelectionProvider {
 
     public static interface IPartSearchCondition {
 
@@ -72,6 +73,10 @@ public interface IViewer extends IAdaptable, IInputSelectionProvider,
     ViewerSorter getSorter();
 
     void setSorter(ViewerSorter sorter);
+
+    ViewerComparator getComparator();
+
+    void setComparator(ViewerComparator comparator);
 
     IRootPart getRootPart();
 

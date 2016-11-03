@@ -633,7 +633,6 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.mindmap.MindMapPartBase#updateView()
      */
     @Override

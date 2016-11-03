@@ -278,4 +278,39 @@ public class ImageUtils {
         return img;
     }
 
+    public static ImageDescriptor scaleImage(Display display,
+            ImageDescriptor imageDesc, int width, int height) {
+        if (imageDesc == null)
+            return null;
+
+        ImageData imageData = imageDesc.getImageData();
+        if (imageData == null)    // Can by JPEG using CMYK colour space etc.
+            return imageDesc;
+
+        int newHeight = height;
+        int newWidth = (imageData.width * newHeight) / imageData.height;
+        if (newWidth > width) {
+            newWidth = width;
+            newHeight = (imageData.height * newWidth) / imageData.width;
+        }
+
+        // Use GC.drawImage to scale which gives better result on Mac
+
+        Image newImage = new Image(display, newWidth, newHeight);
+
+        GC gc = new GC(newImage);
+
+        Image oldImage = imageDesc.createImage();
+
+        gc.drawImage(oldImage, 0, 0, imageData.width, imageData.height, 0, 0,
+                newWidth, newHeight);
+
+        ImageDescriptor result = ImageDescriptor.createFromImage(newImage);
+
+        oldImage.dispose();
+        gc.dispose();
+
+        return result;
+    }
+
 }

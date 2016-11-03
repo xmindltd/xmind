@@ -114,9 +114,21 @@ public class ViewerExportSourceProvider implements IExportSourceProvider {
      */
     public Rectangle getSourceArea() {
         if (sourceArea == null) {
-            sourceArea = calculateSourceArea(getContents());
+            sourceArea = calculateSourceArea(
+                    getContentsForCalculatingSourceArea());
         }
         return sourceArea;
+    }
+
+    protected IFigure[] getContentsForCalculatingSourceArea() {
+        List<IFigure> figures = new ArrayList<IFigure>(5);
+        collectContentsForCalculatingSourceArea(figures);
+        return figures.toArray(new IFigure[figures.size()]);
+    }
+
+    protected void collectContentsForCalculatingSourceArea(
+            List<IFigure> figures) {
+        collectContents(figures);
     }
 
     /**

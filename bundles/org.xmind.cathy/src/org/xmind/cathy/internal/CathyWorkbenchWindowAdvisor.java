@@ -62,7 +62,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 
     private TitlePathUpdater titlePathUpdater;
 
-    private boolean homeShowing = true;
+    private boolean homeShowing = false;
 
     public CathyWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
         super(configurer);
@@ -130,6 +130,11 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 ICathyConstants.ID_MAIN_WINDOW, MWindow.class, null);
         if (windows.isEmpty()) {
             return;
+        }
+        for (MWindow window : windows) {
+            Shell shell = (Shell) window.getContext().get("localActiveShell"); //$NON-NLS-1$
+            if (shell != null)
+                shell.setMinimumSize(1000, 700);
         }
 
         EPartService partService = windows.get(0).getContext()
@@ -257,27 +262,30 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                     WorkbenchMessages.CathyWorkbenchWindowAdvisor_windowTitle_home_prefix);
         }
 
-        sb.append(WorkbenchMessages.AppWindowTitle);
-        if (licenseName != null) {
-            sb.append(' ');
-            sb.append(licenseName);
-        }
         IWorkbenchPage page = window.getActivePage();
+        IEditorPart editor = null;
         if (page != null) {
-            IEditorPart editor = page.getActiveEditor();
-            if (editor != null) {
-                sb.append(" - "); //$NON-NLS-1$
-                String text = editor.getClass().toString()
-                        .contains("org.xmind.ui.internal.browser") ? null //$NON-NLS-1$
-                                : editor.getTitleToolTip();
-                if (text == null) {
-                    text = editor.getTitle();
-                } else {
-                    text = FileUtils.getFileName(text);
-                }
-                sb.append(text);
-            }
+            editor = page.getActiveEditor();
         }
+
+        if (editor == null) {
+            sb.append(WorkbenchMessages.AppWindowTitle);
+            if (licenseName != null) {
+                sb.append(' ');
+                sb.append(licenseName);
+            }
+        } else {
+            String text = editor.getClass().toString()
+                    .contains("org.xmind.ui.internal.browser") ? null //$NON-NLS-1$
+                            : editor.getTitleToolTip();
+            if (text == null) {
+                text = editor.getTitle();
+            } else {
+                text = FileUtils.getFileName(text);
+            }
+            sb.append(text);
+        }
+
         configurer.setTitle(sb.toString());
 
         if (titlePathUpdater != null) {

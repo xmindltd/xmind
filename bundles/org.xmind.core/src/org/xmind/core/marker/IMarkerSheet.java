@@ -113,6 +113,7 @@ public interface IMarkerSheet extends IAdaptable {
      * @throws IOException
      * @throws CoreException
      */
+    @Deprecated
     void save(OutputStream out) throws IOException, CoreException;
 
     /**
@@ -124,6 +125,7 @@ public interface IMarkerSheet extends IAdaptable {
      * @throws IOException
      * @throws CoreException
      */
+    @Deprecated
     void importFrom(IInputSource source) throws IOException, CoreException;
 
     /**
@@ -136,6 +138,7 @@ public interface IMarkerSheet extends IAdaptable {
      * @throws IOException
      * @throws CoreException
      */
+    @Deprecated
     void importFrom(IInputSource source, String groupName)
             throws IOException, CoreException;
 
@@ -148,6 +151,7 @@ public interface IMarkerSheet extends IAdaptable {
      * @throws IOException
      * @throws CoreException
      */
+    @Deprecated
     void importFrom(String sourcePath) throws IOException, CoreException;
 
     /**
@@ -157,6 +161,7 @@ public interface IMarkerSheet extends IAdaptable {
      * 
      * @param sheet
      */
+    @Deprecated
     void importFrom(IMarkerSheet sheet);
 
     /**
@@ -167,6 +172,7 @@ public interface IMarkerSheet extends IAdaptable {
      * @param group
      * @return
      */
+    @Deprecated
     IMarkerGroup importGroup(IMarkerGroup group);
 
     /**

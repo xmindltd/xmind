@@ -50,6 +50,9 @@ public class Messages extends NLS {
     public static String TimeCheckInvalidSmall_message;
     public static String TimeCheckInvalidBig_message;
 
+    public static String DatePicker_Time_AM_text;
+    public static String DatePicker_Time_PM_text;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

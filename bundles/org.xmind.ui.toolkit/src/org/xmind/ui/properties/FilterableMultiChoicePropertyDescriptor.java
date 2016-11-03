@@ -20,7 +20,8 @@ import org.xmind.ui.dialogs.PopupFilteredList.IElementCreator;
 import org.xmind.ui.dialogs.PopupFilteredList.PatternFilter;
 import org.xmind.ui.viewers.CachedLabelProvider;
 
-public class FilterableMultiChoicePropertyDescriptor extends PropertyDescriptor {
+public class FilterableMultiChoicePropertyDescriptor
+        extends PropertyDescriptor {
 
     private Object choices = null;
 
@@ -36,16 +37,15 @@ public class FilterableMultiChoicePropertyDescriptor extends PropertyDescriptor 
      * @param id
      * @param displayName
      */
-    public FilterableMultiChoicePropertyDescriptor(String id, String displayName) {
+    public FilterableMultiChoicePropertyDescriptor(String id,
+            String displayName) {
         super(id, displayName);
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.xmind.ui.properties.PropertyDescriptor#createPropertyEditor(org.eclipse
-     * .swt.widgets.Composite)
+     * @see org.xmind.ui.properties.PropertyDescriptor#createPropertyEditor(org.
+     * eclipse .swt.widgets.Composite)
      */
     @Override
     public PropertyEditor createPropertyEditor(Composite parent) {
@@ -90,6 +90,11 @@ public class FilterableMultiChoicePropertyDescriptor extends PropertyDescriptor 
             IElementCreator elementCreator) {
         this.elementCreator = elementCreator;
         return this;
+    }
+
+    @Override
+    public boolean isTextOperation() {
+        return true;
     }
 
 }

@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.xmind.core.command.remote;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Activator: org.xmind.core.internal.command.remote.RemoteCommandPlugin
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
- org.xmind.core.command;bundle-version="[3.6.0,3.7.0)";visibility:=reexport
+ org.xmind.core.command;bundle-version="[3.7.0,3.8.0)";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
 Export-Package: org.xmind.core.command.remote,

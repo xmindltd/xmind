@@ -49,6 +49,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 import org.xmind.ui.dialogs.PopupFilteredList;
 import org.xmind.ui.dialogs.PopupFilteredList.PatternFilter;
+import org.xmind.ui.resources.ImageDescriptorProvider;
 
 public class MComboViewer extends StructuredViewer {
 
@@ -133,7 +134,6 @@ public class MComboViewer extends StructuredViewer {
      *            instance (cannot be null)
      * @param style
      *            the style of control to construct
-     * 
      * @see #NORNAL
      * @see #NO_TEXT
      * @see #NO_IMAGE
@@ -216,8 +216,8 @@ public class MComboViewer extends StructuredViewer {
     protected void selectLast() {
         if (hasNoElement())
             return;
-        setSelection(new StructuredSelection(
-                elementList.get(getItemCount() - 1)));
+        setSelection(
+                new StructuredSelection(elementList.get(getItemCount() - 1)));
     }
 
     protected boolean hasNoElement() {
@@ -325,21 +325,28 @@ public class MComboViewer extends StructuredViewer {
             text = ""; //$NON-NLS-1$
         action.setText(text);
 
-        final Image image = labelProvider.getImage(element);
-        if (image != null)
-            action.setImageDescriptor(new ImageDescriptor() {
-                @Override
-                public ImageData getImageData() {
-                    return image.getImageData();
-                }
-            });
-        else
-            action.setImageDescriptor(null);
+        if (labelProvider instanceof ImageDescriptorProvider) {
+            action.setImageDescriptor(((ImageDescriptorProvider) labelProvider)
+                    .getImageDescriptor(element));
+
+        } else {
+            final Image image = labelProvider.getImage(element);
+            if (image != null)
+                action.setImageDescriptor(new ImageDescriptor() {
+                    @Override
+                    public ImageData getImageData() {
+                        return image.getImageData();
+                    }
+                });
+            else
+                action.setImageDescriptor(null);
+        }
+
     }
 
     protected List getSelectionFromWidget() {
-        return getCurrentSelection() == null ? EMPTY_LIST : Collections
-                .singletonList(getCurrentSelection());
+        return getCurrentSelection() == null ? EMPTY_LIST
+                : Collections.singletonList(getCurrentSelection());
     }
 
     protected void internalRefresh(Object element) {
@@ -369,7 +376,8 @@ public class MComboViewer extends StructuredViewer {
         Point imageSize = null;
         Object currentSelection = getCurrentSelection();
 
-        ILabelProvider labelProvider = (ILabelProvider) getWorkingHandleLabelProvider(ILabelProvider.class);
+        ILabelProvider labelProvider = (ILabelProvider) getWorkingHandleLabelProvider(
+                ILabelProvider.class);
         if (labelProvider != null) {
             if (currentSelection == null)
                 currentSelection = emptySelectionImitation;
@@ -389,12 +397,14 @@ public class MComboViewer extends StructuredViewer {
             }
         }
         if (currentSelection != null) {
-            IColorProvider colorProvider = (IColorProvider) getWorkingHandleLabelProvider(IColorProvider.class);
+            IColorProvider colorProvider = (IColorProvider) getWorkingHandleLabelProvider(
+                    IColorProvider.class);
             if (colorProvider != null) {
                 textFg = colorProvider.getForeground(currentSelection);
                 textBg = colorProvider.getBackground(currentSelection);
             }
-            IToolTipProvider toolTipProvider = (IToolTipProvider) getWorkingHandleLabelProvider(IToolTipProvider.class);
+            IToolTipProvider toolTipProvider = (IToolTipProvider) getWorkingHandleLabelProvider(
+                    IToolTipProvider.class);
             if (toolTipProvider != null) {
                 String tooltip = toolTipProvider.getToolTip(currentSelection);
                 dropDownHandle.getControl().setToolTipText(tooltip);

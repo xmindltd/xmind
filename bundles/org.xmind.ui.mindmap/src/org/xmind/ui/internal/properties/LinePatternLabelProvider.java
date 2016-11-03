@@ -15,9 +15,11 @@ package org.xmind.ui.internal.properties;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.xmind.ui.resources.ImageDescriptorProvider;
 import org.xmind.ui.viewers.ImageCachedLabelProvider;
 
-public class LinePatternLabelProvider extends ImageCachedLabelProvider {
+public class LinePatternLabelProvider extends ImageCachedLabelProvider
+        implements ImageDescriptorProvider {
 
     public String getText(Object element) {
         LinePattern value;
@@ -46,6 +48,22 @@ public class LinePatternLabelProvider extends ImageCachedLabelProvider {
             ImageDescriptor icon = value.getIcon();
             if (icon != null)
                 return icon.createImage(false);
+        }
+        return null;
+    }
+
+    @Override
+    public ImageDescriptor getImageDescriptor(Object element) {
+        LinePattern value;
+        if (element instanceof LinePattern) {
+            value = (LinePattern) element;
+        } else if (element instanceof String) {
+            value = LinePattern.findByValue((String) element);
+        } else {
+            value = null;
+        }
+        if (value != null) {
+            return value.getIcon();
         }
         return null;
     }

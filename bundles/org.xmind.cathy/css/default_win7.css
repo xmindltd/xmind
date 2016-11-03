@@ -14,28 +14,14 @@
 #org-eclipse-ui-trim-status,
 #org-eclipse-ui-trim-status *
 {
-	color : #ffffff;
+	color : #000000;
 }
 
 Shell.MTrimmedWindow {
-	background-color:#ffffff #2ca5dc 100%;
-}
-
-.MToolControl.TrimStack {
-	frame-image:  url("./winTSFrame.png");
-	handle-image:  url("./winHandle.png");
-	frame-cuts: 5px 1px 5px 16px;
-}
-
-.MToolControl.Draggable {
-	handle-image:  url("./dragHandle.png");
-}
-
-#org-eclipse-ui-trim-status .MToolBar.Draggable {
-	handle-image:  url("./dragHandle.png");
+	background-color:#ffffff #e8e8e8 100%;
 }
 
 MTabFolder{
-	xmind-tab-folder-bg:#3ba8db;
+	xmind-tab-folder-bg:#5f5f5f;
 }
 

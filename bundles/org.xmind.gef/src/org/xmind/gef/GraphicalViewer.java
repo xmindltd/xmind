@@ -104,6 +104,8 @@ public class GraphicalViewer extends AbstractViewer
     }
 
     public <T> T getAdapter(Class<T> adapter) {
+        if (LightweightSystem.class.equals(adapter))
+            return adapter.cast(getLightweightSystem());
         if (ILayerManager.class.equals(adapter))
             return adapter.cast(getLayerManager());
         if (FigureCanvas.class.equals(adapter))
@@ -163,15 +165,32 @@ public class GraphicalViewer extends AbstractViewer
     }
 
     protected Control internalCreateControl(Composite parent, int style) {
+        //FIXME
         FigureCanvas canvas = new FigureCanvas(parent, style,
-                getLightweightSystem());
+                getLightweightSystem()) {
+
+            @Override
+            public org.eclipse.swt.graphics.Rectangle computeTrim(int x, int y,
+                    int width, int height) {
+                org.eclipse.swt.graphics.Rectangle trim = super.computeTrim(x,
+                        y, width, height);
+                if (!getVerticalBar().isVisible()) {
+                    trim.width = 0;
+                }
+                if (!getHorizontalBar().isVisible()) {
+                    trim.height = 0;
+                }
+
+                return trim;
+            }
+        };
+
         canvas.setViewport(viewport);
         return canvas;
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.AbstractViewer#hookControl(org.eclipse.swt.widgets.Control)
      */
@@ -275,12 +294,11 @@ public class GraphicalViewer extends AbstractViewer
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.IGraphicalViewer#center(int, int)
      */
     public void center(int x, int y) {
         Rectangle clientArea = getViewport().getClientArea();
-        scrollTo(x - clientArea.width / 2, y - clientArea.height / 2);
+        scrollTo(x - clientArea.width >> 1, y - clientArea.height >> 1);
     }
 
     public void center(Point center) {
@@ -563,7 +581,6 @@ public class GraphicalViewer extends AbstractViewer
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.AbstractViewer#setCursor(org.eclipse.swt.graphics.Cursor)
      */

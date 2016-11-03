@@ -52,8 +52,8 @@ import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSupport;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.comments.CommentTextViewer;
+import org.xmind.ui.internal.comments.CommentsPartActionBarContributor;
 import org.xmind.ui.internal.comments.CommentsSelectionProvider;
-import org.xmind.ui.internal.comments.CommentsViewActionBarContributor;
 import org.xmind.ui.internal.comments.ICommentTextViewerContainer;
 import org.xmind.ui.internal.comments.ICommentsActionBarContributor;
 import org.xmind.ui.internal.comments.SheetCommentsViewer;
@@ -147,7 +147,7 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
         }
     }
 
-    private CommentsViewActionBarContributor contributor;
+    private CommentsPartActionBarContributor contributor;
 
     private ISelectionProvider selectionProvider = new CommentsSelectionProvider();
 
@@ -183,7 +183,7 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
     private IComment selectedComment;
 
     public void createPartControl(Composite parent) {
-        contributor = new CommentsViewActionBarContributor(this,
+        contributor = new CommentsPartActionBarContributor(null,
                 contributingEditor);
         control = createControl(parent);
         setInitialInput();
@@ -658,6 +658,24 @@ public class CommentsView extends ViewPart implements IContributedContentsView,
     @Override
     public void cancelCreateComment() {
         contentViewer.cancelCreateNewComment();
+    }
+
+    @Override
+    public void setEditingComment(IComment comment) {
+    }
+
+    @Override
+    public IComment getEditingComment() {
+        return null;
+    }
+
+    @Override
+    public void setModified(boolean modified) {
+    }
+
+    @Override
+    public boolean isModified() {
+        return false;
     }
 
 }

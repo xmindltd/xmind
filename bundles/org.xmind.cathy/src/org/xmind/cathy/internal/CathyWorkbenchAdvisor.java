@@ -78,7 +78,7 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
 
     @Override
     public String getMainPreferencePageId() {
-        return "org.eclipse.ui.preferencePages.Workbench"; //$NON-NLS-1$
+        return "org.xmind.ui.prefPage.General"; //$NON-NLS-1$
     }
 
     public void initialize(IWorkbenchConfigurer configurer) {

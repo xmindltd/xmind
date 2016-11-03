@@ -3,12 +3,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.ui.workbench,
- org.xmind.core;bundle-version="[3.6.0,3.7.0)",
- org.xmind.ui;bundle-version="[3.6.0,3.7.0)",
- org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)",
- org.xmind.ui.spelling;bundle-version="[3.6.0,3.7.0)"
+ org.xmind.core;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.ui;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.ui.toolkit;bundle-version="[3.7.0,3.8.0)",
+ org.xmind.ui.spelling;bundle-version="[3.7.0,3.8.0)"
 Bundle-ActivationPolicy: lazy
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Name: %Bundle-Name
 Bundle-Activator: org.xmind.ui.menus.MenusPlugin
 Bundle-ManifestVersion: 2

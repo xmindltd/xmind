@@ -11,6 +11,7 @@ import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.OpenEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -31,12 +32,14 @@ import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
+import org.xmind.gef.event.MouseEvent;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.tool.ITool;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.gallery.CategorizedGalleryViewer;
+import org.xmind.ui.gallery.FramePart;
 import org.xmind.ui.gallery.GalleryEditTool;
 import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
@@ -50,11 +53,34 @@ import org.xmind.ui.texteditor.FloatingTextEditor;
 import org.xmind.ui.util.MindMapUtils;
 
 /**
- * 
  * @author Ren Siu
  * @since 3.6.50
  */
 public class CategorizedThemeViewer extends CategorizedGalleryViewer {
+
+    private static final int FRAME_WIDTH = 200;
+    private static final int FRAME_HEIGHT = 100;
+
+    private class ThemeSelectTool extends GallerySelectTool {
+
+        protected boolean handleMouseDown(MouseEvent me) {
+            FramePart targetFrame = findFrame(me.target);
+            if (targetFrame != null && targetFrame.getFigure().isSelected()) {
+                return super.handleMouseDown(me);
+            } else {
+                return handleSelectionOnMouseDown(me);
+            }
+        }
+
+        private FramePart findFrame(IPart part) {
+            while (part != null) {
+                if (part instanceof FramePart)
+                    return (FramePart) part;
+                part = part.getParent();
+            }
+            return null;
+        }
+    }
 
     private class CategorizedThemeContentProvider
             implements ITreeContentProvider {
@@ -138,7 +164,7 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
 
         protected void hookEditor(FloatingTextEditor editor) {
             super.hookEditor(editor);
-            getHelper().setPrefWidth(130);
+            getHelper().setPrefWidth(FRAME_WIDTH);
         }
 
     }
@@ -232,6 +258,8 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
         }
 
         private void changeTheme(IStyle theme, String apply) {
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase("ChangeThemeCount"); //$NON-NLS-1$
             IGraphicalEditorPage page = getCurrentPage();
             if (page == null)
                 return;
@@ -283,7 +311,8 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
         Properties properties = getProperties();
         properties.set(GalleryViewer.Horizontal, Boolean.TRUE);
         properties.set(GalleryViewer.Wrap, Boolean.TRUE);
-        properties.set(GalleryViewer.FrameContentSize, new Dimension(200, 100));
+        properties.set(GalleryViewer.FrameContentSize,
+                new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         properties.set(GalleryViewer.TitlePlacement,
                 GalleryViewer.TITLE_BOTTOM);
         properties.set(GalleryViewer.SingleClickToOpen, Boolean.FALSE);
@@ -306,7 +335,7 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
     protected void initGalleryViewer(GalleryViewer galleryViewerer) {
         galleryViewerer.setLabelProvider(new ThemeLabelProvider());
         EditDomain editDomain = new EditDomain();
-        editDomain.installTool(GEF.TOOL_SELECT, new GallerySelectTool());
+        editDomain.installTool(GEF.TOOL_SELECT, new ThemeSelectTool());
         editDomain.installTool(GEF.TOOL_EDIT, new ThemeNameEditTool());
         galleryViewerer.setEditDomain(editDomain);
 
@@ -356,4 +385,24 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
 
     }
 
+    public void selectDefault() {
+        List<Object> categories = getCategories();
+        if (categories == null || categories.isEmpty()
+                || !(categories.get(0) instanceof ThemeUIGroup)) {
+            return;
+        }
+        Object defaultCategory = null;
+        for (Object category : getCategories()) {
+            if ("default".equals(((ThemeUIGroup) category).getId())) { //$NON-NLS-1$
+                defaultCategory = category;
+                setSelectionToCategory(category, new StructuredSelection(
+                        MindMapUI.getResourceManager().getDefaultTheme()),
+                        true);
+            } else {
+                setSelectionToCategory(category, StructuredSelection.EMPTY,
+                        false);
+            }
+        }
+        reveal(defaultCategory);
+    }
 }

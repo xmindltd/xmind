@@ -45,7 +45,6 @@ import org.xmind.ui.internal.actions.ActionConstants;
 import org.xmind.ui.internal.dialogs.DialogMessages;
 
 /**
- * 
  * @author Karelun Huang
  */
 public class SortTopicCommandBuilder extends DeleteCommandBuilder {
@@ -75,6 +74,8 @@ public class SortTopicCommandBuilder extends DeleteCommandBuilder {
     private Map<ITopicRange, Range> cacheRanges = null;
 
     private List<IRelationship> cacheRelations = null;
+
+    private Map<ISummary, ITopic> cacheSummaryTopics = null;
 
     public SortTopicCommandBuilder(IViewer viewer, ICommandStack commandStack) {
         super(viewer, commandStack);
@@ -236,7 +237,7 @@ public class SortTopicCommandBuilder extends DeleteCommandBuilder {
             Range range = entry.getValue();
             if (topicRange instanceof ISummary) {
                 ISummary summary = (ISummary) topicRange;
-                ITopic summaryTopic = summary.getTopic();
+                ITopic summaryTopic = cacheSummaryTopics.get(summary);
                 AddTopicCommand addTopicCommand = new AddTopicCommand(
                         summaryTopic, parent, -1, ITopic.SUMMARY);
                 add(addTopicCommand, false);
@@ -261,6 +262,8 @@ public class SortTopicCommandBuilder extends DeleteCommandBuilder {
     private void cacheTopicRanges(ITopic parent) {
         if (cacheRanges == null)
             cacheRanges = new HashMap<ITopicRange, Range>();
+        if (cacheSummaryTopics == null)
+            cacheSummaryTopics = new HashMap<ISummary, ITopic>();
         Set<IBoundary> boundaries = parent.getBoundaries();
         if (!boundaries.isEmpty()) {
             Iterator<IBoundary> itera = boundaries.iterator();
@@ -283,7 +286,9 @@ public class SortTopicCommandBuilder extends DeleteCommandBuilder {
                 int startIndex = next.getStartIndex();
                 int endIndex = next.getEndIndex();
                 if (startIndex >= 0 && endIndex >= 0) {
+                    ITopic summaryTopic = next.getTopic();
                     cacheRanges.put(next, new Range(startIndex, endIndex));
+                    cacheSummaryTopics.put(next, summaryTopic);
                 }
             }
         }

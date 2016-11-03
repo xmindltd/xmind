@@ -11,6 +11,8 @@ public interface IStyleProvider {
      */
     public static final String TEXT = "text"; //$NON-NLS-1$
 
+    public static final String TEXT_ALIGN = "textAlign"; //$NON-NLS-1$
+
     /**
      * The key for the image content of a widget (value='image').
      */
@@ -64,6 +66,9 @@ public interface IStyleProvider {
     public abstract int getHeight(Object widget, String key, int defaultValue);
 
     public abstract int getPosition(Object widget, String key,
+            int defaultValue);
+
+    public abstract int getTextAlign(Object widget, String key,
             int defaultValue);
 
     public abstract boolean getVisibility(Object widget, String key,

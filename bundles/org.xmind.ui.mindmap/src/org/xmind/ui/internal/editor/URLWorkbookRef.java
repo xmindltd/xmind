@@ -157,7 +157,11 @@ public class URLWorkbookRef extends AbstractWorkbookRef {
             deserializer.setWorkbookStorage(getTempStorage());
             deserializer.setEntryStreamNormalizer(getEncryptionHandler());
             deserializer.setInputStream(stream);
-            deserializer.deserialize(new ProgressReporter(monitor));
+            ProgressReporter reporter = new ProgressReporter(monitor);
+//            deserializer.deserializeManifest(reporter);
+//            String passwordHint = deserializer.getManifest().getPasswordHint();
+//            getEncryptable().setPasswordHint(passwordHint);
+            deserializer.deserialize(reporter);
             return deserializer.getWorkbook();
         } finally {
             stream.close();

@@ -27,6 +27,7 @@ public interface IPropertyEditingEntry extends IAdaptable {
     public static final String PROP_EDITABLE = "editable"; //$NON-NLS-1$
     public static final String PROP_RESETTABLE = "resettable"; //$NON-NLS-1$
     public static final String PROP_PROPERTY_SET = "isPropertySet"; //$NON-NLS-1$
+    public static final String PROP_TEXT_OPERATION = "isTextOperation"; //$NON-NLS-1$
 
     /**
      * Returns whether this entry is editable. An entry is editable if it has a
@@ -64,5 +65,7 @@ public interface IPropertyEditingEntry extends IAdaptable {
      * @see IPropertySource#resetPropertyValue(String)
      */
     void resetPropertyValue();
+
+    boolean isTextOperation();
 
 }

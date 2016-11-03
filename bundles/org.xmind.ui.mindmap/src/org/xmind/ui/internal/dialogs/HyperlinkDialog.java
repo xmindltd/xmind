@@ -28,6 +28,8 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -68,17 +70,14 @@ import org.xmind.ui.gallery.ShadowedLayer;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IProtocolDescriptor;
 import org.xmind.ui.mindmap.MindMapUI;
-import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.util.Logger;
 import org.xmind.ui.viewers.ImageCachedLabelProvider;
 
 /**
- * 
  * @author Frank Shaka
- * 
  */
-public class HyperlinkDialog extends TitleAreaDialog implements
-        IHyperlinkPageContainer {
+public class HyperlinkDialog extends TitleAreaDialog
+        implements IHyperlinkPageContainer {
 
     private static class NullHyperlinkPage extends HyperlinkPage {
 
@@ -89,8 +88,8 @@ public class HyperlinkDialog extends TitleAreaDialog implements
 
         public void createControl(Composite parent) {
             label = new Label(parent, SWT.NONE);
-            label
-                    .setText(DialogMessages.HyperlinkDialog_FailCreatePage_message);
+            label.setText(
+                    DialogMessages.HyperlinkDialog_FailCreatePage_message);
         }
 
         public void dispose() {
@@ -163,7 +162,8 @@ public class HyperlinkDialog extends TitleAreaDialog implements
         }
 
         public Font getFont(Object element) {
-            return FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT, 2);
+            return resources.createFont(JFaceResources
+                    .getDefaultFontDescriptor().increaseHeight(2));
         }
 
     }
@@ -197,9 +197,13 @@ public class HyperlinkDialog extends TitleAreaDialog implements
 
     private SashForm form;
 
+    private ResourceManager resources;
+
     public HyperlinkDialog(Shell parentShell, IEditorPart editor,
             IStructuredSelection selection) {
         super(parentShell);
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                parentShell);
         this.editor = editor;
         this.selection = selection;
         setShellStyle(SWT.RESIZE | SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -207,8 +211,8 @@ public class HyperlinkDialog extends TitleAreaDialog implements
 
     @Override
     protected IDialogSettings getDialogBoundsSettings() {
-        return MindMapUIPlugin.getDefault().getDialogSettings(
-                "org.xmind.ui.HyperlinkDialog"); //$NON-NLS-1$
+        return MindMapUIPlugin.getDefault()
+                .getDialogSettings("org.xmind.ui.HyperlinkDialog"); //$NON-NLS-1$
     }
 
     public void create() {
@@ -312,8 +316,8 @@ public class HyperlinkDialog extends TitleAreaDialog implements
         form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         ((GridData) form.getLayoutData()).widthHint = 400;
         ((GridData) form.getLayoutData()).heightHint = 300;
-        form.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_LIST_BACKGROUND));
+        form.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
         form.setSashWidth(4);
 
         createTypeViewer(form);
@@ -363,9 +367,9 @@ public class HyperlinkDialog extends TitleAreaDialog implements
         properties.set(GalleryViewer.Wrap, Boolean.FALSE);
         properties.set(GalleryViewer.TitlePlacement, PositionConstants.RIGHT);
         properties.set(GalleryViewer.FlatFrames, Boolean.TRUE);
-        properties.set(GalleryViewer.Layout, new GalleryLayout(
-                GalleryLayout.ALIGN_TOPLEFT, GalleryLayout.ALIGN_FILL, 0, 1,
-                new Insets(1)));
+        properties.set(GalleryViewer.Layout,
+                new GalleryLayout(GalleryLayout.ALIGN_TOPLEFT,
+                        GalleryLayout.ALIGN_FILL, 0, 1, new Insets(1)));
         properties.set(GalleryViewer.SingleClickToOpen, Boolean.FALSE);
         properties.set(GEF.SelectionConstraint, GEF.SEL_SINGLE);
 //        properties.set(GalleryViewer.FrameContentSize, new Dimension(32, 32));
@@ -453,7 +457,6 @@ public class HyperlinkDialog extends TitleAreaDialog implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.dialogs.TrayDialog#close()
      */
     @Override

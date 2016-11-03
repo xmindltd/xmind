@@ -7,13 +7,20 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
+import org.xmind.core.ISheet;
+import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.internal.editor.MindMapEditor;
 
-public class AllowOverlapsMenu extends ContributionItem implements
-        IWorkbenchContribution {
+public class AllowOverlapsMenu extends ContributionItem
+        implements IWorkbenchContribution {
+
     private boolean dirty = true;
+    IWorkbenchWindow window;
 
     private IMenuListener menuListener = new IMenuListener() {
         public void menuAboutToShow(IMenuManager manager) {
@@ -59,10 +66,27 @@ public class AllowOverlapsMenu extends ContributionItem implements
                 .getPreferenceStore();
         AllowOverlapsAction allowOverlapsAction = new AllowOverlapsAction(
                 prefStore);
+        IWorkbenchPart part = window.getActivePage().getActivePart();
+        if (null == part || !(part instanceof MindMapEditor)) {
+            allowOverlapsAction.setEnabled(false);
+        } else if (part instanceof MindMapEditor) {
+            IGraphicalEditorPage page = ((MindMapEditor) part)
+                    .getActivePageInstance();
+            if (page != null) {
+                ISheet sheet = page.getAdapter(ISheet.class);
+                String structureClass = sheet.getRootTopic()
+                        .getStructureClass();
+                allowOverlapsAction.setEnabled(structureClass == null
+                        || structureClass.contains("org.xmind.ui.map")); //$NON-NLS-1$
+            }
+
+        }
         manager.add(allowOverlapsAction);
     }
 
+    @Override
     public void initialize(IServiceLocator serviceLocator) {
+        window = serviceLocator.getService(IWorkbenchWindow.class);
     }
 
 }

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource-mappings application-id="NovaMind">
+	<resource-group type="topicShape">
+		<resource-mapping src="RoundedRectangle" dest="org.xmind.topicShape.roundedRect" />
+		<resource-mapping src="Rectangle" dest="org.xmind.topicShape.rect" />
+		<resource-mapping src="Outline" dest="org.xmind.topicShape.underline" />
+		<resource-mapping src="Oval" dest="org.xmind.topicShape.ellipse" />
+		<resource-mapping src="ParallelogramLeft" dest="org.xmind.topicShape.parallelogram" />
+		<resource-mapping src="ParallelogramRight" dest="org.xmind.topicShape.parallelogram" />
+		<resource-mapping src="Cloud" dest="org.xmind.topicShape.cloud" />
+	</resource-group>
+	<resource-group type="boundaryShape">
+		<resource-mapping src="Rectangle" dest="org.xmind.boundaryShape.rect" />
+		<resource-mapping src="RoundedRectangle" dest="org.xmind.boundaryShape.roundedRect" />
+		<resource-mapping src="ChamferedRectangle" dest="org.xmind.boundaryShape.roundedRect" />
+		<resource-mapping src="Outline" dest="org.xmind.boundaryShape.polygon" />
+		<resource-mapping src="ChamferedOutline" dest="org.xmind.boundaryShape.polygon" />
+		<resource-mapping src="Cloud" dest="org.xmind.boundaryShape.scallops" />
+	</resource-group>
+	<resource-group type="calloutShape">
+		<resource-mapping src="Rectangle" dest="org.xmind.calloutTopicShape.balloon.rectangle" />
+		<resource-mapping src="RoundedRectangle" dest="org.xmind.calloutTopicShape.balloon.roundedRect" />
+		<resource-mapping src="Oval" dest="org.xmind.calloutTopicShape.balloon.ellipse" />
+	</resource-group>
+	<resource-group type="numberFormat">
+		<resource-mapping src="Numeric" dest="org.xmind.numbering.arabic" />
+		<resource-mapping src="RomanUpperCase" dest="org.xmind.numbering.roman" />
+		<resource-mapping src="RomanLowerCase" dest="org.xmind.numbering.roman" />
+		<resource-mapping src="AlphaUpperCase" dest="org.xmind.numbering.uppercase" />
+		<resource-mapping src="AlphaLowerCase" dest="org.xmind.numbering.lowercase" />
+	</resource-group>
+	<resource-group type="numberSeprator">
+		<resource-mapping src="." dest="org.xmind.numbering.separator.dot" />
+		<resource-mapping src="," dest="org.xmind.numbering.separator.comma" />
+		<resource-mapping src="-" dest="org.xmind.numbering.separator.hyphen" />
+		<resource-mapping src="/" dest="org.xmind.numbering.separator.oblique" />
+	</resource-group>
+	<resource-group type="nmColor">
+		<resource-mapping src="C0V0AFF" dest="#FF000000" />
+		<resource-mapping src="C1V0AFF" dest="#FFFFFFFF" />
+		<resource-mapping src="C2V0AFF" dest="#FF51597b" />
+		<resource-mapping src="C3V0AFF" dest="#FFdde1f5" />
+		<resource-mapping src="C4V0AFF" dest="#FF3ba4e0" />
+		<resource-mapping src="C5V0AFF" dest="#FF7d95d6" />
+		<resource-mapping src="C6V0AFF" dest="#FF4ac3cc" />
+		<resource-mapping src="C7V0AFF" dest="#FFeca951" />
+		<resource-mapping src="C8V0AFF" dest="#FFe4698a" />
+		<resource-mapping src="C9V0AFF" dest="#FFf8eea6" />
+
+		<resource-mapping src="C0V1AFF" dest="#FF929292" />
+		<resource-mapping src="C1V1AFF" dest="#FFf5f5f5" />
+		<resource-mapping src="C2V1AFF" dest="#FFcacfe7" />
+		<resource-mapping src="C3V1AFF" dest="#FFc4c9e1" />
+		<resource-mapping src="C4V1AFF" dest="#FFb8dff9" />
+		<resource-mapping src="C5V1AFF" dest="#FFd0daf7" />
+		<resource-mapping src="C6V1AFF" dest="#FFbdf1f5" />
+		<resource-mapping src="C7V1AFF" dest="#FFfce0bf" />
+		<resource-mapping src="C8V1AFF" dest="#FFfac7d4" />
+		<resource-mapping src="C9V1AFF" dest="#FFe4d880" />
+
+		<resource-mapping src="C0V2AFF" dest="#FF6c6c6c" />
+		<resource-mapping src="C1V2AFF" dest="#FFe0e0e0" />
+		<resource-mapping src="C2V2AFF" dest="#FFa6aece" />
+		<resource-mapping src="C3V2AFF" dest="#FFaaaec3" />
+		<resource-mapping src="C4V2AFF" dest="#FF91cdf3" />
+		<resource-mapping src="C5V2AFF" dest="#FFb6c4ef" />
+		<resource-mapping src="C6V2AFF" dest="#FF98e5eb" />
+		<resource-mapping src="C7V2AFF" dest="#FFf8ce9c" />
+		<resource-mapping src="C8V2AFF" dest="#FFf5a9bc" />
+		<resource-mapping src="C9V2AFF" dest="#FFc5bb6e" />
+
+		<resource-mapping src="C0V3AFF" dest="#FF515151" />
+		<resource-mapping src="C1V3AFF" dest="#FFcbcbcb" />
+		<resource-mapping src="C2V3AFF" dest="#FF858eb4" />
+		<resource-mapping src="C3V3AFF" dest="#FF797d8c" />
+		<resource-mapping src="C4V3AFF" dest="#FF69bbec" />
+		<resource-mapping src="C5V3AFF" dest="#FF9bafe7" />
+		<resource-mapping src="C6V3AFF" dest="#FF74d9e1" />
+		<resource-mapping src="C7V3AFF" dest="#FFf4bd78" />
+		<resource-mapping src="C8V3AFF" dest="#FFf08aa5" />
+		<resource-mapping src="C9V3AFF" dest="#FF8e864d" />
+
+		<resource-mapping src="C0V4AFF" dest="#FF333333" />
+		<resource-mapping src="C1V4AFF" dest="#FFb5b5b5" />
+		<resource-mapping src="C2V4AFF" dest="#FF343d61" />
+		<resource-mapping src="C3V4AFF" dest="#FF42444d" />
+		<resource-mapping src="C4V4AFF" dest="#FF1a7db2" />
+		<resource-mapping src="C5V4AFF" dest="#FF526aaa" />
+		<resource-mapping src="C6V4AFF" dest="#FF2b9aa2" />
+		<resource-mapping src="C7V4AFF" dest="#FFbc802e" />
+		<resource-mapping src="C8V4AFF" dest="#FFb54764" />
+		<resource-mapping src="C9V4AFF" dest="#FF4f4a28" />
+
+		<resource-mapping src="C0V5AFF" dest="#FF0e0e0e" />
+		<resource-mapping src="C1V5AFF" dest="#FF929292" />
+		<resource-mapping src="C2V5AFF" dest="#FF222944" />
+		<resource-mapping src="C3V5AFF" dest="#FF1a1b20" />
+		<resource-mapping src="C4V5AFF" dest="#FF0f587f" />
+		<resource-mapping src="C5V5AFF" dest="#FF394b79" />
+		<resource-mapping src="C6V5AFF" dest="#FF1c6e74" />
+		<resource-mapping src="C7V5AFF" dest="#FF875b1f" />
+		<resource-mapping src="C8V5AFF" dest="#FF823146" />
+		<resource-mapping src="C9V5AFF" dest="#FF211e0d" />
+	</resource-group>
+	<resource-group type="branchConnection">
+		<resource-mapping src="Straight" dest="org.xmind.branchConnection.straight" />
+		<resource-mapping src="Elbow" dest="org.xmind.branchConnection.elbow" />
+		<resource-mapping src="RoundedElbow" dest="org.xmind.branchConnection.roundedElbow" />
+		<resource-mapping src="ShearedElbow" dest="org.xmind.branchConnection.roundedElbow" />
+		<resource-mapping src="Curve" dest="org.xmind.branchConnection.curve" />
+	</resource-group>
+	<resource-group type="arrowShape">
+		<resource-mapping src="0" dest="org.xmind.arrowShape.none"/>
+		<resource-mapping src="1" dest="org.xmind.arrowShape.triangle"/>
+		<resource-mapping src="3" dest="org.xmind.arrowShape.dot"/>
+		<resource-mapping src="7" dest="org.xmind.arrowShape.square"/>
+		<resource-mapping src="9" dest="org.xmind.arrowShape.diamond"/>
+		<resource-mapping src="12" dest="org.xmind.arrowShape.normal"/>
+		<resource-mapping src="14" dest="org.xmind.arrowShape.herringbone"/>
+		<resource-mapping src="17" dest="org.xmind.arrowShape.spearhead"/>
+	</resource-group>
+</resource-mappings>

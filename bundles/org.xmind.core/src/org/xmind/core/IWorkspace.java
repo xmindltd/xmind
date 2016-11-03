@@ -20,9 +20,8 @@ import java.io.File;
  * temporary and preference data.
  * 
  * <p>
- * <b>NOTE:</b>
- * <em>This interface is not intended to be implemented by client. Use
- * the facade method <code>Core.getWorkspace()</code> to get a singleton
+ * <b>NOTE:</b> <em>This interface is not intended to be implemented by client.
+ * Use the facade method <code>Core.getWorkspace()</code> to get a singleton
  * instance.</em>
  * </p>
  * 

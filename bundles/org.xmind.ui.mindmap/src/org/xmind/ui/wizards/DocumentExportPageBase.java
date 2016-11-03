@@ -132,7 +132,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
             removePropertyListener(ExportContants.INCLUDE_IMAGE, this);
             removePropertyListener(ExportContants.INCLUDE_NOTES, this);
             removePropertyListener(ExportContants.INCLUDE_RELATIONSHIPS, this);
-            removePropertyListener(ExportContants.INCLUDE_FLOATING_TOPICS, this);
+            removePropertyListener(ExportContants.INCLUDE_FLOATING_TOPICS,
+                    this);
             removePropertyListener(ExportContants.INCLUDE_SUMMARIES, this);
             super.uninstallModelListeners();
         }
@@ -144,7 +145,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
 
             list.add(new ViewerModel(TopicTitlePreviewPart.class, rootTopic));
 
-            boolean includeOverview = getBoolean(ExportContants.INCLUDE_OVERVIEW);
+            boolean includeOverview = getBoolean(
+                    ExportContants.INCLUDE_OVERVIEW);
             if (includeOverview) {
                 list.add(new ViewerModel(OverviewPreviewPart.class, rootTopic));
             }
@@ -157,7 +159,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
                 list.add(new ViewerModel(TagsPreviewPart.class, mainTopic));
             }
 
-            if (includeOverview && getBoolean(ExportContants.SEPARATE_OVERVIEW)) {
+            if (includeOverview
+                    && getBoolean(ExportContants.SEPARATE_OVERVIEW)) {
                 list.add(new ViewerModel(OverviewPreviewPart.class, mainTopic));
             }
 
@@ -221,7 +224,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
                 layout.setMajorAlignment(AdvancedToolbarLayout.ALIGN_TOPLEFT);
             }
             layout.setMinorAlignment(AdvancedToolbarLayout.ALIGN_BOTTOMRIGHT);
-            layout.setInnerMinorAlignment(AdvancedToolbarLayout.ALIGN_BOTTOMRIGHT);
+            layout.setInnerMinorAlignment(
+                    AdvancedToolbarLayout.ALIGN_BOTTOMRIGHT);
             layout.setSpacing(5);
             return layout;
         }
@@ -398,7 +402,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
         protected LayoutManager createLayoutManager() {
             AdvancedToolbarLayout layout = new AdvancedToolbarLayout(true);
             layout.setMinorAlignment(AdvancedToolbarLayout.ALIGN_BOTTOMRIGHT);
-            layout.setInnerMinorAlignment(AdvancedToolbarLayout.ALIGN_BOTTOMRIGHT);
+            layout.setInnerMinorAlignment(
+                    AdvancedToolbarLayout.ALIGN_BOTTOMRIGHT);
             layout.setMajorAlignment(AdvancedToolbarLayout.ALIGN_TOPLEFT);
             layout.setSpacing(2);
             return layout;
@@ -477,8 +482,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
         protected void initFigure(IFigure figure) {
             super.initFigure(figure);
             RotatableWrapLabel label = (RotatableWrapLabel) figure;
-            label.setFont(FontUtils
-                    .getNewHeight(JFaceResources.DEFAULT_FONT, 6));
+            label.setFont(
+                    FontUtils.getNewHeight(JFaceResources.DEFAULT_FONT, 6));
             label.setForegroundColor(ColorConstants.darkGray);
 
             String text = MindMapUtils.getLabelText(getTopic().getLabels());
@@ -510,8 +515,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
             super.initFigure(figure);
             SizeableImageFigure imgFigure = new SizeableImageFigure();
             figure.add(imgFigure);
-            Image image = ImageUtils.getImage(MindMapUI.getImages().get(
-                    IMindMapImages.INSERT_IMAGE, true));
+            Image image = ImageUtils.getImage(MindMapUI.getImages()
+                    .get(IMindMapImages.INSERT_IMAGE, true));
             imgFigure.setImage(image);
             imgFigure.setPreferredSize(imgFigure.getImageSize());
         }
@@ -531,8 +536,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
             super.initFigure(figure);
             RotatableWrapLabel label = (RotatableWrapLabel) figure;
             label.setTextAlignment(PositionConstants.LEFT);
-            label.setFont(FontUtils
-                    .getNewHeight(JFaceResources.DEFAULT_FONT, 4));
+            label.setFont(
+                    FontUtils.getNewHeight(JFaceResources.DEFAULT_FONT, 4));
             label.setForegroundColor(ColorConstants.darkGray);
             label.setText(getSampleNotes());
         }
@@ -561,19 +566,19 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
             RotatableWrapLabel seeAlsoLabel = new RotatableWrapLabel(
                     RotatableWrapLabel.NORMAL);
             seeAlsoLabel.setPrefWidth(300);
-            seeAlsoLabel.setFont(FontUtils.getBold(JFaceResources.DEFAULT_FONT,
-                    6));
+            seeAlsoLabel
+                    .setFont(FontUtils.getBold(JFaceResources.DEFAULT_FONT, 6));
             seeAlsoLabel.setForegroundColor(ColorConstants.darkGray);
             seeAlsoLabel.setText(WizardMessages.Export_SeeAlso);
 
             RotatableWrapLabel relationshipsLabel = new RotatableWrapLabel(
                     RotatableWrapLabel.NORMAL);
             relationshipsLabel.setPrefWidth(250);
-            relationshipsLabel.setFont(FontUtils.getNewHeight(
-                    JFaceResources.DEFAULT_FONT, 6));
+            relationshipsLabel.setFont(
+                    FontUtils.getNewHeight(JFaceResources.DEFAULT_FONT, 6));
             relationshipsLabel.setForegroundColor(ColorConstants.darkGray);
-            relationshipsLabel
-                    .setText(WizardMessages.DocumentExportPage_Sample_Relationships);
+            relationshipsLabel.setText(
+                    WizardMessages.DocumentExportPage_Sample_Relationships);
 
             figure.add(seeAlsoLabel);
             figure.add(relationshipsLabel);
@@ -667,8 +672,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
         group.setLayout(layout);
 
         Composite widgetContainer = new Composite(group, SWT.NONE);
-        widgetContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                true));
+        widgetContainer
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         GridLayout containerLayout = new GridLayout(1, false);
         containerLayout.marginHeight = 0;
         containerLayout.marginWidth = 0;
@@ -716,8 +721,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
     }
 
     protected void initPreviewViewer(IGraphicalViewer previewViewer) {
-        previewViewer.setPartFactory(new PreviewPartFactory(previewViewer
-                .getPartFactory()));
+        previewViewer.setPartFactory(
+                new PreviewPartFactory(previewViewer.getPartFactory()));
         Properties properties = previewViewer.getProperties();
         properties.set(GalleryViewer.Horizontal, Boolean.FALSE);
         properties.set(GalleryViewer.SolidFrames, Boolean.TRUE);
@@ -752,7 +757,8 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
         endAllCheckCreation();
     }
 
-    protected Widget createBooleanWidget(Composite parent, String propertyName) {
+    protected Widget createBooleanWidget(Composite parent,
+            String propertyName) {
         return createBooleanWidget(parent, propertyName,
                 getDefaultLabel(propertyName));
     }
@@ -1012,18 +1018,18 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
         IWorkbook workbook = Core.getWorkbookBuilder().createWorkbook();
         ISheet sheet = workbook.getPrimarySheet();
         ITopic rootTopic = sheet.getRootTopic();
-        rootTopic
-                .setTitleText(WizardMessages.DocumentExportPage_Sample_CentralTopic);
+        rootTopic.setTitleText(
+                WizardMessages.DocumentExportPage_Sample_CentralTopic);
 
         ITopic mainTopic = workbook.createTopic();
         rootTopic.add(mainTopic);
-        mainTopic
-                .setTitleText(WizardMessages.DocumentExportPage_Sample_MainTopic1);
+        mainTopic.setTitleText(
+                WizardMessages.DocumentExportPage_Sample_MainTopic1);
         mainTopic.addMarker("priority-1"); //$NON-NLS-1$
         mainTopic.addMarker("smiley-smile"); //$NON-NLS-1$
-        mainTopic.setLabels(Arrays.asList(
-                WizardMessages.DocumentExportPage_Sample_Label1,
-                WizardMessages.DocumentExportPage_Sample_Label2));
+        mainTopic.setLabels(
+                Arrays.asList(WizardMessages.DocumentExportPage_Sample_Label1,
+                        WizardMessages.DocumentExportPage_Sample_Label2));
         mainTopic.setHyperlink("http://www.xmind.net"); //$NON-NLS-1$
         mainTopic.getImage().setSource("temp.png"); //$NON-NLS-1$
         INotesContent notesContent = workbook.createNotesContent(INotes.PLAIN);
@@ -1040,21 +1046,23 @@ public abstract class DocumentExportPageBase extends AbstractMindMapExportPage {
         mainTopic.add(sub2);
 
         ITopic summary1 = workbook.createTopic();
-        summary1.setTitleText(WizardMessages.DocumentExportPage_Sample_Summary1);
+        summary1.setTitleText(
+                WizardMessages.DocumentExportPage_Sample_Summary1);
         mainTopic.add(summary1, ITopic.SUMMARY);
 
         ITopic summary2 = workbook.createTopic();
-        summary2.setTitleText(WizardMessages.DocumentExportPage_Sample_Summary2);
+        summary2.setTitleText(
+                WizardMessages.DocumentExportPage_Sample_Summary2);
         mainTopic.add(summary2, ITopic.SUMMARY);
 
         ITopic floating1 = workbook.createTopic();
-        floating1
-                .setTitleText(WizardMessages.DocumentExportPage_Sample_FloatingTopic1);
+        floating1.setTitleText(
+                WizardMessages.DocumentExportPage_Sample_FloatingTopic1);
         rootTopic.add(floating1, ITopic.DETACHED);
 
         ITopic floating2 = workbook.createTopic();
-        floating2
-                .setTitleText(WizardMessages.DocumentExportPage_Sample_FloatingTopic2);
+        floating2.setTitleText(
+                WizardMessages.DocumentExportPage_Sample_FloatingTopic2);
         rootTopic.add(floating2, ITopic.DETACHED);
         return sheet;
     }

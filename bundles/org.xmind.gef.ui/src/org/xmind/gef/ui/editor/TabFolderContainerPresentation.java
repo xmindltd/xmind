@@ -21,7 +21,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -39,7 +38,6 @@ public class TabFolderContainerPresentation extends
     public Composite createContainer(Composite parent) {
         if (container != null && !container.isDisposed())
             return container;
-        parent.setLayout(new FillLayout());
         container = new CTabFolder(parent, SWT.BOTTOM | SWT.FLAT);
         container.setBackground(container.getDisplay().getSystemColor(
                 SWT.COLOR_WHITE));

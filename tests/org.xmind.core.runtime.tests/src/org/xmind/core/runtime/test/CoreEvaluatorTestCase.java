@@ -1,9 +1,9 @@
 package org.xmind.core.runtime.test;
 
-import static org.junit.Assert.*;
-import org.junit.*;
-
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -14,14 +14,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.xmind.core.Core;
+import org.xmind.core.IDeserializer;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.CoreAxisProvider;
 import org.xmind.core.internal.xpath.Evaluator;
 import org.xmind.core.internal.xpath.IAxisProvider;
 import org.xmind.core.io.BundleResourceInputSource;
-import org.xmind.core.io.ByteArrayStorage;
 import org.xmind.core.io.IInputSource;
 import org.xmind.core.marker.IMarkerSheet;
 
@@ -58,13 +61,10 @@ public class CoreEvaluatorTestCase {
         assertOrderedResultSet(eval(ct, "@title"), "Central Topic");
         assertOrderedResultSet(eval(mt1, "@title"), "Main Topic 1");
         assertOrderedResultSet(eval(mt2, "@title"), "Task");
-        assertOrderedResultSet(eval(mt3, "@title"),
-                "Platform Expression Framework.txt");
+        assertOrderedResultSet(eval(mt3, "@title"), "Platform Expression Framework.txt");
 
-        assertOrderedResultSet(eval(ct, "@title='Central Topic'"),
-                Boolean.TRUE);
-        assertOrderedResultSet(eval(mt1, "@title='Main Topic 1'"),
-                Boolean.TRUE);
+        assertOrderedResultSet(eval(ct, "@title='Central Topic'"), Boolean.TRUE);
+        assertOrderedResultSet(eval(mt1, "@title='Main Topic 1'"), Boolean.TRUE);
     }
 
     @Test
@@ -104,14 +104,10 @@ public class CoreEvaluatorTestCase {
         ITopic mt2 = ct.getChildren(ITopic.ATTACHED).get(1);
         ITopic mt3 = ct.getChildren(ITopic.ATTACHED).get(2);
 
-        assertUnorderedResultSet(eval(ct, "marker"),
-                ct.getMarkerRefs().toArray());
-        assertUnorderedResultSet(eval(mt1, "marker"),
-                mt1.getMarkerRefs().toArray());
-        assertUnorderedResultSet(eval(mt2, "marker"),
-                mt2.getMarkerRefs().toArray());
-        assertUnorderedResultSet(eval(mt3, "marker"),
-                mt3.getMarkerRefs().toArray());
+        assertUnorderedResultSet(eval(ct, "marker"), ct.getMarkerRefs().toArray());
+        assertUnorderedResultSet(eval(mt1, "marker"), mt1.getMarkerRefs().toArray());
+        assertUnorderedResultSet(eval(mt2, "marker"), mt2.getMarkerRefs().toArray());
+        assertUnorderedResultSet(eval(mt3, "marker"), mt3.getMarkerRefs().toArray());
     }
 
     @Test
@@ -122,13 +118,11 @@ public class CoreEvaluatorTestCase {
         ITopic mt3 = ct.getChildren(ITopic.ATTACHED).get(2);
 
         assertUnorderedResultSet(eval(ct, "marker/@id"));
-        assertUnorderedResultSet(eval(mt1, "marker/@id"), "priority-2",
-                "smiley-laugh");
+        assertUnorderedResultSet(eval(mt1, "marker/@id"), "priority-2", "smiley-laugh");
         assertUnorderedResultSet(eval(mt2, "marker/@id"), "task-3oct");
         assertUnorderedResultSet(eval(mt3, "marker/@id"));
 
-        assertOrderedResultSet(eval(mt2, "marker/@id='task-3oct'"),
-                Boolean.TRUE);
+        assertOrderedResultSet(eval(mt2, "marker/@id='task-3oct'"), Boolean.TRUE);
     }
 
     @Test
@@ -151,22 +145,27 @@ public class CoreEvaluatorTestCase {
     public void testGetChildTopics() {
         ITopic ct = workbook.getPrimarySheet().getRootTopic();
 
-        assertOrderedResultSet(eval(ct, "topic"),
-                ct.getAllChildren().toArray());
+        assertOrderedResultSet(eval(ct, "topic"), ct.getAllChildren().toArray());
 
-        assertOrderedResultSet(eval(ct, "topic[1]"),
-                ct.getAllChildren().get(0));
-        assertOrderedResultSet(eval(ct, "topic[@type='attached']"),
-                ct.getChildren(ITopic.ATTACHED).toArray());
-        assertOrderedResultSet(eval(ct, "topic[@type='detached']"),
-                ct.getChildren(ITopic.DETACHED).toArray());
-        assertOrderedResultSet(eval(ct, "topic[@type='summary']"),
-                ct.getChildren(ITopic.SUMMARY).toArray());
+        assertOrderedResultSet(eval(ct, "topic[1]"), ct.getAllChildren().get(0));
+        assertOrderedResultSet(eval(ct, "topic[@type='attached']"), ct.getChildren(ITopic.ATTACHED).toArray());
+        assertOrderedResultSet(eval(ct, "topic[@type='detached']"), ct.getChildren(ITopic.DETACHED).toArray());
+        assertOrderedResultSet(eval(ct, "topic[@type='summary']"), ct.getChildren(ITopic.SUMMARY).toArray());
 
-        assertOrderedResultSet(
-                eval(ct, "topic[matches(@type,'(at|de)tached')]"),
-                concat(ct.getChildren(ITopic.ATTACHED),
-                        ct.getChildren(ITopic.DETACHED)).toArray());
+        assertOrderedResultSet(eval(ct, "topic[matches(@type,'(at|de)tached')]"),
+                concat(ct.getChildren(ITopic.ATTACHED), ct.getChildren(ITopic.DETACHED)).toArray());
+    }
+
+    @Test
+    public void testGetParent() {
+        ITopic ct = workbook.getPrimarySheet().getRootTopic();
+        ITopic mt1 = ct.getChildren(ITopic.ATTACHED).get(0);
+        ITopic mt2 = ct.getChildren(ITopic.ATTACHED).get(1);
+
+        assertOrderedResultSet(eval(ct, "../"), ct.getOwnedSheet());
+        assertOrderedResultSet(eval(mt1, "../"), ct);
+        assertOrderedResultSet(eval(mt1, "../@type='root'"), Boolean.TRUE);
+        assertOrderedResultSet(eval(mt2, "../../"), ct.getOwnedSheet());
     }
 
     @Test
@@ -253,19 +252,18 @@ public class CoreEvaluatorTestCase {
     @Before
     public void setUp() throws Exception {
         IMarkerSheet globalMarkers;
-        InputStream markerSheetStream = new URL(
-                "platform:/plugin/org.xmind.core.runtime.tests/samples/markers.xml")
-                        .openStream();
+        InputStream markerSheetStream = new URL("platform:/plugin/org.xmind.core.runtime.tests/samples/markers.xml")
+                .openStream();
         try {
-            globalMarkers = Core.getMarkerSheetBuilder()
-                    .loadFromStream(markerSheetStream, null);
+            globalMarkers = Core.getMarkerSheetBuilder().loadFromStream(markerSheetStream, null);
         } finally {
             markerSheetStream.close();
         }
-        IInputSource source = new BundleResourceInputSource(
-                "org.xmind.core.runtime.tests", "/samples/sample1.xmind"); //$NON-NLS-2$
-        workbook = Core.getWorkbookBuilder().loadFromInputSource(source,
-                new ByteArrayStorage(), null);
+        IInputSource source = new BundleResourceInputSource("org.xmind.core.runtime.tests", "/samples/sample1.xmind"); //$NON-NLS-2$
+        IDeserializer deserializer = Core.getWorkbookBuilder().newDeserializer();
+        deserializer.setInputSource(source);
+        deserializer.deserialize(null);
+        workbook = deserializer.getWorkbook();
         workbook.getMarkerSheet().setParentSheet(globalMarkers);
 
         axisProvider = new CoreAxisProvider();
@@ -277,16 +275,14 @@ public class CoreEvaluatorTestCase {
         workbook = null;
     }
 
-    private static void assertUnorderedResultSet(List<Object> actual,
-            Object... expected) {
+    private static void assertUnorderedResultSet(List<Object> actual, Object... expected) {
         Set<Object> expectedSet = new HashSet<Object>(asList(expected));
         assertEquals(expectedSet.size(), actual.size());
         assertTrue(expectedSet.containsAll(actual));
         assertTrue(actual.containsAll(expectedSet));
     }
 
-    private static void assertOrderedResultSet(List<Object> actual,
-            Object... expected) {
+    private static void assertOrderedResultSet(List<Object> actual, Object... expected) {
         List<Object> expectedList = asList(expected);
         assertEquals(expectedList.size(), actual.size());
         Iterator it1 = expectedList.iterator();

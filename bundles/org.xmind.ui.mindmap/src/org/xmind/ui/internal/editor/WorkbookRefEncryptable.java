@@ -28,6 +28,7 @@ import org.xmind.core.IWorkbook;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventSource;
 import org.xmind.core.internal.security.PasswordProtectedNormalizer;
+import org.xmind.ui.internal.MindMapUIPlugin;
 
 /**
  * @author Frank Shaka
@@ -59,7 +60,6 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.core.IEntryStreamNormalizer#normalizeOutputStream(java.io.
          * OutputStream, org.xmind.core.IFileEntry)
@@ -72,7 +72,6 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.core.IEntryStreamNormalizer#normalizeInputStream(java.io.
          * InputStream, org.xmind.core.IFileEntry)
@@ -99,7 +98,6 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#equals(java.lang.Object)
          */
         @Override
@@ -114,7 +112,6 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#hashCode()
          */
         @Override
@@ -128,6 +125,10 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
     private IEntryStreamNormalizer encryptor;
 
+    private String password;
+
+    private String passwordHint;
+
     /**
      * 
      */
@@ -139,12 +140,14 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.editor.IEncryptable#setPassword(java.lang.String)
      */
     @Override
     public void setPassword(String newPassword) {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("TrigSetPasswordCount"); //$NON-NLS-1$
+
         IEntryStreamNormalizer oldEncryptor = this.encryptor;
         IEntryStreamNormalizer newEncryptor = createEncryptor(newPassword);
         if (encryptorEquals(oldEncryptor, newEncryptor))
@@ -158,11 +161,31 @@ public class WorkbookRefEncryptable implements IEncryptable {
             eventSource.getCoreEventSupport().dispatch(eventSource,
                     new CoreEvent(eventSource, Core.PasswordChange, null));
         }
+
+        this.password = newPassword;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public void setPasswordHint(String passwordHint) {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("TrigSetPasswordHintCount"); //$NON-NLS-1$
+
+        this.passwordHint = passwordHint;
+    }
+
+    public String getPasswordHint() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("TrigGetPasswordHintCount"); //$NON-NLS-1$
+
+        return passwordHint;
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.editor.IEncryptable#isPasswordCorrect(java.lang.
      * String)
@@ -181,7 +204,6 @@ public class WorkbookRefEncryptable implements IEncryptable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.editor.IEncryptable#hasPassword()
      */
     @Override

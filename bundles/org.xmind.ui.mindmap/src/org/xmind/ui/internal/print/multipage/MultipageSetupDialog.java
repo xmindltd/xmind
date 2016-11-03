@@ -31,6 +31,8 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -134,14 +136,14 @@ public class MultipageSetupDialog extends TrayDialog {
         }, //
         Generating(MindMapMessages.MultipageSetupDialog_GeneratingPreview,
                 SWT.COLOR_DARK_GRAY, SWT.NONE), //
-                Error(MindMapMessages.MultipageSetupDialog_FaildGenerate
-                        + MindMapMessages.MultipageSetupDialog_PrintDirectly,
-                        SWT.COLOR_DARK_RED, SWT.NONE) {
-                    public String getTitle(Image image, boolean largeImage) {
-                        return makeErrorMessage(
-                                super.getTitle(image, largeImage), largeImage);
-                    }
-                };
+        Error(MindMapMessages.MultipageSetupDialog_FaildGenerate
+                + MindMapMessages.MultipageSetupDialog_PrintDirectly,
+                SWT.COLOR_DARK_RED, SWT.NONE) {
+            public String getTitle(Image image, boolean largeImage) {
+                return makeErrorMessage(super.getTitle(image, largeImage),
+                        largeImage);
+            }
+        };
 
         private static String makeErrorMessage(String originalMessage,
                 boolean largeImage) {
@@ -226,6 +228,7 @@ public class MultipageSetupDialog extends TrayDialog {
 
         public void run() {
             FontDialog dialog = new FontDialog(getShell());
+            dialog.setEffectsVisible(false);
             String string = getString(key, null);
             if (string == null) {
                 dialog.setFontList(JFaceResources.getDefaultFontDescriptor()
@@ -306,6 +309,8 @@ public class MultipageSetupDialog extends TrayDialog {
 
     private boolean isRefreshingPages = false;
 
+    private ResourceManager resources;
+
     private Listener eventHandler = new Listener() {
         public void handleEvent(Event event) {
             handleWidgetEvent(event);
@@ -324,6 +329,8 @@ public class MultipageSetupDialog extends TrayDialog {
 
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                newShell);
         newShell.setText(DialogMessages.PageSetupDialog_windowTitle);
     }
 
@@ -536,13 +543,15 @@ public class MultipageSetupDialog extends TrayDialog {
     private void createShowPlusCheck(Composite parent) {
         showPlusCheck = createPlusMinusCheck(parent,
                 MindMapMessages.MultipageSetupDialog_showPlusCheck_text,
-                MindMapUI.getImages().get("plus.png", true).createImage()); //$NON-NLS-1$
+                (Image) resources
+                        .get(MindMapUI.getImages().get("plus.png", true))); //$NON-NLS-1$
     }
 
     private void createShowMinusCheck(Composite parent) {
         showMinusCheck = createPlusMinusCheck(parent,
                 MindMapMessages.MultipageSetupDialog_showMinusCheck_text,
-                MindMapUI.getImages().get("minus.png", true).createImage()); //$NON-NLS-1$
+                (Image) resources
+                        .get(MindMapUI.getImages().get("minus.png", true))); //$NON-NLS-1$
     }
 
     private Button createPlusMinusCheck(Composite parent, String text,
@@ -1736,7 +1745,6 @@ public class MultipageSetupDialog extends TrayDialog {
     /**
      * Multiply the given number by 1000, and then split the result into integer
      * part and decimal part.
-     * 
      * <p>
      * Sample:<br>
      * 
@@ -1749,7 +1757,6 @@ public class MultipageSetupDialog extends TrayDialog {
      * assert parts2[0] == &quot;0034&quot;;
      * assert parts2[1] == &quot;524000&quot;;
      * </pre>
-     * 
      * </p>
      * 
      * @param value
@@ -1771,7 +1778,6 @@ public class MultipageSetupDialog extends TrayDialog {
     /**
      * Merge prefix(integer part) and suffix(decimal part) into a number and
      * return result of the number devided by 1000.
-     * 
      * <p>
      * Sample:<br>
      * 
@@ -1782,7 +1788,6 @@ public class MultipageSetupDialog extends TrayDialog {
      * value = join1000("34", "524000")
      * assert value == 0.034524
      * </pre>
-     * 
      * </p>
      * 
      * @param prefix

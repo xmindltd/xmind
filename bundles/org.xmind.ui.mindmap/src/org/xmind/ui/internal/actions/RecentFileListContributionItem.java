@@ -1,5 +1,6 @@
 package org.xmind.ui.internal.actions;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import org.xmind.ui.internal.protocols.FilePathParser;
 public class RecentFileListContributionItem extends CompoundContributionItem
         implements IWorkbenchContribution {
 
-    private static final int MAX_SIZE = 10;
+    private static final int MAX_SIZE = 50;
 
     private IServiceLocator serviceLocator;
 
@@ -70,8 +71,11 @@ public class RecentFileListContributionItem extends CompoundContributionItem
 
         for (int index = 0; index < inputURIs.length; index++) {
             URI inputURI = inputURIs[index];
-            items.add(makeHistoryCommandItem(inputURI, index,
-                    labels.get(inputURI)));
+            if (inputURI.getScheme().equalsIgnoreCase("file")) //$NON-NLS-1$
+                if (new File(inputURI).exists()) {
+                    items.add(makeHistoryCommandItem(inputURI, index,
+                            labels.get(inputURI)));
+                }
         }
     }
 

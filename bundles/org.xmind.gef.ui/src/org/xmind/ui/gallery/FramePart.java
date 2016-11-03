@@ -150,6 +150,8 @@ public class FramePart extends GraphicalEditPart
                 NullEditPolicy.getInstance());
         reqHandler.installEditPolicy(GEF.ROLE_NAVIGABLE,
                 GalleryViewer.POLICY_NAVIGABLE);
+        reqHandler.installEditPolicy(GEF.ROLE_MOVABLE,
+                GalleryViewer.POLICY_MOVABLE);
     }
 
     protected void register() {

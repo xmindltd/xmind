@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="cathy" sequenceNumber="22">
+<?pde version="3.8"?><target name="cathy" sequenceNumber="24">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.5.1.M20150904-0015"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.5/R-4.5.1-201509040015"/>
+<unit id="org.eclipse.sdk.ide" version="4.6.0.I20160606-1100"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.draw2d.source.feature.group" version="3.10.1.201508170204"/>
 <unit id="org.eclipse.draw2d.sdk.feature.group" version="3.10.1.201508170204"/>
 <unit id="org.eclipse.draw2d.feature.group" version="3.10.1.201508170204"/>
-<repository location="http://download.eclipse.org/tools/gef/updates/releases/3.10.1_gef-maintenance_1205/"/>
+<repository location="http://download.eclipse.org/tools/gef/updates/legacy/releases/3.10.1_gef-maintenance_1205"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.xmind.orbit.feature.group" version="1.1.0"/>

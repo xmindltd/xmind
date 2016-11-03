@@ -18,14 +18,14 @@
    <extension-point id="workbookRefFactories" name="%extension-point.workbookRefFactories.name" schema="schema/workbookRefFactories.exsd"/>
    <extension-point id="saveWizards" name="%extension-point.saveWizards.name" schema="schema/saveWizards.exsd"/>
    <extension-point id="shareOptions" name="%extension-point.shareOptions.name" schema="schema/shareOptions.exsd"/>
-
+   <extension-point id="resourceManager" name="resourceManager" schema="schema/resourceManager.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor
             class="org.xmind.ui.internal.editor.MindMapEditor"
             contributorClass="org.xmind.ui.internal.editor.MindMapContributor"
             extensions="xmind"
-            icon="icons/xmind.16.png"
+            icon="icons/xmind_file.16.png"
             id="org.xmind.ui.MindMapEditor"
             name="%editor.mindMapEditor.name">
          <contentTypeBinding
@@ -507,7 +507,6 @@
       </command>
       <command
             categoryId="org.eclipse.ui.category.file"
-            defaultHandler="org.xmind.ui.internal.handlers.ImportFromWorkbookHandler"
             id="org.xmind.ui.command.importWorkbook"
             name="%command.importWorkbook.name">
       </command>
@@ -616,7 +615,18 @@
          </commandParameter>
       </command>
       <command
-            defaultHandler="org.xmind.ui.internal.colorful.ColorfulSheetHandler"
+            categoryId="org.xmind.ui.category.mindmap"
+            id="org.xmind.ui.command.showMetaInspector"
+            name="%command.showMetaInspector.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            id="org.xmind.ui.command.editingHistory"
+            name="%command.editingHistory.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            defaultHandler="org.xmind.ui.internal.handlers.ColorfulSheetHandler"
             id="org.xmind.ui.command.colorfulSheet"
             name="%command.colorfulSheet.name">
          <commandParameter
@@ -624,6 +634,11 @@
                name="%commandParameter.rgb.name"
                optional="true">
          </commandParameter>
+      </command>
+      <command
+            categoryId="org.xmind.ui.category.mindmap"
+            id="org.xmind.ui.command.showOverview"
+            name="%command.showOverview.name">
       </command>
    </extension>
    <extension
@@ -683,7 +698,7 @@
             parentId="org.eclipse.ui.contexts.window">
       </context>
       <context
-            description="%context.inPageTitle.description"
+            description="%context.editing.description"
             id="org.xmind.ui.context.mindmap.pagetitle"
             name="%context.editing.name"
             parentId="org.xmind.ui.context.mindmap.edit">
@@ -1116,6 +1131,12 @@
             contextId="org.xmind.ui.context.mindmap.edit"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+CR">
+      </key>
+      <key
+            commandId="org.xmind.ui.command.newSheetFromTemplate"
+            contextId="org.xmind.ui.context.mindmap.edit"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+N">
       </key>
    </extension>
    <extension
@@ -2806,87 +2827,6 @@
       </branchPolicy>
    </extension>
    <extension
-         point="org.eclipse.ui.views">
-      <category
-            id="org.xmind.ui.views.resources"
-            name="%viewCategory.resources.name">
-      </category>
-      <view
-            category="org.xmind.ui.views.resources"
-            class="org.xmind.ui.internal.views.MarkerView"
-            icon="icons/e/markers.gif"
-            id="org.xmind.ui.MarkerView"
-            name="%view.markers.name">
-      </view>
-      <view
-            category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.internal.views.NotesView"
-            icon="icons/e/menu_window_notes.png"
-            id="org.xmind.ui.NotesView"
-            name="%view.notes.name">
-      </view>
-      <view
-            category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.views.ContributedContentsView:org.xmind.ui.views.overview"
-            icon="icons/e/overview.png"
-            id="org.xmind.ui.OverviewView"
-            name="%view.overview.name">
-      </view>
-      <view
-            category="org.xmind.ui.views.resources"
-            class="org.xmind.ui.internal.views.ThemesView"
-            icon="icons/e/theme.gif"
-            id="org.xmind.ui.ThemesView"
-            name="%view.themes.name"
-            restorable="true">
-      </view>
-      <!--
-      <view
-            category="org.xmind.ui.views.resources"
-            class="org.xmind.ui.internal.views.StylesView"
-            icon="icons/e/javaassist_co.gif"
-            id="org.xmind.ui.StylesView"
-            name="%view.styles.name"
-            restorable="true">
-      </view>
-      /-->
-      <category
-            id="org.xmind.ui.views.mindmap"
-            name="%viewCategory.mindmap.name">
-      </category>
-      <view
-            category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.views.ContributedContentsView:org.xmind.ui.views.revisions"
-            icon="icons/e/revisions.gif"
-            id="org.xmind.ui.RevisionsView"
-            name="%view.revisions.name"
-            restorable="true">
-      </view>
-      <view
-            category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.internal.views.BlackBoxView"
-            icon="icons/e/blackboxview.gif"
-            id="org.xmind.ui.BlackBoxView"
-            name="%view.blackbox.name"
-            restorable="true">
-      </view>
-      <view
-            category="org.xmind.ui.views.mindmap"
-            class="org.xmind.ui.internal.views.CommentsView"
-            icon="icons/e/menu_window_comments.png"
-            id="org.xmind.ui.CommentsView"
-            name="%view.comments.name">
-      </view>
-      <view
-            category="org.xmind.ui.views.mindmap"      
-            class="org.xmind.ui.views.ContributedContentsView:org.xmind.ui.views.metadata"
-            icon="icons/e/inspector.png"
-            id="org.xmind.ui.InspectorView"
-            name="%view.inspector.name"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
          point="org.xmind.ui.decorations">
       <category
             id="org.xmind.ui.topicDecorations"
@@ -3051,7 +2991,7 @@
       </category>
       <decoration
             categoryId="org.xmind.ui.branchConnections"
-            icon="icons/prop/conn_straight.gif"
+            icon="icons/prop/conn_straight.png"
             id="org.xmind.branchConnection.straight"
             name="%branchConnection.straight.name">
          <class
@@ -3060,7 +3000,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.branchConnections"
-            icon="icons/prop/conn_curve.gif"
+            icon="icons/prop/conn_curve.png"
             id="org.xmind.branchConnection.curve"
             name="%branchConnection.curve.name">
          <class
@@ -3069,7 +3009,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.branchConnections"
-            icon="icons/prop/conn_arrowed.gif"
+            icon="icons/prop/conn_arrowed.png"
             id="org.xmind.branchConnection.arrowedCurve"
             name="%branchConnection.arrowedCurve.name">
          <class
@@ -3082,7 +3022,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.branchConnections"
-            icon="icons/prop/conn_elbow.gif"
+            icon="icons/prop/conn_elbow.png"
             id="org.xmind.branchConnection.elbow"
             name="%branchConnection.elbow.name">
          <class
@@ -3091,7 +3031,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.branchConnections"
-            icon="icons/prop/conn_round_elbow.gif"
+            icon="icons/prop/conn_round_elbow.png"
             id="org.xmind.branchConnection.roundedElbow"
             name="%branchConnection.roundedElbow.name">
          <class
@@ -3107,6 +3047,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.branchConnections"
+            icon="icons/prop/ic_none.png"
             id="org.xmind.branchConnection.none"
             name="%branchConnection.none.name">
          <class
@@ -3153,7 +3094,7 @@
       </category>
       <decoration
             categoryId="org.xmind.ui.relationshipDecorations"
-            icon="icons/prop/rel_curved.gif"
+            icon="icons/prop/rel_curved.png"
             id="org.xmind.relationshipShape.curved"
             name="%relationshipShape.curved.name">
          <class
@@ -3162,7 +3103,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.relationshipDecorations"
-            icon="icons/prop/rel_angled.gif"
+            icon="icons/prop/rel_angled.png"
             id="org.xmind.relationshipShape.angled"
             name="%relationshipShape.angled.name">
          <class
@@ -3171,7 +3112,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.relationshipDecorations"
-            icon="icons/prop/rel_straight.gif"
+            icon="icons/prop/rel_straight.png"
             id="org.xmind.relationshipShape.straight"
             name="%relationshipShape.straight.name">
          <class
@@ -3266,7 +3207,7 @@
       </category>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_normal.gif"
+            icon="icons/prop/arrow_normal.png"
             id="org.xmind.arrowShape.normal"
             name="%arrowShape.normal.name">
          <class
@@ -3275,7 +3216,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_spearhead.gif"
+            icon="icons/prop/arrow_spearhead.png"
             id="org.xmind.arrowShape.spearhead"
             name="%arrowShape.spearHead.name">
          <class
@@ -3284,7 +3225,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_dot.gif"
+            icon="icons/prop/arrow_dot.png"
             id="org.xmind.arrowShape.dot"
             name="%arrowShape.dot.name">
          <class
@@ -3293,7 +3234,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_triangle.gif"
+            icon="icons/prop/arrow_triangle.png"
             id="org.xmind.arrowShape.triangle"
             name="%arrowShape.triangle.name">
          <class
@@ -3302,7 +3243,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_square.gif"
+            icon="icons/prop/arrow_square.png"
             id="org.xmind.arrowShape.square"
             name="%arrowShape.square.name">
          <class
@@ -3311,7 +3252,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_diamond.gif"
+            icon="icons/prop/arrow_diamond.png"
             id="org.xmind.arrowShape.diamond"
             name="%arrowShape.diamond.name">
          <class
@@ -3320,7 +3261,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_herringbone.gif"
+            icon="icons/prop/arrow_herringbone.png"
             id="org.xmind.arrowShape.herringbone"
             name="%arrowShape.herringBone.name">
          <class
@@ -3329,7 +3270,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.arrowDecorations"
-            icon="icons/prop/arrow_none.gif"
+            icon="icons/prop/arrow_none.png"
             id="org.xmind.arrowShape.none"
             name="%arrowShape.none.name">
          <class
@@ -3345,7 +3286,7 @@
       </category>
       <decoration
             categoryId="org.xmind.ui.summaryDecorations"
-            icon="icons/prop/conn_straight.gif"
+            icon="icons/prop/sum_line_angle.png"
             id="org.xmind.summaryShape.angle"
             name="%summaryShape.angle.name">
          <class
@@ -3354,7 +3295,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.summaryDecorations"
-            icon="icons/prop/conn_elbow.gif"
+            icon="icons/prop/sum_line_square.png"
             id="org.xmind.summaryShape.square"
             name="%summaryShape.square.name">
          <class
@@ -3363,7 +3304,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.summaryDecorations"
-            icon="icons/prop/conn_curve.gif"
+            icon="icons/prop/sum_line_round.png"
             id="org.xmind.summaryShape.round"
             name="%summaryShape.round.name">
          <class
@@ -3372,7 +3313,7 @@
       </decoration>
       <decoration
             categoryId="org.xmind.ui.summaryDecorations"
-            icon="icons/prop/conn_round_elbow.gif"
+            icon="icons/prop/sum_line_curly.png"
             id="org.xmind.summaryShape.curly"
             name="%summaryShape.curly.name">
          <class
@@ -3745,7 +3686,7 @@
       		id="org.xmind.ui.exportWizards.gantt"
       		name="%exportCategory.gantt.name">
       </category>
-      
+
       <category
       		id="org.xmind.ui.exportWizards.other"
       		name="%exportCategory.other.name">
@@ -3853,8 +3794,20 @@
             id="org.xmind.numbering.uppercase"
             name="%numberingFormat.uppercase.name">
       </format>
+      <format
+            class="org.xmind.ui.internal.mindmap.SimpleChineseNumberFormat"
+            description="一，二，三..."
+            id="org.xmind.numbering.simplechinese"
+            name="一，二，三...">
+      </format>
+      <format
+            class="org.xmind.ui.internal.mindmap.TraditionalChineseNumberFormat"
+            description="壹，貳，參..."
+            id="org.xmind.numbering.traditionalchinese"
+            name="壹，貳，參...">
+      </format>
    </extension>
-   <extension
+   <!--<extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="org.xmind.ui.internal.prefs.EditorPrefPage"
@@ -3881,7 +3834,7 @@
             id="org.xmind.ui.ThemePrefPage"
             name="%prefPage.Theme.name">
       </page>
-   </extension>
+   </extension>-->
    <extension
          point="org.xmind.ui.protocols">
       <protocol
@@ -3901,6 +3854,12 @@
             id="org.xmind.ui.protocol.topic"
             name="%protocol.topic.name"
             protocolNames="xmind">
+      </protocol>
+      <protocol
+            class="org.xmind.ui.internal.protocols.WebProtocol"
+            id="org.xmind.ui.protocol.web"
+            name="%protocol.web.name"
+            protocolNames="http,https">
       </protocol>
    </extension>
    <extension
@@ -4107,14 +4066,29 @@
                </reference>
                <with
                      variable="selection">
-                  <count
-                        value="(1-">
-                  </count>
-                  <iterate>
-                     <adapt
-                           type="org.xmind.core.ITopic">
-                     </adapt>
-                  </iterate>
+                  <and>
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <adapt
+                              type="org.xmind.core.ITopic">
+                        </adapt>
+                     </iterate>
+                     <count
+                           value="(1-">
+                     </count>
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <adapt
+                              type="org.xmind.core.ITopic">
+                           <test
+                                 property="org.xmind.core.topic.type"
+                                 value="detached">
+                           </test>
+                        </adapt>
+                     </iterate>
+                  </and>
                </with>
             </and>
          </activeWhen>
@@ -4400,6 +4374,33 @@
             </reference>
          </activeWhen>
       </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.ShowWorkbookMetaInspectorHandler"
+            commandId="org.xmind.ui.command.showMetaInspector">
+         <enabledWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.ShowOverviewHandler"
+            commandId="org.xmind.ui.command.showOverview">
+         <enabledWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </enabledWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.ShowEditingHistoryHandler"
+            commandId="org.xmind.ui.command.editingHistory">
+         <enabledWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </enabledWhen>
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -4454,7 +4455,8 @@
       </image>
       <image
             commandId="org.xmind.ui.command.insertAttachment"
-            icon="icons/e/attachment.gif">
+            disabledIcon="icons/d/attachment.png"
+            icon="icons/e/attachment.png">
       </image>
       <image
             commandId="org.xmind.ui.command.newSheet"
@@ -4473,12 +4475,13 @@
       </image>
       <image
             commandId="org.xmind.ui.command.editLabel"
-            icon="icons/e/label.gif">
+            disabledIcon="icons/d/label.png"
+            icon="icons/e/label.png">
       </image>
       <image
             commandId="org.xmind.ui.command.editNotes"
-            disabledIcon="icons/d/notes.gif"
-            icon="icons/e/notes.gif">
+            disabledIcon="icons/d/notes.png"
+            icon="icons/e/notes.png">
       </image>
       <image
             commandId="org.xmind.ui.command.editComments"
@@ -4596,6 +4599,10 @@
                                  </test>
                               </not>
                            </adapt>
+                           <test
+                                 property="org.xmind.core.topic.type"
+                                 value="attached">
+                           </test>
                         </adapt>
                         <adapt
                               type="org.xmind.core.ISheet">
@@ -4622,15 +4629,16 @@
                      <or>
                      <adapt
                            type="org.xmind.core.ITopic">
-                        <adapt
-                           type="org.xmind.ui.mindmap.IBranchPart">
-                           <not>
-                              <test
-                                    property="org.xmind.ui.branch.type"
-                                    value="centralBranch">
-                              </test>
-                           </not>
-                        </adapt>
+                        <not>
+                           <test
+                                 property="org.xmind.core.topic.type"
+                                 value="root">
+                           </test>
+                        </not>
+                        <test
+                              property="org.xmind.core.topic.type"
+                              value="attached">
+                        </test>
                      </adapt>
                      <adapt
                            type="org.xmind.core.ISheet">
@@ -4825,6 +4833,16 @@
             id="org.xmind.ui.command.previewRevision"
             name="%command.previewRevision.name">
       </command>
+      <command
+            category="org.xmind.ui.dialog"
+            categoryId="org.xmind.ui.dialog"
+            id="org.xmind.ui.dialog.openBlackBoxDialog"
+            name="%command.openBlackBox.name">
+      </command>
+      <category
+            id="org.xmind.ui.dialog"
+            name="%category.dialog.name">
+      </category>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -4883,6 +4901,15 @@
          </activeWhen>
       </handler>
       <handler
+            class="org.xmind.ui.internal.handlers.OpenBlackBoxDialogHandler"
+            commandId="org.xmind.ui.dialog.openBlackBoxDialog">
+         <enabledWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </enabledWhen>
+      </handler>
+      <handler
             class="org.xmind.ui.internal.handlers.SaveWorkbookAsHandler"
             commandId="org.xmind.ui.command.saveWorkbookAs">
          <activeWhen>
@@ -4913,34 +4940,6 @@
       <menuContribution
             allPopups="false"
             locationURI="popup:org.xmind.ui.RevisionsView?after=start">
-         <separator
-               name="group.revisions"
-               visible="true">
-         </separator>
-         <command
-               commandId="org.xmind.ui.command.previewRevision"
-               icon="icons/e/revisions_preview.png"
-               id="org.xmind.ui.RevisionsView.popup.preview"
-               label="%popup.revisionview.previewRevision.label"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-            </visibleWhen>
-         </command>
-         <command
-               commandId="org.xmind.ui.command.revertToRevision"
-               icon="icons/e/revisions_revert.gif"
-               id="org.xmind.ui.RevisionsView.popup.revert"
-               label="%popup.revisionview.revertRevision.label"
-               style="push">
-            <visibleWhen
-                  checkEnabled="true">
-            </visibleWhen>
-         </command>
-         <separator
-               name="group.edit"
-               visible="true">
-         </separator>
          <command
                commandId="org.eclipse.ui.edit.delete"
                id="org.xmind.ui.RevisionsView.popup.delete"
@@ -4971,7 +4970,7 @@
          point="org.xmind.ui.saveWizards">
       <saveWizard
             class="org.xmind.ui.internal.editor.LocalFileSaveWizard"
-            id="org.xmind.ui.saveWizards.localFile"
+            id="org.xmind.ui.localFileSaveWizard"
             name="%saveWizard.myComputer.name">
       </saveWizard>
    </extension>
@@ -4999,6 +4998,56 @@
                   definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
             </reference>
          </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.xmind.ui.modelpart.marker.viewmenu">
+         <command
+               commandId="org.xmind.ui.internal.e4.marker.show"
+               icon="icons/e/add_marker.gif"
+               label="%command.manageMarker.label"
+               style="push"
+               tooltip="%command.managemarker.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.marker.import"
+               icon="icons/e/import_wiz.gif"
+               label="%command.importMarkers.label"
+               style="push"
+               tooltip="%command.importMarkers.tooltip">
+         </command>
+         <command
+               commandId="org.xmind.ui.command.marker.export"
+               icon="icons/e/export_wiz.gif"
+               label="%command.exportMarkers.label"
+               style="push"
+               tooltip="%command.exportMarkers.tooltip">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.window"
+            defaultHandler="org.xmind.ui.internal.handlers.ShowMarkerManagerHandler"
+            description="%command.showMarkerManager.description"
+            id="org.xmind.ui.internal.e4.marker.show"
+            name="%command.showMarkerManager.name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.xmind.ui.internal.handlers.ImportFromWorkbookHandler"
+            commandId="org.xmind.ui.command.importWorkbook">
+         <enabledWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </enabledWhen>
       </handler>
    </extension>
 </plugin>

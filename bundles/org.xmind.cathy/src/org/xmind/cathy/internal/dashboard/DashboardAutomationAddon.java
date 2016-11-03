@@ -13,6 +13,8 @@ import org.eclipse.e4.ui.model.application.ui.MElementContainer;
 import org.eclipse.e4.ui.model.application.ui.MUIElement;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPlaceholder;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MPartStack;
+import org.eclipse.e4.ui.model.application.ui.basic.MStackElement;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.model.application.ui.menu.MHandledItem;
 import org.eclipse.e4.ui.workbench.Selector;
@@ -55,6 +57,9 @@ public class DashboardAutomationAddon {
         if (doShowDashboard(window)) {
             updateDashboardToolItems(window);
         }
+
+        //hide right parts.
+        hideVisiblePart(window, "org.xmind.ui.stack.right"); //$NON-NLS-1$
     }
 
     @Inject
@@ -184,6 +189,9 @@ public class DashboardAutomationAddon {
         if (!editors.isEmpty())
             return;
 
+        //hide right parts.
+        hideVisiblePart(window, "org.xmind.ui.stack.right"); //$NON-NLS-1$
+
         if (!window.getTags().contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
             window.getTags().add(ICathyConstants.TAG_SHOW_DASHBOARD);
         }
@@ -262,6 +270,41 @@ public class DashboardAutomationAddon {
             item.setTooltip(tooltip);
             item.setSelected(selected);
         }
+    }
+
+    private static final String hideVisiblePart(MWindow window,
+            String partStackId) {
+        if (window == null || partStackId == null) {
+            return null;
+        }
+
+        EModelService modelService = window.getContext()
+                .get(EModelService.class);
+        EPartService partService = window.getContext().get(EPartService.class);
+
+        List<MPartStack> partStacks = modelService.findElements(window,
+                partStackId, MPartStack.class, null);
+        if (partStacks.isEmpty()) {
+            return null;
+        }
+        MPartStack partStack = partStacks.get(0);
+
+        MPart visiblePart = null;
+        MStackElement selectedElement = partStack.getSelectedElement();
+        if (selectedElement instanceof MPlaceholder) {
+            MPlaceholder placeholder = (MPlaceholder) selectedElement;
+            visiblePart = partService.findPart(placeholder.getElementId());
+        } else if (selectedElement instanceof MPart) {
+            visiblePart = (MPart) selectedElement;
+        }
+
+        if (visiblePart != null) {
+            visiblePart.setVisible(false);
+            partService.hidePart(visiblePart);
+            return visiblePart.getElementId();
+        }
+
+        return null;
     }
 
 }

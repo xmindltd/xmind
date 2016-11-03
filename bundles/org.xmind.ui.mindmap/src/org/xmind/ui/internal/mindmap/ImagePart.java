@@ -1,20 +1,18 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.mindmap;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.draw2d.IFigure;
@@ -31,6 +29,7 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.gef.GEF;
+import org.xmind.gef.Request;
 import org.xmind.gef.draw2d.SizeableImageFigure;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.part.IRequestHandler;
@@ -70,9 +69,8 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
 
     protected synchronized void setImageDescriptor(
             ImageDescriptor imageDescriptor) {
-        if (imageDescriptor == this.imageDescriptor
-                || (imageDescriptor != null && imageDescriptor
-                        .equals(this.imageDescriptor)))
+        if (imageDescriptor == this.imageDescriptor || (imageDescriptor != null
+                && imageDescriptor.equals(this.imageDescriptor)))
             return;
         ImageReference oldImageRef = this.imageRef;
         this.imageDescriptor = imageDescriptor;
@@ -189,9 +187,9 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
             if (HyperlinkUtils.isAttachmentURL(source)) {
                 setImageURL(null);
                 String path = HyperlinkUtils.toAttachmentPath(source);
-                setImageDescriptor(AttachmentImageDescriptor
-                        .createFromEntryPath(imageModel.getOwnedWorkbook(),
-                                path));
+                setImageDescriptor(
+                        AttachmentImageDescriptor.createFromEntryPath(
+                                imageModel.getOwnedWorkbook(), path));
                 setToolTip(null);
             } else {
                 URL url = checkFileURL(source);
@@ -228,11 +226,12 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
 
         this.imageURL = newURL;
 
-        ImageDownloader.getInstance()
-                .unregister(oldImageURL, getImageUpdater());
+        ImageDownloader.getInstance().unregister(oldImageURL,
+                getImageUpdater());
         if (imageURL != null) {
             ImageDownloader.getInstance().register(imageURL, getImageUpdater());
-            setImageDescriptor(ImageDownloader.getInstance().getImage(imageURL));
+            setImageDescriptor(
+                    ImageDownloader.getInstance().getImage(imageURL));
             IStatus status = ImageDownloader.getInstance().getStatus(imageURL);
             if (status.getSeverity() == IStatus.OK) {
                 setToolTip(imageURL);
@@ -249,10 +248,10 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
                     if (imageURL == null)
                         return;
 
-                    setImageDescriptor(ImageDownloader.getInstance().getImage(
-                            imageURL));
-                    IStatus status = ImageDownloader.getInstance().getStatus(
-                            imageURL);
+                    setImageDescriptor(
+                            ImageDownloader.getInstance().getImage(imageURL));
+                    IStatus status = ImageDownloader.getInstance()
+                            .getStatus(imageURL);
                     if (status.getSeverity() == IStatus.OK) {
                         setToolTip(imageURL);
                     } else {
@@ -289,7 +288,6 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.part.GraphicalEditPart#findAt(org.eclipse.draw2d.geometry
      * .Point)
@@ -307,8 +305,8 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
 //    }
 
     public boolean containsPoint(Point position) {
-        return super.containsPoint(position)
-                || (getSelectionOrientation(position) != PositionConstants.NONE);
+        return super.containsPoint(position) || (getSelectionOrientation(
+                position) != PositionConstants.NONE);
     }
 
     public Cursor getCursor(Point pos) {
@@ -324,6 +322,18 @@ public class ImagePart extends MindMapPartBase implements IImagePart {
             return ((ImageFeedback) getFeedback()).getOrientation(point);
         }
         return PositionConstants.NONE;
+    }
+
+    @Override
+    public void handleRequest(Request request, String role) {
+        String type = request.getType();
+        if (GEF.REQ_PASTE.equals(type)) {
+            request.setPrimaryTarget(getTopicPart());
+            ArrayList<IPart> parts = new ArrayList<IPart>();
+            parts.add(getTopicPart());
+            request.setTargets(parts);
+        }
+        super.handleRequest(request, role);
     }
 
 }

@@ -56,7 +56,6 @@ package org.xmind.core.usagedata;
  * </p>
  * 
  * @author Frank Shaka
- * @since 3.6.50
  */
 public interface IUsageDataSampler {
 

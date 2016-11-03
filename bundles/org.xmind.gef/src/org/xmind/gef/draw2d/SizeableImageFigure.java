@@ -260,13 +260,18 @@ public class SizeableImageFigure extends ReferencedFigure implements IHasImage {
 
     protected void paintImage(Graphics graphics, Image image,
             Dimension imageSize, Rectangle clientArea) {
-        if (clientArea.width == imageSize.width
-                && clientArea.height == imageSize.height) {
-            graphics.drawImage(image, clientArea.x, clientArea.y);
-        } else {
-            graphics.drawImage(image, 0, 0, imageSize.width, imageSize.height,
-                    clientArea.x, clientArea.y, clientArea.width,
-                    clientArea.height);
+        //TODO FIXME
+        try {
+            if (clientArea.width == imageSize.width
+                    && clientArea.height == imageSize.height) {
+                graphics.drawImage(image, clientArea.x, clientArea.y);
+            } else {
+                graphics.drawImage(image, 0, 0, imageSize.width,
+                        imageSize.height, clientArea.x, clientArea.y,
+                        clientArea.width, clientArea.height);
+            }
+        } catch (Exception e) {
+            //TODO FIXME
         }
     }
 

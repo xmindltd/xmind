@@ -16,6 +16,7 @@ package org.xmind.ui.internal.actions;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class CreateRelationshipAction extends RequestAction {
@@ -23,6 +24,13 @@ public class CreateRelationshipAction extends RequestAction {
     public CreateRelationshipAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.CREATE_RELATIONSHIP.getId(), page,
                 MindMapUI.REQ_CREATE_RELATIONSHIP);
+    }
+
+    @Override
+    public void run() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("InsertRelationshipCount"); //$NON-NLS-1$
+        super.run();
     }
 
 }

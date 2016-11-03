@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.views;
 
@@ -134,8 +131,6 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
     private IDialogSettings dialogSettings;
 
     private boolean linkingToEditor;
-
-    private boolean updatingSelection = false;
 
     private ICoreEventRegister register = null;
 
@@ -294,10 +289,8 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
                 theme = MindMapUI.getResourceManager().getUserThemeSheet()
                         .findStyle(themeId);
         }
-        updatingSelection = true;
         viewer.setSelection(theme == null ? StructuredSelection.EMPTY
                 : new StructuredSelection(theme));
-        updatingSelection = false;
     }
 
     private String getCurrentThemeId() {
@@ -389,6 +382,7 @@ public class ThemesView extends ViewPart implements IContributedContentsView,
 
     public void pageChanged(PageChangedEvent event) {
         setCurrentSheet(findCurrentSheet());
+        viewer.refresh(true);
         updateSelection();
     }
 

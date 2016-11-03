@@ -41,7 +41,6 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author briansun
- * 
  */
 public class RelationshipImpl extends Relationship implements ICoreEventSource {
 
@@ -134,7 +133,6 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.internal.Relationship#getEnd1()
      */
     @Override
@@ -144,7 +142,6 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.internal.Relationship#getEnd2()
      */
     @Override
@@ -209,11 +206,11 @@ public class RelationshipImpl extends Relationship implements ICoreEventSource {
         return DOMUtils.isOrphanNode(implementation);
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == Element.class || adapter == Node.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 

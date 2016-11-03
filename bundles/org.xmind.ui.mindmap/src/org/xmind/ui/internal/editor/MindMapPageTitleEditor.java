@@ -61,11 +61,17 @@ public class MindMapPageTitleEditor {
             }
         };
         tabFolder.addListener(SWT.MouseDoubleClick, eventHandler);
+        tabFolder.addListener(SWT.MouseDown, eventHandler);
     }
 
     private void doHandleEvent(Event event) {
         if (event.type == SWT.MouseDoubleClick) {
             startEditing(new Point(event.x, event.y));
+        }
+        if (event.type == SWT.MouseDown) {
+            if (tabFolder.isFocusControl()) {
+                startEditing(new Point(event.x, event.y));
+            }
         }
     }
 

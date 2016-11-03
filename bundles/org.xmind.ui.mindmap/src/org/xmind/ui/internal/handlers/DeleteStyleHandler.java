@@ -90,11 +90,11 @@ public class DeleteStyleHandler extends AbstractHandler {
         }
         String styleNames = sb.toString();
         return MessageDialog.openConfirm(parentShell,
-                NLS.bind(MindMapMessages.DeleteStyleHandler_MessageDialog_title,
-                        isTheme ? MindMapMessages.DeleteStyleHandler_MessageDialog_themes
-                                : MindMapMessages.DeleteStyleHandler_MessageDialog_styles),
+                NLS.bind(MindMapMessages.DeleteStyles_MessageDialog_title,
+                        isTheme ? MindMapMessages.DeleteStyle_MessageDialog_themes
+                                : MindMapMessages.DeleteStyle_MessageDialog_styles),
                 NLS.bind(
-                        MindMapMessages.DeleteStyleHandler_MessageDialog_description,
+                        MindMapMessages.DeleteStyle_MessageDialog_description,
                         styleNames));
     }
 

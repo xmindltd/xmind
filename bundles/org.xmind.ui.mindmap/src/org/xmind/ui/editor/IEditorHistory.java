@@ -6,14 +6,12 @@ import java.net.URI;
 
 /**
  * This class is responsible for maintaining a list of unique editor input URIs.
- *
  * <p>
  * Input URIs in an editor history list can be <em>pinned</em> so that it will
  * always stay in the list. Unpinned input URIs will automatically be evicted in
  * the FIFO manner when the count of unpinned ones exceeds
  * {@link #MAX_UNPINNED_SIZE}.
  * </p>
- * 
  * <p>
  * <b>NOTE</b> that methods of this class are <b>NOT</b> thread-safe. Undefined
  * behavior may apply when any two methods are called simultaneously.
@@ -103,7 +101,6 @@ public interface IEditorHistory {
      * exists in the list, this pinned/unpinned one will be moved ahead of all
      * other pinned/unpinned ones, respectively. Otherwise, the new input URI
      * will be inserted ahead of all other unpinned ones.
-     * 
      * <p>
      * Note that old input URIs may be evicted during the process of this
      * operation if the size of the unpinned ones exceed
@@ -114,6 +111,10 @@ public interface IEditorHistory {
      *            the input URI to add
      */
     void add(URI inputURI);
+
+    void add(URI uri, IEditorHistoryItem item);
+
+    IEditorHistoryItem getItem(URI inputURI);
 
     /**
      * Removes an input URI from this editor history list and deletes all its
@@ -149,7 +150,6 @@ public interface IEditorHistory {
      * Writes thumbnail image data of a corresponding input URI from specified
      * input stream. The client <em>must</em> close the given stream after this
      * method returns.
-     * 
      * <p>
      * Note that calling this method blocks the current thead.
      * </p>

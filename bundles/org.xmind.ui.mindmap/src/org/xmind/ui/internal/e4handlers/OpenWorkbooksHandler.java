@@ -18,6 +18,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.xmind.ui.commands.MindMapCommandConstants;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dialogs.DialogUtils;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -59,6 +60,8 @@ public class OpenWorkbooksHandler {
             if (uri != null) {
                 IEditorPart editor = openMindMapEditor(page, uri);
                 if (editor != null) {
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .increase("OpenWorkbookCount"); //$NON-NLS-1$
                     lastEditor = editor;
                 }
             }

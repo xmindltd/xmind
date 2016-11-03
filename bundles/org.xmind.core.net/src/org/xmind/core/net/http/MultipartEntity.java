@@ -17,7 +17,6 @@
 package org.xmind.core.net.http;
 
 import static org.xmind.core.net.internal.EncodingUtils.toAsciiBytes;
-import static org.xmind.core.net.internal.EncodingUtils.toDefaultBytes;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,6 +27,7 @@ import org.xmind.core.net.FieldSet;
 import org.xmind.core.net.internal.EncodingUtils;
 
 /**
+ * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -94,7 +94,7 @@ public class MultipartEntity extends HttpEntity {
             return boundary;
         Random rand = new Random();
         byte[] bytes = new byte[rand.nextInt(11) + 30]; // a random size
-        // from 30 to 40
+                                                        // from 30 to 40
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = BOUNDARY_CHARS[rand.nextInt(BOUNDARY_CHARS.length)];
         }
@@ -123,7 +123,7 @@ public class MultipartEntity extends HttpEntity {
 
             length += CONTENT_DISPOSITION.length;
             length += QUOTE.length;
-            length += toDefaultBytes(toSafeName(part.name)).length;
+            length += toAsciiBytes(toSafeName(part.name)).length;
             length += QUOTE.length;
             length += CRLF.length;
 
@@ -133,7 +133,7 @@ public class MultipartEntity extends HttpEntity {
                     fileName = part.name;
                 length += FILE_NAME.length;
                 length += QUOTE.length;
-                length += toDefaultBytes(toSafeName(fileName)).length;
+                length += toAsciiBytes(toSafeName(fileName)).length;
                 length += QUOTE.length;
             }
 
@@ -170,7 +170,7 @@ public class MultipartEntity extends HttpEntity {
 
             stream.write(CONTENT_DISPOSITION);
             stream.write(QUOTE);
-            stream.write(EncodingUtils.toDefaultBytes(toSafeName(part.name)));
+            stream.write(toAsciiBytes(toSafeName(part.name)));
             stream.write(QUOTE);
             if (part.value instanceof HttpEntity) {
                 String fileName = ((HttpEntity) part.value).getFileName();
@@ -178,8 +178,7 @@ public class MultipartEntity extends HttpEntity {
                     fileName = part.name;
                 stream.write(FILE_NAME);
                 stream.write(QUOTE);
-                stream.write(
-                        EncodingUtils.toDefaultBytes(toSafeName(fileName)));
+                stream.write(toAsciiBytes(toSafeName(fileName)));
                 stream.write(QUOTE);
             }
             stream.write(CRLF);
@@ -206,7 +205,8 @@ public class MultipartEntity extends HttpEntity {
 
     private static byte[] getContentType(Object value) {
         if (value instanceof HttpEntity)
-            return toDefaultBytes(((HttpEntity) value).getContentType());
+            return EncodingUtils
+                    .toAsciiBytes(((HttpEntity) value).getContentType());
         return TEXT_CONTENT_TYPE;
     }
 

@@ -34,6 +34,7 @@ import org.xmind.ui.color.ColorPicker;
 import org.xmind.ui.color.IColorSelection;
 import org.xmind.ui.color.PaletteContents;
 import org.xmind.ui.commands.CommandMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.properties.StyledPropertySectionPart;
 import org.xmind.ui.style.Styles;
@@ -43,6 +44,8 @@ public class LegendPropertySectionPart extends StyledPropertySectionPart {
     private class BackgroundColorOpenListener implements IOpenListener {
 
         public void open(OpenEvent event) {
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase("ChangeLegendBackgroudCount"); //$NON-NLS-1$
             changeBackgroundColor((IColorSelection) event.getSelection());
         }
 
@@ -56,8 +59,8 @@ public class LegendPropertySectionPart extends StyledPropertySectionPart {
 
     protected void createContent(Composite parent) {
         visibilityCheck = new Button(parent, SWT.CHECK);
-        visibilityCheck.setLayoutData(new GridData(GridData.FILL,
-                GridData.CENTER, true, false));
+        visibilityCheck.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, true, false));
         visibilityCheck.setText(PropertyMessages.ShowLegend_text);
         visibilityCheck.setToolTipText(PropertyMessages.ShowLegend_toolTip);
         visibilityCheck.addListener(SWT.Selection, new Listener() {
@@ -77,13 +80,14 @@ public class LegendPropertySectionPart extends StyledPropertySectionPart {
 
         Label caption = new Label(composite, SWT.NONE);
         caption.setText(PropertyMessages.BackgroundColor_label);
-        caption.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                false, false));
+        caption.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, false, false));
 
-        backgroundColorPicker = new ColorPicker(ColorPicker.AUTO
-                | ColorPicker.CUSTOM, PaletteContents.getDefault());
-        backgroundColorPicker.getAction().setToolTipText(
-                PropertyMessages.LegendBackground_toolTip);
+        backgroundColorPicker = new ColorPicker(
+                ColorPicker.AUTO | ColorPicker.CUSTOM,
+                PaletteContents.getDefault());
+        backgroundColorPicker.getAction()
+                .setToolTipText(PropertyMessages.LegendBackground_toolTip);
         backgroundColorPicker
                 .addOpenListener(new BackgroundColorOpenListener());
         ToolBarManager colorBar = new ToolBarManager(SWT.FLAT);

@@ -94,4 +94,6 @@ public interface IPropertyDescriptor {
      */
     ILabelDescriptor getLabelDescriptor();
 
+    boolean isTextOperation();
+
 }

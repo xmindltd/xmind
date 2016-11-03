@@ -1,4 +1,3 @@
-
 package org.xmind.cathy.internal.dashboard;
 
 import java.util.Arrays;
@@ -42,6 +41,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.IWorkbenchPage;
@@ -154,6 +154,10 @@ public class DashboardPart implements IDashboardContext {
 
     @PostConstruct
     public void postConstruct(Composite parent) {
+
+        //
+        context.set(IDashboardContext.class, this);
+
         tabFolder = new MTabFolder(parent);
         ResourceManager resourceManager = new LocalResourceManager(
                 JFaceResources.getResources(), tabFolder);
@@ -175,6 +179,9 @@ public class DashboardPart implements IDashboardContext {
     }
 
     private void handlePageSelected() {
+        if (tabFolder == null || content == null) {
+            return;
+        }
         MTabItem item = tabFolder.getSelection();
         String pageId = item == null ? null : content.getItemId(item);
         partModel.getTransientData()
@@ -194,7 +201,7 @@ public class DashboardPart implements IDashboardContext {
         handlerService.executeHandler(command);
     }
 
-    protected void setSelectionProvider(ISelectionProvider selectionProvider) {
+    public void setSelectionProvider(ISelectionProvider selectionProvider) {
         ISelectionProvider oldSelectionProvider = this.selectionProvider;
         if (selectionProvider == oldSelectionProvider)
             return;
@@ -223,7 +230,6 @@ public class DashboardPart implements IDashboardContext {
      * Disables almost all commands unless explicitly kept enabled, to make sure
      * that the user can't trigger commands that may not be appropriate during
      * the appearance of the Dashboard.
-     * 
      * <p>
      * We activate a {@link DisabledHandler} handler object for each command to
      * be disabled. These handlers are registered within the context of this
@@ -306,12 +312,17 @@ public class DashboardPart implements IDashboardContext {
         if (selectedPageId == null || !(selectedPageId instanceof String))
             return;
 
-        if (this.tabFolder == null)
+        if (this.tabFolder == null || content == null)
             return;
 
         MTabItem item = content.getItemById((String) selectedPageId);
         IDashboardPage dashboardPage = content.getDashboardPage(item);
         if (dashboardPage != null) {
+            Control control = dashboardPage.getControl();
+            if (control == null || control.isDisposed()) {
+                dashboardPage.createControl(this.tabFolder.getBody());
+                item.setControl(dashboardPage.getControl());
+            }
             dashboardPage.setFocus();
             this.tabFolder.setSelection(item);
         }
@@ -319,7 +330,7 @@ public class DashboardPart implements IDashboardContext {
 
     @Focus
     public void setFocus() {
-        if (tabFolder != null && !tabFolder.isDisposed()) {
+        if (tabFolder != null && !tabFolder.isDisposed() && content != null) {
             MTabItem item = tabFolder.getSelection();
             if (item != null) {
                 IDashboardPage page = content.getDashboardPage(item);
@@ -351,27 +362,33 @@ public class DashboardPart implements IDashboardContext {
     }
 
     public boolean registerContextMenu(Object menuParent, final String menuId) {
-        if (menuService != null) {
-            if (modelService != null & partModel != null) {
-                MPopupMenu menuModel = null;
-                for (MMenu item : partModel.getMenus()) {
-                    if (menuId.equals(item.getElementId())
-                            && item instanceof MPopupMenu) {
-                        menuModel = (MPopupMenu) item;
-                        break;
-                    }
-                }
-                if (menuModel == null) {
-                    menuModel = modelService
-                            .createModelElement(MPopupMenu.class);
-                    menuModel.setElementId(menuId);
-                    menuModel.getTags().add("menuContribution:popup"); //$NON-NLS-1$
-                    partModel.getMenus().add(menuModel);
-                }
-            }
-            return menuService.registerContextMenu(menuParent, menuId);
+        if (!(menuParent instanceof Control) || menuService == null
+                || partModel == null) {
+            return false;
         }
-        return false;
+        Control parentControl = (Control) menuParent;
+        MPopupMenu menuModel = null;
+        for (MMenu item : partModel.getMenus()) {
+            if (menuId.equals(item.getElementId())
+                    && item instanceof MPopupMenu) {
+                menuModel = (MPopupMenu) item;
+                break;
+            }
+        }
+        if (menuModel == null) {
+            menuModel = modelService.createModelElement(MPopupMenu.class);
+            menuModel.setElementId(menuId);
+            menuModel.getTags().add("menuContribution:popup"); //$NON-NLS-1$
+            partModel.getMenus().add(menuModel);
+        }
+
+        if (menuModel.getWidget() instanceof Menu) {
+            Menu menu = (Menu) menuModel.getWidget();
+            parentControl.setMenu(menu);
+            return true;
+        }
+
+        return menuService.registerContextMenu(parentControl, menuId);
     }
 
     public boolean openEditor(final IEditorInput input, final String editorId) {
@@ -407,7 +424,6 @@ public class DashboardPart implements IDashboardContext {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.dashboard.pages.IDashboardContext#getPersistedState
      * (java.lang.String)
@@ -420,7 +436,6 @@ public class DashboardPart implements IDashboardContext {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.dashboard.pages.IDashboardContext#setPersistedState
      * (java.lang.String, java.lang.String)
@@ -438,7 +453,6 @@ public class DashboardPart implements IDashboardContext {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.dashboard.pages.IDashboardContext#
      * getContextVariable(java.lang.Class)
      */
@@ -448,7 +462,6 @@ public class DashboardPart implements IDashboardContext {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.dashboard.pages.IDashboardContext#
      * getContextVariable(java.lang.String)
      */

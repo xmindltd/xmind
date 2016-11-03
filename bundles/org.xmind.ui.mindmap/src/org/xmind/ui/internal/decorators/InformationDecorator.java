@@ -17,6 +17,10 @@ import static org.xmind.ui.style.StyleUtils.getColor;
 import static org.xmind.ui.style.StyleUtils.getStyleSelector;
 
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.RGB;
 import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.draw2d.decoration.IShapeDecorationEx;
 import org.xmind.gef.part.Decorator;
@@ -26,7 +30,6 @@ import org.xmind.ui.decorations.IInfoDecoration;
 import org.xmind.ui.internal.decorations.RectangleInfoDecration;
 import org.xmind.ui.internal.mindmap.InfoPart;
 import org.xmind.ui.mindmap.ISheetPart;
-import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.style.Styles;
 
 public class InformationDecorator extends Decorator {
@@ -57,14 +60,17 @@ public class InformationDecorator extends Decorator {
             shape.setTopMargin(figure, V_MARGIN);
             shape.setRightMargin(figure, H_MARGIN);
             shape.setBottomMargin(figure, V_MARGIN);
+            shape.setLineColor(figure,
+                    new LocalResourceManager(JFaceResources.getResources())
+                            .createColor(new RGB(248, 227, 137)));
             shape.setFillColor(figure,
                     getColor(getSheetPart(part),
                             getStyleSelector(getSheetPart(part)),
                             Styles.YellowBoxFillColor, shape.getId(),
                             Styles.DEF_YELLOWBOX_FILL_COLOR));
-            shape.setLineColor(figure,
-                    ColorUtils.getColor(Styles.YELLOWBOX_LINE_COLOR));
+            shape.setLineAlpha(figure, 255);
             shape.setLineWidth(figure, LINEWIDTH);
+            shape.setLineStyle(figure, SWT.LINE_SOLID);
             fig.setDecoration(shape);
         }
     }

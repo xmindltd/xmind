@@ -18,6 +18,7 @@ public class Evaluator {
     private static final String AXIS_ATTRIBUTE = "attribute"; //$NON-NLS-1$
     private static final String AXIS_CHILD = "child"; //$NON-NLS-1$
     private static final String AXIS_SELF = "self"; //$NON-NLS-1$
+    private static final String AXIS_PARENT = "parent"; //$NON-NLS-1$
 
     private static final String KIND_TEXT = "text"; //$NON-NLS-1$
     private static final String KIND_NODE = "node"; //$NON-NLS-1$
@@ -28,6 +29,7 @@ public class Evaluator {
     private static final String TOKEN_PREDICATE_START = "["; //$NON-NLS-1$
     private static final String TOKEN_PREDICATE_END = "]"; //$NON-NLS-1$
     private static final String TOKEN_SELF = "."; //$NON-NLS-1$
+    private static final String TOKEN_PARENT = ".."; //$NON-NLS-1$
     private static final String TOKEN_PAREN_START = "("; //$NON-NLS-1$
     private static final String TOKEN_PAREN_END = ")"; //$NON-NLS-1$
     private static final String TOKEN_ARGUMENT_SEPARATOR = ","; //$NON-NLS-1$
@@ -186,6 +188,10 @@ public class Evaluator {
                 if (nameToTest != null)
                     sequence.addAll(
                             axisProvider.getChildNodes(item, nameToTest));
+            } else if (AXIS_PARENT.equals(axis)) {
+                if (KIND_NODE.equals(kindToTest)) {
+                    sequence.add(axisProvider.getParentNode(item));
+                }
             } else if (AXIS_SELF.equals(axis)) {
                 if (KIND_TEXT.equals(kindToTest)) {
                     sequence.add(axisProvider.getTextContent(item));
@@ -742,7 +748,12 @@ public class Evaluator {
             if (!hasToken())
                 return NULL;
 
-            if (TOKEN_SELF.equals(token())) {
+            String token = token();
+            if (TOKEN_PARENT.equals(token)) {
+                nextToken();
+                return new AxisExpression(AXIS_PARENT, null, KIND_NODE);
+            }
+            if (TOKEN_SELF.equals(token)) {
                 nextToken();
                 return new AxisExpression(AXIS_SELF, null, KIND_NODE);
             }

@@ -14,7 +14,6 @@
 package org.xmind.core.internal.dom;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IResourceRef;
 import org.xmind.core.internal.AbstractWorkbookComponent;
@@ -25,13 +24,20 @@ import org.xmind.core.util.DOMUtils;
 public class ResourceRefImpl extends AbstractWorkbookComponent
         implements IResourceRef {
 
+    private Element source;
+
     private Element implementation;
 
     private WorkbookImpl ownedWorkbook;
 
     public ResourceRefImpl(Element implementation, WorkbookImpl ownedWorkbook) {
+        this.source = implementation;
         this.implementation = implementation;
         this.ownedWorkbook = ownedWorkbook;
+    }
+
+    protected void setImplementation(Element implementation) {
+        this.implementation = implementation;
     }
 
     public Element getImplementation() {
@@ -44,7 +50,6 @@ public class ResourceRefImpl extends AbstractWorkbookComponent
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
@@ -57,21 +62,20 @@ public class ResourceRefImpl extends AbstractWorkbookComponent
         if (obj == null || !(obj instanceof ResourceRefImpl))
             return false;
         ResourceRefImpl that = (ResourceRefImpl) obj;
-        return this.implementation == that.implementation;
+        return this.source == that.source;
     }
 
     public int hashCode() {
-        return implementation.hashCode();
+        return source.hashCode();
     }
 
     public String toString() {
         return "ResRef#" + getResourceId(); //$NON-NLS-1$
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return implementation;
-
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 

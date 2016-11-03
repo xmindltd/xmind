@@ -33,6 +33,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.DisposeEvent;
@@ -76,7 +77,6 @@ public class FloatingTextEditor extends Viewer implements ITextOperationTarget {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.swt.events.TraverseListener#keyTraversed(org.eclipse.
          * swt.events.TraverseEvent)
@@ -165,10 +165,10 @@ public class FloatingTextEditor extends Viewer implements ITextOperationTarget {
     /**
      * Sets the style of the editor. Has no effect after the control has been
      * created.
-     * 
      * <dl>
      * <dt><b>Styles<b></dt>
-     * <dd>NO_FOCUS, BORDER, SINGLE, MULTI, READ_ONLY, V_SCROLL, H_SCROLL, WRAP</dd>
+     * <dd>NO_FOCUS, BORDER, SINGLE, MULTI, READ_ONLY, V_SCROLL, H_SCROLL,
+     * WRAP</dd>
      * </dl>
      * 
      * @param style
@@ -311,8 +311,8 @@ public class FloatingTextEditor extends Viewer implements ITextOperationTarget {
 
     private Composite createContainer(Composite parent, boolean border) {
         Composite composite = new Composite(parent, SWT.NO_FOCUS);
-        composite.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_GRAY));
+        composite.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_GRAY));
 
         GridLayout layout = new GridLayout();
         layout.horizontalSpacing = 0;
@@ -368,6 +368,33 @@ public class FloatingTextEditor extends Viewer implements ITextOperationTarget {
             protected int getEmptySelectionChangedEventDelay() {
                 return 300;
             }
+
+            @Override
+            protected StyledText createTextWidget(Composite parent,
+                    int styles) {
+
+                StyledText styledText = new StyledText(parent, styles) {
+
+                    @Override
+                    public void invokeAction(int action) {
+                        super.invokeAction(action);
+
+                        //TODO force send null event , when floating text is editing state, 
+                        // remove out listeners of chain.
+                        switch (action) {
+                        case ST.DELETE_NEXT:
+                            Event event = new Event();
+                            notifyListeners(SWT.Modify, event);
+                            return;
+                        }
+                    }
+
+                };
+                styledText
+                        .setLeftMargin(Math.max(styledText.getLeftMargin(), 2));
+                return styledText;
+            }
+
         };
         viewer.getControl().setLayoutData(
                 new GridData(GridData.FILL, GridData.FILL, true, true));
@@ -524,7 +551,8 @@ public class FloatingTextEditor extends Viewer implements ITextOperationTarget {
         documentChanged(oldDocument, newDocument);
     }
 
-    protected void documentChanged(IDocument oldDocument, IDocument newDocument) {
+    protected void documentChanged(IDocument oldDocument,
+            IDocument newDocument) {
         if (oldDocument != null) {
             unhookDocument(oldDocument);
         }

@@ -1,30 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   <extension
+   <!--<extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="org.xmind.ui.internal.spelling.SpellingCheckPrefPage"
             id="org.xmind.ui.SpellingCheckPrefPage"
             name="%prefPage.spelling.name">
       </page>
-   </extension>
+   </extension>-->
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
             class="org.xmind.ui.internal.spelling.SpellingPrefInitilizer">
       </initializer>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
-      <view
-            category="org.eclipse.ui"
-            class="org.xmind.ui.internal.spelling.SpellingCheckView"
-            icon="platform:/plugin/org.xmind.ui/icons/e/spellcheck.png"
-            id="org.xmind.ui.SpellingCheckView"
-            name="%view.spellingCheck.name"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -39,6 +28,11 @@
             description="%command.checkSpellingAllEditors.description"
             id="org.xmind.ui.command.checkSpelling.allEditors"
             name="%command.checkSpellingAllEditors.name">
+      </command>
+      <command
+            categoryId="org.xmind.ui.dialog"
+            id="org.xmind.ui.dialog.openSpellingCheckDialog"
+            name="%command.spelling.name">
       </command>
    </extension>
    <extension
@@ -67,6 +61,29 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="org.xmind.ui.internal.spelling.OpenSpellingCheckDialogHandler"
+            commandId="org.xmind.ui.dialog.openSpellingCheckDialog">
+         <enabledWhen>
+            <reference
+                  definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
+            </reference>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.xmind.ui.toolkit.preferencePageSections">
+      <section
+            class="org.xmind.ui.internal.spelling.SpellingOptionsPreferencePageSection"
+            id="org.xmind.ui.spelling.optionsSection"
+            pageId="org.xmind.ui.prefPage.Spelling">
+      </section>
+      <section
+            class="org.xmind.ui.internal.spelling.SpellingDictionPreferencePageSection"
+            id="org.xmind.ui.spelling.dictionaresSection"
+            label="%spellingPref.dictionarySection.label"
+            pageId="org.xmind.ui.prefPage.Spelling">
+      </section>
    </extension>
 
 </plugin>

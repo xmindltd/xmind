@@ -54,7 +54,7 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
     // Item Constants
     static final int ITEM_TOP_MARGIN = 2;
     static final int ITEM_BOTTOM_MARGIN = 6;
-    static final int ITEM_LEFT_MARGIN = 4;
+    static final int ITEM_LEFT_MARGIN = 8;
     static final int ITEM_RIGHT_MARGIN = 4;
     static final int INTERNAL_SPACING = 4;
 
@@ -159,15 +159,16 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
                     int tabHeight = parent.getTabHeight() + 1;
                     y = onBottom
                             ? y - paddingTop - marginHeight - borderTop
-                                    - (cornerSize / 4) - bottomDropWidth
+                                    - bottomDropWidth
                             : y - paddingTop - marginHeight - tabHeight
                                     - borderTop - headerBorderBottom
-                                    - (cornerSize / 4) - bottomDropWidth;
-                    width = 2 + paddingLeft + paddingRight + 2 * sideDropWidth
+                                    - bottomDropWidth;
+                    width = 2 * (INNER_KEYLINE + OUTER_KEYLINE) + paddingLeft
+                            + paddingRight + 2 * sideDropWidth
                             + 2 * marginWidth;
-                    height += paddingTop + paddingBottom + bottomDropWidth * 2;
+                    height += paddingTop + paddingBottom + bottomDropWidth;
                     height += tabHeight + headerBorderBottom + borderBottom
-                            + cornerSize / 2 + borderTop;
+                            + borderTop;
                 } else {
                     x = x - marginWidth - OUTER_KEYLINE - INNER_KEYLINE
                             - sideDropWidth - (cornerSize / 2) - paddingLeft;
@@ -181,15 +182,14 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
                         height = borderTop + borderBottom + tabHeight;
                     } else {
                         y = onBottom
-                                ? y - marginHeight - borderTop
-                                        - (cornerSize / 4) - paddingTop
+                                ? y - marginHeight - borderTop - paddingTop
                                         - bottomDropWidth
                                 : y - marginHeight - tabHeight - borderTop
-                                        - (cornerSize / 4) - paddingTop
-                                        - headerBorderBottom - bottomDropWidth;
+                                        - paddingTop - headerBorderBottom
+                                        - bottomDropWidth;
                         height = height + borderBottom + borderTop
-                                + 2 * marginHeight + tabHeight + cornerSize / 2
-                                + headerBorderBottom + bottomDropWidth * 2
+                                + 2 * marginHeight + tabHeight
+                                + headerBorderBottom + bottomDropWidth
                                 + paddingTop + paddingBottom;
                     }
                 }
@@ -427,7 +427,7 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
     private void drawCloseButton(GC gc, Rectangle bounds, int state) {
         Image hoverImage = closeHoverImage == null ? closeImage
                 : closeHoverImage;
-        switch (state & (SWT.HOT | SWT.SELECTED)) {
+        switch (state & (SWT.HOT | SWT.SELECTED | SWT.BACKGROUND)) {
         case SWT.NONE:
             gc.drawImage(closeImage, bounds.x, bounds.y);
             break;
@@ -436,6 +436,8 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
             break;
         case SWT.SELECTED:
             gc.drawImage(hoverImage, bounds.x + 1, bounds.y + 1);
+            break;
+        case SWT.BACKGROUND:
             break;
         }
     }
@@ -488,13 +490,12 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         int radius = cornerSize / 2;
         int marginWidth = parent.marginWidth;
         int marginHeight = parent.marginHeight;
-        int delta = (INNER_KEYLINE + OUTER_KEYLINE) + marginWidth * 2;
+        int delta = (INNER_KEYLINE + OUTER_KEYLINE) * 2 + marginWidth * 2;
         int width = bounds.width - delta;
         int height = Math.max(
                 parent.getTabHeight() + INNER_KEYLINE + OUTER_KEYLINE,
                 bounds.height
-                        - (INNER_KEYLINE + OUTER_KEYLINE + marginHeight * 2)
-                        - 1);
+                        - (INNER_KEYLINE + OUTER_KEYLINE + marginHeight * 2));
 
         int circX = bounds.x + radius + delta / 2;
         int circY = bounds.y + radius;
@@ -502,7 +503,7 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         // Body
         index = 0;
         int[] ltt = { bounds.x + delta / 2,
-                bounds.y + parent.getTabHeight() + 1 + delta };
+                bounds.y + parent.getTabHeight() + delta };
         System.arraycopy(ltt, 0, points, index, ltt.length);
         index += ltt.length;
 
@@ -516,8 +517,8 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         System.arraycopy(rb, 0, points, index, rb.length);
         index += rb.length;
 
-        int[] rt = { bounds.x + width,
-                bounds.y + parent.getTabHeight() + 1 + delta };
+        int[] rt = { bounds.x + delta / 2 + width,
+                bounds.y + parent.getTabHeight() + delta };
         System.arraycopy(rt, 0, points, index, rt.length);
         index += rt.length;
 
@@ -539,13 +540,12 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         int radius = cornerSize / 2;
         int marginWidth = parent.marginWidth;
         int marginHeight = parent.marginHeight;
-        int delta = (INNER_KEYLINE + OUTER_KEYLINE) + marginWidth * 2;
+        int delta = (INNER_KEYLINE + OUTER_KEYLINE) * 2 + marginWidth * 2;
         int width = bounds.width - delta;
         int height = Math.max(
                 parent.getTabHeight() + INNER_KEYLINE + OUTER_KEYLINE,
                 bounds.height
-                        - (INNER_KEYLINE + OUTER_KEYLINE + marginHeight * 2)
-                        - 1);
+                        - (INNER_KEYLINE + OUTER_KEYLINE + marginHeight * 2));
 
         int circX = bounds.x + radius + delta / 2;
         int circY = bounds.y + radius;
@@ -603,6 +603,9 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         shape = tempPoints;
     }
 
+    /*
+     * Draw active and unactive selected tab item
+     */
     void drawSelectedTab(int itemIndex, GC gc, Rectangle bounds, int state) {
         if (parent.getSingle() && parent.getItem(itemIndex).isShowing())
             return;
@@ -614,14 +617,14 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         int index = 0;
         int radius = cornerSize / 2;
         int circX = bounds.x + radius;
-        int circY = onBottom ? bounds.y + bounds.height + 1 - header - radius
-                : bounds.y - 1 + radius;
+        int circY = onBottom ? bounds.y + bounds.height - header - radius
+                : bounds.y + radius;
         int selectionX1, selectionY1, selectionX2, selectionY2;
         int bottomY = onBottom ? bounds.y - header : bounds.y + bounds.height;
         if (itemIndex == 0
                 && bounds.x == -computeTrim(CTabFolderRenderer.PART_HEADER,
                         SWT.NONE, 0, 0, 0, 0).x) {
-            circX -= 1;
+//            circX -= 1;
 //            points[index++] = circX - radius;
 //            points[index++] = bottomY;
 
@@ -713,6 +716,8 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         int[] tmpPoints = new int[index];
         System.arraycopy(points, 0, tmpPoints, 0, index);
         gc.fillPolygon(tmpPoints);
+
+        //cover item bottom border using background color
         gc.drawLine(selectionX1, selectionY1, selectionX2, selectionY2);
 
         gc.setClipping(bounds.x - 1,
@@ -735,7 +740,7 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
                     outerKeyline = gc.getDevice()
                             .getSystemColor(SWT.COLOR_BLACK);
                 gc.setForeground(outerKeyline);
-                gc.drawLine(startX + 1, 0, endX, 0);
+                gc.drawLine(startX + 2, 1, endX - 1, 1);
             }
         }
 

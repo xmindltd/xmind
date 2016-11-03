@@ -55,9 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchCommandConstants;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.eclipse.ui.contexts.IContextActivation;
@@ -82,9 +80,10 @@ import org.xmind.ui.commands.ModifyNotesCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dialogs.DialogMessages;
+import org.xmind.ui.internal.e4models.IModelConstants;
 import org.xmind.ui.internal.editor.MindMapEditor;
 import org.xmind.ui.internal.spellsupport.SpellingSupport;
-import org.xmind.ui.mindmap.IMindMapImages;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.richtext.Hyperlink;
@@ -98,7 +97,6 @@ import org.xmind.ui.richtext.SimpleRichTextActionBarContributor;
 import org.xmind.ui.richtext.TextActionConstants;
 import org.xmind.ui.texteditor.IMenuContributor;
 import org.xmind.ui.texteditor.ISpellingActivation;
-import org.xmind.ui.util.Logger;
 
 public class NotesPopup extends PopupDialog implements IDocumentListener,
         IRichDocumentListener, ISelectionChangedListener {
@@ -145,18 +143,18 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
 
         private Collection<String> textCommandIds = new HashSet<String>(10);
 
-        private class GotoNotesViewAction extends Action {
-            public GotoNotesViewAction() {
+        private class GotoNotesPartAction extends Action {
+            public GotoNotesPartAction() {
                 super(MindMapMessages.EditInNotesView_text);
                 setToolTipText(MindMapMessages.EditInNotesView_toolTip);
                 setImageDescriptor(
-                        MindMapUI.getImages().get(IMindMapImages.NOTES, true));
+                        MindMapUI.getImages().get("notes_part.png", true)); //$NON-NLS-1$
                 setDisabledImageDescriptor(
-                        MindMapUI.getImages().get(IMindMapImages.NOTES, false));
+                        MindMapUI.getImages().get("notes_part.png", false)); //$NON-NLS-1$
             }
 
             public void run() {
-                gotoNotesView();
+                gotoNotesPart();
             }
         }
 
@@ -214,9 +212,9 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
 
         public void fillToolBar(IToolBarManager toolbar) {
             super.fillToolBar(toolbar);
-            if (showGotoNotesView) {
+            if (showGotoNotesPart) {
                 toolbar.add(new Separator());
-                toolbar.add(new GotoNotesViewAction());
+                toolbar.add(new GotoNotesPartAction());
             }
         }
 
@@ -421,7 +419,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
 
     private IBindingService bindingService;
 
-    private boolean showGotoNotesView;
+    private boolean showGotoNotesPart;
 
     private boolean editable;
 
@@ -437,7 +435,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
                 null, showGotoNotesView ? "" : null); //$NON-NLS-1$
         this.window = window;
         this.topicPart = topicPart;
-        this.showGotoNotesView = showGotoNotesView;
+        this.showGotoNotesPart = showGotoNotesView;
         this.editable = editable;
     }
 
@@ -447,7 +445,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
                 null);
         this.topicPart = topicPart;
         this.window = null;
-        this.showGotoNotesView = false;
+        this.showGotoNotesPart = false;
         this.editable = editable;
     }
 
@@ -596,7 +594,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
     }
 
     protected void registerDialogCommands() {
-        if (showGotoNotesView) {
+        if (showGotoNotesPart) {
             TriggerSequence key = registerCommand(CMD_GOTO_NOTES_VIEW);
             if (key != null) {
                 setInfoText(
@@ -632,8 +630,8 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
 
     protected boolean handleCommand(String commandId) {
         if (CMD_GOTO_NOTES_VIEW.equals(commandId)) {
-            if (showGotoNotesView) {
-                gotoNotesView();
+            if (showGotoNotesPart) {
+                gotoNotesPart();
             }
             return true;
         } else if (CMD_COMMIT_NOTES.equals(commandId)) {
@@ -712,24 +710,17 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
         notes.setContent(INotes.PLAIN, plain);
     }
 
-    private void gotoNotesView() {
+    private void gotoNotesPart() {
         Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
-                if (window == null)
+                if (window == null) {
                     return;
-
-                IWorkbenchPage workbenchPage = window.getActivePage();
-                if (workbenchPage == null)
-                    return;
-
-                close();
-                try {
-                    workbenchPage.showView(MindMapUI.VIEW_NOTES, null,
-                            IWorkbenchPage.VIEW_ACTIVATE);
-                } catch (PartInitException e) {
-                    Logger.log(e,
-                            "GotoNotesViewAction failed to show Notes View."); //$NON-NLS-1$
                 }
+                close();
+
+                E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART,
+                        window, IModelConstants.PART_ID_NOTES, null,
+                        IModelConstants.PART_STACK_ID_RIGHT);
             }
         });
     }
@@ -776,6 +767,7 @@ public class NotesPopup extends PopupDialog implements IDocumentListener,
             }
 
         });
+        doSaveNotes();
     }
 
     private void updateTextActions() {

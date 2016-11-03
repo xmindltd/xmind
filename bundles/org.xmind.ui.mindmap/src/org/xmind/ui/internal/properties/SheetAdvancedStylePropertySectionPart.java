@@ -39,6 +39,8 @@ public class SheetAdvancedStylePropertySectionPart
         taperedLinesCheck.setText(PropertyMessages.TaperedLines_text);
         taperedLinesCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("ToggleTaperedlineCount"); //$NON-NLS-1$
                 changeTaperedLines();
             }
 
@@ -51,6 +53,8 @@ public class SheetAdvancedStylePropertySectionPart
                 .setText(PrefMessages.EditorPage_UndoRedo_gradientColor);
         gradientColorCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("ToggleGradientColorCount"); //$NON-NLS-1$
                 changeGradientColor();
             }
 
@@ -60,7 +64,8 @@ public class SheetAdvancedStylePropertySectionPart
     }
 
     protected void changeGradientColor() {
-        Request request = createStyleRequest(CommandMessages.Command_ToggleGradientColor);
+        Request request = createStyleRequest(
+                CommandMessages.Command_ToggleGradientColor);
         if (gradientColorCheck.getSelection()) {
             addStyle(request, Styles.GradientColor, Styles.GRADIENT);
         } else {
@@ -70,7 +75,8 @@ public class SheetAdvancedStylePropertySectionPart
     }
 
     private void changeTaperedLines() {
-        Request request = createStyleRequest(CommandMessages.Command_ToggleTaperedLines);
+        Request request = createStyleRequest(
+                CommandMessages.Command_ToggleTaperedLines);
         if (taperedLinesCheck.getSelection()) {
             addStyle(request, Styles.LineTapered, Styles.TAPERED);
         } else {
@@ -83,8 +89,8 @@ public class SheetAdvancedStylePropertySectionPart
 
         if (taperedLinesCheck != null && !taperedLinesCheck.isDisposed()) {
             String value = getStyleValue(Styles.LineTapered, null);
-            taperedLinesCheck.setSelection(value != null
-                    && !Styles.NONE.equals(value));
+            taperedLinesCheck
+                    .setSelection(value != null && !Styles.NONE.equals(value));
         }
         if (gradientColorCheck != null && !gradientColorCheck.isDisposed()) {
             boolean hasGradient = MindMapUIPlugin.getDefault()

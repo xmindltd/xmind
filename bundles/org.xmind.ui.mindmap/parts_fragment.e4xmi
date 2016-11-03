@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_VhrC4P0hEeSFCalzBJpRhw">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_8fE3IBG8Eeav9rHpAOC_nw" featurename="descriptors" parentElementId="org.xmind.cathy.application">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_PJGQ0BG-Eeav9rHpAOC_nw" elementId="org.xmind.ui.dialogPart.resourceManager" label="%part.resourceManager.label" tooltip="%part.resourceManager.tooltip" allowMultiple="true" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.resourcemanager.ResourceManagerDialogPart">
+      <persistedState key="org.xmind.ui.dialogPart.customLocation" value=",,800,600"/>
+      <tags>DialogPart</tags>
+    </elements>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_W8IhYETZEeaGL5Gu2uBiyA" elementId="org.xmind.ui.modelPart.image" label="%part.image.label" tooltip="%part.image.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ImagePart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_op2OQEPyEea1lftKKErTAQ" elementId="org.xmind.ui.dialogPart.sharedLibraries" label="%part.lns.label" tooltip="%part.lns.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.sharing/org.xmind.ui.internal.sharing.SharedLibrariesDialogPart">
+      <persistedState key="org.xmind.ui.dialogPart.customLocation" value=",,800,600"/>
+      <tags>DialogPart</tags>
+    </elements>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_Eive0E1WEeaIJZwk9Lg2xA" elementId="org.xmind.ui.modelPart.outline" label="%part.outline.label" tooltip="%part.outline.tooltip" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.outline.OutlineIndexModelPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_68AwcETWEeaXh5k4aWYfZA" elementId="org.eclipse.ui.views.ProgressView" label="%part.progress.label" tooltip="%part.progress.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.dialogs.ProgressDialogPart">
+      <persistedState key="styleOverride" value="96"/>
+      <persistedState key="customLocation" value="100,100,440,337"/>
+      <tags>DialogPart</tags>
+    </elements>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_MEH7sE--Eeaw5PYd-XTNrQ" elementId="org.xmind.ui.modelPart.themes" label="%part.themes.label" tooltip="%part.themes.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ThemesPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_lMPUEE8YEea6lLeX_BHgog" elementId="org.xmind.ui.modelPart.markers" label="%part.markers.label" tooltip="%part.markers.tooltip" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.MarkerPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_kVFRIFPPEeaz156P1OOUlQ" elementId="org.xmind.ui.modelPart.comments" label="%part.comments.label" tooltip="%part.comments.tooltip" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.CommentsPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_IDdecFSnEeaYF9iMJEnHJA" elementId="org.xmind.ui.modelPart.notes" label="%part.notes.label" tooltip="%part.notes.tooltip" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.NotesPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_QEWs8FnwEeaEI8QFvIQObw" elementId="org.xmind.ui.modelPart.properties" label="%part.format.label" tooltip="%part.format.tooltip" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.properties.PropertiesPart"/>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_H3pxkBHAEeav9rHpAOC_nw" featurename="commands" parentElementId="org.xmind.cathy.application">
+    <elements xsi:type="commands:Command" xmi:id="_KIsnIBHAEeav9rHpAOC_nw" elementId="org.xmind.ui.command.showDialogPart" commandName="%part.command.showDialogPart.name" description="%part.command.showDialogPart.description">
+      <parameters xmi:id="_UsHikBHAEeav9rHpAOC_nw" elementId="org.xmind.ui.commandParameter.modelPart.partId" name="Part Id (Model Part Command Parameter)" optional="false"/>
+      <parameters xmi:id="_BG3boDQtEea08IeOxzw2pA" elementId="org.xmind.ui.commandParameter.modelPart.pageId" name="Page Id (Model Part Command Parameter)"/>
+      <parameters xmi:id="_qfHlIGA-EeafBuWS2T8nAQ" elementId="org.xmind.ui.commandParameter.modelPart.partStackId" name="PartStack Id (Model Part Command Parameter)"/>
+    </elements>
+    <elements xsi:type="commands:Command" xmi:id="_Se3CwENCEeaUAPB93OC16w" elementId="org.xmind.ui.command.toggleModelPart" commandName="%part.command.togglePart.name" description="%part.command.togglePart.description">
+      <parameters xmi:id="_TckoMENCEeaUAPB93OC16w" elementId="org.xmind.ui.commandParameter.modelPart.partId" name="Model Part Command Parameter" optional="false"/>
+      <parameters xmi:id="_UEtmQENCEeaUAPB93OC16w" elementId="org.xmind.ui.commandParameter.modelPart.partStackId" name="Model Part Command Parameter"/>
+    </elements>
+    <elements xsi:type="commands:Command" xmi:id="_O1o84FI2EeajQ9IgtnhU8w" elementId="org.xmind.ui.command.showModelPart" commandName="%part.command.showModelPart.name">
+      <parameters xmi:id="_3A5DoGA-EeafBuWS2T8nAQ" elementId="org.xmind.ui.commandParameter.modelPart.partId" name="Part Id (Model Part Command Parameter)" optional="false"/>
+      <parameters xmi:id="_3430gGA-EeafBuWS2T8nAQ" elementId="org.xmind.ui.commandParameter.modelPart.pageId" name="Page Id (Model Part Command Parameter)"/>
+      <parameters xmi:id="_4oJVUGA-EeafBuWS2T8nAQ" elementId="org.xmind.ui.commandParameter.modelPart.partStackId" name="PartStack Id (Model Part Command Parameter)"/>
+    </elements>
+    <elements xsi:type="commands:Command" xmi:id="_ldPXEF7HEeaQJfiZMX61eg" elementId="org.xmind.ui.command.setDefaultTheme" commandName="%part.command.setDefaultTheme" description=""/>
+    <elements xsi:type="commands:Command" xmi:id="_8hT8YF7XEeaQJfiZMX61eg" elementId="org.xmind.ui.command.renameResource" commandName="%part.command.renameResource.name"/>
+    <elements xsi:type="commands:Command" xmi:id="_kdF_UF7gEeaQJfiZMX61eg" elementId="org.xmind.ui.command.deleteResource" commandName="%part.command.deleteResource.name" description=""/>
+    <elements xsi:type="commands:Command" xmi:id="_9UsLAF7gEeaQJfiZMX61eg" elementId="org.xmind.ui.command.editResource" commandName="%part.command.editResource.name" description=""/>
+    <elements xsi:type="commands:Command" xmi:id="_R2MgMF7hEeaQJfiZMX61eg" elementId="org.xmind.ui.command.duplicateResource" commandName="%part.command.duplicateResource.name" description=""/>
+    <elements xsi:type="commands:Command" xmi:id="_xIgxYICzEeak_br5gl15Ow" elementId="org.xmind.ui.command.showPopover" commandName="%part.command.showPopover.name"/>
+    <elements xsi:type="commands:Command" xmi:id="_kXXsUI64Eea3c5YIgHrzXw" elementId="org.xmind.ui.mindmap.command.openLocalFile" commandName="%part.command.openLocalFile.name">
+      <parameters xmi:id="_CTgI4I65Eea3c5YIgHrzXw" elementId="org.xmind.ui.mindmap.commandparameter.openLocalFile.uri" name="Local File URI" optional="false"/>
+    </elements>
+    <elements xsi:type="commands:Command" xmi:id="_BGKJIJv4Eea2BOBr6Kczag" elementId="org.xmind.ui.command.openCloseModelPart">
+      <parameters xmi:id="_o8w_4Jv6Eea2BOBr6Kczag" elementId="org.xmind.ui.commandParameter.modelPart.partStackId" name="Model Part Command Parameter"/>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_hz0YoBHAEeav9rHpAOC_nw" featurename="handlers" parentElementId="org.xmind.cathy.application">
+    <elements xsi:type="commands:Handler" xmi:id="_jztz0BHAEeav9rHpAOC_nw" elementId="org.xmind.ui.handler.showDialogPart" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.DialogPartHandler" command="_KIsnIBHAEeav9rHpAOC_nw"/>
+    <elements xsi:type="commands:Handler" xmi:id="_yiYCkENCEeaUAPB93OC16w" elementId="org.xmind.ui.handler.toggleModelPart" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.ToggleModelPartHandler" command="_Se3CwENCEeaUAPB93OC16w"/>
+    <elements xsi:type="commands:Handler" xmi:id="_dSUB0FI2EeajQ9IgtnhU8w" elementId="org.xmind.ui.handler.showModelPart" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.ModelPartHandler" command="_O1o84FI2EeajQ9IgtnhU8w"/>
+    <elements xsi:type="commands:Handler" xmi:id="_ndab4F7DEea4TLoMFJLcRQ" elementId="org.xmind.ui.handler.setThemeDefault" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.SetDefaultThemeHandler" command="_ldPXEF7HEeaQJfiZMX61eg"/>
+    <elements xsi:type="commands:Handler" xmi:id="_7rpfsF7XEeaQJfiZMX61eg" elementId="org.xmind.ui.handler.renameResource" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.RenameResourceHandler" command="_8hT8YF7XEeaQJfiZMX61eg"/>
+    <elements xsi:type="commands:Handler" xmi:id="_qJ04oF7gEeaQJfiZMX61eg" elementId="org.xmind.ui.handler.deleteResource" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.DeleteResourceHandler" command="_kdF_UF7gEeaQJfiZMX61eg"/>
+    <elements xsi:type="commands:Handler" xmi:id="_CXPe4F7hEeaQJfiZMX61eg" elementId="org.xmind.ui.handler.editResource" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.EditResourceHandler" command="_9UsLAF7gEeaQJfiZMX61eg"/>
+    <elements xsi:type="commands:Handler" xmi:id="_WobgIF7hEeaQJfiZMX61eg" elementId="org.xmind.ui.handler.duplicateResource" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.DuplicateResourceHandler" command="_R2MgMF7hEeaQJfiZMX61eg"/>
+    <elements xsi:type="commands:Handler" xmi:id="_1SFO0ICzEeak_br5gl15Ow" elementId="org.xmind.ui.handler.showPopover" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.OpenPopoverHandler" command="_xIgxYICzEeak_br5gl15Ow"/>
+    <elements xsi:type="commands:Handler" xmi:id="_0AevMI64Eea3c5YIgHrzXw" elementId="org.xmind.ui.mindmap.handler.openLocalFile" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.OpenLocalFileHandler" command="_kXXsUI64Eea3c5YIgHrzXw"/>
+    <elements xsi:type="commands:Handler" xmi:id="_FWbrgJv4Eea2BOBr6Kczag" elementId="org.xmind.ui.handler.openCloseModelPart" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.ToggleModelPartHandler" command="_BGKJIJv4Eea2BOBr6Kczag"/>
+  </fragments>
+</fragment:ModelFragments>

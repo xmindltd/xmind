@@ -40,9 +40,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.FormText;
@@ -50,7 +48,9 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.xmind.ui.browser.BrowserSupport;
 import org.xmind.ui.internal.MarkerImpExpUtils;
 import org.xmind.ui.internal.dialogs.DialogMessages;
+import org.xmind.ui.internal.e4models.IModelConstants;
 import org.xmind.ui.internal.prefs.MarkerManagerPrefPage;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.PrefUtils;
 
@@ -97,8 +97,8 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
 
         public void createControl(Composite parent) {
             Composite composite = new Composite(parent, SWT.NONE);
-            composite
-                    .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+            composite.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, true));
             GridLayout gridLayout = new GridLayout(1, false);
             gridLayout.marginWidth = 5;
             gridLayout.marginHeight = 5;
@@ -120,12 +120,12 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
             hookWidget(fromFileButton, SWT.Selection);
 
             Control fileGroup = createFileControls(composite);
-            fileGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            fileGroup.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
 
             Label blank = new Label(composite, SWT.NONE);
-            blank.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
-                    false));
+            blank.setLayoutData(
+                    new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
             blank.setText(" "); //$NON-NLS-1$
 
             fromDirectoryButton = new Button(composite, SWT.RADIO);
@@ -134,8 +134,8 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
             hookWidget(fromDirectoryButton, SWT.Selection);
 
             Control directoryGroup = createFolderGroup(composite);
-            directoryGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    false));
+            directoryGroup.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
 
             setFileOrFolder(true);
         }
@@ -156,14 +156,15 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
             if (getSourcePath() != null) {
                 fileInput.setText(getSourcePath());
             }
-            fileInput.setLayoutData(new GridData(GridData.FILL, GridData.FILL,
-                    true, false));
+            fileInput.setLayoutData(
+                    new GridData(GridData.FILL, GridData.FILL, true, false));
             hookWidget(fileInput, SWT.Modify);
             hookWidget(fileInput, SWT.FocusIn);
 
             fileBrowseButton = new Button(group, SWT.PUSH);
             fileBrowseButton.setText(WizardMessages.ImportPage_Browse_text);
-            int width = fileBrowseButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+            int width = fileBrowseButton.computeSize(SWT.DEFAULT,
+                    SWT.DEFAULT).x;
             GridData layoutData = new GridData(GridData.END, GridData.CENTER,
                     false, false);
             layoutData.widthHint = Math.max(93, width);
@@ -193,8 +194,8 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
                     }
                 }
             });
-            descriptionText.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-                    true, false));
+            descriptionText.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, false));
             ((GridData) descriptionText.getLayoutData()).horizontalSpan = 3;
             ((GridData) descriptionText.getLayoutData()).widthHint = 400;
             return descriptionText;
@@ -216,15 +217,15 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
             if (getSourcePath() != null) {
                 folderInput.setText(getSourcePath());
             }
-            folderInput.setLayoutData(new GridData(GridData.FILL,
-                    GridData.FILL, true, false));
+            folderInput.setLayoutData(
+                    new GridData(GridData.FILL, GridData.FILL, true, false));
             hookWidget(folderInput, SWT.Modify);
             hookWidget(folderInput, SWT.FocusIn);
 
             folderBrowseButton = new Button(group, SWT.PUSH);
             folderBrowseButton.setText(WizardMessages.ImportPage_Browse_text);
-            int width = folderBrowseButton
-                    .computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+            int width = folderBrowseButton.computeSize(SWT.DEFAULT,
+                    SWT.DEFAULT).x;
             GridData layoutData = new GridData(GridData.END, GridData.CENTER,
                     false, false);
             layoutData.widthHint = Math.max(93, width);
@@ -257,8 +258,8 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
                     }
                     updateStatus();
                 } else if (event.type == SWT.FocusIn) {
-                    fileInput.setSelection(new Point(0, fileInput.getText()
-                            .length()));
+                    fileInput.setSelection(
+                            new Point(0, fileInput.getText().length()));
                 }
             } else if (event.widget == fileBrowseButton) {
                 openFileDialog();
@@ -273,8 +274,8 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
                     }
                     updateStatus();
                 } else if (event.type == SWT.FocusIn) {
-                    folderInput.setSelection(new Point(0, folderInput.getText()
-                            .length()));
+                    folderInput.setSelection(
+                            new Point(0, folderInput.getText().length()));
                 }
             } else if (event.widget == folderBrowseButton) {
                 openDirectoryDialog();
@@ -443,13 +444,9 @@ public class MarkerImportWizard extends Wizard implements IImportWizard {
         if (workbench != null) {
             IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
             if (window != null) {
-                IWorkbenchPage page = window.getActivePage();
-                if (page != null) {
-                    try {
-                        page.showView(MindMapUI.VIEW_MARKER);
-                    } catch (PartInitException e) {
-                    }
-                }
+                E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART,
+                        window, IModelConstants.PART_ID_MARKERS, null,
+                        IModelConstants.PART_STACK_ID_RIGHT);
             }
         }
     }

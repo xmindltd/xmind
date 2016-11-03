@@ -11,6 +11,9 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.text.DefaultTextDoubleClickStrategy;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -54,12 +57,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.UIPlugin;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
+import org.xmind.ui.internal.e4models.IModelConstants;
+import org.xmind.ui.internal.utils.E4Utils;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.richtext.IRichDocument;
 import org.xmind.ui.richtext.IRichTextActionBarContributor;
@@ -102,14 +106,14 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
         }
 
         public void setSelection(ISelection selection) {
-            if (this.selection == selection
-                    || (this.selection != null && this.selection
-                            .equals(selection))) {
+            if (this.selection == selection || (this.selection != null
+                    && this.selection.equals(selection))) {
                 return;
             }
             this.selection = selection;
 
-            fireSelectionChanged(new SelectionChangedEvent(this, getSelection()));
+            fireSelectionChanged(
+                    new SelectionChangedEvent(this, getSelection()));
         }
 
         private void fireSelectionChanged(SelectionChangedEvent event) {
@@ -162,6 +166,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
 
     private int width = 0;
 
+    private ResourceManager resources;
+
     public NotesTextEditViewer(Composite parent,
             IRichTextActionBarContributor contributor) {
         this.contributor = contributor;
@@ -170,8 +176,11 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
 
     protected Composite createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WHITE));
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                composite);
+
+        composite.setBackground(
+                parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
         GridLayout layout = new GridLayout();
         layout.marginHeight = 0;
         layout.marginWidth = 0;
@@ -209,8 +218,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
             }
         });
         ToolBar toolBar = toolBarManager.createControl(parent);
-        toolBar.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
+        toolBar.setBackground(parent.getDisplay()
+                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         toolBar.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         return toolBar;
@@ -219,8 +228,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
     protected void createSeparator(Composite parent) {
         Label sep = new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL);
         sep.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        sep.setBackground(parent.getDisplay().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
+        sep.setBackground(parent.getDisplay()
+                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
     }
 
     private Composite createContentComposite(Composite parent) {
@@ -279,8 +288,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
                 new RichTextScanner());
         reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
         reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
-        reconciler
-                .setDocumentPartitioning(IDocumentExtension3.DEFAULT_PARTITIONING);
+        reconciler.setDocumentPartitioning(
+                IDocumentExtension3.DEFAULT_PARTITIONING);
         reconciler.install(viewer);
     }
 
@@ -357,7 +366,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
     }
 
     private void updateView(Object input) {
-        if (!(this.input instanceof IRichDocument && input instanceof IRichDocument)) {
+        if (!(this.input instanceof IRichDocument
+                && input instanceof IRichDocument)) {
             this.input = input;
             if (input == null) {
                 this.input = getCurrentSheet();
@@ -413,8 +423,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
 
     protected void showSingleNotes(Composite parent, ITopic topic) {
 
-        textViewer = createTextViewer(parent, SWT.MULTI | SWT.WRAP
-                | SWT.V_SCROLL);
+        textViewer = createTextViewer(parent,
+                SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
         initTextViewer(textViewer);
         renderer = createRenderer(textViewer);
 
@@ -479,8 +489,9 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
                     width = sc.getClientArea().width;
                     for (Control textControl : textControls) {
                         if (textControl != null && !textControl.isDisposed()) {
-                            ((GridData) textControl.getLayoutData()).widthHint = sc
-                                    .getClientArea().width - WIDTH;
+                            ((GridData) textControl
+                                    .getLayoutData()).widthHint = sc
+                                            .getClientArea().width - WIDTH;
                         }
                     }
                     contentComposite.pack();
@@ -545,8 +556,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
         GridData data1 = new GridData(SWT.LEFT, SWT.CENTER, false, false);
         imageLabel.setLayoutData(data1);
         imageLabel.setBackground(c.getBackground());
-        Image image = MindMapUI.getImages().getTopicIcon(topic, true)
-                .createImage();
+        Image image = (Image) resources
+                .get(MindMapUI.getImages().getTopicIcon(topic, true));
         imageLabel.setImage(image);
 
         Label label = new Label(c, SWT.LEFT | SWT.HORIZONTAL);
@@ -664,12 +675,10 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
 
     private void reveal(Composite composite) {
         MindMapUtils.reveal(editor, getCurrentTopic(composite));
-        try {
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getActivePage().showView(MindMapUI.VIEW_NOTES);
-        } catch (PartInitException e1) {
-            e1.printStackTrace();
-        }
+        E4Utils.showPart(IModelConstants.COMMAND_SHOW_MODEL_PART,
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+                IModelConstants.PART_ID_NOTES, null,
+                IModelConstants.PART_STACK_ID_RIGHT);
     }
 
     private void addMosuseListener(Control c, MouseListener ml) {
@@ -861,7 +870,8 @@ public class NotesTextEditViewer implements IRichTextEditViewer, KeyListener {
         return getSelectionProvider().getSelection();
     }
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+    public void addSelectionChangedListener(
+            ISelectionChangedListener listener) {
         getSelectionProvider().addSelectionChangedListener(listener);
     }
 

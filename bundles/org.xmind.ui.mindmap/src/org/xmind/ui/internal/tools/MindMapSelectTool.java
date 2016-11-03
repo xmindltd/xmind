@@ -100,6 +100,7 @@ import org.xmind.gef.tool.SelectTool;
 import org.xmind.ui.branch.IBranchDoubleClickSupport;
 import org.xmind.ui.branch.IBranchMoveSupport;
 import org.xmind.ui.commands.DeleteMarkerCommand;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.actions.ReplaceMarkerAction;
 import org.xmind.ui.internal.actions.ViewerAction;
 import org.xmind.ui.internal.editor.IMESupport;
@@ -133,7 +134,11 @@ import org.xmind.ui.viewers.SWTUtils;
 
 public class MindMapSelectTool extends SelectTool {
 
+    private static final int DRAG_DETECT_DELTA = 3;
+
     private IBranchPart movingSourceBranch = null;
+
+    private boolean isDragDetect = false;
 
     public MindMapSelectTool() {
         setContextId(MindMapUI.CONTEXT_MINDMAP_EDIT);
@@ -144,14 +149,32 @@ public class MindMapSelectTool extends SelectTool {
     }
 
     public boolean handleMouseDown(MouseEvent me) {
+        isDragDetect = false;
         if (me.target instanceof IPlusMinusPart) {
             if (me.target.getParent() instanceof IBranchPart) {
                 IBranchPart branch = (IBranchPart) me.target.getParent();
                 handleMouseDownOnPlusMinus(me, branch);
                 return true;
             }
+        } else if (me.target instanceof IconTipPart) {
+            if (!me.leftOrRight) {
+                if (handleMouseDownOnIconTip(me)) {
+                    return true;
+                }
+            }
         }
         return super.handleMouseDown(me);
+    }
+
+    private boolean handleMouseDownOnIconTip(MouseEvent me) {
+        IconTipPart iconTip = (IconTipPart) me.target;
+        if (iconTip.getPopupMenu() == null) {
+            getStatus().setStatus(GEF.ST_MOUSE_PRESSED, true);
+            getStatus().setStatus(GEF.ST_MOUSE_RIGHT, !me.leftOrRight);
+            selectSingle(iconTip.getTopicPart());
+            return true;
+        }
+        return false;
     }
 
     protected void handleMouseDownOnPlusMinus(MouseEvent me,
@@ -474,8 +497,25 @@ public class MindMapSelectTool extends SelectTool {
     }
 
     protected boolean handleMouseDrag(MouseDragEvent me) {
+        if (!isDragDetect) {
+            isDragDetect = shouldDragDetect(me);
+        }
+        if (!isDragDetect) {
+            return false;
+        }
+
         movingSourceBranch = null;
         return super.handleMouseDrag(me);
+    }
+
+    private boolean shouldDragDetect(MouseDragEvent me) {
+        if (me == null) {
+            return false;
+        }
+
+        int delta = Math.abs(me.cursorLocation.x - me.startingLocation.x)
+                + Math.abs(me.cursorLocation.y - me.startingLocation.y);
+        return delta >= DRAG_DETECT_DELTA;
     }
 
     protected boolean canMove(IPart host, MouseDragEvent me) {
@@ -681,7 +721,6 @@ public class MindMapSelectTool extends SelectTool {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.gef.service.IRevealServiceListener#revealingStarted(org
          * .xmind.gef.service.RevealEvent)
@@ -691,7 +730,6 @@ public class MindMapSelectTool extends SelectTool {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.gef.service.IRevealServiceListener#revealingCanceled(org
          * .xmind.gef.service.RevealEvent)
@@ -702,7 +740,6 @@ public class MindMapSelectTool extends SelectTool {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.gef.service.IRevealServiceListener#revealingFinished(org
          * .xmind.gef.service.RevealEvent)
@@ -878,6 +915,15 @@ public class MindMapSelectTool extends SelectTool {
         String[] fileNames = dialog.getFileNames();
         List<String> paths = new ArrayList<String>(fileNames.length);
         for (String fileName : fileNames) {
+            if (fileName.contains(".")) { //$NON-NLS-1$
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase(String.format("AttachmentFormatCount:%s", //$NON-NLS-1$
+                                fileName.toLowerCase().substring(
+                                        fileName.lastIndexOf('.') + 1)));
+            } else {
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase("AttachmentFormatCount:BlankFormat"); //$NON-NLS-1$
+            }
             String path = new File(parentPath, fileName).getAbsolutePath();
             paths.add(path);
         }
@@ -1063,6 +1109,9 @@ public class MindMapSelectTool extends SelectTool {
     }
 
     private void initTopicRightNumber(ITopic newRoot) {
+        if (newRoot == null)
+            return;
+
         String structureClass = newRoot.getStructureClass();
         if ("org.xmind.ui.map.unbalanced".equals(structureClass) //$NON-NLS-1$
                 || structureClass == null) {
@@ -1169,7 +1218,9 @@ public class MindMapSelectTool extends SelectTool {
     protected void showMarkerMenu(IMarkerPart target) {
         if (getTargetViewer() == null
                 || getTargetViewer().getEditDomain() == null
-                || getTargetViewer().getEditDomain().getCommandStack() == null)
+                || getTargetViewer().getEditDomain().getCommandStack() == null
+                || "PresentationViewer" //$NON-NLS-1$
+                        .equals(getTargetViewer().getClass().getSimpleName()))
             return;
 
         MenuManager menuManager = new MenuManager();
@@ -1324,7 +1375,7 @@ public class MindMapSelectTool extends SelectTool {
                 .intersect(contents.getBounds());
         Rectangle clientArea = viewport.getClientArea();
         Point center = ((IGraphicalViewer) viewer).getCenterPoint().getCopy();
-        int d;
+        int d = 0;
         if (GEF.REQ_NAV_LEFT.equals(type)) {
             d = Math.min(MindMapUI.NAV_SCROLL_STEP,
                     Math.abs(contentsBounds.x - clientArea.x));
@@ -1336,11 +1387,11 @@ public class MindMapSelectTool extends SelectTool {
         } else if (GEF.REQ_NAV_RIGHT.equals(type)) {
             d = Math.min(MindMapUI.NAV_SCROLL_STEP,
                     Math.abs(contentsBounds.right() - clientArea.right()));
-            center.translate(d, 0);
+            center.translate(-d, 0);
         } else if (GEF.REQ_NAV_DOWN.equals(type)) {
             d = Math.min(MindMapUI.NAV_SCROLL_STEP,
                     Math.abs(contentsBounds.bottom() - clientArea.bottom()));
-            center.translate(0, d);
+            center.translate(0, -d);
         } else {
             return false;
         }

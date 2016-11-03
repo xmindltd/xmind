@@ -114,6 +114,7 @@ public class GEF {
     public static final int ST_HIDE_CMENU = 1 << 9;
     public static final int ST_FORCE_CMENU = 1 << 10;
     public static final int ST_NO_DRAGGING = 1 << 11;
+    public static final int ST_FREE_MOVE_MODE = 1 << 12;
 
     public static final int ST_MODIFIER_MASK = ST_ALT_PRESSED
             | ST_CONTROL_PRESSED | ST_SHIFT_PRESSED;

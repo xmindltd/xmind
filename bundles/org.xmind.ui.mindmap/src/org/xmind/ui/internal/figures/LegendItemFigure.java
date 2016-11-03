@@ -43,7 +43,6 @@ public class LegendItemFigure extends Figure implements ITitledFigure {
 
     public LegendItemFigure(int textRenderStyle,
             LocalResourceManager resourceManager) {
-        System.out.println("figure   " + resourceManager == null);
         if (resourceManager != null) {
             svgIcon = new SVGImageFigure();
             svgIcon.setManager(resourceManager);

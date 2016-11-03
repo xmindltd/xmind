@@ -15,7 +15,6 @@ package org.xmind.core.internal.dom;
 
 /**
  * @author briansun
- * 
  */
 public class DOMConstants {
 
@@ -84,17 +83,21 @@ public class DOMConstants {
     public static final String ATTR_NEXT_REVISION_NUMBER = "next-rev-num"; //$NON-NLS-1$
     public static final String ATTR_NUMBER_FORMAT = "number-format"; //$NON-NLS-1$
     public static final String ATTR_NUMBER_SEPARATOR = "number-separator"; //$NON-NLS-1$
+    public static final String ATTR_NUMBER_DEPTH = "number-depth"; //$NON-NLS-1$
     public static final String ATTR_OBJECT_ID = "object-id"; //$NON-NLS-1$
     public static final String ATTR_OPACITY = "svg:opacity"; //$NON-NLS-1$
     public static final String ATTR_PREPENDING_NUMBERS = "prepending-numbers"; //$NON-NLS-1$
     public static final String ATTR_PROVIDER = "provider"; //$NON-NLS-1$
     public static final String ATTR_RANGE = "range"; //$NON-NLS-1$
     public static final String ATTR_RESOURCE = "resource"; //$NON-NLS-1$
+    public static final String ATTR_RESOURCE_PATH = "resource-path"; //$NON-NLS-1$
     public static final String ATTR_SVG = "svg"; //$NON-NLS-1$
     public static final String ATTR_RESOURCE_ID = "resource-id"; //$NON-NLS-1$
     public static final String ATTR_RESOURCE_TYPE = "resource-type"; //$NON-NLS-1$
     public static final String ATTR_REVISION_NUMBER = "rev-num"; //$NON-NLS-1$
     public static final String ATTR_SALT = "salt"; //$NON-NLS-1$
+    public static final String ATTR_KEY_IV = "iv"; //$NON-NLS-1$
+    public static final String ATTR_KEY_SIZE = "size"; //$NON-NLS-1$
     public static final String ATTR_SHAPE_CLASS = "shape-class"; //$NON-NLS-1$
     public static final String ATTR_SHAPE_CORNER = "shape-corner"; //$NON-NLS-1$
     public static final String ATTR_SINGLETON = "singleton"; //$NON-NLS-1$
@@ -117,6 +120,7 @@ public class DOMConstants {
     public static final String ATTR_WIDTH = "svg:width"; //$NON-NLS-1$
     public static final String ATTR_X = "svg:x"; //$NON-NLS-1$
     public static final String ATTR_Y = "svg:y"; //$NON-NLS-1$
+    public static final String PASSWORD_HINT = "password-hint"; //$NON-NLS-1$
 
     /*
     *
@@ -193,6 +197,7 @@ public class DOMConstants {
     public static final String TAG_TOPIC = "topic"; //$NON-NLS-1$
     public static final String TAG_TOPICS = "topics"; //$NON-NLS-1$
     public static final String TAG_WORKBOOK = "xmap-content"; //$NON-NLS-1$
+    public static final String TAG_STORIES = "stories"; //$NON-NLS-1$
 
     // ==================
     //   VALUES

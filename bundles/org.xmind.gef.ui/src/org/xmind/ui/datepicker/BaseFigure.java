@@ -3,6 +3,7 @@
  */
 package org.xmind.ui.datepicker;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.GridData;
@@ -140,6 +141,7 @@ public class BaseFigure extends Figure {
 
     public void setPreselected(boolean value) {
         Layer layer = pane.getLayer(PRESELECTED);
+
         if (layer != null) {
             layer.setVisible(value);
         }
@@ -154,6 +156,8 @@ public class BaseFigure extends Figure {
         Layer layer = pane.getLayer(SELECTED);
         if (layer != null) {
             layer.setVisible(value);
+            this.setForegroundColor(
+                    value ? ColorConstants.white : ColorConstants.black);
         }
     }
 

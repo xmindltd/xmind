@@ -16,8 +16,6 @@ package org.xmind.core;
 import java.util.Comparator;
 import java.util.UUID;
 
-import org.xmind.core.event.ICoreEventSource;
-import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.internal.InternalCore;
 import org.xmind.core.marker.IMarkerSheetBuilder;
 import org.xmind.core.style.IStyleSheetBuilder;
@@ -815,6 +813,8 @@ public class Core {
 
     public static final String NumberingSeparator = "numberingSeparator"; //$NON-NLS-1$
 
+    public static final String NumberingDepth = "numberingDepth"; //$NON-NLS-1$
+
     /**
      * Core event type for changing the password of a workbook (value is
      * 'passwordChange').
@@ -846,21 +846,12 @@ public class Core {
     public static final String WorkbookPreSave = "workbookPreSave"; //$NON-NLS-1$
 
     /**
-     * <b>
-     * <em>NOTE: Since 3.6.50, this value is the same with 'workbookPreSave', for
-     * it's the client's responsibility to determine whether to use
-     * {@link ICoreEventSource#registerCoreEventListener(String, org.xmind.core.event.ICoreEventListener)} or
-     * {@link ICoreEventSource2#registerOnceCoreEventListener(String, org.xmind.core.event.ICoreEventListener)}.</em>
-     * </b>
-     * 
-     * <p>
      * Core event type for going to save a workbook (value is
-     * 'workbookPreSave'). Similar to {@link #WorkbookPreSave}, but listeners to
-     * this type events are notified only once and removed from the event list
-     * thereafter. This type of events are commonly used when some pending work
-     * that may modify the content of a workbook should be counted before saving
-     * the workbook.
-     * </p>
+     * 'workbookPreSaveOnce'). Similar to {@link #WorkbookPreSave}, but
+     * listeners to this type events are notified only once and removed from the
+     * event list thereafter. This type of events are commonly used when some
+     * pending work that may modify the content of a workbook should be counted
+     * before saving the workbook.
      * 
      * <dl>
      * <dt>Source:</dt>
@@ -872,7 +863,7 @@ public class Core {
      * @see org.xmind.core.IWorkbook#save(java.io.OutputStream)
      * @see org.xmind.core.IWorkbook#save(String)
      */
-    public static final String WorkbookPreSaveOnce = "workbookPreSave"; //$NON-NLS-1$
+    public static final String WorkbookPreSaveOnce = "workbookPreSaveOnce"; //$NON-NLS-1$
 
     /**
      * Core event type for having saved a workbook (value is 'workbookSave').

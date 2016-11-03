@@ -34,7 +34,6 @@ import org.xmind.core.util.DOMUtils;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class RevisionImpl extends Revision {
 
@@ -65,9 +64,9 @@ public class RevisionImpl extends Revision {
     }
 
     @Override
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return getImplementation();
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(getImplementation());
         return super.getAdapter(adapter);
     }
 

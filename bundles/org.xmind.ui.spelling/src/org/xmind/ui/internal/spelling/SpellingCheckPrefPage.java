@@ -27,6 +27,9 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -42,6 +45,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -58,6 +62,7 @@ import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.xmind.ui.browser.BrowserSupport;
 import org.xmind.ui.browser.IBrowser;
 import org.xmind.ui.browser.IBrowserSupport;
+import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.viewers.CheckListViewer;
 
 import com.swabunga.spell.engine.Configuration;
@@ -65,7 +70,7 @@ import com.swabunga.spell.engine.Configuration;
 public class SpellingCheckPrefPage extends FieldEditorPreferencePage
         implements IWorkbenchPreferencePage {
 
-    private static final String SPELLING_HELP_URL = "http://www.xmind.net/xmind/help/language-dic.html"; //$NON-NLS-1$
+    private static final String SPELLING_HELP_URL = "https://xmind.desk.com/customer/portal/articles/690243"; //$NON-NLS-1$
 
     private static final Object DEFAULT_PLACEHOLDER = Messages.defaultDictionary;
 
@@ -117,7 +122,6 @@ public class SpellingCheckPrefPage extends FieldEditorPreferencePage
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.LabelProvider#getText(java.lang.Object)
          */
@@ -154,7 +158,6 @@ public class SpellingCheckPrefPage extends FieldEditorPreferencePage
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ViewerComparator#category(java.lang.Object)
          */
@@ -171,7 +174,6 @@ public class SpellingCheckPrefPage extends FieldEditorPreferencePage
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged
          * (org.eclipse.jface.viewers.SelectionChangedEvent)
@@ -191,6 +193,8 @@ public class SpellingCheckPrefPage extends FieldEditorPreferencePage
     private List<FieldEditor> settingFields = new ArrayList<FieldEditor>();
 
     private Composite settingsParent;
+
+    private ResourceManager resources;
 
     private CheckListViewer dictionaryViewer;
 
@@ -221,6 +225,9 @@ public class SpellingCheckPrefPage extends FieldEditorPreferencePage
     }
 
     private void addSpellingSettings(Composite composite) {
+        resources = new LocalResourceManager(JFaceResources.getResources(),
+                composite);
+
         settingsParent = createSettingsParent(composite);
         addSettingField(Configuration.SPELL_IGNOREUPPERCASE,
                 Messages.ignoreAllCapital);
@@ -383,7 +390,7 @@ public class SpellingCheckPrefPage extends FieldEditorPreferencePage
         ((GridData) hyperlink.getLayoutData()).horizontalSpan = 2;
         hyperlink.setText(Messages.detailsLink_text);
         hyperlink.setForeground(
-                parent.getDisplay().getSystemColor(SWT.COLOR_BLUE));
+                (Color) resources.get(ColorUtils.toDescriptor("#006CF9"))); //$NON-NLS-1$
         hyperlink.addHyperlinkListener(new IHyperlinkListener() {
             public void linkExited(HyperlinkEvent e) {
             }

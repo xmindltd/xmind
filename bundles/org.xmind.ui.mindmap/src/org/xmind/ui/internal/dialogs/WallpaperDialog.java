@@ -792,31 +792,20 @@ public class WallpaperDialog extends PopupDialog implements IOpenListener {
     private void changeWallpaper(String path) {
         if (mindMapViewer == null)
             return;
+
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("ChangeWallpaperCount"); //$NON-NLS-1$
         Request request = new Request(MindMapUI.REQ_MODIFY_STYLE)
                 .setViewer(mindMapViewer);
         request.setParameter(MindMapUI.PARAM_COMMAND_LABEL,
                 CommandMessages.Command_ModifySheetBackgroundColor);
         request.setParameter(MindMapUI.PARAM_STYLE_PREFIX + Styles.Background,
                 path);
-        request.setTargets(fillParts());
-        mindMapViewer.getEditDomain().handleRequest(request);
-        changeOpacity(path);
-    }
-
-    private void changeOpacity(String path) {
+        int value;
         if (isPattern(path))
-            changeOpacity(10);
+            value = 10;
         else
-            changeOpacity(100);
-    }
-
-    private void changeOpacity(int value) {
-        if (mindMapViewer == null)
-            return;
-
-        Request request = new Request(MindMapUI.REQ_MODIFY_STYLE);
-        request.setParameter(MindMapUI.PARAM_COMMAND_LABEL,
-                CommandMessages.Command_ModifyWallpaperOpacity);
+            value = 100;
         request.setParameter(MindMapUI.PARAM_STYLE_PREFIX + Styles.Opacity,
                 String.valueOf((double) value * 1.0 / 100));
         request.setTargets(fillParts());

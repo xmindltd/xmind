@@ -38,10 +38,9 @@ public abstract class BaseNotesContentImpl extends AbstractWorkbookComponent
         this.ownedWorkbook = ownedWorkbook;
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Node.class || adapter == Element.class)
-            return implementation;
-
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Element.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -105,7 +104,6 @@ public abstract class BaseNotesContentImpl extends AbstractWorkbookComponent
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {

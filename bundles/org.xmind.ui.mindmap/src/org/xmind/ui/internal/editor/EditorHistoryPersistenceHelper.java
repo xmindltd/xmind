@@ -1,12 +1,14 @@
 package org.xmind.ui.internal.editor;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -21,13 +23,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.runtime.IPath;
 import org.xmind.core.util.FileUtils;
+import org.xmind.ui.editor.EditorHistoryItem;
 import org.xmind.ui.editor.IEditorHistory;
 import org.xmind.ui.editor.IEditorHistory.IEditorHistoryListener;
+import org.xmind.ui.editor.IEditorHistoryItem;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.util.Logger;
 
 /**
- * 
  * @author Ren Siu
  * @author Frank Shaka
  * @since 3.6.50
@@ -38,6 +41,10 @@ public class EditorHistoryPersistenceHelper
     private static final String VALUE_SEPARATOR = "#$#"; //$NON-NLS-1$
 
     private static final String KEY_PREFIX = "item."; //$NON-NLS-1$
+
+    private static final String PINNED_KEY_HISTORY_ITEM_PREFIX = "pinned.editor.history.item."; //$NON-NLS-1$
+
+    private static final String UNPINNED_KEY_HISTORY_ITEM_PREFIX = "unpinned.editor.history.item."; //$NON-NLS-1$
 
     private static final String PINNED_KEY_PREFIX = "pinned.item."; //$NON-NLS-1$
 
@@ -56,6 +63,7 @@ public class EditorHistoryPersistenceHelper
         private final URI[] unpinnedInputURIs;
         private final URI[] pinnedInputURIs;
         private final Map<URI, URI> thumbnailURIs;
+        private final Map<URI, IEditorHistoryItem> editorHistoryItems;
 
         /**
          * 
@@ -65,17 +73,25 @@ public class EditorHistoryPersistenceHelper
                     .getUnpinnedInputURIs(IEditorHistory.MAX_UNPINNED_SIZE);
             this.pinnedInputURIs = service.getPinnedInputURIs();
             this.thumbnailURIs = new HashMap<URI, URI>();
+            this.editorHistoryItems = new HashMap<URI, IEditorHistoryItem>();
+
             for (URI uri : pinnedInputURIs) {
                 URI thumbnailURI = service.getThumbnail(uri);
                 if (thumbnailURI != null) {
                     thumbnailURIs.put(uri, thumbnailURI);
                 }
+                IEditorHistoryItem item = service.getItem(uri);
+                if (item != null)
+                    editorHistoryItems.put(uri, item);
             }
             for (URI uri : unpinnedInputURIs) {
                 URI thumbnailURI = service.getThumbnail(uri);
                 if (thumbnailURI != null) {
                     thumbnailURIs.put(uri, thumbnailURI);
                 }
+                IEditorHistoryItem item = service.getItem(uri);
+                if (item != null)
+                    editorHistoryItems.put(uri, item);
             }
         }
 
@@ -107,6 +123,14 @@ public class EditorHistoryPersistenceHelper
          */
         public URI getThumbnail(URI input) {
             return thumbnailURIs.get(input);
+        }
+
+        /**
+         * @param input
+         * @return
+         */
+        public IEditorHistoryItem getEditorHistoryItem(URI input) {
+            return editorHistoryItems.get(input);
         }
     }
 
@@ -150,7 +174,6 @@ public class EditorHistoryPersistenceHelper
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.editor.IEditorHistoryLoader#load(org.xmind.ui.
      * internal.editor.IEditorHistoryLoader.IEditorHistoryLoaderCallback)
      */
@@ -162,6 +185,10 @@ public class EditorHistoryPersistenceHelper
             String pinnedKey = PINNED_KEY_PREFIX + index;
             String pinnedThumbnailKey = THUMBNAIL_PREFIX + pinnedKey;
             String unpinnedThumbnailKey = THUMBNAIL_PREFIX + unpinnedKey;
+            String pinedEditorHistoryItemKey = PINNED_KEY_HISTORY_ITEM_PREFIX
+                    + index;
+            String unPinedEditorHistoryItemKey = UNPINNED_KEY_HISTORY_ITEM_PREFIX
+                    + index;
 
             String unpinnedInputURI = historyRepository
                     .getProperty(unpinnedKey);
@@ -176,10 +203,25 @@ public class EditorHistoryPersistenceHelper
             unpinnedThumbnailURI = fixFileUri(unpinnedThumbnailURI);
             pinnedThumbnailURI = fixFileUri(pinnedThumbnailURI);
 
+            String pinedItemJson = historyRepository
+                    .getProperty(pinedEditorHistoryItemKey);
+            IEditorHistoryItem pinnedItem = EditorHistoryItem
+                    .readEditorHistoryItem(pinnedInputURI, pinedItemJson);
+
+            String unpinedItemJson = historyRepository
+                    .getProperty(unPinedEditorHistoryItemKey);
+            IEditorHistoryItem unpinedItem = EditorHistoryItem
+                    .readEditorHistoryItem(unpinnedInputURI, unpinedItemJson);
+
             try {
                 if (unpinnedInputURI != null) {
                     URI unpinnedURI = new URI(unpinnedInputURI);
                     callback.inputURILoaded(unpinnedURI);
+
+                    if (unpinedItem != null)
+                        callback.editorHistoryItemsLoaded(unpinnedURI,
+                                unpinedItem);
+
                     if (unpinnedThumbnailURI != null
                             && !unpinnedInputURI.isEmpty()) {
                         callback.thumbnailURILoaded(unpinnedURI,
@@ -193,6 +235,11 @@ public class EditorHistoryPersistenceHelper
                 if (pinnedInputURI != null) {
                     URI pinnedURI = new URI(pinnedInputURI);
                     callback.pinnedInputURILoaded(pinnedURI);
+
+                    if (pinnedItem != null)
+                        callback.editorHistoryItemsLoaded(pinnedURI,
+                                pinnedItem);
+
                     if (pinnedThumbnailURI != null
                             && !pinnedInputURI.isEmpty()) {
                         callback.thumbnailURILoaded(pinnedURI,
@@ -213,13 +260,19 @@ public class EditorHistoryPersistenceHelper
             if (error) {
                 return "file:" + "/" + specialPart; //$NON-NLS-1$ //$NON-NLS-2$
             }
+        } else if (uri != null && uri.startsWith("seawind:")) {//$NON-NLS-1$
+            String specialPart = uri.substring(8);
+            boolean error = specialPart.startsWith("//") //$NON-NLS-1$
+                    && !specialPart.startsWith("///"); //$NON-NLS-1$
+            if (error) {
+                return "seawind:" + "/" + specialPart; //$NON-NLS-1$ //$NON-NLS-2$
+            }
         }
         return uri;
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.editor.IEditorHistoryLoader#saveThumbnail(java.io.
      * InputStream)
@@ -256,7 +309,6 @@ public class EditorHistoryPersistenceHelper
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.editor.IEditorHistoryLoader#dispose()
      */
     @Override
@@ -332,6 +384,14 @@ public class EditorHistoryPersistenceHelper
                 String key = PINNED_KEY_PREFIX + index;
                 repository.setProperty(key, input.toString());
 
+                String pinnedEditorHistoryItemKey = PINNED_KEY_HISTORY_ITEM_PREFIX
+                        + index;
+                IEditorHistoryItem pinnedItem = persistable
+                        .getEditorHistoryItem(input);
+                if (pinnedItem != null)
+                    repository.setProperty(pinnedEditorHistoryItemKey,
+                            pinnedItem.toJson());
+
                 URI thumbnail = persistable.getThumbnail(input);
                 String thumbnailKey = THUMBNAIL_PREFIX + key;
                 if (thumbnail != null)
@@ -345,6 +405,14 @@ public class EditorHistoryPersistenceHelper
             if (input != null) {
                 String key = KEY_PREFIX + index;
                 repository.setProperty(key, input.toString());
+
+                String unpinedEditorHistoryItemKey = UNPINNED_KEY_HISTORY_ITEM_PREFIX
+                        + index;
+                IEditorHistoryItem unpinnedItem = persistable
+                        .getEditorHistoryItem(input);
+                if (unpinnedItem != null)
+                    repository.setProperty(unpinedEditorHistoryItemKey,
+                            unpinnedItem.toJson());
 
                 URI thumbnail = persistable.getThumbnail(input);
                 String thumbnailKey = THUMBNAIL_PREFIX + key;
@@ -360,12 +428,14 @@ public class EditorHistoryPersistenceHelper
                 file.getParentFile().mkdirs();
             }
             try {
-                FileWriter writer = new FileWriter(file);
+                OutputStreamWriter out = new OutputStreamWriter(
+                        new FileOutputStream(file), "UTF-8"); //$NON-NLS-1$
+//                FileWriter writer = new FileWriter(file);
                 try {
-                    repository.store(writer,
+                    repository.store(out,
                             "Generated by org.xmind.ui.internal.editor.EditorHistoryService"); //$NON-NLS-1$
                 } finally {
-                    writer.close();
+                    out.close();
                 }
             } catch (IOException e) {
                 Logger.log(e, "Failed to save workbook history to " //$NON-NLS-1$
@@ -386,7 +456,9 @@ public class EditorHistoryPersistenceHelper
         File file = getHistoryFile();
         if (file != null && file.exists()) {
             try {
-                FileReader reader = new FileReader(file);
+                InputStreamReader reader = new InputStreamReader(
+                        new FileInputStream(file), "UTF-8"); //$NON-NLS-1$
+//                FileReader reader = new FileReader(file);
                 try {
                     repository.load(reader);
                 } finally {

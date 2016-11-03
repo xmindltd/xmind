@@ -104,27 +104,27 @@ public class MarkerSheetImpl extends MarkerSheet implements
         this.manifest = manifest;
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == IManifest.class)
-            return manifest;
-        if (adapter == ICoreEventSource.class)
-            return this;
-        if (adapter == IMarkerResourceProvider.class)
-            return realResourceProvider;
-        if (adapter == ICoreEventSupport.class)
-            return getCoreEventSupport();
-        if (adapter == IPropertiesProvider.class)
-            return this;
-        if (adapter == Properties.class)
-            return getProperties();
-        if (adapter == ElementRegistry.class)
-            return getElementRegistry();
-        if (adapter == INodeAdaptableFactory.class)
-            return this;
-        if (adapter == INodeAdaptableProvider.class)
-            return getElementAdapterProvider();
-        if (adapter == Document.class || adapter == Node.class)
-            return implementation;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (IManifest.class.equals(adapter))
+            return adapter.cast(manifest);
+        if (ICoreEventSource.class.equals(adapter))
+            return adapter.cast(this);
+        if (IMarkerResourceProvider.class.equals(adapter))
+            return adapter.cast(realResourceProvider);
+        if (ICoreEventSupport.class.equals(adapter))
+            return adapter.cast(getCoreEventSupport());
+        if (IPropertiesProvider.class.equals(adapter))
+            return adapter.cast(this);
+        if (Properties.class.equals(adapter))
+            return adapter.cast(getProperties());
+        if (ElementRegistry.class.equals(adapter))
+            return adapter.cast(getElementRegistry());
+        if (INodeAdaptableFactory.class.equals(adapter))
+            return adapter.cast(this);
+        if (INodeAdaptableProvider.class.equals(adapter))
+            return adapter.cast(getElementAdapterProvider());
+        if (adapter.isAssignableFrom(Document.class))
+            return adapter.cast(implementation);
         return super.getAdapter(adapter);
     }
 
@@ -282,6 +282,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         return null;
     }
 
+    @Deprecated
     public void save(OutputStream out) throws IOException, CoreException {
         DOMUtils.save(implementation, out, false);
     }
@@ -295,6 +296,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
     private static final String OLD_ATT_ID = "id"; //$NON-NLS-1$
     private static final String OLD_ATT_FILE = "file"; //$NON-NLS-1$
 
+    @Deprecated
     public void importFrom(String sourcePath)
             throws IOException, CoreException {
         File sourceFile = new File(sourcePath);
@@ -313,6 +315,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         }
     }
 
+    @Deprecated
     public void importFrom(IInputSource source)
             throws IOException, CoreException {
         importFrom(source, null);
@@ -320,10 +323,10 @@ public class MarkerSheetImpl extends MarkerSheet implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.marker.IMarkerSheet#importFrom(org.xmind.core.io.
      * IInputSource , java.lang.String)
      */
+    @Deprecated
     public void importFrom(IInputSource source, String groupName)
             throws IOException, CoreException {
         if (source.hasEntry(ArchiveConstants.MARKER_SHEET_XML)) {
@@ -340,6 +343,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         }
     }
 
+    @Deprecated
     private void importAllAsNewGroup(IInputSource source, String groupName)
             throws IOException {
         IMarkerGroup group = createMarkerGroup(false);
@@ -375,6 +379,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         //return Core.getIdFactory().createId();
     }
 
+    @Deprecated
     private void importFromOldMarkerSheet(IInputSource source)
             throws IOException {
         InputStream is = source.openEntryStream(OLD_MARKERLISTS_XML);
@@ -409,6 +414,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         getElementRegistry().registerByKey(newId, adaptable);
     }
 
+    @Deprecated
     private void importGroupFromOld(IInputSource source, Element listEle,
             IMarkerGroup targetGroup) throws IOException {
         targetGroup.setName(listEle.getAttribute(OLD_ATT_NAME));
@@ -453,6 +459,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         }
     }
 
+    @Deprecated
     public void importFromChecked(IMarkerSheet sheet)
             throws IOException, CoreException {
         for (IMarkerGroup group : sheet.getMarkerGroups()) {
@@ -470,6 +477,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         }
     }
 
+    @Deprecated
     public IMarkerGroup importGroupChecked(IMarkerGroup group)
             throws IOException, CoreException {
         String id = group.getId();
@@ -490,6 +498,7 @@ public class MarkerSheetImpl extends MarkerSheet implements
         return targetGroup;
     }
 
+    @Deprecated
     private void importGroup(IMarkerGroup sourceGroup, IMarkerGroup targetGroup)
             throws IOException {
         for (IMarker sourceMarker : sourceGroup.getMarkers()) {
@@ -545,7 +554,6 @@ public class MarkerSheetImpl extends MarkerSheet implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.marker.IMarkerSheet#createMarkerResourcePath(java.io.
      * InputStream, java.lang.String)
      */

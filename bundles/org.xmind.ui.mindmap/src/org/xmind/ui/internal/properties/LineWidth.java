@@ -19,19 +19,18 @@ import org.xmind.ui.mindmap.MindMapUI;
 
 public enum LineWidth {
 
-    None("0pt", PropertyMessages.LineWidth_None, null), //$NON-NLS-1$
+    None("0pt", PropertyMessages.LineWidth_None, IMindMapImages.LINE_NONE), //$NON-NLS-1$
 
     Thinnest("1pt", PropertyMessages.LineWidth_Thinnest, //$NON-NLS-1$
             IMindMapImages.LINE_THINNEST), // 
-            Thin("2pt", PropertyMessages.LineWidth_Thin, //$NON-NLS-1$
-                    IMindMapImages.LINE_THIN), // 
-                    Medium("3pt", PropertyMessages.LineWidth_Medium, //$NON-NLS-1$
-                            IMindMapImages.LINE_MEDIUM), // 
-                            Fat("4pt", PropertyMessages.LineWdith_Fat, //$NON-NLS-1$
-                                    IMindMapImages.LINE_FAT), // 
-                                    Fattest("5pt", //$NON-NLS-1$
-                                            PropertyMessages.LineWidth_Fattest,
-                                            IMindMapImages.LINE_FATTEST);
+    Thin("2pt", PropertyMessages.LineWidth_Thin, //$NON-NLS-1$
+            IMindMapImages.LINE_THIN), // 
+    Medium("3pt", PropertyMessages.LineWidth_Medium, //$NON-NLS-1$
+            IMindMapImages.LINE_MEDIUM), // 
+    Fat("4pt", PropertyMessages.LineWdith_Fat, //$NON-NLS-1$
+            IMindMapImages.LINE_FAT), // 
+    Fattest("5pt", //$NON-NLS-1$
+            PropertyMessages.LineWidth_Fattest, IMindMapImages.LINE_FATTEST);
 
     private String value;
 

@@ -8,6 +8,8 @@ public interface IAxisProvider {
 
     List<?> getChildNodes(Object node, String name);
 
+    Object getParentNode(Object node);
+
     String getTextContent(Object node);
 
 }

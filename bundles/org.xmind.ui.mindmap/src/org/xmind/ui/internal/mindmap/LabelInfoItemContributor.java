@@ -80,7 +80,7 @@ public class LabelInfoItemContributor extends AbstractInfoItemContributor {
                 action = new DelegatingAction(action);
         }
 
-        if (action == null) {
+        if (action == null || action.getImageDescriptor() == null) {
             IViewer viewer = topicPart.getSite().getViewer();
             if (viewer != null && viewer instanceof IGraphicalViewer)
                 action = new EditLabelAction((IGraphicalViewer) viewer);
@@ -88,6 +88,8 @@ public class LabelInfoItemContributor extends AbstractInfoItemContributor {
 
         if (action != null)
             action.setToolTipText(getContent(topic));
+
+        action.setEnabled(true);
 
         return action;
     }
@@ -174,8 +176,7 @@ public class LabelInfoItemContributor extends AbstractInfoItemContributor {
                 (IGraphicalViewer) viewer);
 
         modifyLabelAction.setText(MindMapMessages.ModifyMenu);
-        modifyLabelAction.setImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.LABEL, true));
+        modifyLabelAction.setImageDescriptor(null);
 
         IAction deleteLabelAction = new Action(
                 MindMapMessages.InfoItem_Delete_text) {
@@ -185,8 +186,7 @@ public class LabelInfoItemContributor extends AbstractInfoItemContributor {
             }
         };
         deleteLabelAction.setId("org.xmind.ui.removeLabel"); //$NON-NLS-1$
-        deleteLabelAction.setImageDescriptor(
-                MindMapUI.getImages().get(IMindMapImages.DELETE, true));
+        deleteLabelAction.setImageDescriptor(null);
 
         List<IAction> actions = new ArrayList<IAction>();
         actions.add(modifyLabelAction);

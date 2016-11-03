@@ -221,8 +221,8 @@ public class MindMapEditorPagePanelContributor extends PanelContributor {
                 } else {
                     gc.setForeground(ColorUtils.getColor("#d0d0d0")); //$NON-NLS-1$
                 }
-                gc.drawRoundRectangle(bounds.x + M, bounds.y + M, bounds.width
-                        - W, bounds.height - W, C, C);
+                gc.drawRoundRectangle(bounds.x + M, bounds.y + M,
+                        bounds.width - W, bounds.height - W, C, C);
             }
 
             int h = getHMargin();
@@ -253,8 +253,10 @@ public class MindMapEditorPagePanelContributor extends PanelContributor {
         protected String getText() {
             if (action != null) {
                 String text = action.getText();
-                if (text != null)
+                if (text != null) {
+                    text = MindMapUtils.trimSingleLine(text);
                     return text;
+                }
                 return ""; //$NON-NLS-1$
             }
             return ">"; //$NON-NLS-1$
@@ -358,9 +360,9 @@ public class MindMapEditorPagePanelContributor extends PanelContributor {
 
         private static final int SPACING = 1;
 
-        private class CrumbsBarListener implements PaintListener,
-                MouseListener, MouseMoveListener, MouseTrackListener,
-                ControlListener, DisposeListener {
+        private class CrumbsBarListener
+                implements PaintListener, MouseListener, MouseMoveListener,
+                MouseTrackListener, ControlListener, DisposeListener {
 
             private CrumbItem sourceItem = null;
 
@@ -413,7 +415,8 @@ public class MindMapEditorPagePanelContributor extends PanelContributor {
                         targetItem.setMouseOver(false);
                     }
                     targetItem = item;
-                    if (item != null && item.isEnabled() && !item.isSeparator()) {
+                    if (item != null && item.isEnabled()
+                            && !item.isSeparator()) {
                         if (sourceItem == null || item == sourceItem) {
                             item.setMouseOver(true);
                         }
@@ -469,8 +472,8 @@ public class MindMapEditorPagePanelContributor extends PanelContributor {
             addMouseMoveListener(eventHandler);
             addMouseTrackListener(eventHandler);
             addControlListener(eventHandler);
-            setFont(FontUtils
-                    .getRelativeHeight(JFaceResources.DEFAULT_FONT, -1));
+            setFont(FontUtils.getRelativeHeight(JFaceResources.DEFAULT_FONT,
+                    -1));
         }
 
         private void releaseItems() {
@@ -657,12 +660,10 @@ public class MindMapEditorPagePanelContributor extends PanelContributor {
                                     getPage(), t);
                             if (i == topics.size() - 1) {
                                 action.setEnabled(false);
-                                action
-                                        .setToolTipText(NLS
-                                                .bind(
-                                                        MindMapMessages.BreadCrumb_CurrentCentral_text,
-                                                        action.newCentralTopic
-                                                                .getTitleText()));
+                                action.setImageDescriptor(null);
+                                action.setToolTipText(NLS.bind(
+                                        MindMapMessages.BreadCrumb_CurrentCentral_text,
+                                        action.newCentralTopic.getTitleText()));
                             }
 
                             bar.addItem(new CrumbItem(action));

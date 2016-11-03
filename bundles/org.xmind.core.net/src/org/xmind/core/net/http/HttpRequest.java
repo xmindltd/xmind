@@ -16,6 +16,8 @@
  */
 package org.xmind.core.net.http;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -49,15 +51,19 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.xmind.core.net.Field;
 import org.xmind.core.net.FieldSet;
 import org.xmind.core.net.internal.Activator;
+import org.xmind.core.net.internal.EncodingUtils;
 import org.xmind.core.net.internal.FixedLengthInputStream;
-import org.xmind.core.net.internal.LoggedInputStream;
-import org.xmind.core.net.internal.LoggedOutputStream;
+import org.xmind.core.net.internal.LoggingOutputStream;
 import org.xmind.core.net.internal.MonitoredInputStream;
 import org.xmind.core.net.internal.MonitoredOutputStream;
+import org.xmind.core.net.internal.TeeInputStream;
+import org.xmind.core.net.internal.TeeOutputStream;
 
 /**
  * @author Frank Shaka
@@ -305,6 +311,8 @@ public class HttpRequest {
 
     private PrintStream logStream;
 
+    private byte[] responseBuffer;
+
     public HttpRequest(URL url, String method, FieldSet headers,
             HttpEntity entity, FieldSet settings,
             IResponseHandler responseHandler) {
@@ -315,8 +323,7 @@ public class HttpRequest {
         this.requestHeaders = new FieldSet(headers);
         this.requestEntity = entity;
         this.settings = new FieldSet(settings);
-        this.responseHandler = responseHandler == null ? new HttpResponse()
-                : responseHandler;
+        this.responseHandler = responseHandler;
         this.statusCode = HTTP_PREPARING;
         this.statusMessage = null;
         this.responseHeaders = new FieldSet();
@@ -327,6 +334,7 @@ public class HttpRequest {
                 || System.getProperty(Activator.CONFIG_DEBUG_HTTP_REQUESTS,
                         null) != null;
         this.logStream = forceDebugging ? System.out : null;
+        this.responseBuffer = null;
     }
 
     public HttpRequest(boolean https, String host, int port, String path,
@@ -378,15 +386,26 @@ public class HttpRequest {
     }
 
     public String getResponseAsString() {
-        if (responseHandler instanceof HttpResponse)
-            return ((HttpResponse) responseHandler).asString();
-        return null;
+        if (responseBuffer == null)
+            return null;
+        return EncodingUtils.toDefaultString(responseBuffer);
     }
 
     public JSONObject getResponseAsJSON() {
-        if (responseHandler instanceof HttpResponse)
-            return ((HttpResponse) responseHandler).asJSONObject();
-        return null;
+        if (responseBuffer == null)
+            return null;
+        ByteArrayInputStream input = new ByteArrayInputStream(responseBuffer);
+        try {
+            return new JSONObject(new JSONTokener(input));
+        } catch (JSONException e) {
+            // not a valid JSON object
+            return null;
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+            }
+        }
     }
 
     /**
@@ -463,7 +482,7 @@ public class HttpRequest {
 
     private void doExecute(IProgressMonitor monitor,
             HttpURLConnection[] _connection)
-                    throws InterruptedException, IOException {
+            throws InterruptedException, IOException {
         if (monitor.isCanceled())
             return;
 
@@ -524,9 +543,18 @@ public class HttpRequest {
             if (monitor.isCanceled())
                 throw new InterruptedException();
         } catch (IOException e) {
-            readResponse(monitor, connection, connection.getErrorStream(),
-                    connection.getResponseCode(),
-                    connection.getResponseMessage());
+            InputStream errorStream = connection.getErrorStream();
+            if (errorStream == null) {
+                e.printStackTrace();
+                log("Error stream is NULL, response state: {0} {1}", //$NON-NLS-1$
+                        connection.getResponseCode(),
+                        connection.getResponseMessage());
+                throw new InterruptedException();
+            } else {
+                readResponse(monitor, connection, errorStream,
+                        connection.getResponseCode(),
+                        connection.getResponseMessage());
+            }
             if (monitor.isCanceled())
                 throw new InterruptedException();
         } finally {
@@ -612,7 +640,8 @@ public class HttpRequest {
         OutputStream output = new MonitoredOutputStream(
                 connection.getOutputStream(), monitor);
         if (debugging && logStream != null) {
-            output = new LoggedOutputStream(output, logStream);
+            output = new TeeOutputStream(output,
+                    new LoggingOutputStream(logStream));
         }
         try {
             requestEntity.writeTo(output);
@@ -661,25 +690,35 @@ public class HttpRequest {
                     totalBytes);
         }
 
-        final HttpEntity responseEntity;
         if (readStream != null) {
-            InputStream responseStream = new MonitoredInputStream(readStream,
-                    monitor);
             if (debugging && logStream != null) {
-                responseStream = new LoggedInputStream(responseStream,
-                        logStream);
+                readStream = new TeeInputStream(readStream,
+                        new LoggingOutputStream(logStream));
             }
-            responseEntity = new StreamedEntity(responseStream, totalBytes);
-        } else {
-            responseEntity = null;
-        }
-        if (responseEntity != null) {
-            try {
-                responseHandler.handleResponseEntity(monitor, this,
-                        responseEntity);
-            } catch (OperationCanceledException e) {
-                throw new InterruptedException();
+            ByteArrayOutputStream bufferStream = new ByteArrayOutputStream(
+                    (int) totalBytes);
+            readStream = new TeeInputStream(readStream, bufferStream);
+            readStream = new MonitoredInputStream(readStream, monitor);
+
+            if (responseHandler != null) {
+                final HttpEntity responseEntity = new StreamedEntity(readStream,
+                        totalBytes);
+                try {
+                    responseHandler.handleResponseEntity(monitor, this,
+                            responseEntity);
+                } catch (OperationCanceledException e) {
+                    throw new InterruptedException();
+                }
             }
+
+            /// read until the end of stream to receive all response content
+            /// TODO potential dead lock?
+            byte[] temp = new byte[1024];
+            while (readStream.read(temp) != -1) {
+                /// do nothing and wait until the stream is consumed
+            }
+
+            responseBuffer = bufferStream.toByteArray();
         }
 
         if (debugging && logStream != null) {
@@ -793,8 +832,8 @@ public class HttpRequest {
 
         static synchronized SSLSocketFactory prepFactory(
                 HttpsURLConnection httpsConnection)
-                        throws NoSuchAlgorithmException, KeyStoreException,
-                        KeyManagementException {
+                throws NoSuchAlgorithmException, KeyStoreException,
+                KeyManagementException {
 
             if (factory == null) {
                 SSLContext ctx = SSLContext.getInstance("TLS"); //$NON-NLS-1$

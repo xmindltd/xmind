@@ -31,6 +31,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.DPIUtil;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.IFileEntry;
@@ -51,6 +52,7 @@ import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.ImageFormat;
 import org.xmind.ui.util.Logger;
 
+@SuppressWarnings("restriction")
 public class FileDndClient extends MindMapDNDClientBase {
 
     private static final String CREATE_IMAGE = "CREATE_IMAGE"; //$NON-NLS-1$
@@ -386,9 +388,11 @@ public class FileDndClient extends MindMapDNDClientBase {
             Image tempImage = new Image(Display.getCurrent(), path);
             Rectangle imageBounds = tempImage.getBounds();
             tempImage.dispose();
-            return Geometry.getScaledConstrainedSize(imageBounds.width,
-                    imageBounds.height, MindMapUI.IMAGE_INIT_WIDTH,
-                    MindMapUI.IMAGE_INIT_HEIGHT);
+            boolean needZoom = DPIUtil.getDeviceZoom() > 100;
+            int width = needZoom ? imageBounds.width / 2 : imageBounds.width;
+            int height = needZoom ? imageBounds.height / 2 : imageBounds.height;
+            return Geometry.getScaledConstrainedSize(width, height,
+                    MindMapUI.IMAGE_INIT_WIDTH, MindMapUI.IMAGE_INIT_HEIGHT);
         } catch (Throwable e) {
         }
         return null;

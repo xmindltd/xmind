@@ -47,4 +47,6 @@ public class ExportContants {
 
     public static final boolean DEFAULT_MINUS_VISIBLE = true;
 
+    public static final String NO_WATERMARK = "noWatermark"; //$NON-NLS-1$
+
 }

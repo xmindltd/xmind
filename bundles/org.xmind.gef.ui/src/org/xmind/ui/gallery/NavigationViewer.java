@@ -98,7 +98,7 @@ public class NavigationViewer extends GraphicalViewer {
 
     }
 
-    public static final int PREF_HEIGHT = 90;
+    public static final int PREF_HEIGHT = 60;
 
     public static final int BIG_HEIGHT = 70;
 

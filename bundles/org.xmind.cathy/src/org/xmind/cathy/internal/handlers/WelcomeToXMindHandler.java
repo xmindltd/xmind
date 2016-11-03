@@ -12,6 +12,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.xmind.cathy.internal.WorkbenchMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class WelcomeToXMindHandler extends AbstractHandler {
@@ -27,8 +28,9 @@ public class WelcomeToXMindHandler extends AbstractHandler {
         if (activePage == null)
             return null;
 
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase("WelcomeToXmindCount"); //$NON-NLS-1$
         SafeRunner.run(new SafeRunnable() {
-            @Override
             public void run() throws Exception {
                 IEditorInput input = MindMapUI.getEditorInputFactory()
                         .createEditorInput(new URI(URL_WELCOME_FILE),

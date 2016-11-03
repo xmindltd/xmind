@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.gef.ui;singleton:=true
-Bundle-Version: 3.6.51.qualifier
+Bundle-Version: 3.7.0.qualifier
 Bundle-Activator: org.xmind.gef.ui.internal.GEFPlugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.expressions,
- org.xmind.gef;bundle-version="[3.6.0,3.7.0)";visibility:=reexport,
- org.xmind.ui.toolkit;bundle-version="[3.6.0,3.7.0)"
+ org.xmind.gef;bundle-version="[3.7.0,3.8.0)";visibility:=reexport,
+ org.xmind.ui.toolkit;bundle-version="[3.7.0,3.8.0)"
 Eclipse-LazyStart: true
 Export-Package: org.xmind.gef.ui.actions,
  org.xmind.gef.ui.editor,

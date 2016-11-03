@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistable;
 import org.xmind.core.Core;
@@ -40,7 +42,9 @@ import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.core.util.ProgressReporter;
 import org.xmind.gef.GEF;
+import org.xmind.gef.command.CommandStack;
 import org.xmind.gef.command.CommandStackEvent;
+import org.xmind.gef.command.ICommandStack;
 import org.xmind.gef.ui.editor.Editable;
 import org.xmind.gef.ui.editor.IEditingContext;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -48,12 +52,12 @@ import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.IWorkbookRefListener;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.util.ImageFormat;
 
 /**
  * This class implements basic behaviors of {@link IWorkbookRef} by extending
  * the {@link Editable} class.
- *
  * <h2>Subclassing Notes</h2>
  * <ul>
  * <li>Each subclass <b>MUST</b> override
@@ -75,12 +79,11 @@ import org.xmind.ui.util.ImageFormat;
  * the default behavior.</li>
  * </ul>
  *
- *
  * @author Frank Shaka
  * @since 3.6.50
  */
 public abstract class AbstractWorkbookRef extends Editable
-        implements IWorkbookRef, ISchedulingRule {
+        implements IWorkbookRef, ISchedulingRule, IPropertyChangeListener {
 
     protected static final int TEMP_SAVING_DELAY = 500;
 
@@ -114,6 +117,12 @@ public abstract class AbstractWorkbookRef extends Editable
 
         setEncryptable(createEncryptable());
 
+        setCommandStack(new CommandStack(Math.max(MindMapUIPlugin.getDefault()
+                .getPreferenceStore().getInt(PrefConstants.UNDO_LIMIT), 1)));
+
+        MindMapUIPlugin.getDefault().getPreferenceStore()
+                .addPropertyChangeListener(this);
+
         if (state != null) {
             IStorage savedTempStorage = restoreStateForTempStorage(state);
             this.shouldLoadFromTempStorage = savedTempStorage != null;
@@ -123,7 +132,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.mindmap.IWorkbookRef#getSaveWizardId()
      */
     @Override
@@ -178,7 +186,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
             register.register(Core.MarkerRefAdd);
             register.register(Core.PasswordChange);
-            register.register(Core.WorkbookPreSave);
         }
     }
 
@@ -188,8 +195,6 @@ public abstract class AbstractWorkbookRef extends Editable
             handleMarkerAdded((String) event.getTarget());
         } else if (Core.PasswordChange.equals(type)) {
             scheduleTempSaving();
-        } else if (Core.WorkbookPreSave.equals(type)) {
-            checkDirty();
         }
     }
 
@@ -272,7 +277,7 @@ public abstract class AbstractWorkbookRef extends Editable
 
     protected IWorkbook doLoadWorkbookFromTempStorage(IProgressMonitor monitor,
             IStorage tempStorage)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         try {
             IDeserializer deserializer = Core.getWorkbookBuilder()
                     .newDeserializer();
@@ -322,6 +327,9 @@ public abstract class AbstractWorkbookRef extends Editable
         if (workbookAsEventSource != null) {
             workbookAsEventSource.getCoreEventSupport().dispatch(
                     workbookAsEventSource, new CoreEvent(workbookAsEventSource,
+                            Core.WorkbookPreSaveOnce, null));
+            workbookAsEventSource.getCoreEventSupport().dispatch(
+                    workbookAsEventSource, new CoreEvent(workbookAsEventSource,
                             Core.WorkbookPreSave, null));
         }
 
@@ -339,7 +347,7 @@ public abstract class AbstractWorkbookRef extends Editable
     /// subclasses may override to prevent default behavior or add custom behaviors
     protected void doSaveWorkbookToTempStorage(IProgressMonitor monitor,
             IWorkbook workbook)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         try {
             ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
             serializer.setWorkbook(workbook);
@@ -391,7 +399,7 @@ public abstract class AbstractWorkbookRef extends Editable
      */
     protected void doSaveWorkbookToURI(IProgressMonitor monitor,
             IWorkbook workbook, URI uri)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         throw new UnsupportedOperationException();
     }
 
@@ -420,14 +428,14 @@ public abstract class AbstractWorkbookRef extends Editable
     /// subclasses may override to prevent default behavior or add custom behaviors
     protected void doUnloadWorkbook(IProgressMonitor monitor,
             IWorkbook workbook)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         // do nothing, subclasses may override
     }
 
     /// subclasses may override to prevent default behavior or add custom behaviors
     protected void doClearTempStorageOnClose(IProgressMonitor monitor,
             IWorkbook workbook)
-                    throws InterruptedException, InvocationTargetException {
+            throws InterruptedException, InvocationTargetException {
         IStorage storage = (IStorage) workbook.getAdapter(IStorage.class);
         if (storage != null) {
             storage.clear();
@@ -499,7 +507,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.mindmap.IWorkbookRef#getPreviewImageData(java.lang.String,
      * org.xmind.ui.internal.editor.MindMapPreviewOptions)
@@ -583,7 +590,7 @@ public abstract class AbstractWorkbookRef extends Editable
     public boolean isDirty() {
         return super.isDirty() || (workbook instanceof ICoreEventSource2
                 && ((ICoreEventSource2) workbook)
-                        .hasOnceListeners(Core.WorkbookPreSave));
+                        .hasOnceListeners(Core.WorkbookPreSaveOnce));
     }
 
     protected IMindMapPreviewGenerator findPreviewGenerator() {
@@ -592,7 +599,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.gef.ui.editor.Editable#getService(java.lang.Class)
      */
     @Override
@@ -610,7 +616,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.ISchedulingRule#contains(org.eclipse.core.
      * runtime.jobs.ISchedulingRule)
@@ -622,7 +627,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.core.runtime.jobs.ISchedulingRule#isConflicting(org.eclipse.
      * core.runtime.jobs.ISchedulingRule)
@@ -634,7 +638,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.ui.editor.Editable#doHandleCommandStackChange(org.xmind.gef
      * .command.CommandStackEvent)
@@ -751,4 +754,17 @@ public abstract class AbstractWorkbookRef extends Editable
         return false;
     }
 
+    public void propertyChange(PropertyChangeEvent event) {
+        ICommandStack commandStack = getCommandStack();
+        if (commandStack != null) {
+            if (PrefConstants.UNDO_LIMIT.equals(event.getProperty())) {
+                int num = 0;
+                try {
+                    num = Integer.parseInt(event.getNewValue().toString());
+                } catch (Exception e) {
+                }
+                commandStack.setUndoLimit(Math.max(num, 1));
+            }
+        }
+    }
 }

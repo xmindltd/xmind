@@ -1,15 +1,12 @@
-/* ******************************************************************************
- * Copyright (c) 2006-2012 XMind Ltd. and others.
- * 
- * This file is a part of XMind 3. XMind releases 3 and
- * above are dual-licensed under the Eclipse Public License (EPL),
- * which is available at http://www.eclipse.org/legal/epl-v10.html
- * and the GNU Lesser General Public License (LGPL), 
- * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
- * 
- * Contributors:
- *     XMind Ltd. - initial API and implementation
+/*
+ * *****************************************************************************
+ * * Copyright (c) 2006-2012 XMind Ltd. and others. This file is a part of XMind
+ * 3. XMind releases 3 and above are dual-licensed under the Eclipse Public
+ * License (EPL), which is available at
+ * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
+ * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
+ * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.util;
 
@@ -212,6 +209,21 @@ public class MindMapUtils {
             IStructuredSelection ss = (IStructuredSelection) selection;
             for (Object o : ss.toArray()) {
                 if (o.equals(viewer.getAdapter(ITopic.class)))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasSummary(ISelection selection, IViewer viewer) {
+        if (selection == null || selection.isEmpty() || viewer == null)
+            return false;
+
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection ss = (IStructuredSelection) selection;
+            for (Object o : ss.toArray()) {
+                if (o instanceof ITopic
+                        && ITopic.SUMMARY.equals(((ITopic) o).getType()))
                     return true;
             }
         }
@@ -621,15 +633,21 @@ public class MindMapUtils {
         if (number == null || "".equals(number)) { //$NON-NLS-1$
             return null;
         }
+
+        if (topic.getNumbering().getNumberFormat() == null
+                && topic.getNumbering().getDepth() == null
+                && !topic.getNumbering().isInherited(0))
+            return null;
+
         ITopic parent = topic.getParent();
-        if (parent != null && parent.getNumbering().prependsParentNumbers()) {
-            if (defaultFormat != null
-                    && parent.getNumbering().getNumberFormat() != null) {
+        INumbering numbering = parent.getNumbering();
+        if (parent != null && numbering.prependsParentNumbers()) {
+            if (defaultFormat != null && numbering.getNumberFormat() != null) {
                 defaultFormat = null;
             }
             String parentNumber = getNumberingText(parent, defaultFormat,
                     defaultSeparator);
-            if (parentNumber != null) {
+            if (parentNumber != null && parent.getNumbering().isInherited(1)) {
                 String separator = getNumberSeparator(topic, defaultSeparator);
                 if (separator == null)
                     separator = NUMBER_SEPARATOR;

@@ -13,11 +13,19 @@
  *******************************************************************************/
 package org.xmind.ui.internal;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -31,11 +39,11 @@ import org.xmind.ui.mindmap.INumberFormatManager;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
 
-public class NumberFormatExtensionManager extends RegistryReader implements
-        INumberFormatManager {
+public class NumberFormatExtensionManager extends RegistryReader
+        implements INumberFormatManager {
 
-    private static class NumberFormatProxy implements INumberFormat,
-            INumberFormatDescriptor {
+    private static class NumberFormatProxy
+            implements INumberFormat, INumberFormatDescriptor {
 
         private IConfigurationElement element;
 
@@ -57,8 +65,8 @@ public class NumberFormatExtensionManager extends RegistryReader implements
             this.description = element
                     .getAttribute(RegistryConstants.ATT_DESCRIPTION);
             if (getClassValue(element, RegistryConstants.ATT_CLASS) == null)
-                throw new CoreException(new Status(IStatus.ERROR, element
-                        .getNamespaceIdentifier(), 0,
+                throw new CoreException(new Status(IStatus.ERROR,
+                        element.getNamespaceIdentifier(), 0,
                         "Invalid extension (missing class name): " + id, //$NON-NLS-1$
                         null));
         }
@@ -67,11 +75,13 @@ public class NumberFormatExtensionManager extends RegistryReader implements
             if (implementation == null && !failedInitImplementation) {
                 try {
                     implementation = (INumberFormat) element
-                            .createExecutableExtension(RegistryConstants.ATT_CLASS);
+                            .createExecutableExtension(
+                                    RegistryConstants.ATT_CLASS);
                 } catch (CoreException e) {
-                    Logger.log(e, "Failed to create number format from class: " //$NON-NLS-1$
-                            + getClassValue(element,
-                                    RegistryConstants.ATT_CLASS));
+                    Logger.log(e,
+                            "Failed to create number format from class: " //$NON-NLS-1$
+                                    + getClassValue(element,
+                                            RegistryConstants.ATT_CLASS));
                     failedInitImplementation = true;
                 }
             }
@@ -99,11 +109,19 @@ public class NumberFormatExtensionManager extends RegistryReader implements
 
     }
 
+    private static final String LANGUAGE_OSGI_NL_KEY = "osgi.nl"; //$NON-NLS-1$
+
+    private static final String SIMPLECHINESEFORMAT = "org.xmind.numbering.simplechinese"; //$NON-NLS-1$
+
+    private static final String TRADITIONALCHINESEFORMAT = "org.xmind.numbering.traditionalchinese"; //$NON-NLS-1$
+
     private Map<String, NumberFormatProxy> formats = null;
 
     private List<INumberFormatDescriptor> list = null;
 
-    /* package */NumberFormatExtensionManager() {
+    private Properties configIniProperties;
+
+    /* package */ NumberFormatExtensionManager() {
     }
 
     protected boolean readElement(IConfigurationElement element) {
@@ -123,6 +141,18 @@ public class NumberFormatExtensionManager extends RegistryReader implements
             Logger.log(e, "Failed to load numbering format: " + element); //$NON-NLS-1$
             return;
         }
+        String id = proxy.getId();
+        if (configIniProperties == null)
+            configIniProperties = loadProperties(getConfigFile());
+        /// "zh_CN", "zh_TW"
+        if (SIMPLECHINESEFORMAT.equals(id) && !"zh_CN" //$NON-NLS-1$
+                .equals(configIniProperties.getProperty(LANGUAGE_OSGI_NL_KEY)))
+            return;
+
+        if (TRADITIONALCHINESEFORMAT.equals(id) && !"zh_TW" //$NON-NLS-1$
+                .equals(configIniProperties.getProperty(LANGUAGE_OSGI_NL_KEY)))
+            return;
+
         if (formats == null)
             formats = new HashMap<String, NumberFormatProxy>();
         formats.put(proxy.getId(), proxy);
@@ -165,6 +195,39 @@ public class NumberFormatExtensionManager extends RegistryReader implements
         INumberFormat format = getFormat(formatId);
         if (format != null)
             return format.getText(index);
+        return null;
+    }
+
+    private Properties loadProperties(File file) {
+        if (file != null && file.exists() && file.canRead()) {
+            try {
+                InputStream stream = new BufferedInputStream(
+                        new FileInputStream(file), 1024);
+                try {
+                    Properties properties = new Properties();
+                    properties.load(stream);
+                    return properties;
+                } finally {
+                    try {
+                        stream.close();
+                    } catch (IOException e) {
+                    }
+                }
+            } catch (IOException e) {
+            }
+        }
+        return null;
+    }
+
+    private File getConfigFile() {
+        URL configDir = Platform.getConfigurationLocation().getURL();
+        try {
+            URL configIni = new URL(configDir, "config.ini"); //$NON-NLS-1$
+            File file = new File(configIni.getFile());
+            return file;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

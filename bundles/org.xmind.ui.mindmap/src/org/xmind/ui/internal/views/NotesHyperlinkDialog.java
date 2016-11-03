@@ -35,7 +35,7 @@ public class NotesHyperlinkDialog extends Dialog {
 
     private String displayText;
 
-    protected NotesHyperlinkDialog(Shell parentShell, String oldHyperlink,
+    public NotesHyperlinkDialog(Shell parentShell, String oldHyperlink,
             String oldText) {
         super(parentShell);
         this.displayText = oldText == null ? "" : oldText; //$NON-NLS-1$
@@ -81,10 +81,10 @@ public class NotesHyperlinkDialog extends Dialog {
         label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         label.setText(MindMapMessages.NotesHyperlinkDialog_display_text);
 
-        Text displayTextInput = new Text(area, SWT.SINGLE | SWT.LEAD
-                | SWT.BORDER);
-        displayTextInput.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                false));
+        Text displayTextInput = new Text(area,
+                SWT.SINGLE | SWT.LEAD | SWT.BORDER);
+        displayTextInput
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         displayTextInput.setText(displayText);
         displayTextInput.addListener(SWT.Modify, new Listener() {
             public void handleEvent(Event event) {
@@ -111,8 +111,8 @@ public class NotesHyperlinkDialog extends Dialog {
 
         Label label = new Label(area, SWT.NONE);
         label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        label
-                .setText(MindMapMessages.NotesHyperlinkDialog_hyperlinkReference_text);
+        label.setText(
+                MindMapMessages.NotesHyperlinkDialog_hyperlinkReference_text);
 
         Text text = new Text(area, SWT.SINGLE | SWT.LEAD | SWT.BORDER);
         text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));

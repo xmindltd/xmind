@@ -15,6 +15,7 @@ package org.xmind.core.internal.dom;
 
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_FULL_PATH;
 import static org.xmind.core.internal.dom.DOMConstants.ATTR_MEDIA_TYPE;
+import static org.xmind.core.internal.dom.DOMConstants.PASSWORD_HINT;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_FILE_ENTRY;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_MANIFEST;
 import static org.xmind.core.internal.dom.InternalDOMUtils.getParentPath;
@@ -33,7 +34,6 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xmind.core.Core;
 import org.xmind.core.IEncryptionData;
 import org.xmind.core.IEntryStreamNormalizer;
@@ -96,11 +96,11 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
         return implementation.getDocumentElement();
     }
 
-    public Object getAdapter(Class adapter) {
-        if (adapter == Document.class || adapter == Node.class)
-            return implementation;
-        if (adapter == IWorkbook.class)
-            return ownedWorkbook;
+    public <T> T getAdapter(Class<T> adapter) {
+        if (adapter.isAssignableFrom(Document.class))
+            return adapter.cast(implementation);
+        if (IWorkbook.class.equals(adapter))
+            return adapter.cast(ownedWorkbook);
         return super.getAdapter(adapter);
     }
 
@@ -110,7 +110,6 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookComponent#isOrphan()
      */
     public boolean isOrphan() {
@@ -118,7 +117,6 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
     }
 
     /**
-     * 
      * @param workbook
      */
     protected void setWorkbook(WorkbookImpl workbook) {
@@ -151,7 +149,6 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IManifest#iterFileEntries()
      */
     public Iterator<IFileEntry> iterFileEntries() {
@@ -160,7 +157,6 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IManifest#iterFileEntries(org.xmind.core.IManifest.
      * IFileEntryFilter)
      */
@@ -505,7 +501,6 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IManifest#getEncryptionData(java.lang.String)
      */
     public IEncryptionData getEncryptionData(String entryPath) {
@@ -527,6 +522,16 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
 
         coreEventSupport = new CoreEventSupport();
         return coreEventSupport;
+    }
+
+    public String getPasswordHint() {
+        Element m = DOMUtils.ensureChildElement(implementation, TAG_MANIFEST);
+        return m.getAttribute(PASSWORD_HINT);
+    }
+
+    public void setPasswordHint(String hint) {
+        Element m = DOMUtils.ensureChildElement(implementation, TAG_MANIFEST);
+        m.setAttribute(PASSWORD_HINT, hint);
     }
 
 //    protected void saveTemp(String newPassword)

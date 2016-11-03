@@ -96,34 +96,29 @@ public interface IStyle extends IAdaptable, IIdentifiable, IProperties, INamed {
     String getType();
 
     /**
-     * 
      * @return
      */
     Iterator<Property> defaultStyles();
 
     /**
-     * 
      * @param styleFamily
      * @return
      */
     String getDefaultStyleId(String styleFamily);
 
     /**
-     * 
      * @param styleFamily
      * @return
      */
     IStyle getDefaultStyle(String styleFamily);
 
     /**
-     * 
      * @param styleId
      * @return
      */
     IStyle getDefaultStyleById(String styleId);
 
     /**
-     * 
      * @param styleFamily
      * @param styleId
      */

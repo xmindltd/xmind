@@ -103,4 +103,9 @@ public class PropertyDescriptor implements IPropertyDescriptor {
         return this;
     }
 
+    @Override
+    public boolean isTextOperation() {
+        return false;
+    }
+
 }

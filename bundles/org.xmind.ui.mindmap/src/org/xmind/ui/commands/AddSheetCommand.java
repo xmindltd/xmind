@@ -30,7 +30,8 @@ public class AddSheetCommand extends SourceCommand {
         this(sourceSheet, targetParent, -1);
     }
 
-    public AddSheetCommand(ISheet sourceSheet, IWorkbook targetParent, int index) {
+    public AddSheetCommand(ISheet sourceSheet, IWorkbook targetParent,
+            int index) {
         super(targetParent);
         this.sourceSheet = sourceSheet;
         this.index = index;

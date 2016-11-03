@@ -65,7 +65,6 @@ public class EditPart extends Part {
     }
 
     /**
-     * 
      * @param accessible
      */
     protected void setAccessible(IAccessible accessible) {
@@ -123,16 +122,15 @@ public class EditPart extends Part {
         if (domain == null)
             return;
 
-        domain.handleRequest(request.setDomain(domain).setViewer(
-                getSite().getViewer()));
+        domain.handleRequest(
+                request.setDomain(domain).setViewer(getSite().getViewer()));
     }
 
-    @Override
-    public Object getAdapter(Class adapter) {
+    public <T> T getAdapter(Class<T> adapter) {
         if (adapter == IAccessible.class)
-            return getAccessible();
+            return adapter.cast(getAccessible());
         if (adapter == IRequestHandler.class)
-            return getRequestHandler();
+            return adapter.cast(getRequestHandler());
         return super.getAdapter(adapter);
     }
 

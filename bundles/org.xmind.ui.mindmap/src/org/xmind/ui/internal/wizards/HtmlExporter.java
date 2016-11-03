@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.internal.DPIUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -75,20 +76,21 @@ public class HtmlExporter extends Exporter {
 
         protected Node createNode() {
             ITopic topic = (ITopic) getElement();
-            String tag = HtmlConstants.TAGS_H[Math.min(
-                    HtmlConstants.TAGS_H.length - 1, level)];
+            String tag = HtmlConstants.TAGS_H[Math
+                    .min(HtmlConstants.TAGS_H.length - 1, level)];
             Element ele = createDOMElement(tag);
 
             boolean isRoot = isCentralTopic(topic);
-            ele.setAttribute(HtmlConstants.ATT_CLASS, isRoot ? "root" : "topic"); //$NON-NLS-1$ //$NON-NLS-2$
+            ele.setAttribute(HtmlConstants.ATT_CLASS,
+                    isRoot ? "root" : "topic"); //$NON-NLS-1$ //$NON-NLS-2$
             if (isRoot) {
                 ele.setAttribute(HtmlConstants.ATT_ALIGN, HtmlConstants.CENTER);
             }
 
             writeStyle(ele, topic);
 
-            String num = ExportUtils.getNumberingText(topic, getExporter()
-                    .getCentralTopic());
+            String num = ExportUtils.getNumberingText(topic,
+                    getExporter().getCentralTopic());
             if (num != null) {
                 ele.appendChild(createText(num));
                 ele.appendChild(createText(" ")); //$NON-NLS-1$
@@ -101,15 +103,18 @@ public class HtmlExporter extends Exporter {
             String hyperlink = topic.getHyperlink();
             if (HyperlinkUtils.isAttachmentURL(hyperlink)
                     && !isLinkToWeb(hyperlink)) {
-                if (getExporter().getBoolean(ExportContants.INCLUDE_ATTACHMENT)) {
+                if (getExporter()
+                        .getBoolean(ExportContants.INCLUDE_ATTACHMENT)) {
                     hyperlink = getExporter().createFilePath(hyperlink, title);
                 } else {
                     hyperlink = null;
                 }
             } else {
-                if (!getExporter().getBoolean(ExportContants.INCLUDE_HYPERLINK)) {
+                if (!getExporter()
+                        .getBoolean(ExportContants.INCLUDE_HYPERLINK)) {
                     hyperlink = null;
-                } else if (hyperlink != null && hyperlink.startsWith("xmind:")) { //$NON-NLS-1$
+                } else if (hyperlink != null
+                        && hyperlink.startsWith("xmind:")) { //$NON-NLS-1$
                     hyperlink = hyperlink.substring(6);
                 } else if (isLinkToWeb(hyperlink)
                         && !hyperlink.startsWith("http:") //$NON-NLS-1$
@@ -141,7 +146,8 @@ public class HtmlExporter extends Exporter {
 
             if (hyperlink.contains("www.") || hyperlink.contains(".com")
                     || hyperlink.contains(".cn") || hyperlink.contains(".org")
-                    || hyperlink.contains(".cc") || hyperlink.contains(".net")) {
+                    || hyperlink.contains(".cc")
+                    || hyperlink.contains(".net")) {
                 return true;
             }
             return false;
@@ -418,7 +424,8 @@ public class HtmlExporter extends Exporter {
             while (topicIt.hasNext()) {
                 ITopic topic = topicIt.next();
                 Element anchor = createDOMElement(HtmlConstants.TAG_A);
-                anchor.setAttribute(HtmlConstants.ATT_HREF, "#" + topic.getId()); //$NON-NLS-1$
+                anchor.setAttribute(HtmlConstants.ATT_HREF,
+                        "#" + topic.getId()); //$NON-NLS-1$
                 anchor.setTextContent(topic.getTitleText());
                 ele.appendChild(anchor);
                 if (topicIt.hasNext()) {
@@ -558,8 +565,8 @@ public class HtmlExporter extends Exporter {
         boolean hasLabel = getBoolean(ExportContants.INCLUDE_LABELS)
                 && !labels.isEmpty();
         if (hasMarker || hasLabel) {
-            TagsPart tags = new TagsPart(this, topic, hasMarker ? markers
-                    : null, hasLabel ? labels : null);
+            TagsPart tags = new TagsPart(this, topic,
+                    hasMarker ? markers : null, hasLabel ? labels : null);
             tags.setParent(parent);
             append(tags);
         }
@@ -760,8 +767,8 @@ public class HtmlExporter extends Exporter {
 
     protected Element getHeadElement() {
         if (headEle == null) {
-            headEle = DOMUtils.ensureChildElement(getDocument()
-                    .getDocumentElement(), HtmlConstants.TAG_HEAD);
+            headEle = DOMUtils.ensureChildElement(
+                    getDocument().getDocumentElement(), HtmlConstants.TAG_HEAD);
         }
         return headEle;
     }
@@ -804,8 +811,8 @@ public class HtmlExporter extends Exporter {
         if (styleId == null)
             return null;
 
-        String cachedStyleId = styleIdMap == null ? null : styleIdMap
-                .get(styleId);
+        String cachedStyleId = styleIdMap == null ? null
+                : styleIdMap.get(styleId);
         if (cachedStyleId != null)
             return cachedStyleId;
 
@@ -942,11 +949,11 @@ public class HtmlExporter extends Exporter {
 
     public String createOverview(ITopic topic, ImageFormat format) {
         String title = topic.getTitleText();
-        String path = newPath(getImagesPath(),
-                MindMapUtils.trimFileName(title), format.getExtensions().get(0));
+        String path = newPath(getImagesPath(), MindMapUtils.trimFileName(title),
+                format.getExtensions().get(0));
         FileUtils.ensureFileParent(new File(path));
-        String relativePath = connectPath(getRelativeImagesPath(), new File(
-                path).getName());
+        String relativePath = connectPath(getRelativeImagesPath(),
+                new File(path).getName());
 
         MindMapImageExporter exporter = createOverviewExporter(topic);
         exporter.setTargetFile(new File(path));
@@ -1036,12 +1043,19 @@ public class HtmlExporter extends Exporter {
         String path = newPath(getImagesPath(), name, ext);
         FileUtils.ensureFileParent(new File(path));
 
+        int zoom = DPIUtil.getDeviceZoom();
+
         List<IMarkerVariation> variations = resource.getVariations();
-        InputStream in;
-        if (variations.size() > 0) {
-            in = resource.getInputStream(variations.get(variations.size() - 1));
-        } else {
-            in = resource.getInputStream();
+        InputStream in = null;
+        try {
+            if (variations.size() > 0) {
+                in = resource.openInputStream(
+                        variations.get(variations.size() - 1), zoom);
+            } else {
+                in = resource.openInputStream(zoom);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         if (in != null) {
