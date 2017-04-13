@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.mindmap;singleton:=true
 Bundle-Version: 3.7.0.qualifier
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/commonmark-0.9.0.jar
 Bundle-Activator: org.xmind.ui.internal.MindMapUIPlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
