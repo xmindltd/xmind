@@ -23,9 +23,6 @@ openFile
       <programArgsWin>-eclipse.keyring
 @user.home/.xmind/secure_storage_win32
       </programArgsWin>
-      <programArgsLinux>-eclipse.keyring
-@user.home/.xmind/secure_storage_linux
-      </programArgsLinux>
       <vmArgs>-Dfile.encoding=UTF-8
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread
@@ -49,8 +46,11 @@ openFile
       </win>
    </launcher>
 
+
    <vm>
+      <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2</windows>
    </vm>
+
 
    <plugins>
    </plugins>

@@ -7,6 +7,10 @@ tmp
 *~.nib
 local.properties
 .loadpath
+.settings/
+.classpath
+.gitignore
+.project
 
 # External tool builders
 .externalToolBuilders/

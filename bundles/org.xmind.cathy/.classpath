@@ -15,6 +15,6 @@
 			<accessrule kind="accessible" pattern="org/eclipse/e4/ui/css/swt/dom/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src/"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

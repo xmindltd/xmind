@@ -6,6 +6,6 @@
 			<accessrule kind="accessible" pattern="org/eclipse/ui/internal/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src/"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
