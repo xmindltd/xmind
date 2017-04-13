@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.xmind.cathy.win32;singleton:=true
 Bundle-Version: 3.7.0.qualifier
 Bundle-Vendor: %providerName
 Fragment-Host: org.xmind.cathy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Localization: fragment_win32
 Export-Package: org.xmind.cathy.internal;x-internal:=true,

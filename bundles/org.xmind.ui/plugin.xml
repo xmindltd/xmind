@@ -3711,11 +3711,19 @@
       </wizard>
       <wizard
             category="org.xmind.ui.exportWizards.document"
+            class="org.xmind.ui.internal.wizards.MarkDownExportWizard"
+            icon="icons/impexp/exportmarkdown.png"
+            id="org.xmind.ui.MarkDownExportWizard"
+            name="%exportWizard.markdown.name">
+      </wizard>
+      <wizard
+            category="org.xmind.ui.exportWizards.document"
             class="org.xmind.ui.internal.wizards.HtmlExportWizard"
             icon="icons/impexp/exporthtml.png"
             id="org.xmind.ui.HtmlExportWizard"
             name="%exportWizard.html.name">
       </wizard>
+      
       <wizard
             category="org.xmind.ui.exportWizards.other"
             class="org.xmind.ui.internal.wizards.XMind2008ExportWizard"

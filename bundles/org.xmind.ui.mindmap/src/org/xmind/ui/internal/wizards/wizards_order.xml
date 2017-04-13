@@ -15,6 +15,7 @@
 	    	<wizard id="org.xmind.ui.aspose.export.odt" />
 	    	<wizard id="org.xmind.ui.aspose.export.rtf" />
 	    	<wizard id="org.xmind.ui.TextExportWizard" />
+	    	<wizard id="org.xmind.ui.MarkDownExportWizard" />
 	    </category>
 	    <category id="org.xmind.ui.exportWizards.presentation">
 	    	<wizard id="org.xmind.ui.aspose.export.ppt" />

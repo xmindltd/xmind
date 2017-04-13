@@ -7,6 +7,6 @@
 			<accessrule kind="accessible" pattern="org/xmind/ui/internal/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry excluding="**/.svn" kind="src" path="src"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src/"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
