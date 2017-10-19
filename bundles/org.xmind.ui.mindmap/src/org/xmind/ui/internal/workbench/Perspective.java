@@ -70,7 +70,8 @@ public class Perspective implements IPerspectiveFactory {
                 Object partStack = partStackField.get(rightLayout);
                 partStackField.setAccessible(oldAccessible);
                 if (partStack instanceof MPartStack) {
-                    ((MPartStack) partStack).getTags().add("RightStack"); //$NON-NLS-1$
+                    ((MPartStack) partStack).getTags()
+                            .add(IModelConstants.TAG_X_STACK);
                 }
             } catch (SecurityException e) {
                 e.printStackTrace();
@@ -80,7 +81,7 @@ public class Perspective implements IPerspectiveFactory {
                 e.printStackTrace();
             }
         }
-        rightLayout.addView(IModelConstants.PART_ID_PROPERTIES);
+//        rightLayout.addView(IModelConstants.PART_ID_PROPERTIES);
 
 //        rightLayout.addPlaceholder(OUTLINE_VIEW_ID);
 //        rightLayout.addPlaceholder(MindMapUI.VIEW_MARKER);

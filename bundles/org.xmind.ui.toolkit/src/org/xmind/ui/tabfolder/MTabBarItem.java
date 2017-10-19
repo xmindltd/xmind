@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Item;
 import org.xmind.ui.util.IStyleProvider;
 
 /**
- * 
  * <dl>
  * <dt>Styles</dt>
  * <dd>RADIO, PUSH, SIMPLE, SEPARATOR</dd>
@@ -28,7 +27,7 @@ public class MTabBarItem extends Item {
     public static final String MARGIN = IStyleProvider.MARGIN;
     public static final String SEPARATOR = IStyleProvider.SEPARATOR;
 
-    private static final int DEFAULT_SEPARATOR_WIDTH = 24;
+    public static final int DEFAULT_SEPARATOR_WIDTH = 24;
 
     private MTabBar parent;
 
@@ -37,6 +36,8 @@ public class MTabBarItem extends Item {
 
     private boolean selected = false;
     private boolean preselected = false;
+
+    private String color;
 
     ///////////////////////////////////////////////////////////////////
     // Layout Caches
@@ -99,8 +100,8 @@ public class MTabBarItem extends Item {
 
     public void setWidth(int width) {
         checkWidget();
-        if (!isSeparator())
-            return;
+//        if (!isSeparator())
+//            return;
         if (width == SWT.DEFAULT)
             width = DEFAULT_SEPARATOR_WIDTH;
         if (width < SWT.SEPARATOR_FILL || width == this.width)
@@ -136,6 +137,14 @@ public class MTabBarItem extends Item {
             return;
         super.setText(string);
         parent.updateItem(this);
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     public boolean isSelected() {

@@ -742,4 +742,9 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
         timestamp = getFile().lastModified();
     }
 
+    @Override
+    public boolean exists() {
+        return getFile().exists();
+    }
+
 }

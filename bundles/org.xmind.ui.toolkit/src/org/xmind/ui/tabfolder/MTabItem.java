@@ -9,6 +9,8 @@ public class MTabItem extends MTabBarItem {
 
     private Control control = null;
 
+    private String tooltipText;
+
     public MTabItem(MTabFolder parent, int style) {
         super(parent.getTabBar(), style);
         this.parent = parent;
@@ -37,6 +39,14 @@ public class MTabItem extends MTabBarItem {
             return;
         parent.destroyItem(this);
         parent = null;
+    }
+
+    public void setTooltipText(String tooltipText) {
+        this.tooltipText = tooltipText;
+    }
+
+    public String getTooltipText() {
+        return tooltipText;
     }
 
 }

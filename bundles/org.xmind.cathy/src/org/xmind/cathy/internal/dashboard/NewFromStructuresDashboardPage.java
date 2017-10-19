@@ -1,6 +1,7 @@
 package org.xmind.cathy.internal.dashboard;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
@@ -17,6 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.xmind.cathy.internal.dashboard.StructureListContentProvider.StructureDescriptor;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
@@ -34,6 +36,9 @@ import org.xmind.ui.resources.ColorUtils;
 @SuppressWarnings("restriction")
 public class NewFromStructuresDashboardPage extends DashboardPage
         implements IAdaptable {
+
+    private static final int FRAME_WIDTH = 210;
+    private static final int FRAME_HEIGHT = 130;
 
     private GalleryViewer viewer;
 
@@ -65,13 +70,17 @@ public class NewFromStructuresDashboardPage extends DashboardPage
         properties.set(GalleryViewer.SolidFrames, true);
         properties.set(GalleryViewer.FlatFrames, true);
         properties.set(GalleryViewer.ImageConstrained, true);
+        properties.set(GalleryViewer.ImageStretched, Boolean.TRUE);
+        properties.set(GalleryViewer.ContentPaneBorderWidth, 1);
+        properties.set(GalleryViewer.ContentPaneBorderColor,
+                (Color) resources.get(ColorUtils.toDescriptor("#cccccc"))); //$NON-NLS-1$
+
+        properties.set(GalleryViewer.FrameContentSize,
+                new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
         properties.set(GalleryViewer.Layout,
                 new GalleryLayout(GalleryLayout.ALIGN_TOPLEFT,
                         GalleryLayout.ALIGN_TOPLEFT, 30, 0,
                         new Insets(10, 65, 20, 65)));
-        properties.set(GalleryViewer.ContentPaneBorderWidth, 1);
-        properties.set(GalleryViewer.ContentPaneBorderColor,
-                (Color) resources.get(ColorUtils.toDescriptor("#cccccc"))); //$NON-NLS-1$
 
         properties.set(GalleryViewer.ContentPaneSpaceCollaborativeEngine,
                 new SpaceCollaborativeEngine());
@@ -124,11 +133,11 @@ public class NewFromStructuresDashboardPage extends DashboardPage
             return;
 
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("CreateWorkbookCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("CreateSheetCount"); //$NON-NLS-1$
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("StructureTypeCount:" + structure.getValue()); //$NON-NLS-1$
+                .increase(UserDataConstants.CREATE_SHEET_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
+                UserDataConstants.STRUCTURE_TYPE_COUNT + structure.getValue());
         WorkbookInitializer initializer = WorkbookInitializer.getDefault()
                 .withStructureClass(structure.getValue()).withTheme(theme);
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()

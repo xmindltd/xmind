@@ -529,7 +529,7 @@ public class FilePathParser {
 
     @SuppressWarnings("nls")
     public static void main(String[] args) {
-        String absolutePath = "C:/bb/11/11/11/11/11";
+        String absolutePath = "C:/bb/11/11/11/11/1js军队建设";
         String base = "C:/bb";
         String relativePath = toRelativePath(base, absolutePath);
         System.out.println(relativePath);

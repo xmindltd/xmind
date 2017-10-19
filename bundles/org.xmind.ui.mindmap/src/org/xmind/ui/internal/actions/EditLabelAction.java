@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.viewers.ISelection;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -36,7 +37,7 @@ public class EditLabelAction extends RequestAction implements ISelectionAction {
     @Override
     public void run() {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("InsertLabelCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.INSERT_LABEL_COUNT);
         super.run();
     }
 

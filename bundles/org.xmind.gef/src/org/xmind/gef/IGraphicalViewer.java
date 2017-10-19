@@ -55,6 +55,8 @@ public interface IGraphicalViewer extends IViewer {
      */
     String VIEWER_IGNORE_SCROLL_EVENT = "ignoreScrollEvent"; //$NON-NLS-1$
 
+    String VIEWER_START_DRAG_THRESHOLD = "startDragThreshold"; //$NON-NLS-1$
+
     /**
      * A viewer property indicating that all text figures should be rendered as
      * a path.

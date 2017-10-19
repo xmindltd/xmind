@@ -21,6 +21,7 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISaveablePart;
+import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.xmind.core.Core;
 import org.xmind.core.ICloneData;
 import org.xmind.core.ISheet;
@@ -34,7 +35,7 @@ import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.MindMapUI;
 
-public class SaveSheetAsAction extends Action {
+public class SaveSheetAsAction extends Action implements IWorkbenchAction {
 
     private IGraphicalEditorPage page;
 
@@ -112,5 +113,10 @@ public class SaveSheetAsAction extends Action {
         for (ITopic child : topic.getAllChildren()) {
             initTopic(child);
         }
+    }
+
+    @Override
+    public void dispose() {
+        page = null;
     }
 }

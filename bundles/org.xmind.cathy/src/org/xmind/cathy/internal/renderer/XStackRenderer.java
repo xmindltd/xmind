@@ -1,127 +1,116 @@
 package org.xmind.cathy.internal.renderer;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+
+import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.e4.ui.model.application.ui.MElementContainer;
 import org.eclipse.e4.ui.model.application.ui.MUIElement;
-import org.eclipse.e4.ui.workbench.renderers.swt.StackRenderer;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.resource.LocalResourceManager;
-import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.e4.ui.model.application.ui.advanced.MPlaceholder;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MPartStack;
+import org.eclipse.e4.ui.model.application.ui.basic.MStackElement;
+import org.eclipse.e4.ui.workbench.IPresentationEngine;
+import org.eclipse.e4.ui.workbench.renderers.swt.LazyStackRenderer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
-import org.xmind.cathy.internal.CathyPlugin;
-import org.xmind.cathy.internal.WorkbenchMessages;
-import org.xmind.ui.internal.utils.CommandUtils;
-import org.xmind.ui.resources.ColorUtils;
+import org.eclipse.swt.widgets.Control;
 
-public class XStackRenderer extends StackRenderer {
+public class XStackRenderer extends LazyStackRenderer {
 
-    private ResourceManager resources;
+    @Inject
+    private IPresentationEngine renderer;
 
-    private Composite nullContent;
+    @Inject
+    private IEventBroker eventBroker;
 
     @Override
     public Object createWidget(MUIElement element, Object parent) {
-        final CTabFolder ctf = (CTabFolder) super.createWidget(element, parent);
-        resources = new LocalResourceManager(JFaceResources.getResources(),
-                ctf);
-        nullContent = createNullContentTipArea(ctf);
-        nullContent.moveBelow(null);
+        if (!(element instanceof MPartStack) || !(parent instanceof Composite))
+            return null;
 
-        ctf.addPaintListener(new PaintListener() {
+        MPartStack viewStack = (MPartStack) element;
 
-            @Override
-            public void paintControl(PaintEvent e) {
-                nullContent.moveBelow(null);
-            }
-        });
+        Composite parentComposite = (Composite) parent;
+        Composite viewContainer = null;
 
-        ctf.addControlListener(new ControlListener() {
+        // Ensure that all rendered PartStacks have an Id
+        if (element.getElementId() == null
+                || element.getElementId().length() == 0) {
+            String generatedId = "RightStack@" //$NON-NLS-1$
+                    + Integer.toHexString(element.hashCode());
+            element.setElementId(generatedId);
+        }
 
-            @Override
-            public void controlResized(ControlEvent e) {
-                nullContent.setBounds(ctf.getClientArea());
-            }
+        int styleOverride = getStyleOverride(viewStack);
+        int style = styleOverride == -1 ? SWT.NONE : styleOverride;
+        //TODO Should use custom composite?
+        viewContainer = new Composite(parentComposite, style);
+        viewContainer.setLayout(new StackLayout());
 
-            @Override
-            public void controlMoved(ControlEvent e) {
-                nullContent.setBounds(ctf.getClientArea());
-            }
-        });
+        bindWidget(element, viewContainer);
 
-        return ctf;
+        return viewContainer;
     }
 
-    private Composite createNullContentTipArea(CTabFolder parent) {
-        Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(
-                (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
-        GridLayout layout = new GridLayout(1, false);
-        composite.setLayout(layout);
+    @Override
+    protected void showTab(MUIElement element) {
+        super.showTab(element);
 
-        Composite centerArea = new Composite(composite, SWT.NONE);
-        centerArea.setBackground(composite.getBackground());
-        centerArea.setLayoutData(
-                new GridData(SWT.CENTER, SWT.CENTER, true, true));
-        GridLayout layout2 = new GridLayout(1, false);
-        layout2.marginWidth = 0;
-        layout2.marginHeight = 0;
-        layout2.verticalSpacing = 40;
-        centerArea.setLayout(layout2);
+        if (element instanceof MPartStack
+                && element.getRenderer() == XStackRenderer.this) {
+            MPartStack stackModel = (MPartStack) element;
+            MUIElement curSel = stackModel.getSelectedElement();
+            MPart part = (MPart) ((curSel instanceof MPlaceholder)
+                    ? ((MPlaceholder) curSel).getRef() : curSel);
+            if (curSel instanceof MPlaceholder) {
+                part.setCurSharedRef((MPlaceholder) curSel);
+            }
+        }
 
-        createTopArea(centerArea);
-        createBottomArea(centerArea);
+        // an invisible element won't have the correct widget hierarchy
+        if (!element.isVisible()) {
+            return;
+        }
 
-        return composite;
-    }
+        final Composite viewContainer = (Composite) getParentWidget(element);
+        Control ctrl = (Control) element.getWidget();
+        if (ctrl != null && ctrl.getParent() != viewContainer) {
+            ctrl.setParent(viewContainer);
+        } else if (ctrl == null) {
+            renderer.createGui(element);
+        }
 
-    private void createTopArea(Composite parent) {
-        Composite composite = new Composite(parent, SWT.NONE);
-        composite.setBackground(parent.getBackground());
-        composite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        GridLayout layout = new GridLayout(1, false);
-        layout.marginWidth = 0;
-        layout.marginHeight = 0;
-        layout.verticalSpacing = 20;
-        composite.setLayout(layout);
+        ctrl = (Control) element.getWidget();
 
-        Label imageLabel = new Label(composite, SWT.NONE);
-        imageLabel.setBackground(composite.getBackground());
-        imageLabel.setLayoutData(
-                new GridData(SWT.CENTER, SWT.CENTER, true, false));
-        imageLabel.setImage((Image) resources.get(
-                CathyPlugin.imageDescriptorFromPlugin(CathyPlugin.PLUGIN_ID,
-                        "icons/views/null_editor_tip.png"))); //$NON-NLS-1$
+        if (ctrl instanceof Composite) {
+            ((Composite) ctrl).layout(false, true);
+        }
+        ((StackLayout) viewContainer.getLayout()).topControl = ctrl;
+        viewContainer.layout(true, true);
 
     }
 
-    private void createBottomArea(Composite parent) {
-        Button button = new Button(parent, SWT.PUSH);
-        button.setText(WorkbenchMessages.XStackRenderer_BottomArea_Add_button);
-        GridData layoutData = new GridData(SWT.CENTER, SWT.CENTER, false,
-                false);
-        layoutData.widthHint = Math.max(128,
-                button.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 10);
-        button.setLayoutData(layoutData);
-        button.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                CommandUtils.executeCommand("org.xmind.ui.command.newWorkbook", //$NON-NLS-1$
-                        PlatformUI.getWorkbench().getActiveWorkbenchWindow());
-            }
-        });
+    @Override
+    public void childRendered(final MElementContainer<MUIElement> parentElement,
+            MUIElement element) {
+        super.childRendered(parentElement, element);
+
+        if (!(((MUIElement) parentElement) instanceof MPartStack)
+                || !(element instanceof MStackElement))
+            return;
+        showTab(element);
     }
 
+    @PostConstruct
+    public void init() {
+        super.init(eventBroker);
+    }
+
+    @PreDestroy
+    public void contextDisposed() {
+        super.contextDisposed(eventBroker);
+    }
 }

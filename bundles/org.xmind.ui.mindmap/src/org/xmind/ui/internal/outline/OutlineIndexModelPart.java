@@ -563,6 +563,7 @@ public class OutlineIndexModelPart extends ViewModelPart
     }
 
     protected void setFocus() {
+        super.setFocus();
         OutlineViewer outlineViewer = getOutlineViewer(sourceEditor,
                 parseOutlineTypeToViewerType(outlineType));
         if (outlineViewer != null && !outlineViewer.getControl().isDisposed()) {

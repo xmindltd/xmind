@@ -54,7 +54,6 @@ import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.forms.WidgetFactory;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dnd.MindMapElementTransfer;
 import org.xmind.ui.internal.e4models.IModelConstants;
 import org.xmind.ui.internal.utils.E4Utils;
@@ -443,8 +442,6 @@ public class MarkerPopoverMenuToolItem extends PopoverMenuToolItem {
         }
 
         public void run() {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("InsertMarkerCount"); //$NON-NLS-1$
             RecentMarkerGroup.instance.addMarker(marker);
             IWorkbenchPage page = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow().getActivePage();

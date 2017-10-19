@@ -26,8 +26,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.xmind.ui.internal.MindMapMessages;
 
-public class DropDownInsertImageAction extends Action implements
-        IWorkbenchAction, IPropertyChangeListener {
+public class DropDownInsertImageAction extends Action
+        implements IWorkbenchAction, IPropertyChangeListener {
 
     private class InsertImageMenuCreator implements IMenuCreator {
 
@@ -54,7 +54,8 @@ public class DropDownInsertImageAction extends Action implements
 
         private void fillMenu(Menu menu) {
             for (IWorkbenchAction action : imageActionExtensions) {
-                ActionContributionItem item = new ActionContributionItem(action);
+                ActionContributionItem item = new ActionContributionItem(
+                        action);
                 item.fill(menu, -1);
             }
         }
@@ -94,6 +95,10 @@ public class DropDownInsertImageAction extends Action implements
         if (sourceAction != null) {
             sourceAction.removePropertyChangeListener(this);
             sourceAction = null;
+        }
+        if (imageActionExtensions != null) {
+            imageActionExtensions.clear();
+            imageActionExtensions = null;
         }
     }
 

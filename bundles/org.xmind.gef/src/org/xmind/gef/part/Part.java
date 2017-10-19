@@ -112,6 +112,7 @@ public class Part implements IPart {
             throw new IllegalArgumentException(
                     "A part should NOT be added as its own child."); //$NON-NLS-1$
 
+        fireAddingChild(child, index);
         if (index == -1)
             index = getChildren().size();
         if (children == null) {
@@ -145,6 +146,7 @@ public class Part implements IPart {
         child.setParent(null);
         if (children != null && !children.isEmpty())
             children.remove(child);
+        fireChildRemoved(child, index);
     }
 
     protected void addChildView(IPart child, int index) {
@@ -315,6 +317,28 @@ public class Part implements IPart {
             PartEvent event = new PartEvent(this, child);
             for (Object listener : partListeners.toArray()) {
                 ((IPartListener) listener).childRemoving(event);
+            }
+        }
+    }
+
+    protected void fireAddingChild(IPart child, int index) {
+        if (partListeners != null) {
+            PartEvent event = new PartEvent(this, child);
+            for (Object listener : partListeners.toArray()) {
+                if (listener instanceof IPartListener2) {
+                    ((IPartListener2) listener).childAdding(event);
+                }
+            }
+        }
+    }
+
+    protected void fireChildRemoved(IPart child, int index) {
+        if (partListeners != null) {
+            PartEvent event = new PartEvent(this, child);
+            for (Object listener : partListeners.toArray()) {
+                if (listener instanceof IPartListener2) {
+                    ((IPartListener2) listener).childRemoved(event);
+                }
             }
         }
     }

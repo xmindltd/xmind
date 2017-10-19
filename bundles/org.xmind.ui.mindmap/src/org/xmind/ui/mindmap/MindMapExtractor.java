@@ -17,12 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.xmind.core.Core;
-import org.xmind.core.ICloneData;
 import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
@@ -71,31 +68,12 @@ public class MindMapExtractor {
         if (result == null) {
             result = Core.getWorkbookBuilder().createWorkbook(tempStorage);
             result.getMarkerSheet().setParentSheet(
-                    MindMapUI.getResourceManager().getUserMarkerSheet());
+                    MindMapUI.getResourceManager().getSystemMarkerSheet());
             CloneHandler cloner = new CloneHandler()
                     .withWorkbooks(sourceSheet.getOwnedWorkbook(), result);
             ISheet newSheet = (ISheet) cloner.cloneObject(sourceSheet);
             result.addSheet(newSheet);
             result.removeSheet(result.getPrimarySheet());
-
-            ITopic newRootTopic = (ITopic) cloner.cloneObject(sourceTopic);
-            newSheet.replaceRootTopic(newRootTopic);
-
-            Set<String> newRelIds = new HashSet<String>(sourceRels.size());
-            for (IRelationship sr : sourceRels) {
-                String newRelId = cloner.getMapper()
-                        .getString(ICloneData.WORKBOOK_COMPONENTS, sr.getId());
-                if (newRelId != null)
-                    newRelIds.add(newRelId);
-            }
-
-            Set<IRelationship> newRels = new HashSet<IRelationship>(
-                    newSheet.getRelationships());
-            for (IRelationship r : newRels) {
-                if (!newRelIds.contains(r.getId())) {
-                    newSheet.removeRelationship(r);
-                }
-            }
         }
         return result;
     }

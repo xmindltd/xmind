@@ -412,6 +412,18 @@ public class NewFileDashboardPage extends DashboardPage implements IAdaptable {
         getContext().setSelectionProvider(getAdapter(ISelectionProvider.class));
     }
 
+    @Override
+    public void dispose() {
+        if (pages != null) {
+            for (IDashboardPage page : pages) {
+                page.dispose();
+            }
+            pages.clear();
+            pages = null;
+        }
+        super.dispose();
+    }
+
     private void updateTitleBar() {
         MTabBarItem item = tabBar.getSelection();
         IDashboardPage page = (IDashboardPage) item.getData();

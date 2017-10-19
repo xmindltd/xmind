@@ -549,7 +549,6 @@ public class HttpRequest {
                 log("Error stream is NULL, response state: {0} {1}", //$NON-NLS-1$
                         connection.getResponseCode(),
                         connection.getResponseMessage());
-                throw new InterruptedException();
             } else {
                 readResponse(monitor, connection, errorStream,
                         connection.getResponseCode(),

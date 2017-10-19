@@ -71,6 +71,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
+import org.eclipse.ui.internal.E4PartWrapper;
 import org.eclipse.ui.part.IContributedContentsView;
 import org.eclipse.ui.services.IServiceLocator;
 import org.xmind.core.Core;
@@ -86,6 +87,7 @@ import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource2;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.command.ICommandStack;
@@ -207,7 +209,7 @@ public class NotesPart extends ViewModelPart
                 return;
 
             MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("NotesInsertImageCount"); //$NON-NLS-1$
+                    .increase(UserDataConstants.NOTES_INSERT_IMAGE_COUNT);
 
             String path = getPath();
             if (path == null)
@@ -252,7 +254,7 @@ public class NotesPart extends ViewModelPart
 
         public void run() {
             MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("NotesInsertHyperlinkCount"); //$NON-NLS-1$
+                    .increase(UserDataConstants.NOTES_INSERT_HYPERLINK_COUNT);
 
             IRichTextRenderer renderer = viewer.getRenderer();
             ITextSelection selection = (ITextSelection) viewer.getSelection();
@@ -412,9 +414,9 @@ public class NotesPart extends ViewModelPart
         protected void handleFontSelectionChanged(SelectionChangedEvent event) {
             super.handleFontSelectionChanged(event);
             MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("NotesFontChangeCount"); //$NON-NLS-1$
+                    .increase(UserDataConstants.NOTES_FONT_CHANGE_COUNT);
             MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("FontChangeCount"); //$NON-NLS-1$
+                    .increase(UserDataConstants.FONT_CHANGE_ALL_COUNT);
         }
     }
 
@@ -501,7 +503,7 @@ public class NotesPart extends ViewModelPart
         workbenchWindow.getActivePage().addPartListener(this);
         showBootstrapContent();
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("UseNotesCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.USE_NOTES_COUNT);
         return contentArea;
     }
 
@@ -812,7 +814,8 @@ public class NotesPart extends ViewModelPart
         notes.setContent(INotes.PLAIN, adapter.makeNewPlainContent());
     }
 
-    public void setFocus() {
+    protected void setFocus() {
+        super.setFocus();
         if (viewer instanceof TopicNotesViewer) {
             ((TopicNotesViewer) viewer).getImplementation().getFocusControl()
                     .setFocus();
@@ -1067,7 +1070,10 @@ public class NotesPart extends ViewModelPart
     public void partActivated(IWorkbenchPart part) {
         if (DEBUG)
             System.out.println("Part activated: " + part); //$NON-NLS-1$
-        if (part == this || !(part instanceof IEditorPart))
+        MPart modelPart = (MPart) getAdapter(MPart.class);
+        Object e4Wrapper = modelPart.getTransientData()
+                .get(E4PartWrapper.E4_WRAPPER_KEY);
+        if (part == e4Wrapper || !(part instanceof IEditorPart))
             return;
 
         if (part instanceof IGraphicalEditor) {
@@ -1089,7 +1095,10 @@ public class NotesPart extends ViewModelPart
     public void partDeactivated(IWorkbenchPart part) {
         if (DEBUG)
             System.out.println("Part deactivated: " + part); //$NON-NLS-1$
-        if (part == this) {
+        MPart modelPart = (MPart) getAdapter(MPart.class);
+        Object e4Wrapper = modelPart.getTransientData()
+                .get(E4PartWrapper.E4_WRAPPER_KEY);
+        if (part == e4Wrapper) {
             saveNotes();
         }
     }

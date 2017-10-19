@@ -207,6 +207,7 @@ public class WizardMessages extends NLS {
     public static String NewWorkbookEditor_OpenLocalFileLink_text;
     public static String NewWorkbookEditor_OpenHomeMapLink_text;
     public static String NewWorkbookEditor_OpenPreferencesLink_text;
+    public static String ExportWizard_SuggestedFileName;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, WizardMessages.class);

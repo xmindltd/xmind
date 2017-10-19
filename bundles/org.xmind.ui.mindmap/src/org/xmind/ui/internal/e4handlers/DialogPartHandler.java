@@ -21,6 +21,7 @@ import org.xmind.ui.internal.e4models.IModelConstants;
 public class DialogPartHandler {
 
     private static final String DIALOG_PREFIX = "DIALOG:"; //$NON-NLS-1$
+    private static final String DIALOG_PART_SHARED_LIBRARIES = "org.xmind.ui.dialogPart.sharedLibraries"; //$NON-NLS-1$
 
     private static final int DEFAULT_DIALOG_Y = 0;
     private static final int DEFAULT_DIALOG_X = 0;
@@ -135,7 +136,12 @@ public class DialogPartHandler {
     }
 
     @CanExecute
-    public boolean canExecute(MApplication app, EModelService modelService) {
+    public boolean canExecute(MApplication app, EModelService modelService,
+            @Named(IModelConstants.KEY_MODEL_PART_COMMAND_PARAMETER_PART_ID) String partId) {
+        if (DIALOG_PART_SHARED_LIBRARIES.equals(partId)) {
+            return true;
+        }
+
         List<MPart> editors = modelService.findElements(app, null, MPart.class,
                 Arrays.asList(IModelConstants.TAG_EDITOR));
         if (!editors.isEmpty()) {

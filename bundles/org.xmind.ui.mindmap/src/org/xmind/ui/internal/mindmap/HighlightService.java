@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.draw2d.IRelayerableFigure;
 import org.xmind.gef.draw2d.IRelayeredPane;
@@ -30,13 +31,14 @@ import org.xmind.gef.draw2d.IUseTransparency;
 import org.xmind.gef.draw2d.SimpleRectangleFigure;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.service.GraphicalViewerService;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.tools.MindMapFeedbackFactory;
 import org.xmind.ui.mindmap.IHighlightService;
 import org.xmind.ui.mindmap.ISheetPart;
 import org.xmind.ui.resources.ColorUtils;
 
-public class HighlightService extends GraphicalViewerService implements
-        ISelectionChangedListener, IHighlightService {
+public class HighlightService extends GraphicalViewerService
+        implements ISelectionChangedListener, IHighlightService {
 
     private static final int DEFAULT_ALPHA = 0x80;
 
@@ -75,7 +77,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#getHighlightLayer()
      */
@@ -85,7 +86,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#setHighlightLayer
      * (org.xmind.ui.internal.layers.SkylightLayer)
@@ -96,7 +96,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#setHighlightArea
      * (org.eclipse.draw2d.geometry.Rectangle)
@@ -152,7 +151,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#getHighlightArea()
      */
@@ -162,7 +160,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#getRelayeredPane()
      */
@@ -172,7 +169,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#setRelayeredPane
      * (org.xmind.ui.internal.layers.IRelayeredPane)
@@ -187,10 +183,8 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * org.xmind.ui.internal.presentation.IHighlightService#highlight(org.eclipse
-     * .jface.viewers.ISelection)
+     * @see org.xmind.ui.internal.presentation.IHighlightService#highlight(org.
+     * eclipse .jface.viewers.ISelection)
      */
     public void highlight(ISelection selection) {
         highlight(collectPartsToReveal(selection), DEFAULT_ALPHA);
@@ -202,7 +196,6 @@ public class HighlightService extends GraphicalViewerService implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.internal.presentation.IHighlightService#highlight(java.util
      * .List)
@@ -223,13 +216,16 @@ public class HighlightService extends GraphicalViewerService implements
         highlights = toHighlight;
         if (highlights != null && !highlights.isEmpty() && isActive()) {
             addToLayer(highlights);
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase(UserDataConstants.FILTER_DARKER_COUNT);
         }
     }
 
     private List<IGraphicalPart> collectPartsToReveal(ISelection selection) {
         if (selection instanceof IStructuredSelection) {
             IStructuredSelection ss = (IStructuredSelection) selection;
-            List<IGraphicalPart> list = new ArrayList<IGraphicalPart>(ss.size());
+            List<IGraphicalPart> list = new ArrayList<IGraphicalPart>(
+                    ss.size());
             for (Object o : ss.toList()) {
                 IGraphicalPart p = getViewer().findGraphicalPart(o);
                 if (p != null && !exclude(p)) {
@@ -265,8 +261,8 @@ public class HighlightService extends GraphicalViewerService implements
             for (IGraphicalPart p : parts) {
                 IFigure figure = p.getFigure();
                 if (figure instanceof IRelayerableFigure) {
-                    relayeredPane
-                            .removeRelayerableFigure((IRelayerableFigure) figure);
+                    relayeredPane.removeRelayerableFigure(
+                            (IRelayerableFigure) figure);
                 }
             }
         }

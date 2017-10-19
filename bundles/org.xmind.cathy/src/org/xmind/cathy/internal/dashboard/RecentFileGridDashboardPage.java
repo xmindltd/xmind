@@ -17,10 +17,6 @@ import org.xmind.ui.views.PageStack;
 public class RecentFileGridDashboardPage extends DashboardPage
         implements IAdaptable {
 
-    private static final String COMMAND_OPEN_SEAWIND_FILE_ID = "org.xmind.ui.seawind.command.openSeawindFile"; //$NON-NLS-1$
-
-    private static final String COMMAND_OPEN_LOCAL_FILE_ID = "org.xmind.ui.mindmap.command.openLocalFile"; //$NON-NLS-1$
-
     private GalleryViewer viewer;
 
     private PageStack stack;
@@ -29,28 +25,41 @@ public class RecentFileGridDashboardPage extends DashboardPage
 
     IPage recentFileGridPage;
 
+    private IEditorHistoryListener editorHistoryListener = new IEditorHistoryListener() {
+
+        @Override
+        public void editorHistoryChanged() {
+            if (getControl() == null || getControl().isDisposed())
+                return;
+            if (Display.getCurrent() == null)
+                return;
+            showPage(editorHistory);
+        }
+    };
+
+    private IEditorHistory editorHistory;
+
     public void createControl(Composite parent) {
 
         stack = new PageStack();
         stack.createControl(parent);
         stack.getControl().setBackground(parent.getBackground());
 
-        final IEditorHistory editorHistory = PlatformUI.getWorkbench()
+        editorHistory = PlatformUI.getWorkbench()
                 .getService(IEditorHistory.class);
-        editorHistory.addEditorHistoryListener(new IEditorHistoryListener() {
-
-            @Override
-            public void editorHistoryChanged() {
-                if (getControl() == null || getControl().isDisposed())
-                    return;
-                if (Display.getCurrent() == null)
-                    return;
-                showPage(editorHistory);
-            }
-        });
+        editorHistory.addEditorHistoryListener(editorHistoryListener);
 
         //do chose which viewer will show;
         showPage(editorHistory);
+    }
+
+    @Override
+    public void dispose() {
+        if (editorHistory != null) {
+            editorHistory.removeEditorHistoryListener(editorHistoryListener);
+            editorHistory = null;
+        }
+        super.dispose();
     }
 
     private void showPage(final IEditorHistory editorHistory) {
@@ -86,9 +95,6 @@ public class RecentFileGridDashboardPage extends DashboardPage
         context.registerAvailableCommandId(
                 IWorkbenchCommandConstants.EDIT_DELETE);
 
-        //register command in DashboardContext
-        context.registerAvailableCommandId(COMMAND_OPEN_SEAWIND_FILE_ID);
-        context.registerAvailableCommandId(COMMAND_OPEN_LOCAL_FILE_ID);
     }
 
     public void setFocus() {

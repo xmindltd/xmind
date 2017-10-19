@@ -67,6 +67,7 @@ import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerRef;
@@ -134,11 +135,7 @@ import org.xmind.ui.viewers.SWTUtils;
 
 public class MindMapSelectTool extends SelectTool {
 
-    private static final int DRAG_DETECT_DELTA = 3;
-
     private IBranchPart movingSourceBranch = null;
-
-    private boolean isDragDetect = false;
 
     public MindMapSelectTool() {
         setContextId(MindMapUI.CONTEXT_MINDMAP_EDIT);
@@ -149,7 +146,6 @@ public class MindMapSelectTool extends SelectTool {
     }
 
     public boolean handleMouseDown(MouseEvent me) {
-        isDragDetect = false;
         if (me.target instanceof IPlusMinusPart) {
             if (me.target.getParent() instanceof IBranchPart) {
                 IBranchPart branch = (IBranchPart) me.target.getParent();
@@ -497,25 +493,8 @@ public class MindMapSelectTool extends SelectTool {
     }
 
     protected boolean handleMouseDrag(MouseDragEvent me) {
-        if (!isDragDetect) {
-            isDragDetect = shouldDragDetect(me);
-        }
-        if (!isDragDetect) {
-            return false;
-        }
-
         movingSourceBranch = null;
         return super.handleMouseDrag(me);
-    }
-
-    private boolean shouldDragDetect(MouseDragEvent me) {
-        if (me == null) {
-            return false;
-        }
-
-        int delta = Math.abs(me.cursorLocation.x - me.startingLocation.x)
-                + Math.abs(me.cursorLocation.y - me.startingLocation.y);
-        return delta >= DRAG_DETECT_DELTA;
     }
 
     protected boolean canMove(IPart host, MouseDragEvent me) {
@@ -917,12 +896,13 @@ public class MindMapSelectTool extends SelectTool {
         for (String fileName : fileNames) {
             if (fileName.contains(".")) { //$NON-NLS-1$
                 MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(String.format("AttachmentFormatCount:%s", //$NON-NLS-1$
+                        .increase(String.format(
+                                UserDataConstants.ATTACHMENT_FORMAT_COUNT_S,
                                 fileName.toLowerCase().substring(
                                         fileName.lastIndexOf('.') + 1)));
             } else {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase("AttachmentFormatCount:BlankFormat"); //$NON-NLS-1$
+                MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
+                        UserDataConstants.ATTACHMENT_FORMAT_COUNT_BLANK_FORMAT);
             }
             String path = new File(parentPath, fileName).getAbsolutePath();
             paths.add(path);

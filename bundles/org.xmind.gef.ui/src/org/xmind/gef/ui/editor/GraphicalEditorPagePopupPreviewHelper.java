@@ -23,6 +23,8 @@ import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
@@ -86,7 +88,7 @@ public class GraphicalEditorPagePopupPreviewHelper {
     }
 
     private void hookTabFolder() {
-        Listener listener = new Listener() {
+        final Listener listener = new Listener() {
             public void handleEvent(Event event) {
                 switch (event.type) {
                 case SWT.MouseHover:
@@ -120,6 +122,16 @@ public class GraphicalEditorPagePopupPreviewHelper {
         tabFolder.addListener(SWT.Dispose, listener);
         tabFolder.addListener(SWT.FocusOut, listener);
         tabFolder.getShell().addListener(SWT.Deactivate, listener);
+        tabFolder.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (tabFolder != null && !tabFolder.isDisposed()) {
+                    tabFolder.getShell().removeListener(SWT.Deactivate,
+                            listener);
+                }
+
+            }
+        });
     }
 
     private void showPopup(Event e) {

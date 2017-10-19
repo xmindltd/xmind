@@ -56,7 +56,7 @@ public class ScalableEditPolicy extends AbstractEditPolicy {
         } else if (GEF.REQ_ZOOMOUT.equals(type)) {
             performZoomOut(getGraphicalViewer(req));
         } else if (GEF.REQ_ACTUALSIZE.equals(type)) {
-            performActualSize(getGraphicalViewer(req));
+            performActualSize(req);
         } else if (GEF.REQ_FITSIZE.equals(type)) {
             performFitSize(getGraphicalViewer(req));
         } else if (GEF.REQ_FITSELECTION.equals(type)) {
@@ -76,17 +76,17 @@ public class ScalableEditPolicy extends AbstractEditPolicy {
             IGraphicalViewer viewer) {
         PrecisionPoint center = viewer == null ? null
                 : new PrecisionPoint(viewer.getCenterPoint());
-        if (center != null && viewer != null) {
-            center.scale(1 / viewer.getZoomManager().getScale());
-        }
+        double oldScale = viewer.getZoomManager().getScale();
 
         try {
             action.run();
         } finally {
             if (viewer != null && center != null) {
                 if (viewer.getZoomManager() != null)
-                    center.scale(viewer.getZoomManager().getScale());
-                viewer.center(center.toDraw2DPoint());
+                    center.scale(
+                            2 * viewer.getZoomManager().getScale() / oldScale);
+                if (viewer.getZoomManager().getScale() != oldScale)
+                    viewer.center(center.toDraw2DPoint());
             }
         }
     }
@@ -123,12 +123,31 @@ public class ScalableEditPolicy extends AbstractEditPolicy {
     /**
      * 
      */
-    protected void performActualSize(final IGraphicalViewer viewer) {
+    protected void performActualSize(Request req) {
+        final IGraphicalViewer viewer = getGraphicalViewer(req);
         if (viewer == null)
             return;
 
-        viewer.getZoomManager().actualSize();
-        viewer.center(0, 0);
+        List<IPart> selectedParts = req.getTargets();
+        if (selectedParts.isEmpty()) {
+            selectedParts = viewer.getSelectionSupport().getPartSelection();
+        }
+        if (selectedParts.isEmpty())
+            return;
+
+        final Rectangle bounds = getSelectionBounds(viewer, selectedParts);
+        if (bounds != null) {
+            IFigure viewport = ((IGraphicalViewer) viewer).getCanvas()
+                    .getViewport();
+            viewer.getZoomManager().actualSize();
+            bounds.getCenter().scale(viewer.getZoomManager().getScale());
+            viewport.getUpdateManager().runWithUpdate(new Runnable() {
+                public void run() {
+                    viewer.center(bounds.getCopy()
+                            .scale(viewer.getZoomManager().getScale() * 2));
+                }
+            });
+        }
     }
 
     /**

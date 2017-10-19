@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.Section;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
@@ -40,6 +41,7 @@ import org.xmind.ui.gallery.FramePart;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.utils.ResourceUtils;
 import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -390,6 +392,9 @@ public class MarkerResourceManagerViewer extends ResourceManagerViewer {
         if (category instanceof IMarkerGroup) {
             List<IMarker> newMarkers = ResourceUtils
                     .addMarkersFor((IMarkerGroup) category);
+            for (IMarker marker : newMarkers)
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase(UserDataConstants.USER_MARKER_COUNT);
             refresh();
             reveal(category);
             setSelection(new StructuredSelection(newMarkers), true);

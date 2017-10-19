@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapImages;
@@ -263,9 +264,6 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
             throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ExportToTextCount"); //$NON-NLS-1$
-
         monitor.beginTask(null, 100);
 
         monitor.subTask(WizardMessages.Export_Initializing);
@@ -371,7 +369,7 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
     @Override
     protected boolean doExport() {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ExportToTxtCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.EXPORT_TO_TXT_COUNT);
         return super.doExport();
     }
 

@@ -11,6 +11,7 @@ import org.xmind.gef.Request;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.tools.StyleCopyPasteTool;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.style.Styles;
 
 public class PasteStyleHandler extends AbstractHandler {
 
@@ -34,6 +35,11 @@ public class PasteStyleHandler extends AbstractHandler {
         EditDomain editDomain = viewer.getEditDomain();
         if (editDomain == null)
             return;
+
+        String bg = sourceStyle.getProperty(Styles.Background);
+        if (bg != null && !"".equals(bg)) { //$NON-NLS-1$
+            sourceStyle.setProperty(Styles.Background, ""); //$NON-NLS-1$
+        }
 
         editDomain.handleRequest(new Request(MindMapUI.REQ_MODIFY_STYLE)
                 .setViewer(viewer).setDomain(editDomain)

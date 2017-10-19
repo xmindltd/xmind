@@ -126,7 +126,7 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
 
     private IWorkbenchAction duplicateAction;
 
-    private DropDownInsertImageAction dropDownInsertImageAction;
+    private IWorkbenchAction dropDownInsertImageAction;
 
     private IWorkbenchAction removeAllStylesAction;
 
@@ -246,6 +246,7 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
         addRetargetAction((RetargetAction) pasteSheetAction);
 
         saveSheetAsAction = new SaveSheetAsAction();
+        addAction(saveSheetAsAction);
 
         createRelationshipAction = MindMapActionFactory.CREATE_RELATIONSHIP
                 .create(window);
@@ -279,6 +280,7 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
         addAction(findReplaceAction);
 
         renameSheetAction = new RenameSheetAction();
+        addAction(renameSheetAction);
 
         deleteAction = ActionFactory.DELETE.create(window);
         addRetargetAction((RetargetAction) deleteAction);
@@ -318,6 +320,7 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
             imageActionExtensions.add(0, insertImageAction);
             dropDownInsertImageAction = new DropDownInsertImageAction(
                     insertImageAction, imageActionExtensions);
+            addAction(dropDownInsertImageAction);
             dropDownInsertImageAction.setText(insertImageAction.getText());
             dropDownInsertImageAction
                     .setToolTipText(insertImageAction.getToolTipText());
@@ -439,6 +442,7 @@ public class MindMapContributor extends GraphicalEditorActionBarContributor
             selectionService.removeSelectionListener(this);
             selectionService = null;
         }
+        page = null;
         super.dispose();
     }
 

@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.prefs.PrefConstants;
@@ -30,7 +31,7 @@ public class AllowOverlapsAction extends BooleanPrefAction {
     @Override
     public void run() {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("AllowOverlapCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.ALLOW_OVERLAP_COUNT);
         super.run();
     }
 

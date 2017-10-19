@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.viewers.ISelection;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -38,7 +39,7 @@ public class InsertAttachmentAction extends RequestAction
     @Override
     public void run() {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("AddAttachmentCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.ADD_ATTACHMENT_COUNT);
         super.run();
     }
 

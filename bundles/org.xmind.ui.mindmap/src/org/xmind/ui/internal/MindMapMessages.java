@@ -263,6 +263,8 @@ public class MindMapMessages extends NLS {
     public static String LoadWorkbookJob_text;
     public static String LoadWorkbookJob_errorDialog_GoToBackup_message;
 
+    public static String OpenLocalFileHandler_MessageDialog_title;
+
     public static String LoadWorkbookJob_errorDialog_title;
 
     public static String LoadWorkbookJob_errorDialog_Pre_message;
@@ -675,8 +677,6 @@ public class MindMapMessages extends NLS {
     public static String WorkbookRevisionDialog_title;
     public static String WorkbookRevisionDialog_Disable_hyperlink;
 
-    public static String OpenLocalFileHandler_MessageDialog_title;
-
     public static String LocalImageModelPage_title;
     public static String LocalImageModelPage_ImageSection_description;
     public static String LocalImageModelPage_Insert_button;
@@ -767,6 +767,16 @@ public class MindMapMessages extends NLS {
     public static String ThemeGroupCore_DefaultGroup_name;
 
     public static String ExportPage_Categore_Recent_name;
+
+    public static String MarkerResourceManagerPage_AddGroup;
+
+    public static String MarkerResourceManagerPage_UserGroup;
+
+    public static String FileNotExistDialog_Title;
+    public static String FileNotExistDialog_Message;
+
+    public static String CloudFileNotExistDialog_Title;
+    public static String CloudFileNotExistDialog_Message;
 
     static {
         // initialize resource bundle

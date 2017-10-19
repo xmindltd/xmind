@@ -6,4 +6,5 @@ Bundle-Version: 3.7.0.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: org.xmind.core.usagedata
+Export-Package: org.xmind.core.internal;x-internal:=true,
+ org.xmind.core.usagedata

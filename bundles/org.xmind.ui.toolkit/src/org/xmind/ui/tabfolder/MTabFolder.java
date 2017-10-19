@@ -7,6 +7,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
@@ -26,6 +27,8 @@ public class MTabFolder extends Composite {
 
     private Composite body;
 
+    private MTabItem tooltipItem;
+
     private IStyleProvider styleProvider = new StyleProvider();
     private boolean usingDefaultStyles = true;
 
@@ -34,6 +37,16 @@ public class MTabFolder extends Composite {
             switch (event.type) {
             case SWT.Selection:
                 handleItemSelection(event);
+                break;
+            }
+        }
+    };
+
+    private Listener mouseMoveEventHandler = new Listener() {
+        public void handleEvent(Event event) {
+            switch (event.type) {
+            case SWT.MouseMove:
+                handleItemMouseEntered(new Point(event.x, event.y));
                 break;
             }
         }
@@ -62,6 +75,9 @@ public class MTabFolder extends Composite {
         this.tabBar
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         this.tabBar.addListener(SWT.Selection, itemEventHandler);
+        this.tabBar.addListener(SWT.MouseMove, mouseMoveEventHandler);
+        initialItemTooltip();
+
         this.tabBar.setStyleProvider(getStyleProvider());
 
         this.body = new Composite(this, SWT.NONE);
@@ -198,6 +214,37 @@ public class MTabFolder extends Composite {
             this.body.layout(true);
             item.getControl().moveAbove(null);
         }
+    }
+
+    private void handleItemMouseEntered(Point location) {
+        MTabItem item = (MTabItem) getItem(location);
+        if (item != tooltipItem) {
+            if (tabBar.getToolTipText() != null) {
+                tabBar.setToolTipText(null);
+            }
+            if (item != null) {
+                String itemTooltipText = item.getTooltipText();
+                if (itemTooltipText != null && !"".equals(itemTooltipText)) { //$NON-NLS-1$
+                    tabBar.setToolTipText(itemTooltipText);
+                }
+            }
+            tooltipItem = item;
+        }
+    }
+
+    private void initialItemTooltip() {
+        final Display display = tabBar.getDisplay();
+        display.asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                if (tabBar != null && !tabBar.isDisposed()) {
+                    Point location = tabBar
+                            .toControl(display.getCursorLocation());
+                    handleItemMouseEntered(location);
+                }
+            }
+        });
     }
 
     public IStyleProvider getStyleProvider() {

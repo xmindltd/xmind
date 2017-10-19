@@ -62,7 +62,7 @@ public class LanguagePreferencePageSection
     private static final String blue = "#0070D8";  //$NON-NLS-1$
 
     private static final String[] supportedLangsKey = { "en_US", "de", "fr", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            "zh_CN", "zh_TW", "ja", "ko", "da", "es" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+            "zh_CN", "zh_TW", "ja", "ko", "da", "es", "sl", "it" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
     private Map<Composite, String> langMap = null;
 
@@ -76,12 +76,6 @@ public class LanguagePreferencePageSection
                     : System.getProperty(LANGUAGE_OSGI_NL_KEY);
         }
     }
-
-//    @Override
-//    public void createControl(Composite parent) {
-//        Control body = createContents(parent);
-//        setControl(body);
-//    }
 
     @Override
     protected Control createContents(Composite parent) {
@@ -98,10 +92,16 @@ public class LanguagePreferencePageSection
         describe.setText(WorkbenchMessages.ChangeLanguageTo_description);
 
         langLabel = new Label(topContainer, SWT.NONE);
-        langLabel.setText(supportLanguageProperties.getProperty(oldLangKey));
-        GridDataFactory.fillDefaults().grab(true, false).applyTo(langLabel);
+        if (supportLanguageProperties == null)
+            supportLanguageProperties = loadProperties(
+                    getSupportLanguageFile());
+        String langString = supportLanguageProperties.getProperty(oldLangKey);
+        langString = langString != null ? langString : " "; //$NON-NLS-1$
 
+        langLabel.setText(langString);
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(langLabel);
         GridLayout parentLayout = (GridLayout) parent.getLayout();
+
         if (parentLayout != null) {
             parentLayout.verticalSpacing = 10;
         }

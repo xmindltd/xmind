@@ -21,12 +21,13 @@ public class MindMapEditorInput implements IEditorInput, IPersistableElement {
     private IWorkbookRef workbookRef;
 
     public MindMapEditorInput(URI uri) {
-        this(uri, null);
+        this(uri, MindMapUIPlugin.getDefault().getWorkbookRefFactory()
+                .createWorkbookRef(uri, null));
         Assert.isNotNull(uri);
     }
 
     public MindMapEditorInput(IWorkbookRef workbookRef) {
-        this(null, workbookRef);
+        this(workbookRef.getURI(), workbookRef);
         Assert.isNotNull(workbookRef);
     }
 
@@ -36,10 +37,6 @@ public class MindMapEditorInput implements IEditorInput, IPersistableElement {
     }
 
     public IWorkbookRef getWorkbookRef() {
-        if (workbookRef == null) {
-            workbookRef = MindMapUIPlugin.getDefault().getWorkbookRefFactory()
-                    .createWorkbookRef(uri, null);
-        }
         return this.workbookRef;
     }
 
@@ -49,6 +46,10 @@ public class MindMapEditorInput implements IEditorInput, IPersistableElement {
         if (workbookRef != null)
             return workbookRef.getURI();
         throw new IllegalStateException("URI and workbookRef are both null"); //$NON-NLS-1$
+    }
+
+    public void dispose() {
+        workbookRef = null;
     }
 
     public <T> T getAdapter(Class<T> adapter) {
@@ -143,9 +144,14 @@ public class MindMapEditorInput implements IEditorInput, IPersistableElement {
         if (obj == null || !(obj instanceof MindMapEditorInput))
             return false;
         MindMapEditorInput that = (MindMapEditorInput) obj;
-        IWorkbookRef thisWR = this.getWorkbookRef();
-        IWorkbookRef thatWR = that.getWorkbookRef();
-        return thisWR == thatWR || (thisWR != null && thisWR.equals(thatWR));
+        IWorkbookRef thisWR = this.workbookRef;
+        IWorkbookRef thatWR = that.workbookRef;
+        URI thisURI = this.uri;
+        URI thatURI = that.uri;
+        return (thisURI == thatURI
+                || (thisURI != null && thisURI.equals(thatURI)))
+                && (thisWR == thatWR
+                        || (thisWR != null && thisWR.equals(thatWR)));
     }
 
     @Override

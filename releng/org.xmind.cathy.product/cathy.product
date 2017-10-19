@@ -23,7 +23,9 @@ openFile
       <programArgsWin>-eclipse.keyring
 @user.home/.xmind/secure_storage_win32
       </programArgsWin>
-      <programArgsLinux>-eclipse.keyring
+      <programArgsLinux>--launcher.GTK_version
+2
+-eclipse.keyring
 @user.home/.xmind/secure_storage_linux
       </programArgsLinux>
       <vmArgs>-Dfile.encoding=UTF-8

@@ -32,6 +32,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
@@ -72,7 +73,7 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
             if (o instanceof String) {
                 changeFontName((String) o);
                 MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase("FontChangeCount"); //$NON-NLS-1$
+                        .increase(UserDataConstants.FONT_CHANGE_ALL_COUNT);
             }
         }
 
@@ -457,7 +458,11 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
             picker.setAutoColor(null);
         } else {
             IGraphicalPart part = getGraphicalPart(getSelectedElements()[0]);
+            if (part == null)
+                return;
             IStyleSelector ss = getStyleSelector(part);
+            if (ss == null)
+                return;
             String autoValue = ss.getAutoValue(part, Styles.TextColor);
             RGB autoColor = StyleUtils.convertRGB(Styles.TextColor, autoValue);
             picker.setAutoColor(autoColor);

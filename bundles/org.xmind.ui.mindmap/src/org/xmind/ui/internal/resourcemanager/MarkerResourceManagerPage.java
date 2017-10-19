@@ -18,9 +18,11 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventSupport;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
+import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.e4models.IContextRunnable;
 import org.xmind.ui.internal.e4models.IModelConstants;
@@ -36,8 +38,6 @@ public class MarkerResourceManagerPage extends ResourceManagerDialogPage
     private MarkerResourceManagerViewer viewer;
 
     static final String USER_MARKER_PATH = "markers/markerSheet.xml"; //$NON-NLS-1$
-
-    private static final String USER_GROUP_PREFIX = "User Group "; //$NON-NLS-1$
 
     @Override
     protected ResourceManagerViewer createViewer() {
@@ -67,18 +67,18 @@ public class MarkerResourceManagerPage extends ResourceManagerDialogPage
     @Override
     protected void createButtonsForButtonBar(Composite buttonBar) {
         Button button = createButton(buttonBar, ADD_GROUP_BUTTON_ID,
-                "Add Group", false); //$NON-NLS-1$
+                MindMapMessages.MarkerResourceManagerPage_AddGroup, false);
         button.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase("UserMarkerCount"); //$NON-NLS-1$
+                        .increase(UserDataConstants.USER_ADD_GROUP_COUNT);
                 IMarkerSheet markerSheet = MindMapUI.getResourceManager()
                         .getUserMarkerSheet();
-                int groupNo = getNewGroupNo(markerSheet);
                 IMarkerGroup group = MindMapUI.getResourceManager()
                         .getUserMarkerSheet().createMarkerGroup(true);
-                group.setName(USER_GROUP_PREFIX + groupNo);
+                group.setName(
+                        MindMapMessages.MarkerResourceManagerPage_UserGroup);
                 markerSheet.addMarkerGroup(group);
                 try {
                     MindMapUI.getResourceManager().saveUserMarkerSheet();
@@ -211,27 +211,6 @@ public class MarkerResourceManagerPage extends ResourceManagerDialogPage
     @Override
     public String getModelPageTitle() {
         return null;
-    }
-
-    private int getNewGroupNo(IMarkerSheet sheet) {
-        List<IMarkerGroup> markerGroups = sheet.getMarkerGroups();
-        int i = 0;
-        for (IMarkerGroup group : markerGroups) {
-            String groupName = group.getName();
-            if (groupName.startsWith(USER_GROUP_PREFIX)) {
-                try {
-                    Integer toCompare = Integer.valueOf(groupName
-                            .substring(groupName.lastIndexOf(' ') + 1));
-                    if (toCompare > i) {
-                        i = toCompare;
-                    }
-                } catch (Exception e) {
-                    ;//nothing
-                }
-            }
-        }
-
-        return i + 1;
     }
 
 }

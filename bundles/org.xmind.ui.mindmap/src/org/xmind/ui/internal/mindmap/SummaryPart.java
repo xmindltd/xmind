@@ -43,6 +43,7 @@ import org.xmind.gef.draw2d.geometry.Geometry;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.part.IPartListener;
+import org.xmind.gef.part.IPartListener2;
 import org.xmind.gef.part.IRequestHandler;
 import org.xmind.gef.part.PartEvent;
 import org.xmind.gef.policy.NullEditPolicy;
@@ -61,8 +62,8 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.mindmap.RangeEvent;
 import org.xmind.ui.util.MindMapUtils;
 
-public class SummaryPart extends MindMapPartBase implements FigureListener,
-        ISummaryPart {
+public class SummaryPart extends MindMapPartBase
+        implements FigureListener, ISummaryPart {
 
     private static class SummarySourceAnchor extends AbstractAnchor {
 
@@ -70,7 +71,8 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
             super(owner);
         }
 
-        public PrecisionPoint getLocation(double x, double y, double expansion) {
+        public PrecisionPoint getLocation(double x, double y,
+                double expansion) {
             return Geometry.getChopBoxLocation(x, y, getOwner().getBounds(),
                     expansion);
         }
@@ -87,8 +89,8 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
                 return new PrecisionPoint(r.getBottomRight()).translate(0,
                         expansion);
             } else if (orientation == PositionConstants.WEST) {
-                return new PrecisionPoint(r.getBottomLeft()).translate(
-                        -expansion, 0);
+                return new PrecisionPoint(r.getBottomLeft())
+                        .translate(-expansion, 0);
             }
             return new PrecisionPoint(r.getTopRight()).translate(expansion, 0);
         }
@@ -100,7 +102,8 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
             super(owner);
         }
 
-        public PrecisionPoint getLocation(double x, double y, double expansion) {
+        public PrecisionPoint getLocation(double x, double y,
+                double expansion) {
             return Geometry.getChopBoxLocation(x, y, getOwner().getBounds(),
                     expansion);
         }
@@ -135,9 +138,15 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     private List<IRangeListener> rangeListeners = null;
 
-    private IPartListener parentListener = new IPartListener() {
+    private IPartListener parentListener = new IPartListener2() {
+
+        public void childAdding(PartEvent event) {
+        }
 
         public void childRemoving(PartEvent event) {
+        }
+
+        public void childRemoved(PartEvent event) {
             if (event.child instanceof IBranchPart) {
                 IBranchPart branch = (IBranchPart) event.child;
                 refreshEnclosure();
@@ -153,8 +162,8 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
                 if (ITopic.ATTACHED.equals(topicType)) {
                     refreshEnclosure();
                 } else if (ITopic.SUMMARY.equals(topicType)) {
-                    if (MindMapUtils.equals(getSummary().getTopicId(), branch
-                            .getTopic().getId())) {
+                    if (MindMapUtils.equals(getSummary().getTopicId(),
+                            branch.getTopic().getId())) {
                         setNode((INodePart) branch.getTopicPart());
                     }
                 }
@@ -192,8 +201,8 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
                     && getSummaryTopic().equals(ss.getFirstElement()))
                 return true;
 
-            if (!ss.isEmpty()
-                    && !(ss.size() == 1 && ss.getFirstElement() instanceof ISheet))
+            if (!ss.isEmpty() && !(ss.size() == 1
+                    && ss.getFirstElement() instanceof ISheet))
                 return false;
 
             return getSummaryTopic().equals(viewer.getPreselected());
@@ -213,7 +222,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getSummary()
      */
     public ISummary getSummary() {
@@ -229,7 +237,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getOwnedBranch()
      */
     public IBranchPart getOwnedBranch() {
@@ -275,7 +282,8 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
                 NullEditPolicy.getInstance());
     }
 
-    protected void registerCoreEvents(Object source, ICoreEventRegister register) {
+    protected void registerCoreEvents(Object source,
+            ICoreEventRegister register) {
         super.registerCoreEvents(source, register);
 
         ISummary summary = getSummary();
@@ -305,12 +313,12 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getEnclosingBranches()
      */
     public List<IBranchPart> getEnclosingBranches() {
         if (enclosingBranches == null) {
-            enclosingBranches = fillEnclosingBranches(new ArrayList<IBranchPart>());
+            enclosingBranches = fillEnclosingBranches(
+                    new ArrayList<IBranchPart>());
             for (IBranchPart subBranch : enclosingBranches) {
                 subBranch.getFigure().addFigureListener(this);
             }
@@ -343,7 +351,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @seeorg.xmind.ui.mindmap.IBranchRangePart#encloses(org.xmind.ui.mindmap.
      * IBranchPart)
      */
@@ -432,7 +439,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getSourceAnchor()
      */
     public IAnchor getSourceAnchor() {
@@ -445,7 +451,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getTargetAnchor()
      */
     public IAnchor getTargetAnchor() {
@@ -458,7 +463,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getConclusionAnchor()
      */
     public IAnchor getNodeAnchor() {
@@ -470,7 +474,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#getConclusionPart()
      */
     public INodePart getNode() {
@@ -479,7 +482,6 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.internal.parts.ISummaryPart#setConclusionPart(org
      * .xmind.gef.part.IGraphicalPart)
      */
@@ -546,15 +548,15 @@ public class SummaryPart extends MindMapPartBase implements FigureListener,
     }
 
     public boolean containsPoint(Point position) {
-        return super.containsPoint(position)
-                || (getFeedback() != null && getFeedback().containsPoint(
-                        position));
+        return super.containsPoint(position) || (getFeedback() != null
+                && getFeedback().containsPoint(position));
     }
 
     public IPart findAt(Point position) {
         IPart ret = super.findAt(position);
         if (ret == this) {
-            if (getFeedback() == null || !getFeedback().containsPoint(position)) {
+            if (getFeedback() == null
+                    || !getFeedback().containsPoint(position)) {
                 cursorOverHandle = false;
                 return getNode();
             } else {

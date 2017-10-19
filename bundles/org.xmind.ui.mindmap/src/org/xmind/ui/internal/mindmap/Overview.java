@@ -16,13 +16,20 @@ import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.dialogs.IPageChangedListener;
+import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -38,10 +45,16 @@ import org.xmind.gef.ZoomObject;
 import org.xmind.gef.draw2d.geometry.PrecisionDimension;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 import org.xmind.gef.draw2d.graphics.ScaledGraphics;
+import org.xmind.gef.ui.editor.IGraphicalEditor;
+import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.internal.editor.MindMapEditor;
+import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.resources.ColorUtils;
 
 public class Overview implements ISelectionChangedListener,
-        IInputChangedListener, PropertyChangeListener, IZoomListener, Listener {
+        IInputChangedListener, PropertyChangeListener, IZoomListener, Listener,
+        IPropertyChangeListener, IPageChangedListener {
 
     private class ContentsFigure extends Figure {
 
@@ -104,9 +117,9 @@ public class Overview implements ISelectionChangedListener,
         }
     }
 
-    private IGraphicalViewer sourceViewer;
+    private IGraphicalEditor sourceEditor;
 
-    private FigureCanvas sourceCanvas;
+    private IGraphicalViewer sourceViewer;
 
     private RangeModel sourceHorizontalRangeModel;
 
@@ -134,22 +147,64 @@ public class Overview implements ISelectionChangedListener,
 
     private ResourceManager resources;
 
-    public Overview(Composite parent, FigureCanvas sourceCanvas,
-            IGraphicalViewer viewer) {
-        this.sourceViewer = viewer;
-        this.sourceCanvas = sourceCanvas;
-        createContents(parent);
+    private IPreferenceStore ps;
+
+    private Composite overviewContainer;
+
+    private FigureCanvas sourceFigureCanvas;
+
+    public Overview(Composite container, IGraphicalEditor editor) {
+        if (editor == null)
+            return;
+
+        this.sourceEditor = editor;
+        this.overviewContainer = container;
+        this.resources = new LocalResourceManager(JFaceResources.getResources(),
+                this.overviewContainer);
+
+        sourceEditor.addPageChangedListener(this);
+
+        setSourceViewer(sourceEditor.getActivePageInstance());
+
+        overviewContainer.addDisposeListener(new DisposeListener() {
+            public void widgetDisposed(DisposeEvent e) {
+                dispose();
+            }
+        });
+        this.ps = MindMapUIPlugin.getDefault().getPreferenceStore();
+        this.ps.addPropertyChangeListener(this);
+        setOverviewVisible(PrefConstants.SHOW_OVERVIEW);
     }
 
-    protected Control createContents(Composite parent) {
-        Composite composite = new Composite(parent, SWT.BORDER);
+    private void setSourceViewer(IGraphicalEditorPage page) {
+        IGraphicalViewer viewer = page.getViewer();
+        if (this.sourceViewer == viewer)
+            return;
 
-        resources = new LocalResourceManager(JFaceResources.getResources(),
-                composite);
+        if (this.sourceViewer != null)
+            removeAllListener();
 
-        canvas = new FigureCanvas(composite);
-        canvas.setSize(MindMapViewer.OVERVIEW_WIDTH,
-                MindMapViewer.OVERVIEW_HEIGHT);
+        this.sourceViewer = viewer;
+
+        if (sourceViewer != null) {
+            sourceZoomManager = sourceViewer.getZoomManager();
+
+            FigureCanvas fc = viewer.getAdapter(FigureCanvas.class);
+            this.sourceFigureCanvas = fc;
+
+            sourceViewer.addInputChangedListener(this);
+            sourceViewer.addSelectionChangedListener(this);
+            sourceZoomManager.addZoomListener(this);
+            hookViewport();
+            hookContents();
+        }
+    }
+
+    private Control createContents(Composite parent) {
+        canvas = new FigureCanvas(parent, SWT.DOUBLE_BUFFERED | SWT.BORDER);
+        canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        canvas.setSize(MindMapEditor.OVERVIEW_WIDTH,
+                MindMapEditor.OVERVIEW_HEIGHT);
         canvas.addListener(SWT.Resize, this);
         canvas.addListener(SWT.MouseDown, this);
         canvas.addListener(SWT.MouseMove, this);
@@ -163,23 +218,30 @@ public class Overview implements ISelectionChangedListener,
         feedback = createFeedback();
         contents.add(feedback);
 
-        sourceZoomManager = sourceViewer.getZoomManager();
-
-        sourceViewer.addInputChangedListener(this);
-        sourceViewer.addSelectionChangedListener(this);
-        sourceZoomManager.addZoomListener(this);
-        hookViewport();
-        hookContents();
-        update();
-
-        return composite;
+        if (sourceViewer != null)
+            update();
+        return canvas;
     }
 
     public void dispose() {
         unhookContents();
         unhookViewport();
-        sourceZoomManager.removeZoomListener(this);
-        sourceViewer.removeSelectionChangedListener(this);
+        if (sourceZoomManager != null) {
+            sourceZoomManager.removeZoomListener(this);
+            sourceZoomManager = null;
+        }
+        if (sourceViewer != null) {
+            sourceViewer.removeSelectionChangedListener(this);
+            sourceViewer = null;
+        }
+        if (sourceEditor != null) {
+            sourceEditor.removePageChangedListener(this);
+            sourceEditor = null;
+        }
+        if (ps != null) {
+            ps.removePropertyChangeListener(this);
+            ps = null;
+        }
     }
 
     private void moveStarted(int x, int y) {
@@ -223,7 +285,7 @@ public class Overview implements ISelectionChangedListener,
     }
 
     private void update() {
-        if (updating)
+        if (updating || sourceViewer == null || contents == null)
             return;
         updating = true;
         Display.getCurrent().asyncExec(new Runnable() {
@@ -283,7 +345,7 @@ public class Overview implements ISelectionChangedListener,
     }
 
     private void hookViewport() {
-        Viewport sourceViewport = sourceCanvas.getViewport();
+        Viewport sourceViewport = sourceFigureCanvas.getViewport();
         sourceHorizontalRangeModel = sourceViewport.getHorizontalRangeModel();
         sourceHorizontalRangeModel.addPropertyChangeListener(this);
         sourceVerticalRangeModel = sourceViewport.getVerticalRangeModel();
@@ -368,4 +430,88 @@ public class Overview implements ISelectionChangedListener,
         update();
     }
 
+    public void removeAllListener() {
+        unhookContents();
+        unhookViewport();
+
+        if (sourceViewer != null) {
+            sourceViewer.removeSelectionChangedListener(this);
+            sourceViewer.removeInputChangedListener(this);
+        }
+
+        if (sourceZoomManager != null)
+            sourceZoomManager.removeZoomListener(this);
+    }
+
+    public void recoverAllListener() {
+        if (sourceViewer != null) {
+            sourceViewer.removeSelectionChangedListener(this);
+            sourceViewer.removeInputChangedListener(this);
+
+            sourceViewer.addSelectionChangedListener(this);
+            sourceViewer.addInputChangedListener(this);
+        }
+
+        unhookContents();
+        unhookViewport();
+
+        hookViewport();
+        hookContents();
+
+        update();
+    }
+
+    @Override
+    public void propertyChange(
+            final org.eclipse.jface.util.PropertyChangeEvent event) {
+        if (!PrefConstants.SHOW_OVERVIEW.equals(event.getProperty()))
+            return;
+
+        if (overviewContainer == null || overviewContainer.isDisposed())
+            return;
+
+        overviewContainer.getDisplay().asyncExec(new Runnable() {
+
+            @Override
+            public void run() {
+                setOverviewVisible(event.getProperty());
+            }
+
+        });
+    }
+
+    private void setOverviewVisible(String id) {
+        if (PrefConstants.SHOW_OVERVIEW.equals(id)) {
+            boolean showOverview = ps.getBoolean(id);
+            if (showOverview) {
+                if (canvas != null && !canvas.isDisposed()) {
+                    this.recoverAllListener();
+                }
+                if (canvas == null || canvas.isDisposed()) {
+                    createContents(overviewContainer);
+                    overviewContainer.layout(true, true);
+                }
+            } else {
+                if (canvas != null && !canvas.isDisposed()) {
+                    this.removeAllListener();
+                }
+            }
+            overviewContainer.setVisible(showOverview);
+        }
+    }
+
+    @Override
+    public void pageChanged(PageChangedEvent event) {
+        final IGraphicalEditorPage page = (IGraphicalEditorPage) event
+                .getSelectedPage();
+        Display.getCurrent().asyncExec(new Runnable() {
+
+            public void run() {
+                if (page.isDisposed() || page.getControl() == null
+                        || page.getControl().isDisposed())
+                    return;
+                setSourceViewer(page);
+            }
+        });
+    }
 }

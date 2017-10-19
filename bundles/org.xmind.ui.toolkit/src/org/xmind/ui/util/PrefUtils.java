@@ -30,6 +30,8 @@ public class PrefUtils {
 
         PreferenceDialog dialog = PreferencesUtil
                 .createPreferenceDialogOn(shell, prefPageId, null, data);
+        if (dialog == null)
+            return;
 
         IProduct product = Platform.getProduct();
         if (product != null && "org.xmind.cathy.application" //$NON-NLS-1$

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.xmind.ui.internal.spreadsheet;
 
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.branch.IBranchPolicy;
 import org.xmind.ui.branch.IBranchPolicyAdvisor;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -30,7 +31,7 @@ public class SpreadsheetPolicyAdvisor implements IBranchPolicyAdvisor {
             child.getTopicPart().refresh();
         }
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("TrigSpreadSheetCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.SPREAD_SHEET_COUNT);
     }
 
     public void postDeactivate(IBranchPart branch, IBranchPolicy policy) {

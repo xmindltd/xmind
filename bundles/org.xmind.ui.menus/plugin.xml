@@ -168,6 +168,21 @@
                   name="group.others"
                   visible="true">
             </separator>
+            <command
+                  commandId="org.xmind.ui.command.insertImage"
+                  id="org.xmind.ui.insert.fromfile"
+                  label="%menu.command.insertImage.label"
+                  mode="FORCE_TEXT"
+                  style="push">
+            </command>
+            <separator
+                  name="imggroup.additions"
+                  visible="false">
+            </separator>
+            <separator
+                  name="imggroup.seperator"
+                  visible="true">
+            </separator>
             <menu
                   id="org.xmind.ui.insert.markerMenu"
                   label="%menu.insert.markers.label">
@@ -189,22 +204,6 @@
                      label="%menu.insert.marker.more.label"
                      style="push">
                </command>
-            </menu>
-            <menu
-                  commandId="org.xmind.ui.command.insertImage"
-                  id="org.xmind.ui.insert.imageMenu"
-                  label="%menu.insert.image.label">
-               <command
-                     commandId="org.xmind.ui.command.insertImage"
-                     id="org.xmind.ui.insert.fromfile"
-                     label="%menu.command.insertImage.label"
-                     mode="FORCE_TEXT"
-                     style="push">
-               </command>
-               <separator
-                     name="group.additions"
-                     visible="false">
-               </separator>
             </menu>
             <command
                   commandId="org.xmind.ui.command.editNotes"
@@ -980,28 +979,24 @@
                   name="group.others"
                   visible="true">
             </separator>
-            <menu
-                  id="org.xmind.ui.MindMapEditor.content.insertMenu.imageMenu"
-                  label="%popup.insert.image.label">
-               <separator
-                     name="start"
-                     visible="false">
-               </separator>
-               <command
-                     commandId="org.xmind.ui.command.insertImage"
-                     id="org.xmind.ui.MindMapEditor.content.insertMenu.imageMenu.fromFile"
-                     label="%popup.insert.image.command.insertIamge.label"
-                     style="push">
-               </command>
-               <separator
-                     name="group.additions"
-                     visible="false">
-               </separator>
-               <separator
-                     name="end"
-                     visible="false">
-               </separator>
-            </menu>
+            <separator
+                  name="imggroup.start"
+                  visible="false">
+            </separator>
+            <command
+                  commandId="org.xmind.ui.command.insertImage"
+                  id="org.xmind.ui.MindMapEditor.content.insertMenu.imageMenu.fromFile"
+                  label="%popup.insert.image.command.insertIamge.label"
+                  style="push">
+            </command>
+            <separator
+                  name="imggroup.additions"
+                  visible="false">
+            </separator>
+            <separator
+                  name="imggroup.end"
+                  visible="true">
+            </separator>
             <command
                   commandId="org.xmind.ui.command.editNotes"
                   id="org.xmind.ui.MindMapEditor.content.notes"

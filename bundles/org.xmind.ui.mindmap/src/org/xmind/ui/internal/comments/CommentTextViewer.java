@@ -67,6 +67,7 @@ import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource2;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.gef.command.Command;
 import org.xmind.gef.command.ICommandStack;
@@ -75,6 +76,7 @@ import org.xmind.ui.commands.AddCommentCommand;
 import org.xmind.ui.commands.DeleteCommentCommand;
 import org.xmind.ui.commands.ModifyCommentCommand;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.e4models.CommentsPart;
 import org.xmind.ui.internal.spelling.SpellingPlugin;
 import org.xmind.ui.internal.spellsupport.SpellingSupport;
@@ -341,6 +343,8 @@ public class CommentTextViewer {
             @Override
             public void run() {
                 addComment();
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase(UserDataConstants.ADD_COMMENT_COUNT);
             }
         };
         Hyperlink addLink = createLink(composite,
@@ -1233,6 +1237,9 @@ public class CommentTextViewer {
     }
 
     private boolean saveComment() {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase(UserDataConstants.ADD_COMMENT_COUNT);
+
         resetModified();
         isLinkHovering = false;
 

@@ -10,6 +10,8 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -30,7 +32,7 @@ import org.xmind.ui.resources.ColorUtils;
 
 public class RecentFileViewer extends GalleryViewer {
 
-    private static final int FRAME_WIDTH = 215;
+    private static final int FRAME_WIDTH = 210;
     private static final int FRAME_HEIGHT = 130;
     private static final String COLOR_CONTENT_BORDER = "#cccccc"; //$NON-NLS-1$
 
@@ -38,6 +40,7 @@ public class RecentFileViewer extends GalleryViewer {
 
     private LocalResourceManager resources;
     private Control viewerControl;
+    private RecentFilesContentProvider contentProvider;
 
     public RecentFileViewer(Composite parent) {
         editorHistory = PlatformUI.getWorkbench()
@@ -89,6 +92,19 @@ public class RecentFileViewer extends GalleryViewer {
         });
     }
 
+    private void unregisterHelper(Shell shell) {
+        shell.setData(ICathyConstants.HELPER_RECENTFILE_CLEAR, null);
+        shell.setData(ICathyConstants.HELPER_RECENTFILE_DELETE, null);
+        shell.setData(ICathyConstants.HELPER_RECENTFILE_PIN, null);
+    }
+
+    private void handleDispose() {
+        if (viewerControl != null && !viewerControl.isDisposed())
+            unregisterHelper(viewerControl.getShell());
+        if (editorHistory != null)
+            editorHistory.removeEditorHistoryListener(contentProvider);
+    }
+
     @SuppressWarnings("restriction")
     private void initViewer(final Composite parent) {
         if (resources == null)
@@ -125,7 +141,7 @@ public class RecentFileViewer extends GalleryViewer {
         properties.set(GalleryViewer.ContentPaneSpaceCollaborativeEngine,
                 new SpaceCollaborativeEngine());
 
-        final RecentFilesContentProvider contentProvider = new RecentFilesContentProvider();
+        contentProvider = new RecentFilesContentProvider();
         final RecentFilesLabelProvider labelProvider = new RecentFilesLabelProvider(
                 parent);
         contentProvider.addContentChangeListener(new Runnable() {
@@ -141,13 +157,17 @@ public class RecentFileViewer extends GalleryViewer {
         viewerControl.setForeground(parent.getForeground());
         viewerControl
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        viewerControl.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                handleDispose();
+            }
+        });
 
         setPartFactory(new RecentFilesGalleryPartFactory());
         setContentProvider(contentProvider);
         setLabelProvider(labelProvider);
 
-        IEditorHistory editorHistory = PlatformUI.getWorkbench()
-                .getService(IEditorHistory.class);
         editorHistory.addEditorHistoryListener(contentProvider);
         setInput(editorHistory);
         handleRecentFileListChanged(contentProvider, labelProvider, true);

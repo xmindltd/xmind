@@ -104,7 +104,7 @@ public class AlphaGraphics extends Graphics implements IUseTransparency {
             localFgPattern = new GradientPattern(gp.getDevice(), gp.x1, gp.y1,
                     gp.x2, gp.y2, gp.color1, getWorkingAlpha(gp.alpha1),
                     gp.color2, getWorkingAlpha(gp.alpha2));
-            delegate.setBackgroundPattern(localFgPattern);
+            delegate.setForegroundPattern(localFgPattern);
         } else {
             delegate.setForegroundPattern(pattern);
         }

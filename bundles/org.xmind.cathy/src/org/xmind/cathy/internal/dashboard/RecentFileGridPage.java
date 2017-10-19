@@ -28,19 +28,12 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.cathy.internal.WorkbenchMessages;
+import org.xmind.ui.commands.MindMapCommandConstants;
 import org.xmind.ui.gallery.GalleryViewer;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.views.Page;
 
 public class RecentFileGridPage extends Page {
-
-    private static final String COMMANDPARAMETER_OPEN_CLOUD_FILE_URI = "org.xmind.ui.seawind.commandparameter.openCloudFile.uri"; //$NON-NLS-1$
-
-    private static final String COMMAND_OPEN_SEAWIND_FILE_ID = "org.xmind.ui.seawind.command.openSeawindFile"; //$NON-NLS-1$
-
-    private static final String COMMAND_OPEN_LOCAL_FILE_ID = "org.xmind.ui.mindmap.command.openLocalFile"; //$NON-NLS-1$
-
-    private static final String COMMANDPARAMETER_OPEN_LOCAL_FILE_URI = "org.xmind.ui.mindmap.commandparameter.openLocalFile.uri"; //$NON-NLS-1$
 
     private GalleryViewer viewer;
 
@@ -108,23 +101,12 @@ public class RecentFileGridPage extends Page {
             return;
 
         URI uri = (URI) element;
-        if (uri.getScheme().equalsIgnoreCase("seawind")) {//$NON-NLS-1$
-            // TODO do execute command openEditor by seawind plugin
-            openCloudFile(uri);
-        } else if (uri.getScheme().equalsIgnoreCase("file")) { //$NON-NLS-1$
-            //TODO do execute command openEditor by mindmap plugin
-            openLocalFile(uri);
-        }
+        openFile(uri);
     }
 
-    private void openLocalFile(final URI uri) {
-        executeCommand(COMMAND_OPEN_LOCAL_FILE_ID,
-                COMMANDPARAMETER_OPEN_LOCAL_FILE_URI, uri);
-    }
-
-    private void openCloudFile(final URI uri) {
-        executeCommand(COMMAND_OPEN_SEAWIND_FILE_ID,
-                COMMANDPARAMETER_OPEN_CLOUD_FILE_URI, uri);
+    private void openFile(final URI uri) {
+        executeCommand(MindMapCommandConstants.OPEN_WORKBOOK,
+                MindMapCommandConstants.OPEN_WORKBOOK_PARAM_URI, uri);
     }
 
     private void executeCommand(String commandId, String parameter, URI uri) {

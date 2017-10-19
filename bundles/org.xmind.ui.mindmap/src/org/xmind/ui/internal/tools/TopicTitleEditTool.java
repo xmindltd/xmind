@@ -145,25 +145,24 @@ public class TopicTitleEditTool extends TitleEditTool {
         locatingHandle = true;
         Display.getCurrent().asyncExec(new Runnable() {
             public void run() {
-                try {
-                    if (widthHandle == null || getTargetViewer() == null
-                            || getTargetViewer().getControl() == null
-                            || getTargetViewer().getControl().isDisposed()
-                            || control.isDisposed())
-                        return;
-
-                    if (width < 0 && control.getBounds().width > 500) {
-                        widthChanged = true;
-                        getHelper().setPrefWidth(500);
-                    }
-                    Rectangle bounds = new Rectangle(control.getBounds());
-                    Point loc = getTargetViewer()
-                            .computeToLayer(bounds.getLocation(), false);
-                    widthHandle.setBounds(new Rectangle(loc.x + bounds.width,
-                            loc.y, HANDLE_WIDTH, bounds.height));
-                } finally {
+                if (widthHandle == null || getTargetViewer() == null
+                        || getTargetViewer().getControl() == null
+                        || getTargetViewer().getControl().isDisposed()
+                        || control == null || control.isDisposed()) {
                     locatingHandle = false;
+                    return;
                 }
+
+                if (width < 0 && control.getBounds().width > 500) {
+                    widthChanged = true;
+                    getHelper().setPrefWidth(500);
+                }
+                Rectangle bounds = new Rectangle(control.getBounds());
+                Point loc = getTargetViewer()
+                        .computeToLayer(bounds.getLocation(), false);
+                widthHandle.setBounds(new Rectangle(loc.x + bounds.width, loc.y,
+                        HANDLE_WIDTH, bounds.height));
+                locatingHandle = false;
             }
         });
     }

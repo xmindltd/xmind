@@ -89,11 +89,6 @@
             beforefragment="false"
             class="org.xmind.ui.internal.e4models.ProgressProcessor">
       </processor>
-      <processor
-            apply="always"
-            beforefragment="false"
-            class="org.xmind.ui.internal.e4models.LocalImageProcessor">
-      </processor>
       </extension>
       <extension
          point="org.xmind.ui.resourceManager">

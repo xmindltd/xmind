@@ -80,6 +80,7 @@ public interface IModelConstants {
     public static final String DIRECT_COMMAD_TAG = "DirectCommand"; //$NON-NLS-1$
     public static final String TAG_ACTIVE = "active"; //$NON-NLS-1$
     public static final String TAG_EDITOR = "Editor"; //$NON-NLS-1$
+    public static final String TAG_X_STACK = "XStack"; //$NON-NLS-1$
 
     /*
      * Popover toolItem Ids

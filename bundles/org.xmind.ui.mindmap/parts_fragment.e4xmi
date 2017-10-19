@@ -12,8 +12,7 @@
     </elements>
     <elements xsi:type="basic:PartDescriptor" xmi:id="_Eive0E1WEeaIJZwk9Lg2xA" elementId="org.xmind.ui.modelPart.outline" label="%part.outline.label" tooltip="%part.outline.tooltip" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.outline.OutlineIndexModelPart"/>
     <elements xsi:type="basic:PartDescriptor" xmi:id="_68AwcETWEeaXh5k4aWYfZA" elementId="org.eclipse.ui.views.ProgressView" label="%part.progress.label" tooltip="%part.progress.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.dialogs.ProgressDialogPart">
-      <persistedState key="styleOverride" value="96"/>
-      <persistedState key="customLocation" value="100,100,440,337"/>
+      <persistedState key="org.xmind.ui.dialogPart.customLocation" value=",,440,337"/>
       <tags>DialogPart</tags>
     </elements>
     <elements xsi:type="basic:PartDescriptor" xmi:id="_MEH7sE--Eeaw5PYd-XTNrQ" elementId="org.xmind.ui.modelPart.themes" label="%part.themes.label" tooltip="%part.themes.tooltip" closeable="true" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4models.ThemesPart"/>
@@ -43,9 +42,6 @@
     <elements xsi:type="commands:Command" xmi:id="_9UsLAF7gEeaQJfiZMX61eg" elementId="org.xmind.ui.command.editResource" commandName="%part.command.editResource.name" description=""/>
     <elements xsi:type="commands:Command" xmi:id="_R2MgMF7hEeaQJfiZMX61eg" elementId="org.xmind.ui.command.duplicateResource" commandName="%part.command.duplicateResource.name" description=""/>
     <elements xsi:type="commands:Command" xmi:id="_xIgxYICzEeak_br5gl15Ow" elementId="org.xmind.ui.command.showPopover" commandName="%part.command.showPopover.name"/>
-    <elements xsi:type="commands:Command" xmi:id="_kXXsUI64Eea3c5YIgHrzXw" elementId="org.xmind.ui.mindmap.command.openLocalFile" commandName="%part.command.openLocalFile.name">
-      <parameters xmi:id="_CTgI4I65Eea3c5YIgHrzXw" elementId="org.xmind.ui.mindmap.commandparameter.openLocalFile.uri" name="Local File URI" optional="false"/>
-    </elements>
     <elements xsi:type="commands:Command" xmi:id="_BGKJIJv4Eea2BOBr6Kczag" elementId="org.xmind.ui.command.openCloseModelPart">
       <parameters xmi:id="_o8w_4Jv6Eea2BOBr6Kczag" elementId="org.xmind.ui.commandParameter.modelPart.partStackId" name="Model Part Command Parameter"/>
     </elements>
@@ -60,7 +56,6 @@
     <elements xsi:type="commands:Handler" xmi:id="_CXPe4F7hEeaQJfiZMX61eg" elementId="org.xmind.ui.handler.editResource" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.EditResourceHandler" command="_9UsLAF7gEeaQJfiZMX61eg"/>
     <elements xsi:type="commands:Handler" xmi:id="_WobgIF7hEeaQJfiZMX61eg" elementId="org.xmind.ui.handler.duplicateResource" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.DuplicateResourceHandler" command="_R2MgMF7hEeaQJfiZMX61eg"/>
     <elements xsi:type="commands:Handler" xmi:id="_1SFO0ICzEeak_br5gl15Ow" elementId="org.xmind.ui.handler.showPopover" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.OpenPopoverHandler" command="_xIgxYICzEeak_br5gl15Ow"/>
-    <elements xsi:type="commands:Handler" xmi:id="_0AevMI64Eea3c5YIgHrzXw" elementId="org.xmind.ui.mindmap.handler.openLocalFile" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.OpenLocalFileHandler" command="_kXXsUI64Eea3c5YIgHrzXw"/>
     <elements xsi:type="commands:Handler" xmi:id="_FWbrgJv4Eea2BOBr6Kczag" elementId="org.xmind.ui.handler.openCloseModelPart" contributionURI="bundleclass://org.xmind.ui.mindmap/org.xmind.ui.internal.e4handlers.ToggleModelPartHandler" command="_BGKJIJv4Eea2BOBr6Kczag"/>
   </fragments>
 </fragment:ModelFragments>

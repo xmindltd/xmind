@@ -547,7 +547,8 @@ public class ProgressDialogPart extends ModelPart {
     }
 
     @Override
-    public void setFocus() {
+    protected void setFocus() {
+        super.setFocus();
         if (viewer != null) {
             viewer.setFocus();
         }

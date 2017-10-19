@@ -3,10 +3,17 @@
 
 <command
 		id="org.xmind.ui.part.dashboard.back"
-		label="%back"
+		tooltip="%back_tooltip"
 		iconURI="platform:/plugin/org.xmind.cathy/dashboard/back.png"
+		width="44"
 		commandId="org.eclipse.ui.file.closePart">
 </command>
+
+<space
+	id="org.xmind.ui.part.dashboard.separator.2"
+	width="1"
+	color="#A9A9A9"
+	/>
 
 <page
 		id="org.xmind.ui.part.dashboard.new"
@@ -36,19 +43,5 @@
 		commandId="org.xmind.ui.command.openWorkbook">
 </command>
 
-<space
-		id="org.xmind.ui.part.dashboard.separator.1"
-		width="fill"/>
-
-<command
-		id="org.xmind.ui.part.dashboard.preferences"
-		label="%preferences"
-		iconURI="platform:/plugin/org.xmind.cathy/dashboard/preferences.png"
-		commandId="org.eclipse.ui.window.preferences">
-	<parameter
-			name="preferencePageId"
-			value="org.xmind.ui.prefPage.General">
-	</parameter>
-</command>
 
 </dashboard>

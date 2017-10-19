@@ -81,8 +81,8 @@ public abstract class GraphicalEditorActionBarContributor extends
         updateGlobalActions(getActionBars(), targetEditor, activePage);
     }
 
-    private void updateGlobalActions(IActionBars actionBars,
-            IEditorPart editor, IGraphicalEditorPage page) {
+    private void updateGlobalActions(IActionBars actionBars, IEditorPart editor,
+            IGraphicalEditorPage page) {
         IActionRegistry editorActions = getActionRegistry(editor);
         IActionRegistry pageActions = getActionRegistry(page);
 
@@ -167,12 +167,12 @@ public abstract class GraphicalEditorActionBarContributor extends
             actionRegistry.dispose();
             actionRegistry = null;
         }
+        activeEditor = null;
         super.dispose();
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.ui.editor.IActionBarsUpdater#updateActionBars(org.eclipse
      * .ui.IActionBars)

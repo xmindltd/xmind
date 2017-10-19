@@ -55,6 +55,7 @@ import org.eclipse.ui.part.IContributedContentsView;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.services.IServiceLocator;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyled;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -64,6 +65,7 @@ import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.ModifyStyleCommand;
 import org.xmind.ui.forms.WidgetFactory;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.e4models.IModelConstants;
 import org.xmind.ui.internal.e4models.ViewModelFolderRenderer;
 import org.xmind.ui.internal.e4models.ViewModelPart;
@@ -167,6 +169,9 @@ public class PropertiesPart extends ViewModelPart
     }
 
     protected void createContent(Composite parent) {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase(UserDataConstants.SHOW_FORMAT_PART_COUNT);
+
         CTabFolder ctf = new CTabFolder(parent, SWT.BORDER);
         ctf.setRenderer(new ViewModelFolderRenderer(ctf));
         ctf.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -723,8 +728,10 @@ public class PropertiesPart extends ViewModelPart
 
     public void dispose() {
         if (sourceEditor != null) {
-            sourceEditor.getSite().getSelectionProvider()
-                    .removeSelectionChangedListener(this);
+            ISelectionProvider selectionProvider = sourceEditor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider != null)
+                selectionProvider.removeSelectionChangedListener(this);
         }
 
         for (SectionRecord rec : sections) {

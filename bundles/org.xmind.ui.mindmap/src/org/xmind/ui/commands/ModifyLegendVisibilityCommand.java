@@ -16,6 +16,7 @@ package org.xmind.ui.commands;
 import java.util.Collection;
 
 import org.xmind.core.ILegend;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ISourceProvider;
 import org.xmind.gef.command.ModifyCommand;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -56,7 +57,7 @@ public class ModifyLegendVisibilityCommand extends ModifyCommand {
     @Override
     public void execute() {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ShowLegendCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.SHOW_LEGEND_COUNT);
         super.execute();
     }
 

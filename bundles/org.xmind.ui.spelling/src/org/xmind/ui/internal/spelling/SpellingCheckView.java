@@ -61,6 +61,7 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.IWordContext;
 import org.xmind.ui.IWordContextProvider;
 
@@ -496,7 +497,7 @@ public class SpellingCheckView extends ViewPart
             monitor.done();
 
             SpellingPlugin.getDefault().getUsageDataCollector()
-                    .increase("SpellingCheckCount"); //$NON-NLS-1$
+                    .increase(UserDataConstants.SPELLING_CHECK_COUNT);
 
             return Status.OK_STATUS;
         }

@@ -15,7 +15,7 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.xmind.cathy.application"
-            name="XMind">
+            name="%xmind.product.name">
          <property
                name="windowImages"
                value="icons/xmind.16.png,icons/xmind.32.png,icons/xmind.48.png,icons/xmind.64.png,icons/xmind.128.png,icons/xmind.256.png"/>

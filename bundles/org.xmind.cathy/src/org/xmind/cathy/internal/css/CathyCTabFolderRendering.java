@@ -249,7 +249,7 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
                     }
                 }
                 height = Math.max(height, parent.getTabHeight() + 1);
-//                gc.dispose();
+                gc.dispose();
             }
             break;
         case PART_MAX_BUTTON:
@@ -1269,6 +1269,7 @@ public class CathyCTabFolderRendering extends CTabFolderRenderer
         ImageData blured = blur(tmpImage, 5, 25);
         shadowImage = new Image(display, blured);
         tmpImage.dispose();
+        gc.dispose();
     }
 
     public ImageData blur(Image src, int radius, int sigma) {

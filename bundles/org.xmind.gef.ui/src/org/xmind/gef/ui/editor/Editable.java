@@ -227,6 +227,7 @@ public abstract class Editable implements IEditable {
 
         if (oldCommandStack != null) {
             oldCommandStack.removeCSListener(commandStackHook);
+            oldCommandStack.dispose();
         }
         this.commandStack = commandStack;
         if (commandStack != null) {

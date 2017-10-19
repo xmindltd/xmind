@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -27,10 +29,12 @@ import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSupport;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
+import org.xmind.ui.gallery.GalleryViewer;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.editor.MindMapEditor;
 import org.xmind.ui.internal.utils.ResourceUtils;
@@ -51,7 +55,8 @@ public class ThemesPart extends ViewModelPart
     @Override
     protected Control doCreateContent(Composite parent) {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ShowThemeCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.SHOW_THEME_COUNT);
+
         Composite container = new Composite(parent, SWT.NONE);
         container.setBackground(
                 (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
@@ -67,9 +72,17 @@ public class ThemesPart extends ViewModelPart
         this.registerContextMenu(container,
                 IModelConstants.POPUPMENU_ID_RESOURCEMANAGER_THEME);
 
-        viewer = new CategorizedThemeViewer(container);
-        viewer.getControl()
-                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        viewer = new CategorizedThemeViewer(container) {
+            @Override
+            protected void postInit() {
+                getProperties().set(GalleryViewer.FrameContentSize,
+                        new Dimension(240, 120));
+                super.postInit();
+            };
+        };
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gridData.horizontalIndent = Util.isMac() ? 8 : -2;
+        viewer.getControl().setLayoutData(gridData);
 
         this.setSelectionProvider(viewer);
 

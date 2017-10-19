@@ -38,6 +38,10 @@ public class WorkbenchMessages extends NLS {
     public static String RecentFileViewer_PinThisMapAction_label;
     public static String RecentFileViewer_UnpinThisMap_label;
     public static String RestoreLastSession_label;
+    public static String CategorizedTemplateViewer_group_untitiledName;
+
+    public static String CategorizedTemplateViewer_template_untitiledName;
+
     public static String CathyWorkbenchWindowAdvisor_menu_lockAction_text;
 
     public static String CathyWorkbenchWindowAdvisor_menu_resetAction_text;

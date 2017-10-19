@@ -1,7 +1,6 @@
 package org.xmind.ui.internal.e4models;
 
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.model.application.MApplication;
@@ -30,7 +29,7 @@ public class ProgressProcessor {
     @Execute
     public void execute(EModelService modelService, MApplication application) {
         String partId = "org.eclipse.ui.views.ProgressView"; //$NON-NLS-1$
-        String partStackId = "progress"; //$NON-NLS-1$
+        String partStackId = "org.xmind.ui.stack.progress"; //$NON-NLS-1$
 
         //create dialog model
         MPartDescriptor partDescriptor = null;
@@ -101,8 +100,14 @@ public class ProgressProcessor {
 
     private void configDialog(MDialog dialogModel,
             MPartDescriptor partDescriptor) {
-        Map<String, String> ps = partDescriptor.getPersistedState();
-        String location = ps.get(CUSTOM_LOCATION_KEY);
+
+        String location = dialogModel.getPersistedState()
+                .get(IModelConstants.KEY_DIALOG_PART_CUSTOM_LOCATION);
+        if (location == null || location.equals("")) { //$NON-NLS-1$
+            location = partDescriptor.getPersistedState()
+                    .get(IModelConstants.KEY_DIALOG_PART_CUSTOM_LOCATION);
+        }
+        location = location == null ? "" : location; //$NON-NLS-1$
         String[] locations = location.split(","); //$NON-NLS-1$
 
         if (locations.length < 4) {
@@ -122,7 +127,8 @@ public class ProgressProcessor {
         dialogModel.setWidth(dialogW);
         dialogModel.setHeight(dialogH);
 
-        dialogModel.getPersistedState().put(CUSTOM_LOCATION_KEY, location);
+        dialogModel.getPersistedState()
+                .put(IModelConstants.KEY_DIALOG_PART_CUSTOM_LOCATION, location);
     }
 
     private int getDigitalValue(String value, int defaultValue) {
@@ -139,6 +145,7 @@ public class ProgressProcessor {
                 .createModelElement(MPartStack.class);
         partStack.setElementId(partStackId);
         partStack.setVisible(true);
+        partStack.getTags().add(IModelConstants.TAG_X_STACK);
         return partStack;
     }
 

@@ -192,9 +192,9 @@ public class DashboardAutomationAddon {
         //hide right parts.
         hideVisiblePart(window, "org.xmind.ui.stack.right"); //$NON-NLS-1$
 
-        if (!window.getTags().contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
-            window.getTags().add(ICathyConstants.TAG_SHOW_DASHBOARD);
-        }
+//        if (!window.getTags().contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
+//            window.getTags().add(ICathyConstants.TAG_SHOW_DASHBOARD);
+//        }
     }
 
     private MPart findReferencedDashboardPartIn(MWindow window,

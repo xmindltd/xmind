@@ -94,7 +94,8 @@ public class StartUpProcess {
                 doOpenLastSession();
             }
             if (!hasOpenedEditors()) {
-                doOpenDashboard();
+//                doOpenDashboard();
+                closeOpenedDashboard();
             }
         }
     }
@@ -114,6 +115,27 @@ public class StartUpProcess {
             public void run() {
                 for (MWindow window : application.getChildren()) {
                     automator.showDashboard(window);
+                }
+            }
+        });
+    }
+
+    private void closeOpenedDashboard() {
+        final EModelService modelService = workbench
+                .getService(EModelService.class);
+        final MApplication application = workbench
+                .getService(MApplication.class);
+        if (modelService == null || application == null)
+            return;
+
+        workbench.getDisplay().asyncExec(new Runnable() {
+            public void run() {
+                for (MWindow window : application.getChildren()) {
+                    if (window.getTags()
+                            .contains(ICathyConstants.TAG_SHOW_DASHBOARD)) {
+                        window.getTags()
+                                .remove(ICathyConstants.TAG_SHOW_DASHBOARD);
+                    }
                 }
             }
         });
@@ -145,8 +167,8 @@ public class StartUpProcess {
 
     private void openUnclosedMapLastSession(File statusFile,
             final IWorkbenchPage page)
-                    throws FileNotFoundException, UnsupportedEncodingException,
-                    WorkbenchException, CoreException, PartInitException {
+            throws FileNotFoundException, UnsupportedEncodingException,
+            WorkbenchException, CoreException, PartInitException {
         FileInputStream input = new FileInputStream(statusFile);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(input, "utf-8")); //$NON-NLS-1$

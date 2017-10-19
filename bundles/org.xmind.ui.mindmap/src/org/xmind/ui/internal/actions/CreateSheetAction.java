@@ -31,6 +31,7 @@ import org.xmind.ui.style.StyleUtils;
 
 public class CreateSheetAction extends EditorAction {
 
+    private static final String CREATE_SHEET_COUNT = "CreateSheetCount"; //$NON-NLS-1$
     private IGraphicalEditor editor;
 
     public CreateSheetAction(IGraphicalEditor editor) {
@@ -43,9 +44,6 @@ public class CreateSheetAction extends EditorAction {
 
         editor = getEditor();
         if (editor != null) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("CreateSheetCount`"); //$NON-NLS-1$
-
             IWorkbook workbook = (IWorkbook) editor.getAdapter(IWorkbook.class);
 
             if (workbook == null) {
@@ -75,6 +73,9 @@ public class CreateSheetAction extends EditorAction {
     }
 
     protected void decorateCreatedSheet(ISheet sheet) {
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase(CREATE_SHEET_COUNT);
+
         sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
                 sheet.getParent().getSheets().size()));
 

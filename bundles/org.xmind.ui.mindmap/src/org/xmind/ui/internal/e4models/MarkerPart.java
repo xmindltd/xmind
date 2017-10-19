@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -48,6 +49,7 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerResource;
@@ -87,7 +89,7 @@ public class MarkerPart extends ViewModelPart {
     @Override
     protected Control doCreateContent(Composite parent) {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("OpenMarkerPartCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.SHOW_MARKER_PART_COUNT);
 
         factory = new WidgetFactory(parent.getDisplay());
         form = createForm(parent);
@@ -185,7 +187,8 @@ public class MarkerPart extends ViewModelPart {
         return section;
     }
 
-    public void setFocus() {
+    protected void setFocus() {
+        super.setFocus();
         if (form != null && !form.isDisposed())
             form.setFocus();
     }
@@ -240,6 +243,7 @@ public class MarkerPart extends ViewModelPart {
                 layout.marginHeight = 2;
                 layout.marginWidth = 2;
                 layout.verticalSpacing = 2;
+                layout.marginLeft = Util.isMac() ? 17 : 7;
                 c.setLayout(layout);
 
                 if (hasTitle) {
@@ -559,6 +563,9 @@ public class MarkerPart extends ViewModelPart {
                                     .setParameter(MindMapUI.PARAM_MARKER_ID,
                                             marker.getId());
                             domain.handleRequest(req);
+//                            MindMapUIPlugin.getDefault().getUsageDataCollector()
+//                                    .increase(
+//                                            UserDataConstants.USE_MARKERS_COUNT);
                         }
                         IViewer viewer = gp.getViewer();
                         if (viewer != null) {
@@ -668,9 +675,6 @@ public class MarkerPart extends ViewModelPart {
         }
 
         private void reorderChild(MarkerGroupPart part, int index) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("UseMarkersCount"); //$NON-NLS-1$
-
             Control c = part.getControl();
             if (c == null) {
                 c = part.createControl(composite);

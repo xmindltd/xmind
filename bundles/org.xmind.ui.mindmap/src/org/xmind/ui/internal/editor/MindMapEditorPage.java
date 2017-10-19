@@ -74,7 +74,6 @@ import org.xmind.ui.internal.actions.AlignmentRequestAction;
 import org.xmind.ui.internal.actions.CancelHyperlinkAction;
 import org.xmind.ui.internal.actions.CollapseAction;
 import org.xmind.ui.internal.actions.CollapseAllAction;
-import org.xmind.ui.internal.actions.CreateRelationshipAction;
 import org.xmind.ui.internal.actions.CreateSheetFromTopicAction;
 import org.xmind.ui.internal.actions.CutAction;
 import org.xmind.ui.internal.actions.DeleteAction;
@@ -520,10 +519,6 @@ public class MindMapEditorPage extends GraphicalEditorPage
         DeleteAction deleteAction = new DeleteAction(this);
         actionRegistry.addAction(deleteAction);
         addSelectionAction(deleteAction);
-
-        CreateRelationshipAction createRelationshipAction = new CreateRelationshipAction(
-                this);
-        actionRegistry.addAction(createRelationshipAction);
 
         CopyAction copyAction = new CopyAction(this);
         actionRegistry.addAction(copyAction);

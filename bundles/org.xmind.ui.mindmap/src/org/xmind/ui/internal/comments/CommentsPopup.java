@@ -677,8 +677,6 @@ public class CommentsPopup extends PopupDialog
 
     private void saveComment() {
         if (contentViewer != null) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("AddCommentCount"); //$NON-NLS-1$
             contentViewer.save();
         }
     }

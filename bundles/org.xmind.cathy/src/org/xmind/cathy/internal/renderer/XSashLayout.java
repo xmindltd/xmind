@@ -77,7 +77,7 @@ public class XSashLayout extends Layout {
             if (subNode.isToBeRendered() && subNode.isVisible()) {
                 Object renderer = subNode.getRenderer();
                 if (renderer != null
-                        && renderer.getClass() != XRightStackRenderer.class) {
+                        && renderer.getClass() != XStackRenderer.class) {
                     total += getWeight(subNode);
                 }
             }
@@ -111,7 +111,7 @@ public class XSashLayout extends Layout {
         for (MUIElement subNode : visibleChildren) {
             Object renderer = subNode.getRenderer();
             if (renderer != null
-                    && renderer.getClass() == XRightStackRenderer.class) {
+                    && renderer.getClass() == XStackRenderer.class) {
                 availableScalableSectionWidth -= suggestedSizeForViewStack;
             }
         }
@@ -133,7 +133,7 @@ public class XSashLayout extends Layout {
             int y = bounds.y;
             int height = bounds.height;
             if (renderer != null
-                    && renderer.getClass() == XRightStackRenderer.class) {
+                    && renderer.getClass() == XStackRenderer.class) {
                 newSize = suggestedSizeForViewStack;
                 y = y + suggestedDownDistanceForViewStack;
                 height = height - suggestedDownDistanceForViewStack - 1;

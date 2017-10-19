@@ -100,12 +100,18 @@ public abstract class AbstractExportPage extends WizardPage {
         group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
         Label toFileLabel = new Label(group, SWT.WRAP);
-        toFileLabel.setLayoutData(new GridData(GridData.BEGINNING,
-                GridData.CENTER, false, true));
+        toFileLabel.setLayoutData(
+                new GridData(GridData.BEGINNING, GridData.CENTER, false, true));
         toFileLabel.setText(WizardMessages.ExportPage_ToFile_text);
 
-        pathInput = new Combo(group, SWT.DROP_DOWN | SWT.SIMPLE | SWT.SINGLE
-                | SWT.BORDER);
+        pathInput = new Combo(group,
+                SWT.DROP_DOWN | SWT.SIMPLE | SWT.SINGLE | SWT.BORDER);
+
+        Point preferredSize = pathInput.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        GridData comboLayoutData = new GridData(
+                org.eclipse.draw2d.GridData.FILL_HORIZONTAL);
+        comboLayoutData.widthHint = preferredSize.x;
+        pathInput.setLayoutData(comboLayoutData);
 
         for (String path : getCastedWizard().getPathHistory()) {
             pathInput.add(path, 0);
@@ -115,27 +121,25 @@ public abstract class AbstractExportPage extends WizardPage {
         if (targetPath != null)
             pathInput.setText(targetPath);
 
-        pathInput.setLayoutData(new GridData(GridData.FILL, GridData.CENTER,
-                true, true));
         hookWidget(pathInput, SWT.Modify);
         hookWidget(pathInput, SWT.FocusIn);
 
         browseButton = new Button(group, SWT.PUSH);
         browseButton.setText(WizardMessages.ExportPage_Browse_text);
         int width = browseButton.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-        GridData layoutData = new GridData(GridData.END, GridData.CENTER,
-                false, true);
+        GridData layoutData = new GridData(GridData.END, GridData.CENTER, false,
+                true);
         layoutData.widthHint = Math.max(93, width);
         browseButton.setLayoutData(layoutData);
         hookWidget(browseButton, SWT.Selection);
 
         overwriteCheckButton = new Button(composite, SWT.CHECK);
-        overwriteCheckButton.setLayoutData(new GridData(GridData.FILL,
-                GridData.CENTER, true, false));
+        overwriteCheckButton.setLayoutData(
+                new GridData(GridData.FILL, GridData.CENTER, true, false));
+        overwriteCheckButton.setText(
+                WizardMessages.ExportPage_OverwriteWithoutWarning_text);
         overwriteCheckButton
-                .setText(WizardMessages.ExportPage_OverwriteWithoutWarning_text);
-        overwriteCheckButton.setSelection(getCastedWizard()
-                .isOverwriteWithoutPrompt());
+                .setSelection(getCastedWizard().isOverwriteWithoutPrompt());
         hookWidget(overwriteCheckButton, SWT.Selection);
 
         updateStatus();
@@ -167,8 +171,8 @@ public abstract class AbstractExportPage extends WizardPage {
                 }
                 updateStatus();
             } else if (event.type == SWT.FocusIn) {
-                pathInput.setSelection(new Point(0, pathInput.getText()
-                        .length()));
+                pathInput.setSelection(
+                        new Point(0, pathInput.getText().length()));
             }
         } else if (event.widget == browseButton) {
             openBrowseDialog();
@@ -212,11 +216,12 @@ public abstract class AbstractExportPage extends WizardPage {
         return dialog;
     }
 
-    protected void setDialogFilters(FileDialog dialog,
-            List<String> filterNames, List<String> filterExtensions) {
-        dialog.setFilterNames(filterNames.toArray(new String[filterNames.size()]));
-        dialog.setFilterExtensions(filterExtensions
-                .toArray(new String[filterExtensions.size()]));
+    protected void setDialogFilters(FileDialog dialog, List<String> filterNames,
+            List<String> filterExtensions) {
+        dialog.setFilterNames(
+                filterNames.toArray(new String[filterNames.size()]));
+        dialog.setFilterExtensions(
+                filterExtensions.toArray(new String[filterExtensions.size()]));
     }
 
     protected void updateStatus() {

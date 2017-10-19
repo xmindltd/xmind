@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.part.IPart;
 import org.xmind.gef.ui.actions.ISelectionAction;
@@ -61,7 +62,7 @@ public class EditNotesAction extends PageAction implements ISelectionAction {
             return;
 
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("UseNotesCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.USE_NOTES_COUNT);
         NotesPopup popup = new NotesPopup(window, topicPart, true, true);
         popup.open();
     }

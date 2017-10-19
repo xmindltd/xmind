@@ -33,6 +33,8 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -46,6 +48,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.IWordContext;
 import org.xmind.ui.IWordContextProvider;
 import org.xmind.ui.resources.ColorUtils;
@@ -397,13 +400,12 @@ public class SpellingCheckDialog extends Dialog
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-//        newShell.addShellListener(new ShellAdapter() {
-//            @Override
-//            public void shellActivated(ShellEvent e) {
-//                scanWorkbook();
-//            }
-//        });
-        scanWorkbook();
+        newShell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellActivated(ShellEvent e) {
+                scanWorkbook();
+            }
+        });
 
         newShell.setText(Messages.SpellingCheckDialog_title);
     }
@@ -416,6 +418,9 @@ public class SpellingCheckDialog extends Dialog
 
     @Override
     protected Control createDialogArea(Composite parent) {
+        SpellingPlugin.getDefault().getUsageDataCollector()
+                .increase(UserDataConstants.SPELLING_CHECK_COUNT);
+
         Composite composite = (Composite) super.createDialogArea(parent);
         resources = new LocalResourceManager(JFaceResources.getResources(),
                 composite);

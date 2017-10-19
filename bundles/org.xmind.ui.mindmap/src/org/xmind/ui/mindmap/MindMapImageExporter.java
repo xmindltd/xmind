@@ -21,17 +21,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.IManifest;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.dom.FileEntryImpl;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IGraphicalViewer;
@@ -40,13 +41,13 @@ import org.xmind.gef.image.IExportAreaProvider;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ResizeConstants;
 import org.xmind.gef.util.Properties;
+import org.xmind.ui.internal.layers.BackgroundLayer;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.util.ImageFormat;
 import org.xmind.ui.viewers.ICompositeProvider;
 
 /**
  * @author Frank Shaka
- *
  */
 public class MindMapImageExporter {
 
@@ -220,8 +221,33 @@ public class MindMapImageExporter {
                 @Override
                 public void run() {
                     try {
-                        image[0] = ImageExportUtils.createImage(display,
-                                renderer);
+                        Rectangle bounds = renderer.getBounds();
+                        Image img = new Image(display, bounds.width,
+                                bounds.height);
+                        GC gc = new GC(img);
+                        if (resizeStrategy == ResizeConstants.RESIZE_STRETCH) {
+                            //fill background color when stretching
+                            for (IFigure figure : renderer.getFigures()) {
+                                if (figure instanceof BackgroundLayer) {
+                                    Rectangle figureBounds = figure.getBounds();
+                                    int longerSideLength = (figureBounds.width > figureBounds.height)
+                                            ? figureBounds.width
+                                            : figureBounds.height;
+                                    figure.setBounds(
+                                            new Rectangle(-longerSideLength,
+                                                    -longerSideLength,
+                                                    longerSideLength * 2,
+                                                    longerSideLength * 2));
+                                }
+                            }
+                        }
+                        try {
+                            renderer.render(gc);
+                        } finally {
+                            gc.dispose();
+                        }
+
+                        image[0] = img;
                     } catch (RuntimeException e) {
                         error[0] = e;
                     } catch (Error e) {

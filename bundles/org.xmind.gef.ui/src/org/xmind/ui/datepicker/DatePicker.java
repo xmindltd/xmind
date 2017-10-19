@@ -1292,10 +1292,12 @@ public class DatePicker extends Viewer {
                         isSameDay(dayFigure.getDate(), getSelectedDate()));
             }
         }
-//        if (null != hourFigure && null != selection)
-//            selection.set(HOUR_OF_DAY, hourFigure.getHour());
-//        if (null != minutesFigure && null != selection)
-//            selection.set(MINUTE, minutesFigure.getMinutes());
+
+        if (null != hourFigure && null != selection)
+            selection.set(HOUR_OF_DAY, hourFigure.getHour());
+        if (null != minutesFigure && null != selection)
+            selection.set(MINUTE, minutesFigure.getMinutes());
+
         if (placeholder != null) {
             String text = getLabelProvider().getText(selection);
             placeholder.setText(text);
@@ -1508,6 +1510,7 @@ public class DatePicker extends Viewer {
         changeDate(today);
         changeCalendar(today.get(YEAR), today.get(MONTH),
                 today.get(HOUR_OF_DAY), today.get(MINUTE));
+        freshTimePicker(today.get(HOUR_OF_DAY), currentMinutes);
     }
 
     protected void lastMonthSelected(boolean smooth) {
@@ -1573,21 +1576,18 @@ public class DatePicker extends Viewer {
     }
 
     private void freshTimePicker(int newHour, int newMinutes) {
-        boolean hourChanged = newHour != currentHour;
         boolean minuteChanged = newMinutes != currentMinutes;
-        if (!hourChanged && !minuteChanged)
-            return;
 
         newHour = resetHour(newHour);
         newMinutes = resetMinutes(newMinutes);
         if (null != timePicker) {
-            if (null != hourFigure && hourChanged) {
+            if (null != hourFigure) {
                 if (!validateHour(newHour))
                     return;
                 if (newHour >= 12)
-                    timeLabel.setText(Messages.DatePicker_Time_AM_text);
-                else if (newHour < 12)
                     timeLabel.setText(Messages.DatePicker_Time_PM_text);
+                else if (newHour < 12)
+                    timeLabel.setText(Messages.DatePicker_Time_AM_text);
                 currentHour = newHour;
                 hourFigure.setHour(newHour, type);  //default type = 12 hours every day.
             }

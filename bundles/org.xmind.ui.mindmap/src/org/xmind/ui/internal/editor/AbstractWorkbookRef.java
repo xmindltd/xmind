@@ -119,7 +119,6 @@ public abstract class AbstractWorkbookRef extends Editable
 
         setCommandStack(new CommandStack(Math.max(MindMapUIPlugin.getDefault()
                 .getPreferenceStore().getInt(PrefConstants.UNDO_LIMIT), 1)));
-
         MindMapUIPlugin.getDefault().getPreferenceStore()
                 .addPropertyChangeListener(this);
 
@@ -261,6 +260,11 @@ public abstract class AbstractWorkbookRef extends Editable
         Assert.isTrue(workbook != null);
         doSaveWorkbookToTempStorage(subMonitor.newChild(10), workbook);
         setWorkbook(workbook);
+
+        MindMapUIPlugin.getDefault().getPreferenceStore()
+                .removePropertyChangeListener(this);
+        MindMapUIPlugin.getDefault().getPreferenceStore()
+                .addPropertyChangeListener(this);
     }
 
     protected IWorkbook doLoadWorkbook(IProgressMonitor monitor)
@@ -423,6 +427,11 @@ public abstract class AbstractWorkbookRef extends Editable
         subMonitor.setWorkRemaining(10);
         subMonitor.newChild(10);
         setWorkbook(null);
+
+        setCommandStack(new CommandStack(Math.max(MindMapUIPlugin.getDefault()
+                .getPreferenceStore().getInt(PrefConstants.UNDO_LIMIT), 1)));
+        MindMapUIPlugin.getDefault().getPreferenceStore()
+                .removePropertyChangeListener(this);
     }
 
     /// subclasses may override to prevent default behavior or add custom behaviors

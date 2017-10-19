@@ -44,6 +44,8 @@ import org.xmind.core.ISpan;
 import org.xmind.core.ITextSpan;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.UserDataConstants;
+import org.xmind.core.internal.dom.StyleSheetImpl;
 import org.xmind.core.io.ResourceMappingManager;
 import org.xmind.core.io.freemind.FreeMindConstants;
 import org.xmind.core.io.freemind.FreeMindResourceMappingManager;
@@ -237,7 +239,7 @@ public class FreeMindImporter extends MindMapImporter
 
     public void build() throws InvocationTargetException, InterruptedException {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ImportFromFreeMindCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.IMPORT_FROM_FREE_MIND_COUNT);
         try {
             DocumentBuilder builder = getDocumentBuilder();
             builder.setErrorHandler(this);
@@ -638,8 +640,11 @@ public class FreeMindImporter extends MindMapImporter
     }
 
     private IStyleSheet getStyleSheet() {
-        if (styleSheet == null)
+        if (styleSheet == null) {
             styleSheet = Core.getStyleSheetBuilder().createStyleSheet();
+            ((StyleSheetImpl) styleSheet)
+                    .setManifest(getTargetWorkbook().getManifest());
+        }
         return styleSheet;
     }
 

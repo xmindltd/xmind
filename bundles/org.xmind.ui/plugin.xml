@@ -18,7 +18,7 @@
    <extension-point id="workbookRefFactories" name="%extension-point.workbookRefFactories.name" schema="schema/workbookRefFactories.exsd"/>
    <extension-point id="saveWizards" name="%extension-point.saveWizards.name" schema="schema/saveWizards.exsd"/>
    <extension-point id="shareOptions" name="%extension-point.shareOptions.name" schema="schema/shareOptions.exsd"/>
-   <extension-point id="resourceManager" name="resourceManager" schema="schema/resourceManager.exsd"/>
+   <extension-point id="resourceManager" name="%resourceManager.extension-point.name" schema="schema/resourceManager.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -4692,6 +4692,38 @@
             <reference
                   definitionId="org.xmind.ui.expression.isMindMapEditorContributingContents">
             </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.xmind.ui.internal.handlers.SendRequestHandler$ToActivePart:create_relationship"
+            commandId="org.xmind.ui.command.createRelationship">
+         <activeWhen>
+            <and>
+               <reference
+                     definitionId="org.xmind.ui.expression.isActivePartMindMapEditor">
+               </reference>
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <or>
+                        <adapt
+                              type="org.xmind.core.ITopic">
+                           <not>
+                              <test
+                                    property="org.xmind.core.topic.type"
+                                    value="callout">
+                              </test>
+                           </not>
+                        </adapt>
+                        <adapt
+                              type="org.xmind.core.ISheet">
+                        </adapt>
+                     </or>
+                  </iterate>
+               </with>
+            </and>
          </activeWhen>
       </handler>
    </extension>

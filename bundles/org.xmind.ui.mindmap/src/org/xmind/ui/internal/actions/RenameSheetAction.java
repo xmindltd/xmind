@@ -14,11 +14,12 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.editor.MindMapPageTitleEditor;
 
-public class RenameSheetAction extends Action {
+public class RenameSheetAction extends Action implements IWorkbenchAction {
 
     private IGraphicalEditorPage page;
 
@@ -41,6 +42,11 @@ public class RenameSheetAction extends Action {
         if (titleEditor != null) {
             titleEditor.startEditing(page.getIndex());
         }
+    }
+
+    @Override
+    public void dispose() {
+        page = null;
     }
 
 }

@@ -382,8 +382,13 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
     }
 
     private IBranchPart updateTargetParent() {
-        if (isFloatMove())
+        ITopicPart topicPart = getSourceParentTopic();
+        ITopic topic = null;
+        if (topicPart != null)
+            topic = topicPart.getTopic();
+        if (isFloatMove() && topic != null)
             return null;
+
         if (isSpecialFreeMove() && specialTargetPart instanceof IBranchPart) {
             return (IBranchPart) specialTargetPart;
         }
@@ -465,8 +470,15 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
     }
 
     private boolean isFreeMove() {
-        if (isFreeMovePattern())
+        if (isFreeMovePattern()) {
+            ITopicPart topicPart = getSourceParentTopic();
+            ITopic topic = null;
+            if (topicPart != null)
+                topic = topicPart.getTopic();
+            if (isFloatMove() && topic == null)
+                return false;
             return true;
+        }
         if (isSpecialFreeMove())
             return true;
         if (Util.isMac())
@@ -480,7 +492,7 @@ public class TopicMoveTool extends DummyMoveTool implements IStatusListener {
         if (topicPart != null)
             topic = topicPart.getTopic();
 
-        return topic == null ? getStatus().isStatus(GEF.ST_FREE_MOVE_MODE)
+        return topic == null ? (getStatus().isStatus(GEF.ST_FREE_MOVE_MODE))
                 : getStatus().isStatus(GEF.ST_FREE_MOVE_MODE) && topic.isRoot();
     }
 

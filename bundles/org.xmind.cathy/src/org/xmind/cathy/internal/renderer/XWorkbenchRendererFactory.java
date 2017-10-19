@@ -10,13 +10,14 @@ import org.eclipse.e4.ui.model.application.ui.menu.MMenu;
 import org.eclipse.e4.ui.model.application.ui.menu.MToolBar;
 import org.eclipse.e4.ui.workbench.renderers.swt.LazyStackRenderer;
 import org.eclipse.e4.ui.workbench.renderers.swt.WorkbenchRendererFactory;
+import org.xmind.ui.internal.e4models.IModelConstants;
 
 public class XWorkbenchRendererFactory extends WorkbenchRendererFactory {
 
     private XWBWRenderer xwbwRenderer;
     private XToolBarManagerRenderer xtoolbarRenderer;
     private XDialogRenderer xdialogRenderer;
-    private XRightStackRenderer xviewStackRenderer;
+    private XStackRenderer xviewStackRenderer;
     private XSashRenderer xsashRenderer;
     private XMenuManagerRenderer xMenuManagerRenderer;
     private LazyStackRenderer stackRenderer;
@@ -24,14 +25,14 @@ public class XWorkbenchRendererFactory extends WorkbenchRendererFactory {
     public AbstractPartRenderer getRenderer(MUIElement uiElement,
             Object parent) {
         boolean viewPartStack = (uiElement instanceof MPartStack)
-                && (uiElement.getTags().contains("RightStack")) //$NON-NLS-1$
+                && (uiElement.getTags().contains(IModelConstants.TAG_X_STACK))
                 && (uiElement.getElementId() != null);
         boolean editorPartStack = (uiElement instanceof MPartStack)
                 && (uiElement.getTags().contains("EditorStack")) //$NON-NLS-1$
                 && (uiElement.getElementId() != null);
         if (viewPartStack) {
             if (xviewStackRenderer == null) {
-                xviewStackRenderer = new XRightStackRenderer();
+                xviewStackRenderer = new XStackRenderer();
                 initRenderer(xviewStackRenderer);
             }
             return xviewStackRenderer;
@@ -67,7 +68,7 @@ public class XWorkbenchRendererFactory extends WorkbenchRendererFactory {
             return xdialogRenderer;
         } else if (uiElement instanceof MPartStack && editorPartStack) {
             if (stackRenderer == null) {
-                stackRenderer = new XStackRenderer();
+                stackRenderer = new XEditorStackRenderer();
                 initRenderer(stackRenderer);
             }
             return stackRenderer;

@@ -512,7 +512,8 @@ public class CommentsPart extends ViewModelPart implements
         }
     }
 
-    public void setFocus() {
+    protected void setFocus() {
+        super.setFocus();
         if (control != null && !control.isDisposed()) {
             control.setFocus();
         }

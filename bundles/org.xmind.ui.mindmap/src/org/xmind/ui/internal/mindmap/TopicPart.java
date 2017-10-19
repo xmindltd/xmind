@@ -96,8 +96,9 @@ public class TopicPart extends NodePart implements ITopicPart {
                 pSheet = pMarker.getOwnedSheet();
                 grouplist = pSheet.getMarkerGroups();
                 pMarkerGroup = pMarker.getParent();
-                return -10000 - 2000 + grouplist.indexOf(pMarkerGroup) * 100
-                        + pMarkerGroup.getMarkers().indexOf(pMarker);
+                return pMarkerGroup == null ? 0
+                        : -10000 - 2000 + grouplist.indexOf(pMarkerGroup) * 100
+                                + pMarkerGroup.getMarkers().indexOf(pMarker);
             }
 
             IMarkerSheet qSheet;
@@ -107,8 +108,9 @@ public class TopicPart extends NodePart implements ITopicPart {
                 qSheet = qMarker.getOwnedSheet();
                 grouplist = qSheet.getMarkerGroups();
                 qMarkerGroup = qMarker.getParent();
-                return 10000 + 2000 - grouplist.indexOf(qMarkerGroup) * 100
-                        - qMarkerGroup.getMarkers().indexOf(qMarker);
+                return qMarkerGroup == null ? 0
+                        : 10000 + 2000 - grouplist.indexOf(qMarkerGroup) * 100
+                                - qMarkerGroup.getMarkers().indexOf(qMarker);
             }
             pSheet = pMarker.getOwnedSheet();
             qSheet = qMarker.getOwnedSheet();
@@ -116,6 +118,10 @@ public class TopicPart extends NodePart implements ITopicPart {
             grouplist = pSheet.getMarkerGroups();
             pMarkerGroup = pMarker.getParent();
             qMarkerGroup = qMarker.getParent();
+            if (pMarkerGroup == null || qMarkerGroup == null) {
+                return 0;
+            }
+
             if (pSheet.equals(qSheet)) {
                 if (pMarkerGroup.equals(qMarkerGroup)) {
                     List<IMarker> nosingle = pMarkerGroup.getMarkers();

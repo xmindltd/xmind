@@ -24,8 +24,8 @@ import org.xmind.gef.status.StatusEvent;
 import org.xmind.gef.status.StatusMachine2;
 import org.xmind.ui.mindmap.ISelectionFeedbackHelper;
 
-public class SelectionFeedbackHelper implements ISelectionFeedbackHelper,
-        IStatusListener {
+public class SelectionFeedbackHelper
+        implements ISelectionFeedbackHelper, IStatusListener {
 
     private IGraphicalEditPart host;
 
@@ -104,18 +104,18 @@ public class SelectionFeedbackHelper implements ISelectionFeedbackHelper,
         } else {
             overrideStatus &= ~key;
         }
-        updateFeedback(true);
+        updateFeedback(false);
     }
 
     public void resetFeedback(int key) {
         overrideMask &= ~key;
-        updateFeedback(true);
+        updateFeedback(false);
     }
 
     public void resetAllFeedback() {
         overrideMask = -1;
         overrideStatus = -1;
-        updateFeedback(true);
+        updateFeedback(false);
     }
 
     public void updateFeedback(boolean async) {
@@ -149,8 +149,8 @@ public class SelectionFeedbackHelper implements ISelectionFeedbackHelper,
     }
 
     private void update(IFeedbackService feedbackService) {
-        IFeedback newFeedback = (IFeedback) getHost().getAdapter(
-                IFeedback.class);
+        IFeedback newFeedback = (IFeedback) getHost()
+                .getAdapter(IFeedback.class);
         if (newFeedback != currentFeedback) {
             if (currentFeedback != null) {
                 feedbackService.removeFeedback(currentFeedback);
@@ -196,7 +196,7 @@ public class SelectionFeedbackHelper implements ISelectionFeedbackHelper,
 
     public void statusChanged(StatusEvent event) {
         if ((event.key & GEF.PART_SEL_MASK) != 0) {
-            updateFeedback(true);
+            updateFeedback(false);
         }
     }
 

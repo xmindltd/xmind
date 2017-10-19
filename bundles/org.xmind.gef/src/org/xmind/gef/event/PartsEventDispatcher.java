@@ -65,10 +65,11 @@ import org.xmind.gef.tool.ITool;
 /**
  * @author Brian Sun
  */
-public class PartsEventDispatcher extends ViewerEventDispatcher implements
-        DropTargetListener {
+public class PartsEventDispatcher extends ViewerEventDispatcher
+        implements DropTargetListener {
 
-    protected class PartAccessibilityDispatcher extends AccessibilityDispatcher {
+    protected class PartAccessibilityDispatcher
+            extends AccessibilityDispatcher {
 
         private IAccessible get(int childID) {
             if (childID == ACC.CHILDID_SELF || childID == ACC.CHILDID_NONE) {
@@ -134,8 +135,9 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
 
         private IPart getFocusedPart() {
             Object focused = getViewer().getFocused();
-            return focused == null ? null : getViewer().getSelectionSupport()
-                    .findSelectablePart(focused);
+            return focused == null ? null
+                    : getViewer().getSelectionSupport()
+                            .findSelectablePart(focused);
         }
 
         public void getLocation(AccessibleControlEvent e) {
@@ -254,6 +256,8 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
 
     private static int LONG_PRESSING_ACTIVATION_TIME = 500;
 
+    private static int DEFAULT_START_DRAG_THRESHOLD = 3;
+
     private ToolTipHelper toolTipHelper;
 
     private Shell shell = null;
@@ -287,6 +291,8 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
     private RangeModel verticalRangeModel = null;
 
     private boolean mouseHovering = false;
+
+    private boolean isDraging = false;
 
     /**
      * @param domain
@@ -355,7 +361,6 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.event.ViewerEventDispatcher#dndSupportChanged(org.xmind
      * .gef.dnd.IDndSupport, org.xmind.gef.dnd.IDndSupport)
@@ -635,7 +640,8 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
      * @see org.eclipse.draw2d.SWTEventDispatcher#dispatchMouseDoubleClicked(org.eclipse.swt.events.MouseEvent)
      */
     @Override
-    public void dispatchMouseDoubleClicked(org.eclipse.swt.events.MouseEvent me) {
+    public void dispatchMouseDoubleClicked(
+            org.eclipse.swt.events.MouseEvent me) {
         if (!isActive())
             return;
 
@@ -751,10 +757,9 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
     }
 
     protected void dispatchViewerScrolled(PropertyChangeEvent evt) {
-        if (lastDragEvent != null
-                || currentDropEvent != null
-                || Boolean.TRUE.equals(getViewer().getProperties().get(
-                        IGraphicalViewer.VIEWER_IGNORE_SCROLL_EVENT)))
+        if (lastDragEvent != null || currentDropEvent != null
+                || Boolean.TRUE.equals(getViewer().getProperties()
+                        .get(IGraphicalViewer.VIEWER_IGNORE_SCROLL_EVENT)))
             return;
 
         Display currentDisplay = Display.getCurrent();
@@ -763,8 +768,8 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
         org.eclipse.swt.graphics.Rectangle bounds = control.getBounds();
         if (bounds.contains(loc)) {
             org.eclipse.swt.widgets.Event event = new org.eclipse.swt.widgets.Event();
-            org.eclipse.swt.events.MouseEvent last = currentMouseEvent == null ? null
-                    : currentMouseEvent.currentSWTEvent;
+            org.eclipse.swt.events.MouseEvent last = currentMouseEvent == null
+                    ? null : currentMouseEvent.currentSWTEvent;
             if (last != null) {
                 event.button = last.button;
                 event.count = last.count;
@@ -865,9 +870,9 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
                 if (target != null && target instanceof GraphicalEditPart) {
                     String actionId = ((GraphicalEditPart) target)
                             .getActionId();
-                    if (actionId != null
-                            && (actionId.equals("org.xmind.ui.editNotes") || actionId //$NON-NLS-1$
-                                    .equals("org.xmind.ui.editComments"))) { //$NON-NLS-1$
+                    if (actionId != null && (actionId
+                            .equals("org.xmind.ui.editNotes") //$NON-NLS-1$
+                            || actionId.equals("org.xmind.ui.editComments"))) { //$NON-NLS-1$
                         toolTipHelper = new KeepVisibleToolTipHelper(control);
                     } else {
                         toolTipHelper = new ToolTipHelper(control);
@@ -880,9 +885,9 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
                 if (target != null && target instanceof GraphicalEditPart) {
                     String actionId = ((GraphicalEditPart) target)
                             .getActionId();
-                    if (actionId != null
-                            && (actionId.equals("org.xmind.ui.editNotes") || actionId //$NON-NLS-1$
-                                    .equals("org.xmind.ui.editComments"))) { //$NON-NLS-1$
+                    if (actionId != null && (actionId
+                            .equals("org.xmind.ui.editNotes") //$NON-NLS-1$
+                            || actionId.equals("org.xmind.ui.editComments"))) { //$NON-NLS-1$
                         if (!(toolTipHelper instanceof KeepVisibleToolTipHelper)) {
                             toolTipHelper.dispose();
                             toolTipHelper = new KeepVisibleToolTipHelper(
@@ -962,7 +967,15 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
             if ((me.stateMask & SWT.BUTTON_MASK) != 0 && lastDragEvent != null
                     && !ignoreDragging) {
                 lastDragEvent = convertDrag(me, e);
-                tool.mouseDrag(lastDragEvent, getViewer());
+                if (!isDraging) {
+                    isDraging = isDragDetected(lastDragEvent,
+                            getViewer().getProperties().getInteger(
+                                    IGraphicalViewer.VIEWER_START_DRAG_THRESHOLD,
+                                    DEFAULT_START_DRAG_THRESHOLD));
+                }
+                if (isDraging) {
+                    tool.mouseDrag(lastDragEvent, getViewer());
+                }
             } else if ((me.stateMask & SWT.BUTTON_MASK) == 0) {
                 tool.mouseMove(e, getViewer());
             }
@@ -973,6 +986,12 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
             super.dispatchMouseMoved(me);
         }
         updateFocus();
+    }
+
+    private boolean isDragDetected(MouseDragEvent me, int threshold) {
+        int deltaX = Math.abs(me.cursorLocation.x - me.startingLocation.x);
+        int deltaY = Math.abs(me.cursorLocation.y - me.startingLocation.y);
+        return deltaX >= threshold || deltaY >= threshold;
     }
 
     private void receive(org.eclipse.swt.events.MouseEvent me) {
@@ -1049,6 +1068,7 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
      */
     @Override
     public void dispatchMousePressed(org.eclipse.swt.events.MouseEvent me) {
+        isDraging = false;
         pressedMouseButton = me.button;
         if (!isActive())
             return;
@@ -1145,6 +1165,7 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
         }
         pressedMouseButton = 0;
         ignoreDragging = false;
+        isDraging = false;
         if (!isActive())
             return;
 //        super.dispatchMouseReleased(me);
@@ -1169,7 +1190,8 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
      * @see org.eclipse.draw2d.EventDispatcher#dispatchMouseWheelScrolled(org.eclipse.swt.widgets.Event)
      */
     @Override
-    public void dispatchMouseWheelScrolled(org.eclipse.swt.widgets.Event event) {
+    public void dispatchMouseWheelScrolled(
+            org.eclipse.swt.widgets.Event event) {
         if (!isActive())
             return;
 //        super.dispatchMouseWheelScrolled(event);
@@ -1212,19 +1234,16 @@ public class PartsEventDispatcher extends ViewerEventDispatcher implements
         IDndClient client = getDndSupport().getDndClient(dndData.clientId);
         if (event.detail == DND.DROP_DEFAULT)
             event.detail = event.operations;
-        if ((event.detail & DND.DROP_LINK) != 0
-                && !client.canLink(dndData.dataType, getViewer(), location,
-                        host)) {
+        if ((event.detail & DND.DROP_LINK) != 0 && !client
+                .canLink(dndData.dataType, getViewer(), location, host)) {
             event.detail &= ~DND.DROP_LINK;
         }
-        if ((event.detail & DND.DROP_MOVE) != 0
-                && !client.canMove(dndData.dataType, getViewer(), location,
-                        host)) {
+        if ((event.detail & DND.DROP_MOVE) != 0 && !client
+                .canMove(dndData.dataType, getViewer(), location, host)) {
             event.detail &= ~DND.DROP_MOVE;
         }
-        if ((event.detail & DND.DROP_COPY) != 0
-                && !client.canCopy(dndData.dataType, getViewer(), location,
-                        host)) {
+        if ((event.detail & DND.DROP_COPY) != 0 && !client
+                .canCopy(dndData.dataType, getViewer(), location, host)) {
             event.detail &= ~DND.DROP_COPY;
         }
         return event;

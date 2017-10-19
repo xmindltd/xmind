@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -57,7 +59,7 @@ import org.xmind.ui.texteditor.FloatingTextEditor;
 public class CategorizedTemplateViewer extends CategorizedGalleryViewer
         implements IAdaptable {
 
-    private static final int FRAME_WIDTH = 215;
+    private static final int FRAME_WIDTH = 210;
 
     private static final int FRAME_HEIGHT = 130;
 
@@ -116,9 +118,17 @@ public class CategorizedTemplateViewer extends CategorizedGalleryViewer
 
         public String getText(Object element) {
             if (element instanceof ITemplateGroup) {
-                return ((ITemplateGroup) element).getName();
+                String name = ((ITemplateGroup) element).getName();
+                if (name == null)
+                    name = WorkbenchMessages.CategorizedTemplateViewer_group_untitiledName;
+                return name.length() <= 20 ? name
+                        : name.substring(0, 20) + "..."; //$NON-NLS-1$
             } else if (element instanceof ITemplate) {
-                return ((ITemplate) element).getName();
+                String name = ((ITemplate) element).getName();
+                if (name == null)
+                    name = WorkbenchMessages.CategorizedTemplateViewer_template_untitiledName;
+                return name.length() <= 20 ? name
+                        : name.substring(0, 20) + "..."; //$NON-NLS-1$
             }
 
             return super.getText(element);
@@ -190,7 +200,6 @@ public class CategorizedTemplateViewer extends CategorizedGalleryViewer
     private void create(Composite parent) {
         localResourceManager = new LocalResourceManager(
                 JFaceResources.getResources(), parent);
-
         setContentProvider(new CategorizedTemplateContentProvider());
         setLabelProvider(new CategorizedTemplateLabelProvider());
 
@@ -202,9 +211,20 @@ public class CategorizedTemplateViewer extends CategorizedGalleryViewer
         initProperties();
         createControl(parent, SWT.WRAP);
 
+        getControl().addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                handleDispose();
+            }
+        });
+
         setInput(getViewerInput());
 
         registerHelper(parent.getShell());
+    }
+
+    private void handleDispose() {
+        unregisterHelper(getControl().getShell());
     }
 
     private void initProperties() {
@@ -290,6 +310,10 @@ public class CategorizedTemplateViewer extends CategorizedGalleryViewer
                 }
             }
         });
+    }
+
+    private void unregisterHelper(Shell shell) {
+        shell.setData(ICathyConstants.HELPER_TEMPLATE_RENAME, null);
     }
 
     public void userTemplateAdded(ITemplate template) {

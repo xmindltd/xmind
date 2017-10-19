@@ -13,6 +13,7 @@
 		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/business/Projects Dashboard.xmt" name="Projects Dashboard" />
 		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/business/Sales Management.xmt" name="Sales Management" />
 		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/business/SWOT Analysis.xmt" name="SWOT Analysis" />
+		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/business/XMind 10 Years.xmt" name="XMind 10 Years" />
 	</category>
 	
 	<category name="%category.education.name">
@@ -23,7 +24,6 @@
 		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/education/Example of Workflow.xmt" name="Example of Workflow" />
 		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/education/Paper Outline.xmt" name="Paper Outline" />
 		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/education/Syllabus.xmt" name="Syllabus" />
-		<template resource="platform:/plugin/org.xmind.ui/$nl$/templates/education/XMind 10 Years.xmt" name="XMind 10 Years" />
 	</category>
 	
 	<category name="%category.personal.name">

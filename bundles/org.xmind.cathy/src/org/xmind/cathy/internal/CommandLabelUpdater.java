@@ -3,6 +3,7 @@ package org.xmind.cathy.internal;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.inject.Inject;
 
@@ -36,12 +37,13 @@ public class CommandLabelUpdater implements IPropertyChangeListener {
 
     private static final String DATA_ORIGINAL_TEXT = "CommandLabelUpdater:OriginalText"; //$NON-NLS-1$
     private static final String DATA_ORIGINAL_TOOLTIP = "CommandLabelUpdater:OriginalTooltip"; //$NON-NLS-1$
+    private static final String WEAK_VALUE_PLACEHOLDER = "WeakValuePlaceHolder"; //$NON-NLS-1$
 
     @Inject
     private EModelService modelService;
 
     private MWindow activeWindow = null;
-    private IActionBars activeActionBars = null;
+    private WeakHashMap<IActionBars, String> activeActionBarsWeakRef = new WeakHashMap<IActionBars, String>();
     private Set<IAction> trackedHandlers = null;
 
     @Inject
@@ -71,16 +73,18 @@ public class CommandLabelUpdater implements IPropertyChangeListener {
         IActionBars actionBars = findActionBars(ww);
 
         this.activeWindow = window;
+        Object[] bars = activeActionBarsWeakRef.keySet().toArray();
+        IActionBars activeActionBars = bars.length > 0 ? (IActionBars) bars[0]
+                : null;
 
-        if (actionBars != this.activeActionBars) {
-            if (this.activeActionBars instanceof SubActionBars) {
-                ((SubActionBars) this.activeActionBars)
+        if (actionBars != activeActionBars) {
+            if (activeActionBars instanceof SubActionBars) {
+                ((SubActionBars) activeActionBars)
                         .removePropertyChangeListener(this);
             }
-            this.activeActionBars = actionBars;
-            if (this.activeActionBars instanceof SubActionBars) {
-                ((SubActionBars) this.activeActionBars)
-                        .addPropertyChangeListener(this);
+            activeActionBarsWeakRef.put(actionBars, WEAK_VALUE_PLACEHOLDER);
+            if (actionBars instanceof SubActionBars) {
+                ((SubActionBars) actionBars).addPropertyChangeListener(this);
             }
 
             updateAllItemLabels();
@@ -93,6 +97,10 @@ public class CommandLabelUpdater implements IPropertyChangeListener {
 
         Set<IAction> oldTrackedHandlers = this.trackedHandlers;
         Set<IAction> newTrackedHandlers = new HashSet<IAction>();
+
+        Object[] bars = activeActionBarsWeakRef.keySet().toArray();
+        IActionBars activeActionBars = bars.length > 0 ? (IActionBars) bars[0]
+                : null;
 
         updateItemLabel(activeActionBars, activeWindow.getMainMenu(),
                 ICathyConstants.ID_MENU_ITEM_UNDO, ActionFactory.UNDO.getId(),

@@ -31,6 +31,7 @@ import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.internal.registry.IWorkbenchRegistryConstants;
 import org.xmind.core.Core;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -153,7 +154,7 @@ public class CathyApplication implements IApplication {
                 return EXIT_OK;
             } finally {
                 CathyPlugin.getDefault().getUsageDataCollector().put(
-                        "ShutDownTime", //$NON-NLS-1$
+                        UserDataConstants.SHUT_DOWN_TIME,
                         System.currentTimeMillis());
             }
         } finally {
@@ -168,27 +169,31 @@ public class CathyApplication implements IApplication {
      */
     private void captureAppSessionInfo(IUsageDataSampler sampler,
             IApplicationContext context, String buildId) {
-        sampler.put("StartUpTime", //$NON-NLS-1$
+        sampler.put(UserDataConstants.START_UP_TIME,
                 System.currentTimeMillis());
-        sampler.put("AppId", //$NON-NLS-1$
-                context.getBrandingApplication());
-        sampler.put("BuildId", buildId); //$NON-NLS-1$
-        sampler.put("DistributionId", //$NON-NLS-1$
+        sampler.put(UserDataConstants.APP_ID, context.getBrandingApplication());
+        sampler.put(UserDataConstants.BUILD_ID, buildId);
+        sampler.put(UserDataConstants.DISTRIBUTION_ID,
                 System.getProperty("org.xmind.product.distribution.id", //$NON-NLS-1$
                         null));
-        sampler.put("NL", Platform.getNL()); //$NON-NLS-1$
-        sampler.put("OS", Platform.getOS()); //$NON-NLS-1$
-        sampler.put("Arch", Platform.getOSArch()); //$NON-NLS-1$
-        sampler.put("OSName", System.getProperty("os.name", null)); //$NON-NLS-1$ //$NON-NLS-2$
-        sampler.put("OSVersion", System.getProperty("os.version", null)); //$NON-NLS-1$ //$NON-NLS-2$
-        sampler.put("Country", System.getProperty("user.country", null)); //$NON-NLS-1$ //$NON-NLS-2$
-        sampler.put("JavaVersion", System.getProperty("java.version", null)); //$NON-NLS-1$ //$NON-NLS-2$
-        sampler.put("JavaVendor", System.getProperty("java.vendor", null)); //$NON-NLS-1$ //$NON-NLS-2$
-        sampler.put("ScreenWidth", //$NON-NLS-1$
+        sampler.put(UserDataConstants.NL, Platform.getNL());
+        sampler.put(UserDataConstants.OS, Platform.getOS());
+        sampler.put(UserDataConstants.ARCH, Platform.getOSArch());
+        sampler.put(UserDataConstants.OS_NAME,
+                System.getProperty("os.name", null));  //$NON-NLS-1$
+        sampler.put(UserDataConstants.OS_VERSION,
+                System.getProperty("os.version", null));   //$NON-NLS-1$
+        sampler.put(UserDataConstants.COUNTRY,
+                System.getProperty("user.country", null));   //$NON-NLS-1$
+        sampler.put(UserDataConstants.JAVA_VERSION,
+                System.getProperty("java.version", null));  //$NON-NLS-1$
+        sampler.put(UserDataConstants.JAVA_VENDOR,
+                System.getProperty("java.vendor", null));  //$NON-NLS-1$
+        sampler.put(UserDataConstants.SCREEN_WIDTH,
                 Toolkit.getDefaultToolkit().getScreenSize().width);
-        sampler.put("ScreenHeight", //$NON-NLS-1$
+        sampler.put(UserDataConstants.SCREEN_HEIGHT,
                 Toolkit.getDefaultToolkit().getScreenSize().height);
-        sampler.put("ScreenResolution", //$NON-NLS-1$
+        sampler.put(UserDataConstants.SCREEN_RESOLUTION,
                 Toolkit.getDefaultToolkit().getScreenResolution());
 
     }

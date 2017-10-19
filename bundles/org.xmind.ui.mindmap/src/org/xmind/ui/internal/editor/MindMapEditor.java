@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.action.IAction;
@@ -55,6 +54,8 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -64,6 +65,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -115,6 +117,7 @@ import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.event.ICoreEventSupport;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.IEditDomainListener;
@@ -155,14 +158,15 @@ import org.xmind.ui.internal.e4handlers.SaveWorkbookAsHandler;
 import org.xmind.ui.internal.findreplace.IFindReplaceOperationProvider;
 import org.xmind.ui.internal.mindmap.MindMapEditDomain;
 import org.xmind.ui.internal.mindmap.MindMapState;
+import org.xmind.ui.internal.mindmap.Overview;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.IWorkbookRefListener;
-import org.xmind.ui.mindmap.MindMap;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.mindmap.MindMapViewerExportSourceProvider;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
@@ -174,6 +178,14 @@ import org.xmind.ui.wizards.ISaveContext;
 public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         ICoreEventListener, IPageMoveListener, IPropertyChangeListener,
         IMindMapPreviewGenerator, ISaveContext, IWorkbookRefListener {
+
+    public static final int OVERVIEW_WIDTH = 300;
+    public static final int OVERVIEW_HEIGHT = 180;
+
+    private static final int DEFAULT_EXPORT_MARGIN = 5;
+
+    private static final int MINIMUM_PREVIEW_WIDTH = 420;
+    private static final int MAXIMUM_PREVIEW_WIDTH = MINIMUM_PREVIEW_WIDTH * 4;
 
     private static class EditorStatus {
 
@@ -472,6 +484,10 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         }
         disposeData();
         super.dispose();
+        IEditorInput editorInput = getEditorInput();
+        if (editorInput instanceof MindMapEditorInput) {
+            ((MindMapEditorInput) editorInput).dispose();
+        }
         deactivateFileNotifier();
         workbookEventRegister = null;
         globalEventRegister = null;
@@ -577,8 +593,23 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                 @Override
                 public void run() {
                     loadWorkbook(theWorkbookRef, 0);
+                    collectUserData(theWorkbookRef.getURI());
                 }
             });
+        }
+    }
+
+    private static void collectUserData(URI uri) {
+        Assert.isNotNull(uri);
+        String scheme = uri.getScheme();
+        if (scheme == null || "".equalsIgnoreCase(scheme)) //$NON-NLS-1$
+            return;
+        if ("file".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase(UserDataConstants.OPEN_LOCAL_WORKBOOK_COUNT);
+        } else if ("seawind".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
+            MindMapUIPlugin.getDefault().getUsageDataCollector()
+                    .increase(UserDataConstants.OPEN_CLOUD_WORKBOOK_COUNT);
         }
     }
 
@@ -624,9 +655,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             if (cause instanceof FileNotFoundException) {
                 Display.getDefault().asyncExec(new Runnable() {
                     public void run() {
-                        MessageDialog.openWarning(
-                                Display.getDefault().getActiveShell(),
-                                MindMapMessages.MindMapEditor_Warning_FileNotFoundDialog_title,
+                        MessageDialog.openWarning(null,
+                                MindMapMessages.OpenLocalFileHandler_MessageDialog_title,
                                 MindMapMessages.WorkbookHistoryItem_FileMissingMessage);
                     }
                 });
@@ -762,6 +792,51 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         if (getPageCount() > 0) {
             setActivePage(0);
         }
+    }
+
+    private void addOverview() {
+        final Composite container = getContainer();
+
+        final Composite overviewControl = createOverview(container);
+        overviewControl.moveAbove(null);
+        overviewControl
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        new Overview(overviewControl, this);
+
+        Rectangle containerClientArea = container.getClientArea();
+        overviewControl.setBounds(containerClientArea.width - OVERVIEW_WIDTH,
+                containerClientArea.height - OVERVIEW_HEIGHT, OVERVIEW_WIDTH,
+                OVERVIEW_HEIGHT);
+
+        container.addControlListener(new ControlAdapter() {
+            public void controlResized(ControlEvent e) {
+                Rectangle containerClientArea = container.getClientArea();
+                overviewControl.setBounds(
+                        containerClientArea.width - OVERVIEW_WIDTH,
+                        containerClientArea.height - OVERVIEW_HEIGHT,
+                        OVERVIEW_WIDTH, OVERVIEW_HEIGHT);
+            }
+
+            public void controlMoved(ControlEvent e) {
+                Rectangle containerClientArea = container.getClientArea();
+                overviewControl.setBounds(
+                        containerClientArea.width - OVERVIEW_WIDTH,
+                        containerClientArea.height - OVERVIEW_HEIGHT,
+                        OVERVIEW_WIDTH, OVERVIEW_HEIGHT);
+            }
+        });
+
+    }
+
+    private Composite createOverview(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 0;
+        composite.setLayout(layout);
+        return composite;
     }
 
     protected IGraphicalEditorPage createSheetPage(ISheet sheet, int index) {
@@ -1313,6 +1388,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
 
         Assert.isTrue(getWorkbook() != null);
         createPages();
+        addOverview();
         if (isEditorActive()) {
             setFocus();
         }
@@ -1884,24 +1960,36 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
 
             public void run() {
                 IGraphicalEditorPage page = findPage(sheet);
-                if (page != null) {
-                    IGraphicalViewer sourceViewer = page.getViewer();
-                    IMindMap map = (IMindMap) sourceViewer
-                            .getAdapter(IMindMap.class);
-                    if (map == null || map.getCentralTopic()
-                            .equals(map.getSheet().getRootTopic())) {
-                        exporter.setSourceViewer(sourceViewer, null, null,
-                                new Insets(MindMapUI.DEFAULT_EXPORT_MARGIN));
-                    } else {
-                        exporter.setSource(new MindMap(sheet), null,
-                                new Insets(MindMapUI.DEFAULT_EXPORT_MARGIN));
-                    }
-                } else {
-                    exporter.setSource(new MindMap(sheet), null,
-                            new Insets(MindMapUI.DEFAULT_EXPORT_MARGIN));
+                if (page == null) {
+                    page = getActivePageInstance();
+                    if (page == null)
+                        throw new IllegalArgumentException();
                 }
-                exporter.setResize(ResizeConstants.RESIZE_MAXPIXELS, 1280,
-                        1024);
+//                if (page != null) {
+                IGraphicalViewer sourceViewer = page.getViewer();
+                MindMapViewerExportSourceProvider sourceProvider = new MindMapViewerExportSourceProvider(
+                        sourceViewer, DEFAULT_EXPORT_MARGIN);
+                org.eclipse.draw2d.geometry.Rectangle sourceArea = sourceProvider
+                        .getSourceArea();
+
+                int resizeWidth = Math
+                        .max((sourceArea.width % 21 == 0) ? sourceArea.width
+                                : (sourceArea.width + 21
+                                        - sourceArea.width % 21),
+                                (sourceArea.height % 13 == 0)
+                                        ? sourceArea.height * 21 / 13
+                                        : (sourceArea.height + 13
+                                                - sourceArea.height % 13) * 21
+                                                / 13);
+                if (resizeWidth < MINIMUM_PREVIEW_WIDTH) {
+                    resizeWidth = MINIMUM_PREVIEW_WIDTH;
+                } else if (resizeWidth > MAXIMUM_PREVIEW_WIDTH) {
+                    resizeWidth = MAXIMUM_PREVIEW_WIDTH;
+                }
+                int resizeHeight = resizeWidth * 13 / 21;
+                exporter.setSourceProvider(sourceProvider);
+                exporter.setResize(ResizeConstants.RESIZE_STRETCH, resizeWidth,
+                        resizeHeight);
                 exporter.setTargetStream(output);
 
                 try {

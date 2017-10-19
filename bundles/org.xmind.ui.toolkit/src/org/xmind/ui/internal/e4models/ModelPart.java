@@ -70,6 +70,8 @@ public class ModelPart implements IAdaptable, IModelPartContext {
 
     private boolean postConfigurationSuccess;
 
+    private Composite control;
+
     @PostConstruct
     private void postConstruct(final Composite parent) {
         init();
@@ -84,6 +86,7 @@ public class ModelPart implements IAdaptable, IModelPartContext {
         composite.setLayout(layout);
 
         createContent(composite);
+        this.control = composite;
     }
 
     protected void init() {
@@ -120,6 +123,7 @@ public class ModelPart implements IAdaptable, IModelPartContext {
     }
 
     protected void setFocus() {
+        control.setFocus();
     }
 
     public void setSelectionProvider(ISelectionProvider selectionProvider) {

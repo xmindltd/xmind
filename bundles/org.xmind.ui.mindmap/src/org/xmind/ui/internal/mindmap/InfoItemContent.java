@@ -39,7 +39,9 @@ public class InfoItemContent extends ViewerModel {
             return false;
         InfoItemContent that = (InfoItemContent) obj;
         return super.equals(obj) && that.contributor == this.contributor
-                && that.content == this.content;
+                && ((that.content == null && this.content == null)
+                        || (that.content != null
+                                && that.content.equals(this.content)));
     }
 
 }

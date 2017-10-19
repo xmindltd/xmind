@@ -29,6 +29,8 @@ import org.xmind.ui.mindmap.MindMapUI;
 
 public class SaveAsTemplateHandler extends AbstractHandler {
 
+    private static final int MAX_TITLE_LENGTH = 50;
+
     private File tempFolder;
 
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -64,7 +66,9 @@ public class SaveAsTemplateHandler extends AbstractHandler {
             return;
 
         final String name = dialog.getValue();
-        importCustomTemplate(display, editor, workbook, name);
+        importCustomTemplate(display, editor, workbook,
+                name.length() > MAX_TITLE_LENGTH
+                        ? name.substring(0, MAX_TITLE_LENGTH) : name);
     }
 
     private void importCustomTemplate(final Display display,

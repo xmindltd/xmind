@@ -18,6 +18,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.Request;
 import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -40,7 +41,7 @@ public class SheetAdvancedStylePropertySectionPart
         taperedLinesCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
                 MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase("ToggleTaperedlineCount"); //$NON-NLS-1$
+                        .increase(UserDataConstants.TOGGLE_TAPEREDLINE_COUNT);
                 changeTaperedLines();
             }
 
@@ -53,8 +54,8 @@ public class SheetAdvancedStylePropertySectionPart
                 .setText(PrefMessages.EditorPage_UndoRedo_gradientColor);
         gradientColorCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase("ToggleGradientColorCount"); //$NON-NLS-1$
+                MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
+                        UserDataConstants.TOGGLE_GRADIENT_COLOR_COUNT);
                 changeGradientColor();
             }
 

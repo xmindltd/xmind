@@ -5,6 +5,7 @@ import static org.xmind.gef.IGraphicalViewer.VIEWER_RENDER_TEXT_AS_PATH;
 import java.io.File;
 import java.io.InterruptedIOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
@@ -15,7 +16,6 @@ import org.xmind.ui.internal.exports.vector.svg.SVGExporter;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.util.Logger;
-import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.wizards.IExporter;
 
 public class SVGGenerator {
@@ -118,13 +118,8 @@ public class SVGGenerator {
     }
 
     private String getTargetPath() {
-        return Core.getWorkspace().getTempFile("svg/" + getSuggestedFileName()); //$NON-NLS-1$
-    }
-
-    private String getSuggestedFileName() {
-        String fileName = mindmap.getCentralTopic().getTitleText();
-        String replacedFileName = MindMapUtils.trimFileName(fileName);
-        return replacedFileName + ".svg"; //$NON-NLS-1$
+        return Core.getWorkspace()
+                .getTempFile("svg/" + UUID.randomUUID().toString() + ".svg"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     private void handleExportException(Throwable e) {

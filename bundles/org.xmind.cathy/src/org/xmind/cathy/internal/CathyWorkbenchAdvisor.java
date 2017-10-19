@@ -212,6 +212,9 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
         if (!editorRefs.isEmpty())
             for (IEditorReference ref : editorRefs) {
                 IEditorPart editor = ref.getEditor(false);
+                if (editor == null) {
+                    continue;
+                }
                 IMemento editorMemento = childrenMemento
                         .createChild(IWorkbenchConstants.TAG_EDITOR);
                 editorMemento.putBoolean(IWorkbenchConstants.TAG_ACTIVE_PART,

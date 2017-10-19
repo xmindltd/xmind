@@ -228,7 +228,7 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
 
     protected abstract void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
-                    throws InvocationTargetException, InterruptedException;
+            throws InvocationTargetException, InterruptedException;
 
     protected OutputStream wrapMonitor(OutputStream realStream,
             IProgressMonitor monitor) {
@@ -281,7 +281,10 @@ public abstract class AbstractMindMapExportWizard extends AbstractExportWizard {
 
     @Override
     protected String getSuggestedFileName() {
-        String fileName = getSourceMindMap().getCentralTopic().getTitleText();
+        IMindMap mindMap = getSourceMindMap();
+        if (mindMap == null)
+            return WizardMessages.ExportWizard_SuggestedFileName;
+        String fileName = mindMap.getCentralTopic().getTitleText();
         String replacedFileName = MindMapUtils.trimFileName(fileName);
         return replacedFileName;
     }

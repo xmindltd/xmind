@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -58,7 +59,6 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt
          * .widgets.Composite)
@@ -77,7 +77,6 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.ui.wizards.AbstractExportPage#setDialogFilters(org.eclipse
          * .swt.widgets.FileDialog, java.util.List, java.util.List)
@@ -106,7 +105,6 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.wizards.AbstractMindMapExportWizard#setSourceEditor(org.
      * xmind.gef.ui.editor.IGraphicalEditor)
@@ -119,7 +117,6 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.ui.wizards.AbstractMindMapExportWizard#hasSource()
      */
     @Override
@@ -152,7 +149,6 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.ui.wizards.AbstractMindMapExportWizard#doExport(org.eclipse
      * .core.runtime.IProgressMonitor, org.eclipse.swt.widgets.Display,
@@ -160,9 +156,9 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
      */
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
-                    throws InvocationTargetException, InterruptedException {
+            throws InvocationTargetException, InterruptedException {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ExportToXMind2008Count"); //$NON-NLS-1$
+                .increase(UserDataConstants.EXPORT_TO_X_MIND2008_COUNT);
         XMind2008Exporter exporter = new XMind2008Exporter(sourceWorkbook,
                 getTargetPath());
         exporter.setMonitor(monitor);

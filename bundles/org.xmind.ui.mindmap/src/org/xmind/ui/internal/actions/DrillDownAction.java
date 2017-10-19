@@ -14,6 +14,7 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.viewers.ISelection;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
@@ -37,7 +38,7 @@ public class DrillDownAction extends RequestAction implements ISelectionAction {
     @Override
     public void run() {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("DrillDownCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.DRILL_DOWN_COUNT);
         super.run();
     }
 

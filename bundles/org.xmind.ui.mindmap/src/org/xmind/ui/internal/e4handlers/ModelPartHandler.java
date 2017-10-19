@@ -63,6 +63,7 @@ public class ModelPartHandler {
             appli.getChildren().get(0).getChildren().add(p);
         }
 
+        partStack.setVisible(true);
         p.setVisible(true);
 
         modelService.bringToTop(p);

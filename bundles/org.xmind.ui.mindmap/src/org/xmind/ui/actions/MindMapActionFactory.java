@@ -368,6 +368,7 @@ public class MindMapActionFactory {
                     .get(IMindMapImages.NEW_SHEET_AS, true));
             action.setDisabledImageDescriptor(MindMapUI.getImages()
                     .get(IMindMapImages.NEW_SHEET_AS, false));
+
             return action;
         }
 

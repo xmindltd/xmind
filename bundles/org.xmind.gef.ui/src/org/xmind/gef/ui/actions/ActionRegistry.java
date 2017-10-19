@@ -43,6 +43,11 @@ public class ActionRegistry implements IActionRegistry {
                 ((IWorkbenchAction) action).dispose();
             }
         }
+        if (actions != null) {
+            actions.clear();
+            actions = null;
+        }
+        parent = null;
     }
 
     public IAction getAction(String id) {

@@ -20,7 +20,6 @@ import org.xmind.gef.IViewer;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.tools.StyleCopyPasteTool;
 import org.xmind.ui.mindmap.IMindMap;
-import org.xmind.ui.style.Styles;
 import org.xmind.ui.util.MindMapUtils;
 
 public class CopyStyleHandler extends AbstractHandler {
@@ -46,22 +45,26 @@ public class CopyStyleHandler extends AbstractHandler {
 
     private void copyStyle(IStyled element, IWorkbenchPart part) {
         StyleCopyPasteTool tool = StyleCopyPasteTool.getInstance();
-        String styleId = element.getStyleId();
-
         IStyleSheet styleSheet = ((IWorkbookComponent) element)
                 .getOwnedWorkbook().getStyleSheet();
 
-        IStyle style = styleSheet.findStyle(styleId);
-        if (style == null)
-            style = styleSheet.createStyle(element.getStyleType());
-
-        IStyle defaultStyle = getDefaultStyle(element, part);
-        if (defaultStyle != null)
-            setProperties(style, defaultStyle);
-
-        String bg = style.getProperty(Styles.Background);
-        if (bg != null && !"".equals(bg)) //$NON-NLS-1$
-            style.setProperty(Styles.Background, ""); //$NON-NLS-1$
+        IStyle style = null;
+        String styleId = element.getStyleId();
+        if (styleId != null) {
+            style = styleSheet.findStyle(styleId);
+            if (style != null) {
+                IStyle defaultStyle = getDefaultStyle(element, part);
+                if (defaultStyle != null) {
+                    setProperties(style, defaultStyle);
+                }
+            }
+        }
+        if (style == null) {
+            style = getDefaultStyle(element, part);
+        }
+        if (style == null) {
+            return;
+        }
 
         IWorkbook workbook = Core.getWorkbookBuilder().createWorkbook();
         IStyle importStyle = workbook.getStyleSheet().importStyle(style);

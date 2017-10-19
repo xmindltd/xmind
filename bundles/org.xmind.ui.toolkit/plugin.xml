@@ -2,8 +2,8 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="contributedContentsViews" name="%extension-point.name" schema="schema/contributedContentsViews.exsd"/>
-   <extension-point id="applicationValidators" name="Application Validators" schema="schema/applicationValidators.exsd"/>
-   <extension-point id="preferencePageSections" name="Preference Page Sections" schema="schema/preferencePageSections.exsd"/>
+   <extension-point id="applicationValidators" name="%validators.extension-point.name" schema="schema/applicationValidators.exsd"/>
+   <extension-point id="preferencePageSections" name="%pageSections.extension-point.name" schema="schema/preferencePageSections.exsd"/>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester

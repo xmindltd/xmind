@@ -24,6 +24,7 @@ import org.xmind.core.IPlainNotesContent;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.wizards.MindMapImporter;
 import org.xml.sax.ErrorHandler;
@@ -41,7 +42,7 @@ public class OpmlImporter extends MindMapImporter implements ErrorHandler {
     @Override
     public void build() throws InvocationTargetException, InterruptedException {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ImportFromOpmlCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.IMPORT_FROM_OPML_COUNT);
         InputStream in = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory

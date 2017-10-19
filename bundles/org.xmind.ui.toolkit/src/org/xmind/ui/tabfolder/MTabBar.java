@@ -3,12 +3,16 @@ package org.xmind.ui.tabfolder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
@@ -16,11 +20,11 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
+import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.util.IStyleProvider;
 import org.xmind.ui.util.StyleProvider;
 
 /**
- * 
  * <dl>
  * <dt>Styles</dt>
  * <dd>(none)</dd>
@@ -79,8 +83,13 @@ public class MTabBar extends Composite {
     private Listener listener;
     private boolean inDispose;
 
+    private ResourceManager resources;
+
     public MTabBar(Composite parent, int style) {
         super(parent, style | SWT.DOUBLE_BUFFERED);
+
+        this.resources = new LocalResourceManager(JFaceResources.getResources(),
+                parent);
 
         this.items = new ArrayList<MTabBarItem>();
 
@@ -398,17 +407,25 @@ public class MTabBar extends Composite {
             item.font = font;
         }
 
+        wHint = styles.getWidth(item, null, itemVertical ? wHint : SWT.DEFAULT);
+        hHint = styles.getHeight(item, null,
+                itemVertical ? SWT.DEFAULT : hHint);
+
         if (separator) {
             int separatorWidth = item.getWidth();
             if (separatorWidth == SWT.SEPARATOR_FILL)
                 return new Point(0, 0);
-            return tabBarVertical ? new Point(1, separatorWidth)
-                    : new Point(separatorWidth, 1);
+            return tabBarVertical ? new Point(wHint, separatorWidth)
+                    : new Point(separatorWidth, hHint);
         }
 
-        wHint = styles.getWidth(item, null, itemVertical ? wHint : SWT.DEFAULT);
-        hHint = styles.getHeight(item, null,
-                itemVertical ? SWT.DEFAULT : hHint);
+        /// Set width or height with the given value
+        int width = item.getWidth();
+        if (width > 0 && width != MTabBarItem.DEFAULT_SEPARATOR_WIDTH) {
+            if (itemVertical) {
+                hHint = width;
+            }
+        }
         if (wHint >= 0)
             wHint = Math.max(0, wHint - marginWidth - marginWidth);
         if (hHint >= 0)
@@ -1066,7 +1083,19 @@ public class MTabBar extends Composite {
     private void paintItemFill(GC gc, MTabBarItem item, Rectangle borderArea,
             boolean first, boolean last) {
         IStyleProvider styles = getStyleProvider();
-        Color fillColor = styles.getColor(item, MTabBarItem.FILL);
+
+        /// Set fill color with given color
+        Color fillColor = null;
+
+        String color = item.getColor();
+        if (color != null && !"".equals(color)) { //$NON-NLS-1$
+            RGB rgb = ColorUtils.toRGB(color);
+            fillColor = resources.createColor(rgb);
+        }
+
+        if (fillColor == null)
+            fillColor = styles.getColor(item, MTabBarItem.FILL);
+
         if (fillColor == null || fillColor.getAlpha() <= 0)
             return;
 

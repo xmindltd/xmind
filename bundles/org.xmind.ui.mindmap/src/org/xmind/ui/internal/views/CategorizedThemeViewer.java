@@ -25,6 +25,7 @@ import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ISummary;
 import org.xmind.core.ITopic;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.gef.EditDomain;
@@ -259,7 +260,14 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
 
         private void changeTheme(IStyle theme, String apply) {
             MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase("ChangeThemeCount"); //$NON-NLS-1$
+                    .increase(UserDataConstants.CHANGE_THEME_COUNT);
+
+            if (theme != null)
+                MindMapUIPlugin.getDefault().getUsageDataCollector()
+                        .increase(String.format(
+                                UserDataConstants.USE_S_THEME_COUNT,
+                                theme.getName().replaceAll(" ", "_"))); //$NON-NLS-1$ //$NON-NLS-2$
+
             IGraphicalEditorPage page = getCurrentPage();
             if (page == null)
                 return;
@@ -280,6 +288,7 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
                     .setViewer(viewer).setPrimaryTarget(sheetPart)
                     .setParameter(MindMapUI.PARAM_RESOURCE, theme)
                     .setParameter(MindMapUI.PARAM_OVERRIDE, apply));
+
             Control control = viewer.getControl();
             if (control != null && !control.isDisposed()) {
                 control.forceFocus();

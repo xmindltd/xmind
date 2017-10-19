@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.ISheet;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
@@ -794,7 +795,7 @@ public class WallpaperDialog extends PopupDialog implements IOpenListener {
             return;
 
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase("ChangeWallpaperCount"); //$NON-NLS-1$
+                .increase(UserDataConstants.CHANGE_WALLPAPER_COUNT);
         Request request = new Request(MindMapUI.REQ_MODIFY_STYLE)
                 .setViewer(mindMapViewer);
         request.setParameter(MindMapUI.PARAM_COMMAND_LABEL,

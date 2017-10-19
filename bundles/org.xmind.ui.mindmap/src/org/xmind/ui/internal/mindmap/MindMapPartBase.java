@@ -262,7 +262,7 @@ public abstract class MindMapPartBase extends GraphicalEditPart
 
     protected void updateFeedback() {
         if (selectionFeedbackHelper != null) {
-            selectionFeedbackHelper.updateFeedback(true);
+            selectionFeedbackHelper.updateFeedback(false);
         }
     }
 
