@@ -47,6 +47,8 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.OpenEvent;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
@@ -68,7 +70,8 @@ import org.eclipse.swt.widgets.Widget;
 /**
  * @author Frank Shaka
  */
-public class ColorPicker extends ContributionItem implements ISelectionProvider {
+public class ColorPicker extends ContributionItem
+        implements ISelectionProvider {
 
     private final class ColorChooserPopupDialog extends PopupDialog {
 
@@ -87,8 +90,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
             Composite composite = (Composite) super.createDialogArea(parent);
             GridLayoutFactory layout = GridLayoutFactory.fillDefaults()
                     .spacing(0, 0);
-            GridDataFactory layoutData = GridDataFactory.fillDefaults().grab(
-                    true, false);
+            GridDataFactory layoutData = GridDataFactory.fillDefaults()
+                    .grab(true, false);
             layout.copy().margins(4, 4).applyTo(composite);
 
             if (viewer == null) {
@@ -106,7 +109,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                 viewer.setShowAutoItem(hasPopupStyle(AUTO));
                 viewer.setShowNoneItem(hasPopupStyle(NONE));
                 viewer.setShowCustomItem(hasPopupStyle(CUSTOM));
-                viewer.addSelectionChangedListener(viewerSelectionChangedListener);
+                viewer.addSelectionChangedListener(
+                        viewerSelectionChangedListener);
                 viewer.addOpenListener(viewerOpenListener);
             }
             viewer.createControl(composite);
@@ -392,7 +396,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
         fireSelectionChanged(new SelectionChangedEvent(this, getSelection()));
     }
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+    public void addSelectionChangedListener(
+            ISelectionChangedListener listener) {
         if (selectionChangedListeners == null)
             selectionChangedListeners = new ArrayList<ISelectionChangedListener>();
         selectionChangedListeners.add(listener);
@@ -464,8 +469,16 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
     protected ColorChooserPopupDialog getPopupDialog() {
         if (popup == null) {
             Shell shell = getShell();
-            if (shell != null)
+            if (shell != null) {
                 popup = new ColorChooserPopupDialog(shell);
+                popup.getShell().addDisposeListener(new DisposeListener() {
+
+                    @Override
+                    public void widgetDisposed(DisposeEvent e) {
+                        popup = null;
+                    }
+                });
+            }
         }
         return popup;
     }
@@ -477,6 +490,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
             return ((MenuItem) widget).getParent().getShell();
         } else if (widget instanceof Control) {
             return ((Control) widget).getShell();
+        } else if (Display.getCurrent() != null) {
+            return Display.getCurrent().getActiveShell();
         }
         return null;
     }
@@ -501,9 +516,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
      * <code>ToolItem</code> for the action using the action's style. If the
      * action's checked property has been set, a button is created and primed to
      * the value of the checked property. If the action's menu creator property
-     * has been set, a drop-down tool item is created.
-     * 
-     * ATTN: Brian Sun has modified this method!
+     * has been set, a drop-down tool item is created. ATTN: Brian Sun has
+     * modified this method!
      */
     public void fill(ToolBar parent, int index) {
         if (widget == null && parent != null) {
@@ -696,7 +710,6 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
      * tool items, the text is shown only if there is no image.
      * 
      * @return the presentation mode settings
-     * 
      * @since 3.0
      */
     public int getMode() {
@@ -800,7 +813,6 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
      * 
      * @param mode
      *            the presentation mode settings
-     * 
      * @since 3.0
      */
     public void setMode(int mode) {
@@ -931,13 +943,12 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
             boolean tooltipTextChanged = propertyName == null
                     || propertyName.equals(IAction.TOOL_TIP_TEXT);
             boolean enableStateChanged = propertyName == null
-                    || propertyName.equals(IAction.ENABLED)
-                    || propertyName
+                    || propertyName.equals(IAction.ENABLED) || propertyName
                             .equals(IContributionManagerOverrides.P_ENABLED);
-            boolean checkChanged = (action.getStyle() == IAction.AS_CHECK_BOX || action
-                    .getStyle() == IAction.AS_RADIO_BUTTON)
-                    && (propertyName == null || propertyName
-                            .equals(IAction.CHECKED));
+            boolean checkChanged = (action.getStyle() == IAction.AS_CHECK_BOX
+                    || action.getStyle() == IAction.AS_RADIO_BUTTON)
+                    && (propertyName == null
+                            || propertyName.equals(IAction.CHECKED));
             boolean colorChanged = propertyName == null
                     || propertyName.equals(IColorAction.COLOR);
 
@@ -948,7 +959,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                 String text = action.getText();
                 // the set text is shown only if there is no image or if forced by MODE_FORCE_TEXT
                 boolean showText = text != null
-                        && ((getMode() & MODE_FORCE_TEXT) != 0 || !hasImages(action));
+                        && ((getMode() & MODE_FORCE_TEXT) != 0
+                                || !hasImages(action));
 //                        && ((toolbarStyle & BFaceConstants.TOOLBAR_TEXT)!=0 || 
 //                                ((toolbarStyle & BFaceConstants.TOOLBAR_TEXT_RIGHT)!=0 && hasRightText));
 
@@ -960,7 +972,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
 
                 if (textChanged) {
                     String textToSet = showText ? text : ""; //$NON-NLS-1$
-                    boolean rightStyle = (ti.getParent().getStyle() & SWT.RIGHT) != 0;
+                    boolean rightStyle = (ti.getParent().getStyle()
+                            & SWT.RIGHT) != 0;
                     if (rightStyle || !ti.getText().equals(textToSet)) {
                         // In addition to being required to update the text if it
                         // gets nulled out in the action, this is also a workaround 
@@ -1038,7 +1051,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                      */
                     final String commandId = updatedAction
                             .getActionDefinitionId();
-                    if (("gtk".equals(SWT.getPlatform())) && (callback instanceof IBindingManagerCallback) //$NON-NLS-1$
+                    if (("gtk".equals(SWT.getPlatform())) //$NON-NLS-1$
+                            && (callback instanceof IBindingManagerCallback)
                             && (commandId != null)) {
                         final IBindingManagerCallback bindingManagerCallback = (IBindingManagerCallback) callback;
                         final IKeyLookup lookup = KeyLookupFactory.getDefault();
@@ -1054,10 +1068,15 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                                     final KeyStroke currentKeyStroke = (KeyStroke) trigger;
                                     final int currentNaturalKey = currentKeyStroke
                                             .getNaturalKey();
-                                    if ((currentKeyStroke.getModifierKeys() == (lookup
-                                            .getCtrl() | lookup.getShift()))
-                                            && ((currentNaturalKey >= '0' && currentNaturalKey <= '9')
-                                                    || (currentNaturalKey >= 'A' && currentNaturalKey <= 'F') || (currentNaturalKey == 'U'))) {
+                                    if ((currentKeyStroke
+                                            .getModifierKeys() == (lookup
+                                                    .getCtrl()
+                                                    | lookup.getShift()))
+                                            && ((currentNaturalKey >= '0'
+                                                    && currentNaturalKey <= '9')
+                                                    || (currentNaturalKey >= 'A'
+                                                            && currentNaturalKey <= 'F')
+                                                    || (currentNaturalKey == 'U'))) {
                                         accelerator = currentKeyStroke
                                                 .getModifierKeys()
                                                 | currentNaturalKey;
@@ -1224,10 +1243,9 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                         parentResourceManager);
 
                 // performance: more efficient in SWT to set disabled and hot image before regular image
-                ((ToolItem) widget)
-                        .setDisabledImage(disabledImage == null ? null
-                                : localManager
-                                        .createImageWithDefault(disabledImage));
+                ((ToolItem) widget).setDisabledImage(disabledImage == null
+                        ? null
+                        : localManager.createImageWithDefault(disabledImage));
                 ((ToolItem) widget).setImage(image == null ? null
                         : localManager.createImageWithDefault(image));
 
@@ -1269,8 +1287,8 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                     : localManager.createImageWithDefault(disabledImage));
             ((ToolItem) widget).setHotImage(hoverImage == null ? null
                     : localManager.createImageWithDefault(hoverImage));
-            ((ToolItem) widget).setImage(image == null ? null : localManager
-                    .createImageWithDefault(image));
+            ((ToolItem) widget).setImage(image == null ? null
+                    : localManager.createImageWithDefault(image));
 
             // Now that we're no longer referencing the old images, clear them out.
             disposeOldImages();
@@ -1294,11 +1312,11 @@ public class ColorPicker extends ContributionItem implements ISelectionProvider 
                     parentResourceManager);
 
             if (widget instanceof Item) {
-                ((Item) widget).setImage(image == null ? null : localManager
-                        .createImageWithDefault(image));
+                ((Item) widget).setImage(image == null ? null
+                        : localManager.createImageWithDefault(image));
             } else if (widget instanceof Button) {
-                ((Button) widget).setImage(image == null ? null : localManager
-                        .createImageWithDefault(image));
+                ((Button) widget).setImage(image == null ? null
+                        : localManager.createImageWithDefault(image));
             }
 
             // Now that we're no longer referencing the old images, clear them out.

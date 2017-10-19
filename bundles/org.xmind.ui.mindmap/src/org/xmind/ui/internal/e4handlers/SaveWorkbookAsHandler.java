@@ -199,14 +199,17 @@ public class SaveWorkbookAsHandler {
                         /// sort by priority
                         /// choose highest priority
                         /// exclude those whose priority < 0
-                        int priority = wizardDescriptor.getWizard()
-                                .getPriorityFor(context, options);
-                        if (priority > maxPriority) {
-                            maxPriority = priority;
-                            defaultWizard = wizardDescriptor;
+                        ISaveWizard wizard_0 = wizardDescriptor.getWizard();
+                        if (wizard_0 != null) {
+                            int priority = wizard_0.getPriorityFor(context,
+                                    options);
+                            if (priority > maxPriority) {
+                                maxPriority = priority;
+                                defaultWizard = wizardDescriptor;
+                            }
+                            if (priority < 0)
+                                wizards.remove(wizardDescriptor);
                         }
-                        if (priority < 0)
-                            wizards.remove(wizardDescriptor);
                     }
 
                 }

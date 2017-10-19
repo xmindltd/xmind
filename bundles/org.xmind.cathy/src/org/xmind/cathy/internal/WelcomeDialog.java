@@ -263,8 +263,9 @@ public class WelcomeDialog extends Dialog {
 
         FontData[] fontData = Display.getDefault().getSystemFont()
                 .getFontData();
-        titleLabel.setFont((Font) resources.get(FontDescriptor.createFrom(
-                FontUtils.bold((FontUtils.newHeight(fontData, 30)), true))));
+        titleLabel.setFont(
+                (Font) resources.get(FontDescriptor.createFrom(FontUtils.bold(
+                        (FontUtils.relativeHeight(fontData, 21)), true))));
         titleLabel.setText(WorkbenchMessages.WelcomDialog_Welcom_title);
 
         Label title2 = new Label(composite, SWT.BOTTOM);
@@ -274,8 +275,8 @@ public class WelcomeDialog extends Dialog {
         GridData layoutData = new GridData(SWT.CENTER, SWT.BOTTOM, false, true);
         title2.setLayoutData(layoutData);
 
-        title2.setFont((Font) resources.get(
-                FontDescriptor.createFrom(FontUtils.newHeight(fontData, 15))));
+        title2.setFont((Font) resources.get(FontDescriptor
+                .createFrom(FontUtils.relativeHeight(fontData, 6))));
         title2.setText(WorkbenchMessages.WelcomDialog_WhatIsNew_title);
 
 //        Label imageLabel = new Label(composite, SWT.CENTER);
@@ -431,7 +432,7 @@ public class WelcomeDialog extends Dialog {
                 new GridData(SWT.CENTER, SWT.CENTER, true, false));
         titleLabel.setText(title);
         titleLabel.setFont((Font) resources.get(FontDescriptor.createFrom(
-                FontUtils.bold(FontUtils.newHeight(fontData, 11), true))));
+                FontUtils.bold(FontUtils.relativeHeight(fontData, 2), true))));
 
         Label descriptionLabel = new Label(composite2, SWT.WRAP);
         descriptionLabel.setBackground(composite2.getBackground());

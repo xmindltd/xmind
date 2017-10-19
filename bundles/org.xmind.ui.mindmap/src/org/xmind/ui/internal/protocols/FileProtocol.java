@@ -11,6 +11,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -103,8 +104,18 @@ public class FileProtocol implements IProtocol {
     }
 
     private static URI getFileURIFrom(IWorkbook workbook) {
-        IWorkbenchPage[] pages = PlatformUI.getWorkbench()
-                .getActiveWorkbenchWindow().getPages();
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+        if (window == null) {
+            IWorkbenchWindow[] windows = workbench.getWorkbenchWindows();
+            if (windows != null && windows.length != 0) {
+                window = windows[0];
+            }
+        }
+        if (window == null) {
+            return null;
+        }
+        IWorkbenchPage[] pages = window.getPages();
         for (IWorkbenchPage wp : pages) {
             IEditorReference[] ers = wp.getEditorReferences();
             for (IEditorReference er : ers) {
