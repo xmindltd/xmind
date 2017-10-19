@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-SymbolicName: org.xmind.cathy;singleton:=true
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- org.xmind.ui;bundle-version="[3.7.3,3.8.0)",
- org.xmind.ui.imports;bundle-version="[3.7.3,3.8.0)",
- org.xmind.ui.toolkit;bundle-version="[3.7.3,3.8.0)",
- org.xmind.core.command;bundle-version="[3.7.3,3.8.0)",
- org.xmind.core.command.remote;bundle-version="[3.7.3,3.8.0)",
+ org.xmind.ui;bundle-version="[3.7.4,3.8.0)",
+ org.xmind.ui.imports;bundle-version="[3.7.4,3.8.0)",
+ org.xmind.ui.toolkit;bundle-version="[3.7.4,3.8.0)",
+ org.xmind.core.command;bundle-version="[3.7.4,3.8.0)",
+ org.xmind.core.command.remote;bundle-version="[3.7.4,3.8.0)",
  org.eclipse.e4.ui.workbench,
  org.eclipse.ui.themes,
  org.eclipse.e4.ui.model.workbench,
@@ -27,12 +27,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.expressions,
  org.eclipse.e4.core.commands,
  org.xmind.ui.dashboard,
- org.xmind.core.usagedata;bundle-version="[3.7.3,3.8.0)",
+ org.xmind.core.usagedata;bundle-version="[3.7.4,3.8.0)",
  org.json,
- org.xmind.ui.browser;bundle-version="[3.7.3,3.8.0)",
- org.xmind.core.licensing;bundle-version="[3.7.3,3.8.0)",
+ org.xmind.ui.browser;bundle-version="[3.7.4,3.8.0)",
+ org.xmind.core.licensing;bundle-version="[3.7.4,3.8.0)",
  org.eclipse.e4.ui.workbench.addons.swt,
- org.xmind.ui.mindmap;bundle-version="3.7.3",
+ org.xmind.ui.mindmap;bundle-version="3.7.4",
  org.eclipse.ui.net;bundle-version="1.3.0",
  org.eclipse.emf.ecore.xmi
 Bundle-ManifestVersion: 2
@@ -49,5 +49,5 @@ Export-Package: org.xmind.cathy.internal;x-internal:=true,org.xmind.ca
  l.renderer;x-internal:=true,org.xmind.ui.internal.e4handlers;x-intern
  al:=true
 Bundle-Name: %pluginName
-Bundle-Version: 3.7.3.qualifier
+Bundle-Version: 3.7.4.qualifier
 Bundle-Activator: org.xmind.cathy.internal.CathyPlugin

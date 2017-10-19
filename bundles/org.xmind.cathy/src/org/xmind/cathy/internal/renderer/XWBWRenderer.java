@@ -1,5 +1,7 @@
 package org.xmind.cathy.internal.renderer;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,7 +50,75 @@ public class XWBWRenderer extends WBWRenderer {
             recreateLayout(element, (Shell) widget);
         }
 
+        // modify dnd manager's dropAgents & dragAgents for widget
+        // (drop: remove SplitDropAgent2 & DetachedDropAgent & TrimDropAgent;  drag: remove IBFDragAgent)
+        if (widget instanceof Shell && !((Shell) widget).isDisposed()) {
+            Shell shell = (Shell) widget;
+            Object theManager = shell.getData("DnDManager"); //$NON-NLS-1$
+            if (theManager == null) {
+                theManager = createDnDManager((MWindow) element);
+            }
+
+            if (theManager != null) {
+                trimDndManager(theManager);
+                shell.setData("DnDManager", theManager); //$NON-NLS-1$
+            }
+        }
+
         return widget;
+    }
+
+    private Object createDnDManager(MWindow window) {
+        try {
+            Class managerClass = Class.forName(
+                    "org.eclipse.e4.ui.workbench.addons.dndaddon.DnDManager"); //$NON-NLS-1$
+            Constructor constructor = (managerClass
+                    .getDeclaredConstructors())[0];
+            constructor.setAccessible(true);
+            Object dndManager = constructor.newInstance(window);
+
+            return dndManager;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void trimDndManager(Object theManager) {
+        try {
+            Class managerClass = theManager.getClass();
+
+            //trim dropAgents
+            Field dropField = managerClass.getDeclaredField("dropAgents"); //$NON-NLS-1$
+
+            dropField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<Object> dropAgents = (List<Object>) dropField.get(theManager);
+            // remove SplitDropAgent2 & DetachedDropAgent & TrimDropAgent
+            if (dropAgents.size() == 4) {
+                dropAgents.remove(1);
+                dropAgents.remove(1);
+                dropAgents.remove(1);
+            }
+
+            dropField.set(theManager, dropAgents);
+
+            //trim dragAgents
+            Field dragField = managerClass.getDeclaredField("dragAgents"); //$NON-NLS-1$
+
+            dragField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<Object> dragAgents = (List<Object>) dragField.get(theManager);
+            // remove IBFDragAgent
+            if (dragAgents.size() == 2) {
+                dragAgents.remove(1);
+            }
+
+            dragField.set(theManager, dragAgents);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected void recreateLayout(MUIElement element, Shell shell) {

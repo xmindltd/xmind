@@ -28,8 +28,12 @@ public class XWorkbenchRendererFactory extends WorkbenchRendererFactory {
                 && (uiElement.getTags().contains(IModelConstants.TAG_X_STACK))
                 && (uiElement.getElementId() != null);
         boolean editorPartStack = (uiElement instanceof MPartStack)
-                && (uiElement.getTags().contains("EditorStack")) //$NON-NLS-1$
-                && (uiElement.getElementId() != null);
+                && (((uiElement.getTags().contains("EditorStack")) //$NON-NLS-1$
+                        && (uiElement.getElementId() != null))
+                        || (uiElement.getParent() != null
+                                && "org.eclipse.ui.editorss".equals( //$NON-NLS-1$
+                                        uiElement.getParent().getElementId())));
+
         if (viewPartStack) {
             if (xviewStackRenderer == null) {
                 xviewStackRenderer = new XStackRenderer();

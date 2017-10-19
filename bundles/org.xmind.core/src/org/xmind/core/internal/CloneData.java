@@ -34,7 +34,6 @@ public class CloneData implements ICloneData {
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#equals(java.lang.Object)
          */
         @Override
@@ -44,17 +43,21 @@ public class CloneData implements ICloneData {
             if (obj == null || !(obj instanceof CategorizedString))
                 return false;
             CategorizedString that = (CategorizedString) obj;
-            return this.category.equals(that.category)
-                    && this.source.equals(that.source);
+            return (this.category == that.category || (this.category != null
+                    && this.category.equals(that.category)))
+                    && (this.source == that.source || (this.source != null
+                            && this.source.equals(that.source)));
         }
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#hashCode()
          */
         @Override
         public int hashCode() {
+            if (category == null || source == null) {
+                return super.hashCode();
+            }
             return this.category.hashCode() ^ this.source.hashCode();
         }
     }
@@ -85,8 +88,8 @@ public class CloneData implements ICloneData {
     }
 
     public Object get(Object source) {
-        Object cloned = clonedElements.isEmpty() ? null : clonedElements
-                .get(source);
+        Object cloned = clonedElements.isEmpty() ? null
+                : clonedElements.get(source);
         if (cloned == null && parent != null)
             cloned = parent.get(source);
         return cloned;
@@ -168,7 +171,8 @@ public class CloneData implements ICloneData {
         }
     }
 
-    public void addCloneDataListener(Object source, ICloneDataListener listener) {
+    public void addCloneDataListener(Object source,
+            ICloneDataListener listener) {
         List<ICloneDataListener> list = listeners.get(source);
         if (list == null) {
             list = new ArrayList<ICloneDataListener>();
@@ -208,7 +212,6 @@ public class CloneData implements ICloneData {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ICloneData#isCloned(java.lang.String,
      * java.lang.String)
      */

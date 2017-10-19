@@ -7,9 +7,7 @@ import org.eclipse.jface.resource.ResourceManager;
 import org.xmind.gef.draw2d.ReferencedFigure;
 
 /**
- * 
  * @author Enki Xiong
- *
  */
 public class SVGImageFigure extends ReferencedFigure {
 
@@ -105,7 +103,10 @@ public class SVGImageFigure extends ReferencedFigure {
             if (d != null)
                 return d;
         }
-        return svgData.getSize();
+        if (svgData != null) {
+            return svgData.getSize();
+        }
+        return new Dimension(0, 0);
     }
 
     /**

@@ -1226,6 +1226,18 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="org.xmind.cathy.internal.EmptyHandler"
+            commandId="org.eclipse.ui.window.splitEditor">
+         <activeWhen>
+            <with
+                  variable="activeWorkbenchWindow">
+               <instanceof
+                     value="org.eclipse.ui.IWorkbenchWindow">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
    <extension
          point="org.xmind.ui.toolkit.preferencePageSections">

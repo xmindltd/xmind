@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Authenticator;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -290,6 +291,8 @@ public class CathyPlugin extends AbstractUIPlugin {
             try {
                 networkPlugin
                         .loadClass("org.eclipse.core.internal.net.Activator"); //$NON-NLS-1$
+                /// cancel show AuthenticationDialog when return 401
+                Authenticator.setDefault(null);
             } catch (ClassNotFoundException e) {
                 getLog().log(new Status(IStatus.WARNING, PLUGIN_ID,
                         "Failed to activate plugin 'org.eclipse.core.net'.", //$NON-NLS-1$

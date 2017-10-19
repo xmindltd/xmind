@@ -30,6 +30,7 @@ public class PropertyMessages extends NLS {
     public static String LineWidth_None;
     public static String LineWidth_Thin;
     public static String LineWidth_Thinnest;
+    public static String SheetMultiBranchColorsStylePropertySectionPart_multiBranchColor_text;
     public static String ShowLegend_text;
     public static String ShowLegend_toolTip;
     public static String Structure_toolTip;

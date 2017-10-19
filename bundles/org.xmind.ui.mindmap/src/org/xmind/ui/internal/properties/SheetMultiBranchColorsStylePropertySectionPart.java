@@ -177,7 +177,8 @@ public class SheetMultiBranchColorsStylePropertySectionPart
         multiLineColors.setLayout(createLayout(parent));
 
         multiLineColorsCheck = new Button(multiLineColors, SWT.CHECK);
-        multiLineColorsCheck.setText("Multi Branch Color"); //$NON-NLS-1$
+        multiLineColorsCheck.setText(
+                PropertyMessages.SheetMultiBranchColorsStylePropertySectionPart_multiBranchColor_text);
         multiLineColorsCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
                 MindMapUIPlugin.getDefault().getUsageDataCollector()

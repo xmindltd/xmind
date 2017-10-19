@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.3.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.4.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.xmind.cathy/icons/about.png"/>
