@@ -151,19 +151,23 @@ public class PropertiesPart extends ViewModelPart
         }
 
         if (sourceEditor != null) {
-            sourceEditor.getSite().getSelectionProvider()
-                    .addSelectionChangedListener(this);
+            if (this.sourceEditor != null) {
+                final ISelectionProvider selectionProvider = sourceEditor
+                        .getSite().getSelectionProvider();
+                if (selectionProvider != null) {
+                    selectionProvider.addSelectionChangedListener(this);
 
-            final ISelection selection = sourceEditor.getSite()
-                    .getSelectionProvider().getSelection();
-            if (selection != null && !selection.isEmpty()) {
-                Display.getCurrent().asyncExec(new Runnable() {
-                    public void run() {
-                        selectionChanged(new SelectionChangedEvent(
-                                sourceEditor.getSite().getSelectionProvider(),
-                                selection));
+                    final ISelection selection = selectionProvider
+                            .getSelection();
+                    if (selection != null && !selection.isEmpty()) {
+                        Display.getCurrent().asyncExec(new Runnable() {
+                            public void run() {
+                                selectionChanged(new SelectionChangedEvent(
+                                        selectionProvider, selection));
+                            }
+                        });
                     }
-                });
+                }
             }
         }
     }
@@ -318,9 +322,13 @@ public class PropertiesPart extends ViewModelPart
         if (this.sourceEditor == editor)
             return;
 
-        if (this.sourceEditor != null)
-            this.sourceEditor.getSite().getSelectionProvider()
-                    .removeSelectionChangedListener(this);
+        if (this.sourceEditor != null) {
+            ISelectionProvider selectionProvider = sourceEditor.getSite()
+                    .getSelectionProvider();
+            if (selectionProvider != null) {
+                selectionProvider.removeSelectionChangedListener(this);
+            }
+        }
 
         this.sourceEditor = editor;
 
@@ -730,8 +738,9 @@ public class PropertiesPart extends ViewModelPart
         if (sourceEditor != null) {
             ISelectionProvider selectionProvider = sourceEditor.getSite()
                     .getSelectionProvider();
-            if (selectionProvider != null)
+            if (selectionProvider != null) {
                 selectionProvider.removeSelectionChangedListener(this);
+            }
         }
 
         for (SectionRecord rec : sections) {

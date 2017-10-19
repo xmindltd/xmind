@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Dashboard
 Bundle-SymbolicName: org.xmind.ui.dashboard;singleton:=true
-Bundle-Version: 3.7.0.qualifier
+Bundle-Version: 3.7.2.qualifier
 Bundle-Activator: org.xmind.ui.internal.dashboard.DashboardPlugin
 Bundle-Vendor: XMind Ltd
 Require-Bundle: org.eclipse.ui,

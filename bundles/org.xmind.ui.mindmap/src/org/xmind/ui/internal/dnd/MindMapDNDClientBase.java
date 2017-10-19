@@ -65,10 +65,10 @@ public abstract class MindMapDNDClientBase implements IDndClient {
         IWorkbook workbook = sheet.getOwnedWorkbook();
         IPart parent = (IPart) request.getParameter(GEF.PARAM_PARENT);
         if (parent != null || request.getTargets().size() == 1) {
+            boolean dropInParent = request.getTargets().contains(parent);
             if (parent == null) {
                 parent = request.getPrimaryTarget();
             }
-            boolean dropInParent = request.getTargets().contains(parent);
             ITopic targetParent = findTargetParentTopic(viewer, parent);
             return makeDNDCommand(transferredData, request, workbook,
                     targetParent, dropInParent,

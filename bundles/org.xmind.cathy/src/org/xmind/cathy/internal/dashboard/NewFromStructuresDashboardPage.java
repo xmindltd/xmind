@@ -136,8 +136,11 @@ public class NewFromStructuresDashboardPage extends DashboardPage
                 .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
         MindMapUIPlugin.getDefault().getUsageDataCollector()
                 .increase(UserDataConstants.CREATE_SHEET_COUNT);
+
+        String vs = structure.getValue();
+        String ID = vs.replaceAll("\\.", "_");  //$NON-NLS-1$//$NON-NLS-2$
         MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                UserDataConstants.STRUCTURE_TYPE_COUNT + structure.getValue());
+                String.format(UserDataConstants.STRUCTURE_TYPE_COUNT, ID));
         WorkbookInitializer initializer = WorkbookInitializer.getDefault()
                 .withStructureClass(structure.getValue()).withTheme(theme);
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()

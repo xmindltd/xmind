@@ -50,7 +50,7 @@ public class UserDataConstants {
     public static final String TOGGLE_MULTI_COLOR_COUNT = "ToggleMultiColorCount"; //$NON-NLS-1$
     public static final String CHANGE_LEGEND_BACKGROUD_COUNT = "ChangeLegendBackgroudCount"; //$NON-NLS-1$
     public static final String SHOW_LEGEND_COUNT = "ShowLegendCount"; //$NON-NLS-1$
-    public static final String NUMBERING_TYPE_COUNT = "NumberingTypeCount:"; //$NON-NLS-1$
+    public static final String NUMBERING_TYPE_COUNT = "Numbering/%s/TypeCount"; //$NON-NLS-1$
     public static final String NUMBER_DEPTH_COUNT = "NumberDepthCount"; //$NON-NLS-1$
     public static final String FILTER_OPERATION_COUNT = "FilterOperationCount"; //$NON-NLS-1$
 
@@ -71,7 +71,7 @@ public class UserDataConstants {
     public static final String SPREAD_SHEET_COUNT = "SpreadSheetCount"; //$NON-NLS-1$
 
     /** Structure */
-    public static final String STRUCTURE_TYPE_COUNT = "StructureTypeCount:";//$NON-NLS-1$
+    public static final String STRUCTURE_TYPE_COUNT = "Structure/%s/TypeCount";//$NON-NLS-1$
     public static final String MODIFY_STRUCTURE_COUNT = "ModifyStructureCount"; //$NON-NLS-1$
 
     /** MarkerPart */
@@ -101,7 +101,7 @@ public class UserDataConstants {
     /** Template */
     public static final String SHOW_TEMPLATES_COUNT = "ShowTemplatesCount"; //$NON-NLS-1$
     public static final String USE_TEMPLATES_COUNT = "UseTemplatesCount"; //$NON-NLS-1$
-    public static final String USE_S_TEMPLATE_COUNT = "Use_%s_TemplateCount";//$NON-NLS-1$
+    public static final String USE_S_TEMPLATE_COUNT = "Template/%s/UseCount";//$NON-NLS-1$
 
     /** Theme */
     public static final String SHOW_THEME_COUNT = "ShowThemeCount"; //$NON-NLS-1$
@@ -109,7 +109,7 @@ public class UserDataConstants {
     public static final String EDIT_THEME_COUNT = "EditThemeCount"; //$NON-NLS-1$
     public static final String EXTRACT_THEME_COUNT = "ExtractThemeCount"; //$NON-NLS-1$
     public static final String CREATE_THEME_COUNT = "CreateThemeCount"; //$NON-NLS-1$
-    public static final String USE_S_THEME_COUNT = "Use_%s_ThemeCount";//$NON-NLS-1$
+    public static final String USE_S_THEME_COUNT = "Theme/%s/UseCount";//$NON-NLS-1$
 
     /** Style */
     public static final String CREATE_STYLE_COUNT = "CreateStyleCount"; //$NON-NLS-1$
@@ -125,7 +125,7 @@ public class UserDataConstants {
 
     public static final String ADD_ATTACHMENT_COUNT = "AddAttachmentCount"; //$NON-NLS-1$
     public static final String ATTACHMENT_FORMAT_COUNT_BLANK_FORMAT = "AttachmentFormatCount:BlankFormat"; //$NON-NLS-1$
-    public static final String ATTACHMENT_FORMAT_COUNT_S = "AttachmentFormatCount:%s"; //$NON-NLS-1$
+    public static final String ATTACHMENT_FORMAT_COUNT_S = "Attachment/%s/FormatCount"; //$NON-NLS-1$
 
     /** Import */
     public static final String IMPORT_FROM_WORD_COUNT = "ImportFromWordCount"; //$NON-NLS-1$
@@ -191,8 +191,8 @@ public class UserDataConstants {
 
     /** TaskInfoPart */
     public static final String SHOW_TASK_INFO_PART_COUNT = "ShowTaskInfoPartCount"; //$NON-NLS-1$
-    public static final String TASK_END_TIME = "TaskEndTime_"; //$NON-NLS-1$
-    public static final String TASK_START_TIME = "TaskStartTime_"; //$NON-NLS-1$
+    public static final String TASK_END_TIME = "Task/%s/startTime"; //$NON-NLS-1$
+    public static final String TASK_START_TIME = "Task/%s/endTime"; //$NON-NLS-1$
     public static final String TASK_INFO_CLICK_CHECK_POINT_COUNT = "TaskInfoClickCheckPointCount"; //$NON-NLS-1$
     public static final String CHANGE_PREDECESSOR_COUNT = "ChangePredecessorCount"; //$NON-NLS-1$
     public static final String REMOVE_PREDECESSOR_COUNT = "RemovePredecessorCount"; //$NON-NLS-1$

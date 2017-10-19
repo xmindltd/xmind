@@ -669,6 +669,9 @@ public class DatePicker extends Viewer {
     }
 
     public DatePicker(Composite parent, int style, Calendar today) {
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+
         this.today = today;
         this.currentMonth = today.get(MONTH);
         this.currentYear = today.get(YEAR);
@@ -1243,6 +1246,9 @@ public class DatePicker extends Viewer {
 
     private void updateCalendar() {
         today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+
         updateDayFigures(datePanel.getChildren(), currentYear, currentMonth);
         monthFigure.setMonth(currentMonth);
         yearFigure.setYear(currentYear);

@@ -132,6 +132,10 @@ public class MindMapResourceManager implements IResourceManager {
 
     private static final String USER_TEMPLATES_DIR = "templates/"; //$NON-NLS-1$
 
+    private static final String PATH_TEMPLATES = "templates/"; //$NON-NLS-1$
+
+    private static final String TEMPLATES = "templates"; //$NON-NLS-1$
+
     private static class SystemMarkerResourceProvider
             implements IMarkerResourceProvider {
 
@@ -1079,7 +1083,7 @@ public class MindMapResourceManager implements IResourceManager {
             Iterator<Element> templateIt = DOMUtils
                     .childElementIterByTag(categoryEle, "template"); //$NON-NLS-1$
             ArrayList<ITemplate> templates = new ArrayList<ITemplate>();
-            loadTemplates(templates, templateIt);
+            loadTemplates(templates, templateIt, bundle);
             templateGroup.setTemplates(templates);
             sysTemplateGroups.add(templateGroup);
         }
@@ -1108,11 +1112,16 @@ public class MindMapResourceManager implements IResourceManager {
 
         Iterator<Element> it = DOMUtils.childElementIterByTag(element,
                 "template"); //$NON-NLS-1$
-        loadTemplates(templates, it);
+        loadTemplates(templates, it, bundle);
     }
 
-    private void loadTemplates(List<ITemplate> templates,
-            Iterator<Element> it) {
+    private void loadTemplates(List<ITemplate> templates, Iterator<Element> it,
+            Bundle bundle) {
+        if (bundle == null) {
+            return;
+        }
+        Properties properties = getTemplateListProperties(bundle);
+
         while (it.hasNext()) {
             Element templateEle = it.next();
             String resource = templateEle.getAttribute("resource"); //$NON-NLS-1$
@@ -1149,6 +1158,13 @@ public class MindMapResourceManager implements IResourceManager {
             }
 
             String name = templateEle.getAttribute("name"); //$NON-NLS-1$
+            if (name.startsWith("%")) { //$NON-NLS-1$
+                if (properties != null) {
+                    name = properties.getProperty(name.substring(1));
+                } else {
+                    name = null;
+                }
+            }
 
             if (name == null || "".equals(name)) { //$NON-NLS-1$
                 name = FileUtils.getNoExtensionFileName(resource);
@@ -1158,34 +1174,34 @@ public class MindMapResourceManager implements IResourceManager {
     }
 
     private Properties getTemplateListProperties(Bundle bundle) {
-        URL propURL = ResourceFinder.findResource(bundle, SYS_TEMPLATES_DIR,
-                "templates", EXT_PROPERTIES); //$NON-NLS-1$
-        if (propURL == null) {
-            MindMapUIPlugin.getDefault().getLog().log(new Status(
-                    IStatus.WARNING, MindMapUIPlugin.PLUGIN_ID,
-                    "Failed to find template NLS properties file: " //$NON-NLS-1$
-                            + bundle.getSymbolicName() + "/" + SYS_TEMPLATES_DIR //$NON-NLS-1$
-                            + "templates_XX.properties")); //$NON-NLS-1$
-            return null;
-        }
+        final IPropertiesProvider provider = new IPropertiesProvider() {
 
-        try {
-            InputStream is = propURL.openStream();
-            try {
-                Properties properties = new Properties();
-                properties.load(is);
-                return properties;
-            } finally {
-                is.close();
+            Properties properties;
+
+            @Override
+            public void setProperties(Properties properties) {
+                this.properties = properties;
             }
-        } catch (IOException e) {
-            MindMapUIPlugin.getDefault().getLog()
-                    .log(new Status(IStatus.WARNING, MindMapUIPlugin.PLUGIN_ID,
-                            "Failed to load template NLS properties from " //$NON-NLS-1$
-                                    + propURL.toExternalForm(),
-                            e));
-        }
-        return null;
+
+            @Override
+            public Properties getProperties() {
+                return properties;
+            }
+        };
+
+        IAdaptable adaptable = new IAdaptable() {
+
+            @Override
+            public <T> T getAdapter(Class<T> adapter) {
+                if (adapter == IPropertiesProvider.class) {
+                    return adapter.cast(provider);
+                }
+                return null;
+            }
+        };
+        loadPropertiesFor(adaptable, PATH_TEMPLATES, TEMPLATES);
+
+        return provider.getProperties();
     }
 
     private Element getTemplateListElement(URL xmlURL) {

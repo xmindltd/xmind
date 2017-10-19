@@ -1,5 +1,6 @@
 package org.xmind.ui.internal.imports.opml;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -9,12 +10,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.imports.ImportMessages;
+import org.xmind.ui.internal.imports.ImportPlugin;
 import org.xmind.ui.wizards.AbstractMindMapImportPage;
 import org.xmind.ui.wizards.AbstractMindMapImportWizard;
 import org.xmind.ui.wizards.MindMapImporter;
 
 public class OpmlImportWizard extends AbstractMindMapImportWizard {
 
+    private static final String SETTINGS_ID = "org.xmind.ui.imports.Opml"; //$NON-NLS-1$
     private static final String PAGE_ID = "importOPML"; //$NON-NLS-1$
     private static final String DOCUMENT_FILTER = "*.opml"; //$NON-NLS-1$
     private static final String DOCUMENT_EXT = "*.opml"; //$NON-NLS-1$
@@ -56,7 +59,16 @@ public class OpmlImportWizard extends AbstractMindMapImportWizard {
                     ImportMessages.OpmlImportPage_FilterName, DOCUMENT_EXT) });
             return dialog;
         }
+    }
 
+    public OpmlImportWizard() {
+        IDialogSettings settings = ImportPlugin.getDefault().getDialogSettings()
+                .getSection(SETTINGS_ID);
+        if (settings == null) {
+            settings = ImportPlugin.getDefault().getDialogSettings()
+                    .addNewSection(SETTINGS_ID);
+        }
+        setDialogSettings(settings);
     }
 
     public void addPages() {

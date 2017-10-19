@@ -304,7 +304,7 @@ public class FreeMindImporter extends MindMapImporter
     private void loadSheet(Element rootEle) throws InterruptedException {
         checkInterrupted();
         ISheet sheet = getTargetWorkbook().createSheet();
-        sheet.setTitleText("sheet1"); //$NON-NLS-1$
+        sheet.setTitleText(getSuggestedSheetTitle());
         Element nodeEle = child(rootEle, "node"); //$NON-NLS-1$
         if (nodeEle != null)
             loadTopic(sheet.getRootTopic(), nodeEle);

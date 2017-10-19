@@ -272,7 +272,7 @@ public class DashboardAutomationAddon {
         }
     }
 
-    private static final String hideVisiblePart(MWindow window,
+    public static final String hideVisiblePart(MWindow window,
             String partStackId) {
         if (window == null || partStackId == null) {
             return null;

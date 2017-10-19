@@ -177,6 +177,8 @@ public class GraphicsToGraphics2DAdaptor extends Graphics {
     private final State currentState = new State();
     private final State appliedState = new State();
 
+    private double[] flatMatrixState;
+
     /**
      * Some strings, Asian string in particular, are painted differently between
      * SWT and AWT. SWT falls back to some default locale font if Asian string
@@ -957,11 +959,13 @@ public class GraphicsToGraphics2DAdaptor extends Graphics {
     @Override
     public void pushState() {
         swtGraphics.pushState();
-        if (angle != 0) {
-            getGraphics2D().rotate(Math.toRadians(360 - angle), rotateX,
-                    rotateY);
-            angle = 0;
-        }
+//        if (angle != 0) {
+//            getGraphics2D().rotate(Math.toRadians(360 - angle), rotateX,
+//                    rotateY);
+//            angle = 0;
+//        }
+        flatMatrixState = new double[6];
+        getGraphics2D().getTransform().getMatrix(flatMatrixState);
 
         // Make a copy of the current state and push it onto the stack
         State toPush = new State();
@@ -1004,6 +1008,9 @@ public class GraphicsToGraphics2DAdaptor extends Graphics {
         currentState.font = state.font;
         currentState.alpha = state.alpha;
 
+        if (flatMatrixState != null) {
+            getGraphics2D().setTransform(new AffineTransform(flatMatrixState));
+        }
     }
 
     /*

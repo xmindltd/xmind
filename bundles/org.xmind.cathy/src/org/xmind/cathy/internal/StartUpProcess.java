@@ -45,6 +45,7 @@ public class StartUpProcess {
     }
 
     public void startUp() {
+        hideRightStack();
         checkAndRecoverFiles();
 
         if (DEBUG_CHECK_OPEN_FILE) {
@@ -65,6 +66,14 @@ public class StartUpProcess {
                             "workbenchReady"); //$NON-NLS-1$
                 }
             });
+        }
+    }
+
+    private void hideRightStack() {
+        MApplication application = workbench.getService(MApplication.class);
+        for (MWindow window : application.getChildren()) {
+            DashboardAutomationAddon.hideVisiblePart(window,
+                    "org.xmind.ui.stack.right"); //$NON-NLS-1$
         }
     }
 
@@ -94,7 +103,6 @@ public class StartUpProcess {
                 doOpenLastSession();
             }
             if (!hasOpenedEditors()) {
-//                doOpenDashboard();
                 closeOpenedDashboard();
             }
         }

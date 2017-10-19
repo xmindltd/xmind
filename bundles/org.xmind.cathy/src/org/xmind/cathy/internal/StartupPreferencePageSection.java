@@ -62,7 +62,9 @@ public class StartupPreferencePageSection extends
     @Override
     protected void createFieldEditors() {
         addStartupGroup(container);
-        addSendUsageDataGroup(container);
+        if (isShowUploadDataCheck()) {
+            addSendUsageDataGroup(container);
+        }
         this.initialize();
     }
 
@@ -74,8 +76,16 @@ public class StartupPreferencePageSection extends
 
         startupActionButton = new Button(container, SWT.CHECK);
         startupActionButton.setText(WorkbenchMessages.RestoreLastSession_label);
-        addField(new BooleanFieldEditor(CathyPlugin.CHECK_UPDATES_ON_STARTUP,
-                WorkbenchMessages.CheckUpdates_label, container));
+
+        if (isShowUploadDataCheck()) {
+            addField(
+                    new BooleanFieldEditor(CathyPlugin.CHECK_UPDATES_ON_STARTUP,
+                            WorkbenchMessages.CheckUpdates_label, container));
+        }
+    }
+
+    private boolean isShowUploadDataCheck() {
+        return !Boolean.getBoolean(CathyPlugin.KEY_NOT_SHOW_UPLOAD_DATA_CHECK);
     }
 
     private void addSendUsageDataGroup(Composite parent) {

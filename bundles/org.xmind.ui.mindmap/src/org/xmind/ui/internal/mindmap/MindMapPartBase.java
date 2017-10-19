@@ -14,8 +14,8 @@
 package org.xmind.ui.internal.mindmap;
 
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
@@ -109,10 +109,12 @@ public abstract class MindMapPartBase extends GraphicalEditPart
     }
 
     protected void runInUI(Runnable job, boolean async) {
-        Shell shell = getSite().getShell();
-        if (shell == null || shell.isDisposed())
+        Control control = getSite().getViewerControl();
+        if (control == null || control.isDisposed()) {
             return;
-        Display display = shell.getDisplay();
+        }
+
+        Display display = control.getDisplay();
         if (display == null || display.isDisposed())
             return;
         if (async) {

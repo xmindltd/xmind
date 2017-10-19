@@ -199,10 +199,18 @@
                      visible="true">
                </separator>
                <command
-                     commandId="org.xmind.ui.command.showPopover"
+                     commandId="org.xmind.ui.command.showModelPart"
                      id="more"
                      label="%menu.insert.marker.more.label"
                      style="push">
+                  <parameter
+                        name="org.xmind.ui.commandParameter.modelPart.partId"
+                        value="org.xmind.ui.modelPart.markers">
+                  </parameter>
+                  <parameter
+                        name="org.xmind.ui.commandParameter.modelPart.partStackId"
+                        value="org.xmind.ui.stack.right">
+                  </parameter>
                </command>
             </menu>
             <command
@@ -799,12 +807,6 @@
                    visible="true">
              </separator>
           </menu>
-          <command
-                commandId="org.xmind.ui.command.openCloudPage"
-                id="org.xmind.ui.openCloudPage"
-                label="%menu.cloud.label"
-                style="push">
-          </command>
        </menuContribution>
        <menuContribution
            allPopups="false"

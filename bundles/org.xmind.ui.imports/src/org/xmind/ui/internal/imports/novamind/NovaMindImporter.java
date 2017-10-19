@@ -409,6 +409,7 @@ public class NovaMindImporter extends MindMapImporter
         checkInterrupted();
 
         targetSheet = getTargetWorkbook().createSheet();
+        targetSheet.setTitleText(getSuggestedSheetTitle());
 
         Element topicEle = child(sheetEle, "topic-node"); //$NON-NLS-1$
         if (topicEle != null)

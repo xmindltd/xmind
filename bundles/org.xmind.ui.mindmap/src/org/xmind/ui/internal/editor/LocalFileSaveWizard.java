@@ -20,7 +20,6 @@ import org.xmind.ui.wizards.ISaveWizard;
 import org.xmind.ui.wizards.SaveOptions;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -66,7 +65,9 @@ public class LocalFileSaveWizard implements ISaveWizard {
             dirPath = new File(oldURI).getParent();
         }
 
-        String result = DialogUtils.save(display.getActiveShell(), proposalName,
+        Shell parentShell = display.getActiveShell() != null
+                ? display.getActiveShell() : new Shell();
+        String result = DialogUtils.save(parentShell, proposalName,
                 new String[] { extensionFullName },
                 new String[] { filterFullName }, 0, dirPath);
         if (result == null)

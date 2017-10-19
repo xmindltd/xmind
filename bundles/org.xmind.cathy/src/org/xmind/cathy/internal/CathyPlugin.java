@@ -174,6 +174,8 @@ public class CathyPlugin extends AbstractUIPlugin {
     public static final int AUTO_SAVE_EDITOR_STATE_INTERVALS = 60000;
     public static final String OPTION_AUTO_SAVE_EDITOR_STATE_INTERVALS = "/debug/autoSaveEditorStateIntervals"; //$NON-NLS-1$
 
+    public static final String KEY_NOT_SHOW_UPLOAD_DATA_CHECK = "org.xmind.cathy.notShowUploadDataCheck"; //$NON-NLS-1$
+
     // The shared instance.
     private static CathyPlugin plugin;
 

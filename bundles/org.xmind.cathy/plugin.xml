@@ -111,7 +111,7 @@
       </page>
       <page
             class="org.eclipse.ui.ExtensionFactory:newKeysPreferencePage"
-            id="org.xmind.ui.prefPage.Keys"
+            id="org.eclipse.ui.preferencePages.Keys"
             name="%prefPage.keys.name">
       </page>
       <!--<page

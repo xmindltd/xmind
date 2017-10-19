@@ -1,5 +1,6 @@
 package org.xmind.ui.internal.imports.lighten;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -9,15 +10,28 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.xmind.core.IWorkbook;
 import org.xmind.ui.internal.imports.ImportMessages;
+import org.xmind.ui.internal.imports.ImportPlugin;
 import org.xmind.ui.wizards.AbstractMindMapImportPage;
 import org.xmind.ui.wizards.AbstractMindMapImportWizard;
 import org.xmind.ui.wizards.MindMapImporter;
 
 public class LightenImportWizard extends AbstractMindMapImportWizard {
 
+    private static final String SETTINGS_ID = "org.xmind.ui.imports.Lighten"; //$NON-NLS-1$
+
     private final static String PAGE_ID = "importLighten"; //$NON-NLS-1$
 
     private final static String FILE_FORMAT = "*.lighten"; //$NON-NLS-1$
+
+    public LightenImportWizard() {
+        IDialogSettings settings = ImportPlugin.getDefault().getDialogSettings()
+                .getSection(SETTINGS_ID);
+        if (settings == null) {
+            settings = ImportPlugin.getDefault().getDialogSettings()
+                    .addNewSection(SETTINGS_ID);
+        }
+        setDialogSettings(settings);
+    }
 
     @Override
     protected MindMapImporter createImporter(String sourcePath,

@@ -159,9 +159,6 @@ public class MultiSectionPreferencePage extends PreferencePage
     @Override
     protected void performApply() {
         this.performOk();
-        if (null != pageSections && pageSections.size() > 0)
-            for (IPreferenceSection pageSection : pageSections)
-                pageSection.apply();
     }
 
     @Override

@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -51,6 +52,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.osgi.util.NLS;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -408,6 +410,32 @@ public class HttpRequest {
         }
     }
 
+    public JSONObject getResponseAsJSONChecked()
+            throws InvalidResponseValueException {
+        if (responseBuffer == null)
+            throw new InvalidResponseValueException("No response buffer.");
+        ByteArrayInputStream input = new ByteArrayInputStream(responseBuffer);
+        try {
+            return new JSONObject(new JSONTokener(input));
+        } catch (JSONException e) {
+            // not a valid JSON object
+            try {
+                throw new InvalidResponseValueException(
+                        NLS.bind("Illegal reponse JSON:\n{0}",
+                                new String(responseBuffer, "utf-8"))); //$NON-NLS-1$
+            } catch (UnsupportedEncodingException e1) {
+                throw new InvalidResponseValueException(
+                        "Illegal reponse JSON.");
+            }
+
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+            }
+        }
+    }
+
     /**
      * @return the responseHeaders
      */
@@ -681,7 +709,7 @@ public class HttpRequest {
 
         log("Receiving {0} bytes...", totalBytes); //$NON-NLS-1$
 
-        if (totalBytes > 0) {
+        if (totalBytes >= 0) {
             if (readStream == null)
                 throw new IOException(
                         "No input stream available to read response from"); //$NON-NLS-1$
@@ -735,9 +763,6 @@ public class HttpRequest {
                 totalBytes = Long.parseLong(length, 10);
             } catch (NumberFormatException e) {
             }
-        }
-        if (totalBytes < 0 && readStream != null) {
-            totalBytes = readStream.available();
         }
         return totalBytes;
     }

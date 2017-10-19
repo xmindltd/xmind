@@ -498,7 +498,36 @@ public class CloneHandler {
         getAllChildrenTopic(targetAllTopics, targetSheet.getRootTopic());
 
         fixInternalHyperlinkFor(targetAllTopics);
+        replaceProcessorOldIds(targetAllTopics);
         return targetSheet;
+    }
+
+    private void replaceProcessorOldIds(ArrayList<ITopic> targetAllTopics) {
+        for (ITopic topic : targetAllTopics) {
+            replaceProcessorOldIds(topic);
+        }
+    }
+
+    private void replaceProcessorOldIds(ITopic topic) {
+        ITopicExtension ext = topic.getExtension("org.xmind.ui.taskInfo"); //$NON-NLS-1$
+        if (ext != null) {
+            ITopicExtensionElement content = ext.getContent();
+            List<ITopicExtensionElement> parentElements = content
+                    .getChildren("predecessors"); //$NON-NLS-1$
+
+            for (ITopicExtensionElement parentElement : parentElements) {
+                List<ITopicExtensionElement> elements = parentElement
+                        .getChildren("predecessor"); //$NON-NLS-1$
+                for (ITopicExtensionElement element : elements) {
+                    String taskId = element.getAttribute("task-id"); //$NON-NLS-1$
+                    String newTaskId = mapper
+                            .getString(ICloneData.WORKBOOK_COMPONENTS, taskId);
+                    if (newTaskId != null) {
+                        element.setAttribute("task-id", newTaskId); //$NON-NLS-1$
+                    }
+                }
+            }
+        }
     }
 
     /**

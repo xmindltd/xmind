@@ -27,8 +27,15 @@ public class ClonedWorkbookRef extends AbstractWorkbookRef {
     protected static final String URI_PATH = "/clone"; //$NON-NLS-1$
     private static final String PARAM_SOURCE_URI = "sourceURI"; //$NON-NLS-1$
 
+    private String name;
+
     private ClonedWorkbookRef(URI uri, IMemento state) {
+        this(uri, state, null);
+    }
+
+    private ClonedWorkbookRef(URI uri, IMemento state, String name) {
         super(uri, state);
+        this.name = name;
     }
 
     public URI getSourceWorkbookURI() {
@@ -43,6 +50,10 @@ public class ClonedWorkbookRef extends AbstractWorkbookRef {
 
     @Override
     public String getName() {
+        if (name != null) {
+            return name;
+        }
+
         String path = getSourceWorkbookURI().getPath();
         int suffixIndex = path.lastIndexOf("."); //$NON-NLS-1$
         if (suffixIndex > 0) {
@@ -116,12 +127,12 @@ public class ClonedWorkbookRef extends AbstractWorkbookRef {
     }
 
     public static IWorkbookRef createFromSourceWorkbookURI(
-            URI sourceWorkbookURI) {
+            URI sourceWorkbookURI, String name) {
         Assert.isNotNull(sourceWorkbookURI);
         URI uri = URI.create(URI_SCHEME + ":" + URI_PATH); //$NON-NLS-1$
         uri = URIParser.appendQueryParameter(uri, PARAM_SOURCE_URI,
                 sourceWorkbookURI.toString());
-        return new ClonedWorkbookRef(uri, null);
+        return new ClonedWorkbookRef(uri, null, name);
     }
 
 }

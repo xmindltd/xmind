@@ -23,19 +23,22 @@ import java.net.URL;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.internal.util.BundleUtility;
 import org.xmind.core.ISheet;
 import org.xmind.core.util.FileUtils;
+import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.image.ResizeConstants;
 import org.xmind.ui.internal.MindMapUIPlugin;
+import org.xmind.ui.mindmap.GhostShellProvider;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMap;
+import org.xmind.ui.mindmap.MindMapExportViewer;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
+import org.xmind.ui.mindmap.MindMapViewerExportSourceProvider;
 import org.xmind.ui.prefs.PrefConstants;
 
 /**
@@ -44,6 +47,11 @@ import org.xmind.ui.prefs.PrefConstants;
  */
 public class DefaultMindMapPreviewGenerator
         implements IMindMapPreviewGenerator {
+
+    private static final int DEFAULT_EXPORT_MARGIN = 5;
+
+    private static final int MINIMUM_PREVIEW_WIDTH = 420;
+    private static final int MAXIMUM_PREVIEW_WIDTH = MINIMUM_PREVIEW_WIDTH * 4;
 
     private final Display display;
 
@@ -76,17 +84,11 @@ public class DefaultMindMapPreviewGenerator
             return properties;
         }
 
-        final MindMapImageExporter exporter = new MindMapImageExporter(display);
-        exporter.setSource(new MindMap(sheet), null,
-                new Insets(MindMapUI.DEFAULT_EXPORT_MARGIN));
-        exporter.setResize(ResizeConstants.RESIZE_MAXPIXELS, 1280, 1024);
-        exporter.setTargetStream(output);
-
         final Exception[] error = new Exception[1];
         display.syncExec(new Runnable() {
             public void run() {
                 try {
-                    exporter.export();
+                    generate(sheet, output);
                 } catch (SWTException e) {
                     error[0] = e;
                 }
@@ -96,6 +98,38 @@ public class DefaultMindMapPreviewGenerator
             throw new IOException(error[0]);
 
         return properties;
+    }
+
+    private void generate(ISheet sheet, OutputStream output) {
+        GhostShellProvider ghostShellProvider = new GhostShellProvider(display);
+        IGraphicalViewer viewer = new MindMapExportViewer(ghostShellProvider,
+                new MindMap(sheet), null);
+        MindMapViewerExportSourceProvider sourceProvider = new MindMapViewerExportSourceProvider(
+                viewer, DEFAULT_EXPORT_MARGIN);
+
+        org.eclipse.draw2d.geometry.Rectangle sourceArea = sourceProvider
+                .getSourceArea();
+
+        int resizeWidth = Math.max(
+                (sourceArea.width % 21 == 0) ? sourceArea.width
+                        : (sourceArea.width + 21 - sourceArea.width % 21),
+                (sourceArea.height % 13 == 0) ? sourceArea.height * 21 / 13
+                        : (sourceArea.height + 13 - sourceArea.height % 13) * 21
+                                / 13);
+        if (resizeWidth < MINIMUM_PREVIEW_WIDTH) {
+            resizeWidth = MINIMUM_PREVIEW_WIDTH;
+        } else if (resizeWidth > MAXIMUM_PREVIEW_WIDTH) {
+            resizeWidth = MAXIMUM_PREVIEW_WIDTH;
+        }
+        int resizeHeight = resizeWidth * 13 / 21;
+
+        MindMapImageExporter exporter = new MindMapImageExporter(display);
+        exporter.setSourceProvider(sourceProvider);
+        exporter.setResize(ResizeConstants.RESIZE_STRETCH, resizeWidth,
+                resizeHeight);
+        exporter.setTargetStream(output);
+
+        exporter.export();
     }
 
 }

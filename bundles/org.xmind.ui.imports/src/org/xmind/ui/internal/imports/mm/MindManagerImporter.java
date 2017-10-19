@@ -478,6 +478,7 @@ public class MindManagerImporter extends MindMapImporter
         checkInterrupted();
 
         targetSheet = getTargetWorkbook().createSheet();
+        targetSheet.setTitleText(getSuggestedSheetTitle());
 
         Element oneTopicEle = child(docEle, "OneTopic"); //$NON-NLS-1$
         if (oneTopicEle != null) {

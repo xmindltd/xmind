@@ -30,6 +30,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -259,6 +261,20 @@ public class MiniZoomContribution extends ContributionItem
             };
             valueInput.addListener(SWT.DefaultSelection, inputConfirmListener);
             valueInput.addListener(SWT.Traverse, inputConfirmListener);
+
+            valueInput.addFocusListener(new FocusListener() {
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    if (e.display.getActiveShell() != getShell()) {
+                        close();
+                    }
+                }
+
+                @Override
+                public void focusGained(FocusEvent e) {
+                }
+            });
         }
 
         private void fillDirectSelector(Composite parent) {
@@ -318,6 +334,20 @@ public class MiniZoomContribution extends ContributionItem
                             }
                         }
                     });
+
+            slider.getControl().addFocusListener(new FocusListener() {
+
+                @Override
+                public void focusLost(FocusEvent e) {
+                    if (e.display.getActiveShell() != getShell()) {
+                        close();
+                    }
+                }
+
+                @Override
+                public void focusGained(FocusEvent e) {
+                }
+            });
         }
 
         protected Control getFocusControl() {
@@ -395,6 +425,8 @@ public class MiniZoomContribution extends ContributionItem
 
     private ZoomPopup zoomPopup = null;
 
+    private ToolBar toolBar;
+
     public MiniZoomContribution(IGraphicalEditor editor) {
         this(ActionConstants.MINI_ZOOM, editor);
     }
@@ -435,6 +467,7 @@ public class MiniZoomContribution extends ContributionItem
     }
 
     public void fill(ToolBar parent, int index) {
+        toolBar = parent;
         if (index < 0) {
             zoomOutItem = new ToolItem(parent, SWT.PUSH);
             zoomValueItem = new ToolItem(parent, SWT.PUSH);
@@ -521,7 +554,12 @@ public class MiniZoomContribution extends ContributionItem
             } else {
                 double scale = zoomManager.getScale();
                 int s = (int) Math.round(scale * 100);
-                zoomValueItem.setText(String.format("%d%%", s)); //$NON-NLS-1$
+                zoomValueItem.setText(
+                        String.format("%4s", String.format("%d%%", s))); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+
+            if (toolBar != null && !toolBar.isDisposed()) {
+                toolBar.pack();
             }
         }
     }

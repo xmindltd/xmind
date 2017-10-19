@@ -5,31 +5,34 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xmind.releng</groupId>
     <artifactId>org.xmind.cathy.releng</artifactId>
-    <version>3.7.0-SNAPSHOT</version>
+    <version>3.7.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
         <tycho.version>0.23.0</tycho.version>
         <tychoExtras.version>0.23.0</tychoExtras.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <eclipse-repo.id>eclipse-4.6</eclipse-repo.id>
         <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</eclipse-repo.url>
+        <gef-repo.id>gef-3.10.1</gef-repo.id>
         <gef-repo.url>http://download.eclipse.org/tools/gef/updates/legacy/releases/3.10.1_gef-maintenance_1205</gef-repo.url>
+        <xmind-orbit-repo.id>xmind-orbit-1.1.0</xmind-orbit-repo.id>
         <xmind-orbit-repo.url>http://p2.xmind.net/updates/orbit/1.1.0</xmind-orbit-repo.url>
     </properties>
 
     <repositories>
         <repository>
-            <id>eclipse-4.6</id>
+            <id>${eclipse-repo.id}</id>
             <url>${eclipse-repo.url}</url>
             <layout>p2</layout>
         </repository>
         <repository>
-            <id>gef-3.10.1</id>
+            <id>${gef-repo.id}</id>
             <url>${gef-repo.url}</url>
             <layout>p2</layout>
         </repository>
         <repository>
-            <id>xmind-orbit-1.1.0</id>
+            <id>${xmind-orbit-repo.id}</id>
             <url>${xmind-orbit-repo.url}</url>
             <layout>p2</layout>
         </repository>

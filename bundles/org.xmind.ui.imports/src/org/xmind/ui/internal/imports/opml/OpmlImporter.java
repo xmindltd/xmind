@@ -1,39 +1,35 @@
 package org.xmind.ui.internal.imports.opml;
 
-import static org.xmind.ui.internal.imports.opml.OpmlConstants.ATT_TEXT;
-import static org.xmind.ui.internal.imports.opml.OpmlConstants.ATT_TYPE;
-import static org.xmind.ui.internal.imports.opml.OpmlConstants.ATT_URL;
-import static org.xmind.ui.internal.imports.opml.OpmlConstants.TAG_BODY;
-import static org.xmind.ui.internal.imports.opml.OpmlConstants.TYPE_HYPERLINK;
-import static org.xmind.ui.internal.imports.opml.OpmlConstants.TYPE_NOTE;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xmind.core.INotes;
 import org.xmind.core.IPlainNotesContent;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.UserDataConstants;
+import org.xmind.core.util.DOMUtils;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.wizards.MindMapImporter;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class OpmlImporter extends MindMapImporter implements ErrorHandler {
+public class OpmlImporter extends MindMapImporter
+        implements ErrorHandler, OpmlConstants {
 
-    private ISheet sheet;
+    private ISheet targetSheet;
 
     public OpmlImporter(String sourcePath, IWorkbook targetWorkbook) {
         super(sourcePath, targetWorkbook);
@@ -43,14 +39,17 @@ public class OpmlImporter extends MindMapImporter implements ErrorHandler {
     public void build() throws InvocationTargetException, InterruptedException {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
                 .increase(UserDataConstants.IMPORT_FROM_OPML_COUNT);
+
         InputStream in = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory
                     .newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             builder.setErrorHandler(this);
+
             in = new FileInputStream(getSourcePath());
             Document doc = builder.parse(in);
+
             checkInterrupted();
             Element rootElement = doc.getDocumentElement();
 
@@ -65,108 +64,199 @@ public class OpmlImporter extends MindMapImporter implements ErrorHandler {
                 e.printStackTrace();
             }
         }
+
         postBuilded();
     }
 
     private void loadSheet(Element rootElement) throws InterruptedException {
         checkInterrupted();
+
         IWorkbook targetWorkbook = getTargetWorkbook();
-        sheet = targetWorkbook.createSheet();
-        sheet.setTitleText("sheet1"); //$NON-NLS-1$
-        NodeList nodelist = rootElement.getChildNodes();
-        Element bodyEle = (Element) nodelist.item(1);
-        if (TAG_BODY.equals(bodyEle.getTagName())) {
-            loadAll(bodyEle);
+        targetSheet = targetWorkbook.createSheet();
+
+        Element bodyEle = child(rootElement, TAG_BODY);
+        if (bodyEle != null) {
+            loadContents(bodyEle);
         }
-        addTargetSheet(sheet);
-    }
 
-    private void loadAll(Element bodyEle) {
-        NodeList nodelist = bodyEle.getChildNodes();
-        if (nodelist.getLength() > 1)
-            return;
-
-        Node child = nodelist.item(0);
-        if (child instanceof Element) {
-            Element rootEle = (Element) child;
-            ITopic rootTopic = sheet.getRootTopic();
-            dealRootTopic(rootEle, rootTopic);
-            loadTopic(rootEle, rootTopic);
+        Element headEle = child(rootElement, TAG_HEAD);
+        if (headEle != null) {
+            loadSheetProperties(headEle);
         }
+
+        addTargetSheet(targetSheet);
     }
 
-    private void dealRootTopic(Element ele, ITopic rootTopic) {
-        rootTopic.setTitleText(att(ele, ATT_TEXT));
-    }
+    private void loadContents(Element bodyEle) throws InterruptedException {
+        checkInterrupted();
 
-    private void loadTopic(Element ele, ITopic parent) {
-        pushInMap(ele, parent);
-        if (TYPE_HYPERLINK.equals(att(ele, ATT_TYPE)))
-            loadHyperLink(ele, parent);
-        NodeList children = ele.getChildNodes();
-        int lenght = children.getLength();
-        for (int index = 0; index < lenght; index++) {
-            Node childNode = children.item(index);
-            if (childNode instanceof Element) {
-                Element child = (Element) childNode;
-                String type = att(child, ATT_TYPE);
-                if (TYPE_NOTE.equals(type))
-                    loadNotes(child, parent);
-                else {
-                    ITopic topic = dealTopic(child, parent);
-                    loadTopic(child, topic);
-                }
+        Element rootTopicEle = child(bodyEle, TAG_OUTLINE);
+        if (rootTopicEle != null) {
+            ITopic rootTopic = targetSheet.getRootTopic();
+            loadTopicContent(rootTopicEle, rootTopic);
+        }
+
+        Iterator<Element> children = children(bodyEle, TAG_OUTLINE);
+        while (children.hasNext()) {
+            Element next = children.next();
+            if (next != rootTopicEle) {
+                loadFloatingTopic(next, targetSheet.getRootTopic());
             }
         }
     }
 
-    private ITopic dealTopic(Element ele, ITopic parent) {
-        ITopic topic = getTargetWorkbook().createTopic();
-        topic.setTitleText(att(ele, ATT_TEXT));
-        parent.add(topic, ITopic.ATTACHED);
-        return topic;
+    private void loadTopicContent(Element topicEle, ITopic topic)
+            throws InterruptedException {
+        checkInterrupted();
+
+        topic.setTitleText(attr(topicEle, ATTR_TEXT));
+
+        if (TYPE_LINK.equals(attr(topicEle, ATTR_TYPE)))
+            loadHyperlink(topicEle, topic);
+
+        Iterator<Element> children = children(topicEle, TAG_OUTLINE);
+        while (children.hasNext()) {
+            Element next = children.next();
+            String type = attr(next, ATTR_TYPE);
+            if (TYPE_NOTE.equals(type)) {
+                loadNotes(next, topic);
+            } else {
+                loadSubTopic(next, topic);
+            }
+        }
     }
 
-    private void pushInMap(Element ele, ITopic parent) {
-        parent.setTitleText(att(ele, ATT_TEXT));
-    }
+    private void loadHyperlink(Element topicEle, ITopic topic)
+            throws InterruptedException {
+        checkInterrupted();
 
-    private String att(Element ele, String attTag) {
-        if (ele.hasAttribute(attTag))
-            return ele.getAttribute(attTag);
-        return null;
-    }
-
-    private void loadHyperLink(Element ele, ITopic topic) {
-        String link = att(ele, ATT_URL);
+        String link = attr(topicEle, ATTR_URL);
         if (link != null && isLinkToWeb(link)) {
+            String hyperlink = link;
+            if (!(hyperlink.startsWith("http://") //$NON-NLS-1$
+                    || hyperlink.startsWith("https://"))) { //$NON-NLS-1$
+                hyperlink = "http://" + hyperlink; //$NON-NLS-1$
+            }
             topic.setHyperlink(link);
         }
     }
 
-    private void loadNotes(Element ele, ITopic parent) {
-        String text = att(ele, ATT_TEXT);
+    private void loadNotes(Element topicEle, ITopic topic)
+            throws InterruptedException {
+        checkInterrupted();
+
+        String text = attr(topicEle, ATTR_TEXT);
         if (text != null && !text.trim().equals("")) { //$NON-NLS-1$
             IPlainNotesContent notesContent = (IPlainNotesContent) getTargetWorkbook()
                     .createNotesContent(INotes.PLAIN);
             notesContent.setTextContent(text);
-            parent.getNotes().setContent(INotes.PLAIN, notesContent);
+            topic.getNotes().setContent(INotes.PLAIN, notesContent);
         }
     }
 
-    private boolean isLinkToWeb(String hyperlink) {
-        if (hyperlink.contains("www.") || hyperlink.contains(".com") //$NON-NLS-1$//$NON-NLS-2$
-                || hyperlink.contains(".cn") || hyperlink.contains(".org") //$NON-NLS-1$//$NON-NLS-2$
-                || hyperlink.contains(".cc") || hyperlink.contains(".net") //$NON-NLS-1$//$NON-NLS-2$
-                || hyperlink.contains(".ren")) { //$NON-NLS-1$
-            return true;
+    private void loadSubTopic(Element topicEle, ITopic parent)
+            throws InterruptedException {
+        checkInterrupted();
+
+        ITopic subTopic = getTargetWorkbook().createTopic();
+        parent.add(subTopic, ITopic.ATTACHED);
+        loadTopicContent(topicEle, subTopic);
+    }
+
+    private void loadFloatingTopic(Element floatingTopicEle, ITopic parent)
+            throws InterruptedException {
+        checkInterrupted();
+
+        ITopic subTopic = getTargetWorkbook().createTopic();
+        parent.add(subTopic, ITopic.DETACHED);
+        loadTopicContent(floatingTopicEle, subTopic);
+    }
+
+    private void loadSheetProperties(Element headEle)
+            throws InterruptedException {
+        checkInterrupted();
+
+        Element titleEle = child(headEle, TAG_TITLE);
+        if (titleEle != null) {
+            targetSheet.setTitleText(titleEle.getTextContent());
+        } else {
+            targetSheet.setTitleText(getSuggestedSheetTitle());
         }
-        return false;
     }
 
     private void checkInterrupted() throws InterruptedException {
         if (getMonitor().isCanceled())
             throw new InterruptedException();
+    }
+
+    private static Element child(Element parentEle, String childTag) {
+        return children(parentEle, childTag).next();
+    }
+
+    private static Iterator<Element> children(final Element parentEle,
+            final String childTag) {
+        return new Iterator<Element>() {
+
+            String tag = DOMUtils.getLocalName(childTag);
+
+            Iterator<Element> it = DOMUtils.childElementIter(parentEle);
+
+            Element next = findNext();
+
+            public void remove() {
+            }
+
+            private Element findNext() {
+                while (it.hasNext()) {
+                    Element ele = it.next();
+                    if (DOMUtils.getLocalName(ele.getTagName())
+                            .equalsIgnoreCase(tag)) {
+                        return ele;
+                    }
+                }
+                return null;
+            }
+
+            public Element next() {
+                Element result = next;
+                next = findNext();
+                return result;
+            }
+
+            public boolean hasNext() {
+                return next != null;
+            }
+        };
+    }
+
+    private static String attr(Element ele, String attName) {
+        if (ele == null || attName == null)
+            return null;
+
+        if (ele.hasAttribute(attName))
+            return ele.getAttribute(attName);
+
+        attName = DOMUtils.getLocalName(attName);
+        NamedNodeMap atts = ele.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Node att = atts.item(i);
+            if (attName.equalsIgnoreCase(
+                    DOMUtils.getLocalName(att.getNodeName()))) {
+                return att.getNodeValue();
+            }
+        }
+        return null;
+    }
+
+    private static boolean isLinkToWeb(String urlOrBookmark) {
+        if (urlOrBookmark.contains("www.") || urlOrBookmark.contains(".com") //$NON-NLS-1$ //$NON-NLS-2$
+                || urlOrBookmark.contains(".cn") //$NON-NLS-1$
+                || urlOrBookmark.contains(".org") //$NON-NLS-1$
+                || urlOrBookmark.contains(".cc") //$NON-NLS-1$
+                || urlOrBookmark.contains(".net")) { //$NON-NLS-1$
+            return true;
+        }
+        return false;
     }
 
     public void warning(SAXParseException exception) throws SAXException {
@@ -180,4 +270,5 @@ public class OpmlImporter extends MindMapImporter implements ErrorHandler {
     public void fatalError(SAXParseException exception) throws SAXException {
         log(exception, null);
     }
+
 }

@@ -140,7 +140,7 @@ public class OpenFilesProcess extends AbstractCheckFilesProcess {
     protected IEditorInput newFromTemplate(String path, String fileName)
             throws Exception {
         IWorkbookRef ref = ClonedWorkbookRef
-                .createFromSourceWorkbookURI(new File(path).toURI());
+                .createFromSourceWorkbookURI(new File(path).toURI(), fileName);
         return MindMapUI.getEditorInputFactory().createEditorInput(ref);
     }
 

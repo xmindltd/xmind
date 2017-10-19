@@ -111,8 +111,9 @@ public class NumberingPropertySectionPart
                     .getFirstElement();
             if (o instanceof INumberFormatDescriptor) {
                 MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.NUMBERING_TYPE_COUNT
-                                + ((INumberFormatDescriptor) o).getId());
+                        .increase(String.format(
+                                UserDataConstants.NUMBERING_TYPE_COUNT,
+                                ((INumberFormatDescriptor) o).getId()));
                 changeNumberFormat(((INumberFormatDescriptor) o).getId());
             }
         }

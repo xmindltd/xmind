@@ -600,7 +600,9 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
     }
 
     private static void collectUserData(URI uri) {
-        Assert.isNotNull(uri);
+        if (uri == null || "".equals(uri)) { //$NON-NLS-1$
+            return;
+        }
         String scheme = uri.getScheme();
         if (scheme == null || "".equalsIgnoreCase(scheme)) //$NON-NLS-1$
             return;

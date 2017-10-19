@@ -525,16 +525,17 @@ public abstract class GraphicalEditor extends EditorPart
 
     @SuppressWarnings("unchecked")
     public <T> T getAdapter(Class<T> adapter) {
+        T result = getEditorAdapter(adapter);
+        if (result != null) {
+            return result;
+        }
+
         Object activePage = getSelectedPage();
         if (activePage != null) {
-            T result = GEFPlugin.getAdapter(activePage, adapter);
+            result = GEFPlugin.getAdapter(activePage, adapter);
             if (result != null)
                 return result;
         }
-
-        T result = getEditorAdapter(adapter);
-        if (result != null)
-            return result;
 
         return super.getAdapter(adapter);
     }

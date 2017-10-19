@@ -103,6 +103,7 @@ public class LightenImporter extends MindMapImporter implements ErrorHandler {
         WorkbookImpl workbook = (WorkbookImpl) getTargetWorkbook();
         targetSheet = workbook.createSheet();
         SheetImpl sheet = (SheetImpl) targetSheet;
+        sheet.setTitleText(getSuggestedSheetTitle());
 
         if (targetStyleSheet == null) {
             targetStyleSheet = workbook.getStyleSheet();

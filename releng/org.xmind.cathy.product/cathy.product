@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.2.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.xmind.cathy/icons/about.png"/>
@@ -17,17 +17,17 @@
       <programArgs>--launcher.defaultAction
 openFile
       </programArgs>
+      <programArgsLin>--launcher.GTK_version
+2
+-eclipse.keyring
+@user.home/.xmind/secure_storage_linux
+      </programArgsLin>
       <programArgsMac>-eclipse.keyring
 @user.home/.xmind/secure_storage_macosx
       </programArgsMac>
       <programArgsWin>-eclipse.keyring
 @user.home/.xmind/secure_storage_win32
       </programArgsWin>
-      <programArgsLinux>--launcher.GTK_version
-2
--eclipse.keyring
-@user.home/.xmind/secure_storage_linux
-      </programArgsLinux>
       <vmArgs>-Dfile.encoding=UTF-8
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread
@@ -51,8 +51,10 @@ openFile
       </win>
    </launcher>
 
+
    <vm>
    </vm>
+
 
    <plugins>
    </plugins>

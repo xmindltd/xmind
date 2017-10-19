@@ -98,8 +98,14 @@ public class ModifyTopicStructureCommand extends ModifyCommand {
                                 .setTextContent(rightNum);
                     }
                 }
-                MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                        UserDataConstants.STRUCTURE_TYPE_COUNT + value);
+                if (value != null) {
+                    String vs = value.toString();
+                    String ID = vs.replaceAll("\\.", "_");  //$NON-NLS-1$//$NON-NLS-2$
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .increase(String.format(
+                                    UserDataConstants.STRUCTURE_TYPE_COUNT,
+                                    ID));
+                }
                 topic.setStructureClass((String) value);
             }
         }

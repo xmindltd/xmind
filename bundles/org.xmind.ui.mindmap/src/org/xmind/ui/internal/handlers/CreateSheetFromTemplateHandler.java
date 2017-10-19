@@ -64,6 +64,9 @@ public class CreateSheetFromTemplateHandler extends AbstractHandler {
                 .increase(UserDataConstants.USE_TEMPLATES_COUNT);
 
         final ITemplate template = dialog.getTemplate();
+        MindMapUIPlugin.getDefault().getUsageDataCollector()
+                .increase(String.format(UserDataConstants.USE_S_TEMPLATE_COUNT,
+                        template.getName().replaceAll(" ", "_")));  //$NON-NLS-1$//$NON-NLS-2$
         Assert.isTrue(template != null);
         final IWorkbookRef tempWorkbookRef = template.createWorkbookRef();
         if (tempWorkbookRef == null)

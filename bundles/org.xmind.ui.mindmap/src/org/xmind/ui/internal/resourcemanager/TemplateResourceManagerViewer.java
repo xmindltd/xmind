@@ -268,8 +268,8 @@ public class TemplateResourceManagerViewer extends ResourceManagerViewer {
     public void startEditing(ITemplate template) {
         Object input = getInput();
         if (input instanceof TemplateGalleryCore) {
-            List<ITemplateGroup> groups = ((TemplateGalleryCore) input)
-                    .getElements();
+            @SuppressWarnings("unchecked")
+            List<ITemplateGroup> groups = (List) getCategories();
             for (ITemplateGroup group : groups) {
                 if (group.getTemplates().contains(template)) {
                     GalleryViewer galleryViewer = getNestedViewer(group);

@@ -38,7 +38,7 @@ public class ClonedTemplate implements ITemplate {
     @Override
     public IWorkbookRef createWorkbookRef() {
         return ClonedWorkbookRef
-                .createFromSourceWorkbookURI(this.sourceWorkbookURI);
+                .createFromSourceWorkbookURI(this.sourceWorkbookURI, name);
     }
 
     public URI getSourceWorkbookURI() {

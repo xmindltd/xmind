@@ -458,7 +458,7 @@ public class WelcomeDialog extends Dialog {
         GridData layoutData = new GridData(SWT.FILL, SWT.BOTTOM, true, false);
         composite.setLayoutData(layoutData);
 
-        GridLayout layout = new GridLayout(2, false);
+        GridLayout layout = new GridLayout(0, false);
         layout.marginWidth = 27;
         layout.marginHeight = 10;
         composite.setLayout(layout);
@@ -468,6 +468,11 @@ public class WelcomeDialog extends Dialog {
     }
 
     private void createUploadDataCheck(Composite parent) {
+        if (!isShowUploadDataCheck()) {
+            return;
+        }
+        ((GridLayout) parent.getLayout()).numColumns++;
+
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(parent.getBackground());
         GridData layoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -514,10 +519,22 @@ public class WelcomeDialog extends Dialog {
         });
     }
 
+    private boolean isShowUploadDataCheck() {
+        return !Boolean.getBoolean(CathyPlugin.KEY_NOT_SHOW_UPLOAD_DATA_CHECK);
+    }
+
     private void createOkButton(Composite parent) {
+        ((GridLayout) parent.getLayout()).numColumns++;
+
         final Button okButton = new Button(parent, SWT.PUSH);
         okButton.setBackground(parent.getBackground());
-        GridData gridData = new GridData(SWT.CENTER, SWT.CENTER, false, true);
+
+        GridData gridData = null;
+        if (((GridLayout) parent.getLayout()).numColumns > 1) {
+            gridData = new GridData(SWT.CENTER, SWT.CENTER, false, true);
+        } else {
+            gridData = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
+        }
         gridData.widthHint = 92;
         okButton.setLayoutData(gridData);
         okButton.setText(WorkbenchMessages.WelcomeDialog_okButton_text);
@@ -540,12 +557,14 @@ public class WelcomeDialog extends Dialog {
     }
 
     private void close(boolean restoreDefaults) {
-        boolean isUploadData = true;
-        if (!restoreDefaults) {
-            isUploadData = uploadDataCheck.getSelection();
+        if (uploadDataCheck != null && !uploadDataCheck.isDisposed()) {
+            boolean isUploadData = true;
+            if (!restoreDefaults) {
+                isUploadData = uploadDataCheck.getSelection();
+            }
+            CathyPlugin.getDefault().getPreferenceStore().setValue(
+                    CathyPlugin.USAGE_DATA_UPLOADING_ENABLED, isUploadData);
         }
-        CathyPlugin.getDefault().getPreferenceStore().setValue(
-                CathyPlugin.USAGE_DATA_UPLOADING_ENABLED, isUploadData);
 
         super.close();
     }
