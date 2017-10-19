@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.xmind.ui.internal.ToolkitPlugin;
+import org.xmind.ui.util.JobPool;
 
 /**
  * @author Shawn Liu
@@ -50,7 +51,7 @@ public class WebImageManager {
     private WebImageManager() {
     }
 
-    public void requestWebImage(final String imageUrl,
+    public void requestWebImage(final String imageUrl, JobPool jobPool,
             final WebImageCallback callback) {
         if (callback == null) {
             return;
@@ -78,7 +79,12 @@ public class WebImageManager {
 
         job.setSystem(true);
         job.setUser(false);
-        job.schedule();
+
+        if (jobPool != null) {
+            jobPool.scheduleJob(job, null);
+        } else {
+            job.schedule();
+        }
     }
 
     private String createWebImageFile(String imageUrl) {

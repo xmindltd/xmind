@@ -56,6 +56,7 @@ import org.json.JSONObject;
 import org.xmind.core.net.IDataStore;
 import org.xmind.core.net.JSONStore;
 import org.xmind.core.net.http.HttpRequest;
+import org.xmind.core.net.util.LinkUtils;
 
 /**
  * @deprecated Use {@link HttpRequest} instead
@@ -267,7 +268,7 @@ public class XMindNetRequest {
     private static final boolean DEBUG_ASSC = Activator
             .isDebugging("/debug/requests/assc"); //$NON-NLS-1$
 
-    private static final String DEFAULT_DOMAIN = "www.xmind.net"; //$NON-NLS-1$
+    private static final String DEFAULT_DOMAIN = LinkUtils.HOST_NET;
 
     private static final String HEAD = "HEAD"; //$NON-NLS-1$
 
@@ -317,7 +318,6 @@ public class XMindNetRequest {
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.lang.Object#toString()
          */
         @Override
@@ -434,7 +434,7 @@ public class XMindNetRequest {
                 return boundary;
             Random rand = new Random();
             byte[] bytes = new byte[rand.nextInt(11) + 30]; // a random size
-                                                            // from 30 to 40
+                                                           // from 30 to 40
             for (int i = 0; i < bytes.length; i++) {
                 bytes[i] = BOUNDARY_CHARS[rand.nextInt(BOUNDARY_CHARS.length)];
             }
@@ -946,33 +946,57 @@ public class XMindNetRequest {
             throw new OperationCanceledException();
 
         try {
-            connection.setDoOutput(writer != null);
-            if (isAborted())
-                throw new OperationCanceledException();
-            connection.setRequestMethod(method);
-            if (isAborted())
-                throw new OperationCanceledException();
+            while (true) {
+                /// connection auto redirect don't have needed params
+                connection.setInstanceFollowRedirects(false);
 
-            if (writer != null) {
-                writer.init(params);
+                connection.setDoOutput(writer != null);
+                if (isAborted())
+                    throw new OperationCanceledException();
+                connection.setRequestMethod(method);
+                if (isAborted())
+                    throw new OperationCanceledException();
+
+                if (writer != null) {
+                    writer.init(params);
+                }
+                if (isAborted())
+                    throw new OperationCanceledException();
+
+                writeHeaders(uri, connection, writer);
+                if (isAborted())
+                    throw new OperationCanceledException();
+
+                if (writer != null) {
+                    writeBody(uri, connection, writer);
+                }
+                if (isAborted())
+                    throw new OperationCanceledException();
+
+                setStatusCode(HTTP_WAITING);
+                debug("HTTP Request: (Waiting...) %s %s", method, uri); //$NON-NLS-1$
+                if (isAborted())
+                    throw new OperationCanceledException();
+
+                /// auto redirect
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HTTP_MOVED_PERM
+                        || responseCode == HTTP_MOVED_TEMP) {
+                    String newLocation = connection.getHeaderField("Location"); //$NON-NLS-1$
+                    if (proxy != null) {
+                        connection = (HttpURLConnection) new URL(newLocation)
+                                .openConnection(proxy);
+                    } else {
+                        connection = (HttpURLConnection) new URL(newLocation)
+                                .openConnection();
+                    }
+                    if (isAborted()) {
+                        throw new OperationCanceledException();
+                    }
+                } else {
+                    break;
+                }
             }
-            if (isAborted())
-                throw new OperationCanceledException();
-
-            writeHeaders(uri, connection, writer);
-            if (isAborted())
-                throw new OperationCanceledException();
-
-            if (writer != null) {
-                writeBody(uri, connection, writer);
-            }
-            if (isAborted())
-                throw new OperationCanceledException();
-
-            setStatusCode(HTTP_WAITING);
-            debug("HTTP Request: (Waiting...) %s %s", method, uri); //$NON-NLS-1$
-            if (isAborted())
-                throw new OperationCanceledException();
 
             readResponse(uri, connection, connection.getInputStream(),
                     connection.getResponseCode());
@@ -1297,7 +1321,6 @@ public class XMindNetRequest {
 
     /**
      * A solution to accept self-signed SSL certificates.
-     * 
      * <p>
      * Source came from Craig Flichel's post <a href=
      * "http://www.javacodegeeks.com/2011/12/ignoring-self-signed-certificates-in.html"
@@ -1328,8 +1351,8 @@ public class XMindNetRequest {
 
         static synchronized SSLSocketFactory prepFactory(
                 HttpsURLConnection httpsConnection)
-                        throws NoSuchAlgorithmException, KeyStoreException,
-                        KeyManagementException {
+                throws NoSuchAlgorithmException, KeyStoreException,
+                KeyManagementException {
 
             if (factory == null) {
                 SSLContext ctx = SSLContext.getInstance("TLS"); //$NON-NLS-1$

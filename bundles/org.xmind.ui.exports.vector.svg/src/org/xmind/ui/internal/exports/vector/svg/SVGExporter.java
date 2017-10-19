@@ -157,7 +157,7 @@ public class SVGExporter extends Exporter {
             adaptor.dispose();
             cleanUpSources();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new InvocationTargetException(e);
         }
     }
 

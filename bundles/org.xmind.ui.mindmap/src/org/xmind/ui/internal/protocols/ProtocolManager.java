@@ -34,6 +34,7 @@ import org.xmind.ui.browser.BrowserSupport;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.browser.BrowserUtil;
 import org.xmind.ui.internal.mindmap.TopicContext;
+import org.xmind.ui.mindmap.IHyperlinked;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IProtocol;
 import org.xmind.ui.mindmap.IProtocolDescriptor;
@@ -47,7 +48,8 @@ public class ProtocolManager extends RegistryReader
 
     private static String DEFAULT_BROWSER_ID = "org.xmind.ui.defaultProtocol.browser"; //$NON-NLS-1$
 
-    private static class DefaultOpenURLAction extends Action {
+    private static class DefaultOpenURLAction extends Action
+            implements IHyperlinked {
         private String url;
 
         public DefaultOpenURLAction(String url) {
@@ -66,7 +68,8 @@ public class ProtocolManager extends RegistryReader
                     try {
                         URI uri = new URI(theURL);
                         String host = uri.getHost();
-                        if (host != null && host.endsWith(".xmind.net")) { //$NON-NLS-1$
+                        if (host != null && (host.endsWith(".xmind.net") //$NON-NLS-1$
+                                || host.endsWith(".xmind.cn"))) {  //$NON-NLS-1$
                             theURL = BrowserUtil.makeRedirectURL(theURL);
                         }
                     } catch (Exception ignored) {
@@ -75,6 +78,11 @@ public class ProtocolManager extends RegistryReader
                             .createBrowser(DEFAULT_BROWSER_ID).openURL(theURL);
                 }
             });
+        }
+
+        @Override
+        public String getHyperlink() {
+            return url;
         }
     }
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 41 (35326) - http://www.bohemiancoding.com/sketch -->
+    <title>ic label</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="3.061617e-15%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFF1CA" offset="0%"></stop>
+            <stop stop-color="#F8C22F" offset="100%"></stop>
+        </linearGradient>
+        <rect id="path-2" x="4" y="5.5" width="14" height="5" rx="1"></rect>
+        <mask id="mask-3" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="14" height="5" fill="white">
+            <use xlink:href="#path-2"></use>
+        </mask>
+        <rect id="path-4" x="4" y="11.5" width="14" height="5" rx="1"></rect>
+        <mask id="mask-5" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="14" height="5" fill="white">
+            <use xlink:href="#path-4"></use>
+        </mask>
+    </defs>
+    <g id="ic-final-draft-" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="WorkSpace" transform="translate(-753.000000, -78.000000)" stroke="#F3BF36" fill="url(#linearGradient-1)">
+            <g id="work-space-svg" transform="translate(687.000000, 78.000000)">
+                <g id="ic-label" transform="translate(66.000000, 0.000000)">
+                    <use id="Rectangle-61" mask="url(#mask-3)" xlink:href="#path-2"></use>
+                    <use id="Rectangle-61-Copy" mask="url(#mask-5)" xlink:href="#path-4"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

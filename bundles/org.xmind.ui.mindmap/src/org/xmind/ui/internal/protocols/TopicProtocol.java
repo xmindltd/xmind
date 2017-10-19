@@ -17,12 +17,53 @@ import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.ModifyTopicHyperlinkCommand;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.dialogs.DialogMessages;
+import org.xmind.ui.mindmap.IHyperlinked;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IProtocol;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
 public class TopicProtocol implements IProtocol {
+
+    private class GoTopicAction extends Action implements IHyperlinked {
+
+        private String uri;
+
+        private IWorkbook workbook;
+
+        private Object context;
+
+        public GoTopicAction(String text, ImageDescriptor image, String uri,
+                IWorkbook workbook, Object context) {
+            super(text);
+            this.uri = uri;
+            this.workbook = workbook;
+            this.context = context;
+            setImageDescriptor(image);
+        }
+
+        public void run() {
+            Object element = HyperlinkUtils.findElement(uri, workbook);
+            if (element != null) {
+                navigateTo(context, element, workbook);
+            } else {
+                // Element may have been deleted, ask whether to delete 
+                // this link as well.
+                ITopic topic = findSourceTopic(context);
+                if (topic == null)
+                    return;
+
+                if (confirmDelete(context, uri)) {
+                    deleteHyperlink(topic, context, uri);
+                }
+            }
+        }
+
+        @Override
+        public String getHyperlink() {
+            return uri;
+        }
+    }
 
     public TopicProtocol() {
     }
@@ -46,25 +87,9 @@ public class TopicProtocol implements IProtocol {
             name = title;
         }
 
-        Action action = new Action(
-                MindMapMessages.TopicProtocol_GoToTopic_text, icon) {
-            public void run() {
-                Object element = HyperlinkUtils.findElement(uri, workbook);
-                if (element != null) {
-                    navigateTo(context, element, workbook);
-                } else {
-                    // Element may have been deleted, ask whether to delete 
-                    // this link as well.
-                    ITopic topic = findSourceTopic(context);
-                    if (topic == null)
-                        return;
-
-                    if (confirmDelete(context, uri)) {
-                        deleteHyperlink(topic, context, uri);
-                    }
-                }
-            }
-        };
+        Action action = new GoTopicAction(
+                MindMapMessages.TopicProtocol_GoToTopic_text, icon, uri,
+                workbook, context);
         action.setToolTipText(name);
         return action;
     }
@@ -130,11 +155,9 @@ public class TopicProtocol implements IProtocol {
     }
 
     private boolean confirmDelete(Object context, String uri) {
-        return MessageDialog
-                .openQuestion(
-                        findShell(context),
-                        DialogMessages.TopicProtocol_ConfirmDeleteInvalidTopicHyperlink_windowTitle,
-                        DialogMessages.TopicProtocol_ConfirmDeleteInvalidTopicHyperlink_message);
+        return MessageDialog.openQuestion(findShell(context),
+                DialogMessages.TopicProtocol_ConfirmDeleteInvalidTopicHyperlink_windowTitle,
+                DialogMessages.TopicProtocol_ConfirmDeleteInvalidTopicHyperlink_message);
     }
 
     private void deleteHyperlink(ITopic topic, Object context, String uri) {

@@ -18,6 +18,8 @@ import org.eclipse.swt.graphics.Image;
 import org.xmind.gef.draw2d.SizeableImageFigure;
 import org.xmind.gef.part.Decorator;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGImageFigure;
 import org.xmind.ui.mindmap.IIconTipPart;
 
 public class IconTipDecorator extends Decorator {
@@ -36,6 +38,12 @@ public class IconTipDecorator extends Decorator {
             }
             imgFigure.setImage(image);
             imgFigure.setPreferredSize(imgFigure.getImageSize());
+        } else if (figure instanceof SVGImageFigure) {
+            SVGImageFigure svgImageFigure = (SVGImageFigure) figure;
+            SVGImageData svgData = null;
+
+            svgData = ((IIconTipPart) part).getSVGData();
+            svgImageFigure.setSVGData(svgData);
         }
     }
 
@@ -44,6 +52,9 @@ public class IconTipDecorator extends Decorator {
         if (figure instanceof SizeableImageFigure) {
             SizeableImageFigure imgFigure = (SizeableImageFigure) figure;
             imgFigure.setImage(null);
+        } else if (figure instanceof SVGImageFigure) {
+            SVGImageFigure svgImageFigure = (SVGImageFigure) figure;
+            svgImageFigure.setSVGData(null);
         }
     }
 

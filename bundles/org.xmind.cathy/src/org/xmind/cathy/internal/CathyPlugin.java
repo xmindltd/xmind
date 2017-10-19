@@ -38,6 +38,7 @@ import org.xmind.core.Core;
 import org.xmind.core.internal.runtime.WorkspaceConfigurer;
 import org.xmind.core.internal.runtime.WorkspaceSession;
 import org.xmind.core.licensing.ILicenseAgent;
+import org.xmind.core.net.util.LinkUtils;
 import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.ui.internal.app.ApplicationConstants;
 import org.xmind.ui.internal.statushandlers.DefaultErrorReporter;
@@ -157,7 +158,8 @@ public class CathyPlugin extends AbstractUIPlugin {
     /**
      * Online help page.
      */
-    public static final String ONLINE_HELP_URL = "https://www.xmind.net/xmind/help"; //$NON-NLS-1$
+    public static final String ONLINE_HELP_URL = LinkUtils
+            .getLinkByLanguage(true, true, "/xmind/help"); //$NON-NLS-1$
 
     /**
      * Boolean value:<br>

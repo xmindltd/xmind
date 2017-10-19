@@ -17,17 +17,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.eclipse.ui.part.IPageSite;
@@ -60,7 +64,8 @@ public abstract class PropertyPagePart implements IPropertyPagePart {
 
     private ScrolledForm form;
 
-    public void init(IPropertyPartContainer container, IGraphicalEditor editor) {
+    public void init(IPropertyPartContainer container,
+            IGraphicalEditor editor) {
         this.container = container;
         this.editor = editor;
         for (SectionRec rec : sections) {
@@ -113,6 +118,7 @@ public abstract class PropertyPagePart implements IPropertyPagePart {
     public void createControl(Composite parent) {
         this.widgetFactory = new WidgetFactory(parent.getDisplay());
         form = widgetFactory.createScrolledForm(parent);
+        addHorizontalScrollSupport(form);
         form.setMinWidth(DEFAULT_SECTION_WIDTH); // TODO this not working???
         form.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
@@ -124,6 +130,24 @@ public abstract class PropertyPagePart implements IPropertyPagePart {
         });
         createSectionControls(form, form.getBody());
         form.reflow(true);
+    }
+
+    // add horizontal scroll support for windows
+    private void addHorizontalScrollSupport(final ScrolledForm form) {
+        if (Util.isWindows()) {
+            form.addListener(SWT.MouseHorizontalWheel, new Listener() {
+
+                public void handleEvent(Event event) {
+                    if (!form.isDisposed()) {
+                        int offset = event.count;
+                        offset = -(int) (Math.sqrt(Math.abs(offset)) * offset);
+
+                        Point origin = form.getOrigin();
+                        form.setOrigin(origin.x + offset, origin.y);
+                    }
+                }
+            });
+        }
     }
 
     protected void createSectionControls(final ScrolledForm form,

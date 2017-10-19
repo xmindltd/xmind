@@ -18,6 +18,7 @@ import org.xmind.core.Core;
 import org.xmind.core.IAdaptable;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.ICoreEventSource;
+import org.xmind.core.net.util.LinkUtils;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.ui.browser.BrowserSupport;
@@ -25,10 +26,12 @@ import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.browser.BrowserUtil;
 import org.xmind.ui.io.WebImageManager;
 import org.xmind.ui.io.WebImageManager.WebImageCallback;
+import org.xmind.ui.mindmap.IHyperlinked;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IProtocol;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ImageUtils;
+import org.xmind.ui.util.JobPool;
 import org.xmind.ui.util.MindMapUtils;
 
 public class WebProtocol implements IProtocol {
@@ -44,7 +47,9 @@ public class WebProtocol implements IProtocol {
 
     private static final String PATH_FAVICONS = "favicons/"; //$NON-NLS-1$
 
-    private static class OpenURLAction extends Action {
+    private static JobPool jobPool = new JobPool();
+
+    private static class OpenURLAction extends Action implements IHyperlinked {
 
         private String url;
 
@@ -63,7 +68,8 @@ public class WebProtocol implements IProtocol {
                     String theURL = url;
                     try {
                         URI uri = new URI(theURL);
-                        if ("www.xmind.net".equals(uri.getHost())) { //$NON-NLS-1$
+                        if (LinkUtils.HOST_NET.equals(uri.getHost())
+                                || LinkUtils.HOST_CN.equals(uri.getHost())) {
                             theURL = BrowserUtil.makeRedirectURL(theURL);
                         }
                     } catch (Exception ignored) {
@@ -72,6 +78,11 @@ public class WebProtocol implements IProtocol {
                             .createBrowser(DEFAULT_BROWSER_ID).openURL(theURL);
                 }
             });
+        }
+
+        @Override
+        public String getHyperlink() {
+            return url;
         }
     }
 
@@ -140,7 +151,7 @@ public class WebProtocol implements IProtocol {
             return image;
         }
 
-        WebImageManager.getInstance().requestWebImage(iconUrl,
+        WebImageManager.getInstance().requestWebImage(iconUrl, jobPool,
                 new WebImageCallback() {
 
                     public void handleWith(String imagePath) {

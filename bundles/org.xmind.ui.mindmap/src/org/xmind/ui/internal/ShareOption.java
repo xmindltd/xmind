@@ -9,11 +9,12 @@ import org.eclipse.ui.internal.registry.IWorkbenchRegistryConstants;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /**
- * 
  * @author Shawn Liu
  * @since 3.6.50
  */
 public class ShareOption {
+
+    public static final String ATT_DISABLED_SITE = "disabledSite"; //$NON-NLS-1$
 
     private IConfigurationElement element;
 
@@ -29,6 +30,8 @@ public class ShareOption {
 
     private String category;
 
+    private String disabledSite;
+
     public ShareOption(IConfigurationElement element) throws CoreException {
         this.element = element;
         this.id = element.getAttribute(IWorkbenchRegistryConstants.ATT_ID);
@@ -40,6 +43,7 @@ public class ShareOption {
                 .getAttribute(IWorkbenchRegistryConstants.ATT_CATEGORY);
         this.commandId = element
                 .getAttribute(IWorkbenchRegistryConstants.ATT_COMMAND_ID);
+        this.disabledSite = element.getAttribute(ATT_DISABLED_SITE);
         this.icon = null;
 
         if (id == null || commandId == null)
@@ -87,6 +91,10 @@ public class ShareOption {
 
     public String getCategory() {
         return category;
+    }
+
+    public String getDisabledSite() {
+        return disabledSite;
     }
 
 }

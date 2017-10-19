@@ -117,6 +117,10 @@ public class LabelInfoItemContributor extends AbstractInfoItemContributor {
         return MindMapUtils.getLabelText(labels);
     }
 
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        return "platform:/plugin/org.xmind.ui.mindmap/icons/label.svg"; //$NON-NLS-1$
+    }
+
     @Override
     public boolean isCardModeAvailable(ITopic topic, ITopicPart topicPart) {
         return !isIconTipOnly(topicPart);

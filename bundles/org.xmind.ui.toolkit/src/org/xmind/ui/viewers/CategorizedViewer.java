@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
@@ -101,10 +102,29 @@ public abstract class CategorizedViewer extends StructuredViewer {
         form.setBackground(parent.getBackground());
         form.setForeground(parent.getForeground());
         form.setFont(JFaceResources.getHeaderFont());
+        addHorizontalScrollSupport(form);
         container = form;
 
         configureContainer(container);
         return container;
+    }
+
+    // add horizontal scroll support for windows
+    private void addHorizontalScrollSupport(final ScrolledForm form) {
+        if (Util.isWindows()) {
+            form.addListener(SWT.MouseHorizontalWheel, new Listener() {
+
+                public void handleEvent(Event event) {
+                    if (!form.isDisposed()) {
+                        int offset = event.count;
+                        offset = -(int) (Math.sqrt(Math.abs(offset)) * offset);
+
+                        Point origin = form.getOrigin();
+                        form.setOrigin(origin.x + offset, origin.y);
+                    }
+                }
+            });
+        }
     }
 
     protected WidgetFactory createWidgetFactory(Display display) {

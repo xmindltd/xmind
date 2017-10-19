@@ -145,7 +145,10 @@ public class FileFormat_1 extends FileFormat {
 
         Element ele = document.getDocumentElement();
         String version = DOMUtils.getAttribute(ele, ATTR_VERSION);
-        return version == null || VERSION.equals(version);
+        Element[] mapEles = DOMUtils.getChildElementsByTag(ele, TAG_MAP);
+
+        return (version == null || VERSION.equals(version))
+                && mapEles.length > 0;
     }
 
     public WorkbookImpl load() throws CoreException, IOException {

@@ -938,7 +938,36 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     }
 
     protected boolean isNormalRenderStyle() {
-        return renderStyle == NORMAL;
+        /// some fonts don't show correctly when use graphics.drawText(), so render it by path.
+        boolean shownWrong = false;
+        String fontName = null;
+        if (getFont() != null) {
+            fontName = (getFont().getFontData())[0].getName();
+        }
+
+        String[] wrongFontNames = { "Cambria Math", "Gabriola", "Javanese Text", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                "Lucida Sans Unicode", "Microsoft Himalaya", "MV Boli", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                "Myanmar Text", "Segoe MDL2 Assets" }; //$NON-NLS-1$ //$NON-NLS-2$
+        String[] wrongFontPrefixs = { "Sitka" }; //$NON-NLS-1$
+
+        if (fontName != null) {
+            for (String name : wrongFontNames) {
+                if (fontName.equals(name)) {
+                    shownWrong = true;
+                    break;
+                }
+            }
+            if (!shownWrong) {
+                for (String prefix : wrongFontPrefixs) {
+                    if (fontName.startsWith(prefix)) {
+                        shownWrong = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return renderStyle == NORMAL && !shownWrong;
     }
 
     /**

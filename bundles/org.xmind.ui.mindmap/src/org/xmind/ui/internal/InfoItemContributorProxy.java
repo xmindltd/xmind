@@ -22,8 +22,8 @@ import org.xmind.ui.util.Logger;
 
 public class InfoItemContributorProxy implements IInfoItemContributor {
 
-    private static class NullInfoItemContributor implements
-            IInfoItemContributor {
+    private static class NullInfoItemContributor
+            implements IInfoItemContributor {
 
         private NullInfoItemContributor() {
         }
@@ -67,6 +67,10 @@ public class InfoItemContributorProxy implements IInfoItemContributor {
             return null;
         }
 
+        public String getSVGFilePath(ITopic topic, IAction action) {
+            return null;
+        }
+
         public boolean isCardModeAvailable(ITopic topic, ITopicPart topicPart) {
             return false;
         }
@@ -76,6 +80,11 @@ public class InfoItemContributorProxy implements IInfoItemContributor {
             return Collections.emptyList();
         }
 
+        @Override
+        public boolean isModified(ITopicPart topicPart, ITopic topic,
+                IAction action) {
+            return true;
+        }
     }
 
     private static final IInfoItemContributor NULL_CONTRIBUTOR = new NullInfoItemContributor();
@@ -110,10 +119,10 @@ public class InfoItemContributorProxy implements IInfoItemContributor {
         this.cardLabel = element.getAttribute(RegistryConstants.ATT_CARD_LABEL);
         if (RegistryReader.getClassValue(element,
                 RegistryConstants.ATT_CONTRIBUTOR_CLASS) == null) {
-            throw new CoreException(new Status(IStatus.ERROR,
-                    element.getNamespaceIdentifier(), 0,
-                    "Invalid extension (missing class name): " + id, //$NON-NLS-1$
-                    null));
+            throw new CoreException(
+                    new Status(IStatus.ERROR, element.getNamespaceIdentifier(),
+                            0, "Invalid extension (missing class name): " + id, //$NON-NLS-1$
+                            null));
         }
     }
 
@@ -168,6 +177,11 @@ public class InfoItemContributorProxy implements IInfoItemContributor {
         return cardLabel;
     }
 
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        /// TODO write in extension
+        return getImplementation().getSVGFilePath(topic, action);
+    }
+
     public boolean isCardModeAvailable(ITopic topic, ITopicPart topicPart) {
         return getImplementation().isCardModeAvailable(topic, topicPart);
     }
@@ -185,15 +199,13 @@ public class InfoItemContributorProxy implements IInfoItemContributor {
         if (implementation == null) {
             try {
                 implementation = (IInfoItemContributor) element
-                        .createExecutableExtension(RegistryConstants.ATT_CONTRIBUTOR_CLASS);
+                        .createExecutableExtension(
+                                RegistryConstants.ATT_CONTRIBUTOR_CLASS);
             } catch (CoreException e) {
-                Logger.log(
-                        e,
+                Logger.log(e,
                         "Failed to create icon tip contributor from class: " //$NON-NLS-1$
-                                + RegistryReader
-                                        .getClassValue(
-                                                element,
-                                                RegistryConstants.ATT_CONTRIBUTOR_CLASS));
+                                + RegistryReader.getClassValue(element,
+                                        RegistryConstants.ATT_CONTRIBUTOR_CLASS));
                 implementation = NULL_CONTRIBUTOR;
             }
         }
@@ -223,6 +235,12 @@ public class InfoItemContributorProxy implements IInfoItemContributor {
     public List<IAction> getPopupMenuActions(ITopicPart topicPart,
             ITopic topic) {
         return getImplementation().getPopupMenuActions(topicPart, topic);
+    }
+
+    @Override
+    public boolean isModified(ITopicPart topicPart, ITopic topic,
+            IAction action) {
+        return getImplementation().isModified(topicPart, topic, action);
     }
 
 }

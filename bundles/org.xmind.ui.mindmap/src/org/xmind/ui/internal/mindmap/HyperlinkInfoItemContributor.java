@@ -10,6 +10,7 @@ import java.util.List;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -36,7 +37,9 @@ import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.actions.ModifyHyperlinkAction;
 import org.xmind.ui.internal.dialogs.DialogMessages;
 import org.xmind.ui.mindmap.AbstractInfoItemContributor;
+import org.xmind.ui.mindmap.IHyperlinked;
 import org.xmind.ui.mindmap.IInfoPart;
+import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.ITopicPart;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -52,12 +55,62 @@ public class HyperlinkInfoItemContributor extends AbstractInfoItemContributor {
         if (action != null) {
             action.setId(MindMapActionFactory.OPEN_HYPERLINK.getId());
         }
-        return action;
 
+        return action;
+    }
+
+    public boolean isModified(ITopicPart topicPart, ITopic topic,
+            IAction action) {
+        if (!(action instanceof IHyperlinked)) {
+            return true;
+        }
+
+        String hyperlink = topic.getHyperlink();
+        String hyperlink2 = ((IHyperlinked) action).getHyperlink();
+
+        return (hyperlink == null && hyperlink2 != null)
+                || (hyperlink != null && !hyperlink.equals(hyperlink2));
     }
 
     public String getContent(ITopic topic) {
         return topic.getHyperlink();
+    }
+
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        String hyperlink = topic.getHyperlink();
+        if (hyperlink == null || action == null)
+            return null;
+
+        Object element = HyperlinkUtils.findElement(hyperlink,
+                topic.getOwnedWorkbook());
+        String filePath = "platform:/plugin/org.xmind.ui.mindmap/icons/"; //$NON-NLS-1$
+        if (element != null && element instanceof ITopic) {
+            String type = ((ITopic) element).getType();
+            if (ITopic.ROOT.equals(type)) {
+                return filePath + "link_central_topic.svg"; //$NON-NLS-1$
+            }
+            if (ITopic.SUMMARY.equals(type)) {
+                return filePath + "link_summary.svg"; //$NON-NLS-1$
+            }
+            if (ITopic.DETACHED.equals(type)) {
+                return filePath + "link_floating_topic.svg"; //$NON-NLS-1$
+            }
+            if (ITopic.CALLOUT.equals(type)) {
+                return filePath + "link_callout.svg"; //$NON-NLS-1$
+            }
+            ITopic parent = ((ITopic) element).getParent();
+            if (parent != null && parent.isRoot()) {
+                return filePath + "link_main_topic.svg"; //$NON-NLS-1$
+            }
+            return filePath + "link_subtopic.svg"; //$NON-NLS-1$
+        } else if (isLinkToWeb(hyperlink)) {
+            ImageDescriptor descriptor = action.getImageDescriptor();
+            ImageDescriptor hyperlinkDescriptor = MindMapUI.getImages()
+                    .get(IMindMapImages.HYPERLINK, true);
+            if (descriptor != null && descriptor.equals(hyperlinkDescriptor))
+                return filePath + "hyperlink.svg"; //$NON-NLS-1$
+        }
+        return null;
     }
 
     @Override

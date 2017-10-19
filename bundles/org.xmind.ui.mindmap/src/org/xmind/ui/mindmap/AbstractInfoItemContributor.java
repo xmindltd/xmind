@@ -15,8 +15,8 @@ import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.util.MindMapUtils;
 
-public abstract class AbstractInfoItemContributor implements
-        IInfoItemContributor {
+public abstract class AbstractInfoItemContributor
+        implements IInfoItemContributor {
 
     private static final String CACHE_INFORITEM_EVENT_REG = "org.xmind.ui.cache.inforItem.eventReg"; //$NON-NLS-1$
 
@@ -27,6 +27,11 @@ public abstract class AbstractInfoItemContributor implements
     public AbstractInfoItemContributor() {
         regCacheKey = CACHE_INFORITEM_EVENT_REG + NUMBER;
         NUMBER++;
+    }
+
+    public boolean isModified(ITopicPart topicPart, ITopic topic,
+            IAction action) {
+        return true;
     }
 
     public void fillContextMenu(IInfoItemPart part) {
@@ -127,7 +132,8 @@ public abstract class AbstractInfoItemContributor implements
     protected abstract void registerTopicEvent(ITopicPart topicPart,
             ITopic topic, ICoreEventRegister register);
 
-    protected abstract void handleTopicEvent(IInfoPart infoPart, CoreEvent event);
+    protected abstract void handleTopicEvent(IInfoPart infoPart,
+            CoreEvent event);
 
     protected abstract void handleTopicEvent(ITopicPart topicPart,
             CoreEvent event);

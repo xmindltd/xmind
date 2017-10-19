@@ -405,7 +405,9 @@ public abstract class FloatingTextEditTool extends EditTool {
 
             @Override
             public void run() {
-                restoreFocusControl();
+                if (focusOnRequest) {
+                    restoreFocusControl();
+                }
             }
         });
     }

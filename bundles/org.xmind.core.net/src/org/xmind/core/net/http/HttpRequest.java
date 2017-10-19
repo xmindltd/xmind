@@ -26,6 +26,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
@@ -303,6 +304,8 @@ public class HttpRequest {
 
     private IResponseHandler responseHandler;
 
+    private IFinishHandler finishHandler;
+
     private int statusCode;
 
     private String statusMessage;
@@ -385,6 +388,18 @@ public class HttpRequest {
      */
     public IResponseHandler getResponseHandler() {
         return responseHandler;
+    }
+
+    public void setFinishHandler(IFinishHandler finishHandler) {
+        this.finishHandler = finishHandler;
+    }
+
+    public IFinishHandler getFinishHandler() {
+        return finishHandler;
+    }
+
+    public byte[] getResponseBuffer() {
+        return responseBuffer;
     }
 
     public String getResponseAsString() {
@@ -529,47 +544,71 @@ public class HttpRequest {
         if (monitor.isCanceled())
             throw new InterruptedException();
 
-        int connectTimeout = settings.getInt(SETTING_CONNECT_TIMEOUT, -1);
-        if (connectTimeout >= 0) {
-            connection.setConnectTimeout(connectTimeout);
-        }
-        int readTimeout = settings.getInt(SETTING_READ_TIMEOUT, -1);
-        if (readTimeout >= 0) {
-            connection.setReadTimeout(readTimeout);
-        }
-
         log("Sending...."); //$NON-NLS-1$
         setStatusCode(HTTP_SENDING, "Sending"); //$NON-NLS-1$
         if (monitor.isCanceled())
             throw new InterruptedException();
 
         try {
-            connection.setDoOutput(requestEntity != null);
-            if (monitor.isCanceled())
-                throw new InterruptedException();
+            while (true) {
+                int connectTimeout = settings.getInt(SETTING_CONNECT_TIMEOUT,
+                        -1);
+                if (connectTimeout >= 0) {
+                    connection.setConnectTimeout(connectTimeout);
+                }
 
-            connection.setRequestMethod(method);
-            if (monitor.isCanceled())
-                throw new InterruptedException();
+                int readTimeout = settings.getInt(SETTING_READ_TIMEOUT, -1);
+                if (readTimeout >= 0) {
+                    connection.setReadTimeout(readTimeout);
+                }
 
-            writeHeaders(connection);
-            if (monitor.isCanceled())
-                throw new InterruptedException();
+                /// connection auto redirect don't have needed params
+                connection.setInstanceFollowRedirects(false);
 
-            writeBody(monitor, connection);
-            if (monitor.isCanceled())
-                throw new InterruptedException();
+                connection.setDoOutput(requestEntity != null);
+                if (monitor.isCanceled())
+                    throw new InterruptedException();
 
-            log("Waiting..."); //$NON-NLS-1$
-            setStatusCode(HTTP_WAITING, "Waiting"); //$NON-NLS-1$
-            if (monitor.isCanceled())
-                throw new InterruptedException();
+                connection.setRequestMethod(method);
+                if (monitor.isCanceled())
+                    throw new InterruptedException();
+
+                writeHeaders(connection);
+                if (monitor.isCanceled())
+                    throw new InterruptedException();
+
+                writeBody(monitor, connection);
+                if (monitor.isCanceled())
+                    throw new InterruptedException();
+
+                log("Waiting..."); //$NON-NLS-1$
+                setStatusCode(HTTP_WAITING, "Waiting"); //$NON-NLS-1$
+                if (monitor.isCanceled())
+                    throw new InterruptedException();
+
+                /// auto redirect
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HTTP_MOVED_PERM
+                        || responseCode == HTTP_MOVED_TEMP) {
+                    String newLocation = connection.getHeaderField("Location"); //$NON-NLS-1$
+                    connection = (HttpURLConnection) new URL(newLocation)
+                            .openConnection();
+                    _connection[0] = connection;
+
+                    if (monitor.isCanceled())
+                        throw new InterruptedException();
+                } else {
+                    break;
+                }
+            }
 
             readResponse(monitor, connection, connection.getInputStream(),
                     connection.getResponseCode(),
                     connection.getResponseMessage());
             if (monitor.isCanceled())
                 throw new InterruptedException();
+        } catch (SocketTimeoutException e) {
+            throw e;
         } catch (IOException e) {
             InputStream errorStream = connection.getErrorStream();
             if (errorStream == null) {
@@ -753,6 +792,14 @@ public class HttpRequest {
         }
 
         log("Handled."); //$NON-NLS-1$
+
+        if (finishHandler != null) {
+            try {
+                finishHandler.handleRequestFinished(monitor, this);
+            } catch (OperationCanceledException e) {
+                throw new InterruptedException();
+            }
+        }
     }
 
     private long getResponseLength(InputStream readStream) throws IOException {

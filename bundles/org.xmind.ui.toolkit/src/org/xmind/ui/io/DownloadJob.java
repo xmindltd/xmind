@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -35,7 +36,6 @@ import org.xmind.ui.io.IDownloadTarget.IDownloadTarget2;
  * location.
  * 
  * @author Frank Shaka
- * 
  */
 public class DownloadJob extends Job {
 
@@ -119,7 +119,6 @@ public class DownloadJob extends Job {
 
     /**
      * Executes this download job.
-     * 
      * <p>
      * This implementation delegates the actual download job to
      * {@link #runSafely(IProgressMonitor)} and interprets its exceptions to
@@ -168,17 +167,34 @@ public class DownloadJob extends Job {
 
         URL url = new URL(sourceURL);
         URLConnection connection = url.openConnection();
-        setURLConnection(connection);
-        if (monitor.isCanceled())
-            return cancelStatus();
 
-        setupConnection(connection);
-        if (monitor.isCanceled())
-            return cancelStatus();
+        while (true) {
+            setURLConnection(connection);
+            if (monitor.isCanceled())
+                return cancelStatus();
 
-        connection.connect();
-        if (monitor.isCanceled())
-            return cancelStatus();
+            setupConnection(connection);
+            if (monitor.isCanceled())
+                return cancelStatus();
+
+            connection.connect();
+            if (monitor.isCanceled())
+                return cancelStatus();
+
+            /// auto redirect
+            int responseCode = ((HttpURLConnection) connection)
+                    .getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
+                String newLocation = connection.getHeaderField("Location"); //$NON-NLS-1$
+                connection = new URL(newLocation).openConnection();
+
+                if (monitor.isCanceled())
+                    return cancelStatus();
+            } else {
+                break;
+            }
+        }
 
         IStatus consumed = validateConnection(connection);
         if (consumed != null)

@@ -9,6 +9,8 @@ public interface IInfoItemContributor {
 
     IAction createAction(ITopicPart topicPart, ITopic topic);
 
+    boolean isModified(ITopicPart topicPart, ITopic topic, IAction action);
+
     String getContent(ITopic topic);
 
     String getId();
@@ -18,6 +20,8 @@ public interface IInfoItemContributor {
     String getAvailableModes();
 
     String getCardLabel();
+
+    String getSVGFilePath(ITopic topic, IAction action);
 
     boolean isCardModeAvailable(ITopic topic, ITopicPart topicPart);
 

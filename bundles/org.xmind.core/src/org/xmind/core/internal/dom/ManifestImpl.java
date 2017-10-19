@@ -134,7 +134,7 @@ public class ManifestImpl extends Manifest implements ICoreEventSource {
         return storage;
     }
 
-    protected void setStreamNormalizer(IEntryStreamNormalizer normalizer) {
+    public void setStreamNormalizer(IEntryStreamNormalizer normalizer) {
         this.normalizer = normalizer == null ? IEntryStreamNormalizer.NULL
                 : normalizer;
     }

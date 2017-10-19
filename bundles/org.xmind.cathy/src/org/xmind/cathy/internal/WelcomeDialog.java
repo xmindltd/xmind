@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
 import org.eclipse.ui.forms.widgets.Hyperlink;
+import org.xmind.core.net.util.LinkUtils;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
 
@@ -98,7 +99,7 @@ public class WelcomeDialog extends Dialog {
         composite.setBackground(parent.getBackground());
         GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, false);
         layoutData.widthHint = 740;
-        layoutData.heightHint = 120;
+//        layoutData.heightHint = 120;
         composite.setLayoutData(layoutData);
 
         GridLayout layout = new GridLayout(1, false);
@@ -243,7 +244,7 @@ public class WelcomeDialog extends Dialog {
     private void createTitleSection(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(parent.getBackground());
-        GridData gridData = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
         composite.setLayoutData(gridData);
 
         GridLayout layout = new GridLayout(2, false);
@@ -514,7 +515,8 @@ public class WelcomeDialog extends Dialog {
             }
 
             public void linkActivated(HyperlinkEvent e) {
-                Program.launch("http://www.xmind.net/privacy/usage/"); //$NON-NLS-1$
+                Program.launch(LinkUtils.getLinkByLanguage(true, false,
+                        "/privacy/usage/")); //$NON-NLS-1$
             }
         });
     }

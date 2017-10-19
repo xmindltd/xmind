@@ -39,6 +39,7 @@ import org.xmind.core.IFileEntry;
 import org.xmind.core.IManifest;
 import org.xmind.core.INamed;
 import org.xmind.core.ITitled;
+import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventSource2;
@@ -48,6 +49,7 @@ import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.editor.MME;
+import org.xmind.ui.mindmap.IHyperlinked;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IProtocol;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -56,7 +58,8 @@ import org.xmind.ui.util.MindMapUtils;
 
 public class AttachmentProtocol implements IProtocol {
 
-    private static class AttachmentAction extends Action {
+    private static class AttachmentAction extends Action
+            implements IHyperlinked {
 
         private IWorkbenchWindow window;
 
@@ -66,13 +69,18 @@ public class AttachmentProtocol implements IProtocol {
 
         private String fileName;
 
+        private ITopic topic;
+
         private IWindowListener windowListener;
 
+        private long modificationTime = -1L;
+
         public AttachmentAction(IWorkbenchWindow window, IWorkbook workbook,
-                String path, String fileName) {
+                String path, String fileName, ITopic topic) {
             this.window = window;
             this.workbook = workbook;
             this.path = path;
+            this.topic = topic;
             this.fileName = fileName;
         }
 
@@ -122,6 +130,7 @@ public class AttachmentProtocol implements IProtocol {
         //add write temp file back to entry support.
         private void addSaveBackSupport(final File hiberFile,
                 final IFileEntry fileEntry) {
+            modificationTime = hiberFile.lastModified();
 
             IEditorPart activeEditor = window.getActivePage().getActiveEditor();
             if (activeEditor instanceof IGraphicalEditor) {
@@ -200,15 +209,30 @@ public class AttachmentProtocol implements IProtocol {
 
         private void saveEntryBack(final IFileEntry fileEntry,
                 final File hiberFile) {
+            if (modificationTime == hiberFile.lastModified()) {
+                return;
+            }
+
             try {
-                InputStream is = new FileInputStream(hiberFile);
-                OutputStream os = fileEntry.openOutputStream();
-                FileUtils.transfer(is, os);
+                IFileEntry newEntry = workbook.getManifest()
+                        .createAttachmentFromStream(
+                                new FileInputStream(hiberFile), fileName,
+                                fileEntry.getMediaType());
+                if (topic != null) {
+                    topic.setHyperlink(
+                            HyperlinkUtils.toAttachmentURL(newEntry.getPath()));
+                }
+                modificationTime = hiberFile.lastModified();
             } catch (IOException e) {
                 Logger.log(e,
                         "Failed to transfer temp-attachments to attachment dir."); //$NON-NLS-1$
                 return;
             }
+        }
+
+        @Override
+        public String getHyperlink() {
+            return path;
         }
     }
 
@@ -226,6 +250,11 @@ public class AttachmentProtocol implements IProtocol {
         if (workbook == null)
             return null;
 
+        ITopic topic = null;
+        if (context instanceof IAdaptable) {
+            topic = (ITopic) ((IAdaptable) context).getAdapter(ITopic.class);
+        }
+
         if (actions == null)
             actions = new HashMap<IWorkbook, Map<String, IAction>>();
         Map<String, IAction> wbActions = actions.get(workbook);
@@ -236,7 +265,7 @@ public class AttachmentProtocol implements IProtocol {
         IAction action = wbActions.get(uri);
         if (action == null) {
             action = createOpenAttachmentAction(getWindow(context), workbook,
-                    path, getFileName(context));
+                    path, getFileName(context), topic);
             wbActions.put(uri, action);
         }
         return action;
@@ -244,22 +273,39 @@ public class AttachmentProtocol implements IProtocol {
     }
 
     private IAction createOpenAttachmentAction(IWorkbenchWindow window,
-            IWorkbook workbook, String path, String fileName) {
-        IAction action = new AttachmentAction(window, workbook, path, fileName);
+            IWorkbook workbook, String path, String fileName, ITopic topic) {
+        IAction action = new AttachmentAction(window, workbook, path, fileName,
+                topic);
         action.setText(MindMapMessages.OpenAttachment_text);
         action.setToolTipText(fileName);
-        ImageDescriptor image = MindMapUI.getImages().getFileIcon(path, true);
-        if (image == null) {
-            IFileEntry e = workbook.getManifest().getFileEntry(path);
-            if (e != null && e.isDirectory()) {
-                image = MindMapUI.getImages().get(IMindMapImages.OPEN, true);
-            } else {
-                image = MindMapUI.getImages().get(IMindMapImages.UNKNOWN_FILE,
-                        true);
+
+        ImageDescriptor image = null;
+
+        // show missing image when file not exist
+        if (!existsEntryFile(workbook, path)) {
+            image = MindMapUI.getImages().get(IMindMapImages.UNKNOWN_FILE,
+                    true);
+        } else {
+            image = MindMapUI.getImages().getFileIcon(path, true);
+            if (image == null) {
+                IFileEntry e = workbook.getManifest().getFileEntry(path);
+                if (e != null && e.isDirectory()) {
+                    image = MindMapUI.getImages().get(IMindMapImages.OPEN,
+                            true);
+                } else {
+                    image = MindMapUI.getImages()
+                            .get(IMindMapImages.UNKNOWN_FILE, true);
+                }
             }
         }
         action.setImageDescriptor(image);
         return action;
+    }
+
+    private boolean existsEntryFile(IWorkbook workbook, String path) {
+        IManifest manifest = workbook.getManifest();
+        IFileEntry fileEntry = manifest.getFileEntry(path);
+        return fileEntry != null && fileEntry.getSize() > 0;
     }
 
     private static String getFileName(Object context) {

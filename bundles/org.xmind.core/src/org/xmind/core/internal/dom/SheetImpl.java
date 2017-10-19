@@ -301,7 +301,7 @@ public class SheetImpl extends Sheet implements ICoreEventSource {
         return markerRefCounter;
     }
 
-    protected void addNotify(WorkbookImpl workbook) {
+    public void addNotify(WorkbookImpl workbook) {
         getImplementation().setIdAttribute(DOMConstants.ATTR_ID, true);
         workbook.getAdaptableRegistry().registerById(this, getId(),
                 getImplementation().getOwnerDocument());

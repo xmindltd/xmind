@@ -26,6 +26,7 @@ import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.xmind.core.net.util.LinkUtils;
 
 public class BrowserUtil {
 
@@ -149,7 +150,8 @@ public class BrowserUtil {
 
         if (uri != null) {
             String host = uri.getHost();
-            if (host != null && host.endsWith(".xmind.net")) //$NON-NLS-1$
+            if (host != null && (host.endsWith(".xmind.net") //$NON-NLS-1$
+                    || host.endsWith(".xmind.cn")))  //$NON-NLS-1$
                 /// make our server decide where exactly this url should go
                 return makeRedirectURL(url);
         }
@@ -159,7 +161,12 @@ public class BrowserUtil {
 
     public static String makeRedirectURL(String url) {
         StringBuffer buffer = new StringBuffer(100);
-        buffer.append("http://www.xmind.net/xmind/go?r="); //$NON-NLS-1$
+
+        boolean isCnLink = url.contains(LinkUtils.HOST_CN)
+                && url.indexOf(LinkUtils.HOST_CN) < LinkUtils.HOST_NET.length();
+        buffer.append(
+                LinkUtils.getLinkByUser(isCnLink, true, false, "/xmind/go?r=")); //$NON-NLS-1$
+
         buffer.append(encode(url));
         buffer.append("&u="); //$NON-NLS-1$
         String user = System.getProperty("net.xmind.signin.account.user"); //$NON-NLS-1$

@@ -43,6 +43,7 @@ import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
+import org.xmind.core.net.util.LinkUtils;
 import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.core.usagedata.IUsageDataUploader;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -484,7 +485,8 @@ public class GeneralPrefPage extends FieldEditorPreferencePage
                 (Color) resources.get(ColorUtils.toDescriptor("#77afe0"))); //$NON-NLS-1$
         privacyHyperlink.addHyperlinkListener(new HyperlinkAdapter() {
             public void linkActivated(HyperlinkEvent e) {
-                Program.launch("http://www.xmind.net/privacy/usage/"); //$NON-NLS-1$
+                Program.launch(LinkUtils.getLinkByLanguage(true, false,
+                        "/privacy/usage/")); //$NON-NLS-1$
             }
         });
 

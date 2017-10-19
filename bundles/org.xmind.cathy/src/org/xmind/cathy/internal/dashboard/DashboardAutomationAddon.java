@@ -289,13 +289,29 @@ public class DashboardAutomationAddon {
         }
         MPartStack partStack = partStacks.get(0);
 
-        MPart visiblePart = null;
         MStackElement selectedElement = partStack.getSelectedElement();
-        if (selectedElement instanceof MPlaceholder) {
-            MPlaceholder placeholder = (MPlaceholder) selectedElement;
+        String hidePartId = hidePart(partService, selectedElement);
+        if (hidePartId != null) {
+            return hidePartId;
+        }
+
+        //fix: part may not be hiden
+        List<MStackElement> children = partStack.getChildren();
+        for (MStackElement child : children) {
+            hidePart(partService, child);
+        }
+
+        return null;
+    }
+
+    private static String hidePart(EPartService partService,
+            MStackElement element) {
+        MPart visiblePart = null;
+        if (element instanceof MPlaceholder) {
+            MPlaceholder placeholder = (MPlaceholder) element;
             visiblePart = partService.findPart(placeholder.getElementId());
-        } else if (selectedElement instanceof MPart) {
-            visiblePart = (MPart) selectedElement;
+        } else if (element instanceof MPart) {
+            visiblePart = (MPart) element;
         }
 
         if (visiblePart != null) {

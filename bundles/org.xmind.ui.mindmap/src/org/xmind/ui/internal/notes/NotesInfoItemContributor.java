@@ -118,6 +118,10 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
         return null;
     }
 
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        return "platform:/plugin/org.xmind.ui.mindmap/icons/notes.svg"; //$NON-NLS-1$
+    }
+
     @Override
     public boolean isCardModeAvailable(ITopic topic, ITopicPart topicPart) {
         return !isIconTipOnly(topicPart);

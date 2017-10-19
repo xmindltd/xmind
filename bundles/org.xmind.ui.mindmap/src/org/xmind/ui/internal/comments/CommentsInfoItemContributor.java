@@ -120,6 +120,10 @@ public class CommentsInfoItemContributor extends AbstractInfoItemContributor {
         return action;
     }
 
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        return "platform:/plugin/org.xmind.ui.mindmap/icons/comments.svg"; //$NON-NLS-1$
+    }
+
     @Override
     protected void registerTopicEvent(ITopicPart topicPart, ITopic topic,
             ICoreEventRegister register) {

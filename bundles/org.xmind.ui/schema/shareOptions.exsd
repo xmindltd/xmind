@@ -111,6 +111,21 @@
                </restriction>
             </simpleType>
          </attribute>
+         <attribute name="disabledSite">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="us">
+                  </enumeration>
+                  <enumeration value="cn">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
       </complexType>
    </element>
 

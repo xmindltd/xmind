@@ -18,6 +18,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.Image;
 import org.xmind.core.ITopic;
 import org.xmind.gef.part.IGraphicalPart;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
 
 public interface IInfoItemPart extends IGraphicalPart {
 
@@ -28,6 +29,8 @@ public interface IInfoItemPart extends IGraphicalPart {
     ITopicPart getTopicPart();
 
     Image getImage();
+
+    SVGImageData getSVGData();
 
     IAction getAction();
 

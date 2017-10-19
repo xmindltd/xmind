@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
@@ -69,6 +70,11 @@ public class RecentFileListContributionItem extends CompoundContributionItem
             URI inputURI = inputURIs[index];
             IEditorHistoryItem item = editorHistory.getItem(inputURI);
             items.add(makeHistoryCommandItem(inputURI, index, item.getName()));
+        }
+
+        // add separator
+        if (items.size() > 0) {
+            items.add(new Separator());
         }
     }
 

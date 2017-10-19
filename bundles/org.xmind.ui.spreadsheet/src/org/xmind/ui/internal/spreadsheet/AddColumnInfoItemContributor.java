@@ -157,6 +157,10 @@ public class AddColumnInfoItemContributor extends AbstractInfoItemContributor {
         return null;
     }
 
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        return "platform:/plugin/org.xmind.ui.spreadsheet/icons/add_column.svg"; //$NON-NLS-1$
+    }
+
     private boolean isStructureAlgorithmId(IBranchPart branch,
             String expectedValue) {
         String id = (String) MindMapUtils.getCache(branch,

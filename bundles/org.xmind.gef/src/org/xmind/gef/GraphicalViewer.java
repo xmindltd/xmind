@@ -23,12 +23,15 @@ import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.xmind.gef.dnd.IDndSupport;
 import org.xmind.gef.event.PartsEventDispatcher;
 import org.xmind.gef.event.ViewerEventDispatcher;
@@ -185,8 +188,29 @@ public class GraphicalViewer extends AbstractViewer
             }
         };
 
+        addHorizontalScrollSupport(canvas);
         canvas.setViewport(viewport);
         return canvas;
+    }
+
+    // add horizontal scroll support for windows
+    private void addHorizontalScrollSupport(final FigureCanvas canvas) {
+        if (Util.isWindows()) {
+            canvas.addListener(SWT.MouseHorizontalWheel, new Listener() {
+
+                public void handleEvent(Event event) {
+                    if (!canvas.isDisposed()) {
+                        int offset = event.count;
+                        offset = -(int) (Math.sqrt(Math.abs(offset)) * offset);
+
+                        Point viewLocation = canvas.getViewport()
+                                .getViewLocation();
+                        canvas.getViewport()
+                                .setHorizontalLocation(viewLocation.x + offset);
+                    }
+                }
+            });
+        }
     }
 
     /*

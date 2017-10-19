@@ -465,19 +465,24 @@ public class MindMapSelectTool extends SelectTool {
             return null;
 
         String hiberLoc = Core.getWorkspace()
-                .getAbsolutePath(".temp-attachments"); //$NON-NLS-1$
+                .getAbsolutePath(".temp-attachments/quickOpen"); //$NON-NLS-1$
         if (hiberLoc == null)
             return null;
 
         File hiberDir = new File(hiberLoc);
-        if (!hiberDir.isDirectory())
-            return null;
+        //clear old cache.
+        if (hiberDir.exists()) {
+            hiberDir.delete();
+        }
+
+        File attFile = new File(hiberLoc, path);
+        FileUtils.ensureFileParent(attFile);
 
         IManifest manifest = workbook.getManifest();
         IFileEntry fileEntry = manifest.getFileEntry(path);
         try {
             InputStream is = fileEntry.openInputStream();
-            OutputStream os = new FileOutputStream(hiberLoc);
+            OutputStream os = new FileOutputStream(attFile.getAbsolutePath());
             FileUtils.transfer(is, os);
         } catch (IOException e) {
             Logger.log(e,
@@ -485,7 +490,6 @@ public class MindMapSelectTool extends SelectTool {
             return null;
         }
 
-        File attFile = new File(hiberDir, path);
         if (!attFile.exists())
             return null;
 

@@ -93,12 +93,16 @@ public abstract class MindMapImporter {
 
     private void initStyles() {
         for (ISheet sheet : getTargetWorkbook().getSheets()) {
-            sheet.setThemeId(createAppliedTheme(getTargetWorkbook(),
-                    MindMapUI.getResourceManager().getDefaultTheme()).getId());
+            IStyle appliedTheme = createAppliedTheme(getTargetWorkbook(),
+                    MindMapUI.getResourceManager().getDefaultTheme());
+            if (appliedTheme != null) {
+                sheet.setThemeId(appliedTheme.getId());
 
-            List<ITopic> topics = MindMapUtils.getAllTopics(sheet, true, true);
-            for (ITopic topic : topics) {
-                topic.setStyleId(null);
+                List<ITopic> topics = MindMapUtils.getAllTopics(sheet, true,
+                        true);
+                for (ITopic topic : topics) {
+                    topic.setStyleId(null);
+                }
             }
         }
     }

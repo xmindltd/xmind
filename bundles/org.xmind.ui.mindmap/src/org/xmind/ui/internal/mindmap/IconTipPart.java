@@ -29,6 +29,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Image;
@@ -43,6 +45,9 @@ import org.xmind.gef.policy.NullEditPolicy;
 import org.xmind.gef.service.IFeedback;
 import org.xmind.gef.ui.actions.IActionRegistry;
 import org.xmind.ui.internal.decorators.IconTipDecorator;
+import org.xmind.ui.internal.svgsupport.SVGImageData;
+import org.xmind.ui.internal.svgsupport.SVGImageFigure;
+import org.xmind.ui.internal.svgsupport.SVGReference;
 import org.xmind.ui.mindmap.IIconTipPart;
 import org.xmind.ui.mindmap.ISelectionFeedbackHelper;
 import org.xmind.ui.mindmap.ITopicPart;
@@ -63,12 +68,21 @@ public class IconTipPart extends MindMapPartBase
 
     private ImageReference imageRef = null;
 
+    private SVGReference svgRef = null;
+
+    private ResourceManager resources;
+
     public IconTipPart() {
         setDecorator(IconTipDecorator.getInstance());
     }
 
     protected IFigure createFigure() {
-        return new SizeableImageFigure();
+        if (svgRef != null) {
+            SVGImageFigure figure = new SVGImageFigure();
+            figure.setManager(resources);
+            return figure;
+        } else
+            return new SizeableImageFigure();
     }
 
     public IAction getAction() {
@@ -79,6 +93,10 @@ public class IconTipPart extends MindMapPartBase
         if (imageRef != null && !imageRef.isDisposed())
             return imageRef.getImage();
         return null;
+    }
+
+    public SVGImageData getSVGData() {
+        return svgRef == null ? null : svgRef.getSVGData();
     }
 
     public SizeableImageFigure getImageFigure() {
@@ -126,6 +144,19 @@ public class IconTipPart extends MindMapPartBase
         super.setParent(parent);
         if (getParent() instanceof TopicPart) {
             ((TopicPart) getParent()).addIconTip(this);
+        }
+    }
+
+    public void setModel(Object model) {
+        super.setModel(model);
+
+        if (svgRef == null) {
+            if (model instanceof IconTip) {
+                String svgFilePath = ((IconTip) model).getInfoItemContributor()
+                        .getSVGFilePath(getTopic(), action);
+                if (svgFilePath != null && !"".equals(svgFilePath)) //$NON-NLS-1$
+                    svgRef = createSVGReference(svgFilePath);
+            }
         }
     }
 
@@ -189,26 +220,49 @@ public class IconTipPart extends MindMapPartBase
     }
 
     private void updateImage() {
-        ImageDescriptor oldImageDescriptor = imageRef == null ? null
-                : imageRef.getImageDescriptor();
-        ImageDescriptor newImageDescriptor = null;
-        if (action != null)
-            newImageDescriptor = action.getImageDescriptor();
-        if (oldImageDescriptor != newImageDescriptor
-                && (oldImageDescriptor == null
-                        || !oldImageDescriptor.equals(newImageDescriptor))) {
-            if (imageRef != null) {
-                imageRef.dispose();
+        if (svgRef == null) {
+            ImageDescriptor oldImageDescriptor = imageRef == null ? null
+                    : imageRef.getImageDescriptor();
+            ImageDescriptor newImageDescriptor = null;
+            if (action != null)
+                newImageDescriptor = action.getImageDescriptor();
+            if (oldImageDescriptor != newImageDescriptor
+                    && (oldImageDescriptor == null || !oldImageDescriptor
+                            .equals(newImageDescriptor))) {
+                if (imageRef != null) {
+                    imageRef.dispose();
+                }
+                imageRef = newImageDescriptor == null ? null
+                        : new ImageReference(newImageDescriptor, false);
             }
-            imageRef = newImageDescriptor == null ? null
-                    : new ImageReference(newImageDescriptor, false);
+        } else {
+            Object model = getModel();
+            if (model != null && model instanceof IconTip) {
+                String svgFilePath = ((IconTip) model).getInfoItemContributor()
+                        .getSVGFilePath(getTopic(), action);
+                if (svgFilePath == null || "".equals(svgFilePath)) { //$NON-NLS-1$
+                    /// for favicon
+                    svgRef = null;
+                    getParent().refresh();
+                }
+            }
         }
+    }
+
+    @Override
+    protected void onActivated() {
+        super.onActivated();
+        resources = new LocalResourceManager(JFaceResources.getResources());
     }
 
     protected void onDeactivated() {
         if (imageRef != null) {
             imageRef.dispose();
             imageRef = null;
+        }
+        if (svgRef != null) {
+            svgRef = null;
+            resources.dispose();
         }
         super.onDeactivated();
     }
@@ -295,6 +349,15 @@ public class IconTipPart extends MindMapPartBase
 
     protected ISelectionFeedbackHelper createSelectionFeedbackHelper() {
         return new SelectionFeedbackHelper();
+    }
+
+    private SVGReference createSVGReference(String svgFilePath) {
+        SVGReference ref = new SVGReference(svgFilePath);
+
+        if (this.resources == null)
+            resources = new LocalResourceManager(JFaceResources.getResources());
+
+        return ref;
     }
 
     public void propertyChange(PropertyChangeEvent event) {

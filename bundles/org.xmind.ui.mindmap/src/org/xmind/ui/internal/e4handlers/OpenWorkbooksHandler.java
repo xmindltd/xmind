@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -54,8 +55,8 @@ public class OpenWorkbooksHandler {
             return;
 
         if (uris.isEmpty()) {
-            List<File> files = DialogUtils.openXMindFiles(window.getShell(),
-                    SWT.MULTI);
+            List<File> files = DialogUtils.openXMindFiles(
+                    Display.getDefault().getActiveShell(), SWT.MULTI);
             uris = new ArrayList<String>(files.size());
             for (File file : files) {
                 uris.add(file.toURI().toString());

@@ -86,8 +86,12 @@ public class ImageReference {
 
         public synchronized Image getImage() {
             if (image == null || image.isDisposed()) {
-                image = descriptor.createImage(returnMissingImageOnError,
-                        device);
+                try {
+                    image = descriptor.createImage(returnMissingImageOnError,
+                            device);
+                } catch (SWTException e) {
+                    image = null;
+                }
             }
             return image;
         }

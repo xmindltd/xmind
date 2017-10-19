@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.IInputSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -38,10 +39,13 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.xmind.ui.util.Chainability;
 import org.xmind.ui.util.IChained;
@@ -64,8 +68,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
 
     public static final String FONT_ENTRY_SELECTED = "org.xmind.ui.font.PropertiesEditor.entry.selected"; //$NON-NLS-1$
 
-    private static final class Section implements PropertyChangeListener,
-            IChained<Section> {
+    private static final class Section
+            implements PropertyChangeListener, IChained<Section> {
 
         private final PropertiesEditor editor;
 
@@ -132,8 +136,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
         }
 
         public void propertyChange(java.beans.PropertyChangeEvent evt) {
-            if (PropertyEditingSection.PROP_EXPANDED.equals(evt
-                    .getPropertyName())) {
+            if (PropertyEditingSection.PROP_EXPANDED
+                    .equals(evt.getPropertyName())) {
                 editor.reflow();
             }
         }
@@ -207,7 +211,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     public void setSelection(ISelection selection) {
     }
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+    public void addSelectionChangedListener(
+            ISelectionChangedListener listener) {
         listeners.add(listener);
     }
 
@@ -223,6 +228,7 @@ public class PropertiesEditor implements IInputSelectionProvider {
         container.setExpandVertical(true);
         container.setMinWidth(200);
         container.setMinHeight(40);
+        addHorizontalScrollSupport(container);
         container.addControlListener(new ControlListener() {
 
             public void controlResized(ControlEvent e) {
@@ -245,6 +251,24 @@ public class PropertiesEditor implements IInputSelectionProvider {
         container.setContent(contents);
         initColorsFonts();
         refresh();
+    }
+
+    // add horizontal scroll support for windows
+    private void addHorizontalScrollSupport(final ScrolledComposite sc) {
+        if (Util.isWindows()) {
+            sc.addListener(SWT.MouseHorizontalWheel, new Listener() {
+
+                public void handleEvent(Event event) {
+                    if (!sc.isDisposed()) {
+                        int offset = event.count;
+                        offset = -(int) (Math.sqrt(Math.abs(offset)) * offset);
+
+                        Point origin = sc.getOrigin();
+                        sc.setOrigin(origin.x + offset, origin.y);
+                    }
+                }
+            });
+        }
     }
 
     public void setColorFontOverrides(String id, String overridedId) {
@@ -272,10 +296,11 @@ public class PropertiesEditor implements IInputSelectionProvider {
                 String colorId = event.getProperty();
                 if (getColorFontId(COLOR_BACKGROUND).equals(colorId)) {
                     updateBackgroundColor();
-                } else if (getColorFontId(COLOR_CATEGORY_TITLE).equals(colorId)) {
+                } else if (getColorFontId(COLOR_CATEGORY_TITLE)
+                        .equals(colorId)) {
                     updateCategoryTitlesColor();
-                } else if (getColorFontId(COLOR_ENTRY_FOREGROUND).equals(
-                        colorId)) {
+                } else if (getColorFontId(COLOR_ENTRY_FOREGROUND)
+                        .equals(colorId)) {
                     updateEntriesForegroundColor();
                 } else if (getColorFontId(COLOR_ENTRY_SELECTED_BACKGROUND)
                         .equals(colorId)) {
@@ -304,10 +329,10 @@ public class PropertiesEditor implements IInputSelectionProvider {
         JFaceResources.getFontRegistry().addListener(fontChangeListener);
         container.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
-                JFaceResources.getColorRegistry().removeListener(
-                        colorChangeListener);
-                JFaceResources.getFontRegistry().removeListener(
-                        fontChangeListener);
+                JFaceResources.getColorRegistry()
+                        .removeListener(colorChangeListener);
+                JFaceResources.getFontRegistry()
+                        .removeListener(fontChangeListener);
             }
         });
 
@@ -326,8 +351,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateBackgroundColor() {
-        Color color = JFaceResources.getColorRegistry().get(
-                getColorFontId(COLOR_BACKGROUND));
+        Color color = JFaceResources.getColorRegistry()
+                .get(getColorFontId(COLOR_BACKGROUND));
         container.setBackground(color);
         getContents().setBackground(color);
         Iterator<Section> sections = sections();
@@ -339,8 +364,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateCategoryTitlesColor() {
-        Color color = JFaceResources.getColorRegistry().get(
-                getColorFontId(COLOR_CATEGORY_TITLE));
+        Color color = JFaceResources.getColorRegistry()
+                .get(getColorFontId(COLOR_CATEGORY_TITLE));
         Iterator<Section> sections = sections();
         while (sections.hasNext()) {
             Section section = sections.next();
@@ -351,8 +376,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateEntriesForegroundColor() {
-        Color color = JFaceResources.getColorRegistry().get(
-                getColorFontId(COLOR_ENTRY_FOREGROUND));
+        Color color = JFaceResources.getColorRegistry()
+                .get(getColorFontId(COLOR_ENTRY_FOREGROUND));
         Iterator<PropertyEditingEntry> entries = entries();
         while (entries.hasNext()) {
             entries.next().setForeground(color);
@@ -360,8 +385,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateCategoryTitlesFont() {
-        Font font = JFaceResources.getFontRegistry().get(
-                getColorFontId(FONT_CATEGORY_TITLE));
+        Font font = JFaceResources.getFontRegistry()
+                .get(getColorFontId(FONT_CATEGORY_TITLE));
         Iterator<Section> sections = sections();
         while (sections.hasNext()) {
             Section section = sections.next();
@@ -372,8 +397,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateEntriesFont() {
-        Font font = JFaceResources.getFontRegistry().get(
-                getColorFontId(FONT_ENTRY));
+        Font font = JFaceResources.getFontRegistry()
+                .get(getColorFontId(FONT_ENTRY));
         Iterator<PropertyEditingEntry> entries = entries();
         while (entries.hasNext()) {
             entries.next().setFont(font);
@@ -381,8 +406,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateEntriesSelectedBackgroundColor() {
-        Color color = JFaceResources.getColorRegistry().get(
-                getColorFontId(COLOR_ENTRY_SELECTED_BACKGROUND));
+        Color color = JFaceResources.getColorRegistry()
+                .get(getColorFontId(COLOR_ENTRY_SELECTED_BACKGROUND));
         Iterator<PropertyEditingEntry> entries = entries();
         while (entries.hasNext()) {
             entries.next().setSelectedBackground(color);
@@ -390,8 +415,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateEntriesSelectedForegroundColor() {
-        Color color = JFaceResources.getColorRegistry().get(
-                getColorFontId(COLOR_ENTRY_SELECTED_FOREGROUND));
+        Color color = JFaceResources.getColorRegistry()
+                .get(getColorFontId(COLOR_ENTRY_SELECTED_FOREGROUND));
         Iterator<PropertyEditingEntry> entries = entries();
         while (entries.hasNext()) {
             entries.next().setSelectedForeground(color);
@@ -399,8 +424,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     private void updateEntriesSelectedFont() {
-        Font font = JFaceResources.getFontRegistry().get(
-                getColorFontId(FONT_ENTRY_SELECTED));
+        Font font = JFaceResources.getFontRegistry()
+                .get(getColorFontId(FONT_ENTRY_SELECTED));
         Iterator<PropertyEditingEntry> entries = entries();
         while (entries.hasNext()) {
             entries.next().setSelectedFont(font);
@@ -408,8 +433,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
     }
 
     protected Iterator<PropertyEditingEntry> entries() {
-        return Chainability.iterate(firstSection == null ? null
-                : firstSection.firstEntry, null);
+        return Chainability.iterate(
+                firstSection == null ? null : firstSection.firstEntry, null);
     }
 
     protected Iterator<Section> sections() {
@@ -495,8 +520,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
         if (section.firstEntry == null || section.lastEntry == null) {
             section.firstEntry = entry;
             if (section.getPrevious() != null) {
-                Chainability
-                        .insertAfter(section.getPrevious().lastEntry, entry);
+                Chainability.insertAfter(section.getPrevious().lastEntry,
+                        entry);
             }
         } else {
             Chainability.insertAfter(section.lastEntry, entry);
@@ -509,8 +534,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
             return;
 
         Composite parent = getContents();
-        if (firstSection.getNext() == null
-                && (firstSection.title == null || "".equals(firstSection.title))) { //$NON-NLS-1$
+        if (firstSection.getNext() == null && (firstSection.title == null
+                || "".equals(firstSection.title))) { //$NON-NLS-1$
             Iterator<PropertyEditingEntry> it = firstSection.entries();
             while (it.hasNext()) {
                 PropertyEditingEntry entry = it.next();
@@ -523,8 +548,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
                 Section section = sectionIt.next();
                 section.create(parent);
                 if (section.section != null) {
-                    section.section.getControl().setLayoutData(
-                            createSectionLayoutData());
+                    section.section.getControl()
+                            .setLayoutData(createSectionLayoutData());
                 }
             }
         }
@@ -612,9 +637,8 @@ public class PropertiesEditor implements IInputSelectionProvider {
         ISelection selection = getSelection();
         for (Object listener : listeners.getListeners()) {
             if (listener instanceof ISelectionChangedListener) {
-                ((ISelectionChangedListener) listener)
-                        .selectionChanged(new SelectionChangedEvent(this,
-                                selection));
+                ((ISelectionChangedListener) listener).selectionChanged(
+                        new SelectionChangedEvent(this, selection));
             }
         }
     }

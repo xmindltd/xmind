@@ -57,6 +57,10 @@ public class DrillDownInfoItemContributor extends AbstractInfoItemContributor {
         return null;
     }
 
+    public String getSVGFilePath(ITopic topic, IAction action) {
+        return "platform:/plugin/org.xmind.ui.mindmap/icons/drill_down.svg"; //$NON-NLS-1$
+    }
+
     private boolean hasTraceService(IViewer viewer) {
         if (viewer instanceof IGraphicalViewer) {
             return ((IGraphicalViewer) viewer)

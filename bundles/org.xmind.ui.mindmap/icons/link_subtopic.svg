@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 41 (35326) - http://www.bohemiancoding.com/sketch -->
+    <title>ic Subtopic</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#C9EAEF" offset="0%"></stop>
+            <stop stop-color="#88B3B9" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="ic-final-draft-" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="WorkSpace" transform="translate(-753.000000, -100.000000)">
+            <g id="work-space-svg" transform="translate(687.000000, 78.000000)">
+                <g id="topic" transform="translate(0.000000, 22.000000)">
+                    <g id="ic-Subtopic" transform="translate(66.000000, 0.000000)">
+                        <rect id="Rectangle-110" fill="url(#linearGradient-1)" x="4" y="4" width="14" height="14" rx="1"></rect>
+                        <path d="M4.5,5.00684547 L4.5,16.9931545 C4.5,17.2735579 4.72657134,17.5 5.00684547,17.5 L16.9931545,17.5 C17.2735579,17.5 17.5,17.2734287 17.5,16.9931545 L17.5,5.00684547 C17.5,4.72644212 17.2734287,4.5 16.9931545,4.5 L5.00684547,4.5 C4.72644212,4.5 4.5,4.72657134 4.5,5.00684547 Z M4,5.00684547 C4,4.45078007 4.44994876,4 5.00684547,4 L16.9931545,4 C17.5492199,4 18,4.44994876 18,5.00684547 L18,16.9931545 C18,17.5492199 17.5500512,18 16.9931545,18 L5.00684547,18 C4.45078007,18 4,17.5500512 4,16.9931545 L4,5.00684547 Z" id="Rectangle-110" fill="#51747A"></path>
+                        <polygon id="T" fill="#FFFFFF" points="13.8761824 6.97657964 13.8761824 8.55861089 11.8957136 8.55861089 11.8957136 14.9746265 9.99727611 14.9746265 9.99727611 8.55861089 8.00508861 8.55861089 8.00508861 6.97657964"></polygon>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

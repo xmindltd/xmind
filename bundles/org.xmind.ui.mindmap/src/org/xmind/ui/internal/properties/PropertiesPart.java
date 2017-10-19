@@ -15,6 +15,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -30,13 +31,16 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewSite;
@@ -235,6 +239,7 @@ public class PropertiesPart extends ViewModelPart
         this.widgetFactory = new WidgetFactory(contentComposite.getDisplay());
 
         form = widgetFactory.createScrolledForm(contentComposite);
+        addHorizontalScrollSupport(form);
         form.setLayoutData(new GridData(GridData.FILL_BOTH));
         form.setMinWidth(DEFAULT_SECTION_WIDTH);
         form.addDisposeListener(new DisposeListener() {
@@ -262,6 +267,24 @@ public class PropertiesPart extends ViewModelPart
         this.composite = composite;
 
         return composite;
+    }
+
+    // add horizontal scroll support for windows
+    private void addHorizontalScrollSupport(final ScrolledForm form) {
+        if (Util.isWindows()) {
+            form.addListener(SWT.MouseHorizontalWheel, new Listener() {
+
+                public void handleEvent(Event event) {
+                    if (!form.isDisposed()) {
+                        int offset = event.count;
+                        offset = -(int) (Math.sqrt(Math.abs(offset)) * offset);
+
+                        Point origin = form.getOrigin();
+                        form.setOrigin(origin.x + offset, origin.y);
+                    }
+                }
+            });
+        }
     }
 
     private Composite createDefaultPage(Composite parent) {

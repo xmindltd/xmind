@@ -2,6 +2,7 @@ package org.xmind.ui.internal.editor;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.zip.ZipInputStream;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,6 +24,7 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.ErrorSupportProvider;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.swt.SWT;
@@ -31,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -56,6 +60,7 @@ import org.xmind.core.IWorkbook;
 import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.io.DirectoryInputSource;
 import org.xmind.core.io.DirectoryOutputTarget;
+import org.xmind.core.io.IInputSource;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.util.CloneHandler;
 import org.xmind.core.util.FileUtils;
@@ -68,6 +73,8 @@ import org.xmind.ui.internal.dialogs.BlackBoxDialog;
 import org.xmind.ui.internal.handlers.OpenBlackBoxDialogHandler;
 import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.internal.utils.CommandUtils;
+import org.xmind.ui.internal.zen.ZenConstants;
+import org.xmind.ui.internal.zen.ZenDeserializer;
 import org.xmind.ui.mindmap.IWorkbookRef;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -84,6 +91,65 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
 
     private static boolean DEBUG_BACKUP = MindMapUIPlugin
             .isDebugging(MindMapUIPlugin.OPTION_LOCAL_FILE_BACKUP);
+
+    private static class PreParser {
+
+        private IInputSource inputSource;
+
+        private InputStream inputStream;
+
+        private IStorage storage;
+
+        public PreParser() {
+        }
+
+        public void setInputSource(IInputSource source) {
+            if (source == null)
+                throw new IllegalArgumentException("input source is null"); //$NON-NLS-1$
+            this.inputSource = source;
+            this.inputStream = null;
+        }
+
+        public void setInputStream(InputStream stream) {
+            if (stream == null)
+                throw new IllegalArgumentException("input stream is null"); //$NON-NLS-1$
+            this.inputStream = stream;
+            this.inputSource = null;
+        }
+
+        public void setWorkbookStorage(IStorage storage) {
+            if (storage == null)
+                throw new IllegalArgumentException("storage is null"); //$NON-NLS-1$
+            this.storage = storage;
+        }
+
+        public boolean isJsonFormat() {
+            try {
+                if (inputStream != null) {
+                    ZipInputStream zin = new ZipInputStream(inputStream);
+                    try {
+                        FileUtils.extractZipFile(zin,
+                                storage.getOutputTarget());
+                    } finally {
+                        zin.close();
+                    }
+                } else if (inputSource != null) {
+                    FileUtils.transfer(inputSource, storage.getOutputTarget());
+                }
+            } catch (IOException e) {
+                return false;
+            }
+
+            if (storage != null) {
+                IInputSource source = storage.getInputSource();
+                if (source != null && source.hasEntry(ZenConstants.CONTENT_JSON)
+                        && source.isEntryAvailable(ZenConstants.CONTENT_JSON)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 
     private static class LocalFileBackup {
 
@@ -351,30 +417,80 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
     protected IWorkbook doLoadWorkbookFromURI(IProgressMonitor monitor, URI uri)
             throws InterruptedException, InvocationTargetException {
         File file = new File(uri);
+        IStorage storage = getTempStorage();
+        if (isJsonFormat(file, storage)) {
+            return doLoadWorkbookFromJson(monitor, storage);
+        } else {
+            return doLoadWorkbookFromXml(monitor, storage);
+        }
+    }
+
+    private boolean isJsonFormat(File file, IStorage storage)
+            throws InvocationTargetException {
+        PreParser parser = new PreParser();
+        parser.setWorkbookStorage(storage);
+        InputStream stream = null;
         try {
-            IDeserializer deserializer = Core.getWorkbookBuilder()
-                    .newDeserializer();
-            deserializer.setEntryStreamNormalizer(getEncryptionHandler());
-            deserializer.setWorkbookStorage(getTempStorage());
-            InputStream stream = null;
             try {
                 if (file.isDirectory()) {
-                    deserializer.setInputSource(new DirectoryInputSource(file));
+                    parser.setInputSource(new DirectoryInputSource(file));
                 } else {
                     stream = new FileInputStream(file);
-                    deserializer.setInputStream(stream);
+                    parser.setInputStream(stream);
                 }
-                ProgressReporter reporter = new ProgressReporter(monitor);
-                deserializer.deserializeManifest(reporter);
-                String passwordHint = deserializer.getManifest()
-                        .getPasswordHint();
-                getEncryptable().setPasswordHint(passwordHint);
-                deserializer.deserialize(reporter);
+                return parser.isJsonFormat();
+
             } finally {
                 if (stream != null) {
                     stream.close();
                 }
             }
+        } catch (IOException e) {
+            throw new InvocationTargetException(e);
+        }
+    }
+
+    private IWorkbook doLoadWorkbookFromJson(IProgressMonitor monitor,
+            IStorage storage)
+            throws InvocationTargetException, InterruptedException {
+        try {
+            IDeserializer deserializer = new ZenDeserializer(storage);
+            deserializer.setEntryStreamNormalizer(getEncryptionHandler());
+            deserializer.setWorkbookStorageAsInputSource();
+            ProgressReporter reporter = new ProgressReporter(monitor);
+            deserializer.deserializeManifest(reporter);
+            String passwordHint = deserializer.getManifest().getPasswordHint();
+            getEncryptable().setPasswordHint(passwordHint);
+            deserializer.deserialize(reporter);
+            return deserializer.getWorkbook();
+        } catch (IOException e) {
+            throw new InvocationTargetException(e);
+        } catch (CoreException e) {
+            if (e.getType() == Core.ERROR_CANCELLATION)
+                throw new InterruptedException();
+            if (e.getType() == Core.ERROR_WRONG_PASSWORD) {
+                if (getEncryptable() != null) {
+                    getEncryptable().reset();
+                }
+            }
+            throw new InvocationTargetException(e);
+        }
+    }
+
+    private IWorkbook doLoadWorkbookFromXml(IProgressMonitor monitor,
+            IStorage storage)
+            throws InvocationTargetException, InterruptedException {
+        try {
+            IDeserializer deserializer = Core.getWorkbookBuilder()
+                    .newDeserializer();
+            deserializer.setEntryStreamNormalizer(getEncryptionHandler());
+            deserializer.setWorkbookStorage(storage);
+            deserializer.setWorkbookStorageAsInputSource();
+            ProgressReporter reporter = new ProgressReporter(monitor);
+            deserializer.deserializeManifest(reporter);
+            String passwordHint = deserializer.getManifest().getPasswordHint();
+            getEncryptable().setPasswordHint(passwordHint);
+            deserializer.deserialize(reporter);
             return deserializer.getWorkbook();
         } catch (IOException e) {
             throw new InvocationTargetException(e);
@@ -472,7 +588,26 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
                     serializer.setOutputTarget(new DirectoryOutputTarget(file));
                 } else {
                     backup.makeBackup();
-                    stream = new FileOutputStream(file);
+
+                    try {
+                        stream = new FileOutputStream(file);
+                    } catch (FileNotFoundException e) {
+                        Display display = Display.getCurrent();
+                        Shell parent = (display != null
+                                ? display.getActiveShell() : null);
+                        MessageDialog.openWarning(parent,
+                                MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
+                                MindMapMessages.LocalFileWorkbookRef_saveFailed_description);
+                        throw new InterruptedException();
+
+                    } catch (SecurityException e) {
+                        MessageDialog.openWarning(
+                                Display.getCurrent().getActiveShell(),
+                                MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
+                                MindMapMessages.LocalFileWorkbookRef_saveFailed_description);
+                        throw new InterruptedException();
+                    }
+
                     serializer.setOutputStream(stream);
                 }
                 serializer.serialize(new ProgressReporter(monitor));
