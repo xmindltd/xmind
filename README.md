@@ -56,3 +56,8 @@ How To Contribute
 
 Any issue report or pull request will be highly welcomed!
 
+Documentations
+--------------
+
+See [these wiki pages](https://github.com/xmindltd/xmind/wiki) for documentations. Plugin developers and other app developers should read these document in prior to integrating/communicating with XMind application and/or XMind files.
+
