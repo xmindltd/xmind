@@ -279,6 +279,16 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          install-size="0"
          version="0.0.0"
          fragment="true"/>
+   
+   <plugin
+         id="org.eclipse.equinox.launcher.win32.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
 
    <plugin
          id="org.eclipse.equinox.preferences"
@@ -407,6 +417,17 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          os="win32"
          ws="win32"
          arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+   
+   <plugin
+         id="org.eclipse.swt.win32.win32.x86_64"
+         os="win32"
+         ws="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
