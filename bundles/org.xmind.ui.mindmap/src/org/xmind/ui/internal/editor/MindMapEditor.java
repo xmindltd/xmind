@@ -163,6 +163,7 @@ import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.IWorkbookRef;
+import org.xmind.ui.mindmap.IWorkbookRefFactory;
 import org.xmind.ui.mindmap.IWorkbookRefListener;
 import org.xmind.ui.mindmap.MindMapImageExporter;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -418,6 +419,15 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         if (workbookRef != null)
             return workbookRef;
 
+        if(input instanceof org.eclipse.ui.part.FileEditorInput) {
+            URI inputLocationUri = ((org.eclipse.ui.part.FileEditorInput) input).getFile().getLocationURI();
+            IWorkbookRefFactory factory = MindMapUIPlugin.getDefault().getWorkbookRefFactory();
+            workbookRef = factory.createWorkbookRef(inputLocationUri, null);
+            if (workbookRef != null) {
+                return workbookRef;
+            }
+        }
+        
         URI uri = input.getAdapter(URI.class);
         if (uri != null) {
             return MindMapUIPlugin.getDefault().getWorkbookRefFactory()
