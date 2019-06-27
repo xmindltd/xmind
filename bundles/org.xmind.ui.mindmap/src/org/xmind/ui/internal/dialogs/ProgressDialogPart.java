@@ -118,13 +118,13 @@ public class ProgressDialogPart extends ModelPart {
         }
 
         @Override
-        public void add(Object[] elements) {
+        public void add(JobTreeElement... elements) {
             super.add(elements);
             updateForShowingContent();
         }
 
         @Override
-        public void remove(Object[] elements) {
+        public void remove(JobTreeElement... elements) {
             super.remove(elements);
             updateForShowingContent();
         }
