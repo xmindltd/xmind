@@ -13,10 +13,8 @@
  *******************************************************************************/
 package org.xmind.ui.internal.spreadsheet;
 
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.branch.IBranchPolicy;
 import org.xmind.ui.branch.IBranchPolicyAdvisor;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ITopicPart;
 
@@ -30,8 +28,6 @@ public class SpreadsheetPolicyAdvisor implements IBranchPolicyAdvisor {
         for (IBranchPart child : branch.getSubBranches()) {
             child.getTopicPart().refresh();
         }
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SPREAD_SHEET_COUNT);
     }
 
     public void postDeactivate(IBranchPart branch, IBranchPolicy policy) {

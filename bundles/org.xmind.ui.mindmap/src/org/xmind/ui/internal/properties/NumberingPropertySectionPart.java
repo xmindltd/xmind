@@ -41,11 +41,9 @@ import org.xmind.core.INumbering;
 import org.xmind.core.ITopic;
 import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.Request;
 import org.xmind.gef.draw2d.graphics.GraphicsUtils;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.INumberFormatDescriptor;
 import org.xmind.ui.mindmap.INumberSeparatorDescriptor;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -110,10 +108,6 @@ public class NumberingPropertySectionPart
             Object o = ((IStructuredSelection) event.getSelection())
                     .getFirstElement();
             if (o instanceof INumberFormatDescriptor) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(String.format(
-                                UserDataConstants.NUMBERING_TYPE_COUNT,
-                                ((INumberFormatDescriptor) o).getId()));
                 changeNumberFormat(((INumberFormatDescriptor) o).getId());
             }
         }
@@ -152,8 +146,6 @@ public class NumberingPropertySectionPart
             if (INHERIT == o) {
                 changeNumberDepth(null);
             } else if (o instanceof String) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.NUMBER_DEPTH_COUNT + o);
                 changeNumberDepth((String) o);
             }
         }

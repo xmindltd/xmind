@@ -16,23 +16,12 @@
  */
 package org.xmind.cathy.internal;
 
-import org.xmind.core.licensing.ILicenseAgent;
-import org.xmind.core.usagedata.IUsageDataSampler;
-import org.xmind.ui.internal.statushandlers.IErrorReporter;
-
 /**
  * @author Frank Shaka
- *
  */
 public class ServiceManager {
 
     private boolean active;
-
-    private IErrorReporter errorReporter;
-
-    private IUsageDataSampler usageDataSampler;
-
-    private ILicenseAgent licenseAgent;
 
     private CathyPlugin plugin;
 
@@ -41,19 +30,12 @@ public class ServiceManager {
      */
     public ServiceManager() {
         this.active = false;
-        this.errorReporter = null;
-        this.usageDataSampler = null;
-        this.licenseAgent = null;
         this.plugin = CathyPlugin.getDefault();
     }
 
     public void activate() {
         if (active)
             return;
-
-        plugin.setUsageDataCollector(usageDataSampler);
-        plugin.setErrorReporter(errorReporter);
-        plugin.setLicenseAgent(licenseAgent);
 
         active = true;
     }
@@ -62,64 +44,7 @@ public class ServiceManager {
         if (!active)
             return;
 
-        plugin.setUsageDataCollector(null);
-        plugin.setErrorReporter(null);
-        plugin.setLicenseAgent(null);
-
         active = false;
-    }
-
-    public void setErrorReporter(IErrorReporter reporter) {
-        this.errorReporter = reporter;
-
-        if (active) {
-            plugin.setErrorReporter(reporter);
-        }
-    }
-
-    public void unsetErrorReporter(IErrorReporter reporter) {
-        if (reporter != this.errorReporter)
-            return;
-        this.errorReporter = null;
-        if (active) {
-            plugin.setErrorReporter(null);
-        }
-    }
-
-    /**
-     * @param sampler
-     *            the usageDataSampler to set
-     */
-    public void setUsageDataSampler(IUsageDataSampler sampler) {
-        this.usageDataSampler = sampler;
-        if (active) {
-            plugin.setUsageDataCollector(sampler);
-        }
-    }
-
-    public void unsetUsageDataSampler(IUsageDataSampler sampler) {
-        if (sampler == this.usageDataSampler)
-            return;
-        this.usageDataSampler = null;
-        if (active) {
-            plugin.setUsageDataCollector(null);
-        }
-    }
-
-    public void setLicenseAgent(ILicenseAgent agent) {
-        this.licenseAgent = agent;
-        if (active) {
-            plugin.setLicenseAgent(agent);
-        }
-    }
-
-    public void unsetLicenseAgent(ILicenseAgent agent) {
-        if (agent == this.licenseAgent)
-            return;
-        this.licenseAgent = null;
-        if (active) {
-            plugin.setLicenseAgent(null);
-        }
     }
 
 }

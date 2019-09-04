@@ -5,19 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xmind.releng</groupId>
     <artifactId>org.xmind.cathy.releng</artifactId>
-    <version>3.7.5-SNAPSHOT</version>
+    <version>3.8.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
-        <tycho.version>0.23.0</tycho.version>
-        <tychoExtras.version>0.23.0</tychoExtras.version>
+        <tycho.version>1.4.0</tycho.version>
+        <tychoExtras.version>1.4.0</tychoExtras.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <eclipse-repo.id>eclipse-4.6</eclipse-repo.id>
-        <eclipse-repo.url>http://download.eclipse.org/eclipse/updates/4.6/R-4.6-201606061100</eclipse-repo.url>
+        <eclipse-repo.id>eclipse-2019-03</eclipse-repo.id>
+        <eclipse-repo.url>https://download.eclipse.org/releases/2019-03</eclipse-repo.url>
         <gef-repo.id>gef-3.10.1</gef-repo.id>
         <gef-repo.url>http://download.eclipse.org/tools/gef/updates/legacy/releases/3.10.1_gef-maintenance_1205</gef-repo.url>
-        <xmind-orbit-repo.id>xmind-orbit-1.1.0</xmind-orbit-repo.id>
-        <xmind-orbit-repo.url>http://p2.xmind.net/updates/orbit/1.1.0</xmind-orbit-repo.url>
     </properties>
 
     <repositories>
@@ -29,11 +27,6 @@
         <repository>
             <id>${gef-repo.id}</id>
             <url>${gef-repo.url}</url>
-            <layout>p2</layout>
-        </repository>
-        <repository>
-            <id>${xmind-orbit-repo.id}</id>
-            <url>${xmind-orbit-repo.url}</url>
             <layout>p2</layout>
         </repository>
     </repositories>
@@ -57,17 +50,12 @@
                         <environment>
                             <os>linux</os>
                             <ws>gtk</ws>
-                            <arch>x86</arch>
-                        </environment>
-                        <environment>
-                            <os>linux</os>
-                            <ws>gtk</ws>
                             <arch>x86_64</arch>
                         </environment>
                         <environment>
                             <os>win32</os>
                             <ws>win32</ws>
-                            <arch>x86</arch>
+                            <arch>x86-64</arch>
                         </environment>
                         <environment>
                             <os>macosx</os>
@@ -78,6 +66,63 @@
                 </configuration>
             </plugin>
         </plugins>
+		   <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings
+          only. It has no influence on the Maven build itself. -->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>
+                      org.eclipse.tycho
+                    </groupId>
+                    <artifactId>
+                      tycho-compiler-plugin
+                    </artifactId>
+                    <versionRange>
+                      [${tycho.version},)
+                    </versionRange>
+                    <goals>
+                      <goal>compile</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>
+                      org.eclipse.tycho
+                    </groupId>
+                    <artifactId>
+                      tycho-packaging-plugin
+                    </artifactId>
+                    <versionRange>
+                      [${tycho.version},)
+                    </versionRange>
+                    <goals>
+                      <goal>build-qualifier</goal>
+                      <goal>validate-id</goal>
+                      <goal>validate-version</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     </build>
 
     <profiles>
@@ -138,15 +183,14 @@
 
         <module>bundles/org.xmind.cathy</module>
         <module>bundles/org.xmind.cathy.fonts</module>
-        <module>bundles/org.xmind.cathy.win32</module>
+        <!--<module>bundles/org.xmind.cathy.win32</module>-->
         <module>bundles/org.xmind.core</module>
         <module>bundles/org.xmind.core.command</module>
         <module>bundles/org.xmind.core.command.remote</module>
         <module>bundles/org.xmind.core.io</module>
-        <module>bundles/org.xmind.core.licensing</module>
         <module>bundles/org.xmind.core.net</module>
         <module>bundles/org.xmind.core.runtime</module>
-        <module>bundles/org.xmind.core.usagedata</module>
+		<module>bundles/org.xmind.core.runtime/prerequisites</module>
         <module>bundles/org.xmind.de.erichseifert.vectorgraphics2d</module>
         <module>bundles/org.xmind.gef</module>
         <module>bundles/org.xmind.gef.ui</module>
@@ -161,6 +205,7 @@
         <module>bundles/org.xmind.ui.mindmap</module>
         <module>bundles/org.xmind.ui.resources</module>
         <module>bundles/org.xmind.ui.spelling</module>
+		<module>bundles/org.xmind.ui.spelling/prerequisites</module>
         <module>bundles/org.xmind.ui.spreadsheet</module>
         <module>bundles/org.xmind.ui.toolkit</module>
         <module>bundles/org.xmind.ui.exports.vector</module>

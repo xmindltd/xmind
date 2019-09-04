@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.platform.feature"
       label="XMind Product Runtime Platform"
-      version="3.7.4.qualifier"
+      version="3.8.0.qualifier"
       provider-name="XMind Ltd.">
 
    <description>
@@ -99,16 +99,6 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.filesystem.linux.x86"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.core.filesystem.linux.x86_64"
          os="linux"
          arch="x86_64"
@@ -128,9 +118,9 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.filesystem.win32.x86"
+         id="org.eclipse.core.filesystem.win32.x86_64"
          os="win32"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -152,16 +142,6 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.net.linux.x86"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.core.net.linux.x86_64"
          os="linux"
          arch="x86_64"
@@ -172,9 +152,9 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.net.win32.x86"
+         id="org.eclipse.core.net.win32.x86_64"
          os="win32"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -189,9 +169,9 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.core.resources.win32.x86"
+         id="org.eclipse.core.resources.win32.x86_64"
          os="win32"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -251,16 +231,6 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          fragment="true"/>
 
    <plugin
-         id="org.eclipse.equinox.launcher.gtk.linux.x86"
-         os="linux"
-         ws="gtk"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
          id="org.eclipse.equinox.launcher.gtk.linux.x86_64"
          os="linux"
          ws="gtk"
@@ -271,10 +241,10 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          fragment="true"/>
 
    <plugin
-         id="org.eclipse.equinox.launcher.win32.win32.x86"
+         id="org.eclipse.equinox.launcher.win32.win32.x86_64"
          os="win32"
          ws="win32"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -311,9 +281,9 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.equinox.security.win32.x86"
+         id="org.eclipse.equinox.security.win32.x86_64"
          os="win32"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -381,10 +351,10 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.swt.gtk.linux.x86"
+         id="org.eclipse.swt.gtk.linux.x86_64"
          os="linux"
          ws="gtk"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -403,10 +373,10 @@ which is available at http://www.gnu.org/licenses/lgpl.html .
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.swt.win32.win32.x86"
+         id="org.eclipse.swt.win32.win32.x86_64"
          os="win32"
          ws="win32"
-         arch="x86"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -15,9 +15,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.xmind.cathy.internal.ICathyConstants;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.gallery.GalleryViewer;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
 import org.xmind.ui.internal.dashboard.pages.IDashboardContext;
 import org.xmind.ui.mindmap.IResourceManagerListener;
@@ -55,8 +53,6 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         layout.marginHeight = 7;
         container.setLayout(layout);
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_TEMPLATES_COUNT);
         viewer = new CategorizedTemplateViewer(container);
         Control control = viewer.getControl();
         control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -65,10 +61,6 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
             public void open(OpenEvent event) {
                 if (!templateOpening) {
                     handleTemplateSelected(event.getSelection());
-                    MindMapUIPlugin.getDefault().getUsageDataCollector()
-                            .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
-                    MindMapUIPlugin.getDefault().getUsageDataCollector()
-                            .increase(UserDataConstants.USE_TEMPLATES_COUNT);
                 }
             }
         });
@@ -150,12 +142,6 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
             return;
 
         ITemplate template = (ITemplate) selectedElement;
-        if (template != null && null != template.getName())
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(String.format(
-                            UserDataConstants.USE_S_TEMPLATE_COUNT,
-                            template.getName().replaceAll(" ", "_"))); //$NON-NLS-1$ //$NON-NLS-2$
-
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()
                 .createEditorInput(template.createWorkbookRef());
         getContext().openEditor(editorInput, MindMapUI.MINDMAP_EDITOR_ID);

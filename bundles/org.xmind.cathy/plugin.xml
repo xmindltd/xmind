@@ -1042,12 +1042,6 @@
       </menuContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.startup">
-      <startup
-            class="org.xmind.cathy.internal.ShowWelcomeService">
-      </startup>
-   </extension>
-   <extension
          id="windowContributions"
          point="org.eclipse.ui.menus">
       <menuContribution

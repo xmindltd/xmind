@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -157,8 +156,6 @@ public class XMind2008ExportWizard extends AbstractMindMapExportWizard {
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
             throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.EXPORT_TO_X_MIND2008_COUNT);
         XMind2008Exporter exporter = new XMind2008Exporter(sourceWorkbook,
                 getTargetPath());
         exporter.setMonitor(monitor);

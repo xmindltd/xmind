@@ -18,12 +18,10 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventSupport;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.e4models.IContextRunnable;
 import org.xmind.ui.internal.e4models.IModelConstants;
 import org.xmind.ui.internal.utils.ResourceUtils;
@@ -71,8 +69,6 @@ public class MarkerResourceManagerPage extends ResourceManagerDialogPage
         button.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.USER_ADD_GROUP_COUNT);
                 IMarkerSheet markerSheet = MindMapUI.getResourceManager()
                         .getUserMarkerSheet();
                 IMarkerGroup group = MindMapUI.getResourceManager()

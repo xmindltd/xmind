@@ -48,7 +48,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.IWordContext;
 import org.xmind.ui.IWordContextProvider;
 import org.xmind.ui.resources.ColorUtils;
@@ -74,8 +73,7 @@ public class SpellingCheckDialog extends Dialog
 
         private List<SpellingCheckDialog> dialogs = new ArrayList<SpellingCheckDialog>();
 
-        private SpellingViewContent() {
-        }
+        private SpellingViewContent() {}
 
         public void addDialog(SpellingCheckDialog dialog) {
             this.dialogs.add(dialog);
@@ -111,8 +109,7 @@ public class SpellingCheckDialog extends Dialog
         }
 
         public void inputChanged(Viewer viewer, Object oldInput,
-                Object newInput) {
-        }
+                Object newInput) {}
 
         public Object[] getElements(Object inputElement) {
             if (inputElement instanceof List) {
@@ -328,8 +325,7 @@ public class SpellingCheckDialog extends Dialog
         private Map<IWordContext, Set<String>> wordContextIgnores = new HashMap<IWordContext, Set<String>>();
         private static IgnoredWordsStorage instance;
 
-        private IgnoredWordsStorage() {
-        }
+        private IgnoredWordsStorage() {}
 
         public static IgnoredWordsStorage getInstance() {
             if (instance == null)
@@ -418,9 +414,6 @@ public class SpellingCheckDialog extends Dialog
 
     @Override
     protected Control createDialogArea(Composite parent) {
-        SpellingPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SPELLING_CHECK_COUNT);
-
         Composite composite = (Composite) super.createDialogArea(parent);
         resources = new LocalResourceManager(JFaceResources.getResources(),
                 composite);
@@ -808,8 +801,7 @@ public class SpellingCheckDialog extends Dialog
      * org.eclipse.core.runtime.jobs.IJobChangeListener#aboutToRun(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
      */
-    public void aboutToRun(IJobChangeEvent event) {
-    }
+    public void aboutToRun(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -817,8 +809,7 @@ public class SpellingCheckDialog extends Dialog
      * org.eclipse.core.runtime.jobs.IJobChangeListener#awake(org.eclipse.core
      * .runtime.jobs.IJobChangeEvent)
      */
-    public void awake(IJobChangeEvent event) {
-    }
+    public void awake(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -843,8 +834,7 @@ public class SpellingCheckDialog extends Dialog
      * org.eclipse.core.runtime.jobs.IJobChangeListener#running(org.eclipse.
      * core.runtime.jobs.IJobChangeEvent)
      */
-    public void running(IJobChangeEvent event) {
-    }
+    public void running(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -852,8 +842,7 @@ public class SpellingCheckDialog extends Dialog
      * org.eclipse.core.runtime.jobs.IJobChangeListener#scheduled(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
      */
-    public void scheduled(IJobChangeEvent event) {
-    }
+    public void scheduled(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -861,8 +850,7 @@ public class SpellingCheckDialog extends Dialog
      * org.eclipse.core.runtime.jobs.IJobChangeListener#sleeping(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
      */
-    public void sleeping(IJobChangeEvent event) {
-    }
+    public void sleeping(IJobChangeEvent event) {}
 
     public void inputChanged(IWordContextProvider input) {
 
@@ -947,18 +935,15 @@ public class SpellingCheckDialog extends Dialog
             scanWorkbook();
     }
 
-    public void partBroughtToTop(IWorkbenchPart part) {
-    }
+    public void partBroughtToTop(IWorkbenchPart part) {}
 
     public void partClosed(IWorkbenchPart part) {
         if (part instanceof IEditorPart)
             scanWorkbook();
     }
 
-    public void partDeactivated(IWorkbenchPart part) {
-    }
+    public void partDeactivated(IWorkbenchPart part) {}
 
-    public void partOpened(IWorkbenchPart part) {
-    }
+    public void partOpened(IWorkbenchPart part) {}
 
 }

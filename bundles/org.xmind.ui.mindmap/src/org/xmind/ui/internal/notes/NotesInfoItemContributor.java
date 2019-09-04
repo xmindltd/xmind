@@ -57,9 +57,6 @@ public class NotesInfoItemContributor extends AbstractInfoItemContributor {
             if (!topicPart.getStatus().isActive())
                 return;
 
-//            MindMapUIPlugin.getDefault().getUsageDataCollector()
-//                    .increase("UseNotesCount"); //$NON-NLS-1$
-
             final IWorkbenchWindow window = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow();
             if (window == null)

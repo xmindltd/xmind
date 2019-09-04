@@ -40,8 +40,7 @@ public class CathyStatusHandler extends AbstractStatusHandler {
 
     private RuntimeErrorDialog currentDialog = null;
 
-    public CathyStatusHandler() {
-    }
+    public CathyStatusHandler() {}
 
     public boolean supportsNotification(int type) {
         if (type == INotificationTypes.HANDLED) {
@@ -145,7 +144,7 @@ public class CathyStatusHandler extends AbstractStatusHandler {
             style |= RuntimeErrorDialog.BLOCKED;
         }
         RuntimeErrorDialog dialog = new RuntimeErrorDialog(style, statusAdapter,
-                null, CathyPlugin.getDefault().getErrorReporter());
+                null);
         dialog.create();
         dialog.getShell().addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {

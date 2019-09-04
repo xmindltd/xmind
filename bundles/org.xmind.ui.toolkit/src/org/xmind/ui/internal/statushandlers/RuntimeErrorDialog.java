@@ -24,9 +24,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.events.HyperlinkAdapter;
-import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 
 public class RuntimeErrorDialog extends Dialog {
@@ -36,17 +33,14 @@ public class RuntimeErrorDialog extends Dialog {
 
     private StatusDetails details;
     private String dialogTitle;
-    private IErrorReporter reporter;
 
     private Control detailsArea = null;
 
     public RuntimeErrorDialog(int style, StatusAdapter statusAdapter,
-            String dialogTitle, IErrorReporter reporter) {
+            String dialogTitle) {
         super(Display.getDefault().getActiveShell());
         this.details = new StatusDetails(statusAdapter);
         this.dialogTitle = dialogTitle;
-        this.reporter = reporter == null ? DefaultErrorReporter.getInstance()
-                : reporter;
         setBlockOnOpen(false);
         if ((style & BLOCKED) != 0) {
             setShellStyle(getShellStyle() | SWT.APPLICATION_MODAL);
@@ -57,7 +51,6 @@ public class RuntimeErrorDialog extends Dialog {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.eclipse.jface.dialogs.Dialog#create()
      */
     @Override
@@ -133,28 +126,10 @@ public class RuntimeErrorDialog extends Dialog {
         ((GridLayout) parent.getLayout()).numColumns++;
         ((GridLayout) parent.getLayout()).makeColumnsEqualWidth = false;
         ((GridLayout) parent.getLayout()).horizontalSpacing = 250;
-        Hyperlink report = new Hyperlink(parent, SWT.LEFT);
-        report.setText(
-                StatusHandlerMessages.RuntimeErrorDialog_ReportHyperlink_Text);
-        report.setUnderlined(true);
-        report.addHyperlinkListener(new HyperlinkAdapter() {
-            public void linkActivated(HyperlinkEvent e) {
-                reportPressed();
-            }
-        });
         createButton(parent, IDialogConstants.CANCEL_ID,
                 StatusHandlerMessages.RuntimeErrorDialog_CloseButton_Text,
                 false);
 
-    }
-
-    private void reportPressed() {
-        try {
-            reporter.report(details);
-        } catch (InterruptedException e) {
-            return;
-        }
-        close();
     }
 
 }

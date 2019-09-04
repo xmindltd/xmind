@@ -52,9 +52,6 @@ import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.xmind.cathy.internal.jobs.OpenFilesJob;
 import org.xmind.core.internal.InternalCore;
-import org.xmind.core.licensing.ILicenseAgent;
-import org.xmind.core.licensing.ILicenseChangedListener;
-import org.xmind.core.licensing.ILicenseKeyHeader;
 import org.xmind.gef.ui.editor.IEditingContext;
 import org.xmind.ui.internal.PasswordProvider;
 import org.xmind.ui.internal.dialogs.DialogMessages;
@@ -64,8 +61,7 @@ import org.xmind.ui.internal.editor.IMindMapPreviewGenerator;
 import org.xmind.ui.internal.editor.IPasswordProvider;
 import org.xmind.ui.mindmap.MindMapUI;
 
-public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
-        implements ILicenseChangedListener {
+public class CathyWorkbenchAdvisor extends WorkbenchAdvisor {
 
     public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
             IWorkbenchWindowConfigurer configurer) {
@@ -90,10 +86,6 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
     @Override
     public void preStartup() {
         super.preStartup();
-
-        CathyPlugin.getDefault().getLicenseAgent()
-                .addLicenseChangedListener(this);
-        licenseChanged(CathyPlugin.getDefault().getLicenseAgent());
 
         /**
          * This hack requires workbench to exist. See
@@ -149,9 +141,6 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
 
     @Override
     public void postShutdown() {
-        CathyPlugin.getDefault().getLicenseAgent()
-                .removeLicenseChangedListener(this);
-
         AbstractWorkbookRef.setDefaultEditingContext(null);
         super.postShutdown();
     }
@@ -337,60 +326,6 @@ public class CathyWorkbenchAdvisor extends WorkbenchAdvisor
             closed |= window.getActivePage().closeAllEditors(false);
         }
         return closed;
-    }
-
-    public void licenseChanged(ILicenseAgent agent) {
-        int type = agent.getLicenseType();
-        ILicenseKeyHeader header = agent.getLicenseKeyHeader();
-        String brandingVersion = System
-                .getProperty("org.xmind.product.brandingVersion", ""); //$NON-NLS-1$ //$NON-NLS-2$
-        String licenseType;
-        if ((type & ILicenseAgent.PRO_LICENSE_KEY) != 0) {
-            licenseType = NLS.bind(WorkbenchMessages.About_ProTitle,
-                    brandingVersion);
-        } else if ((type & ILicenseAgent.PLUS_LICENSE_KEY) != 0) {
-            licenseType = NLS.bind(WorkbenchMessages.About_PlusTitle,
-                    brandingVersion);
-        } else if ((type & ILicenseAgent.PRO_SUBSCRIPTION) != 0) {
-            licenseType = WorkbenchMessages.About_ProSubscriptionTitle;
-        } else {
-            licenseType = null;
-        }
-
-        if (header != null && ((type & ILicenseAgent.PLUS_LICENSE_KEY) != 0
-                || (type & ILicenseAgent.PRO_LICENSE_KEY) != 0)) {
-            String licenseeType = header.getLicenseeType();
-            if (ILicenseKeyHeader.LICENSEE_FAMILY.equals(licenseeType)) {
-                licenseType = NLS.bind("{0} (Family License)", licenseType); //$NON-NLS-1$
-            } else if (ILicenseKeyHeader.LICENSEE_EDU.equals(licenseeType)) {
-                licenseType = NLS.bind("{0} (Academia License)", licenseType); //$NON-NLS-1$
-            } else if (ILicenseKeyHeader.LICENSEE_GOV.equals(licenseeType)) {
-                licenseType = NLS.bind("{0} (Gov/NPO License)", licenseType); //$NON-NLS-1$
-            } else if (ILicenseKeyHeader.LICENSEE_TEAM_5U.equals(licenseeType)
-                    || ILicenseKeyHeader.LICENSEE_TEAM_10U.equals(licenseeType)
-                    || ILicenseKeyHeader.LICENSEE_TEAM_20U
-                            .equals(licenseeType)) {
-                licenseType = NLS.bind("{0} (Team License)", licenseType); //$NON-NLS-1$
-            } else if (ILicenseKeyHeader.LICENSEE_VLE.equals(licenseeType)) {
-                licenseType = NLS.bind("{0} (Volume License)", licenseType); //$NON-NLS-1$
-            }
-        }
-        if (licenseType == null) {
-            licenseType = WorkbenchMessages.About_LicenseType_Unactivated;
-        } else {
-            licenseType = NLS.bind(WorkbenchMessages.About_LicenseTypePattern,
-                    licenseType);
-        }
-        System.setProperty("org.xmind.product.license.type", //$NON-NLS-1$
-                licenseType);
-
-        String name = agent.getLicenseeName();
-        if (name != null && !"".equals(name)) { //$NON-NLS-1$
-            name = NLS.bind(WorkbenchMessages.About_LicensedTo, name);
-        } else {
-            name = ""; //$NON-NLS-1$
-        }
-        System.setProperty("org.xmind.product.license.licensee", name); //$NON-NLS-1$
     }
 
     @Override

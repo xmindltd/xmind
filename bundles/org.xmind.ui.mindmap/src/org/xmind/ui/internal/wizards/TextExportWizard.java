@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapImages;
@@ -139,8 +138,7 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
                     ps.close();
                     try {
                         out.close();
-                    } catch (IOException e) {
-                    }
+                    } catch (IOException e) {}
                 }
 
                 try {
@@ -317,14 +315,12 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
             } finally {
                 try {
                     out.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException e) {}
             }
         } finally {
             try {
                 fileOut.close();
-            } catch (IOException e) {
-            }
+            } catch (IOException e) {}
         }
 
         if (uiWorked < uiTotal) {
@@ -368,8 +364,6 @@ public class TextExportWizard extends AbstractMindMapExportWizard {
 
     @Override
     protected boolean doExport() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.EXPORT_TO_TXT_COUNT);
         return super.doExport();
     }
 

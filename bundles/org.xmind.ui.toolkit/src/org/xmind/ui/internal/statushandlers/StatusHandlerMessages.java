@@ -18,7 +18,6 @@ import org.eclipse.osgi.util.NLS;
 public class StatusHandlerMessages extends NLS {
     private static final String BUNDLE_NAME = "org.xmind.ui.internal.statushandlers.messages"; //$NON-NLS-1$
     public static String RuntimeErrorDialog_CloseButton_Text;
-    public static String RuntimeErrorDialog_ReportHyperlink_Text;
     public static String RuntimeErrorDialog_windowTitle;
     public static String StatusDetails_ErrorMessage_with_RootCauseClassName_and_RootCauseMessage;
     public static String StatusDetails_SimpleErrorMessage;
@@ -27,6 +26,5 @@ public class StatusHandlerMessages extends NLS {
         NLS.initializeMessages(BUNDLE_NAME, StatusHandlerMessages.class);
     }
 
-    private StatusHandlerMessages() {
-    }
+    private StatusHandlerMessages() {}
 }

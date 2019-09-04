@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 
 public class DecryptionDialog extends TitleAreaDialog {
 
@@ -159,8 +158,6 @@ public class DecryptionDialog extends TitleAreaDialog {
 
         Label hintLabel = new Label(composite, SWT.NONE);
         hintLabel.setText(MindMapMessages.DecryptionDialog_Hint_label);
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(GET_PASSWORD_HINT_COUNT);
 
         GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.FILL)
                 .applyTo(hintLabel);

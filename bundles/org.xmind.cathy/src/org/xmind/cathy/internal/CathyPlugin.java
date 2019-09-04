@@ -38,12 +38,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.xmind.core.Core;
 import org.xmind.core.internal.runtime.WorkspaceConfigurer;
 import org.xmind.core.internal.runtime.WorkspaceSession;
-import org.xmind.core.licensing.ILicenseAgent;
 import org.xmind.core.net.util.LinkUtils;
-import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.ui.internal.app.ApplicationConstants;
-import org.xmind.ui.internal.statushandlers.DefaultErrorReporter;
-import org.xmind.ui.internal.statushandlers.IErrorReporter;
 
 /*---- BAD BOY HANDSOME DEBUT, DO NOT TOUCH ME ----*/
 /*---- BEGIN IMPORT ----*/
@@ -163,21 +159,10 @@ public class CathyPlugin extends AbstractUIPlugin {
             .getLinkByLanguage(true, true, "/xmind/help"); //$NON-NLS-1$
 
     /**
-     * Boolean value:<br>
-     * <ul>
-     * <li><code>true</code> to upload usage data to XMind server</li>
-     * <li><code>false</code> to skip uploading usage data</li>
-     * </ul>
-     */
-    public static final String USAGE_DATA_UPLOADING_ENABLED = "usageDataUploadingEnabled"; //$NON-NLS-1$
-
-    /**
      * One minute delay between two auto save operations.
      */
     public static final int AUTO_SAVE_EDITOR_STATE_INTERVALS = 60000;
     public static final String OPTION_AUTO_SAVE_EDITOR_STATE_INTERVALS = "/debug/autoSaveEditorStateIntervals"; //$NON-NLS-1$
-
-    public static final String KEY_NOT_SHOW_UPLOAD_DATA_CHECK = "org.xmind.cathy.notShowUploadDataCheck"; //$NON-NLS-1$
 
     // The shared instance.
     private static CathyPlugin plugin;
@@ -185,12 +170,6 @@ public class CathyPlugin extends AbstractUIPlugin {
     private ServiceTracker<DebugOptions, DebugOptions> debugTracker;
 
     private WorkspaceSession xmindWorkspaceSession;
-
-    private IUsageDataSampler usageDataSampler;
-
-    private IErrorReporter errorReporter;
-
-    private LicenseAgentProxy licenseAgent;
 
     private ILogger logger;
 
@@ -212,10 +191,6 @@ public class CathyPlugin extends AbstractUIPlugin {
         /*---- BEGIN INSERT ----*/
         /*---- END INSERT ----*/
         /*---- BAD BOY PERFECT CURTAIN CALL, DO NOT TOUCH ME ----*/
-
-        usageDataSampler = IUsageDataSampler.NULL;
-        errorReporter = DefaultErrorReporter.getInstance();
-        licenseAgent = new LicenseAgentProxy();
 
         logger = new ILogger() {
 
@@ -262,9 +237,6 @@ public class CathyPlugin extends AbstractUIPlugin {
 
     }
 
-//    usageDataCollector.setUploadEnabled(getPreferenceStore()
-//            .getBoolean(USAGE_DATA_UPLOADING_ENABLED));
-
     private void hackConstants() {
         ConstantsHacker.hack();
     }
@@ -278,8 +250,6 @@ public class CathyPlugin extends AbstractUIPlugin {
             xmindWorkspaceSession.close();
             xmindWorkspaceSession = null;
         }
-
-        licenseAgent = null;
 
         super.stop(context);
         plugin = null;
@@ -384,35 +354,6 @@ public class CathyPlugin extends AbstractUIPlugin {
         return doLoadNLSProperties(getBundle(), pathBase);
     }
 
-    public IUsageDataSampler getUsageDataCollector() {
-        return usageDataSampler;
-    }
-
-    void setUsageDataCollector(IUsageDataSampler sampler) {
-        this.usageDataSampler = sampler == null ? IUsageDataSampler.NULL
-                : sampler;
-    }
-
-    /**
-     * @return
-     */
-    public IErrorReporter getErrorReporter() {
-        return errorReporter;
-    }
-
-    void setErrorReporter(IErrorReporter reporter) {
-        this.errorReporter = reporter == null
-                ? DefaultErrorReporter.getInstance() : reporter;
-    }
-
-    public ILicenseAgent getLicenseAgent() {
-        return licenseAgent;
-    }
-
-    void setLicenseAgent(ILicenseAgent agent) {
-        this.licenseAgent.setDelegate(agent);
-    }
-
     private void upgradeWorkspace() {
         IPath stateLocation;
         try {
@@ -445,8 +386,7 @@ public class CathyPlugin extends AbstractUIPlugin {
             } finally {
                 output.close();
             }
-        } catch (IOException e) {
-        }
+        } catch (IOException e) {}
     }
 
     /**
@@ -515,7 +455,8 @@ public class CathyPlugin extends AbstractUIPlugin {
         }
         Enumeration<URL> entries = bundle.findEntries(dir, name, true);
         return entries != null && entries.hasMoreElements()
-                ? entries.nextElement() : null;
+                ? entries.nextElement()
+                : null;
     }
 
     public static <T> T getAdapter(Object obj, Class<T> adapter) {

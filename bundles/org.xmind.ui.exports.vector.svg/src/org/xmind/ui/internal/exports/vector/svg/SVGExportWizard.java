@@ -304,8 +304,6 @@ public class SVGExportWizard extends DocumentExportWizard {
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
             throws InvocationTargetException, InterruptedException {
-        SvgPlugin.getDefault().getUsageDataCollector()
-                .increase("ExportToSVGCount"); //$NON-NLS-1$
         super.doExport(monitor, display, parentShell);
     }
 

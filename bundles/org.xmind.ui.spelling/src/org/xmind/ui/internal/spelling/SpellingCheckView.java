@@ -61,7 +61,6 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.IWordContext;
 import org.xmind.ui.IWordContextProvider;
 
@@ -85,8 +84,7 @@ public class SpellingCheckView extends ViewPart
 
         private List<SpellingCheckView> views = new ArrayList<SpellingCheckView>();
 
-        private SpellingViewContent() {
-        }
+        private SpellingViewContent() {}
 
         public void addView(SpellingCheckView view) {
             this.views.add(view);
@@ -295,8 +293,7 @@ public class SpellingCheckView extends ViewPart
          * (non-Javadoc)
          * @see org.eclipse.jface.viewers.IContentProvider#dispose()
          */
-        public void dispose() {
-        }
+        public void dispose() {}
 
         /*
          * (non-Javadoc)
@@ -305,8 +302,7 @@ public class SpellingCheckView extends ViewPart
          * .jface.viewers.Viewer, java.lang.Object, java.lang.Object)
          */
         public void inputChanged(Viewer viewer, Object oldInput,
-                Object newInput) {
-        }
+                Object newInput) {}
 
     }
 
@@ -495,9 +491,6 @@ public class SpellingCheckView extends ViewPart
             }
 
             monitor.done();
-
-            SpellingPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.SPELLING_CHECK_COUNT);
 
             return Status.OK_STATUS;
         }
@@ -920,8 +913,7 @@ public class SpellingCheckView extends ViewPart
      * org.eclipse.core.runtime.jobs.IJobChangeListener#awake(org.eclipse.core
      * .runtime.jobs.IJobChangeEvent)
      */
-    public void awake(IJobChangeEvent event) {
-    }
+    public void awake(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -947,8 +939,7 @@ public class SpellingCheckView extends ViewPart
      * org.eclipse.core.runtime.jobs.IJobChangeListener#running(org.eclipse.
      * core.runtime.jobs.IJobChangeEvent)
      */
-    public void running(IJobChangeEvent event) {
-    }
+    public void running(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -956,8 +947,7 @@ public class SpellingCheckView extends ViewPart
      * org.eclipse.core.runtime.jobs.IJobChangeListener#scheduled(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
      */
-    public void scheduled(IJobChangeEvent event) {
-    }
+    public void scheduled(IJobChangeEvent event) {}
 
     /*
      * (non-Javadoc)
@@ -965,8 +955,7 @@ public class SpellingCheckView extends ViewPart
      * org.eclipse.core.runtime.jobs.IJobChangeListener#sleeping(org.eclipse
      * .core.runtime.jobs.IJobChangeEvent)
      */
-    public void sleeping(IJobChangeEvent event) {
-    }
+    public void sleeping(IJobChangeEvent event) {}
 
     public void inputChanged(SpellingCheckViewerInput input) {
         this.viewer.setInput(input);
@@ -981,16 +970,14 @@ public class SpellingCheckView extends ViewPart
      * @see
      * org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
      */
-    public void partActivated(IWorkbenchPart part) {
-    }
+    public void partActivated(IWorkbenchPart part) {}
 
     /*
      * (non-Javadoc)
      * @see org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.
      * IWorkbenchPart )
      */
-    public void partBroughtToTop(IWorkbenchPart part) {
-    }
+    public void partBroughtToTop(IWorkbenchPart part) {}
 
     /*
      * (non-Javadoc)
@@ -1018,15 +1005,13 @@ public class SpellingCheckView extends ViewPart
      * @see org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.
      * IWorkbenchPart )
      */
-    public void partDeactivated(IWorkbenchPart part) {
-    }
+    public void partDeactivated(IWorkbenchPart part) {}
 
     /*
      * (non-Javadoc)
      * @see
      * org.eclipse.ui.IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
      */
-    public void partOpened(IWorkbenchPart part) {
-    }
+    public void partOpened(IWorkbenchPart part) {}
 
 }

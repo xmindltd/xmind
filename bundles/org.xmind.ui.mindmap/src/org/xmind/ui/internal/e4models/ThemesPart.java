@@ -29,13 +29,11 @@ import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSupport;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.gallery.GalleryViewer;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.editor.MindMapEditor;
 import org.xmind.ui.internal.utils.ResourceUtils;
 import org.xmind.ui.internal.views.CategorizedThemeViewer;
@@ -54,9 +52,6 @@ public class ThemesPart extends ViewModelPart
 
     @Override
     protected Control doCreateContent(Composite parent) {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_THEME_COUNT);
-
         Composite container = new Composite(parent, SWT.NONE);
         container.setBackground(
                 (Color) resources.get(ColorUtils.toDescriptor("#ffffff"))); //$NON-NLS-1$
@@ -109,8 +104,8 @@ public class ThemesPart extends ViewModelPart
 
         c.getDisplay().syncExec(new Runnable() {
             public void run() {
-                if (Core.ThemeId.equals(event.getType())) {
-                } else if (Core.Name.equals(event.getType())) {
+                if (Core.ThemeId.equals(event.getType())) {} else if (Core.Name
+                        .equals(event.getType())) {
                     viewer.update(new Object[] { event.getSource() });
                 } else if (Core.StyleAdd.equals(event.getType())) {
                     viewer.refresh();

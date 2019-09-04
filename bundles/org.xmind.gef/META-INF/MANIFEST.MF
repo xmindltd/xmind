@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.gef;singleton:=true
-Bundle-Version: 3.7.4.qualifier
+Bundle-Version: 3.8.0.qualifier
 Bundle-Vendor: %providerName
 Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.core.runtime,
@@ -30,6 +30,6 @@ Export-Package: org.xmind.gef,
  org.xmind.gef.tool,
  org.xmind.gef.tree,
  org.xmind.gef.util
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

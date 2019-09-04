@@ -117,7 +117,6 @@ import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventSource2;
 import org.xmind.core.event.ICoreEventSupport;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.util.FileUtils;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.IEditDomainListener;
@@ -202,8 +201,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
 
         private List<List<String>> topicTypeChains;
 
-        private EditorStatus() {
-        }
+        private EditorStatus() {}
 
         public void saveStatus(IWorkbookRef workbookRef, int activeIndex,
                 IGraphicalEditorPage[] pages) {
@@ -419,15 +417,17 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         if (workbookRef != null)
             return workbookRef;
 
-        if(input instanceof org.eclipse.ui.part.FileEditorInput) {
-            URI inputLocationUri = ((org.eclipse.ui.part.FileEditorInput) input).getFile().getLocationURI();
-            IWorkbookRefFactory factory = MindMapUIPlugin.getDefault().getWorkbookRefFactory();
+        if (input instanceof org.eclipse.ui.part.FileEditorInput) {
+            URI inputLocationUri = ((org.eclipse.ui.part.FileEditorInput) input)
+                    .getFile().getLocationURI();
+            IWorkbookRefFactory factory = MindMapUIPlugin.getDefault()
+                    .getWorkbookRefFactory();
             workbookRef = factory.createWorkbookRef(inputLocationUri, null);
             if (workbookRef != null) {
                 return workbookRef;
             }
         }
-        
+
         URI uri = input.getAdapter(URI.class);
         if (uri != null) {
             return MindMapUIPlugin.getDefault().getWorkbookRefFactory()
@@ -616,13 +616,6 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         String scheme = uri.getScheme();
         if (scheme == null || "".equalsIgnoreCase(scheme)) //$NON-NLS-1$
             return;
-        if ("file".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.OPEN_LOCAL_WORKBOOK_COUNT);
-        } else if ("seawind".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.OPEN_CLOUD_WORKBOOK_COUNT);
-        }
     }
 
     private void loadWorkbook(final IWorkbookRef workbookRef, int times) {
@@ -1647,7 +1640,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                 viewer.getZoomManager().setScale(scale);
 
             String indexPath = index < editorStatus.getIndexPaths().size()
-                    ? editorStatus.getIndexPaths().get(index) : ""; //$NON-NLS-1$
+                    ? editorStatus.getIndexPaths().get(index)
+                    : ""; //$NON-NLS-1$
             List<String> topicTypeChain = index < editorStatus
                     .getTopicTypeChains().size()
                             ? editorStatus.getTopicTypeChains().get(index)
@@ -1662,7 +1656,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                         String[] indexes = indexPath.split("/"); //$NON-NLS-1$
                         for (int i = 1; i < indexes.length; i++) {
                             String type = i < topicTypeChain.size()
-                                    ? topicTypeChain.get(i) : ITopic.ATTACHED;
+                                    ? topicTypeChain.get(i)
+                                    : ITopic.ATTACHED;
                             if (topic.getChildren(type).size() <= Integer
                                     .parseInt(indexes[i])) {
                                 continue;
@@ -1760,12 +1755,14 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             viewer.getProperties().set(
                     IMindMapViewer.VIEWER_SELECT_CENTRALTOPIC, Boolean.FALSE);
             Double scale = editorStatus.getZooms().size() > index
-                    ? editorStatus.getZooms().get(index) : null;
+                    ? editorStatus.getZooms().get(index)
+                    : null;
             if (scale != null)
                 viewer.getZoomManager().setScale(scale);
 
             String indexPath = editorStatus.getIndexPaths().size() > index
-                    ? editorStatus.getIndexPaths().get(index) : ""; //$NON-NLS-1$
+                    ? editorStatus.getIndexPaths().get(index)
+                    : ""; //$NON-NLS-1$
             List<String> topicTypeChain = editorStatus.getTopicTypeChains()
                     .size() > index
                             ? editorStatus.getTopicTypeChains().get(index)
@@ -1780,7 +1777,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
                         String[] indexes = indexPath.split("/"); //$NON-NLS-1$
                         for (int i = 1; i < indexes.length; i++) {
                             String type = i < topicTypeChain.size()
-                                    ? topicTypeChain.get(i) : ITopic.ATTACHED;
+                                    ? topicTypeChain.get(i)
+                                    : ITopic.ATTACHED;
                             if (topic.getChildren(type).size() <= Integer
                                     .parseInt(indexes[i])) {
                                 continue;
@@ -2072,16 +2070,13 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             windowListener = new IWindowListener() {
 
                 @Override
-                public void windowOpened(IWorkbenchWindow window) {
-                }
+                public void windowOpened(IWorkbenchWindow window) {}
 
                 @Override
-                public void windowDeactivated(IWorkbenchWindow window) {
-                }
+                public void windowDeactivated(IWorkbenchWindow window) {}
 
                 @Override
-                public void windowClosed(IWorkbenchWindow window) {
-                }
+                public void windowClosed(IWorkbenchWindow window) {}
 
                 @Override
                 public void windowActivated(IWorkbenchWindow window) {

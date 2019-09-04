@@ -20,9 +20,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 
@@ -426,8 +424,6 @@ public class EncryptionDialog extends TitleAreaDialog {
             if ("".equals(newPassword)) { //$NON-NLS-1$
                 newPassword = null;
             }
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.SET_PASSWORD_COUNT);
             this.password = newPassword;
         }
     }
@@ -450,8 +446,6 @@ public class EncryptionDialog extends TitleAreaDialog {
                 hintMessage = null;
 
             this.hintMessage = hintMessage;
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.SET_PASSWORD_HINT_COUNT);
         }
     }
 

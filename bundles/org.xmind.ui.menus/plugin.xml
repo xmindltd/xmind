@@ -610,6 +610,12 @@
                      name="org.xmind.ui.commandParameter.modelPart.partStackId"
                      value="org.xmind.ui.stack.right">
                </parameter>
+               <visibleWhen
+                     checkEnabled="false">
+                  <equals
+                        value="false">
+                  </equals>
+               </visibleWhen>
             </command>
             <command
                   commandId="org.xmind.ui.command.showModelPart"

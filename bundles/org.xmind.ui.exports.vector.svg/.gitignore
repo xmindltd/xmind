@@ -14,3 +14,4 @@ local.properties
 
 # Folders containing Maven build results
 target/
+/bin/

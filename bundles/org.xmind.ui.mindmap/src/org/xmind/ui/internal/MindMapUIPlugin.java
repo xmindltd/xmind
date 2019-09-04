@@ -32,11 +32,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.xmind.core.command.ICommandService;
-import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.ui.internal.editor.SaveWizardManager;
 import org.xmind.ui.internal.editor.WorkbookRefFactoryManager;
-import org.xmind.ui.internal.statushandlers.DefaultErrorReporter;
-import org.xmind.ui.internal.statushandlers.IErrorReporter;
 import org.xmind.ui.mindmap.IWorkbookRefFactory;
 
 public class MindMapUIPlugin extends AbstractUIPlugin {
@@ -63,8 +60,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
 
     private ShareOptionRegistry shareOptionRegistry = null;
 
-    private ServiceTracker<IUsageDataSampler, IUsageDataSampler> usageDataTracker;
-
     private ServiceManager serviceManager = null;
 
     /**
@@ -84,10 +79,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
         plugin = this;
 
         bundleContext = context;
-
-        usageDataTracker = new ServiceTracker<IUsageDataSampler, IUsageDataSampler>(
-                context, IUsageDataSampler.class, null);
-        usageDataTracker.open();
     }
 
     /*
@@ -112,9 +103,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
             saveWizardManager.dispose();
             saveWizardManager = null;
         }
-
-        usageDataTracker.close();
-        usageDataTracker = null;
 
         bundleContext = null;
 
@@ -143,12 +131,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
             commandServiceTracker.open();
         }
         return commandServiceTracker.getService();
-    }
-
-    public IUsageDataSampler getUsageDataCollector() {
-        IUsageDataSampler service = usageDataTracker == null ? null
-                : usageDataTracker.getService();
-        return service == null ? IUsageDataSampler.NULL : service;
     }
 
     /**
@@ -260,15 +242,6 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
 
     public Bundle findBundle(long bundleId) {
         return bundleContext == null ? null : bundleContext.getBundle(bundleId);
-    }
-
-    /**
-     * @return
-     */
-    public IErrorReporter getErrorReporter() {
-        IErrorReporter service = serviceManager == null ? null
-                : serviceManager.getErrorReporter();
-        return service == null ? DefaultErrorReporter.getInstance() : service;
     }
 
     void setServiceManager(ServiceManager serviceManager) {

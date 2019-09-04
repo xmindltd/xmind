@@ -53,7 +53,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.xmind.core.IFileEntry;
 import org.xmind.core.ISheet;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
@@ -729,10 +728,7 @@ public class WallpaperDialog extends PopupDialog implements IOpenListener {
                 String path = (String) element;
                 try {
                     image = new Image(display, path);
-                } catch (IllegalArgumentException e) {
-                } catch (SWTException e) {
-                } catch (SWTError e) {
-                }
+                } catch (IllegalArgumentException e) {} catch (SWTException e) {} catch (SWTError e) {}
                 if (image != null) {
                     Image filled = createFilledImage(display, image,
                             FRAME_IMAGE_SIZE);
@@ -794,8 +790,6 @@ public class WallpaperDialog extends PopupDialog implements IOpenListener {
         if (mindMapViewer == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CHANGE_WALLPAPER_COUNT);
         Request request = new Request(MindMapUI.REQ_MODIFY_STYLE)
                 .setViewer(mindMapViewer);
         request.setParameter(MindMapUI.PARAM_COMMAND_LABEL,
@@ -858,8 +852,7 @@ public class WallpaperDialog extends PopupDialog implements IOpenListener {
                 new Path("wallpaper/" + category), null); //$NON-NLS-1$
         try {
             url = FileLocator.toFileURL(url);
-        } catch (IOException e) {
-        }
+        } catch (IOException e) {}
         String path = url.getFile();
         if ("".equals(path)) { //$NON-NLS-1$
             path = new File(System.getProperty("user.home"), "Pictures") //$NON-NLS-1$ //$NON-NLS-2$
