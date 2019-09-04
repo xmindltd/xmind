@@ -8,8 +8,6 @@ import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.xmind.core.internal.UserDataConstants;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dialogs.ReduceFileSizeDialog;
 
 public class ReduceFileSizeHandler extends AbstractHandler {
@@ -24,8 +22,6 @@ public class ReduceFileSizeHandler extends AbstractHandler {
     }
 
     private void reduceFileSize(final IEditorPart editor) {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.REDUCE_FILE_SIZE_COUNT);
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
                 ReduceFileSizeDialog dialog = new ReduceFileSizeDialog(editor);

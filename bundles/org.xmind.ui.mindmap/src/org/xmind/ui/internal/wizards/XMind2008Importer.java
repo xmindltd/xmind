@@ -18,11 +18,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.xmind.core.Core;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.io.DirectoryStorage;
 import org.xmind.core.io.IStorage;
 import org.xmind.core.util.CloneHandler;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.wizards.MindMapImporter;
 
@@ -33,8 +31,6 @@ public class XMind2008Importer extends MindMapImporter {
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_X_MIND2008_COUNT);
         try {
             IStorage storage = createStorage();
             try {

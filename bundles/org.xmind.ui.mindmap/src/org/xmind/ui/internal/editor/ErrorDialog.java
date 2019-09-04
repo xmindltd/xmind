@@ -12,12 +12,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.events.HyperlinkAdapter;
-import org.eclipse.ui.forms.events.HyperlinkEvent;
-import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.statushandlers.AbstractStatusAreaProvider;
 import org.eclipse.ui.statushandlers.StatusAdapter;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.statushandlers.StatusDetails;
 import org.xmind.ui.internal.statushandlers.StatusHandlerMessages;
 
@@ -156,27 +152,6 @@ public class ErrorDialog extends Dialog {
         composite
                 .setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
         composite.setBackground(parent.getBackground());
-
-        Hyperlink report = new Hyperlink(composite, SWT.LEFT);
-        report.setText(
-                StatusHandlerMessages.RuntimeErrorDialog_ReportHyperlink_Text);
-        report.setUnderlined(true);
-        report.addHyperlinkListener(new HyperlinkAdapter() {
-            public void linkActivated(HyperlinkEvent e) {
-                reportPressed();
-            }
-        });
-        report.setBackground(composite.getBackground());
-
-    }
-
-    private void reportPressed() {
-        try {
-            MindMapUIPlugin.getDefault().getErrorReporter().report(details);
-        } catch (InterruptedException e) {
-            return;
-        }
-        close();
     }
 
     /**

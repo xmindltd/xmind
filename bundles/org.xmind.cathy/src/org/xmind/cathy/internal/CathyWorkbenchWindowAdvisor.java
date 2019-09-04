@@ -45,14 +45,12 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.internal.Workbench;
 import org.eclipse.ui.internal.tweaklets.TitlePathUpdater;
 import org.eclipse.ui.internal.tweaklets.Tweaklets;
-import org.xmind.core.licensing.ILicenseAgent;
-import org.xmind.core.licensing.ILicenseChangedListener;
 import org.xmind.core.util.FileUtils;
 import org.xmind.ui.internal.editor.MME;
 import org.xmind.ui.internal.workbench.Util;
 
 public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
-        implements IPartListener2, IPropertyListener, ILicenseChangedListener {
+        implements IPartListener2, IPropertyListener {
 
     private String licenseName = null;
 
@@ -82,9 +80,6 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         configurer.setShowStatusLine(true);
         configurer.setShowProgressIndicator(true);
         configurer.setTitle(WorkbenchMessages.AppWindowTitle);
-
-        CathyPlugin.getDefault().getLicenseAgent()
-                .addLicenseChangedListener(this);
     }
 
     public void postWindowOpen() {
@@ -145,11 +140,9 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 
         partService.addPartListener(new IPartListener() {
 
-            public void partVisible(MPart part) {
-            }
+            public void partVisible(MPart part) {}
 
-            public void partHidden(MPart part) {
-            }
+            public void partHidden(MPart part) {}
 
             public void partDeactivated(MPart part) {
                 if (ICathyConstants.ID_DASHBOARD_PART
@@ -159,8 +152,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 }
             }
 
-            public void partBroughtToTop(MPart part) {
-            }
+            public void partBroughtToTop(MPart part) {}
 
             public void partActivated(MPart part) {
                 if (ICathyConstants.ID_DASHBOARD_PART
@@ -170,26 +162,6 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 }
             }
         });
-    }
-
-    @Override
-    public void postWindowClose() {
-        CathyPlugin.getDefault().getLicenseAgent()
-                .removeLicenseChangedListener(this);
-    }
-
-    public void licenseChanged(ILicenseAgent agent) {
-        int licenseType = agent.getLicenseType();
-        if ((licenseType & ILicenseAgent.PRO_LICENSE_KEY) != 0) {
-            licenseName = "Pro"; //$NON-NLS-1$
-        } else if ((licenseType & ILicenseAgent.PLUS_LICENSE_KEY) != 0) {
-            licenseName = "Plus"; //$NON-NLS-1$
-        } else if ((licenseType & ILicenseAgent.PRO_SUBSCRIPTION) != 0) {
-            licenseName = "Pro"; //$NON-NLS-1$
-        } else {
-            licenseName = null;
-        }
-        updateWindowTitle();
     }
 
     public void partActivated(IWorkbenchPartReference partRef) {
@@ -203,8 +175,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
         updateWindowTitle();
     }
 
-    public void partBroughtToTop(IWorkbenchPartReference partRef) {
-    }
+    public void partBroughtToTop(IWorkbenchPartReference partRef) {}
 
     public void partClosed(IWorkbenchPartReference partRef) {
         if (partRef == activePartRef) {
@@ -215,8 +186,7 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 //        checkNewWorkbookEditor();
     }
 
-    public void partDeactivated(IWorkbenchPartReference partRef) {
-    }
+    public void partDeactivated(IWorkbenchPartReference partRef) {}
 
     public void partHidden(IWorkbenchPartReference partRef) {
         updateWindowTitle();

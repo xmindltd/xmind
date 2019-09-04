@@ -14,12 +14,10 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.viewers.ISelection;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -38,8 +36,6 @@ public class InsertAttachmentAction extends RequestAction
 
     @Override
     public void run() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.ADD_ATTACHMENT_COUNT);
         super.run();
     }
 

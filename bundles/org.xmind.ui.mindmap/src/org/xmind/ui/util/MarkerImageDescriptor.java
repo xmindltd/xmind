@@ -113,7 +113,7 @@ public class MarkerImageDescriptor extends ImageDescriptor {
         }
     }
 
-    private ImageData getImageData(int zoom) {
+    public ImageData getImageData(int zoom) {
         if (zoom > 100) {
             String svgPath = getMarker() == null ? null
                     : getMarker().getSVGPath();

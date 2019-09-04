@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.xmind.cathy.plugins</groupId>
+    <artifactId>org.xmind.core.spelling.prereqisites</artifactId>
+    <version>3.8.0-SNAPSHOT</version>
+	<build>
+  <plugins>
+  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.0.2</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+		    <groupId>net.sf.jazzy</groupId>
+		    <artifactId>jazzy</artifactId>
+		    <version>0.5.2-rtext-1.4.1-2</version>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${basedir}/lib</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+  </plugins>
+  </build>
+  <dependencies>
+		<!-- https://mvnrepository.com/artifact/net.sf.jazzy/jazzy -->
+		<dependency>
+		    <groupId>net.sf.jazzy</groupId>
+		    <artifactId>jazzy</artifactId>
+		    <version>0.5.2-rtext-1.4.1-2</version>
+		</dependency>
+
+  </dependencies>  
+</project>

@@ -19,7 +19,6 @@ import org.xmind.core.IRelationship;
 import org.xmind.core.ISheet;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.DOMConstants;
 import org.xmind.core.internal.dom.PlainNotesContentImpl;
 import org.xmind.core.internal.dom.SheetImpl;
@@ -31,7 +30,6 @@ import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.style.IStyled;
 import org.xmind.core.util.Point;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.style.Styles;
 import org.xmind.ui.wizards.MindMapImporter;
 import org.xml.sax.ErrorHandler;
@@ -53,8 +51,6 @@ public class LightenImporter extends MindMapImporter implements ErrorHandler {
 
     @Override
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_LIGHTEN_COUNT);
         ZipInputStream zis = null;
         try {
             getMonitor().beginTask(null, 100);
@@ -207,8 +203,7 @@ public class LightenImporter extends MindMapImporter implements ErrorHandler {
                 try {
                     plainNotes.setTextContent(notesJson
                             .getString(LightenConstants.NOTE_ATTR_TEXT));
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
                 notes.setContent(INotes.PLAIN, plainNotes);
             }
         }

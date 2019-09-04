@@ -45,7 +45,6 @@ import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerSheet;
@@ -85,7 +84,6 @@ import org.xmind.ui.commands.ModifySummaryTopicCommand;
 import org.xmind.ui.commands.ModifyTitleTextCommand;
 import org.xmind.ui.commands.ModifyTopicHyperlinkCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.branch.UnbalancedData;
 import org.xmind.ui.mindmap.IBranchPart;
 import org.xmind.ui.mindmap.ITopicPart;
@@ -391,8 +389,6 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
 
     private void addMarker(Request request) {
         List<IPart> targets = request.getTargets();
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.USE_MARKERS_COUNT);
         Command cmd = createAddMarkerCommand(request, targets);
         if (cmd != null) {
             cmd.setLabel(CommandMessages.Command_AddMarker);
@@ -581,8 +577,7 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
             int height = needZoom ? imageBounds.height / 2 : imageBounds.height;
             return Geometry.getScaledConstrainedSize(width, height,
                     MindMapUI.IMAGE_INIT_WIDTH, MindMapUI.IMAGE_INIT_HEIGHT);
-        } catch (Throwable e) {
-        }
+        } catch (Throwable e) {}
         return null;
     }
 

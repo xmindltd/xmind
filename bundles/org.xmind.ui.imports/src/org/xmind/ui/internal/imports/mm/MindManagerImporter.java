@@ -60,7 +60,6 @@ import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.ITopicRange;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.NumberUtils;
 import org.xmind.core.internal.dom.StyleSheetImpl;
 import org.xmind.core.io.DirectoryStorage;
@@ -75,7 +74,6 @@ import org.xmind.core.style.IStyled;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.imports.ImportMessages;
 import org.xmind.ui.internal.imports.ImporterUtils;
 import org.xmind.ui.internal.protocols.FilePathParser;
@@ -360,8 +358,6 @@ public class MindManagerImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_MIND_MANAGER_COUNT);
         getMonitor().beginTask(null, 100);
         try {
             getMonitor()
@@ -421,8 +417,7 @@ public class MindManagerImporter extends MindMapImporter
             builder.setErrorHandler(null);
             try {
                 in.close();
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
         return doc;
     }
@@ -1689,8 +1684,7 @@ public class MindManagerImporter extends MindMapImporter
             } finally {
                 try {
                     in.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException e) {}
             }
         }
         idMap.put(uri, path);
@@ -1746,8 +1740,7 @@ public class MindManagerImporter extends MindMapImporter
         if (value != null) {
             try {
                 return Float.valueOf(value);
-            } catch (Throwable e) {
-            }
+            } catch (Throwable e) {}
         }
         return null;
     }
@@ -1819,8 +1812,7 @@ public class MindManagerImporter extends MindMapImporter
                                 ImportMessages.MindManagerImporter_Days,
                                 hours / 8);
                     }
-                } catch (NumberFormatException e) {
-                }
+                } catch (NumberFormatException e) {}
             }
             if (durationLabel == null) {
                 durationLabel = NLS.bind(
@@ -1892,10 +1884,12 @@ public class MindManagerImporter extends MindMapImporter
                 parseFontSize(att(fontEle, "Size"))); //$NON-NLS-1$
         registerStyle(styleOwner, Styles.FontWeight,
                 Boolean.parseBoolean(att(fontEle, "Bold")) //$NON-NLS-1$
-                        ? Styles.FONT_WEIGHT_BOLD : null);
+                        ? Styles.FONT_WEIGHT_BOLD
+                        : null);
         registerStyle(styleOwner, Styles.FontStyle,
                 Boolean.parseBoolean(att(fontEle, "Italic")) //$NON-NLS-1$
-                        ? Styles.FONT_STYLE_ITALIC : null);
+                        ? Styles.FONT_STYLE_ITALIC
+                        : null);
         String textDecoration = StyleUtils.toTextDecoration(
                 Boolean.parseBoolean(att(fontEle, "Underline")), Boolean //$NON-NLS-1$
                         .parseBoolean(att(fontEle, "Strikethrough"))); //$NON-NLS-1$
@@ -1907,8 +1901,7 @@ public class MindManagerImporter extends MindMapImporter
             try {
                 double value = Double.parseDouble(size);
                 size = StyleUtils.addUnitPoint((int) value);
-            } catch (Throwable e) {
-            }
+            } catch (Throwable e) {}
         }
         return size;
     }
@@ -1971,8 +1964,7 @@ public class MindManagerImporter extends MindMapImporter
                 int alpha = Integer.parseInt(mmColor.substring(0, 1), 16);
                 double opacity = ((double) alpha) * 100 / 255;
                 return String.format("%.2f", opacity); //$NON-NLS-1$
-            } catch (Throwable t) {
-            }
+            } catch (Throwable t) {}
         }
         return null;
     }
@@ -1987,8 +1979,7 @@ public class MindManagerImporter extends MindMapImporter
                 g = Integer.parseInt(mmColor.substring(4, 6), 16);
                 b = Integer.parseInt(mmColor.substring(6, 8), 16);
                 return ColorUtils.toString(r, g, b);
-            } catch (Throwable t) {
-            }
+            } catch (Throwable t) {}
         }
         return null;
     }
@@ -2034,8 +2025,7 @@ public class MindManagerImporter extends MindMapImporter
 
             Element next = findNext();
 
-            public void remove() {
-            }
+            public void remove() {}
 
             private Element findNext() {
                 while (it.hasNext()) {

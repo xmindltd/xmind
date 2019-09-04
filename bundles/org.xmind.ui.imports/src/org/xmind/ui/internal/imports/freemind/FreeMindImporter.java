@@ -44,7 +44,6 @@ import org.xmind.core.ISpan;
 import org.xmind.core.ITextSpan;
 import org.xmind.core.ITopic;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.StyleSheetImpl;
 import org.xmind.core.io.ResourceMappingManager;
 import org.xmind.core.io.freemind.FreeMindConstants;
@@ -54,7 +53,6 @@ import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.style.IStyled;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.HyperlinkUtils;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.imports.ImportMessages;
 import org.xmind.ui.internal.imports.ImporterUtils;
 import org.xmind.ui.io.MonitoredInputStream;
@@ -238,8 +236,6 @@ public class FreeMindImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_FREE_MIND_COUNT);
         try {
             DocumentBuilder builder = getDocumentBuilder();
             builder.setErrorHandler(this);
@@ -252,8 +248,7 @@ public class FreeMindImporter extends MindMapImporter
                 builder.setErrorHandler(null);
                 try {
                     in.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException e) {}
             }
             checkInterrupted();
             Element rootElement = doc.getDocumentElement();
@@ -692,8 +687,7 @@ public class FreeMindImporter extends MindMapImporter
             Iterator<Element> it = DOMUtils.childElementIter(parentEle);
             Element next = findNext();
 
-            public void remove() {
-            }
+            public void remove() {}
 
             private Element findNext() {
                 while (it.hasNext()) {

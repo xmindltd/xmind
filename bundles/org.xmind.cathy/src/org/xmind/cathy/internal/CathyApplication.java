@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.xmind.cathy.internal;
 
-import java.awt.Toolkit;
 import java.io.File;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -31,9 +30,7 @@ import org.eclipse.ui.internal.IPreferenceConstants;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.internal.registry.IWorkbenchRegistryConstants;
 import org.xmind.core.Core;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.DOMConstants;
-import org.xmind.core.usagedata.IUsageDataSampler;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.app.IApplicationValidator;
 import org.xmind.ui.prefs.PrefConstants;
@@ -108,10 +105,6 @@ public class CathyApplication implements IApplication {
             /// credentials.
             CathyPlugin.getDefault().activateNetworkSettings();
 
-            // Check if we are in beta and should quit due to beta expiry.
-            if (new BetaVerifier(display).shouldExitAfterBetaExpired())
-                return EXIT_OK;
-
             // Check if this app session should exit early:
             if (shouldExitEarly(context)) {
                 // Log all application arguments to local disk to exchange
@@ -136,66 +129,20 @@ public class CathyApplication implements IApplication {
             WorkbenchPlugin.getDefault().getPreferenceStore()
                     .setValue(IPreferenceConstants.WORKBENCH_SAVE_INTERVAL, 0);
 
-            try {
-                captureAppSessionInfo(
-                        CathyPlugin.getDefault().getUsageDataCollector(),
-                        context, buildId);
+            // Launch workbench and get return code:
+            int returnCode = PlatformUI.createAndRunWorkbench(display,
+                    new CathyWorkbenchAdvisor());
 
-                // Launch workbench and get return code:
-                int returnCode = PlatformUI.createAndRunWorkbench(display,
-                        new CathyWorkbenchAdvisor());
-
-                if (returnCode == PlatformUI.RETURN_RESTART) {
-                    // Restart:
-                    return EXIT_RESTART;
-                }
-
-                // Quit:
-                return EXIT_OK;
-            } finally {
-                CathyPlugin.getDefault().getUsageDataCollector().put(
-                        UserDataConstants.SHUT_DOWN_TIME,
-                        System.currentTimeMillis());
+            if (returnCode == PlatformUI.RETURN_RESTART) {
+                // Restart:
+                return EXIT_RESTART;
             }
+
+            // Quit:
+            return EXIT_OK;
         } finally {
             display.dispose();
         }
-    }
-
-    /**
-     * @param sampler
-     * @param context
-     * @param buildId
-     */
-    private void captureAppSessionInfo(IUsageDataSampler sampler,
-            IApplicationContext context, String buildId) {
-        sampler.put(UserDataConstants.START_UP_TIME,
-                System.currentTimeMillis());
-        sampler.put(UserDataConstants.APP_ID, context.getBrandingApplication());
-        sampler.put(UserDataConstants.BUILD_ID, buildId);
-        sampler.put(UserDataConstants.DISTRIBUTION_ID,
-                System.getProperty("org.xmind.product.distribution.id", //$NON-NLS-1$
-                        null));
-        sampler.put(UserDataConstants.NL, Platform.getNL());
-        sampler.put(UserDataConstants.OS, Platform.getOS());
-        sampler.put(UserDataConstants.ARCH, Platform.getOSArch());
-        sampler.put(UserDataConstants.OS_NAME,
-                System.getProperty("os.name", null));  //$NON-NLS-1$
-        sampler.put(UserDataConstants.OS_VERSION,
-                System.getProperty("os.version", null));   //$NON-NLS-1$
-        sampler.put(UserDataConstants.COUNTRY,
-                System.getProperty("user.country", null));   //$NON-NLS-1$
-        sampler.put(UserDataConstants.JAVA_VERSION,
-                System.getProperty("java.version", null));  //$NON-NLS-1$
-        sampler.put(UserDataConstants.JAVA_VENDOR,
-                System.getProperty("java.vendor", null));  //$NON-NLS-1$
-        sampler.put(UserDataConstants.SCREEN_WIDTH,
-                Toolkit.getDefaultToolkit().getScreenSize().width);
-        sampler.put(UserDataConstants.SCREEN_HEIGHT,
-                Toolkit.getDefaultToolkit().getScreenSize().height);
-        sampler.put(UserDataConstants.SCREEN_RESOLUTION,
-                Toolkit.getDefaultToolkit().getScreenResolution());
-
     }
 
     private static String calculateBuildId(IApplicationContext context) {
@@ -221,9 +168,8 @@ public class CathyApplication implements IApplication {
 
     private void initializeInternalBrowserCookies() {
         String appVersion = System.getProperty(SYS_VERSION);
-        Browser.setCookie(
-                "_env=xmind_" + appVersion //$NON-NLS-1$
-                        + "; path=/; domain=.xmind.net", //$NON-NLS-1$
+        Browser.setCookie("_env=xmind_" + appVersion //$NON-NLS-1$
+                + "; path=/; domain=.xmind.net", //$NON-NLS-1$
                 "http://www.xmind.net/"); //$NON-NLS-1$
     }
 

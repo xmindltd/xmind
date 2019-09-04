@@ -67,7 +67,6 @@ import org.xmind.core.ITopic;
 import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerRef;
@@ -101,7 +100,6 @@ import org.xmind.gef.tool.SelectTool;
 import org.xmind.ui.branch.IBranchDoubleClickSupport;
 import org.xmind.ui.branch.IBranchMoveSupport;
 import org.xmind.ui.commands.DeleteMarkerCommand;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.actions.ReplaceMarkerAction;
 import org.xmind.ui.internal.actions.ViewerAction;
 import org.xmind.ui.internal.editor.IMESupport;
@@ -708,8 +706,7 @@ public class MindMapSelectTool extends SelectTool {
          * org.xmind.gef.service.IRevealServiceListener#revealingStarted(org
          * .xmind.gef.service.RevealEvent)
          */
-        public void revealingStarted(RevealEvent event) {
-        }
+        public void revealingStarted(RevealEvent event) {}
 
         /*
          * (non-Javadoc)
@@ -898,16 +895,6 @@ public class MindMapSelectTool extends SelectTool {
         String[] fileNames = dialog.getFileNames();
         List<String> paths = new ArrayList<String>(fileNames.length);
         for (String fileName : fileNames) {
-            if (fileName.contains(".")) { //$NON-NLS-1$
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(String.format(
-                                UserDataConstants.ATTACHMENT_FORMAT_COUNT_S,
-                                fileName.toLowerCase().substring(
-                                        fileName.lastIndexOf('.') + 1)));
-            } else {
-                MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                        UserDataConstants.ATTACHMENT_FORMAT_COUNT_BLANK_FORMAT);
-            }
             String path = new File(parentPath, fileName).getAbsolutePath();
             paths.add(path);
         }
@@ -1215,8 +1202,7 @@ public class MindMapSelectTool extends SelectTool {
                 target.getFigure().getBounds().getBottomLeft(), true);
         menu.setLocation(p.x, p.y);
         menu.addMenuListener(new MenuListener() {
-            public void menuShown(MenuEvent e) {
-            }
+            public void menuShown(MenuEvent e) {}
 
             public void menuHidden(MenuEvent e) {
                 e.display.asyncExec(new Runnable() {

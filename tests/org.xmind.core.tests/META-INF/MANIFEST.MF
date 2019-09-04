@@ -2,14 +2,19 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.xmind.core.tests;singleton:=true
-Bundle-Version: 3.7.4.qualifier
+Bundle-Version: 3.8.0.qualifier
 Bundle-Activator: org.xmind.core.internal.tests.TestPluginForXMindCore
 Bundle-Vendor: %Bundle-Vendor
-Require-Bundle: org.eclipse.core.runtime,
- org.junit,
- org.xmind.core;bundle-version="[3.7.4,3.8.0)"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.xmind.core;bundle-version="[3.8.0,3.9.0)",
+ org.eclipse.core.runtime;bundle-version="3.15.200",
+ org.junit;bundle-version="4.12.0",
+ org.eclipse.jdt.junit;bundle-version="3.7.300",
+ org.eclipse.jdt.junit.core;bundle-version="3.7.300",
+ org.eclipse.jdt.junit.runtime;bundle-version="3.4.500",
+ org.eclipse.jdt.junit4.runtime;bundle-version="1.1.400"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: org.xmind.core.internal.experiments;x-internal:=true,
  org.xmind.core.internal.tests;x-internal:=true,
  org.xmind.core.tests
+Automatic-Module-Name: org.xmind.core.tests

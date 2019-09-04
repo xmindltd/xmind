@@ -16,15 +16,10 @@
  */
 package org.xmind.ui.internal;
 
-import org.xmind.ui.internal.statushandlers.IErrorReporter;
-
 /**
  * @author Frank Shaka
- *
  */
 public class ServiceManager {
-
-    private IErrorReporter errorReporter;
 
     public void activate() {
         MindMapUIPlugin.getDefault().setServiceManager(this);
@@ -32,20 +27,6 @@ public class ServiceManager {
 
     public void deactivate() {
         MindMapUIPlugin.getDefault().setServiceManager(null);
-    }
-
-    public void setErrorReporter(IErrorReporter reporter) {
-        this.errorReporter = reporter;
-    }
-
-    public void unsetErrorReporter(IErrorReporter reporter) {
-        if (reporter != this.errorReporter)
-            return;
-        this.errorReporter = null;
-    }
-
-    public IErrorReporter getErrorReporter() {
-        return errorReporter;
     }
 
 }

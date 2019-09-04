@@ -29,13 +29,11 @@ import org.xmind.core.Core;
 import org.xmind.core.ILegend;
 import org.xmind.core.ISheet;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.Request;
 import org.xmind.ui.color.ColorPicker;
 import org.xmind.ui.color.IColorSelection;
 import org.xmind.ui.color.PaletteContents;
 import org.xmind.ui.commands.CommandMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.properties.StyledPropertySectionPart;
 import org.xmind.ui.style.Styles;
@@ -45,8 +43,6 @@ public class LegendPropertySectionPart extends StyledPropertySectionPart {
     private class BackgroundColorOpenListener implements IOpenListener {
 
         public void open(OpenEvent event) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.CHANGE_LEGEND_BACKGROUD_COUNT);
             changeBackgroundColor((IColorSelection) event.getSelection());
         }
 

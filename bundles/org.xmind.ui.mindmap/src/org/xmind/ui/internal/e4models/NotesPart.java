@@ -87,7 +87,6 @@ import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.core.event.ICoreEventRegistration;
 import org.xmind.core.event.ICoreEventSource2;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.command.CompoundCommand;
 import org.xmind.gef.command.ICommandStack;
@@ -97,7 +96,6 @@ import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.ModifyNotesCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.actions.FindReplaceAction;
 import org.xmind.ui.internal.actions.ShowAllNotesAction;
 import org.xmind.ui.internal.dialogs.DialogUtils;
@@ -208,9 +206,6 @@ public class NotesPart extends ViewModelPart
                     || viewer.getControl().isDisposed() || adapter == null)
                 return;
 
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.NOTES_INSERT_IMAGE_COUNT);
-
             String path = getPath();
             if (path == null)
                 return;
@@ -234,8 +229,7 @@ public class NotesPart extends ViewModelPart
         }
 
         public void selectionChanged(IRichTextEditViewer viewer,
-                ISelection selection) {
-        }
+                ISelection selection) {}
     }
 
     private class InsertHyperlinkAction extends Action
@@ -253,9 +247,6 @@ public class NotesPart extends ViewModelPart
         }
 
         public void run() {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.NOTES_INSERT_HYPERLINK_COUNT);
-
             IRichTextRenderer renderer = viewer.getRenderer();
             ITextSelection selection = (ITextSelection) viewer.getSelection();
             String oldText = selection.getText();
@@ -328,8 +319,7 @@ public class NotesPart extends ViewModelPart
         }
 
         public void selectionChanged(IRichTextEditViewer viewer,
-                ISelection selection) {
-        }
+                ISelection selection) {}
     }
 
     private class TextAction extends Action {
@@ -377,8 +367,7 @@ public class NotesPart extends ViewModelPart
             showAllNotesAction = new ShowAllNotesAction(NotesPart.this);
         }
 
-        public void fillMenu(IMenuManager menu) {
-        }
+        public void fillMenu(IMenuManager menu) {}
 
         public void fillToolBar(IToolBarManager toolbar) {
             super.fillToolBar(toolbar);
@@ -413,10 +402,6 @@ public class NotesPart extends ViewModelPart
         @Override
         protected void handleFontSelectionChanged(SelectionChangedEvent event) {
             super.handleFontSelectionChanged(event);
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.NOTES_FONT_CHANGE_COUNT);
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.FONT_CHANGE_ALL_COUNT);
         }
     }
 
@@ -502,8 +487,6 @@ public class NotesPart extends ViewModelPart
         topicViewerContributor = new NotesPartRichTextActionBarContributor();
         workbenchWindow.getActivePage().addPartListener(this);
         showBootstrapContent();
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.USE_NOTES_COUNT);
         return contentArea;
     }
 
@@ -1081,8 +1064,7 @@ public class NotesPart extends ViewModelPart
         }
     }
 
-    public void partBroughtToTop(IWorkbenchPart part) {
-    }
+    public void partBroughtToTop(IWorkbenchPart part) {}
 
     public void partClosed(IWorkbenchPart part) {
         if (DEBUG)
@@ -1103,11 +1085,9 @@ public class NotesPart extends ViewModelPart
         }
     }
 
-    public void partOpened(IWorkbenchPart part) {
-    }
+    public void partOpened(IWorkbenchPart part) {}
 
-    public void documentAboutToBeChanged(DocumentEvent event) {
-    }
+    public void documentAboutToBeChanged(DocumentEvent event) {}
 
     public void documentChanged(DocumentEvent event) {
         update();

@@ -13,11 +13,9 @@
  *******************************************************************************/
 package org.xmind.ui.internal.actions;
 
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 
 @Deprecated
@@ -30,8 +28,6 @@ public class CreateRelationshipAction extends RequestAction {
 
     @Override
     public void run() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.INSERT_RELATIONSHIP_COUNT);
         super.run();
     }
 

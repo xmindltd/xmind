@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.xmind.cathy.internal.dashboard.StructureListContentProvider.StructureDescriptor;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.EditDomain;
 import org.xmind.gef.GEF;
@@ -27,7 +26,6 @@ import org.xmind.gef.util.Properties;
 import org.xmind.ui.gallery.GalleryLayout;
 import org.xmind.ui.gallery.GallerySelectTool;
 import org.xmind.ui.gallery.GalleryViewer;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dashboard.pages.DashboardPage;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.mindmap.WorkbookInitializer;
@@ -132,15 +130,8 @@ public class NewFromStructuresDashboardPage extends DashboardPage
         if (theme == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_SHEET_COUNT);
-
         String vs = structure.getValue();
         String ID = vs.replaceAll("\\.", "_");  //$NON-NLS-1$//$NON-NLS-2$
-        MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                String.format(UserDataConstants.STRUCTURE_TYPE_COUNT, ID));
         WorkbookInitializer initializer = WorkbookInitializer.getDefault()
                 .withStructureClass(structure.getValue()).withTheme(theme);
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()

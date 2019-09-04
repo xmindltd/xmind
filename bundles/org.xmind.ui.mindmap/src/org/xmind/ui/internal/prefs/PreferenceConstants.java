@@ -19,8 +19,6 @@ package org.xmind.ui.internal.prefs;
  */
 public class PreferenceConstants {
 
-    public static final String WELCOME_ON_STARTUP = "WELCOME_ON_STARTUP"; // [New] //$NON-NLS-1$
-
     public static final String RECENT_OPENED_FILES = "RECENT_OPENED_FILES"; //$NON-NLS-1$
     public static final String SHOW_RECENT_OPENED_FILES = "SHOW_RECENT_OPENED_FILES"; //$NON-NLS-1$
     public static final String NUM_RECENT_OPENED_FILES = "NUM_RECENT_OPENED_FILES"; // BrainyWorkspace.recentCount //$NON-NLS-1$

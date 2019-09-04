@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.IGraphicalViewer;
 import org.xmind.gef.draw2d.IRelayerableFigure;
 import org.xmind.gef.draw2d.IRelayeredPane;
@@ -31,7 +30,6 @@ import org.xmind.gef.draw2d.IUseTransparency;
 import org.xmind.gef.draw2d.SimpleRectangleFigure;
 import org.xmind.gef.part.IGraphicalPart;
 import org.xmind.gef.service.GraphicalViewerService;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.tools.MindMapFeedbackFactory;
 import org.xmind.ui.mindmap.IHighlightService;
 import org.xmind.ui.mindmap.ISheetPart;
@@ -216,8 +214,6 @@ public class HighlightService extends GraphicalViewerService
         highlights = toHighlight;
         if (highlights != null && !highlights.isEmpty() && isActive()) {
             addToLayer(highlights);
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.FILTER_DARKER_COUNT);
         }
     }
 

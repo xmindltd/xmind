@@ -5,12 +5,23 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xmind.cathy.tests</groupId>
     <artifactId>org.xmind.core.tests</artifactId>
-    <version>3.7.4-SNAPSHOT</version>
-    <packaging>eclipse-test-plugin</packaging>
+    <version>3.8.0-SNAPSHOT</version>
     <parent>
         <groupId>org.xmind.releng</groupId>
         <artifactId>org.xmind.cathy.releng</artifactId>
-        <version>3.7.4-SNAPSHOT</version>
+        <version>3.8.0-SNAPSHOT</version>
         <relativePath>../../</relativePath>
     </parent>
+  <packaging>eclipse-test-plugin</packaging>
+  <build>
+    <!-- Reference: http://codeandme.blogspot.fr/2012/12/tycho-build-7-plug-in-unit_tests.html -->
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho.version}</version>
+      </plugin>
+    </plugins>
+  </build>
 </project>

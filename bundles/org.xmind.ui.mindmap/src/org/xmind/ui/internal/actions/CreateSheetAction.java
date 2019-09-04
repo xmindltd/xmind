@@ -24,7 +24,6 @@ import org.xmind.ui.actions.MindMapActionFactory;
 import org.xmind.ui.commands.CommandMessages;
 import org.xmind.ui.commands.CreateSheetCommand;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.editor.WorkbookEditorInput;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.style.StyleUtils;
@@ -73,9 +72,6 @@ public class CreateSheetAction extends EditorAction {
     }
 
     protected void decorateCreatedSheet(ISheet sheet) {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(CREATE_SHEET_COUNT);
-
         sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
                 sheet.getParent().getSheets().size()));
 

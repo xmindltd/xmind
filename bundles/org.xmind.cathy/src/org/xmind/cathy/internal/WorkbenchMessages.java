@@ -29,7 +29,6 @@ public class WorkbenchMessages extends NLS {
 
     public static String GeneralPrefPage_seePolicy_link;
     public static String GeneralPrefPage_title;
-    public static String GeneralPrefPage_usageData_text;
 
     public static String GeneralPrefPageSection_RecentFileCountSection_title;
     public static String GeneralPrefPageSection_AutoSaveGroup_title;
@@ -133,13 +132,6 @@ public class WorkbenchMessages extends NLS {
 
     public static String PromptSaveEditorOnClosing_message;
 
-    public static String About_LicensedTo;
-    public static String About_ProTitle;
-    public static String About_PlusTitle;
-    public static String About_ProSubscriptionTitle;
-    public static String About_LicenseTypePattern;
-    public static String About_LicenseType_Unactivated;
-
     public static String DownloadAndOpenFileJob_jobName;
     public static String DownloadAndOpenFileJob_Task_Download_with_url;
     public static String DownloadAndOpenFileJob_Task_OpenDownloadedFile_with_url;
@@ -151,20 +143,6 @@ public class WorkbenchMessages extends NLS {
     public static String OpenXMindCommandFileJob_failed_noCommandFilePath_text;
     public static String OpenXMindCommandFileJob_failed_openXMindCommandFile;
     public static String OpenXMindCommandFileJob_name;
-
-    public static String WelcomeDialog_item_slide_title;
-    public static String WelcomeDialog_item_slide_description;
-    public static String WelcomeDialog_item_cloud_description;
-    public static String WelcomeDialog_item_cloud_title;
-    public static String WelcomeDialog_item_high_dpi_description;
-    public static String WelcomeDialog_item_high_dpi_title;
-    public static String WelcomeDialog_item_workspace_description;
-    public static String WelcomeDialog_item_workspace_title;
-    public static String WelcomeDialog_okButton_text;
-    public static String WelcomeDialog_seePolicy_link;
-    public static String WelcomeDialog_uploadDataCheck_text;
-    public static String WelcomDialog_WhatIsNew_title;
-    public static String WelcomDialog_Welcom_title;
 
     public static String WelcomeToXMindHandler_welcomeToXMind_templatedName;
 

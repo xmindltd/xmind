@@ -16,8 +16,6 @@ import org.eclipse.e4.ui.model.application.MContribution;
 import org.eclipse.e4.ui.model.application.ui.MUIElement;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
-import org.xmind.core.internal.UserDataConstants;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.e4models.IModelConstants;
 
 @SuppressWarnings("restriction")
@@ -37,8 +35,6 @@ public class OpenPopoverHandler {
         if (modelService == null || context == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_MARKER_COUNT);
         MApplication appModel = context.get(MApplication.class);
         MUIElement markerDirectItem = modelService
                 .find(IModelConstants.TOOLITEM_ID_MARKER_POPOVER, appModel);

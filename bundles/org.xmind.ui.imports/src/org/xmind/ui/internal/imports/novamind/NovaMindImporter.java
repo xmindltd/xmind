@@ -44,7 +44,6 @@ import org.xmind.core.ITopicExtension;
 import org.xmind.core.ITopicExtensionElement;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.internal.Image;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.internal.dom.StyleSheetImpl;
 import org.xmind.core.io.DirectoryStorage;
 import org.xmind.core.io.IInputSource;
@@ -56,7 +55,6 @@ import org.xmind.core.style.IStyled;
 import org.xmind.core.util.DOMUtils;
 import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.HyperlinkUtils;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.imports.ImportMessages;
 import org.xmind.ui.internal.protocols.FilePathParser;
 import org.xmind.ui.io.MonitoredInputStream;
@@ -197,13 +195,15 @@ public class NovaMindImporter extends MindMapImporter
             if (boldNode != null)
                 registerStyle(host, Styles.FontWeight,
                         Boolean.parseBoolean(boldNode.getTextContent())
-                                ? Styles.FONT_WEIGHT_BOLD : null);
+                                ? Styles.FONT_WEIGHT_BOLD
+                                : null);
 
             Node italicNode = atts.getNamedItem("italic");
             if (italicNode != null)
                 registerStyle(host, Styles.FontStyle,
                         Boolean.parseBoolean(italicNode.getTextContent())
-                                ? Styles.FONT_STYLE_ITALIC : null);
+                                ? Styles.FONT_STYLE_ITALIC
+                                : null);
 
             String textDecoration = StyleUtils.toTextDecoration(
                     atts.getNamedItem("underline-style") != null,
@@ -289,8 +289,6 @@ public class NovaMindImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_NOVA_COUNT);
         getMonitor().beginTask(null, 100);
         try {
             getMonitor()
@@ -348,8 +346,7 @@ public class NovaMindImporter extends MindMapImporter
             builder.setErrorHandler(null);
             try {
                 in.close();
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
         return doc;
     }
@@ -627,8 +624,9 @@ public class NovaMindImporter extends MindMapImporter
             if (entry != null) {
                 ITopic attTopic = getTargetWorkbook().createTopic();
                 String title = getResourceTitle(attDataEle);
-                attTopic.setTitleText(title == null
-                        ? new File(entry.getPath()).getName() : title);
+                attTopic.setTitleText(
+                        title == null ? new File(entry.getPath()).getName()
+                                : title);
                 attTopic.setHyperlink(
                         HyperlinkUtils.toAttachmentURL(entry.getPath()));
                 topic.add(attTopic, ITopic.ATTACHED);
@@ -657,8 +655,9 @@ public class NovaMindImporter extends MindMapImporter
             if (entry != null) {
                 String title = getResourceTitle(imageEle);
                 ITopic attTopic = getTargetWorkbook().createTopic();
-                attTopic.setTitleText(title == null
-                        ? new File(entry.getPath()).getName() : title);
+                attTopic.setTitleText(
+                        title == null ? new File(entry.getPath()).getName()
+                                : title);
                 IImage image = attTopic.getImage();
                 image.setSource(
                         HyperlinkUtils.toAttachmentURL(entry.getPath()));
@@ -809,8 +808,7 @@ public class NovaMindImporter extends MindMapImporter
             case 9:
                 return "priority-9"; //$NON-NLS-1$
             }
-        } catch (NumberFormatException e) {
-        }
+        } catch (NumberFormatException e) {}
 
         return null;
     }
@@ -840,8 +838,7 @@ public class NovaMindImporter extends MindMapImporter
                 return "task-7oct";
             if (pc == 100)
                 return "task-done";
-        } catch (NumberFormatException e) {
-        }
+        } catch (NumberFormatException e) {}
         return null;
     }
 
@@ -860,10 +857,12 @@ public class NovaMindImporter extends MindMapImporter
                 parseFontSize(att(titleEle, "font-size"))); //$NON-NLS-1$
         registerStyle(host, Styles.FontWeight,
                 Boolean.parseBoolean(att(titleEle, "bold")) //$NON-NLS-1$
-                        ? Styles.FONT_WEIGHT_BOLD : null);
+                        ? Styles.FONT_WEIGHT_BOLD
+                        : null);
         registerStyle(host, Styles.FontStyle,
                 Boolean.parseBoolean(att(titleEle, "italic")) //$NON-NLS-1$
-                        ? Styles.FONT_STYLE_ITALIC : null);
+                        ? Styles.FONT_STYLE_ITALIC
+                        : null);
         String textDecoration = StyleUtils.toTextDecoration(
                 att(titleEle, "underline-style") != null, //$NON-NLS-1$
                 att(titleEle, "strikethrough-style") != null);  //$NON-NLS-1$
@@ -1004,8 +1003,7 @@ public class NovaMindImporter extends MindMapImporter
                 int alpha = Integer.parseInt(color.substring(1, 2), 16);
                 double opacity = ((double) alpha) * 100 / 255;
                 return String.format("%.2f", opacity); //$NON-NLS-1$
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
 
         return null;
@@ -1021,8 +1019,7 @@ public class NovaMindImporter extends MindMapImporter
                 g = Integer.parseInt(color.substring(2, 4), 16);
                 b = Integer.parseInt(color.substring(4, 6), 16);
                 return ColorUtils.toString(r, g, b);
-            } catch (Throwable t) {
-            }
+            } catch (Throwable t) {}
         }
         return null;
     }
@@ -1032,8 +1029,7 @@ public class NovaMindImporter extends MindMapImporter
             try {
                 double value = Double.parseDouble(size);
                 size = StyleUtils.addUnitPoint((int) value);
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         }
         return size;
     }
@@ -1160,8 +1156,7 @@ public class NovaMindImporter extends MindMapImporter
         if (value != null) {
             try {
                 return Float.valueOf(value);
-            } catch (Throwable e) {
-            }
+            } catch (Throwable e) {}
         }
         return null;
     }
@@ -1565,10 +1560,12 @@ public class NovaMindImporter extends MindMapImporter
                 parseFontSize(att(textEle, "font-size"))); //$NON-NLS-1$
         registerTheme(type, styleFamily, Styles.FontWeight,
                 Boolean.parseBoolean(att(textEle, "bold")) //$NON-NLS-1$
-                        ? Styles.FONT_WEIGHT_BOLD : null);
+                        ? Styles.FONT_WEIGHT_BOLD
+                        : null);
         registerTheme(type, styleFamily, Styles.FontStyle,
                 Boolean.parseBoolean(att(textEle, "italic")) //$NON-NLS-1$
-                        ? Styles.FONT_STYLE_ITALIC : null);
+                        ? Styles.FONT_STYLE_ITALIC
+                        : null);
         String textDecoration = StyleUtils.toTextDecoration(
                 att(textEle, "underline-style") != null, //$NON-NLS-1$
                 att(textEle, "strikethrough-style") != null);  //$NON-NLS-1$
@@ -1824,8 +1821,7 @@ public class NovaMindImporter extends MindMapImporter
         } finally {
             try {
                 in.close();
-            } catch (IOException e) {
-            }
+            } catch (IOException e) {}
         }
 
         resourceMap.put(url, path);
@@ -1917,8 +1913,7 @@ public class NovaMindImporter extends MindMapImporter
 
             Element next = findNext();
 
-            public void remove() {
-            }
+            public void remove() {}
 
             private Element findNext() {
                 while (it.hasNext()) {

@@ -16,7 +16,6 @@ package org.xmind.ui.internal.actions;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
@@ -54,8 +53,6 @@ public class TileAction extends RequestAction
 
     @Override
     public void run() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.TILE_COUNT);
         super.run();
     }
 

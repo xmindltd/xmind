@@ -49,7 +49,6 @@ import org.xmind.core.event.CoreEvent;
 import org.xmind.core.event.CoreEventRegister;
 import org.xmind.core.event.ICoreEventListener;
 import org.xmind.core.event.ICoreEventRegister;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.marker.IMarker;
 import org.xmind.core.marker.IMarkerGroup;
 import org.xmind.core.marker.IMarkerResource;
@@ -62,7 +61,6 @@ import org.xmind.gef.ui.editor.IGraphicalEditor;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.forms.WidgetFactory;
 import org.xmind.ui.internal.MindMapMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.dnd.MindMapElementTransfer;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
@@ -88,9 +86,6 @@ public class MarkerPart extends ViewModelPart {
 
     @Override
     protected Control doCreateContent(Composite parent) {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_MARKER_PART_COUNT);
-
         factory = new WidgetFactory(parent.getDisplay());
         form = createForm(parent);
         form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -301,8 +296,7 @@ public class MarkerPart extends ViewModelPart {
                     event.data = new Object[] { marker };
                 }
 
-                public void dragFinished(DragSourceEvent event) {
-                }
+                public void dragFinished(DragSourceEvent event) {}
             });
             toolbar.addDisposeListener(new DisposeListener() {
                 public void widgetDisposed(DisposeEvent e) {
@@ -440,8 +434,7 @@ public class MarkerPart extends ViewModelPart {
                     try {
                         new Image(Display.getCurrent(), sourcePath).dispose();
                         return true;
-                    } catch (Throwable e) {
-                    }
+                    } catch (Throwable e) {}
                     return false;
                 }
 
@@ -563,9 +556,6 @@ public class MarkerPart extends ViewModelPart {
                                     .setParameter(MindMapUI.PARAM_MARKER_ID,
                                             marker.getId());
                             domain.handleRequest(req);
-//                            MindMapUIPlugin.getDefault().getUsageDataCollector()
-//                                    .increase(
-//                                            UserDataConstants.USE_MARKERS_COUNT);
                         }
                         IViewer viewer = gp.getViewer();
                         if (viewer != null) {

@@ -32,7 +32,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.Request;
@@ -43,7 +42,6 @@ import org.xmind.ui.color.ColorSelection;
 import org.xmind.ui.color.IColorSelection;
 import org.xmind.ui.color.PaletteContents;
 import org.xmind.ui.commands.CommandMessages;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.properties.StyledPropertySectionPart;
@@ -72,8 +70,6 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                     .getFirstElement();
             if (o instanceof String) {
                 changeFontName((String) o);
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.FONT_CHANGE_ALL_COUNT);
             }
         }
 
@@ -97,8 +93,7 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                     int i = Integer.parseInt((String) o);
                     FONT_SIZE_LIST.add(i);
                     changeFontSize(i);
-                } catch (NumberFormatException e) {
-                }
+                } catch (NumberFormatException e) {}
             } else if (o instanceof Integer) {
                 changeFontSize(((Integer) o).intValue());
             }

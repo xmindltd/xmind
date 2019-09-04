@@ -16,9 +16,7 @@ package org.xmind.ui.commands;
 import org.eclipse.core.runtime.Assert;
 import org.xmind.core.ISummary;
 import org.xmind.core.IWorkbook;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.command.CreateCommand;
-import org.xmind.ui.internal.MindMapUIPlugin;
 
 public class CreateSummaryCommand extends CreateCommand {
 
@@ -45,8 +43,6 @@ public class CreateSummaryCommand extends CreateCommand {
 
     @Override
     public void execute() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.INSERT_SUMMARY_COUNT);
         super.execute();
     }
 }

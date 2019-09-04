@@ -14,12 +14,10 @@
 package org.xmind.ui.internal.actions;
 
 import org.eclipse.jface.viewers.ISelection;
-import org.xmind.core.internal.UserDataConstants;
 import org.xmind.gef.ui.actions.ISelectionAction;
 import org.xmind.gef.ui.actions.RequestAction;
 import org.xmind.gef.ui.editor.IGraphicalEditorPage;
 import org.xmind.ui.actions.MindMapActionFactory;
-import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.MindMapUtils;
 
@@ -32,8 +30,6 @@ public class CreateSheetFromTopicAction extends RequestAction
     public CreateSheetFromTopicAction(IGraphicalEditorPage page) {
         super(MindMapActionFactory.INSERT_SHEET_FROM.getId(), page,
                 MindMapUI.REQ_CREATE_SHEET);
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_SHEET_COUNT);
     }
 
     public void setSelection(ISelection selection) {
