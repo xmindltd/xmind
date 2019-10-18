@@ -1,7 +1,7 @@
 XMind
 =====
 
-[XMind](http://www.xmind.net) is an open source project that contributes to
+[XMind](http://www.xmind.net) is an open-source project that contributes to
 building a cutting-edge brainstorming/mind-mapping facility, focused on both
 usability and extendability. It helps people in capturing ideas into visually
 self-organized charts and sharing them for collaboration and communication.
@@ -14,13 +14,13 @@ meeting minutes, task management, and GTD.
 License
 -------
 
-XMind is dual licensed under 2 open source licenses: the [Eclipse Public
+XMind is dual-licensed under 2 open-source licenses: the [Eclipse Public
 License (EPL) v1.0](http://www.eclipse.org/legal/epl-v10.html) and the [GNU
 Lesser General Public License (LGPL) v3](http://www.gnu.org/licenses/lgpl.html).
 
 For licensees that wish to distribute XMind 3, modify the source code, and/or
 build extensions, the EPL can be used to maintain copyleft of the original code
-base while encouraging innovation with commercial and other open source
+base while encouraging innovation with commercial and other open-source
 offerings incorporating XMind.
 
 At the same time, for licensees that are concerned with incompatibility between
@@ -37,11 +37,9 @@ How To Run/Debug
 1.  Download and install [JDK v1.8 or higher](http://www.oracle.com/technetwork/java/javase/downloads/index.html).
 1.  Download and install [Eclipse SDK v4.6 or higher](http://download.eclipse.org/eclipse/downloads/).
 1.  Make a clean workspace.
-1.  Import all bundles, features and releng projects into the workspace.
+1.  Import all bundles, features and release engineering projects into the workspace.
 1.  Open `org.xmind.cathy.target/cathy.target` with the default *Target Editor*
-    and click on 'Set as Target Platform' in the top-right corner of the opened
-    editor (you may have to wait for Eclipse to download all necessary
-    dependencies).
+    and click on 'Set as Target Platform' in the top-right corner of the opened editor (you may have to wait for Eclipse to download all necessary dependencies).
 1.  Open `org.xmind.cathy.product/cathy.product` with the default *Product
     Configuration Editor* and, in the first 'Overview' tab, click on 'Launch an
     Eclipse application' or 'Launch an Eclipse application in Debug mode'.
@@ -59,5 +57,5 @@ Any issue report or pull request will be highly welcomed!
 Documentations
 --------------
 
-See [these wiki pages](https://github.com/xmindltd/xmind/wiki) for documentations. Plugin developers and other app developers should read these document in prior to integrating/communicating with XMind application and/or XMind files.
+See [these wiki pages](https://github.com/xmindltd/xmind/wiki) for documentation. Plugin developers and other app developers should read these document in before integrating/communicating with XMind application and/or XMind files.
 
