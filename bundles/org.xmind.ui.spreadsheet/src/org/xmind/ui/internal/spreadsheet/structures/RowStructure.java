@@ -571,29 +571,35 @@ public class RowStructure extends AbstractBranchStructure implements
 
         Row row = getRow(branch);
         Cell cell = row.findCell(key.getCursorPos());
-        List<Item> items = cell.getItems();
 
-        Dimension inventSize = key.getInvent().getSize();
-        Dimension insSize = key.getFigure().getSize();
+        if (cell != null) {
+            List<Item> items = cell.getItems();
 
-        if (items.isEmpty())
-            return new Point(
-                    cell.getX() + inventSize.width / 2
-                            + row.getOwnedChart().getLineWidth(),
-                    getFigureLocation(branch.getFigure()).y
-                            - (cell.getHeight() - insSize.height > 0
-                                    ? (cell.getHeight() - insSize.height) / 2
-                                    : 0));
+            Dimension inventSize = key.getInvent().getSize();
+            Dimension insSize = key.getFigure().getSize();
 
-        if (index == oldIndex || (index == -1 && !items.get(items.size() - 1)
-                .getBranch().getFigure().isEnabled())) {
-            IBranchPart sub = items.get(
-                    itemIndex == items.size() ? items.size() - 1 : itemIndex)
-                    .getBranch();
-            if (cell.equals(row.findCellByItem(sub)))
-                return getFigureLocation(sub.getFigure())
-                        .getTranslated((inventSize.width - sub.getTopicPart()
-                                .getFigure().getSize().width) / 2, 0);
+            if (items.isEmpty())
+                return new Point(
+                        cell.getX() + inventSize.width / 2
+                                + row.getOwnedChart().getLineWidth(),
+                        getFigureLocation(branch.getFigure()).y
+                                - (cell.getHeight() - insSize.height > 0
+                                        ? (cell.getHeight() - insSize.height)
+                                                / 2
+                                        : 0));
+
+            if (index == oldIndex
+                    || (index == -1 && !items.get(items.size() - 1).getBranch()
+                            .getFigure().isEnabled())) {
+                IBranchPart sub = items.get(itemIndex == items.size()
+                        ? items.size() - 1 : itemIndex).getBranch();
+                if (cell.equals(row.findCellByItem(sub)))
+                    return getFigureLocation(sub.getFigure())
+                            .getTranslated(
+                                    (inventSize.width - sub.getTopicPart()
+                                            .getFigure().getSize().width) / 2,
+                                    0);
+            }
         }
 
         return calcInsertPosition(branch, child, key);

@@ -22,7 +22,6 @@ import org.xmind.core.style.IStyleSheetBuilder;
 import org.xmind.core.util.ILogger;
 
 /**
- * 
  * @author Frank Shaka
  */
 @SuppressWarnings("deprecation")
@@ -463,7 +462,6 @@ public class Core {
      * <b>NOTE</b>: This event is always followed by a 'range' event as the
      * range is modified.
      * </p>
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IRange}</dd>
@@ -484,7 +482,6 @@ public class Core {
      * <b>NOTE</b>: This event is always followed by a 'range' event as the
      * range is modified.
      * </p>
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IRange}</dd>
@@ -501,7 +498,6 @@ public class Core {
     /**
      * Core event type for adding a boundary to a topic (value is
      * 'boundaryAdd').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.ITopic}</dd>
@@ -514,7 +510,6 @@ public class Core {
     /**
      * Core event type for removing a boundary to a topic (value is
      * 'boundaryRemove').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.ITopic}</dd>
@@ -540,7 +535,6 @@ public class Core {
 
     /**
      * Core event type for adding a summary to a topic (value is 'summaryAdd').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.ITopic}</dd>
@@ -553,7 +547,6 @@ public class Core {
     /**
      * Core event type for removing a summary to a topic (value is
      * 'summaryRemove').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.ITopic}</dd>
@@ -566,7 +559,6 @@ public class Core {
     /**
      * Core event type for adding a style to a style sheet (value is
      * 'styleAdd').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.style.IStyleSheet}</dd>
@@ -579,7 +571,6 @@ public class Core {
     /**
      * Core event type for removing a style from a style sheet (value is
      * 'styleRemove').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.style.IStyleSheet}</dd>
@@ -832,7 +823,6 @@ public class Core {
      * workbook content before saving it to the destination. The most common
      * usage is to save preview pictures by the UI, for we can't generate a
      * preview picture without a graphical environment.
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IWorkboook}</dd>
@@ -852,7 +842,6 @@ public class Core {
      * event list thereafter. This type of events are commonly used when some
      * pending work that may modify the content of a workbook should be counted
      * before saving the workbook.
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IWorkboook}</dd>
@@ -868,7 +857,6 @@ public class Core {
     /**
      * Core event type for having saved a workbook (value is 'workbookSave').
      * This type of events is dispatched after a workbook is saved.
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IWorkboook}</dd>
@@ -887,7 +875,6 @@ public class Core {
      * 'modifyTime'). When this event is dispatched, all other modification info
      * has been updated such as
      * {@link org.xmind.core.IModifiable#getModifiedBy()}.
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>a {@link org.xmind.core.IModifiable} object</dd>
@@ -904,7 +891,6 @@ public class Core {
     /**
      * Core event type for adding a revision to the revision manager (value is
      * 'revisionAdd').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>the parent {@link org.xmind.core.IRevisionManager}</dd>
@@ -921,7 +907,6 @@ public class Core {
     /**
      * Core event type for removing a revision from the revision manager (value
      * is 'revisionRemove').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>the parent {@link org.xmind.core.IRevisionManager}</dd>
@@ -938,7 +923,6 @@ public class Core {
     /**
      * Core event type for value change in {@link org.xmind.core.IMeta} (value
      * is 'metadata').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IMeta}</dd>
@@ -961,7 +945,6 @@ public class Core {
     /**
      * Core event type for attribute change in {@link org.xmind.core.IMetaData}
      * (value is 'metadataAttribute').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>{@link org.xmind.core.IMeta}</dd>
@@ -977,7 +960,6 @@ public class Core {
      * to indicate this attribute was removed</dd>
      * 
      * @deprecated Not used any more. {@link #Metadata} is enough.
-     * 
      * @see org.xmind.core.IMetaData#setAttribute(String, String)
      */
     public static final String MetadataAttribute = "metadataAttribute"; //$NON-NLS-1$
@@ -1015,7 +997,6 @@ public class Core {
     /**
      * Core event type for adding a comment to its associated object (value is
      * 'commentAdd').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>the associated object that implements {@link org.xmind.core.ITitled},
@@ -1031,7 +1012,6 @@ public class Core {
     /**
      * Core event type for removing a comment from its associated object (value
      * is 'commentRemove').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>the associated object that implements {@link org.xmind.core.ITitled},
@@ -1047,7 +1027,6 @@ public class Core {
     /**
      * Core event type for modifying the content of a comment (value is
      * 'commentContent').
-     * 
      * <dl>
      * <dt>Source:</dt>
      * <dd>the {@link org.xmind.core.IComment}</dd>
@@ -1060,6 +1039,8 @@ public class Core {
      * </dl>
      */
     public static final String CommentContent = "commentContent"; //$NON-NLS-1$
+
+    public static final String ZClass = "class"; //$NON-NLS-1$
 
     /**
      * Error constants indicating that an unknown error occurs (value=1).
@@ -1120,7 +1101,6 @@ public class Core {
     }
 
     /**
-     * 
      * <p>
      * <b>WARNING:</b> This is a legacy mechanism to generate unique
      * identifiers. Clients should use {@link UUID} instead for higher
@@ -1134,7 +1114,6 @@ public class Core {
     }
 
     /**
-     * 
      * <p>
      * <b>WARNING:</b> The workbook builder no longer supports loading
      * workbooks. Use

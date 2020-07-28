@@ -37,13 +37,6 @@ public abstract class AbstractAnchor implements IAnchor, FigureListener,
 
     private Set<String> propertiesToMove = null;
 
-    private Runnable figureMovedRunnable = new Runnable() {
-
-        public void run() {
-            fireAnchorMoved();
-        }
-    };
-
     protected AbstractAnchor() {
     }
 
@@ -120,8 +113,7 @@ public abstract class AbstractAnchor implements IAnchor, FigureListener,
         return getLocation(ref.x - 100, ref.y, expansion);
     }
 
-    public PrecisionPoint getLocation(PrecisionPoint reference,
-            double expansion) {
+    public PrecisionPoint getLocation(PrecisionPoint reference, double expansion) {
         return getLocation(reference.x, reference.y, expansion);
     }
 
@@ -143,8 +135,8 @@ public abstract class AbstractAnchor implements IAnchor, FigureListener,
         if (getOwner() == null)
             return new PrecisionPoint();
         if (getOwner() instanceof IReferencedFigure) {
-            return new PrecisionPoint(
-                    ((IReferencedFigure) getOwner()).getReference());
+            return new PrecisionPoint(((IReferencedFigure) getOwner())
+                    .getReference());
         }
         Rectangle r = getOwner().getBounds();
         return new PrecisionPoint(r.x + r.width * 0.5, r.y + r.height * 0.5);
@@ -161,13 +153,7 @@ public abstract class AbstractAnchor implements IAnchor, FigureListener,
     }
 
     public void figureMoved(IFigure source) {
-        if (source.getUpdateManager() instanceof DeferredUpdateManager2) {
-            DeferredUpdateManager2 updateManager = (DeferredUpdateManager2) source
-                    .getUpdateManager();
-            updateManager.addRunnable(figureMovedRunnable);
-        } else {
-            figureMovedRunnable.run();
-        }
+        fireAnchorMoved();
     }
 
     public void notifyFreeformExtentChanged() {
@@ -229,6 +215,7 @@ public abstract class AbstractAnchor implements IAnchor, FigureListener,
 
     /*
      * (non-Javadoc)
+     * 
      * @seejava.beans.PropertyChangeListener#propertyChange(java.beans.
      * PropertyChangeEvent)
      */

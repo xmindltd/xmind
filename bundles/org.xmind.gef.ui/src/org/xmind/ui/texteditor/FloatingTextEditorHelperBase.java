@@ -33,8 +33,8 @@ import org.xmind.gef.IZoomListener;
 import org.xmind.gef.ZoomManager;
 import org.xmind.gef.ZoomObject;
 
-public abstract class FloatingTextEditorHelperBase implements
-        IFloatingTextEditorListener, IZoomListener, Listener {
+public abstract class FloatingTextEditorHelperBase
+        implements IFloatingTextEditorListener, IZoomListener, Listener {
 
     private final static int GAP = 20;
 
@@ -58,7 +58,8 @@ public abstract class FloatingTextEditorHelperBase implements
         this(false);
     }
 
-    public FloatingTextEditorHelperBase(boolean extendsBidirectionalHorizontal) {
+    public FloatingTextEditorHelperBase(
+            boolean extendsBidirectionalHorizontal) {
         this.extendsBidirectionalHorizontal = extendsBidirectionalHorizontal;
     }
 
@@ -156,11 +157,13 @@ public abstract class FloatingTextEditorHelperBase implements
         }
     }
 
-    public void refreshEditor() {
+    public void refreshEditor(boolean updateFont) {
         if (editor == null || editor.isClosed())
             return;
 
-        updateEditorFont();
+        if (updateFont) {
+            updateEditorFont();
+        }
         updateEditorBounds();
         ensureEditorVisible();
     }
@@ -182,11 +185,11 @@ public abstract class FloatingTextEditorHelperBase implements
         if (getPrefWidth() < 0) {
             widthHint = -1;
         } else {
-            widthHint = Math.max(1, (int) (getPrefWidth() * getScale())
-                    - trim.width);
+            widthHint = Math.max(1,
+                    (int) (getPrefWidth() * getScale()) - trim.width);
         }
-        org.eclipse.swt.graphics.Point prefSize = textWidget.computeSize(
-                widthHint, -1);
+        org.eclipse.swt.graphics.Point prefSize = textWidget
+                .computeSize(widthHint, -1);
         int prefWidth = prefSize.x - trim.width;
         int prefHeight = prefSize.y - trim.height;
 
@@ -248,8 +251,8 @@ public abstract class FloatingTextEditorHelperBase implements
         r.width = prefWidth;
         r.height = prefHeight;
 
-        editor.getControl().setBounds(
-                editor.computeTrim(r.x, r.y, r.width, r.height));
+        editor.getControl()
+                .setBounds(editor.computeTrim(r.x, r.y, r.width, r.height));
 
         updateScrollBars(prefWidth < prefSize.x, prefHeight < prefSize.y);
     }
@@ -337,11 +340,11 @@ public abstract class FloatingTextEditorHelperBase implements
     protected abstract Rectangle getPreferredBounds();
 
     public void editingStarted(TextEvent e) {
-        refreshEditor();
+        refreshEditor(true);
     }
 
     public void textChanged(TextEvent e) {
-        refreshEditor();
+        refreshEditor(false);
     }
 
     public void editingAboutToCancel(TextEvent e) {
@@ -362,12 +365,13 @@ public abstract class FloatingTextEditorHelperBase implements
     public void textAboutToChange(TextEvent e) {
     }
 
-    public void scaleChanged(ZoomObject source, double oldValue, double newValue) {
-        refreshEditor();
+    public void scaleChanged(ZoomObject source, double oldValue,
+            double newValue) {
+        refreshEditor(true);
     }
 
     public void handleEvent(Event event) {
-        refreshEditor();
+        refreshEditor(false);
     }
 
 }

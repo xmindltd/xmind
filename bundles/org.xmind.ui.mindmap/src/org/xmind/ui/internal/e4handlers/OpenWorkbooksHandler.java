@@ -32,7 +32,6 @@ public class OpenWorkbooksHandler {
 
     private static final List<String> NO_URIS = Collections.emptyList();
     private static final String LOCAL_FILE_SCHEME = "file"; //$NON-NLS-1$
-    private static final String SEAWIND_FILE_SCHEME = "seawind"; //$NON-NLS-1$
 
     @Inject
     public void execute(final IWorkbenchWindow window,
@@ -117,10 +116,5 @@ public class OpenWorkbooksHandler {
             MessageDialog.openWarning(null,
                     MindMapMessages.FileNotExistDialog_Title,
                     MindMapMessages.FileNotExistDialog_Message);
-        else if (SEAWIND_FILE_SCHEME.equalsIgnoreCase(scheme)) {
-            MessageDialog.openWarning(null,
-                    MindMapMessages.CloudFileNotExistDialog_Title,
-                    MindMapMessages.CloudFileNotExistDialog_Message);
-        }
     }
 }

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.xmind.ui.mindmap;singleton:=true
-Bundle-Version: 3.7.6.qualifier
+Bundle-Version: 3.7.7.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.xmind.ui.internal.MindMapUIPlugin
 Bundle-Vendor: %providerName
@@ -63,14 +63,14 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.filesystem,
  org.eclipse.core.resources,
  org.apache.commons.codec,
- org.xmind.core.runtime;bundle-version="[3.7.6,3.8.0)";visibility:=reexport,
- org.xmind.gef.ui;bundle-version="[3.7.6,3.8.0)";visibility:=reexport,
- org.xmind.ui.toolkit;bundle-version="[3.7.6,3.8.0)",
- org.xmind.ui.browser;bundle-version="[3.7.6,3.8.0)",
- org.xmind.ui.spelling;bundle-version="[3.7.6,3.8.0)",
- org.xmind.core.command;bundle-version="[3.7.6,3.8.0)",
+ org.xmind.core.runtime;bundle-version="[3.7.7,3.8.0)";visibility:=reexport,
+ org.xmind.gef.ui;bundle-version="[3.7.7,3.8.0)";visibility:=reexport,
+ org.xmind.ui.toolkit;bundle-version="[3.7.7,3.8.0)",
+ org.xmind.ui.browser;bundle-version="[3.7.7,3.8.0)",
+ org.xmind.ui.spelling;bundle-version="[3.7.7,3.8.0)",
+ org.xmind.core.command;bundle-version="[3.7.7,3.8.0)",
  org.eclipse.swt,
- org.xmind.core.usagedata;bundle-version="[3.7.6,3.8.0)",
+ org.xmind.core.usagedata;bundle-version="[3.7.7,3.8.0)",
  org.xmind.core,
  org.eclipse.e4.core.commands,
  org.eclipse.e4.core.di,

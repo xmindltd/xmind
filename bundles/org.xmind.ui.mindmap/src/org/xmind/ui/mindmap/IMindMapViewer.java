@@ -106,6 +106,8 @@ public interface IMindMapViewer extends IGraphicalViewer {
 
     String MINUS_VISIBLE = "minusVisible"; //$NON-NLS-1$
 
+    String VIEWER_EXPORT = "export"; //$NON-NLS-1$
+
     IMindMap getMindMap();
 
     void setMindMap(IMindMap mindMap);

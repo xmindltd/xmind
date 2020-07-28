@@ -316,7 +316,7 @@ public class MindMapImageExporter {
     }
 
     private void recreateSourceProviderFromInput() {
-        if (parent != null) {
+        if (parent != null && parent.getParent() != null) {
             this.exportViewer = new MindMapExportViewer(parent, input,
                     properties);
         } else {

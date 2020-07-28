@@ -251,11 +251,11 @@ public class InfoPart extends MindMapPartBase implements IInfoPart {
         for (IInfoItemPart infoItem : getInfoItemIcons())
             infoItem.update();
 
-//        IFigure figure = getFigure();
-//        if (figure != null) {
-//            figure.revalidate();
-//            figure.repaint();
-//        }
+        IFigure figure = getFigure();
+        if (figure != null) {
+            figure.revalidate();
+            figure.repaint();
+        }
     }
 
     @Override

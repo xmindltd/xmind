@@ -552,8 +552,11 @@ public class StyleUtils {
 
                 String[] indexAndValue = getAncestorMultiLineColor(branch);
                 if (indexAndValue != null && indexAndValue.length == 2) {
-                    index = Integer.parseInt(indexAndValue[0]);
-                    value = indexAndValue[1];
+                    try {
+                        index = Integer.parseInt(indexAndValue[0]);
+                        value = indexAndValue[1];
+                    } catch (NumberFormatException ignore) {
+                    }
                 }
                 ISheetPart sheet = null;
                 if (value == null || Styles.NONE.equals(value)) {

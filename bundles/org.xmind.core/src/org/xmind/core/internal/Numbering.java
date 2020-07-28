@@ -67,8 +67,12 @@ public abstract class Numbering extends AbstractWorkbookComponent
             return -1;
 
         String dv = getDepth();
-        if (dv != null)
-            return Integer.parseInt(dv);
+        if (dv != null) {
+            try {
+                return Integer.parseInt(dv);
+            } catch (NumberFormatException ignore) {
+            }
+        }
 
         if (isInherited(1))
             return getParent().getParent().getNumbering().getComputedDepth()

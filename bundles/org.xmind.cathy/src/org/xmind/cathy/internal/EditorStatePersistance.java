@@ -51,7 +51,6 @@ import org.xmind.ui.util.ICancelable;
 
 /**
  * @author Frank Shaka
- *
  */
 public class EditorStatePersistance {
 
@@ -117,7 +116,6 @@ public class EditorStatePersistance {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.eclipse.jface.viewers.BaseLabelProvider#dispose()
          */
         @Override
@@ -288,6 +286,10 @@ public class EditorStatePersistance {
 
         XMLMemento root = XMLMemento
                 .createWriteRoot(IWorkbenchConstants.TAG_EDITORS);
+        if (root == null) {
+            return;
+        }
+
         for (IMemento state : states) {
             IMemento st = root.createChild(state.getType());
             st.putMemento(state);

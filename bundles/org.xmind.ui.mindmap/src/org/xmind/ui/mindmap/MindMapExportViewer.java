@@ -22,12 +22,10 @@ import org.xmind.ui.viewers.ICompositeProvider;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class MindMapExportViewer extends MindMapViewer {
 
     /**
-     * 
      * @param parent
      * @param input
      * @param properties
@@ -39,7 +37,6 @@ public class MindMapExportViewer extends MindMapViewer {
     }
 
     /**
-     * 
      * @param parent
      * @param input
      * @param properties
@@ -82,6 +79,9 @@ public class MindMapExportViewer extends MindMapViewer {
         if (properties == null || !properties.hasKey(VIEWER_MARGIN)) {
             getProperties().set(VIEWER_MARGIN,
                     Integer.valueOf(MindMapUI.DEFAULT_EXPORT_MARGIN));
+        }
+        if (properties == null || !properties.hasKey(VIEWER_EXPORT)) {
+            getProperties().set(VIEWER_EXPORT, true);
         }
     }
 

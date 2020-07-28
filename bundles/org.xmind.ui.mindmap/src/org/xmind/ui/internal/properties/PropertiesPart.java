@@ -683,9 +683,13 @@ public class PropertiesPart extends ViewModelPart
 
                 reflow();
             }
-            ti.setText(calcTitle(ss.toArray()) + " " + modeLabel); //$NON-NLS-1$
+            if (ti != null && !ti.isDisposed()) {
+                ti.setText(calcTitle(ss.toArray()) + " " + modeLabel); //$NON-NLS-1$
+            }
         } else {
-            ti.setText(modeLabel);
+            if (ti != null && !ti.isDisposed()) {
+                ti.setText(modeLabel);
+            }
         }
         if (getControl() != null && !getControl().isDisposed())
             getControl().setRedraw(true);

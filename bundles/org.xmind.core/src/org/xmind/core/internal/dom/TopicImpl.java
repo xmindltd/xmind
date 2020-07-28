@@ -40,6 +40,7 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_SUMMARY;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_TITLE;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_TOPIC;
 import static org.xmind.core.internal.dom.DOMConstants.TAG_TOPICS;
+import static org.xmind.core.internal.dom.DOMConstants.TAG_ZCLASS;
 import static org.xmind.core.internal.dom.DOMConstants.VAL_FOLDED;
 import static org.xmind.core.internal.dom.NumberUtils.safeParseInt;
 
@@ -1359,6 +1360,18 @@ public class TopicImpl extends Topic implements ICoreEventSource {
         if (sheet != null) {
             ((SheetImpl) sheet).updateModificationInfo();
         }
+    }
+
+    public void setZClass(String zClass) {
+        String oldValue = getZClass();
+        DOMUtils.setAttribute(implementation, TAG_ZCLASS, zClass);
+        String newValue = getZClass();
+        fireValueChange(Core.ZClass, oldValue, newValue);
+        updateModificationInfo();
+    }
+
+    public String getZClass() {
+        return DOMUtils.getAttribute(implementation, TAG_ZCLASS);
     }
 
 }

@@ -96,7 +96,7 @@ public class TextDndClient extends MindMapDNDClientBase {
     }
 
     private Object[] buildeTopics(String text, IWorkbook wb) {
-        String[] lines = text.split("\\r\\n|\\r|\\n"); //$NON-NLS-1$
+        String[] lines = text.split("\\r\\n|\\r|\\n|\u2028|\u2029"); //$NON-NLS-1$
         ArrayList<ITopic> topics = new ArrayList<ITopic>(lines.length);
         HashMap<ITopic, Integer> map = new HashMap<ITopic, Integer>();
         ITopic lastTopic = null;

@@ -239,7 +239,7 @@ public class TopicTitleEditTool extends TitleEditTool {
                     new Point(getEditor().getControl().getLocation()), false);
             width = Math.max(20, (int) ((p.x - leftTop.x) / getScale()));
             getHelper().setPrefWidth(width);
-            getHelper().refreshEditor();
+            getHelper().refreshEditor(false);
             return true;
         }
         return super.handleMouseDrag(me);

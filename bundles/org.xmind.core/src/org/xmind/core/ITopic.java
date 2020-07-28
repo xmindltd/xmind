@@ -22,7 +22,6 @@ import org.xmind.core.style.IStyled;
 
 /**
  * @author briansun
- * 
  */
 public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
         ILabeled, ITopicComponent, IPositioned, IModifiable {
@@ -95,7 +94,6 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
      * 
      * @return The type of this topic, or <code>null</code> indicating that the
      *         type is unspecified
-     * 
      * @see org.xmind.core.ITopic#ATTACHED
      * @see org.xmind.core.ITopic#DETACHED
      * @see org.xmind.core.ITopic#SUMMARY
@@ -105,7 +103,6 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
 
     /**
      * @return Whether this topic is directly connected to its parent topic
-     * 
      * @see #getType();
      */
     boolean isAttached();
@@ -153,7 +150,6 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
      *            The children's type
      * @return A list containing this topic's children topics that are of the
      *         specified type
-     * 
      * @see #getType()
      */
     List<ITopic> getChildren(String type);
@@ -161,7 +157,6 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
     /**
      * Returns an iterator over this topic's children topics that are of the
      * specified type.
-     * 
      * <p>
      * <b>NOTE</b>: This iterator is not supposed to be modifiable and calling
      * {@link Iterator#remove()} method on the returned iterator will cause an
@@ -177,14 +172,12 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
     Iterator<ITopic> getChildrenIterator(String type);
 
     /**
-     * 
      * @param type
      * @return
      */
     boolean hasChildren(String type);
 
     /**
-     * 
      * @return
      */
     Set<String> getChildrenTypes();
@@ -240,7 +233,6 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
     INotes getNotes();
 
     /**
-     * 
      * @return
      */
     INumbering getNumbering();
@@ -289,5 +281,9 @@ public interface ITopic extends ITitled, IStyled, IRelationshipEnd, IAdaptable,
     void deleteExtension(String providerName);
 
     long getModifiedTime();
+
+    void setZClass(String zClass);
+
+    String getZClass();
 
 }

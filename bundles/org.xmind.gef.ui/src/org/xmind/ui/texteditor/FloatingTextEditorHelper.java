@@ -55,7 +55,7 @@ public class FloatingTextEditorHelper extends FloatingTextEditorHelperBase
     }
 
     public void figureMoved(IFigure source) {
-        refreshEditor();
+        refreshEditor(false);
     }
 
     public void activate() {

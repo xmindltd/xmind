@@ -260,13 +260,6 @@ public class EditorHistoryPersistenceHelper
             if (error) {
                 return "file:" + "/" + specialPart; //$NON-NLS-1$ //$NON-NLS-2$
             }
-        } else if (uri != null && uri.startsWith("seawind:")) {//$NON-NLS-1$
-            String specialPart = uri.substring(8);
-            boolean error = specialPart.startsWith("//") //$NON-NLS-1$
-                    && !specialPart.startsWith("///"); //$NON-NLS-1$
-            if (error) {
-                return "seawind:" + "/" + specialPart; //$NON-NLS-1$ //$NON-NLS-2$
-            }
         }
         return uri;
     }

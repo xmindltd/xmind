@@ -198,6 +198,7 @@ public class DOMConstants {
     public static final String TAG_TOPICS = "topics"; //$NON-NLS-1$
     public static final String TAG_WORKBOOK = "xmap-content"; //$NON-NLS-1$
     public static final String TAG_STORIES = "stories"; //$NON-NLS-1$
+    public static final String TAG_ZCLASS = "class"; //$NON-NLS-1$
 
     // ==================
     //   VALUES

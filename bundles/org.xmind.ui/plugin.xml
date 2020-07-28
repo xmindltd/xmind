@@ -4710,12 +4710,6 @@
                      <or>
                         <adapt
                               type="org.xmind.core.ITopic">
-                           <not>
-                              <test
-                                    property="org.xmind.core.topic.type"
-                                    value="callout">
-                              </test>
-                           </not>
                         </adapt>
                         <adapt
                               type="org.xmind.core.ISheet">

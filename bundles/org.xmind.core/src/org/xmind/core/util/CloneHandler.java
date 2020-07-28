@@ -596,6 +596,11 @@ public class CloneHandler {
 
         targetTopic.setHyperlink(convertHyperlink(sourceTopic.getHyperlink()));
 
+        String zClass = sourceTopic.getZClass();
+        if (zClass != null) {
+            targetTopic.setZClass(zClass);
+        }
+
         for (String label : sourceTopic.getLabels()) {
             targetTopic.addLabel(label);
         }

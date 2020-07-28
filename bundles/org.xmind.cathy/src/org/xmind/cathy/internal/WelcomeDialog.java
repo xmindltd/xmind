@@ -66,8 +66,8 @@ public class WelcomeDialog extends Dialog {
         composite.setBackground(
                 (Color) resources.get(ColorUtils.toDescriptor("#cccccc"))); //$NON-NLS-1$
         GridData gridData = new GridData(GridData.FILL_BOTH);
-        gridData.widthHint = 743;
-        gridData.heightHint = 432;
+        gridData.widthHint = 640;
+        gridData.heightHint = 410;
         composite.setLayoutData(gridData);
 
         GridLayout gridLayout = new GridLayout(1, false);
@@ -98,7 +98,7 @@ public class WelcomeDialog extends Dialog {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(parent.getBackground());
         GridData layoutData = new GridData(SWT.FILL, SWT.TOP, true, false);
-        layoutData.widthHint = 740;
+        layoutData.widthHint = 637;
 //        layoutData.heightHint = 120;
         composite.setLayoutData(layoutData);
 
@@ -265,7 +265,7 @@ public class WelcomeDialog extends Dialog {
                 .getFontData();
         titleLabel.setFont(
                 (Font) resources.get(FontDescriptor.createFrom(FontUtils.bold(
-                        (FontUtils.relativeHeight(fontData, 21)), true))));
+                        (FontUtils.relativeHeight(fontData, 18)), true))));
         titleLabel.setText(WorkbenchMessages.WelcomDialog_Welcom_title);
 
         Label title2 = new Label(composite, SWT.BOTTOM);
@@ -276,7 +276,7 @@ public class WelcomeDialog extends Dialog {
         title2.setLayoutData(layoutData);
 
         title2.setFont((Font) resources.get(FontDescriptor
-                .createFrom(FontUtils.relativeHeight(fontData, 6))));
+                .createFrom(FontUtils.relativeHeight(fontData, 4))));
         title2.setText(WorkbenchMessages.WelcomDialog_WhatIsNew_title);
 
 //        Label imageLabel = new Label(composite, SWT.CENTER);
@@ -327,7 +327,7 @@ public class WelcomeDialog extends Dialog {
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         composite.setLayoutData(layoutData);
 
-        GridLayout layout = new GridLayout(4, true);
+        GridLayout layout = new GridLayout(3, true);
         layout.marginWidth = 50;
         layout.marginHeight = 0;
         layout.horizontalSpacing = 10;
@@ -338,18 +338,6 @@ public class WelcomeDialog extends Dialog {
                         CathyPlugin.PLUGIN_ID, "icons/welcome/slide.png")) //$NON-NLS-1$
                 , WorkbenchMessages.WelcomeDialog_item_slide_title,
                 WorkbenchMessages.WelcomeDialog_item_slide_description,
-                new Runnable() {
-
-                    public void run() {
-                        // TODO launch permalink
-                    }
-                });
-
-        createImageItem(composite,
-                (Image) resources.get(CathyPlugin.imageDescriptorFromPlugin(
-                        CathyPlugin.PLUGIN_ID, "icons/welcome/cloud.png")) //$NON-NLS-1$
-                , WorkbenchMessages.WelcomeDialog_item_cloud_title,
-                WorkbenchMessages.WelcomeDialog_item_cloud_description,
                 new Runnable() {
 
                     public void run() {
@@ -391,7 +379,7 @@ public class WelcomeDialog extends Dialog {
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         composite.setLayoutData(layoutData);
 
-        GridLayoutFactory.fillDefaults().spacing(0, 20).applyTo(composite);
+        GridLayoutFactory.fillDefaults().spacing(0, 10).applyTo(composite);
 
         Label imageLabel = new Label(composite, SWT.CENTER);
         imageLabel.setBackground(composite.getBackground());

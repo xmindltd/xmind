@@ -23,7 +23,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.xmind.cathy.internal.CathyPlugin;
-import org.xmind.cathy.internal.WorkbenchMessages;
 import org.xmind.gef.draw2d.SizeableImageFigure;
 import org.xmind.ui.editor.IEditorHistory;
 import org.xmind.ui.editor.IEditorHistoryItem;
@@ -106,11 +105,6 @@ public class RecentFilesLabelProvider extends LabelProvider
             if (name.length() > 20)
                 name = name.substring(0, 20) + "..."; //$NON-NLS-1$
             buf.append(name);
-            if (uri.getScheme().equalsIgnoreCase("seawind")) { //$NON-NLS-1$
-                buf.append(" "); //$NON-NLS-1$
-                buf.append(
-                        WorkbenchMessages.RecentFilesLabelProvider_Cloud_text);
-            }
             return buf.toString();
         }
         return uri.toString();

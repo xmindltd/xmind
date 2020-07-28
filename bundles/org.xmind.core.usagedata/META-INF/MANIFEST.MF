@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Usage Data API
 Bundle-SymbolicName: org.xmind.core.usagedata
-Bundle-Version: 3.7.6.qualifier
+Bundle-Version: 3.7.7.qualifier
 Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

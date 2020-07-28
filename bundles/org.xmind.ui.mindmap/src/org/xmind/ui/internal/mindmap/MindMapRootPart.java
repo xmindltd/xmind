@@ -44,9 +44,9 @@ import org.xmind.ui.internal.layers.MindMapViewport;
 import org.xmind.ui.mindmap.IMindMapViewer;
 import org.xmind.ui.mindmap.MindMapUI;
 
-public class MindMapRootPart extends GraphicalRootEditPart implements
-        IZoomListener, ILayerManager, ControlListener, LayoutListener,
-        PropertyChangeListener {
+public class MindMapRootPart extends GraphicalRootEditPart
+        implements IZoomListener, ILayerManager, ControlListener,
+        LayoutListener, PropertyChangeListener {
 
     public void setViewer(IViewer viewer) {
         if (getViewer() != null) {
@@ -72,10 +72,10 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
         ContentsLayer contentsLayer = (ContentsLayer) layeredPane
                 .getLayer(GEF.LAYER_CONTENTS);
         Properties properties = getViewer().getProperties();
-        contentsLayer.setCentered(properties.getBoolean(
-                IMindMapViewer.VIEWER_CENTERED, false));
-        boolean constrained = properties.getBoolean(
-                IMindMapViewer.VIEWER_CONSTRAINED, false);
+        contentsLayer.setCentered(
+                properties.getBoolean(IMindMapViewer.VIEWER_CENTERED, false));
+        boolean constrained = properties
+                .getBoolean(IMindMapViewer.VIEWER_CONSTRAINED, false);
         contentsLayer.setConstrained(constrained);
         if (properties.getBoolean(IMindMapViewer.VIEWER_CORNERED, false)) {
             contentsLayer.addCorners();
@@ -84,9 +84,11 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
         if (margin != null && margin instanceof Integer) {
             contentsLayer.setMargin(((Integer) margin).intValue());
         }
+        contentsLayer.setExport(
+                properties.getBoolean(IMindMapViewer.VIEWER_EXPORT, false));
         if (!constrained) {
-            layeredPane.getScalableLayeredPane().setScale(
-                    ((IGraphicalViewer) getViewer()).getZoomManager()
+            layeredPane.getScalableLayeredPane()
+                    .setScale(((IGraphicalViewer) getViewer()).getZoomManager()
                             .getScale());
         }
         viewport.addLayoutListener(this);
@@ -144,11 +146,12 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
     protected void onDeactivated() {
         super.onDeactivated();
         getViewer().getControl().removeControlListener(this);
-        ((IGraphicalViewer) getViewer()).getZoomManager().removeZoomListener(
-                this);
+        ((IGraphicalViewer) getViewer()).getZoomManager()
+                .removeZoomListener(this);
     }
 
-    public void scaleChanged(ZoomObject source, double oldValue, double newValue) {
+    public void scaleChanged(ZoomObject source, double oldValue,
+            double newValue) {
         getLayeredPane().getScalableLayeredPane().setScale(newValue);
 //        getLayeredPane().getCoverLayer().setScale(newValue);
     }
@@ -179,10 +182,10 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
     }
 
     public void controlResized(ControlEvent e) {
-        if (getViewer().getProperties().getBoolean(
-                IMindMapViewer.VIEWER_CONSTRAINED, false)) {
-            ((IGraphicalViewer) getViewer()).getZoomManager().setScale(
-                    calculateConstrainedScale());
+        if (getViewer().getProperties()
+                .getBoolean(IMindMapViewer.VIEWER_CONSTRAINED, false)) {
+            ((IGraphicalViewer) getViewer()).getZoomManager()
+                    .setScale(calculateConstrainedScale());
         }
     }
 
@@ -192,9 +195,9 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
         ContentsLayer layer = (ContentsLayer) getLayer(GEF.LAYER_CONTENTS);
         IFigure contents = layer.getContents();
         Dimension size = contents.getPreferredSize();
-        double scale = Math.min((maxSize.width - layer.getMargin()) * 1.0d
-                / size.width, (maxSize.height - layer.getMargin()) * 1.0d
-                / size.height);
+        double scale = Math.min(
+                (maxSize.width - layer.getMargin()) * 1.0d / size.width,
+                (maxSize.height - layer.getMargin()) * 1.0d / size.height);
         return scale;
     }
 
@@ -202,10 +205,10 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
     }
 
     public boolean layout(IFigure container) {
-        if (getViewer().getProperties().getBoolean(
-                IMindMapViewer.VIEWER_CONSTRAINED, false)) {
-            ((IGraphicalViewer) getViewer()).getZoomManager().setScale(
-                    calculateConstrainedScale());
+        if (getViewer().getProperties()
+                .getBoolean(IMindMapViewer.VIEWER_CONSTRAINED, false)) {
+            ((IGraphicalViewer) getViewer()).getZoomManager()
+                    .setScale(calculateConstrainedScale());
         }
         return false;
     }
@@ -221,17 +224,17 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
 
     /*
      * (non-Javadoc)
-     * 
      * @seejava.beans.PropertyChangeListener#propertyChange(java.beans.
      * PropertyChangeEvent)
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        ContentsLayer contentsLayer = (ContentsLayer) getLayer(GEF.LAYER_CONTENTS);
+        ContentsLayer contentsLayer = (ContentsLayer) getLayer(
+                GEF.LAYER_CONTENTS);
         Properties properties = getViewer().getProperties();
-        contentsLayer.setCentered(properties.getBoolean(
-                IMindMapViewer.VIEWER_CENTERED, false));
-        boolean constrained = properties.getBoolean(
-                IMindMapViewer.VIEWER_CONSTRAINED, false);
+        contentsLayer.setCentered(
+                properties.getBoolean(IMindMapViewer.VIEWER_CENTERED, false));
+        boolean constrained = properties
+                .getBoolean(IMindMapViewer.VIEWER_CONSTRAINED, false);
         contentsLayer.setConstrained(constrained);
         if (properties.getBoolean(IMindMapViewer.VIEWER_CORNERED, false)) {
             contentsLayer.addCorners();
@@ -240,6 +243,8 @@ public class MindMapRootPart extends GraphicalRootEditPart implements
         if (margin != null && margin instanceof Integer) {
             contentsLayer.setMargin(((Integer) margin).intValue());
         }
+        contentsLayer.setExport(
+                properties.getBoolean(IMindMapViewer.VIEWER_EXPORT, false));
     }
 
 }

@@ -81,6 +81,7 @@ public class ZenConstants {
     public static final String KEY_WIDTH = "width"; //$NON-NLS-1$
     public static final String KEY_X = "x"; //$NON-NLS-1$
     public static final String KEY_Y = "y"; //$NON-NLS-1$
+    public static final String KEY_ZCLASS = "class"; //$NON-NLS-1$
 
     // JSON Values
     public static final String VAL_FOLDED = "folded"; //$NON-NLS-1$

@@ -38,7 +38,6 @@ import org.xmind.core.event.ICoreEventRegister;
 import org.xmind.gef.GEF;
 import org.xmind.gef.IViewer;
 import org.xmind.gef.draw2d.AbstractAnchor;
-import org.xmind.gef.draw2d.DeferredUpdateManager2;
 import org.xmind.gef.draw2d.IAnchor;
 import org.xmind.gef.draw2d.geometry.Geometry;
 import org.xmind.gef.draw2d.geometry.PrecisionPoint;
@@ -211,15 +210,6 @@ public class SummaryPart extends MindMapPartBase
     };
 
     private boolean cursorOverHandle = false;
-
-    private Runnable figureMovedRunnable = new Runnable() {
-
-        public void run() {
-            updateEnclosure();
-            update();
-            getFigure().revalidate();
-        }
-    };
 
     public SummaryPart() {
         setDecorator(SummaryDecorator.getInstance());
@@ -425,13 +415,9 @@ public class SummaryPart extends MindMapPartBase
     }
 
     public void figureMoved(IFigure source) {
-        if (source.getUpdateManager() instanceof DeferredUpdateManager2) {
-            DeferredUpdateManager2 updateManager = (DeferredUpdateManager2) source
-                    .getUpdateManager();
-            updateManager.addRunnable(figureMovedRunnable);
-        } else {
-            figureMovedRunnable.run();
-        }
+        updateEnclosure();
+        update();
+        getFigure().revalidate();
     }
 
     protected IFigure getEnclosure() {

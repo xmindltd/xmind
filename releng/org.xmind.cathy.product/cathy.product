@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.6.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="XMind" uid="org.xmind.cathy.product" id="org.xmind.cathy.product" application="org.xmind.cathy.application" version="3.7.7.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.xmind.cathy/icons/about.png"/>
@@ -72,7 +72,6 @@ openFile
       <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
       <property name="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
-      <property name="org.xmind.ui.seawind.encryptionEnabled" value="false" />
       <property name="osgi.configuration.area" value="@user.home/.xmind/configuration" />
       <property name="osgi.instance.area" value="@user.home/.xmind/workspace-cathy" />
       <property name="osgi.requiredJavaVersion" value="1.8" />

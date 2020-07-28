@@ -164,6 +164,7 @@ public class UserDataConstants {
     public static final String EXPORT_OUTLINE_TO_WORD_COUNT = "ExportOutlineToWordCount"; //$NON-NLS-1$
     public static final String EXPORT_OUTLINE_TO_PDF_COUNT = "ExportOutlineToPDFCount"; //$NON-NLS-1$
     public static final String EXPORT_OUTLINE_TO_TEXT_COUNT = "ExportOutlineToTextCount"; //$NON-NLS-1$
+    public static final String STORY_EXPORT_TO_PPT_COUNT = "StoryExportToPPTCount"; //$NON-NLS-1$
 
     public static final String EXPORT_BUNDLE_COUNT = "ExportBundleCount"; //$NON-NLS-1$
     public static final String EXPORT_CLIP_ART_COUNT = "ExportClipArtCount"; //$NON-NLS-1$

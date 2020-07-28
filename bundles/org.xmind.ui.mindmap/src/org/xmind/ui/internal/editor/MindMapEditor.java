@@ -612,9 +612,6 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         if ("file".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
             MindMapUIPlugin.getDefault().getUsageDataCollector()
                     .increase(UserDataConstants.OPEN_LOCAL_WORKBOOK_COUNT);
-        } else if ("seawind".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.OPEN_CLOUD_WORKBOOK_COUNT);
         }
     }
 
@@ -1491,9 +1488,8 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             return;
         URI uri = workbookRef.getURI();
 
-        //only local file or seawind file can record it history.
-        if (!uri.getScheme().equalsIgnoreCase("file") //$NON-NLS-1$
-                && !uri.getScheme().equalsIgnoreCase("seawind")) //$NON-NLS-1$
+        //only local file can record it history.
+        if (!uri.getScheme().equalsIgnoreCase("file")) //$NON-NLS-1$
             return;
 
         InputStream input = null;

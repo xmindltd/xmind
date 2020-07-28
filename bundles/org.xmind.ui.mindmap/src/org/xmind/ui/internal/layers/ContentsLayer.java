@@ -50,6 +50,8 @@ public class ContentsLayer extends BaseLayer implements IOriginBased {
 
     private boolean constrained;
 
+    private boolean export;
+
     public boolean isCentered() {
         return centered;
     }
@@ -296,9 +298,13 @@ public class ContentsLayer extends BaseLayer implements IOriginBased {
         origin = null;
     }
 
+    public void setExport(boolean export) {
+        this.export = export;
+    }
+
     @Override
     public Insets getInsets() {
-        if (contents != null) {
+        if (export && contents != null) {
             return getContentsReferenceDescription(false);
         }
         return super.getInsets();

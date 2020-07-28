@@ -255,10 +255,13 @@ public class PasswordProtectedNormalizer implements IEntryStreamNormalizer {
     private int getKeySize(IEncryptionData encData) throws CoreException {
         String keySizeString = encData.getAttribute(TAG_KEY_DERIVATION,
                 ATTR_KEY_SIZE);
-        if (keySizeString == null) {
-            return Integer.parseInt(KEY_DERIVATION_SIZE);
+        if (keySizeString != null) {
+            try {
+                return Integer.parseInt(keySizeString);
+            } catch (NumberFormatException ignore) {
+            }
         }
-        return Integer.parseInt(keySizeString);
+        return Integer.parseInt(KEY_DERIVATION_SIZE);
     }
 
     /*

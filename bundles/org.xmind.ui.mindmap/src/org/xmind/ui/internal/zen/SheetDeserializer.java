@@ -248,6 +248,11 @@ public class SheetDeserializer {
         }
         topic.setHyperlink(topicObject.optString(ZenConstants.KEY_HREF, null));
 
+        String zClass = topicObject.optString(ZenConstants.KEY_ZCLASS, null);
+        if (zClass != null) {
+            topic.setZClass(zClass);
+        }
+
         JSONArray labelArray = topicObject
                 .optJSONArray(ZenConstants.KEY_LABELS);
         if (labelArray != null) {
