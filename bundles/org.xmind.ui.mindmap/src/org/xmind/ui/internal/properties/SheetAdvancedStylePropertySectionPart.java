@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -40,8 +40,9 @@ public class SheetAdvancedStylePropertySectionPart
         taperedLinesCheck.setText(PropertyMessages.TaperedLines_text);
         taperedLinesCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.TOGGLE_TAPEREDLINE_COUNT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_FORMAT,
+                        UserDataConstants.TOGGLE_TAPERED_LINE);
                 changeTaperedLines();
             }
 
@@ -54,8 +55,9 @@ public class SheetAdvancedStylePropertySectionPart
                 .setText(PrefMessages.EditorPage_UndoRedo_gradientColor);
         gradientColorCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                        UserDataConstants.TOGGLE_GRADIENT_COLOR_COUNT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_FORMAT,
+                        UserDataConstants.TOGGLE_GRADIENT_COLOR);
                 changeGradientColor();
             }
 

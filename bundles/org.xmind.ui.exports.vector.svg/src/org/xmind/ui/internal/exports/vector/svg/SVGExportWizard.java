@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapImages;
 import org.xmind.ui.mindmap.MindMapUI;
@@ -304,8 +305,10 @@ public class SVGExportWizard extends DocumentExportWizard {
     protected void doExport(IProgressMonitor monitor, Display display,
             Shell parentShell)
             throws InvocationTargetException, InterruptedException {
-        SvgPlugin.getDefault().getUsageDataCollector()
-                .increase("ExportToSVGCount"); //$NON-NLS-1$
+
+        SvgPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_EXPORT,
+                UserDataConstants.EXPORT_TO_SVG);
         super.doExport(monitor, display, parentShell);
     }
 

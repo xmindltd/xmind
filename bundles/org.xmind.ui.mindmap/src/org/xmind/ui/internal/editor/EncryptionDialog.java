@@ -426,8 +426,9 @@ public class EncryptionDialog extends TitleAreaDialog {
             if ("".equals(newPassword)) { //$NON-NLS-1$
                 newPassword = null;
             }
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.SET_PASSWORD_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_WORKBOOK,
+                    UserDataConstants.SET_PASSWORD);
             this.password = newPassword;
         }
     }
@@ -450,8 +451,9 @@ public class EncryptionDialog extends TitleAreaDialog {
                 hintMessage = null;
 
             this.hintMessage = hintMessage;
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.SET_PASSWORD_HINT_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_WORKBOOK,
+                    UserDataConstants.SET_PASSWORD_HINT);
         }
     }
 

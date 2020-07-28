@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -40,25 +40,25 @@ public class PrecisionPolygon {
         translate(-toTest.x, -toTest.y);
         int t1, t2;
         PrecisionPoint prev = getPoint(points.size() - 1);
-        t1 = prev.x >= 0 ? (prev.y >= 0 ? 0 : 3) : (prev.y >= 0 ? 1 : 2); // ¼ÆËãÏóÏÞ
+        t1 = prev.x >= 0 ? (prev.y >= 0 ? 0 : 3) : (prev.y >= 0 ? 1 : 2); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         int sum = 0, i = 0;
         if (prev.x != 0 || prev.y != 0) {
             for (; i < points.size(); i++) {
                 PrecisionPoint current = getPoint(i);
                 if ((current.x == 0 && current.y == 0) && outline)
-                    break; // ±»²âµãÎª¶à±ßÐÎ¶¥µã
+                    break; // ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½Î¶ï¿½ï¿½ï¿½
 
-                double f = current.y * prev.x - current.x * prev.y; // ¼ÆËã²æ»ý
+                double f = current.y * prev.x - current.x * prev.y; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 if (f == 0 && prev.x * current.x <= 0
                         && prev.y * current.y <= 0 && outline)
-                    break; // µãÔÚ±ßÉÏ
+                    break; // ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½
                 t2 = current.x >= 0 ? (current.y >= 0 ? 0 : 3)
-                        : (current.y >= 0 ? 1 : 2); // ¼ÆËãÏóÏÞ
+                        : (current.y >= 0 ? 1 : 2); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 if (t2 == (t1 + 1) % 4)
-                    sum += 1; // Çé¿ö1
+                    sum += 1; // ï¿½ï¿½ï¿½1
                 else if (t2 == (t1 + 3) % 4)
-                    sum -= 1;// Çé¿ö2
-                else if (t2 == (t1 + 2) % 4)// Çé¿ö3
+                    sum -= 1;// ï¿½ï¿½ï¿½2
+                else if (t2 == (t1 + 2) % 4)// ï¿½ï¿½ï¿½3
                 {
                     if (f > 0)
                         sum += 2;

@@ -61,6 +61,8 @@ public class Promotion extends Dialog {
 
     private boolean isClosed = false;
 
+    private boolean isClickCloseButton = false;
+
     public Promotion(Shell parent, String infoText, IAction action,
             boolean isCenter) {
         super(parent);
@@ -253,7 +255,7 @@ public class Promotion extends Dialog {
             }
 
             public void mouseDown(MouseEvent e) {
-
+                isClickCloseButton = true;
                 close();
             }
 
@@ -356,7 +358,6 @@ public class Promotion extends Dialog {
                 }
 
                 public void linkActivated(HyperlinkEvent e) {
-
                     close();
                     action.run();
                 }
@@ -405,7 +406,6 @@ public class Promotion extends Dialog {
             timer = new UITimer(duration, 0, 0, new SafeRunnable() {
 
                 public void run() {
-
                     close();
                     timer.cancel();
                     timer = null;
@@ -425,7 +425,6 @@ public class Promotion extends Dialog {
     }
 
     private synchronized boolean closePromotion() {
-
         if (isClosed)
             return false;
         isClosed = true;
@@ -446,6 +445,9 @@ public class Promotion extends Dialog {
                                         + prom.getInitialSize().y));
             }
         }
+    }
 
+    public boolean isClickCloseButton() {
+        return isClickCloseButton;
     }
 }

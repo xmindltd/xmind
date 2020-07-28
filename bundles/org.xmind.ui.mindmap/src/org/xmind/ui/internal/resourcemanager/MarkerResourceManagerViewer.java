@@ -392,9 +392,9 @@ public class MarkerResourceManagerViewer extends ResourceManagerViewer {
         if (category instanceof IMarkerGroup) {
             List<IMarker> newMarkers = ResourceUtils
                     .addMarkersFor((IMarkerGroup) category);
-            for (IMarker marker : newMarkers)
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.USER_MARKER_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_MARKER,
+                    UserDataConstants.ADD_USER_MARKERS);
             refresh();
             reveal(category);
             setSelection(new StructuredSelection(newMarkers), true);

@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -46,6 +46,7 @@ import org.xmind.ui.decorations.ISummaryDecoration;
 import org.xmind.ui.decorations.ITopicDecoration;
 import org.xmind.ui.internal.figures.BoundaryFigure;
 import org.xmind.ui.internal.figures.BranchFigure;
+import org.xmind.ui.internal.figures.InformationFigure;
 import org.xmind.ui.internal.figures.TopicFigure;
 import org.xmind.ui.mindmap.IBoundaryPart;
 import org.xmind.ui.mindmap.IBranchPart;
@@ -531,6 +532,10 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
             area = info.createInitBounds();
         }
 
+        if (figure instanceof InformationFigure) {
+            ((InformationFigure) figure).setConstraint(area.getSize().width);
+        }
+
         Dimension size = figure.getPreferredSize();
 
         TopicFigure tf = (TopicFigure) topicPart.getFigure();
@@ -918,7 +923,6 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
     /*
      * Subclass may extend this method.
-     * 
      * @seeorg.xmind.ui.mindmap.graphicalpolicies.IBranchStructure#
      * calcSourceOrientation(org.xmind.ui.parts.IBranchPart)
      */
@@ -928,7 +932,6 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
     /*
      * Subclass may extend this method.
-     * 
      * @seeorg.xmind.ui.mindmap.graphicalpolicies.IBranchStructure#
      * calcChildTargetOrientation(org.xmind.ui.parts.IBranchPart,
      * org.xmind.ui.parts.IBranchPart)
@@ -951,7 +954,6 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
     /*
      * Subclass may extend this method.
-     * 
      * @seeorg.xmind.ui.mindmap.graphicalpolicies.IBranchStructure#
      * calcChildIndex(org.xmind.ui.tools.ParentSearchKey)
      */
@@ -961,7 +963,6 @@ public abstract class AbstractBranchStructure implements IBranchStructure,
 
     /*
      * Subclass may extend this method.
-     * 
      * @seeorg.xmind.ui.mindmap.graphicalpolicies.IBranchStructure#
      * calcChildDistance(org.xmind.ui.parts.IBranchPart,
      * org.xmind.ui.tools.ParentSearchKey)

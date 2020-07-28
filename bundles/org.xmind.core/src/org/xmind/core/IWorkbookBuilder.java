@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -23,7 +23,6 @@ import org.xmind.core.io.IStorage;
 /**
  * A workbook builder is responsible for creating/loading/saving workbook
  * instances.
- * 
  * <p>
  * Every workbook instance created by this workbook builder holds an
  * {@link IStorage} object to store temporary data during creation/loading and
@@ -48,7 +47,6 @@ public interface IWorkbookBuilder {
     /**
      * Creates a new <em>empty</em> workbook instance with the specified
      * storage. The storage will be cleared.
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
@@ -124,7 +122,7 @@ public interface IWorkbookBuilder {
      * @param file
      *            the absolute path of the local file from which the created
      *            workbook's content is loaded
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -134,7 +132,7 @@ public interface IWorkbookBuilder {
      * @deprecated See {@link org.xmind.core.IDeserializer}
      */
     @Deprecated
-    IWorkbook loadFromPath(String path, IEncryptionHandler encryptionHandler)
+    IWorkbook loadFromPath(String path, IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -142,7 +140,6 @@ public interface IWorkbookBuilder {
      * local file path, into the specified storage. The specified encryption
      * handler is used to decrypt any password-protected content during the
      * process. The storage will be cleared.
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
@@ -154,7 +151,7 @@ public interface IWorkbookBuilder {
      * @param storage
      *            used by the created workbook to store temporary data after
      *            loading
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -165,7 +162,7 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromPath(String path, IStorage storage,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -196,7 +193,7 @@ public interface IWorkbookBuilder {
      * @param file
      *            the local file from which the created workbook's content is
      *            loaded
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -206,7 +203,7 @@ public interface IWorkbookBuilder {
      * @deprecated See {@link org.xmind.core.IDeserializer}
      */
     @Deprecated
-    IWorkbook loadFromFile(File file, IEncryptionHandler encryptionHandler)
+    IWorkbook loadFromFile(File file, IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -214,7 +211,6 @@ public interface IWorkbookBuilder {
      * local file, into the specified storage. The specified encryption handler
      * is used to decrypt any password-protected content during the process. The
      * storage will be cleared.
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
@@ -226,7 +222,7 @@ public interface IWorkbookBuilder {
      * @param storage
      *            used by the created workbook to store temporary data after
      *            loading
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -237,7 +233,7 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromFile(File file, IStorage storage,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -245,7 +241,6 @@ public interface IWorkbookBuilder {
      * input stream, into a new in-memory storage. The default encryption
      * handler of this workbook builder is used to decrypt any
      * password-protected content during the process.
-     * 
      * <p>
      * <b>NOTE</b> that the specified input stream will be closed after this
      * method returns.
@@ -269,12 +264,10 @@ public interface IWorkbookBuilder {
      * input stream, into the specified storage. The default encryption handler
      * of this workbook builder is used to decrypt any password-protected
      * content during the process. The storage will be cleared.
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
      * </p>
-     * 
      * <p>
      * <b>NOTE</b> that the specified input stream will be closed after this
      * method returns.
@@ -302,12 +295,10 @@ public interface IWorkbookBuilder {
      * input stream, into the specified storage. The specified encryption
      * handler is used to decrypt any password-protected content during the
      * process. The storage will be cleared.
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
      * </p>
-     * 
      * <p>
      * <b>NOTE</b> that the specified input stream will be closed after this
      * method returns.
@@ -319,7 +310,7 @@ public interface IWorkbookBuilder {
      * @param storage
      *            used by the created workbook to store temporary data after
      *            loading
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -330,7 +321,7 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromStream(InputStream in, IStorage storage,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -362,7 +353,7 @@ public interface IWorkbookBuilder {
      * @param source
      *            the input source from which the created workbok's content is
      *            loaded
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -373,7 +364,7 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromInputSource(IInputSource source,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -381,7 +372,6 @@ public interface IWorkbookBuilder {
      * input source, into the specified storage. The specified encryption
      * handler is used to decrypt any password-protected content during the
      * process. The storage will be cleared.
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
@@ -393,7 +383,7 @@ public interface IWorkbookBuilder {
      * @param storage
      *            used by the created workbook to store temporary data after
      *            loading
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -404,7 +394,7 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromInputSource(IInputSource source, IStorage storage,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -412,13 +402,11 @@ public interface IWorkbookBuilder {
      * from the specified storage. The default encryption handler of this
      * workbook builder is used to decrypt any password-protected content during
      * the process.
-     * 
      * <p>
      * The storage will <b>NOT</b> be cleared so that all existing data in it
      * will be preserved. If the storage is empty or corrupted, loading errors
      * may occur.
      * </p>
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
@@ -442,13 +430,11 @@ public interface IWorkbookBuilder {
      * Creates a new workbook instance and loads its content <em>directly</em>
      * from the specified storage. The specified encryption handler is used to
      * decrypt any password-protected content during the process.
-     * 
      * <p>
      * The storage will <b>NOT</b> be cleared so that all existing data in it
      * will be preserved. If the storage is empty or corrupted, loading errors
      * may occur.
      * </p>
-     * 
      * <p>
      * The storage can be retrieved using
      * <code>workbook.getAdapter(IStorage.class)</code>.
@@ -457,7 +443,7 @@ public interface IWorkbookBuilder {
      * @param storage
      *            used by the worbook to load initial content and store
      *            temporary data after loading
-     * @param encryptionHandler
+     * @param normalizer
      *            providing decryption information
      * @return a new workbook instance with content
      * @throws IOException
@@ -468,18 +454,8 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromStorage(IStorage storage,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
-
-    /**
-     * Sets the default encryption handler to use for loadFromXXX methods.
-     * 
-     * @param encryptionHandler
-     *            the new encryption handler to use
-     * @deprecated See {@link org.xmind.core.IDeserializer}
-     */
-    @Deprecated
-    void setDefaultEncryptionHandler(IEncryptionHandler encryptionHandler);
 
     /**
      * @deprecated Do NOT let workbook know about its file path.
@@ -505,7 +481,7 @@ public interface IWorkbookBuilder {
      */
     @Deprecated
     IWorkbook loadFromStream(InputStream in, String tempLocation,
-            IEncryptionHandler encryptionHandler)
+            IEntryStreamNormalizer normalizer)
             throws IOException, CoreException;
 
     /**
@@ -514,5 +490,9 @@ public interface IWorkbookBuilder {
     @Deprecated
     IWorkbook loadFromTempLocation(String tempLocation)
             throws IOException, CoreException;
+
+    void setEntryStreamNormalizer(IEntryStreamNormalizer normalizer);
+
+    IEntryStreamNormalizer getEntryStreamNormalizer();
 
 }

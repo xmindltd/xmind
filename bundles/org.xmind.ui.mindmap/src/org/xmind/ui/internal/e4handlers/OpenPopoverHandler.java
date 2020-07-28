@@ -38,7 +38,7 @@ public class OpenPopoverHandler {
             return;
 
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_MARKER_COUNT);
+                .trackView(UserDataConstants.VIEW_MARKER_POPOVER);
         MApplication appModel = context.get(MApplication.class);
         MUIElement markerDirectItem = modelService
                 .find(IModelConstants.TOOLITEM_ID_MARKER_POPOVER, appModel);

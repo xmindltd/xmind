@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -899,14 +899,15 @@ public class MindMapSelectTool extends SelectTool {
         List<String> paths = new ArrayList<String>(fileNames.length);
         for (String fileName : fileNames) {
             if (fileName.contains(".")) { //$NON-NLS-1$
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(String.format(
-                                UserDataConstants.ATTACHMENT_FORMAT_COUNT_S,
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_ATTACHMENT,
+                        String.format(UserDataConstants.ATTACHMENT_FORMAT_S,
                                 fileName.toLowerCase().substring(
                                         fileName.lastIndexOf('.') + 1)));
             } else {
-                MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                        UserDataConstants.ATTACHMENT_FORMAT_COUNT_BLANK_FORMAT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_ATTACHMENT,
+                        UserDataConstants.ATTACHMENT_FORMAT_BLANK);
             }
             String path = new File(parentPath, fileName).getAbsolutePath();
             paths.add(path);

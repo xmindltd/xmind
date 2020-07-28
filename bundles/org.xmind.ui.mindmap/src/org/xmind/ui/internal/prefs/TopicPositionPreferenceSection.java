@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.preference.PreferenceFieldEditorPageSection;
 import org.xmind.ui.prefs.PrefConstants;
@@ -45,9 +46,26 @@ public class TopicPositionPreferenceSection extends
 
     // allow  overlap 
     private void addAllowOverlapsField() {
-        addField(new BooleanFieldEditor(PrefConstants.OVERLAPS_ALLOWED,
+        BooleanFieldEditor allowOverlapsField = new BooleanFieldEditor(
+                PrefConstants.OVERLAPS_ALLOWED,
                 PrefMessages.EditorPage_TopicPositioning_AllowOverlaps,
-                getFieldEditorParent()));
+                getFieldEditorParent()) {
+
+            @Override
+            protected void doStore() {
+                boolean oldValue = getPreferenceStore()
+                        .getBoolean(getPreferenceName());
+                super.doStore();
+                boolean newValue = getPreferenceStore()
+                        .getBoolean(getPreferenceName());
+                if (oldValue != newValue) {
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .trackEvent(UserDataConstants.CATEGORY_PREFERENCE,
+                                    UserDataConstants.ALLOW_OVERLAP);
+                }
+            }
+        };
+        addField(allowOverlapsField);
     }
 
 //    private void addAllowFreePositionField() {
@@ -58,9 +76,26 @@ public class TopicPositionPreferenceSection extends
 
     //allow manual layout
     private void addAllowManualLayoutField() {
-        addField(new BooleanFieldEditor(PrefConstants.MANUAL_LAYOUT_ALLOWED,
+        BooleanFieldEditor allowManualLayoutField = new BooleanFieldEditor(
+                PrefConstants.MANUAL_LAYOUT_ALLOWED,
                 PrefMessages.EditorPage_TopicPositioning_AllowManualLayout,
-                getFieldEditorParent()));
+                getFieldEditorParent()) {
+
+            @Override
+            protected void doStore() {
+                boolean oldValue = getPreferenceStore()
+                        .getBoolean(getPreferenceName());
+                super.doStore();
+                boolean newValue = getPreferenceStore()
+                        .getBoolean(getPreferenceName());
+                if (oldValue != newValue) {
+                    MindMapUIPlugin.getDefault().getUsageDataCollector()
+                            .trackEvent(UserDataConstants.CATEGORY_PREFERENCE,
+                                    UserDataConstants.ALLOW_FREE_POSITION);
+                }
+            }
+        };
+        addField(allowManualLayoutField);
     }
 
     protected IPreferenceStore doGetPreferenceStore() {

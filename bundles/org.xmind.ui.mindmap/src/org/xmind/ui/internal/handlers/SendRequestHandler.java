@@ -89,11 +89,13 @@ public abstract class SendRequestHandler extends AbstractHandler
             return;
 
         if (MindMapUI.REQ_CREATE_CALLOUT.equals(requestType)) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.INSERT_CALLOUT_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_INSERT,
+                    UserDataConstants.INSERT_CALLOUT);
         } else if (MindMapUI.REQ_CREATE_RELATIONSHIP.equals(requestType)) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.INSERT_RELATIONSHIP_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_INSERT,
+                    UserDataConstants.INSERT_RELATIONSHIP);
         }
     }
 

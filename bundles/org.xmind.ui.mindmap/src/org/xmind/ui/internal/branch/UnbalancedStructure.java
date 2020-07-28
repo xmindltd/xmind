@@ -56,8 +56,8 @@ public class UnbalancedStructure extends ClockwiseRadialStructure {
                 IBranchPart sub = subBranches.get(right - 1);
                 Rectangle bounds = sub.getFigure().getBounds();
                 int x = bounds.x + inventSize.width / 2;
-                int y = bounds.bottom() + (insSize.height + inventSize.height)
-                        / 2;
+                int y = bounds.bottom()
+                        + (insSize.height + inventSize.height) / 2;
                 return new Point(x, y);
             }
 
@@ -68,26 +68,28 @@ public class UnbalancedStructure extends ClockwiseRadialStructure {
                 return calcFirstChildPosition(branch, key).getNegated();
             }
 
-            IBranchPart leftFirst = subBranches.get(right);
-            if (index == right) {
-                Rectangle lFBounds = leftFirst.getFigure().getBounds();
-                int x = lFBounds.right() - inventSize.width / 2;
-                int y = lFBounds.bottom()
-                        + (insSize.height + inventSize.height) / 2;
-                return new Point(x, y);
-            }
-
-            if (left == 1) {
-                Rectangle lFBounds = leftFirst.getFigure().getBounds();
-                if (lFBounds.y < 0) {
+            if (right >= 0 && right < subBranches.size()) {
+                IBranchPart leftFirst = subBranches.get(right);
+                if (index == right) {
+                    Rectangle lFBounds = leftFirst.getFigure().getBounds();
                     int x = lFBounds.right() - inventSize.width / 2;
-                    int y = lFBounds.y - (insSize.height + inventSize.height)
-                            / 2;
+                    int y = lFBounds.bottom()
+                            + (insSize.height + inventSize.height) / 2;
                     return new Point(x, y);
-                } else {
-                    Point loc = calcFirstChildPosition(branch, key)
-                            .getNegated();
-                    return new Point(loc.x, -loc.y);
+                }
+
+                if (left == 1) {
+                    Rectangle lFBounds = leftFirst.getFigure().getBounds();
+                    if (lFBounds.y < 0) {
+                        int x = lFBounds.right() - inventSize.width / 2;
+                        int y = lFBounds.y
+                                - (insSize.height + inventSize.height) / 2;
+                        return new Point(x, y);
+                    } else {
+                        Point loc = calcFirstChildPosition(branch, key)
+                                .getNegated();
+                        return new Point(loc.x, -loc.y);
+                    }
                 }
             }
 
@@ -133,15 +135,15 @@ public class UnbalancedStructure extends ClockwiseRadialStructure {
                 if (index == oldIndex)
                     return getReference(subBranches.get(index)).getTranslated(
                             -getTopicSize(subBranches.get(index)).width / 2
-                                    + inventSize.width / 2, 0);
+                                    + inventSize.width / 2,
+                            0);
 
             } else {
                 if (index == right) {
                     IBranchPart sub = subBranches.get(index - 1);
-                    Point loc = getReference(sub)
-                            .getTranslated(
-                                    -getTopicSize(sub).width / 2
-                                            + inventSize.width / 2, 0);
+                    Point loc = getReference(sub).getTranslated(
+                            -getTopicSize(sub).width / 2 + inventSize.width / 2,
+                            0);
                     if (right == 1)
                         return new Point(loc.x, -loc.y);
                 }
@@ -154,15 +156,14 @@ public class UnbalancedStructure extends ClockwiseRadialStructure {
                 if (index == right - 1) {
                     IBranchPart sub = subBranches.get(index + 1);
                     if (!sub.getFigure().isEnabled())
-                        return getReference(sub).getTranslated(
-                                getTopicSize(sub).width / 2 - inventSize.width
-                                        / 2, 0);
+                        return getReference(sub)
+                                .getTranslated(getTopicSize(sub).width / 2
+                                        - inventSize.width / 2, 0);
 
                     Rectangle bounds = sub.getFigure().getBounds();
                     int x = bounds.right() - inventSize.width / 2;
-                    int y = bounds.bottom()
-                            + (key.getFigure().getSize().height + inventSize.height)
-                            / 2;
+                    int y = bounds.bottom() + (key.getFigure().getSize().height
+                            + inventSize.height) / 2;
                     return new Point(x, y);
                 }
             } else {

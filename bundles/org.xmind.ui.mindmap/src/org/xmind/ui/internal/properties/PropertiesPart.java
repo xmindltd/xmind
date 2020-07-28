@@ -179,7 +179,7 @@ public class PropertiesPart extends ViewModelPart
 
     protected void createContent(Composite parent) {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_FORMAT_PART_COUNT);
+                .trackView(UserDataConstants.VIEW_FORMAT);
 
         CTabFolder ctf = new CTabFolder(parent, SWT.BORDER);
         ctf.setRenderer(new ViewModelFolderRenderer(ctf));

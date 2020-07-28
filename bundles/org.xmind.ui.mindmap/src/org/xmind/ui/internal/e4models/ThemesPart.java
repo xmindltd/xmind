@@ -55,7 +55,7 @@ public class ThemesPart extends ViewModelPart
     @Override
     protected Control doCreateContent(Composite parent) {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_THEME_COUNT);
+                .trackView(UserDataConstants.VIEW_THEME);
 
         Composite container = new Composite(parent, SWT.NONE);
         container.setBackground(

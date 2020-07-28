@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -102,9 +102,10 @@ public class ModifyTopicStructureCommand extends ModifyCommand {
                     String vs = value.toString();
                     String ID = vs.replaceAll("\\.", "_");  //$NON-NLS-1$//$NON-NLS-2$
                     MindMapUIPlugin.getDefault().getUsageDataCollector()
-                            .increase(String.format(
-                                    UserDataConstants.STRUCTURE_TYPE_COUNT,
-                                    ID));
+                            .trackEvent(UserDataConstants.CATEGORY_STRUCTURE,
+                                    String.format(
+                                            UserDataConstants.USE_STRUCTURE_TYPE_S,
+                                            ID));
                 }
                 topic.setStructureClass((String) value);
             }
@@ -113,8 +114,9 @@ public class ModifyTopicStructureCommand extends ModifyCommand {
 
     @Override
     public void execute() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.MODIFY_STRUCTURE_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_STRUCTURE,
+                UserDataConstants.MODIFY_STRUCTURE);
         super.execute();
     }
 

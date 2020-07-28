@@ -289,8 +289,9 @@ public class NovaMindImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_NOVA_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_IMPORT,
+                UserDataConstants.IMPORT_FROM_NOVA);
         getMonitor().beginTask(null, 100);
         try {
             getMonitor()

@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -97,17 +97,20 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
                 shell.addShellListener(new ShellAdapter() {
                     @Override
                     public void shellActivated(ShellEvent e) {
-                        Display.getCurrent().asyncExec(new Runnable() {
-                            public void run() {
-                                SafeRunner.run(new SafeRunnable() {
-                                    public void run() throws Exception {
-                                        new CheckOpenFilesProcess(
-                                                window.getWorkbench())
-                                                        .doCheckAndOpenFiles();
-                                    }
-                                });
-                            }
-                        });
+                        Display display = Display.getCurrent();
+                        if (display != null && !display.isDisposed()) {
+                            display.asyncExec(new Runnable() {
+                                public void run() {
+                                    SafeRunner.run(new SafeRunnable() {
+                                        public void run() throws Exception {
+                                            new CheckOpenFilesProcess(
+                                                    window.getWorkbench())
+                                                            .doCheckAndOpenFiles();
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
                 });
             }
@@ -238,11 +241,14 @@ public class CathyWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
     }
 
     private void updateWindowTitle() {
-        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-            public void run() {
-                doUpdateWindowTitle();
-            }
-        });
+        Display display = PlatformUI.getWorkbench().getDisplay();
+        if (display != null && !display.isDisposed()) {
+            display.asyncExec(new Runnable() {
+                public void run() {
+                    doUpdateWindowTitle();
+                }
+            });
+        }
     }
 
     private void doUpdateWindowTitle() {

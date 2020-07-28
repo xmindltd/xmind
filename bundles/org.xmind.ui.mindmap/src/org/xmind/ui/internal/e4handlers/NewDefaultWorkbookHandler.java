@@ -16,8 +16,9 @@ public class NewDefaultWorkbookHandler {
         if (window == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_WORKBOOK,
+                UserDataConstants.CREATE_WORKBOOK);
 
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {

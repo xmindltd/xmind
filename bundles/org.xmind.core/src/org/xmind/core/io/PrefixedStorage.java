@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -122,6 +121,10 @@ public class PrefixedStorage implements IStorage {
             }
         }
 
+        public boolean isNoZipSlip(String entryName) {
+            return target.isNoZipSlip(prefix + entryName);
+        }
+
     }
 
     private IStorage storage;
@@ -188,7 +191,6 @@ public class PrefixedStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -198,7 +200,6 @@ public class PrefixedStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override

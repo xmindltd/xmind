@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -27,7 +27,9 @@ import static org.xmind.core.internal.dom.DOMConstants.TAG_REVISION_CONTENT;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,6 +55,8 @@ import org.xmind.core.util.DOMUtils;
  */
 public class RevisionManagerImpl extends RevisionManager
         implements ICoreEventSource, INodeAdaptableFactory {
+
+    private static long ONE_DAY_MILLISECONDS = 24 * 3600 * 1000;
 
     private Document implementation;
 
@@ -184,6 +188,7 @@ public class RevisionManagerImpl extends RevisionManager
             revision.addNotify(ownedWorkbook);
             fireTargetEvent(Core.RevisionAdd, revision);
         }
+        trimRevisions();
         return revision;
     }
 
@@ -333,6 +338,109 @@ public class RevisionManagerImpl extends RevisionManager
 
     private void fireTargetEvent(String eventType, IRevision revision) {
         getCoreEventSupport().dispatchTargetChange(this, eventType, revision);
+    }
+
+    private void trimRevisions() {
+        long currentTime = System.currentTimeMillis();
+
+        // revisions has inverted order
+        List<IRevision> revisions = getRevisions();
+
+        // to store live revisions
+        List<IRevision> dayRevisions = new ArrayList<IRevision>();
+        List<IRevision> weekRevisions = new ArrayList<IRevision>();
+        List<IRevision> monthRevisions = new ArrayList<IRevision>();
+        List<IRevision> yearRevisions = new ArrayList<IRevision>();
+
+        for (int i = revisions.size() - 1; i >= 0; i--) {
+            IRevision revision = revisions.get(i);
+            long deltaTime = currentTime - revision.getTimestamp();
+
+            // if deltaTime < 0, operate with the standards of day
+            if (deltaTime < 7 * ONE_DAY_MILLISECONDS) {
+
+                IRevision lastDayRevision = dayRevisions.size() == 0 ? null
+                        : dayRevisions.get(dayRevisions.size() - 1);
+                if (lastDayRevision != null) {
+                    int lastDeltaDay = (int) ((currentTime
+                            - lastDayRevision.getTimestamp())
+                            / ONE_DAY_MILLISECONDS);
+                    int deltaDay = (int) (deltaTime / ONE_DAY_MILLISECONDS);
+                    if (deltaDay != lastDeltaDay) {
+                        dayRevisions.add(revision);
+                    }
+                } else {
+                    dayRevisions.add(revision);
+                }
+
+            } else if (deltaTime < 30 * ONE_DAY_MILLISECONDS) {
+
+                IRevision lastWeekRevision = weekRevisions.size() == 0 ? null
+                        : weekRevisions.get(weekRevisions.size() - 1);
+                if (lastWeekRevision != null) {
+                    int lastDeltaWeek = (int) ((currentTime
+                            - lastWeekRevision.getTimestamp())
+                            / (7 * ONE_DAY_MILLISECONDS));
+                    int deltaWeek = (int) (deltaTime
+                            / (7 * ONE_DAY_MILLISECONDS));
+                    if (deltaWeek != lastDeltaWeek) {
+                        weekRevisions.add(revision);
+                    }
+                } else {
+                    weekRevisions.add(revision);
+                }
+
+            } else if (deltaTime < 365 * ONE_DAY_MILLISECONDS) {
+
+                IRevision lastMonthRevision = monthRevisions.size() == 0 ? null
+                        : monthRevisions.get(monthRevisions.size() - 1);
+                if (lastMonthRevision != null) {
+                    int lastDeltaMonth = (int) ((currentTime
+                            - lastMonthRevision.getTimestamp())
+                            / (30 * ONE_DAY_MILLISECONDS));
+                    int deltaMonth = (int) (deltaTime
+                            / (30 * ONE_DAY_MILLISECONDS));
+                    if (deltaMonth != lastDeltaMonth) {
+                        monthRevisions.add(revision);
+                    }
+                } else {
+                    monthRevisions.add(revision);
+                }
+
+            } else {
+
+                IRevision lastYearRevision = yearRevisions.size() == 0 ? null
+                        : yearRevisions.get(yearRevisions.size() - 1);
+                if (lastYearRevision != null) {
+                    int lastDeltaYear = (int) ((currentTime
+                            - lastYearRevision.getTimestamp())
+                            / (365 * ONE_DAY_MILLISECONDS));
+                    int deltaYear = (int) (deltaTime
+                            / (365 * ONE_DAY_MILLISECONDS));
+                    if (deltaYear != lastDeltaYear) {
+                        yearRevisions.add(revision);
+                    }
+                } else {
+                    yearRevisions.add(revision);
+                }
+
+            }
+        }
+
+        // leave follows and remove others
+        List<IRevision> liveRevisions = new ArrayList<IRevision>(yearRevisions);
+        liveRevisions.addAll(monthRevisions);
+        liveRevisions.addAll(weekRevisions);
+        liveRevisions.addAll(dayRevisions);
+
+        // remove needless
+        Iterator<IRevision> ite = revisions.iterator();
+        while (ite.hasNext()) {
+            IRevision revision = ite.next();
+            if (!liveRevisions.contains(revision)) {
+                removeRevision(revision);
+            }
+        }
     }
 
 }

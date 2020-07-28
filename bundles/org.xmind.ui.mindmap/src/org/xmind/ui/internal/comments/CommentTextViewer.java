@@ -343,8 +343,9 @@ public class CommentTextViewer {
             @Override
             public void run() {
                 addComment();
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.ADD_COMMENT_COUNT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_COMMENTS,
+                        UserDataConstants.ADD_COMMENT);
             }
         };
         Hyperlink addLink = createLink(composite,
@@ -1237,8 +1238,9 @@ public class CommentTextViewer {
     }
 
     private boolean saveComment() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.ADD_COMMENT_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_COMMENTS,
+                UserDataConstants.ADD_COMMENT);
 
         resetModified();
         isLinkHovering = false;

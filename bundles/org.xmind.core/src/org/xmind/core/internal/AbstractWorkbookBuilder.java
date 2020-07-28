@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.xmind.core.CoreException;
-import org.xmind.core.IEncryptionHandler;
+import org.xmind.core.IEntryStreamNormalizer;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.IWorkbookBuilder;
 import org.xmind.core.io.ByteArrayStorage;
@@ -34,27 +34,15 @@ import org.xmind.core.util.FileUtils;
 @SuppressWarnings("deprecation")
 public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
 
-    private IEncryptionHandler defaultEncryptionHandler = null;
-
     public String creatorName;
 
     public String creatorVersion;
 
-    public synchronized void setDefaultEncryptionHandler(
-            IEncryptionHandler encryptionHandler) {
-        if (this.defaultEncryptionHandler != null)
-            return;
-
-        this.defaultEncryptionHandler = encryptionHandler;
-    }
+    private IEntryStreamNormalizer normalizer;
 
     public synchronized void setCreator(String name, String version) {
         this.creatorName = name;
         this.creatorVersion = version;
-    }
-
-    protected IEncryptionHandler getDefaultEncryptionHandler() {
-        return this.defaultEncryptionHandler;
     }
 
     public String getCreatorName() {
@@ -76,74 +64,72 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
     public IWorkbook loadFromPath(String path)
             throws IOException, CoreException {
         return loadFromPath(path, new ByteArrayStorage(),
-                getDefaultEncryptionHandler());
+                getEntryStreamNormalizer());
     }
 
     public IWorkbook loadFromPath(String path,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
-        return loadFromPath(path, new ByteArrayStorage(), encryptionHandler);
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
+        return loadFromPath(path, new ByteArrayStorage(), normalizer);
     }
 
     public IWorkbook loadFromPath(String path, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (path == null)
             throw new IllegalArgumentException("Path is null"); //$NON-NLS-1$
-        return doLoadFromPath(path, storage, encryptionHandler);
+        return doLoadFromPath(path, storage, normalizer);
     }
 
     public IWorkbook loadFromFile(File file) throws IOException, CoreException {
         return loadFromFile(file, new ByteArrayStorage(),
-                getDefaultEncryptionHandler());
+                getEntryStreamNormalizer());
     }
 
-    public IWorkbook loadFromFile(File file,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
-        return loadFromFile(file, new ByteArrayStorage(), encryptionHandler);
+    public IWorkbook loadFromFile(File file, IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
+        return loadFromFile(file, new ByteArrayStorage(), normalizer);
     }
 
     public IWorkbook loadFromFile(File file, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (file == null)
             throw new IllegalArgumentException("File is null"); //$NON-NLS-1$
         if (!file.exists())
             throw new FileNotFoundException("File not exists: " + file); //$NON-NLS-1$
 
         if (file.isDirectory()) {
-            return doLoadFromDirectory(file, storage, encryptionHandler);
+            return doLoadFromDirectory(file, storage, normalizer);
         }
 
         if (!file.canRead())
             throw new IOException("File can't be read: " + file); //$NON-NLS-1$
 
-        return doLoadFromFile(file, storage, encryptionHandler);
+        return doLoadFromFile(file, storage, normalizer);
     }
 
     public IWorkbook loadFromStream(InputStream in)
             throws IOException, CoreException {
         return loadFromStream(in, new ByteArrayStorage(),
-                getDefaultEncryptionHandler());
+                getEntryStreamNormalizer());
     }
 
     public IWorkbook loadFromStream(InputStream in, IStorage storage)
             throws IOException, CoreException {
-        return loadFromStream(in, storage, getDefaultEncryptionHandler());
+        return loadFromStream(in, storage, getEntryStreamNormalizer());
     }
 
     public IWorkbook loadFromStream(InputStream in, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (in == null)
             throw new IllegalArgumentException("Input stream is null"); //$NON-NLS-1$
-        return doLoadFromStream(in, storage, encryptionHandler);
+        return doLoadFromStream(in, storage, getEntryStreamNormalizer());
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.IWorkbookBuilder#loadFromInputSource(org.xmind.core.io
      * .IInputSource)
@@ -151,43 +137,39 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
     public IWorkbook loadFromInputSource(IInputSource source)
             throws IOException, CoreException {
         return loadFromInputSource(source, new ByteArrayStorage(),
-                getDefaultEncryptionHandler());
+                getEntryStreamNormalizer());
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.IWorkbookBuilder#loadFromInputSource(org.xmind.core.io
-     * .IInputSource, org.xmind.core.IEncryptionHandler)
+     * .IInputSource, org.xmind.core.IEntryStreamNormalizer)
      */
     public IWorkbook loadFromInputSource(IInputSource source,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
-        return loadFromInputSource(source, new ByteArrayStorage(),
-                encryptionHandler);
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
+        return loadFromInputSource(source, new ByteArrayStorage(), normalizer);
     }
 
     /**
-     * 
      * @param source
      * @param storage
-     * @param encryptionHandler
+     * @param normalizer
      * @return
      * @throws IOException
      * @throws CoreException
      */
     public IWorkbook loadFromInputSource(IInputSource source, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (source == null)
             throw new IllegalArgumentException("Input source is null"); //$NON-NLS-1$
-        return doLoadFromInputSource(source, storage, encryptionHandler);
+        return doLoadFromInputSource(source, storage, normalizer);
     }
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.IWorkbookBuilder#loadFromStorage(org.xmind.core.io.
      * IStorage )
      */
@@ -199,11 +181,11 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
     }
 
     public IWorkbook loadFromStorage(IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (storage == null)
             throw new IllegalArgumentException("Storage is null"); //$NON-NLS-1$
-        return doLoadFromStorage(storage, encryptionHandler);
+        return doLoadFromStorage(storage, normalizer);
     }
 
     @Deprecated
@@ -232,28 +214,27 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
     protected abstract IWorkbook doCreateWorkbook(IStorage storage);
 
     protected IWorkbook doLoadFromPath(String path, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
-        return loadFromFile(new File(path), storage, encryptionHandler);
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
+        return loadFromFile(new File(path), storage, normalizer);
     }
 
     protected IWorkbook doLoadFromDirectory(File dir, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         return loadFromInputSource(new DirectoryInputSource(dir), storage,
-                encryptionHandler);
+                normalizer);
     }
 
     protected IWorkbook doLoadFromFile(File file, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException, FileNotFoundException {
-        return loadFromStream(new FileInputStream(file), storage,
-                encryptionHandler);
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException, FileNotFoundException {
+        return loadFromStream(new FileInputStream(file), storage, normalizer);
     }
 
     protected IWorkbook doLoadFromStream(InputStream in, IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (storage == null)
             storage = new ByteArrayStorage();
         try {
@@ -261,24 +242,24 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
         } finally {
             in.close();
         }
-        return doLoadFromStorage(storage, encryptionHandler);
+        return doLoadFromStorage(storage, normalizer);
     }
 
     protected IWorkbook doLoadFromInputSource(IInputSource source,
-            IStorage storage, IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IStorage storage, IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (storage == null)
             storage = new ByteArrayStorage();
         FileUtils.transfer(source, storage.getOutputTarget());
-        return doLoadFromStorage(storage, encryptionHandler);
+        return doLoadFromStorage(storage, normalizer);
     }
 
     protected abstract void extractFromStream(InputStream input,
             IOutputTarget target) throws IOException, CoreException;
 
     protected abstract IWorkbook doLoadFromStorage(IStorage storage,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException;
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException;
 
     ////////////////////////////////////////////////////////////////
     //
@@ -304,8 +285,8 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
 
     @Deprecated
     public IWorkbook loadFromStream(InputStream in, String tempLocation,
-            IEncryptionHandler encryptionHandler)
-                    throws IOException, CoreException {
+            IEntryStreamNormalizer normalizer)
+            throws IOException, CoreException {
         if (tempLocation == null)
             throw new IllegalArgumentException("Temp location is null"); //$NON-NLS-1$
         File dir = new File(tempLocation);
@@ -315,7 +296,15 @@ public abstract class AbstractWorkbookBuilder implements IWorkbookBuilder {
         if (!dir.isDirectory())
             throw new FileNotFoundException(
                     "Temp location is not directory: " + tempLocation); //$NON-NLS-1$
-        return loadFromStream(in, new DirectoryStorage(dir), encryptionHandler);
+        return loadFromStream(in, new DirectoryStorage(dir), normalizer);
+    }
+
+    public void setEntryStreamNormalizer(IEntryStreamNormalizer normalizer) {
+        this.normalizer = normalizer;
+    }
+
+    public IEntryStreamNormalizer getEntryStreamNormalizer() {
+        return normalizer;
     }
 
 }

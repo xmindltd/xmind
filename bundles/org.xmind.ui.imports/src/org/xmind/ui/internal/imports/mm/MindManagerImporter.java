@@ -5,7 +5,7 @@
  * under the Eclipse Public License (EPL), which is available at
  * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
  * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors: XMind Ltd. - initial API and implementation
  */
@@ -360,8 +360,9 @@ public class MindManagerImporter extends MindMapImporter
     }
 
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_MIND_MANAGER_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_IMPORT,
+                UserDataConstants.IMPORT_FROM_MIND_MANAGER);
         getMonitor().beginTask(null, 100);
         try {
             getMonitor()

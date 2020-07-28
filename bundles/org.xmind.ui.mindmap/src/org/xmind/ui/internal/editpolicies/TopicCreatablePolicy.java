@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -391,8 +391,9 @@ public class TopicCreatablePolicy extends MindMapPolicyBase {
 
     private void addMarker(Request request) {
         List<IPart> targets = request.getTargets();
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.USE_MARKERS_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_MARKER,
+                UserDataConstants.USE_MARKERS);
         Command cmd = createAddMarkerCommand(request, targets);
         if (cmd != null) {
             cmd.setLabel(CommandMessages.Command_AddMarker);

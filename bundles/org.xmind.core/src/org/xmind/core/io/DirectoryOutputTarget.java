@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -87,6 +87,23 @@ public class DirectoryOutputTarget implements IOutputTarget {
         return isAvailable() && !new File(dir, entryName).isDirectory();
     }
 
+    public boolean isNoZipSlip(String entryName) {
+        String dirCanonicalPath = null;
+        String entryCanonicalPath = null;
+        try {
+            dirCanonicalPath = dir.getCanonicalPath();
+            File entryfile = new File(dir, entryName);
+            entryCanonicalPath = entryfile.getCanonicalPath();
+
+            return entryCanonicalPath
+                    .startsWith(dirCanonicalPath + File.separator);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Core.getLogger().log(e);
+            return false;
+        }
+    }
+
     public boolean isAvailable() {
         if (!dir.exists()) {
             dir.mkdirs();
@@ -96,7 +113,6 @@ public class DirectoryOutputTarget implements IOutputTarget {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.io.IOutputTarget#setEntryTime(java.lang.String, long)
      */
     public void setEntryTime(String entryName, long time) {

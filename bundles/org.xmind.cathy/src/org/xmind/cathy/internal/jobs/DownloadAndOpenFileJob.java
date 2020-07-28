@@ -27,6 +27,7 @@ import org.xmind.core.util.FileUtils;
 import org.xmind.ui.internal.imports.freemind.FreeMindImporter;
 import org.xmind.ui.internal.imports.mm.MindManagerImporter;
 import org.xmind.ui.io.DownloadJob;
+import org.xmind.ui.mindmap.LazyPasswordBasedEncryptor;
 import org.xmind.ui.mindmap.MindMapUI;
 
 public class DownloadAndOpenFileJob extends Job {
@@ -146,12 +147,16 @@ public class DownloadAndOpenFileJob extends Job {
 
     private IWorkbook loadWorkbookFromXMindFile(IProgressMonitor monitor,
             IStorage tempStorage) throws Exception {
+        Core.getWorkbookBuilder()
+                .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
         return Core.getWorkbookBuilder().loadFromFile(tempFile, tempStorage,
                 null);
     }
 
     private IWorkbook loadWorkbookFromTemplate(IProgressMonitor monitor,
             IStorage tempStorage) throws Exception {
+        Core.getWorkbookBuilder()
+                .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
         return Core.getWorkbookBuilder().loadFromFile(tempFile, tempStorage,
                 null);
     }

@@ -259,13 +259,14 @@ public class CategorizedThemeViewer extends CategorizedGalleryViewer {
         }
 
         private void changeTheme(IStyle theme, String apply) {
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.CHANGE_THEME_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_THEME,
+                    UserDataConstants.CHANGE_THEME);
 
             if (theme != null)
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(String.format(
-                                UserDataConstants.USE_S_THEME_COUNT,
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_THEME,
+                        String.format(UserDataConstants.USE_THEME_S,
                                 theme.getName().replaceAll(" ", "_"))); //$NON-NLS-1$ //$NON-NLS-2$
 
             IGraphicalEditorPage page = getCurrentPage();

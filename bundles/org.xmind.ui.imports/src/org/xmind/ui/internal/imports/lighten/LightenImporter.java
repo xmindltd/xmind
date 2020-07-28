@@ -53,8 +53,9 @@ public class LightenImporter extends MindMapImporter implements ErrorHandler {
 
     @Override
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_LIGHTEN_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_IMPORT,
+                UserDataConstants.IMPORT_FROM_LIGHTEN);
         ZipInputStream zis = null;
         try {
             getMonitor().beginTask(null, 100);

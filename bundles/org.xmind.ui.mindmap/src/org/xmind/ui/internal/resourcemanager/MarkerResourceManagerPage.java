@@ -71,8 +71,9 @@ public class MarkerResourceManagerPage extends ResourceManagerDialogPage
         button.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.USER_ADD_GROUP_COUNT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_MARKER,
+                        UserDataConstants.ADD_USER_GROUP);
                 IMarkerSheet markerSheet = MindMapUI.getResourceManager()
                         .getUserMarkerSheet();
                 IMarkerGroup group = MindMapUI.getResourceManager()

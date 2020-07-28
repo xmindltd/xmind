@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -637,6 +637,8 @@ public class XMindNetRequest {
 
     private Thread runningThread = null;
 
+    private boolean followRedirects = false;
+
     public XMindNetRequest() {
         this(false);
     }
@@ -948,7 +950,7 @@ public class XMindNetRequest {
         try {
             while (true) {
                 /// connection auto redirect don't have needed params
-                connection.setInstanceFollowRedirects(false);
+                connection.setInstanceFollowRedirects(followRedirects);
 
                 connection.setDoOutput(writer != null);
                 if (isAborted())
@@ -1302,6 +1304,10 @@ public class XMindNetRequest {
         } else {
             Activator.log(String.format(format, values));
         }
+    }
+
+    public void setInstanceFollowRedirects(boolean followRedirects) {
+        this.followRedirects = followRedirects;
     }
 
     private static void assc(HttpURLConnection connection) {

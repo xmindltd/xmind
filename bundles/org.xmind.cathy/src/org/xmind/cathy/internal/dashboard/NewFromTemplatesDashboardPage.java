@@ -56,7 +56,7 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
         container.setLayout(layout);
 
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_TEMPLATES_COUNT);
+                .trackView(UserDataConstants.VIEW_TEMPLATES);
         viewer = new CategorizedTemplateViewer(container);
         Control control = viewer.getControl();
         control.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -66,9 +66,11 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
                 if (!templateOpening) {
                     handleTemplateSelected(event.getSelection());
                     MindMapUIPlugin.getDefault().getUsageDataCollector()
-                            .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
+                            .trackEvent(UserDataConstants.CATEGORY_WORKBOOK,
+                                    UserDataConstants.CREATE_WORKBOOK);
                     MindMapUIPlugin.getDefault().getUsageDataCollector()
-                            .increase(UserDataConstants.USE_TEMPLATES_COUNT);
+                            .trackEvent(UserDataConstants.CATEGORY_TEMPLATE,
+                                    UserDataConstants.USE_TEMPLATES);
                 }
             }
         });
@@ -151,9 +153,9 @@ public class NewFromTemplatesDashboardPage extends DashboardPage
 
         ITemplate template = (ITemplate) selectedElement;
         if (template != null && null != template.getName())
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(String.format(
-                            UserDataConstants.USE_S_TEMPLATE_COUNT,
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_TEMPLATE,
+                    String.format(UserDataConstants.USE_TEMPLATE_S,
                             template.getName().replaceAll(" ", "_"))); //$NON-NLS-1$ //$NON-NLS-2$
 
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()

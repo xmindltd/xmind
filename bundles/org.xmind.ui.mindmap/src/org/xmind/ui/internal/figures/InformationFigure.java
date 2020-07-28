@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -18,12 +18,14 @@ import org.xmind.gef.draw2d.DecoratedShapeFigure;
 import org.xmind.gef.draw2d.ITransparentableFigure;
 import org.xmind.gef.draw2d.graphics.AlphaGraphics;
 
-public class InformationFigure extends DecoratedShapeFigure implements
-        ITransparentableFigure {
+public class InformationFigure extends DecoratedShapeFigure
+        implements ITransparentableFigure {
 
     private int mainAlpha = 0xff;
 
     private int subAlpha = 0xff;
+
+    private Object constraint;
 
     public int getMainAlpha() {
         return mainAlpha;
@@ -83,4 +85,16 @@ public class InformationFigure extends DecoratedShapeFigure implements
     private void doPaintFigure(Graphics graphics) {
         super.paintFigure(graphics);
     }
+
+    public void setConstraint(Object constraint) {
+        if (this.constraint != constraint) {
+            this.constraint = constraint;
+            revalidate();
+        }
+    }
+
+    public Object getConstraint() {
+        return this.constraint;
+    }
+
 }

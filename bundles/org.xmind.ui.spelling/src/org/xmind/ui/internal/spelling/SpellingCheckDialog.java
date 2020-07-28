@@ -419,7 +419,7 @@ public class SpellingCheckDialog extends Dialog
     @Override
     protected Control createDialogArea(Composite parent) {
         SpellingPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SPELLING_CHECK_COUNT);
+                .trackView(UserDataConstants.VIEW_SPELLING_CHECK);
 
         Composite composite = (Composite) super.createDialogArea(parent);
         resources = new LocalResourceManager(JFaceResources.getResources(),

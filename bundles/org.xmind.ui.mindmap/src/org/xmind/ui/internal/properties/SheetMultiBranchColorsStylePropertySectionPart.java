@@ -181,8 +181,9 @@ public class SheetMultiBranchColorsStylePropertySectionPart
                 PropertyMessages.SheetMultiBranchColorsStylePropertySectionPart_multiBranchColor_text);
         multiLineColorsCheck.addSelectionListener(new SelectionListener() {
             public void widgetSelected(SelectionEvent e) {
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.TOGGLE_MULTI_COLOR_COUNT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_FORMAT,
+                        UserDataConstants.TOGGLE_MULTI_COLOR);
                 multiLineColorsSelectionViewer.setEnabled(
                         !multiLineColorsSelectionViewer.isEnabled());
                 if (multiLineColorsSelectionViewer.isEnabled()) {

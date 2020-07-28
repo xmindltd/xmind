@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -53,11 +53,11 @@ import org.xmind.ui.tools.ParentSearchKey;
 @SuppressWarnings("restriction")
 public class MainFishboneStructure extends AbstractBranchStructure {
 
-    private static final double sin = Math.sin(Math
-            .toRadians(Fishbone.RotateAngle));
+    private static final double sin = Math
+            .sin(Math.toRadians(Fishbone.RotateAngle));
 
-    private static final double cos = Math.cos(Math
-            .toRadians(Fishbone.RotateAngle));
+    private static final double cos = Math
+            .cos(Math.toRadians(Fishbone.RotateAngle));
 
     private static final double fMajor = 0.5d;
     private static final double fMinor = 5d;
@@ -68,7 +68,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
         this.direction = direction;
     }
 
-    protected void addExtraSpaces(IBranchPart branch, ReferencedLayoutData data) {
+    protected void addExtraSpaces(IBranchPart branch,
+            ReferencedLayoutData data) {
         super.addExtraSpaces(branch, data);
         Insets insets = new Insets();
         if (direction == IMainDirection.LeftHeaded) {
@@ -79,8 +80,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
         data.addMargins(insets);
     }
 
-    protected void doFillPlusMinus(IBranchPart branch,
-            IPlusMinusPart plusMinus, LayoutInfo info) {
+    protected void doFillPlusMinus(IBranchPart branch, IPlusMinusPart plusMinus,
+            LayoutInfo info) {
         Point ref = info.getReference();
         MainFishboneData fd = getCastedData(branch);
         fd.setOrigin(ref);
@@ -135,8 +136,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
 
 //            PrecisionInsets fChildBorder = pvf.ti(fd.phf
 //                    .ti(new PrecisionInsets(subBranchFigure.getInsets())));
-            PrecisionInsets fChildBorder = pvf.ti(fd.phf
-                    .ti(new PrecisionInsets(ins)));
+            PrecisionInsets fChildBorder = pvf
+                    .ti(fd.phf.ti(new PrecisionInsets(ins)));
 
             if (fChildBorder.left != 0) {
                 side.useRight = false;
@@ -151,8 +152,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
             FishboneData sub = getFishboneData(subBranch, sa);
 
             if (sub != null) {
-                PrecisionInsets fChildBranchRotated = pvf.ti(fd.phf
-                        .ti(sub.rBranchRefIns));
+                PrecisionInsets fChildBranchRotated = pvf
+                        .ti(fd.phf.ti(sub.rBranchRefIns));
                 PrecisionInsets fChildBranchNormal = fd.phf
                         .ti(sub.branchRefIns);
                 PrecisionInsets fChildTopicNormal = fd.phf.ti(sub.topicRefIns);
@@ -165,8 +166,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
                         - (bottom * cos - fChildTopicNormal.bottom) / sin;
 
                 if (side.useRight) {
-                    double rotatedSpacing = (fChildBranchNormal.top + fChildTopicNormal.bottom)
-                            / sin;
+                    double rotatedSpacing = (fChildBranchNormal.top
+                            + fChildTopicNormal.bottom) / sin;
                     joint = side.rotatedBottom + rotatedSpacing;
                 } else {
                     joint = Math.max(side.right, side.right + jointOff);
@@ -191,13 +192,14 @@ public class MainFishboneStructure extends AbstractBranchStructure {
 
                 rotatedBottom = joint
                         + (fChildBranchNormal.bottom - fChildTopicNormal.bottom)
-                        / sin + subSpacing;
+                                / sin
+                        + subSpacing;
             } else {
                 PrecisionInsets childBranchNormal = new PrecisionInsets(
                         ((IReferencedFigure) subBranchFigure)
                                 .getReferenceDescription());
-                PrecisionInsets fChildBranchNormal = pvf.ti(fd.phf
-                        .ti(childBranchNormal));
+                PrecisionInsets fChildBranchNormal = pvf
+                        .ti(fd.phf.ti(childBranchNormal));
                 double bottom = fChildBranchNormal.bottom + mainSpacing;
                 double rotatedSpacing = fChildBranchNormal.top * cos / sin;
                 if (side.useRight) {
@@ -305,8 +307,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
     private Rectangle getChildrenNodesBounds(IBranchPart branch) {
         Rectangle r = null;
         for (IBranchPart subbranch : branch.getSubBranches()) {
-            r = Geometry.union(r, subbranch.getTopicPart().getFigure()
-                    .getBounds());
+            r = Geometry.union(r,
+                    subbranch.getTopicPart().getFigure().getBounds());
         }
         return r;
     }
@@ -316,8 +318,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
         double angle = calcChildRotateAngle(branch, child);
         PrecisionPoint target = calcChildTargetLocation(branch, child, source);
         PrecisionDimension d = target.getDifference(source);
-        int w = (int) Math.floor(d.height / Math.tan(Math.toRadians(angle))
-                + 0.0000001);
+        int w = (int) Math
+                .floor(d.height / Math.tan(Math.toRadians(angle)) + 0.0000001);
         int offset = (int) Math.floor(d.width - w + 0.0000001);
         if (direction == IMainDirection.RightHeaded)
             return -offset;
@@ -360,8 +362,9 @@ public class MainFishboneStructure extends AbstractBranchStructure {
     }
 
     private double calcChildRotateAngle(IBranchPart branch, IBranchPart child) {
-        return isChildUpwards(branch, child) ? direction.getUpRotated()
-                .getRotateAngle() : direction.getDownRotated().getRotateAngle();
+        return isChildUpwards(branch, child)
+                ? direction.getUpRotated().getRotateAngle()
+                : direction.getDownRotated().getRotateAngle();
 //        return direction.getChildRotateAngle(isChildUpwards(branch, child));
     }
 
@@ -416,20 +419,20 @@ public class MainFishboneStructure extends AbstractBranchStructure {
                 return getSubTopicPart(branch, childIndex + 1);
             }
         } else {
-            boolean next = (direction == IMainDirection.LeftHeaded && GEF.REQ_NAV_RIGHT
-                    .equals(navReqType))
-                    || (direction == IMainDirection.RightHeaded && GEF.REQ_NAV_LEFT
-                            .equals(navReqType));
-            boolean prev = (direction == IMainDirection.LeftHeaded && GEF.REQ_NAV_LEFT
-                    .equals(navReqType))
-                    || (direction == IMainDirection.RightHeaded && GEF.REQ_NAV_RIGHT
-                            .equals(navReqType));
+            boolean next = (direction == IMainDirection.LeftHeaded
+                    && GEF.REQ_NAV_RIGHT.equals(navReqType))
+                    || (direction == IMainDirection.RightHeaded
+                            && GEF.REQ_NAV_LEFT.equals(navReqType));
+            boolean prev = (direction == IMainDirection.LeftHeaded
+                    && GEF.REQ_NAV_LEFT.equals(navReqType))
+                    || (direction == IMainDirection.RightHeaded
+                            && GEF.REQ_NAV_RIGHT.equals(navReqType));
             if (next || prev) {
                 int childIndex = sourceChild.getBranchIndex();
                 boolean upwards = isChildUpwards(branch, sourceChild,
                         childIndex);
-                for (int i = prev ? childIndex - 1 : childIndex + 1; prev ? i >= 0
-                        : i < branch.getSubBranches().size();) {
+                for (int i = prev ? childIndex - 1 : childIndex + 1; prev
+                        ? i >= 0 : i < branch.getSubBranches().size();) {
                     IBranchPart sub = branch.getSubBranches().get(i);
                     if (isChildUpwards(branch, sourceChild, i) == upwards) {
                         return sub.getTopicPart();
@@ -468,14 +471,16 @@ public class MainFishboneStructure extends AbstractBranchStructure {
 
     public int getChildTargetOrientation(IBranchPart branch,
             IBranchPart subBranch) {
-        int index = branch.getSubBranches().indexOf(subBranch);
-        if (index < 0)
-            return direction == IMainDirection.RightHeaded ? PositionConstants.EAST
-                    : PositionConstants.WEST;
-        if (isChildUpwards(branch, subBranch, index)) {
-            if (direction == IMainDirection.RightHeaded)
-                return PositionConstants.EAST;
-            return PositionConstants.WEST;
+        if (branch != null) {
+            int index = branch.getSubBranches().indexOf(subBranch);
+            if (index < 0)
+                return direction == IMainDirection.RightHeaded
+                        ? PositionConstants.EAST : PositionConstants.WEST;
+            if (isChildUpwards(branch, subBranch, index)) {
+                if (direction == IMainDirection.RightHeaded)
+                    return PositionConstants.EAST;
+                return PositionConstants.WEST;
+            }
         }
         if (direction == IMainDirection.RightHeaded)
             return PositionConstants.WEST;
@@ -498,8 +503,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
     public int getSummaryDirection(IBranchPart branch, ISummaryPart summary) {
         List<IBranchPart> enclosing = summary.getEnclosingBranches();
         if (!enclosing.isEmpty()) {
-            if (getCastedData(branch).isUpwardBranch(
-                    enclosing.get(0).getBranchIndex()))
+            if (getCastedData(branch)
+                    .isUpwardBranch(enclosing.get(0).getBranchIndex()))
                 return PositionConstants.NORTH;
             return PositionConstants.SOUTH;
         }
@@ -564,9 +569,10 @@ public class MainFishboneStructure extends AbstractBranchStructure {
             double w = (size.height * sin - size.width * cos)
                     / (sin * sin - cos * cos);
 
-            double deltaX = size.width * 0.5d - w * cos + inventSize.width
-                    * 0.5d + inventSize.width * cos * 0.5d;
-            double deltaY = upWard ? (-size.height + inventSize.width * sin) * 0.5d
+            double deltaX = size.width * 0.5d - w * cos
+                    + inventSize.width * 0.5d + inventSize.width * cos * 0.5d;
+            double deltaY = upWard
+                    ? (-size.height + inventSize.width * sin) * 0.5d
                     : (size.height - inventSize.width * sin) * 0.5d;
 
             return getReference(sub).getTranslated(leftWard ? deltaX : -deltaX,
@@ -578,7 +584,8 @@ public class MainFishboneStructure extends AbstractBranchStructure {
 
     @Override
     protected Point calcInventPosition(IBranchPart orientation,
-            IBranchPart assist, ParentSearchKey key, boolean isBeforeOrientation) {
+            IBranchPart assist, ParentSearchKey key,
+            boolean isBeforeOrientation) {
         Dimension inventSize = key.getInvent().getSize();
         Dimension insSize = key.getFigure().getSize();
 
@@ -593,11 +600,11 @@ public class MainFishboneStructure extends AbstractBranchStructure {
         if (isBeforeOrientation) {
             double offset = calcBeforeOffset(orientation);
 
-            double deltaX = (insSize.height / sin - inventSize.width * cos - inventSize.width) * 0.5d;
+            double deltaX = (insSize.height / sin - inventSize.width * cos
+                    - inventSize.width) * 0.5d;
 
-            x = offset
-                    + (direction.equals(IMainDirection.RightHeaded) ? deltaX
-                            : -deltaX);
+            x = offset + (direction.equals(IMainDirection.RightHeaded) ? deltaX
+                    : -deltaX);
         } else {
             Rectangle pBounds = orientation.getParentBranch().getFigure()
                     .getBounds();
@@ -620,12 +627,12 @@ public class MainFishboneStructure extends AbstractBranchStructure {
             double height = ((TopicFigure) figure)
                     .getNormalPreferredBounds(new Point()).height;
             double delta = height * cos * cot;
-            offset = direction.equals(IMainDirection.RightHeaded) ? bounds
-                    .right() + delta : bounds.x - delta;
+            offset = direction.equals(IMainDirection.RightHeaded)
+                    ? bounds.right() + delta : bounds.x - delta;
         } else {
             Rectangle bounds = branch.getFigure().getBounds();
-            offset = direction.equals(IMainDirection.RightHeaded) ? bounds
-                    .right() : bounds.x;
+            offset = direction.equals(IMainDirection.RightHeaded)
+                    ? bounds.right() : bounds.x;
 
             for (IBranchPart callout : callouts) {
                 Rectangle calloutBounds = callout.getFigure().getBounds();

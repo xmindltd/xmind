@@ -181,6 +181,9 @@ public class TemplateLabelProvider extends LabelProvider
                         } finally {
                             output.close();
                         }
+                        imagePathMap.put(sourceWorkbookURI.toString(),
+                                cachedImagePath);
+                        owner.saveImagePathMap();
                         return loadImage(targetImageFile);
                     }
                 } catch (IOException e) {

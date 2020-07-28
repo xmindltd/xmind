@@ -45,6 +45,9 @@ public abstract class ModelPageContainer extends ModelPage
                 break;
             }
         }
+        if (container == null || container.isDisposed()) {
+            return;
+        }
         StackLayout stackLayout = (StackLayout) container.getLayout();
         Control topControl = null;
         if (this == page) {

@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -17,6 +17,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IEditorInput;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.core.style.IStyle;
 import org.xmind.gef.ui.actions.EditorAction;
 import org.xmind.gef.ui.editor.IGraphicalEditor;
@@ -73,8 +74,9 @@ public class CreateSheetAction extends EditorAction {
     }
 
     protected void decorateCreatedSheet(ISheet sheet) {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(CREATE_SHEET_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_SHEET,
+                UserDataConstants.CREATE_SHEET);
 
         sheet.setTitleText(NLS.bind(MindMapMessages.TitleText_Sheet,
                 sheet.getParent().getSheets().size()));

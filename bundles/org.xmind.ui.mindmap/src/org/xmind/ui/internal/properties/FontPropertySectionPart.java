@@ -5,7 +5,7 @@
  * License (EPL), which is available at
  * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
  * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * See https://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
  * initial API and implementation
  *******************************************************************************/
 package org.xmind.ui.internal.properties;
@@ -72,8 +72,9 @@ public class FontPropertySectionPart extends StyledPropertySectionPart {
                     .getFirstElement();
             if (o instanceof String) {
                 changeFontName((String) o);
-                MindMapUIPlugin.getDefault().getUsageDataCollector()
-                        .increase(UserDataConstants.FONT_CHANGE_ALL_COUNT);
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_STYLE,
+                        UserDataConstants.CHANGE_FONT);
             }
         }
 

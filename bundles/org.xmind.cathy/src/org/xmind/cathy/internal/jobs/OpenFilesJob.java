@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -41,13 +41,13 @@ import org.xmind.ui.internal.MarkerImpExpUtils;
 import org.xmind.ui.internal.imports.freemind.FreeMindImporter;
 import org.xmind.ui.internal.imports.mm.MindManagerImporter;
 import org.xmind.ui.internal.prefs.MarkerManagerPrefPage;
+import org.xmind.ui.mindmap.LazyPasswordBasedEncryptor;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.PrefUtils;
 import org.xmind.ui.wizards.MindMapImporter;
 
 /**
  * @author Frank Shaka
- * 
  */
 public class OpenFilesJob extends AbstractCheckFilesJob {
 
@@ -206,6 +206,8 @@ public class OpenFilesJob extends AbstractCheckFilesJob {
                     .createEditorInputForFile(new File(path));
         } else {
             // assumes we're opening xmind files
+            Core.getWorkbookBuilder()
+                    .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
             IWorkbook workbook = Core.getWorkbookBuilder().loadFromPath(path);
             return workbook == null ? null
                     : MindMapUI.getEditorInputFactory()
@@ -216,6 +218,8 @@ public class OpenFilesJob extends AbstractCheckFilesJob {
 
     protected IEditorInput newFromTemplate(String path, String fileName)
             throws Exception {
+        Core.getWorkbookBuilder()
+                .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
         IWorkbook workbook = Core.getWorkbookBuilder().loadFromPath(path);
         return workbook == null ? null
                 : MindMapUI.getEditorInputFactory()

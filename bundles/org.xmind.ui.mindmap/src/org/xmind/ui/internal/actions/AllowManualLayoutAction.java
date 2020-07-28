@@ -17,8 +17,9 @@ public class AllowManualLayoutAction extends BooleanPrefAction {
 
     @Override
     public void run() {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.ALLOW_FREE_POSITION_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_MODIFY,
+                UserDataConstants.ALLOW_FREE_POSITION);
         super.run();
     }
 

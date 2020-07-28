@@ -42,25 +42,11 @@ public class InfoItemContentDecorator extends Decorator {
             if (part instanceof InfoItemContentPart) {
                 itemFigure.setAbbreviated(true);
                 itemFigure.setSingleLine(true);
-                if (topicPart != null) {
-                    setPrefWidth(itemFigure, topicPart);
-                }
+                itemFigure.setShowTabToSpace(true);
                 InfoItemContentPart item = (InfoItemContentPart) part;
                 itemFigure.setText(item.getContent());
             }
         }
-    }
-
-    private void setPrefWidth(final RotatableWrapLabel itemFigure,
-            ITopicPart topicPart) {
-        final IFigure figure = topicPart.getFigure();
-        figure.getUpdateManager().runWithUpdate(new Runnable() {
-            public void run() {
-                itemFigure.setPrefWidth(Math.abs((int) (((figure.getSize().width
-                        + figure.getClientArea().width) / 2) * 1.1 - 10)));
-            }
-        });
-
     }
 
     public static InfoItemContentDecorator getInstance() {

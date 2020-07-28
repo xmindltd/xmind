@@ -5,7 +5,7 @@
  * License (EPL), which is available at
  * http://www.eclipse.org/legal/epl-v10.html and the GNU Lesser General Public
  * License (LGPL), which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
+ * See https://www.xmind.net/license.html for details. Contributors: XMind Ltd. -
  * initial API and implementation
  *******************************************************************************/
 package org.xmind.gef.draw2d;
@@ -99,6 +99,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     private PrecisionDimension nonRotatedPrefSize = null;
     private PrecisionInsets rotatedInsets = null;
     private int cachedWidthHint = -1;
+    private boolean showTabToSpace = false;
 
     private PrecisionRotator rotator = new PrecisionRotator();
 
@@ -195,6 +196,17 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      */
     public String getText() {
         return text;
+    }
+
+    public void setShowTabToSpace(boolean showTabToSpace) {
+        this.showTabToSpace = showTabToSpace;
+    }
+
+    private String getShowText() {
+        if (showTabToSpace) {
+            return getText() == null ? null : getText().replace("\t", " "); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        return getText();
     }
 
     /**
@@ -358,7 +370,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
             wHint = Math.max(0, wHint - getInsets().getWidth());
         }
         receiveWidthCaches(wHint);
-        if (getText().length() == 0)
+        if (getShowText().length() == 0)
             return NO_TEXT_SIZE;
         if (cachedPrefSize == null) {
             cachedPrefSize = calculateRotatedPreferredSize(wHint, hHint)
@@ -416,7 +428,7 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
      * @return
      */
     protected String calculateAppliedText(double wHint) {
-        String theText = getText();
+        String theText = getShowText();
         if (wHint < 0 || theText.length() == 0)
             return theText;
 
@@ -473,18 +485,32 @@ public class RotatableWrapLabel extends Figure implements ITextFigure,
     private String getAbbreviatedText(String theText, Font f, double wHint) {
         String result = theText;
         int textLength = result.length();
+
         if (wHint > 0 && textLength > 0) {
-            int textWidth = getLooseTextSize(result, f).width;
-            if (textWidth > wHint) {
-                int tructionPosition = (int) ((double) result.length()
-                        / (double) (textWidth) * (int) wHint);
-                if (tructionPosition < textLength)
-                    if (tructionPosition > ELLIPSE.length()) {
-                        tructionPosition -= ELLIPSE.length();
+            int tructionPosition = textLength;
+
+            while (true) {
+                int textWidth = getLooseTextSize(result, f).width;
+                if (textWidth > wHint) {
+                    tructionPosition = (int) ((double) result.length()
+                            / (double) (textWidth) * (int) wHint);
+
+                    if (tructionPosition < textLength && tructionPosition > 0) {
+                        result = result.substring(0, tructionPosition);
+                        continue;
                     }
+                }
+                break;
+            }
+
+            if (tructionPosition < textLength) {
+                if (tructionPosition > ELLIPSE.length()) {
+                    tructionPosition -= ELLIPSE.length();
+                }
                 return result.substring(0, tructionPosition) + ELLIPSE;
             }
         }
+
         return result;
     }
 

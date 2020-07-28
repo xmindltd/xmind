@@ -89,7 +89,7 @@ public class MarkerPart extends ViewModelPart {
     @Override
     protected Control doCreateContent(Composite parent) {
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_MARKER_PART_COUNT);
+                .trackView(UserDataConstants.VIEW_MARKER);
 
         factory = new WidgetFactory(parent.getDisplay());
         form = createForm(parent);

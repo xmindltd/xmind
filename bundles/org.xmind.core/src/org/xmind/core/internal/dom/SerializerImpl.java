@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -68,7 +68,6 @@ import org.xmind.core.util.FileUtils;
 import org.xmind.core.util.IProgressReporter;
 
 /**
- * 
  * @author Frank Shaka
  * @since 3.6.50
  */
@@ -109,7 +108,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#getWorkbook()
      */
     public IWorkbook getWorkbook() {
@@ -118,7 +116,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#setWorkbook(org.xmind.core.IWorkbook)
      */
     public void setWorkbook(IWorkbook workbook) {
@@ -149,7 +146,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#hasOutputTarget()
      */
     public boolean hasOutputTarget() {
@@ -158,7 +154,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#setOutputTarget(org.xmind.core.io.
      * IOutputTarget)
      */
@@ -172,7 +167,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#setOutputStream(java.io.OutputStream)
      */
     public void setOutputStream(OutputStream stream) {
@@ -186,7 +180,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#setWorkbookStorageAsOutputTarget()
      */
     public void setWorkbookStorageAsOutputTarget() {
@@ -207,7 +200,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#getEncryptionIgnoredEntries()
      */
     public String[] getEncryptionIgnoredEntries() {
@@ -216,7 +208,6 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.core.ISerializer#setEncryptionIgnoredEntries(java.lang.String[]
      * )
@@ -241,216 +232,223 @@ public class SerializerImpl extends AbstractSerializingBase
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.ISerializer#serialize(org.xmind.core.util.
      * IProgressReporter)
      */
     public void serialize(IProgressReporter reporter)
             throws IOException, CoreException, IllegalStateException {
-        WorkbookImpl workbook = (WorkbookImpl) getWorkbook();
-        if (workbook == null)
-            throw new IllegalStateException("no workbook to serialize"); //$NON-NLS-1$
+        try {
+            WorkbookImpl workbook = (WorkbookImpl) getWorkbook();
+            if (workbook == null)
+                throw new IllegalStateException("no workbook to serialize"); //$NON-NLS-1$
 
-        if (!hasOutputTarget())
-            throw new IllegalStateException("no output target specified"); //$NON-NLS-1$
+            if (!hasOutputTarget())
+                throw new IllegalStateException("no output target specified"); //$NON-NLS-1$
 
-        manifest = workbook.getManifest();
+            manifest = workbook.getManifest();
 
-        IEntryStreamNormalizer oldNormalizer = manifest.getStreamNormalizer();
-        IEntryStreamNormalizer newNormalizer = getEntryStreamNormalizer();
-        boolean normalizerChanged = newNormalizer != null
-                && !newNormalizer.equals(oldNormalizer);
-
-        if (usesWorkbookStorageAsOutputTarget) {
-            tempManifest = manifest;
-            if (normalizerChanged) {
-                /// use new normalizer to save XML files
-                tempManifest.setStreamNormalizer(newNormalizer);
-            }
-        } else {
-            Document tempImplementation = cloneDocument(
-                    manifest.getImplementation(),
-                    ArchiveConstants.MANIFEST_XML);
-            tempManifest = new ManifestImpl(tempImplementation,
-                    new WriteOnlyStorage(getOutputTarget()));
-            if (newNormalizer != null) {
-                tempManifest.setStreamNormalizer(newNormalizer);
-            } else {
-                tempManifest.setStreamNormalizer(oldNormalizer);
-            }
-
-            /// Give this manifest a temp owner workbook to prevent null 
-            /// pointer exception when file entry events are triggered.
-            new WorkbookImpl(DOMUtils.createDocument(), tempManifest);
-        }
-
-        /// save meta.xml
-        IMeta meta = workbook.getMeta();
-        String creatorName = getCreatorName();
-        if (creatorName != null)
-            meta.setValue(IMeta.CREATOR_NAME, creatorName);
-        String creatorVersion = getCreatorVersion();
-        if (creatorVersion != null)
-            meta.setValue(IMeta.CREATOR_VERSION, creatorVersion);
-        serializeXML(meta, META_XML);
-
-        /// save content.xml
-        serializeXML(workbook, CONTENT_XML);
-
-        /// NOTE: XML files should always serialized when saving to the 
-        /// workbook's temp storage, otherwise recovered workbooks may contain
-        /// invalid data.
-
-        /// save markers/markerSheet.xml
-        IMarkerSheet markerSheet = workbook.getMarkerSheet();
-        if (usesWorkbookStorageAsOutputTarget || !markerSheet.isEmpty()) {
-            serializeXML(markerSheet, PATH_MARKER_SHEET);
-        } else {
-            tempManifest.deleteFileEntry(PATH_MARKER_SHEET);
-            serializedEntryPaths.add(PATH_MARKER_SHEET);
-        }
-
-        /// save styles.xml
-        IStyleSheet styleSheet = workbook.getStyleSheet();
-        if (usesWorkbookStorageAsOutputTarget || !styleSheet.isEmpty()) {
-            serializeXML(styleSheet, STYLES_XML);
-        } else {
-            tempManifest.deleteFileEntry(STYLES_XML);
-            serializedEntryPaths.add(STYLES_XML);
-        }
-
-        /// save comments.xml
-        ICommentManager commentManager = workbook.getCommentManager();
-        if (usesWorkbookStorageAsOutputTarget || !commentManager.isEmpty()) {
-            serializeXML(commentManager, COMMENTS_XML);
-        } else {
-            tempManifest.deleteFileEntry(COMMENTS_XML);
-            serializedEntryPaths.add(COMMENTS_XML);
-        }
-
-        /// save extensions
-        IWorkbookExtensionManager extensionManager = ((IWorkbook) workbook)
-                .getAdapter(IWorkbookExtensionManager.class);
-        List<IWorkbookExtension> exts = extensionManager.getExtensions();
-        for (IWorkbookExtension ext : exts) {
-            String providerName = ext.getProviderName();
-            String path = PATH_EXTENSIONS + providerName + ".xml"; //$NON-NLS-1$
-            serializeXML(ext, path);
-        }
-
-        /// save revisions
-        IRevisionRepository revisionRepository = workbook
-                .getRevisionRepository();
-        for (String resourceId : revisionRepository
-                .getRegisteredResourceIds()) {
-            IRevisionManager manager = revisionRepository
-                    .getRegisteredRevisionManager(resourceId);
-            if (manager != null) {
-                String path = PATH_REVISIONS + resourceId + "/" //$NON-NLS-1$
-                        + REVISIONS_XML;
-                serializeXML(manager, path);
-            }
-        }
-
-        /// copy remaining file entries, e.g. attachments, etc.
-        Iterator<IFileEntry> sourceEntryIter;
-        if (!usesWorkbookStorageAsOutputTarget) {
-            /// saving to external location,
-            /// write only referenced file entries
-            sourceEntryIter = manifest.iterFileEntries();
-        } else if (normalizerChanged) {
-            /// saving to internal storage when encryption is changed,
-            /// re-encrypt all file entries
-            sourceEntryIter = manifest.getAllRegisteredEntries().iterator();
-        } else {
-            /// saving to internal storage when encryption is not changed,
-            /// touch no file entries
-            sourceEntryIter = null;
-        }
-
-        while (sourceEntryIter != null && sourceEntryIter.hasNext()) {
-            IFileEntry sourceEntry = sourceEntryIter.next();
-            if (sourceEntry.isDirectory() || !sourceEntry.canRead())
-                continue;
-
-            String entryPath = sourceEntry.getPath();
-            if (MANIFEST_XML.equals(entryPath)
-                    || serializedEntryPaths.contains(entryPath))
-                continue;
-
-            IFileEntry targetEntry = tempManifest.getFileEntry(entryPath);
-            if (targetEntry == null)
-                // TODO missing entry, need log?
-                continue;
+            IEntryStreamNormalizer oldNormalizer = manifest
+                    .getStreamNormalizer();
+            IEntryStreamNormalizer newNormalizer = getEntryStreamNormalizer();
+            boolean normalizerChanged = newNormalizer != null
+                    && !newNormalizer.equals(oldNormalizer);
 
             if (usesWorkbookStorageAsOutputTarget) {
-                /// saving to internal storage,
-                /// write to a temporary entry first to protect original entry
-                String tempEntryPath = makeTempPath(entryPath);
-
-                /// make sure we use the old normalizer to decrypt the file entry
-                manifest.setStreamNormalizer(oldNormalizer);
-                InputStream entryInput = sourceEntry.openInputStream();
-                try {
-                    OutputStream tempOutput = tempManifest.getStorage()
-                            .getOutputTarget().openEntryStream(tempEntryPath);
-                    try {
-                        FileUtils.transfer(entryInput, tempOutput, false);
-                    } finally {
-                        tempOutput.close();
-                    }
-                } finally {
-                    entryInput.close();
+                tempManifest = manifest;
+                if (normalizerChanged) {
+                    /// use new normalizer to save XML files
+                    tempManifest.setStreamNormalizer(newNormalizer);
                 }
-
-                /// make sure we use the new normalizer to encrypt the file entry
-                tempManifest.setStreamNormalizer(newNormalizer);
-                InputStream tempInput = tempManifest.getStorage()
-                        .getInputSource().openEntryStream(tempEntryPath);
-                try {
-                    OutputStream entryOutput = openEntryOutputStream(entryPath);
-                    try {
-                        FileUtils.transfer(tempInput, entryOutput, false);
-                    } finally {
-                        entryOutput.close();
-                    }
-                } finally {
-                    tempInput.close();
-                }
-
             } else {
-                /// saving to external location,
-                /// just copy the entry directly
-                InputStream entryInput = sourceEntry.openInputStream();
-                try {
-                    OutputStream entryOutput = openEntryOutputStream(entryPath);
-                    try {
-                        FileUtils.transfer(entryInput, entryOutput, false);
-                    } finally {
-                        entryOutput.close();
-                    }
-                } finally {
-                    entryInput.close();
+                Document tempImplementation = cloneDocument(
+                        manifest.getImplementation(),
+                        ArchiveConstants.MANIFEST_XML);
+                tempManifest = new ManifestImpl(tempImplementation,
+                        new WriteOnlyStorage(getOutputTarget()));
+                if (newNormalizer != null) {
+                    tempManifest.setStreamNormalizer(newNormalizer);
+                } else {
+                    tempManifest.setStreamNormalizer(oldNormalizer);
+                }
+
+                /// Give this manifest a temp owner workbook to prevent null 
+                /// pointer exception when file entry events are triggered.
+                new WorkbookImpl(DOMUtils.createDocument(), tempManifest);
+            }
+
+            /// save meta.xml
+            IMeta meta = workbook.getMeta();
+            String creatorName = getCreatorName();
+            if (creatorName != null)
+                meta.setValue(IMeta.CREATOR_NAME, creatorName);
+            String creatorVersion = getCreatorVersion();
+            if (creatorVersion != null)
+                meta.setValue(IMeta.CREATOR_VERSION, creatorVersion);
+            serializeXML(meta, META_XML);
+
+            /// save content.xml
+            serializeXML(workbook, CONTENT_XML);
+
+            /// NOTE: XML files should always serialized when saving to the 
+            /// workbook's temp storage, otherwise recovered workbooks may contain
+            /// invalid data.
+
+            /// save markers/markerSheet.xml
+            IMarkerSheet markerSheet = workbook.getMarkerSheet();
+            if (usesWorkbookStorageAsOutputTarget || !markerSheet.isEmpty()) {
+                serializeXML(markerSheet, PATH_MARKER_SHEET);
+            } else {
+                tempManifest.deleteFileEntry(PATH_MARKER_SHEET);
+                serializedEntryPaths.add(PATH_MARKER_SHEET);
+            }
+
+            /// save styles.xml
+            IStyleSheet styleSheet = workbook.getStyleSheet();
+            if (usesWorkbookStorageAsOutputTarget || !styleSheet.isEmpty()) {
+                serializeXML(styleSheet, STYLES_XML);
+            } else {
+                tempManifest.deleteFileEntry(STYLES_XML);
+                serializedEntryPaths.add(STYLES_XML);
+            }
+
+            /// save comments.xml
+            ICommentManager commentManager = workbook.getCommentManager();
+            if (usesWorkbookStorageAsOutputTarget
+                    || !commentManager.isEmpty()) {
+                serializeXML(commentManager, COMMENTS_XML);
+            } else {
+                tempManifest.deleteFileEntry(COMMENTS_XML);
+                serializedEntryPaths.add(COMMENTS_XML);
+            }
+
+            /// save extensions
+            IWorkbookExtensionManager extensionManager = ((IWorkbook) workbook)
+                    .getAdapter(IWorkbookExtensionManager.class);
+            List<IWorkbookExtension> exts = extensionManager.getExtensions();
+            for (IWorkbookExtension ext : exts) {
+                String providerName = ext.getProviderName();
+                String path = PATH_EXTENSIONS + providerName + ".xml"; //$NON-NLS-1$
+                serializeXML(ext, path);
+            }
+
+            /// save revisions
+            IRevisionRepository revisionRepository = workbook
+                    .getRevisionRepository();
+            for (String resourceId : revisionRepository
+                    .getRegisteredResourceIds()) {
+                IRevisionManager manager = revisionRepository
+                        .getRegisteredRevisionManager(resourceId);
+                if (manager != null) {
+                    String path = PATH_REVISIONS + resourceId + "/" //$NON-NLS-1$
+                            + REVISIONS_XML;
+                    serializeXML(manager, path);
                 }
             }
+
+            /// copy remaining file entries, e.g. attachments, etc.
+            Iterator<IFileEntry> sourceEntryIter;
+            if (!usesWorkbookStorageAsOutputTarget) {
+                /// saving to external location,
+                /// write only referenced file entries
+                sourceEntryIter = manifest.iterFileEntries();
+            } else if (normalizerChanged) {
+                /// saving to internal storage when encryption is changed,
+                /// re-encrypt all file entries
+                sourceEntryIter = manifest.getAllRegisteredEntries().iterator();
+            } else {
+                /// saving to internal storage when encryption is not changed,
+                /// touch no file entries
+                sourceEntryIter = null;
+            }
+
+            while (sourceEntryIter != null && sourceEntryIter.hasNext()) {
+                IFileEntry sourceEntry = sourceEntryIter.next();
+                if (sourceEntry.isDirectory() || !sourceEntry.canRead())
+                    continue;
+
+                String entryPath = sourceEntry.getPath();
+                if (MANIFEST_XML.equals(entryPath)
+                        || serializedEntryPaths.contains(entryPath))
+                    continue;
+
+                IFileEntry targetEntry = tempManifest.getFileEntry(entryPath);
+                if (targetEntry == null)
+                    // TODO missing entry, need log?
+                    continue;
+
+                if (usesWorkbookStorageAsOutputTarget) {
+                    /// saving to internal storage,
+                    /// write to a temporary entry first to protect original entry
+                    String tempEntryPath = makeTempPath(entryPath);
+
+                    /// make sure we use the old normalizer to decrypt the file entry
+                    manifest.setStreamNormalizer(oldNormalizer);
+                    InputStream entryInput = sourceEntry.openInputStream();
+                    try {
+                        OutputStream tempOutput = tempManifest.getStorage()
+                                .getOutputTarget()
+                                .openEntryStream(tempEntryPath);
+                        try {
+                            FileUtils.transfer(entryInput, tempOutput, false);
+                        } finally {
+                            tempOutput.close();
+                        }
+                    } finally {
+                        entryInput.close();
+                    }
+
+                    /// make sure we use the new normalizer to encrypt the file entry
+                    tempManifest.setStreamNormalizer(newNormalizer);
+                    InputStream tempInput = tempManifest.getStorage()
+                            .getInputSource().openEntryStream(tempEntryPath);
+                    try {
+                        OutputStream entryOutput = openEntryOutputStream(
+                                entryPath);
+                        try {
+                            FileUtils.transfer(tempInput, entryOutput, false);
+                        } finally {
+                            entryOutput.close();
+                        }
+                    } finally {
+                        tempInput.close();
+                    }
+
+                } else {
+                    /// saving to external location,
+                    /// just copy the entry directly
+                    InputStream entryInput = sourceEntry.openInputStream();
+                    try {
+                        OutputStream entryOutput = openEntryOutputStream(
+                                entryPath);
+                        try {
+                            FileUtils.transfer(entryInput, entryOutput, false);
+                        } finally {
+                            entryOutput.close();
+                        }
+                    } finally {
+                        entryInput.close();
+                    }
+                }
+            }
+
+            if (usesWorkbookStorageAsOutputTarget && normalizerChanged) {
+                /// keep the new normalizer in the original manifest
+                /// to decrypt data in the internal storage afterwards
+                manifest.setStreamNormalizer(newNormalizer);
+            }
+
+        } finally {
+
+            /// save manifest.xml
+            serializeXML(tempManifest, MANIFEST_XML);
+
+            /// only upon success should we close zip stream
+            if (intermediateOutputStream != null) {
+                intermediateOutputStream.finish();
+                intermediateOutputStream.flush();
+                intermediateOutputStream.close();
+            }
         }
-
-        if (usesWorkbookStorageAsOutputTarget && normalizerChanged) {
-            /// keep the new normalizer in the original manifest
-            /// to decrypt data in the internal storage afterwards
-            manifest.setStreamNormalizer(newNormalizer);
-        }
-
-        /// save manifest.xml
-        serializeXML(tempManifest, MANIFEST_XML);
-
-        /// only upon success should we close zip stream
-        if (intermediateOutputStream != null) {
-            intermediateOutputStream.finish();
-            intermediateOutputStream.flush();
-            intermediateOutputStream.close();
-        }
-
     }
 
     private static Document cloneDocument(Document document, String xmlName)

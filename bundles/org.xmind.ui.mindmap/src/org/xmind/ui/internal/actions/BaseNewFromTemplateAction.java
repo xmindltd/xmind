@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -32,10 +32,11 @@ import org.xmind.core.IWorkbook;
 import org.xmind.core.util.FileUtils;
 import org.xmind.ui.internal.dialogs.DialogMessages;
 import org.xmind.ui.internal.editor.MME;
+import org.xmind.ui.mindmap.LazyPasswordBasedEncryptor;
 import org.xmind.ui.mindmap.MindMapUI;
 
-public abstract class BaseNewFromTemplateAction extends Action implements
-        IWorkbenchAction {
+public abstract class BaseNewFromTemplateAction extends Action
+        implements IWorkbenchAction {
 
     private IWorkbenchWindow window;
 
@@ -84,8 +85,8 @@ public abstract class BaseNewFromTemplateAction extends Action implements
      * @param shell
      */
     protected void notifyTemplateMissing(Shell shell) {
-        MessageDialog.openError(shell, DialogMessages.CommonDialogTitle, NLS
-                .bind(DialogMessages.TemplateMissing_message, getText()));
+        MessageDialog.openError(shell, DialogMessages.CommonDialogTitle,
+                NLS.bind(DialogMessages.TemplateMissing_message, getText()));
     }
 
     protected abstract InputStream getTemplateStream(Shell shell)
@@ -96,6 +97,8 @@ public abstract class BaseNewFromTemplateAction extends Action implements
         String tempLocation = Core.getWorkspace().getTempFile(
                 Core.getIdFactory().createId() + MindMapUI.FILE_EXT_XMIND);
         FileUtils.ensureDirectory(new File(tempLocation));
+        Core.getWorkbookBuilder()
+                .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
         return Core.getWorkbookBuilder().loadFromStream(is, tempLocation);
     }
 

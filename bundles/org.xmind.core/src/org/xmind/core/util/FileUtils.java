@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -34,7 +34,6 @@ import org.xmind.core.io.IStorage;
 
 /**
  * @author briansun
- * 
  */
 public class FileUtils {
 
@@ -88,7 +87,7 @@ public class FileUtils {
 
     public static void transfer(IInputSource inputSource,
             IOutputTarget outputTarget, IFileEntryFilter filter)
-                    throws IOException {
+            throws IOException {
         Iterator<String> entries = inputSource.getEntries();
         while (entries.hasNext()) {
             String entryPath = entries.next();
@@ -320,7 +319,8 @@ public class FileUtils {
             String entryPath = entry.getName();
             if (!entry.isDirectory() && (filter == null
                     || filter.select(entryPath, null, false))) {
-                if (target.isEntryAvaialble(entryPath)) {
+                if (target.isEntryAvaialble(entryPath)
+                        && target.isNoZipSlip(entryPath)) {
                     OutputStream out = target.openEntryStream(entryPath);
                     try {
                         FileUtils.transfer(zin, out, false);

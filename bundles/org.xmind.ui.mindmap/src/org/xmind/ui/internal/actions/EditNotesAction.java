@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -61,8 +61,9 @@ public class EditNotesAction extends PageAction implements ISelectionAction {
         if (topicPart == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.USE_NOTES_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_NOTES,
+                UserDataConstants.USE_NOTES);
         NotesPopup popup = new NotesPopup(window, topicPart, true, true);
         popup.open();
     }

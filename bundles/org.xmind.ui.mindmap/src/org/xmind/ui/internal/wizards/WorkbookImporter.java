@@ -6,6 +6,7 @@ import org.xmind.core.Core;
 import org.xmind.core.ISheet;
 import org.xmind.core.IWorkbook;
 import org.xmind.core.util.CloneHandler;
+import org.xmind.ui.mindmap.LazyPasswordBasedEncryptor;
 import org.xmind.ui.wizards.MindMapImporter;
 
 /**
@@ -21,6 +22,8 @@ public class WorkbookImporter extends MindMapImporter {
     public void build() throws InvocationTargetException, InterruptedException {
         IWorkbook targetWorkbook = getTargetWorkbook();
         try {
+            Core.getWorkbookBuilder()
+                    .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
             IWorkbook sourceWorkbook = Core.getWorkbookBuilder()
                     .loadFromPath(getSourcePath());
             CloneHandler cloneHandler = new CloneHandler()

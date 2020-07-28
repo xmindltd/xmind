@@ -29,8 +29,9 @@ public class WelcomeToXMindHandler extends AbstractHandler {
         if (activePage == null)
             return null;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.WELCOME_TO_XMIND_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_OTHERS,
+                UserDataConstants.WELCOME_TO_XMIND);
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
                 IEditorInput input = MindMapUI.getEditorInputFactory()

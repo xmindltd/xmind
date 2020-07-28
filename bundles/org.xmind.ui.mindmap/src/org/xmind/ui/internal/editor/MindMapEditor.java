@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL),
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  *
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -610,8 +610,9 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         if (scheme == null || "".equalsIgnoreCase(scheme)) //$NON-NLS-1$
             return;
         if ("file".equalsIgnoreCase(scheme)) { //$NON-NLS-1$
-            MindMapUIPlugin.getDefault().getUsageDataCollector()
-                    .increase(UserDataConstants.OPEN_LOCAL_WORKBOOK_COUNT);
+            MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                    UserDataConstants.CATEGORY_WORKBOOK,
+                    UserDataConstants.OPEN_LOCAL_WORKBOOK);
         }
     }
 

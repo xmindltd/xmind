@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -41,7 +41,6 @@ public interface IOutputTarget {
      * @deprecated <strong>For diagnostic purpose, this method is not
      *             recommended any more. Use {@link #openEntryStream(String)}
      *             instead to let potential I/O errors be thrown.</strong>
-     * 
      * @param entryName
      *            the name of the entry
      * @return an output stream for the specified entry, or <code>null</code> if
@@ -65,7 +64,6 @@ public interface IOutputTarget {
 
     /**
      * Sets the modification time of the specific entry.
-     * 
      * <p>
      * Note that this method should be called before
      * <code>getEntryStream()</code>, otherwise it may have no effect.
@@ -75,5 +73,14 @@ public interface IOutputTarget {
      *            the new modification time to set
      */
     void setEntryTime(String entryName, long time);
+
+    /**
+     * Avoid 'Zip Slip' attack. (For detailed:
+     * https://snyk.io/research/zip-slip-vulnerability)
+     * 
+     * @param entryName
+     * @return
+     */
+    boolean isNoZipSlip(String entryName);
 
 }

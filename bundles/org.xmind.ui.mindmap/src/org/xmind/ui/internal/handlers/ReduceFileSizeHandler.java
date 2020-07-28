@@ -24,8 +24,9 @@ public class ReduceFileSizeHandler extends AbstractHandler {
     }
 
     private void reduceFileSize(final IEditorPart editor) {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.REDUCE_FILE_SIZE_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_MODIFY,
+                UserDataConstants.REDUCE_FILE_SIZE);
         SafeRunner.run(new SafeRunnable() {
             public void run() throws Exception {
                 ReduceFileSizeDialog dialog = new ReduceFileSizeDialog(editor);

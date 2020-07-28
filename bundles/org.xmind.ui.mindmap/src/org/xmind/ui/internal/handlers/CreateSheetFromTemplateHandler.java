@@ -56,17 +56,18 @@ public class CreateSheetFromTemplateHandler extends AbstractHandler {
         if (dialog.open() != NewSheetFromTemplateDialog.OK)
             return;
 
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_SHEET,
+                UserDataConstants.CREATE_SHEET);
         MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_SHEET_COUNT);
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.SHOW_TEMPLATES_COUNT);
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.USE_TEMPLATES_COUNT);
+                .trackView(UserDataConstants.VIEW_TEMPLATES);
 
         final ITemplate template = dialog.getTemplate();
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(String.format(UserDataConstants.USE_S_TEMPLATE_COUNT,
-                        template.getName().replaceAll(" ", "_")));  //$NON-NLS-1$//$NON-NLS-2$
+
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_TEMPLATE,
+                String.format(UserDataConstants.USE_TEMPLATE_S,
+                        template.getName().replaceAll(" ", "_"))); //$NON-NLS-1$ //$NON-NLS-2$
         Assert.isTrue(template != null);
         final IWorkbookRef tempWorkbookRef = template.createWorkbookRef();
         if (tempWorkbookRef == null)

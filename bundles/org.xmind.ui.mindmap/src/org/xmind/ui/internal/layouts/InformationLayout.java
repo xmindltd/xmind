@@ -8,11 +8,14 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.xmind.gef.draw2d.IRotatableFigure;
 import org.xmind.gef.draw2d.ReferencedLayoutData;
+import org.xmind.gef.draw2d.RotatableWrapLabel;
+import org.xmind.ui.internal.figures.InformationFigure;
 import org.xmind.ui.internal.mindmap.InfoItemContentPart;
 import org.xmind.ui.mindmap.IInfoItemPart;
 import org.xmind.ui.mindmap.IInfoPart;
 
 public class InformationLayout extends MindMapLayoutBase {
+
     private int spacing = 5;
 
     public InformationLayout(IInfoPart part) {
@@ -43,6 +46,21 @@ public class InformationLayout extends MindMapLayoutBase {
                 if (i < contents.size()) {
                     InfoItemContentPart content = contents.get(i);
                     contentFig = content.getFigure();
+
+                    if (container instanceof InformationFigure) {
+                        Object constraint = ((InformationFigure) container)
+                                .getConstraint();
+                        if (constraint instanceof Integer) {
+                            int prefWidth = (Integer) constraint
+                                    - itemSize.width
+                                    - container.getInsets().right;
+                            if (prefWidth > 0) {
+                                ((RotatableWrapLabel) contentFig)
+                                        .setPrefWidth(prefWidth);
+                            }
+                        }
+                    }
+
                     contentSize = getChildPreferredSize(contentFig);
                 }
 

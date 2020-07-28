@@ -300,6 +300,7 @@ public class InfoItemIconPart extends MindMapPartBase
                     description.setFont(FontUtils.getRelativeHeight(
                             JFaceResources.DEFAULT_FONT, -1));
                     description.setForegroundColor(ColorConstants.gray);
+                    description.setShowTabToSpace(true);
                     fig.add(description);
                 }
 

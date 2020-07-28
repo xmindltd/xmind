@@ -794,8 +794,9 @@ public class WallpaperDialog extends PopupDialog implements IOpenListener {
         if (mindMapViewer == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CHANGE_WALLPAPER_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_FORMAT,
+                UserDataConstants.CHANGE_WALLPAPER);
         Request request = new Request(MindMapUI.REQ_MODIFY_STYLE)
                 .setViewer(mindMapViewer);
         request.setParameter(MindMapUI.PARAM_COMMAND_LABEL,

@@ -52,6 +52,7 @@ import org.xmind.ui.blackbox.BlackBoxManager;
 import org.xmind.ui.blackbox.IBlackBoxMap;
 import org.xmind.ui.blackbox.IBlackBoxVersion;
 import org.xmind.ui.mindmap.IMindMapImages;
+import org.xmind.ui.mindmap.LazyPasswordBasedEncryptor;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.FontUtils;
 import org.xmind.ui.viewers.SWTUtils;
@@ -463,6 +464,8 @@ public class BlackBoxView extends ViewPart implements ICoreEventListener {
 
     private void handleOpen(File reversionFile, IBlackBoxMap map) {
         try {
+            Core.getWorkbookBuilder()
+                    .setEntryStreamNormalizer(new LazyPasswordBasedEncryptor());
             IWorkbook workbook = Core.getWorkbookBuilder()
                     .loadFromFile(reversionFile);
             IEditorInput input = MindMapUI.getEditorInputFactory()

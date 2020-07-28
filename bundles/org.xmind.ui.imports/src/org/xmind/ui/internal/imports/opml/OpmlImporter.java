@@ -37,8 +37,9 @@ public class OpmlImporter extends MindMapImporter
 
     @Override
     public void build() throws InvocationTargetException, InterruptedException {
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.IMPORT_FROM_OPML_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_IMPORT,
+                UserDataConstants.IMPORT_FROM_OPML);
 
         InputStream in = null;
         try {

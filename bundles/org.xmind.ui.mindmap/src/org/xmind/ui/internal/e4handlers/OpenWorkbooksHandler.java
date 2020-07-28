@@ -20,6 +20,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.commands.MindMapCommandConstants;
 import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.internal.MindMapUIPlugin;
@@ -59,6 +60,9 @@ public class OpenWorkbooksHandler {
             uris = new ArrayList<String>(files.size());
             for (File file : files) {
                 uris.add(file.toURI().toString());
+                MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                        UserDataConstants.CATEGORY_WORKBOOK,
+                        UserDataConstants.OPEN_FILE);
             }
         }
 

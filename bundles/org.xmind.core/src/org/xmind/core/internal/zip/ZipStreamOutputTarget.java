@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -28,7 +28,6 @@ import org.xmind.core.io.IOutputTarget;
 
 /**
  * @author frankshaka
- * 
  */
 public class ZipStreamOutputTarget implements IOutputTarget, Closeable {
 
@@ -61,7 +60,6 @@ public class ZipStreamOutputTarget implements IOutputTarget, Closeable {
 
         /*
          * (non-Javadoc)
-         * 
          * @see java.io.FilterOutputStream#close()
          */
         @Override
@@ -126,6 +124,10 @@ public class ZipStreamOutputTarget implements IOutputTarget, Closeable {
         zip.finish();
         zip.flush();
         zip.close();
+    }
+
+    public boolean isNoZipSlip(String entryName) {
+        return true;
     }
 
 }

@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -26,6 +26,7 @@ import org.eclipse.ui.statushandlers.IStatusAdapterConstants;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.statushandlers.StatusManager.INotificationTypes;
+import org.xmind.core.internal.UserDataConstants;
 import org.xmind.ui.internal.ToolkitPlugin;
 import org.xmind.ui.internal.statushandlers.RuntimeErrorDialog;
 
@@ -51,6 +52,10 @@ public class CathyStatusHandler extends AbstractStatusHandler {
     }
 
     public void handle(final StatusAdapter statusAdapter, final int style) {
+        CathyPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_ERROR,
+                UserDataConstants.ENCOUNTER_ERROR);
+
         if (((style & StatusManager.SHOW) == StatusManager.SHOW)
                 || ((style & StatusManager.BLOCK) == StatusManager.BLOCK)) {
 
@@ -158,6 +163,10 @@ public class CathyStatusHandler extends AbstractStatusHandler {
             }
         });
         dialog.open();
+        CathyPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_ERROR,
+                UserDataConstants.SHOW_ERROR_DIALOG);
+
         return dialog;
     }
 

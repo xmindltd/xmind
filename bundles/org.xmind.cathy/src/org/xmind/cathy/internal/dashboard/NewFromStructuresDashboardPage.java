@@ -132,15 +132,18 @@ public class NewFromStructuresDashboardPage extends DashboardPage
         if (theme == null)
             return;
 
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_WORKBOOK_COUNT);
-        MindMapUIPlugin.getDefault().getUsageDataCollector()
-                .increase(UserDataConstants.CREATE_SHEET_COUNT);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_WORKBOOK,
+                UserDataConstants.CREATE_WORKBOOK);
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_SHEET,
+                UserDataConstants.CREATE_SHEET);
 
         String vs = structure.getValue();
         String ID = vs.replaceAll("\\.", "_");  //$NON-NLS-1$//$NON-NLS-2$
-        MindMapUIPlugin.getDefault().getUsageDataCollector().increase(
-                String.format(UserDataConstants.STRUCTURE_TYPE_COUNT, ID));
+        MindMapUIPlugin.getDefault().getUsageDataCollector().trackEvent(
+                UserDataConstants.CATEGORY_STRUCTURE,
+                String.format(UserDataConstants.USE_STRUCTURE_TYPE_S, ID));
         WorkbookInitializer initializer = WorkbookInitializer.getDefault()
                 .withStructureClass(structure.getValue()).withTheme(theme);
         IEditorInput editorInput = MindMapUI.getEditorInputFactory()

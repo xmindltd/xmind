@@ -12,4 +12,4 @@ For a full understanding of your rights and obligations under these licenses, pl
 
 XMind source pack doesn't include required Eclipse plug-ins. To compile XMind source pack, you need download XMind.
 
-**[Download XMind for Windows/Mac/Ubuntu Now!](http://www.xmind.net/download/)**
+**[Download XMind for Windows/Mac/Ubuntu Now!](https://www.xmind.net/download/)**

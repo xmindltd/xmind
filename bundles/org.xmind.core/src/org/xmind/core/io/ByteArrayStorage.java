@@ -6,7 +6,7 @@
  * which is available at http://www.eclipse.org/legal/epl-v10.html
  * and the GNU Lesser General Public License (LGPL), 
  * which is available at http://www.gnu.org/licenses/lgpl.html
- * See http://www.xmind.net/license.html for details.
+ * See https://www.xmind.net/license.html for details.
  * 
  * Contributors:
  *     XMind Ltd. - initial API and implementation
@@ -27,7 +27,6 @@ import java.util.Map;
 
 /**
  * @author frankshaka
- * 
  */
 public class ByteArrayStorage implements IStorage {
 
@@ -37,7 +36,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IInputSource#getEntries()
          */
         public Iterator<String> getEntries() {
@@ -51,7 +49,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IInputSource#getEntryStream(java.lang.String)
          */
         public InputStream getEntryStream(String entryName) {
@@ -74,7 +71,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IInputSource#getEntrySize(java.lang.String)
          */
         public long getEntrySize(String entryName) {
@@ -89,7 +85,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IInputSource#getEntryTime(java.lang.String)
          */
         public long getEntryTime(String entryName) {
@@ -103,7 +98,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IInputSource#hasEntry(java.lang.String)
          */
         public boolean hasEntry(String entryName) {
@@ -127,7 +121,6 @@ public class ByteArrayStorage implements IStorage {
 
             /*
              * (non-Javadoc)
-             * 
              * @see java.io.OutputStream#flush()
              */
             @Override
@@ -138,7 +131,6 @@ public class ByteArrayStorage implements IStorage {
 
             /*
              * (non-Javadoc)
-             * 
              * @see java.io.ByteArrayOutputStream#close()
              */
             @Override
@@ -164,7 +156,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IOutputTarget#getEntryStream(java.lang.String)
          */
         public OutputStream getEntryStream(String entryName) {
@@ -178,7 +169,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see
          * org.xmind.core.io.IOutputTarget#isEntryAvaialble(java.lang.String)
          */
@@ -188,7 +178,6 @@ public class ByteArrayStorage implements IStorage {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.core.io.IOutputTarget#setEntryTime(long)
          */
         public void setEntryTime(String entryName, long time) {
@@ -200,6 +189,10 @@ public class ByteArrayStorage implements IStorage {
             }
         }
 
+        public boolean isNoZipSlip(String entryName) {
+            return true;
+        }
+
     }
 
     private Map<String, byte[]> dataTable;
@@ -208,7 +201,6 @@ public class ByteArrayStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.io.IArchive#getFullPath()
      */
     public String getFullPath() {
@@ -217,7 +209,6 @@ public class ByteArrayStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.io.IArchive#getInputSource()
      */
     public IInputSource getInputSource() {
@@ -226,7 +217,6 @@ public class ByteArrayStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.io.IArchive#getName()
      */
     public String getName() {
@@ -235,7 +225,6 @@ public class ByteArrayStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.io.IArchive#getOutputTarget()
      */
     public IOutputTarget getOutputTarget() {
@@ -244,7 +233,6 @@ public class ByteArrayStorage implements IStorage {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.xmind.core.io.IStorage#clear()
      */
     public void clear() {
