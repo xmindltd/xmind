@@ -2,7 +2,7 @@
 <feature
       id="org.xmind.cathy.feature"
       label="XMind RCP Application"
-      version="3.7.4.qualifier"
+      version="3.7.6.qualifier"
       provider-name="XMind Ltd.">
 
    <description>

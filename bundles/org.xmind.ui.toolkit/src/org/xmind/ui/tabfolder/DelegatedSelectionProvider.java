@@ -26,8 +26,10 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Display;
 
-public class DelegatedSelectionProvider implements IDelegatedSelectionProvider,
-        IPostSelectionProvider {
+public class DelegatedSelectionProvider
+        implements IDelegatedSelectionProvider, IPostSelectionProvider {
+
+    private Display display;
 
     private ISelectionProvider delegate = null;
 
@@ -46,6 +48,14 @@ public class DelegatedSelectionProvider implements IDelegatedSelectionProvider,
     private List<ISelectionChangedListener> listeners = null;
 
     private List<ISelectionChangedListener> postListeners = null;
+
+    private List<ISelectionChangedListener> asyncListeners = null;
+
+    private List<ISelectionChangedListener> asyncPostListeners = null;
+
+    public void setDisplay(Display display) {
+        this.display = display;
+    }
 
     public void setDelegate(ISelectionProvider delegate) {
         if (delegate == this.delegate)
@@ -89,7 +99,8 @@ public class DelegatedSelectionProvider implements IDelegatedSelectionProvider,
         return delegate;
     }
 
-    public void addSelectionChangedListener(ISelectionChangedListener listener) {
+    public void addSelectionChangedListener(
+            ISelectionChangedListener listener) {
         if (listeners == null) {
             listeners = new ArrayList<ISelectionChangedListener>();
         }
@@ -97,8 +108,8 @@ public class DelegatedSelectionProvider implements IDelegatedSelectionProvider,
     }
 
     public ISelection getSelection() {
-        return delegate == null ? StructuredSelection.EMPTY : delegate
-                .getSelection();
+        return delegate == null ? StructuredSelection.EMPTY
+                : delegate.getSelection();
     }
 
     public void removeSelectionChangedListener(
@@ -129,14 +140,48 @@ public class DelegatedSelectionProvider implements IDelegatedSelectionProvider,
         }
     }
 
+    public void addAsyncSelectionChangedListener(
+            ISelectionChangedListener listener) {
+        if (asyncListeners == null) {
+            asyncListeners = new ArrayList<ISelectionChangedListener>();
+        }
+        asyncListeners.add(listener);
+    }
+
+    public void removeAsyncSelectionChangedListener(
+            ISelectionChangedListener listener) {
+        if (asyncListeners != null) {
+            asyncListeners.remove(listener);
+        }
+    }
+
+    public void addAsyncPostSelectionChangedListener(
+            ISelectionChangedListener listener) {
+        if (asyncPostListeners == null) {
+            asyncPostListeners = new ArrayList<ISelectionChangedListener>();
+        }
+        asyncPostListeners.add(listener);
+    }
+
+    public void removeAsyncPostSelectionChangedListener(
+            ISelectionChangedListener listener) {
+        if (asyncPostListeners != null) {
+            asyncPostListeners.remove(listener);
+        }
+    }
+
     private void delegateSelectionChanged(ISelection selection) {
         fireSelectionChangedEvent(new SelectionChangedEvent(this, selection),
                 listeners);
+        fireAsyncSelectionChangedEvent(
+                new SelectionChangedEvent(this, selection), asyncListeners);
     }
 
     private void postDelegateSelectionChanged(ISelection selection) {
         fireSelectionChangedEvent(new SelectionChangedEvent(this, selection),
                 postListeners);
+        fireAsyncSelectionChangedEvent(
+                new SelectionChangedEvent(this, selection), asyncPostListeners);
     }
 
     private void fireSelectionChangedEvent(final SelectionChangedEvent event,
@@ -151,6 +196,40 @@ public class DelegatedSelectionProvider implements IDelegatedSelectionProvider,
                     l.selectionChanged(event);
                 }
             });
+        }
+    }
+
+    private void fireAsyncSelectionChangedEvent(
+            final SelectionChangedEvent event,
+            List<ISelectionChangedListener> listeners) {
+        if (listeners == null)
+            return;
+        Object[] ls = listeners.toArray();
+
+        if (display != null && !display.isDisposed()) {
+            display.asyncExec(new Runnable() {
+
+                @Override
+                public void run() {
+                    for (int i = 0; i < ls.length; ++i) {
+                        final ISelectionChangedListener l = (ISelectionChangedListener) ls[i];
+                        SafeRunner.run(new SafeRunnable() {
+                            public void run() {
+                                l.selectionChanged(event);
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            for (int i = 0; i < ls.length; ++i) {
+                final ISelectionChangedListener l = (ISelectionChangedListener) ls[i];
+                SafeRunner.run(new SafeRunnable() {
+                    public void run() {
+                        l.selectionChanged(event);
+                    }
+                });
+            }
         }
     }
 

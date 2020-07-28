@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -67,6 +65,7 @@ import org.xmind.core.util.DOMUtils;
 import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
+import org.xmind.ui.util.XMLUtils;
 
 /**
  * Abstract wizard page class from which an import or export wizard can be
@@ -812,8 +811,8 @@ public abstract class ImportExportPage extends WorkbenchWizardSelectionPage {
             InputStream is = xmlURL.openStream();
             if (is != null) {
                 try {
-                    Document doc = DocumentBuilderFactory.newInstance()
-                            .newDocumentBuilder().parse(is);
+                    Document doc = XMLUtils.getDefaultDocumentBuilder()
+                            .parse(is);
                     if (doc != null)
                         return doc.getDocumentElement();
                 } finally {

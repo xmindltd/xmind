@@ -51,7 +51,7 @@ public class MindMapViewer extends GraphicalViewer implements IMindMapViewer {
     protected class MindMapSelectionSupport extends GraphicalSelectionSupport {
 
         public IPart findSelectablePart(Object element) {
-            if (element instanceof ISheet)
+            if (element == null || element instanceof ISheet)
                 return null;
             IPart p = super.findSelectablePart(element);
             if (p instanceof ITopicPart) {

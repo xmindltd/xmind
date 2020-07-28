@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.draw2d.geometry.Dimension;
@@ -22,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.ui.gallery.GalleryViewer;
+import org.xmind.ui.util.XMLUtils;
 import org.xmind.ui.viewers.ImageCachedLabelProvider;
 
 public class StructureListContentProvider
@@ -217,8 +216,8 @@ public class StructureListContentProvider
                     contentURL = locatedURL;
                 InputStream contentStream = contentURL.openStream();
                 try {
-                    Document doc = DocumentBuilderFactory.newInstance()
-                            .newDocumentBuilder().parse(contentStream);
+                    Document doc = XMLUtils.getDefaultDocumentBuilder()
+                            .parse(contentStream);
                     readElement(doc.getDocumentElement(), nlsProperties);
                 } finally {
                     contentStream.close();

@@ -36,8 +36,8 @@ public class ManifestDeserializer {
             }
         }
 
-        String passwordHint = (String) manifestObject
-                .opt(ZenConstants.KEY_PASSWORD_HINT);
+        String passwordHint = JsonUtils.parseString(
+                manifestObject.opt(ZenConstants.KEY_PASSWORD_HINT));
         if (passwordHint != null) {
             manifest.setPasswordHint(passwordHint);
         }

@@ -73,6 +73,8 @@ public abstract class Editable implements IEditable {
 
     private int contentRefCount = 0;
 
+    private String logMessage = ""; //$NON-NLS-1$
+
     private ICommandStackListener commandStackHook = new ICommandStackListener() {
 
         @Override
@@ -446,32 +448,51 @@ public abstract class Editable implements IEditable {
     @Override
     public void save(IProgressMonitor monitor)
             throws InterruptedException, InvocationTargetException {
-        if (!canSave())
-            throw new IllegalStateException("Save operation is not allowed"); //$NON-NLS-1$
+        logMessage = ""; //$NON-NLS-1$
+        appendLog("[save] start..."); //$NON-NLS-1$
 
-        if (isInState(CLOSED))
+        if (!canSave()) {
+            appendLog("[save] save operation is not allowed...over..."); //$NON-NLS-1$
+            throw new IllegalStateException("Save operation is not allowed"); //$NON-NLS-1$
+        }
+
+        if (isInState(CLOSED)) {
             // already closed
+            appendLog(
+                    "[save] can't perform save operation while editable is closed...over..."); //$NON-NLS-1$
             throw new IllegalStateException(
                     "Can't perform save operation while editable is closed"); //$NON-NLS-1$
+        }
 
-        if (isInState(OPENING | CLOSING | SAVING))
+        if (isInState(OPENING | CLOSING | SAVING)) {
             // already being opened/closing/saving
+            appendLog(
+                    "[save] concurrent open/close/save operations are not allowed in SynchronizedEditable...over..."); //$NON-NLS-1$
             throw new IllegalStateException(
                     "Concurrent open/close/save operations are not allowed in SynchronizedEditable"); //$NON-NLS-1$
+        }
 
         try {
             SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
             subMonitor.newChild(5);
+            appendLog("[save] add state..."); //$NON-NLS-1$
             addState(SAVING);
             try {
                 boolean wasDirty = isDirty();
-                if (subMonitor.isCanceled())
+                if (subMonitor.isCanceled()) {
+                    appendLog("[save] canceled...over..."); //$NON-NLS-1$
                     throw new InterruptedException();
+                }
+
+                appendLog("[save] clean..."); //$NON-NLS-1$
                 clean(subMonitor.newChild(5));
 
-                if (subMonitor.isCanceled())
+                if (subMonitor.isCanceled()) {
+                    appendLog("[save] canceled...over..."); //$NON-NLS-1$
                     throw new OperationCanceledException();
+                }
+
                 doSave(subMonitor.newChild(80));
                 markSaved(subMonitor.newChild(5));
 
@@ -480,10 +501,15 @@ public abstract class Editable implements IEditable {
                 if (wasDirty != isDirty) {
                     firePropertyChanged(PROP_DIRTY, wasDirty, isDirty);
                 }
+
+                appendLog("[save] success...over..."); //$NON-NLS-1$
             } finally {
                 subMonitor.setWorkRemaining(1);
                 subMonitor.newChild(1);
                 removeState(SAVING);
+
+                log(null, logMessage);
+                logMessage = ""; //$NON-NLS-1$
             }
         } catch (OperationCanceledException e) {
             // interpret cancellation
@@ -675,6 +701,13 @@ public abstract class Editable implements IEditable {
 
     protected void doHandleCommandStackChange(CommandStackEvent event) {
         /// do nothing, subclasses may override
+    }
+
+    protected void appendLog(String message) {
+        logMessage += message;
+    }
+
+    protected void log(Throwable e, String message) {
     }
 
 }

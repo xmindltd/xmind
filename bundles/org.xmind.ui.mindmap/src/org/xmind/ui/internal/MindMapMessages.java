@@ -287,6 +287,8 @@ public class MindMapMessages extends NLS {
 
     public static String LocalFileWorkbookRef_saveFailed_description;
 
+    public static String LocalFileWorkbookRef_saveFailed_description2;
+
     public static String LocalFileWorkbookRef_saveFailed_title;
 
     public static String MindMapEditor_CompatibilityWarning_dialogTitle;

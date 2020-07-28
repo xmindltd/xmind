@@ -170,6 +170,7 @@ import org.xmind.ui.mindmap.MindMapViewerExportSourceProvider;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
+import org.xmind.ui.tabfolder.DelegatedSelectionProvider;
 import org.xmind.ui.tabfolder.IPageMoveListener;
 import org.xmind.ui.tabfolder.PageMoveHelper;
 import org.xmind.ui.util.Logger;
@@ -428,7 +429,9 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
     }
 
     protected ISelectionProvider createSelectionProvider() {
-        return new MindMapEditorSelectionProvider();
+        DelegatedSelectionProvider selectionProvider = new MindMapEditorSelectionProvider();
+        selectionProvider.setDisplay(Display.getCurrent());
+        return selectionProvider;
     }
 
     protected ICommandStack createCommandStack() {
@@ -1462,7 +1465,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
             return;
         }
 
-        safeRun(monitor, true, new IRunnableWithProgress() {
+        safeRun(monitor, false, new IRunnableWithProgress() {
 
             @Override
             public void run(IProgressMonitor monitor)
@@ -1596,7 +1599,7 @@ public class MindMapEditor extends GraphicalEditor implements ISaveablePart2,
         } catch (Exception e) {
             StatusManager.getManager().handle(new Status(IStatus.ERROR,
                     MindMapUIPlugin.PLUGIN_ID, e.getMessage(), e),
-                    StatusManager.SHOW);
+                    StatusManager.LOG);
             return;
         }
 

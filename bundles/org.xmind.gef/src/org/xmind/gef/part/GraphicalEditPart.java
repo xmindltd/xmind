@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.LayoutManager;
+import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Display;
@@ -159,6 +160,9 @@ public abstract class GraphicalEditPart extends EditPart
      * .Point, org.xmind.gef.IViewer.IPartSearchCondition)
      */
     public IPart findAt(Point position, IPartSearchCondition condition) {
+        if (!(getFigure() instanceof Viewport) && !containsPoint(position)) {
+            return null;
+        }
         IPart ret;
         ret = findChildAt(position);
         if (ret != null)

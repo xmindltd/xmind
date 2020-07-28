@@ -20,8 +20,8 @@ import org.xmind.gef.draw2d.geometry.PrecisionPoint;
 /**
  * @author Frank Shaka
  */
-public abstract class AbstractConnectionDecoration extends
-        AbstractLineDecoration implements IConnectionDecoration {
+public abstract class AbstractConnectionDecoration
+        extends AbstractLineDecoration implements IConnectionDecoration {
 
     private IAnchor sourceAnchor = null;
 
@@ -91,11 +91,21 @@ public abstract class AbstractConnectionDecoration extends
         PrecisionPoint newSourcePos = new PrecisionPoint();
         PrecisionPoint newTargetPos = new PrecisionPoint();
         reroute(figure, newSourcePos, newTargetPos, validating);
-        this.sourcePos = newSourcePos;
-        this.targetPos = newTargetPos;
+        this.sourcePos = checkPoint(newSourcePos);
+        this.targetPos = checkPoint(newTargetPos);
+
         if (!validating && figure != null) {
-            if (!newSourcePos.equals(oldSourcePos)
-                    || !newTargetPos.equals(oldTargetPos)) {
+            boolean noMove = newSourcePos.equals(oldSourcePos)
+                    && newTargetPos.equals(oldTargetPos);
+            boolean translational = (oldSourcePos != null
+                    && newSourcePos != null && oldTargetPos != null
+                    && newTargetPos != null)
+                    && Math.abs((newTargetPos.x - oldTargetPos.x)
+                            - (newSourcePos.x - oldSourcePos.x)) < 1
+                    && Math.abs((newTargetPos.y - oldTargetPos.y)
+                            - (newSourcePos.y - oldSourcePos.y)) < 1;
+
+            if (!noMove && !translational) {
                 figure.revalidate();
                 repaint(figure);
             }
@@ -128,5 +138,15 @@ public abstract class AbstractConnectionDecoration extends
 
     protected boolean isPositionValid() {
         return sourcePos != null && targetPos != null;
+    }
+
+    protected PrecisionPoint checkPoint(PrecisionPoint source) {
+        if (Double.isNaN(source.x) || Double.isInfinite(source.x)) {
+            source.x = 0.0;
+        }
+        if (Double.isNaN(source.y) || Double.isInfinite(source.y)) {
+            source.y = 0.0;
+        }
+        return source;
     }
 }

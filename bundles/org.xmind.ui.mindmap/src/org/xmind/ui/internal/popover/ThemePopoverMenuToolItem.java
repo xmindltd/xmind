@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -76,6 +75,7 @@ import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.prefs.PrefConstants;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.util.MindMapUtils;
+import org.xmind.ui.util.XMLUtils;
 import org.xml.sax.SAXException;
 
 public class ThemePopoverMenuToolItem extends PopoverMenuToolItem {
@@ -524,8 +524,7 @@ public class ThemePopoverMenuToolItem extends PopoverMenuToolItem {
 
         DocumentBuilder documentBuilder = null;
         try {
-            documentBuilder = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder();
+            documentBuilder = XMLUtils.getDefaultDocumentBuilder();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }

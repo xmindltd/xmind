@@ -77,6 +77,7 @@ import org.xmind.ui.mindmap.ICategoryAnalyzation;
 import org.xmind.ui.mindmap.ICategoryManager;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
+import org.xmind.ui.tabfolder.DelegatedSelectionProvider;
 
 public class PropertiesPart extends ViewModelPart
         implements ISelectionChangedListener, IPropertyPartContainer,
@@ -156,10 +157,10 @@ public class PropertiesPart extends ViewModelPart
 
         if (sourceEditor != null) {
             if (this.sourceEditor != null) {
-                final ISelectionProvider selectionProvider = sourceEditor
+                final DelegatedSelectionProvider selectionProvider = (DelegatedSelectionProvider) sourceEditor
                         .getSite().getSelectionProvider();
                 if (selectionProvider != null) {
-                    selectionProvider.addSelectionChangedListener(this);
+                    selectionProvider.addAsyncSelectionChangedListener(this);
 
                     final ISelection selection = selectionProvider
                             .getSelection();
@@ -346,10 +347,10 @@ public class PropertiesPart extends ViewModelPart
             return;
 
         if (this.sourceEditor != null) {
-            ISelectionProvider selectionProvider = sourceEditor.getSite()
-                    .getSelectionProvider();
+            DelegatedSelectionProvider selectionProvider = (DelegatedSelectionProvider) sourceEditor
+                    .getSite().getSelectionProvider();
             if (selectionProvider != null) {
-                selectionProvider.removeSelectionChangedListener(this);
+                selectionProvider.removeAsyncSelectionChangedListener(this);
             }
         }
 
@@ -759,10 +760,10 @@ public class PropertiesPart extends ViewModelPart
 
     public void dispose() {
         if (sourceEditor != null) {
-            ISelectionProvider selectionProvider = sourceEditor.getSite()
-                    .getSelectionProvider();
+            DelegatedSelectionProvider selectionProvider = (DelegatedSelectionProvider) sourceEditor
+                    .getSite().getSelectionProvider();
             if (selectionProvider != null) {
-                selectionProvider.removeSelectionChangedListener(this);
+                selectionProvider.removeAsyncSelectionChangedListener(this);
             }
         }
 

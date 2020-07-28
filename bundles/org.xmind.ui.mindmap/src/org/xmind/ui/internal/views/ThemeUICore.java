@@ -9,7 +9,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -25,6 +24,7 @@ import org.xmind.ui.internal.MindMapMessages;
 import org.xmind.ui.mindmap.IResourceManager;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.util.Logger;
+import org.xmind.ui.util.XMLUtils;
 import org.xml.sax.SAXException;
 
 /**
@@ -142,12 +142,10 @@ public class ThemeUICore {
         IStyleSheet sts = rm.getSystemThemeSheet();
         Bundle bundle = Platform.getBundle(MindMapUI.PLUGIN_ID);
         String path = PATH_STYLES + THEME_GROUP_XML;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
-                .newInstance();
         DocumentBuilder documentBuilder = null;
         List<ThemeUIGroup> systemGroups = new ArrayList<ThemeUIGroup>();
         try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            documentBuilder = XMLUtils.getDefaultDocumentBuilder();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }

@@ -581,6 +581,10 @@ public class BranchPart extends MindMapPartBase implements IBranchPart {
     }
 
     private void setBranchPolicyId(String newId) {
+        if ((branchPolicyId == null && newId == null)
+                || (branchPolicyId != null && branchPolicyId.equals(newId))) {
+            return;
+        }
         IBranchPolicy newPolicy = MindMapUI.getBranchPolicyManager()
                 .getBranchPolicy(newId);
         branchPolicyId = newId;

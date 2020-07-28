@@ -316,6 +316,8 @@ public abstract class AbstractWorkbookRef extends Editable
     @Override
     protected void doSave(IProgressMonitor monitor)
             throws InterruptedException, InvocationTargetException {
+        appendLog("[save] doSave start..."); //$NON-NLS-1$
+
         IWorkbook workbook = getWorkbook();
         Assert.isTrue(workbook != null);
         URI targetURI = getURI();
@@ -346,21 +348,31 @@ public abstract class AbstractWorkbookRef extends Editable
                     workbookAsEventSource, new CoreEvent(workbookAsEventSource,
                             Core.WorkbookSave, null));
         }
+
+        appendLog("[save] doSave over..."); //$NON-NLS-1$
     }
 
     /// subclasses may override to prevent default behavior or add custom behaviors
     protected void doSaveWorkbookToTempStorage(IProgressMonitor monitor,
             IWorkbook workbook)
             throws InterruptedException, InvocationTargetException {
+        appendLog("[save] doSaveWorkbookToTempStorage start..."); //$NON-NLS-1$
+
         try {
             ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
             serializer.setWorkbook(workbook);
             serializer.setWorkbookStorageAsOutputTarget();
             serializer.setEntryStreamNormalizer(getEncryptionHandler());
             serializer.serialize(new ProgressReporter(monitor));
+
+            appendLog("[save] doSaveWorkbookToTempStorage over..."); //$NON-NLS-1$
+
         } catch (IOException e) {
+            appendLog("[save] doSaveWorkbookToTempStorage IOException..."); //$NON-NLS-1$
             throw new InvocationTargetException(e);
+
         } catch (CoreException e) {
+            appendLog("[save] doSaveWorkbookToTempStorage CoreException..."); //$NON-NLS-1$
             if (e.getType() == Core.ERROR_CANCELLATION)
                 throw new InterruptedException();
             if (e.getType() == Core.ERROR_WRONG_PASSWORD) {

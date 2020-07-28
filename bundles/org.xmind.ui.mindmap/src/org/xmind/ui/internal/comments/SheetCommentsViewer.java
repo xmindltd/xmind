@@ -53,6 +53,7 @@ import org.xmind.ui.internal.e4models.CommentsPart;
 import org.xmind.ui.mindmap.MindMapUI;
 import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.resources.FontUtils;
+import org.xmind.ui.tabfolder.DelegatedSelectionProvider;
 import org.xmind.ui.util.MindMapUtils;
 import org.xmind.ui.util.TextFormatter;
 
@@ -108,7 +109,7 @@ public class SheetCommentsViewer
         this.contributor = contributor;
         this.selectionProvider = selectionProvider;
         this.container = container;
-        this.targetEditor = targetEditor;
+        setTargetEditor(targetEditor);
     }
 
     public void create(Composite parent) {
@@ -466,8 +467,6 @@ public class SheetCommentsViewer
 
         //add selection listener.
         if (this.targetEditor != null) {
-            this.targetEditor.getSite().getSelectionProvider()
-                    .addSelectionChangedListener(this);
             setSelection(targetEditor.getSite().getSelectionProvider()
                     .getSelection());
         } else {
@@ -508,8 +507,6 @@ public class SheetCommentsViewer
 
         //add selection listener.
         if (this.targetEditor != null) {
-            this.targetEditor.getSite().getSelectionProvider()
-                    .addSelectionChangedListener(this);
             setSelection(targetEditor.getSite().getSelectionProvider()
                     .getSelection());
         } else {
@@ -626,15 +623,17 @@ public class SheetCommentsViewer
             return;
         }
         if (this.targetEditor != null) {
-            this.targetEditor.getSite().getSelectionProvider()
-                    .removeSelectionChangedListener(this);
+            ((DelegatedSelectionProvider) this.targetEditor.getSite()
+                    .getSelectionProvider())
+                            .removeAsyncSelectionChangedListener(this);
         }
 
         this.targetEditor = targetEditor;
 
         if (this.targetEditor != null) {
-            this.targetEditor.getSite().getSelectionProvider()
-                    .addSelectionChangedListener(this);
+            ((DelegatedSelectionProvider) this.targetEditor.getSite()
+                    .getSelectionProvider())
+                            .addAsyncSelectionChangedListener(this);
             setSelection(targetEditor.getSite().getSelectionProvider()
                     .getSelection());
         } else {
@@ -721,6 +720,10 @@ public class SheetCommentsViewer
         }
 
         container.setModified(false);
+    }
+
+    public void dispose() {
+        setTargetEditor(null);
     }
 
 }

@@ -43,7 +43,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -125,6 +124,7 @@ import org.xmind.ui.richtext.LineStyle;
 import org.xmind.ui.richtext.RichTextEditViewer;
 import org.xmind.ui.richtext.RichTextUtils;
 import org.xmind.ui.richtext.TextActionConstants;
+import org.xmind.ui.tabfolder.DelegatedSelectionProvider;
 import org.xmind.ui.texteditor.IMenuContributor;
 import org.xmind.ui.texteditor.ISpellingActivation;
 import org.xmind.ui.util.Logger;
@@ -648,10 +648,10 @@ public class NotesPart extends ViewModelPart
         }
 
         if (contributingEditor != null) {
-            ISelectionProvider selectionProvider = contributingEditor.getSite()
-                    .getSelectionProvider();
+            DelegatedSelectionProvider selectionProvider = (DelegatedSelectionProvider) contributingEditor
+                    .getSite().getSelectionProvider();
             if (selectionProvider != null)
-                selectionProvider.removeSelectionChangedListener(
+                selectionProvider.removeAsyncSelectionChangedListener(
                         getSelectionChangedListener());
         }
 
@@ -660,10 +660,10 @@ public class NotesPart extends ViewModelPart
         ISelection newSelection = null;
 
         if (contributingEditor != null) {
-            ISelectionProvider selectionProvider = contributingEditor.getSite()
-                    .getSelectionProvider();
+            DelegatedSelectionProvider selectionProvider = (DelegatedSelectionProvider) contributingEditor
+                    .getSite().getSelectionProvider();
             if (selectionProvider != null) {
-                selectionProvider.addSelectionChangedListener(
+                selectionProvider.addAsyncSelectionChangedListener(
                         getSelectionChangedListener());
                 newSelection = selectionProvider.getSelection();
             }

@@ -10,7 +10,8 @@ public class MetaDeserializer {
         JSONObject authorObject = metaObject
                 .optJSONObject(ZenConstants.KEY_META_AUTHOR);
         if (authorObject != null) {
-            String name = (String) authorObject.opt(ZenConstants.KEY_META_NAME);
+            String name = JsonUtils
+                    .parseString(authorObject.opt(ZenConstants.KEY_META_NAME));
             if (name != null) {
                 meta.setValue(IMeta.AUTHOR_NAME, name);
             }
@@ -19,8 +20,8 @@ public class MetaDeserializer {
         JSONObject createObject = metaObject
                 .optJSONObject(ZenConstants.KEY_CREATE);
         if (createObject != null) {
-            String createTime = (String) createObject
-                    .opt(ZenConstants.KEY_TIME);
+            String createTime = JsonUtils
+                    .parseString(createObject.opt(ZenConstants.KEY_TIME));
             if (createTime != null) {
                 meta.setValue(IMeta.CREATED_TIME, createTime);
             }
@@ -29,13 +30,13 @@ public class MetaDeserializer {
         JSONObject creatorObject = metaObject
                 .optJSONObject(ZenConstants.KEY_CREATOR);
         if (creatorObject != null) {
-            String name = (String) creatorObject
-                    .opt(ZenConstants.KEY_META_NAME);
+            String name = JsonUtils
+                    .parseString(creatorObject.opt(ZenConstants.KEY_META_NAME));
             if (name != null) {
                 meta.setValue(IMeta.CREATOR_NAME, name);
             }
-            String version = (String) creatorObject
-                    .opt(ZenConstants.KEY_VERSION);
+            String version = JsonUtils
+                    .parseString(creatorObject.opt(ZenConstants.KEY_VERSION));
             if (version != null) {
                 meta.setValue(IMeta.CREATOR_VERSION, version);
             }
@@ -47,17 +48,19 @@ public class MetaDeserializer {
             JSONObject originObject = thumbnailObject
                     .optJSONObject(ZenConstants.KEY_ORIGIN);
             if (originObject != null) {
-                String x = (String) originObject.opt(ZenConstants.KEY_META_X);
+                String x = JsonUtils
+                        .parseString(originObject.opt(ZenConstants.KEY_META_X));
                 if (x != null) {
                     meta.setValue(IMeta.ORIGIN_X, x);
                 }
-                String y = (String) originObject.opt(ZenConstants.KEY_META_Y);
+                String y = JsonUtils
+                        .parseString(originObject.opt(ZenConstants.KEY_META_Y));
                 if (y != null) {
                     meta.setValue(IMeta.ORIGIN_Y, y);
                 }
             }
-            String backgroundColor = (String) thumbnailObject
-                    .opt(ZenConstants.KEY_BACKGROUND_COLOR);
+            String backgroundColor = JsonUtils.parseString(
+                    thumbnailObject.opt(ZenConstants.KEY_BACKGROUND_COLOR));
             if (backgroundColor != null) {
                 meta.setValue(IMeta.BACKGROUND_COLOR, backgroundColor);
             }

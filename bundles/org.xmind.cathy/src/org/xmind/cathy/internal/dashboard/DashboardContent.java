@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -30,6 +28,7 @@ import org.xmind.cathy.internal.CathyPlugin;
 import org.xmind.ui.internal.dashboard.pages.IDashboardPage;
 import org.xmind.ui.tabfolder.MTabFolder;
 import org.xmind.ui.tabfolder.MTabItem;
+import org.xmind.ui.util.XMLUtils;
 
 public class DashboardContent {
 
@@ -121,8 +120,8 @@ public class DashboardContent {
     private void loadFromURL(URL docURL) throws Exception {
         InputStream docStream = docURL.openStream();
         try {
-            Document doc = DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder().parse(docStream);
+            Document doc = XMLUtils.getDefaultDocumentBuilder()
+                    .parse(docStream);
 
             Element rootElement = doc.getDocumentElement();
             if (rootElement == null

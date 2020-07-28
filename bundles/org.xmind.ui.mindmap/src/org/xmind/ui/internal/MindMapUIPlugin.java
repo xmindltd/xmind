@@ -131,7 +131,9 @@ public class MindMapUIPlugin extends AbstractUIPlugin {
                     .log(new Status(IStatus.ERROR, PLUGIN_ID, message, e));
         } else {
             System.err.println(message);
-            e.printStackTrace();
+            if (e != null) {
+                e.printStackTrace();
+            }
         }
     }
 

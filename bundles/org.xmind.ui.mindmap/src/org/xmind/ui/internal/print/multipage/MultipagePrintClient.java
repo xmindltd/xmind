@@ -31,6 +31,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -48,6 +49,7 @@ import org.xmind.gef.image.FigureRenderer;
 import org.xmind.gef.image.IExportSourceProvider;
 import org.xmind.gef.util.Properties;
 import org.xmind.ui.internal.MindMapMessages;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.internal.print.PrintConstants;
 import org.xmind.ui.internal.print.PrintUtils;
 import org.xmind.ui.mindmap.GhostShellProvider;
@@ -125,8 +127,13 @@ public class MultipagePrintClient extends FigureRenderer {
 
     public void print(IMindMap sourceMap) {
         this.sourceMap = sourceMap;
-        if (!start())
+        if (!start()) {
+            if (Util.isMac()) {
+                MindMapUIPlugin.log(null,
+                        "[print] printer start job failed..."); //$NON-NLS-1$
+            }
             return;
+        }
 
         try {
             new ProgressMonitorDialog(Display.getCurrent().getActiveShell())
@@ -144,8 +151,14 @@ public class MultipagePrintClient extends FigureRenderer {
                         }
                     });
         } catch (InvocationTargetException e) {
+            if (Util.isMac()) {
+                MindMapUIPlugin.log(e, null);
+            }
             e.printStackTrace();
         } catch (InterruptedException e) {
+            if (Util.isMac()) {
+                MindMapUIPlugin.log(e, null);
+            }
             e.printStackTrace();
         }
     }
@@ -299,6 +312,10 @@ public class MultipagePrintClient extends FigureRenderer {
     private void render(Rectangle realPageClientArea, final Point origin,
             int pageNumber, boolean isValidPage) {
         if (!printer.startPage()) {
+            if (Util.isMac()) {
+                MindMapUIPlugin.log(null,
+                        "[print] printer start page failed..."); //$NON-NLS-1$
+            }
             return;
         }
 

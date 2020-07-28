@@ -6,8 +6,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.geometry.Dimension;
@@ -25,6 +23,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xmind.ui.util.XMLUtils;
 
 /**
  * @author Enki Xiong
@@ -106,21 +105,7 @@ public class SVGImageData {
     }
 
     private Element getRootElement(InputStream stream) throws Exception {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setValidating(false);
-        factory.setNamespaceAware(true);
-        factory.setFeature("http://xml.org/sax/features/namespaces", //$NON-NLS-1$
-                false);
-        factory.setFeature("http://xml.org/sax/features/validation", //$NON-NLS-1$
-                false);
-        factory.setFeature(
-                "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", //$NON-NLS-1$
-                false);
-        factory.setFeature(
-                "http://apache.org/xml/features/nonvalidating/load-external-dtd", //$NON-NLS-1$
-                false);
-        Document document = factory.newDocumentBuilder().parse(stream);
-
+        Document document = XMLUtils.getSvgDocumentBuilder().parse(stream);
         Element element = document.getDocumentElement();
         return element;
     }

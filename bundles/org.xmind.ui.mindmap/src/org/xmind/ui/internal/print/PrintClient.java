@@ -26,6 +26,7 @@ import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.util.Util;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -46,6 +47,7 @@ import org.xmind.gef.image.IExportSourceProvider;
 import org.xmind.gef.image.ImageExportUtils;
 import org.xmind.gef.image.ResizeConstants;
 import org.xmind.gef.util.Properties;
+import org.xmind.ui.internal.MindMapUIPlugin;
 import org.xmind.ui.mindmap.GhostShellProvider;
 import org.xmind.ui.mindmap.IMindMap;
 import org.xmind.ui.mindmap.IMindMapViewer;
@@ -78,7 +80,6 @@ public class PrintClient extends FigureRenderer {
 
         /*
          * (non-Javadoc)
-         * 
          * @see org.xmind.ui.mindmap.MindMapViewerExportSourceProvider#
          * collectContents (java.util.List)
          */
@@ -136,8 +137,13 @@ public class PrintClient extends FigureRenderer {
     }
 
     public void print(IMindMap sourceMap) {
-        if (!start())
+        if (!start()) {
+            if (Util.isMac()) {
+                MindMapUIPlugin.log(null,
+                        "[print] printer start page failed..."); //$NON-NLS-1$
+            }
             return;
+        }
         printMap(sourceMap);
     }
 
@@ -178,8 +184,13 @@ public class PrintClient extends FigureRenderer {
     }
 
     public void print(IGraphicalViewer sourceViewer) {
-        if (!start())
+        if (!start()) {
+            if (Util.isMac()) {
+                MindMapUIPlugin.log(null,
+                        "[print] printer start page failed..."); //$NON-NLS-1$
+            }
             return;
+        }
 
 //        IMindMap map = (IMindMap) sourceViewer.getAdapter(IMindMap.class);
 //        if (map == null
@@ -230,7 +241,6 @@ public class PrintClient extends FigureRenderer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.image.FigureRenderer#render(org.eclipse.swt.graphics.GC)
      */
@@ -289,7 +299,6 @@ public class PrintClient extends FigureRenderer {
 
     /*
      * (non-Javadoc)
-     * 
      * @see
      * org.xmind.gef.image.FigureRenderer#createGraphics(org.eclipse.draw2d.
      * Graphics, java.util.Stack)

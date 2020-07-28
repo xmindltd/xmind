@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -517,10 +516,11 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
             IWorkbook workbook, URI uri, IWorkbookRef source,
             IWorkbook sourceWorkbook)
             throws InterruptedException, InvocationTargetException {
+        appendLog("[save] doSaveWorkbookToURIFromSource start..."); //$NON-NLS-1$
+
         final Set<String> encryptionIgnoredEntries = new HashSet<String>();
 
         boolean previewSaved = false;
-
         if (source != null) {
             try {
                 InputStream previewData = source.getPreviewImageData(
@@ -548,22 +548,31 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
                 }
             } catch (IOException e) {
                 Logger.log(e, "Failed to import preview image"); //$NON-NLS-1$
+                appendLog("[save] failed to import preview image..."); //$NON-NLS-1$
             }
         }
 
         if (!previewSaved) {
-            savePreviewImage(workbook, encryptionIgnoredEntries);
+            try {
+                savePreviewImage(workbook, encryptionIgnoredEntries);
+            } catch (InvocationTargetException e) {
+                Logger.log(e, "Failed to save preview image"); //$NON-NLS-1$
+                appendLog("[save] failed to save preview image..."); //$NON-NLS-1$
+            }
         }
 
         //save revisions, and then trim them.
         try {
             saveRevisions(workbook);
         } catch (CoreException e) {
-            throw new InvocationTargetException(e);
+            Logger.log(e, "Failed to save revisions"); //$NON-NLS-1$
+            appendLog("[save] failed to save revisions..."); //$NON-NLS-1$
         }
 
+        appendLog("[save] new file..."); //$NON-NLS-1$
         File file = new File(uri);
 
+        appendLog("[save] serialize start..."); //$NON-NLS-1$
         ISerializer serializer = Core.getWorkbookBuilder().newSerializer();
         serializer.setWorkbook(workbook);
         serializer.setEntryStreamNormalizer(getEncryptionHandler());
@@ -580,58 +589,90 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
         }
         if (passwordHint != null)
             workbook.getManifest().setPasswordHint(passwordHint);
+
+        OutputStream stream = null;
+        boolean deleteTarget = false;
+        long oldLastModified = file.lastModified();
         try {
-            OutputStream stream = null;
-            try {
-                if (file.isDirectory()) {
-                    backup.deleteBackup();
-                    serializer.setOutputTarget(new DirectoryOutputTarget(file));
-                } else {
-                    backup.makeBackup();
-
-                    try {
-                        stream = new FileOutputStream(file);
-                    } catch (FileNotFoundException e) {
-                        Display display = Display.getCurrent();
-                        Shell parent = (display != null
-                                ? display.getActiveShell() : null);
-                        MessageDialog.openWarning(parent,
-                                MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
-                                MindMapMessages.LocalFileWorkbookRef_saveFailed_description);
-                        throw new InterruptedException();
-
-                    } catch (SecurityException e) {
-                        MessageDialog.openWarning(
-                                Display.getCurrent().getActiveShell(),
-                                MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
-                                MindMapMessages.LocalFileWorkbookRef_saveFailed_description);
-                        throw new InterruptedException();
-                    }
-
-                    serializer.setOutputStream(stream);
-                }
-                serializer.serialize(new ProgressReporter(monitor));
-
+            if (file.isDirectory()) {
                 backup.deleteBackup();
-
-            } finally {
-                if (stream != null) {
-                    stream.close();
-                }
+                appendLog("[save] setOutputTarget..."); //$NON-NLS-1$
+                serializer.setOutputTarget(new DirectoryOutputTarget(file));
+            } else {
+                backup.makeBackup();
+                appendLog("[save] new FileOutputStream..."); //$NON-NLS-1$
+                stream = new FileOutputStream(file);
+                appendLog("[save] setOutputStream..."); //$NON-NLS-1$
+                serializer.setOutputStream(stream);
             }
-        } catch (IOException e) {
+            serializer.serialize(new ProgressReporter(monitor));
+            appendLog("[save] serialize success..."); //$NON-NLS-1$
+
+            backup.deleteBackup();
+
+            appendLog("[save] doSaveWorkbookToURIFromSource over..."); //$NON-NLS-1$
+
+        } catch (FileNotFoundException e) {
+            appendLog("[save] FileNotFoundException..."); //$NON-NLS-1$
             backup.restoreBackup();
+            deleteTarget = true;
+            promptDialog(MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
+                    MindMapMessages.LocalFileWorkbookRef_saveFailed_description);
             throw new InvocationTargetException(e);
-        } catch (CoreException e) {
+
+        } catch (SecurityException e) {
+            appendLog("[save] SecurityException..."); //$NON-NLS-1$
             backup.restoreBackup();
-            if (e.getType() == Core.ERROR_CANCELLATION)
+            deleteTarget = true;
+            promptDialog(MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
+                    MindMapMessages.LocalFileWorkbookRef_saveFailed_description);
+            throw new InvocationTargetException(e);
+
+        } catch (IOException e) {
+            appendLog("[save] IOException..."); //$NON-NLS-1$
+            backup.restoreBackup();
+            deleteTarget = true;
+            promptDialog(MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
+                    MindMapMessages.LocalFileWorkbookRef_saveFailed_description2);
+            throw new InvocationTargetException(e);
+
+        } catch (CoreException e) {
+            appendLog("[save] CoreException..."); //$NON-NLS-1$
+            backup.restoreBackup();
+            deleteTarget = true;
+
+            if (e.getType() == Core.ERROR_CANCELLATION) {
+                Logger.log(e, "Canceled to save file"); //$NON-NLS-1$
                 throw new InterruptedException();
+            }
+
             if (e.getType() == Core.ERROR_WRONG_PASSWORD) {
                 if (getEncryptable() != null) {
                     getEncryptable().reset();
                 }
+            } else {
+                promptDialog(
+                        MindMapMessages.LocalFileWorkbookRef_saveFailed_title,
+                        MindMapMessages.LocalFileWorkbookRef_saveFailed_description2);
             }
             throw new InvocationTargetException(e);
+
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    Logger.log(e, "Failed to close stream after save file"); //$NON-NLS-1$
+                }
+            }
+            if (deleteTarget) {
+                deleteTarget = false;
+                if (source == null) {
+                    file.setLastModified(oldLastModified);
+                } else {
+                    file.delete();
+                }
+            }
         }
     }
 
@@ -712,6 +753,16 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
         String value = workbook.getMeta()
                 .getValue(IMeta.CONFIG_AUTO_REVISION_GENERATION);
         return value == null || IMeta.V_YES.equalsIgnoreCase(value);
+    }
+
+    private void promptDialog(final String title, final String message) {
+        Display.getDefault().asyncExec(new Runnable() {
+
+            public void run() {
+                MessageDialog.openWarning(Display.getDefault().getActiveShell(),
+                        title, message);
+            }
+        });
     }
 
     @Override
@@ -880,6 +931,10 @@ public class LocalFileWorkbookRef extends AbstractWorkbookRef {
     @Override
     public boolean exists() {
         return getFile().exists();
+    }
+
+    protected void log(Throwable e, String message) {
+        Logger.log(e, message);
     }
 
 }

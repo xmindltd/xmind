@@ -454,14 +454,30 @@ public class ColorPicker extends ContributionItem
         if (widget instanceof ToolItem) {
             ToolItem item = (ToolItem) widget;
             ColorChooserPopupDialog dialog = getPopupDialog();
-            if (dialog != null)
+            if (dialog != null) {
                 dialog.open(getItemBoundsToDisplay(item));
+                popup.getShell().addDisposeListener(new DisposeListener() {
+
+                    @Override
+                    public void widgetDisposed(DisposeEvent e) {
+                        popup = null;
+                    }
+                });
+            }
         } else {
             Point curLoc = Display.getCurrent().getCursorLocation();
             if (curLoc != null) {
                 ColorChooserPopupDialog dialog = getPopupDialog();
-                if (dialog != null)
+                if (dialog != null) {
                     dialog.open(curLoc);
+                    popup.getShell().addDisposeListener(new DisposeListener() {
+
+                        @Override
+                        public void widgetDisposed(DisposeEvent e) {
+                            popup = null;
+                        }
+                    });
+                }
             }
         }
     }
@@ -471,13 +487,6 @@ public class ColorPicker extends ContributionItem
             Shell shell = getShell();
             if (shell != null) {
                 popup = new ColorChooserPopupDialog(shell);
-                popup.getShell().addDisposeListener(new DisposeListener() {
-
-                    @Override
-                    public void widgetDisposed(DisposeEvent e) {
-                        popup = null;
-                    }
-                });
             }
         }
         return popup;

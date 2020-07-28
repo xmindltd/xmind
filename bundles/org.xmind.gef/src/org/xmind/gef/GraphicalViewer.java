@@ -19,6 +19,7 @@ import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Layer;
 import org.eclipse.draw2d.LightweightSystem;
+import org.eclipse.draw2d.RangeModel;
 import org.eclipse.draw2d.Viewport;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
@@ -32,7 +33,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.xmind.gef.dnd.IDndSupport;
+import org.xmind.gef.draw2d.DeferredUpdateManager2;
 import org.xmind.gef.event.PartsEventDispatcher;
 import org.xmind.gef.event.ViewerEventDispatcher;
 import org.xmind.gef.part.IGraphicalEditPart;
@@ -152,7 +155,10 @@ public class GraphicalViewer extends AbstractViewer
     }
 
     protected LightweightSystem createLightweightSystem() {
-        return new LightweightSystem();
+        LightweightSystem lightweightSystem = new LightweightSystem();
+        lightweightSystem.setUpdateManager(new DeferredUpdateManager2());
+
+        return lightweightSystem;
     }
 
     public LightweightSystem getLightweightSystem() {
@@ -200,13 +206,21 @@ public class GraphicalViewer extends AbstractViewer
 
                 public void handleEvent(Event event) {
                     if (!canvas.isDisposed()) {
-                        int offset = event.count;
-                        offset = -(int) (Math.sqrt(Math.abs(offset)) * offset);
+                        int offset = -event.count;
+                        ScrollBar horizontalBar = getCanvas()
+                                .getHorizontalBar();
 
-                        Point viewLocation = canvas.getViewport()
-                                .getViewLocation();
-                        canvas.getViewport()
-                                .setHorizontalLocation(viewLocation.x + offset);
+                        if (horizontalBar != null) {
+                            horizontalBar.setSelection(
+                                    horizontalBar.getSelection() + offset
+                                            * horizontalBar.getIncrement());
+
+                            RangeModel model = getViewport()
+                                    .getHorizontalRangeModel();
+                            int hBarOffset = Math.max(0, -model.getMinimum());
+                            getCanvas().scrollToX(
+                                    horizontalBar.getSelection() - hBarOffset);
+                        }
                     }
                 }
             });
