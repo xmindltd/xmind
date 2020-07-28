@@ -17,6 +17,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.IOpenListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -447,10 +448,15 @@ public class WorkbookRevisionDialog extends Dialog {
         // size.
         GridLayout layout2 = new GridLayout();
         layout2.numColumns = 0; // this is incremented by createButton
-        layout2.makeColumnsEqualWidth = true;
+        if (Util.isMac()) {
+            layout2.makeColumnsEqualWidth = false;
+            layout2.horizontalSpacing = 0;
+        } else {
+            layout2.makeColumnsEqualWidth = true;
+            layout2.horizontalSpacing = 8;
+        }
         layout2.marginWidth = 0;
         layout2.marginHeight = 0;
-        layout2.horizontalSpacing = 18;
         layout2.verticalSpacing = 0;
         buttonBar.setLayout(layout2);
 

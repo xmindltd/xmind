@@ -34,8 +34,8 @@ import org.xmind.ui.resources.ColorUtils;
 import org.xmind.ui.style.StyleUtils;
 import org.xmind.ui.style.Styles;
 
-public abstract class StyledPropertySectionPart extends
-        MindMapPropertySectionPartBase {
+public abstract class StyledPropertySectionPart
+        extends MindMapPropertySectionPartBase {
 
     protected String getStyleValue(String styleKey, String decorationId) {
         String value = null;
@@ -111,6 +111,10 @@ public abstract class StyledPropertySectionPart extends
 
     protected void updateColorPicker(ColorPicker picker, String styleKey,
             String decorationId) {
+        if (picker == null) {
+            return;
+        }
+
         String autoColor = getAutoValue(styleKey, decorationId);
         picker.setAutoColor(StyleUtils.convertRGB(styleKey, autoColor));
         String userColor = getUserValue(styleKey);

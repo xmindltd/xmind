@@ -9,7 +9,11 @@ public class RoundedPolygonBoundaryDecorationFactory
         implements IDecorationFactory {
 
     public IDecoration createDecoration(String id, IGraphicalPart part) {
-        return new RoundedPolygonBoundaryDecoration((IBoundaryPart) part, id);
+        if (part instanceof IBoundaryPart) {
+            return new RoundedPolygonBoundaryDecoration((IBoundaryPart) part,
+                    id);
+        }
+        return null;
     }
 
 }

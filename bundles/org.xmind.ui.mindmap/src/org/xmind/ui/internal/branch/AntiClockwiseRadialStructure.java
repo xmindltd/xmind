@@ -21,6 +21,9 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
 
     @Override
     public boolean isChildLeft(IBranchPart branch, IBranchPart child) {
+        if (branch == null) {
+            return false;
+        }
         if (branch.isCentral()) {
             Point pos = (Point) MindMapUtils.getCache(child,
                     IBranchPart.CACHE_PREF_POSITION);
@@ -82,8 +85,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
             if (insertion != null && i == insertion.getIndex()) {
                 if (i != numRight || insertion.right) {
                     Point p = ref.getTranslated(cache.getX(y, right), y);
-                    Rectangle insBounds = RadialUtils.getPrefBounds(
-                            insertion.getSize(), p, right);
+                    Rectangle insBounds = RadialUtils
+                            .getPrefBounds(insertion.getSize(), p, right);
                     info.add(insBounds);
                     if (insertion.right)
                         y -= insHeight;
@@ -115,11 +118,11 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
                 y -= childrenSpacings[i];
 
             if (insertion != null) {
-                if ((i == numRight - 1 && insertion.getIndex() == numRight && !insertion.right)
-                        || i == num) {
+                if ((i == numRight - 1 && insertion.getIndex() == numRight
+                        && !insertion.right) || i == num) {
                     Point p = ref.getTranslated(cache.getX(y, right), y);
-                    Rectangle insBounds = RadialUtils.getPrefBounds(
-                            insertion.getSize(), p, right);
+                    Rectangle insBounds = RadialUtils
+                            .getPrefBounds(insertion.getSize(), p, right);
                     info.add(insBounds);
 
                     y += insHeight;
@@ -361,8 +364,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
         if (index == left) {
             boolean isLeft = (left == 1 && right == 1)
                     || isRight(subBranches, child, left);
-            IBranchPart sub = isLeft ? subBranches.get(index - 1) : subBranches
-                    .get(index);
+            IBranchPart sub = isLeft ? subBranches.get(index - 1)
+                    : subBranches.get(index);
             Rectangle bounds = sub.getFigure().getBounds();
             int x;
             if (isLeft)
@@ -407,8 +410,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
             int delta = getTopicSize(subBranches.get(index)).width / 2
                     - inventSize.width / 2;
             int deltaX = index < left ? delta : -delta;
-            return getReference(subBranches.get(index))
-                    .getTranslated(deltaX, 0);
+            return getReference(subBranches.get(index)).getTranslated(deltaX,
+                    0);
         }
         return calcInsertPosition(branch, child, key);
     }
@@ -418,8 +421,8 @@ public class AntiClockwiseRadialStructure extends BaseRadialStructure {
         int y = -(getMinorSpacing(branch) * 3 / 4 + 8) * 4;
         int x = getRadialData(branch).getX(y, true);
 
-        return getReference(branch).getTranslated(-x, y).getTranslated(
-                -key.getInvent().getSize().width / 2, 0);
+        return getReference(branch).getTranslated(-x, y)
+                .getTranslated(-key.getInvent().getSize().width / 2, 0);
     }
 
 }

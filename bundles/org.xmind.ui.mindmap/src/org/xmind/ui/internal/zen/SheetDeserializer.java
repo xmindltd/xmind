@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmind.core.IBoundary;
 import org.xmind.core.IComment;
@@ -67,6 +68,7 @@ import org.xmind.core.style.IStyleSheet;
 import org.xmind.core.style.IStyled;
 import org.xmind.core.util.HyperlinkUtils;
 import org.xmind.core.util.IStyleRefCounter;
+import org.xmind.ui.internal.MindMapUIPlugin;
 
 public class SheetDeserializer {
 
@@ -692,7 +694,25 @@ public class SheetDeserializer {
         Iterator<String> keyIt = propertiesObject.keys();
         while (keyIt.hasNext()) {
             String key = keyIt.next();
-            String value = propertiesObject.getString(key);
+
+            ///fix: value may be number.
+            String value = ""; //$NON-NLS-1$
+            try {
+                value = propertiesObject.getString(key);
+            } catch (JSONException e) {
+                Object value_0 = propertiesObject.get(key);
+                if (value_0 instanceof Integer || value_0 instanceof Double) {
+                    if ("fo:font-size".equals(key) //$NON-NLS-1$
+                            || "line-width".equals(key)) { //$NON-NLS-1$
+                        value = value_0 + "pt"; //$NON-NLS-1$
+                    } else {
+                        value = "" + value_0; //$NON-NLS-1$
+                    }
+                }
+
+                MindMapUIPlugin.log(e, null);
+            }
+
             style.setProperty(key, value);
             properties.setProperty(key, value);
         }
